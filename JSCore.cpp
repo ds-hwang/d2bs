@@ -40,8 +40,6 @@ INT my_delay(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		Sleep(nDelay);
 		//JS_SetContextThread(cx);
 		//JS_ResumeRequest(cx, depth);
-//		if(JS_GetContextThread(cx) == GetCurrentThreadId())
-//			JS_ClearContextThread(cx);
 	}
 
 	return JS_TRUE;
@@ -171,43 +169,44 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(!GameReady())
 		return JS_TRUE;
-	
-	JS_SetContextThread(cx);
-	WORD nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
-	JSObject* unitObj = NULL;
 
-	if(argc == 3)
-		JS_ConvertArguments(cx, argc, argv, "cco", &nClickType, &nShift, &unitObj);
-	else if(argc == 4)
-		JS_ConvertArguments(cx, argc, argv, "cccc", &nClickType, &nShift, &nX, &nY);
-	else
-	{
-		JS_ClearContextThread(cx);
-		THROW_ERROR(cx, obj, "Invalid number of arguments");
-	}
+	WORD nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
 	*rval = JSVAL_FALSE;
+	
+	if(argc < 3)
+		return JS_TRUE;
 
-	// TODO: Look at changing this to not use an else-if
-	if(argc == 3)
+	if(JSVAL_IS_INT(argv[0]))
+		nClickType = (WORD)JSVAL_TO_INT(argv[0]);
+
+	if(JSVAL_IS_INT(argv[1]))
+		nShift = (WORD)JSVAL_TO_INT(argv[1]);
+
+	if(JSVAL_IS_INT(argv[2]))
+		nX = (WORD)JSVAL_TO_INT(argv[2]);
+
+	if(JSVAL_IS_INT(argv[3]))
+		nY = (WORD)JSVAL_TO_INT(argv[3]);
+
+	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
-		if(mypUnit && !IsBadReadPtr(mypUnit, sizeof(myUnit)) && mypUnit->_dwPrivateType == PRIVATE_UNIT)
-		{
-			// Check if the object is valid and if it's a unit object
-			UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
+		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || mypUnit->_dwPrivateType != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
+			return JS_TRUE;
 
-			if(pUnit)
-			{
-				Vars.dwSelectedUnitId = NULL;
-				Vars.dwSelectedUnitType = NULL;
+		UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
 
-				*rval = JSVAL_TO_BOOLEAN(ClickMap(nClickType, nX, nY, nShift, pUnit));
-			}
-		}
+		if(!pUnit)
+			return JS_TRUE;
+
+		Vars.dwSelectedUnitId = NULL;
+		Vars.dwSelectedUnitType = NULL;
+
+		*rval = JSVAL_TO_BOOLEAN(ClickMap(nClickType, nX, nY, nShift, pUnit));
 	}
-	else if(argc == 4)
+	else if(argc > 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
 	{
 		*rval = JSVAL_TO_BOOLEAN(ClickMap(nClickType, nX, nY, nShift, NULL));
 	}
