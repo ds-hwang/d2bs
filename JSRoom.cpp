@@ -40,11 +40,10 @@ INT room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 
 		case ROOM_CORRECTTOMB:
-/*			if(pRoom2->pLevel && pRoom2->pLevel->pMisc && pRoom2->pLevel->pMisc->dwStaffTombLevel)
+			if(pRoom2->pLevel && pRoom2->pLevel->pMisc && pRoom2->pLevel->pMisc->dwStaffTombLevel)
 			{
 				*vp = INT_TO_JSVAL(pRoom2->pLevel->pMisc->dwStaffTombLevel);
 			}
-			*/
 			break;
 
 		default:

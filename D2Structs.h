@@ -252,7 +252,9 @@ struct Level {
 	DWORD dwSeed[2];				//0x50
 	DWORD _2;						//0x58
 	Level* pNextLevel;				//0x5C
-	BYTE  _3[0xC];					//0x60
+	DWORD _56;						//0x60
+	ActMisc *pMisc;					//0x64
+	DWORD _3;						//0x68
 	DWORD dwPosX;					//0x6C
 	DWORD dwPosY;					//0x70
 	DWORD dwSizeX;					//0x74
@@ -311,25 +313,12 @@ struct Room1 {
 
 
 struct ActMisc {
-	DWORD _1;			// 0x00
-	Act* pAct;			// 0x04
-	BYTE _2[0x468];		// 0x08
-	Level* pLevelFirst;	// 0x470
-	/*
-dwTombLevel 0x3C0
-
-6FDBFEF3  |. 8B86 70040000  MOV EAX,DWORD PTR DS:[ESI+470] <- Level First
-
-	void *_1;						//0x00
-	DWORD _2[31];					//0x04
-	DWORD pfnCallBack;				//0x80
-	Act *pAct;						//0x84
-	DWORD dwBossTombLevel;			//0x88
-	DWORD _3[248];					//0x8C There's at least 1 Room1 in here, leaving undefined for now
-	Level *pLevelFirst;				//0x46C
-	DWORD _4[2];					//0x470
-	DWORD dwStaffTombLevel;			//0x478	
-	*/
+	DWORD _1;				//0x00
+	Act *pAct;				//0x04
+	DWORD _2[238];			//0x3BC
+	DWORD dwStaffTombLevel;	//0x3C0
+	DWORD _3[43];			//0x470
+	Level *pLevelFirst;
 };
 
 struct Act {
