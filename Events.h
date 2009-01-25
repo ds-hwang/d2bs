@@ -7,5 +7,6 @@ VOID ChatCmdEvent(CHAR* lpszMsg);
 VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg);
 VOID KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 VOID PlayerAssignEvent(DWORD dwUnitId);
+VOID MouseClickEvent(int button, POINT pt, bool bUp);
 VOID MouseMoveEvent(POINT pt);
 VOID ScriptBroadcastEvent(uintN argc, jsval* argv);

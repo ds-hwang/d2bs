@@ -82,9 +82,9 @@ static JSFunctionSpec file_s_methods[] = {
 
 // ensure that read/write/append get the correct values
 enum {
-	FILE_READMODE = 0,
-	FILE_WRITEMODE = 1,
-	FILE_APPENDMODE = 2,
+	FILE_READ = 0,
+	FILE_WRITE = 1,
+	FILE_APPEND = 2,
 	FILE_READABLE,
 	FILE_WRITEABLE,
 	FILE_SEEKABLE,

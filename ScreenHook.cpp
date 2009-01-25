@@ -39,6 +39,33 @@ void Genhook::Clean(Script* owner)
 			delete *it;
 }
 
+Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
+	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState)
+{
+	hookSection = new CRITICAL_SECTION;
+	InitializeCriticalSection(hookSection);
+	clicked = JSVAL_VOID;
+	hovered = JSVAL_VOID;
+	SetX(x); SetY(y);
+	hooks.push_back(this);
+}
+
+Genhook::~Genhook(void) {
+	Lock();
+	if(!JSVAL_IS_VOID(clicked))
+		JS_RemoveRoot(owner->GetContext(), &clicked);
+	if(!JSVAL_IS_VOID(hovered))
+		JS_RemoveRoot(owner->GetContext(), &hovered);
+
+	hooks.remove(this);
+	Unlock();
+	DeleteCriticalSection(hookSection);
+	delete hookSection;
+	owner = NULL; hookSection = NULL;
+	location.x = -1;
+	location.y = -1;
+}
+
 bool Genhook::Click(int button, POINT* loc)
 {
 	if(!IsInRange(loc))
@@ -95,6 +122,30 @@ void Genhook::Hover(POINT* loc)
 	Unlock();
 }
 
+void Genhook::SetClickHandler(jsval handler)
+{
+	Lock();
+	if(!JSVAL_IS_VOID(clicked))
+		JS_RemoveRoot(owner->GetContext(), &clicked);
+	if(JSVAL_IS_OBJECT(handler) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(handler)))
+		clicked = handler;
+	if(!JSVAL_IS_VOID(clicked))
+		JS_AddRoot(owner->GetContext(), &clicked);
+	Unlock();
+}
+
+void Genhook::SetHoverHandler(jsval handler)
+{
+	Lock();
+	if(!JSVAL_IS_VOID(hovered))
+		JS_RemoveRoot(owner->GetContext(), &hovered);
+	if(JSVAL_IS_OBJECT(handler) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(handler)))
+		hovered = handler;
+	if(!JSVAL_IS_VOID(hovered))
+		JS_AddRoot(owner->GetContext(), &hovered);
+	Unlock();
+}
+
 void TextHook::Draw(void)
 {
 	if(GetX() != -1 && GetY() != -1)
@@ -112,6 +163,23 @@ void TextHook::Draw(void)
 		myDrawText(text, loc.x, loc.y, color, font);
 		Unlock();
 	}
+}
+
+bool TextHook::IsInRange(int dx, int dy)
+{
+	POINT size = CalculateTextLen(text, font);
+	int x = GetX(), y = GetY(), w = size.x, h = size.y,
+		xp = x - (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
+	return (xp < dx && y > dy && (xp+w) > dx && (y-h) < dy);
+}
+
+void TextHook::SetText(const char* ntext)
+{
+	Lock();
+	if(text)
+		delete[] text;
+	text = _strdup(ntext);
+	Unlock();
 }
 
 void ImageHook::Draw(void)
@@ -133,6 +201,14 @@ void ImageHook::Draw(void)
 		myDrawAutomapCell(image, loc.x, loc.y, (BYTE)color);
 		Unlock();
 	}
+}
+
+bool ImageHook::IsInRange(int dx, int dy)
+{
+	int x = GetX(), y = GetY(), w = image->cells[0]->width, h = image->cells[0]->height,
+		xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w),
+		yp = y - (h/2);
+	return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
 }
 
 void LineHook::Draw(void)
@@ -179,6 +255,12 @@ void BoxHook::Draw(void)
 	}
 }
 
+bool BoxHook::IsInRange(int dx, int dy)
+{
+	int x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
+	return (x < dx && y < dy && x2 > dx && y2 > dy);
+}
+
 void FrameHook::Draw(void)
 {
 	if(GetX() != -1 && GetY() != -1)
@@ -190,6 +272,14 @@ void FrameHook::Draw(void)
 		Unlock();
 	}
 }
+
+bool FrameHook::IsInRange(int dx, int dy)
+{
+	int x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
+	return (x < dx && y < dy && x2 > dx && y2 > dy);
+}
+
+
 
 
 

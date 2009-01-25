@@ -45,6 +45,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
 
 		sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
+		Vars.dwGameTime = 0;
 		Vars.dwMaxGameTime = atoi(maxGameTime);
 		Vars.bDebug = StringToBool(debug);
 		Vars.bBlockMinimize = StringToBool(blockMinimize);

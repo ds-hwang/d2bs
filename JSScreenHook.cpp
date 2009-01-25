@@ -548,8 +548,7 @@ JSAPI_FUNC(image_ctor) {
 	if(hoverF != NULL)
 		hover = argv[8];
 
-	// ImageHooks don't work out of game -- they just crash
-	ImageHook* pImageHook = new ImageHook(script, szLoc, x, y, !!automap, 0, 0, (Align)align, IG);
+	ImageHook* pImageHook = new ImageHook(script, szLoc, x, y, !!automap, 0, 0, (Align)align, script->GetState() == InGame ? IG : OOG);
 
 	if (!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");
@@ -620,7 +619,7 @@ JSAPI_PROP(image_setProperty) {
 			break;
 		case IMAGE_LOCATION:
 			if(JSVAL_IS_STRING(*vp)) {
-				CHAR* pimage	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				char* pimage = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				pImageHook->SetImage(pimage);
 			}
 			break;

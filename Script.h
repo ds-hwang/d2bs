@@ -32,12 +32,12 @@ private:
 	AutoRoot& operator=(const AutoRoot&);
 public:
 	AutoRoot() {}
-	AutoRoot(JSContext* cx, jsval nvar) : context(cx), var(nvar), count(0) { JS_AddRoot(cx, &var); }
-	~AutoRoot() { JS_RemoveRoot(context, &var); }
-	void Take() { count++; JS_AddRoot(context, &var); }
-	void Release() { count--; if(!count) JS_RemoveRoot(context, &var); }
-	jsval value() { return var; }
-	bool operator==(AutoRoot& other) { return other.value() == var; }
+	AutoRoot(JSContext* cx, jsval var);
+	AutoRoot::~AutoRoot();
+	void AutoRoot::Take();
+	void AutoRoot::Release();
+	jsval AutoRoot::value();
+	bool operator==(AutoRoot& other);
 };
 
 typedef std::map<std::string, bool> IncludeList;
@@ -75,7 +75,8 @@ private:
 	IncludeList includes;
 	FunctionMap functions;
 	LPCRITICAL_SECTION scriptSection;
-	bool isLocked;
+	bool isLocked, isPaused;
+	HANDLE threadHandle;
 
 	void InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
 					JSFunctionSpec* s_methods, JSPropertySpec* s_props);
@@ -102,6 +103,9 @@ public:
 	static bool IsAllLocked(void);
 
 	void Run(void);
+	void Pause(void);
+	void Resume(void);
+	bool IsPaused(void);
 	void Stop(void);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }

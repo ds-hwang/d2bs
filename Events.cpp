@@ -75,6 +75,18 @@ VOID PlayerAssignEvent(DWORD dwUnitId)
 	Script::ExecEventAsyncOnAll("playerassign", 1, argv);
 }
 
+VOID MouseClickEvent(int button, POINT pt, bool bUp)
+{
+	if(Script::GetCount() < 1)
+		return;
+	JSContext* cx = Script::GetFirstScript()->second->GetContext();
+	AutoRoot** argv = new AutoRoot*[3];
+	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(button));
+	argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
+	argv[2] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
+	Script::ExecEventAsyncOnAll((bUp ? "mouseup" : "mousedown"), 3, argv);
+}
+
 VOID MouseMoveEvent(POINT pt)
 {
 	if(Script::GetCount() < 1)

@@ -8,6 +8,32 @@
 
 using namespace std;
 
+AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(1) { JS_AddRoot(cx, &var); }
+AutoRoot::~AutoRoot()
+{
+	if(!!(count--))
+	{
+		fprintf(stderr, "AutoRoot failed: Count is still %i, but the root is being destroyed", count);
+		DebugBreak();
+		exit(3);
+	}
+	JS_RemoveRoot(context, &var);
+}
+void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
+void AutoRoot::Release()
+{
+	count--;
+	if(count < 0)
+	{
+		fprintf(stderr, "Improper AutoRoot usage: Count is less than 0");
+		DebugBreak();
+		exit(3);
+	}
+}
+jsval AutoRoot::value() { return var; }
+bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
+
+
 JSRuntime* Script::runtime = NULL;
 ScriptMap Script::activeScripts = ScriptMap();
 LPCRITICAL_SECTION Script::criticalSection = NULL;
@@ -33,7 +59,7 @@ Script* Script::CompileCommand(const char* command)
 
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), scriptState(state)
+			execCount(0), isAborted(false), scriptState(state), threadHandle(NULL)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw "File not found";
@@ -84,61 +110,65 @@ Script::Script(const char* file, ScriptState state) :
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
 		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
+		JS_AddRoot(context, &meObject);
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
-		DefineConstant("FILE_READ", FILE_READMODE);
-		DefineConstant("FILE_WRITE", FILE_WRITEMODE);
-		DefineConstant("FILE_APPEND", FILE_APPENDMODE);
+#define DEFCONST(vp) DefineConstant(#vp, vp)
+#define DEFEVENT(vp) DEFCONST(EVENT_##vp)
+		DEFCONST(FILE_READ);
+		DEFCONST(FILE_WRITE);
+		DEFCONST(FILE_APPEND);
 
-		DefineConstant("EVENT_AREACHANGE", EVENT_AREACHANGE);
-		DefineConstant("EVENT_CHATMSG", EVENT_CHATMSG);
-		DefineConstant("EVENT_COPYDATA", EVENT_COPYDATA);
-		DefineConstant("EVENT_GAMEMSG", EVENT_GAMEMSG);
-		DefineConstant("EVENT_HOSTILEMSG", EVENT_HOSTILEMSG);
-		DefineConstant("EVENT_INPUTLINE", EVENT_INPUTLINE);
-		DefineConstant("EVENT_ITEMSTAT", EVENT_ITEMSTAT);
-		DefineConstant("EVENT_KEYDOWN", EVENT_KEYDOWN);
-		DefineConstant("EVENT_KEYUP", EVENT_KEYUP);
-		DefineConstant("EVENT_MELIFE", EVENT_MELIFE);
-		DefineConstant("EVENT_MISSILEMOVE", EVENT_MISSILEMOVE);
-		DefineConstant("EVENT_MISSILESTATE", EVENT_MISSILESTATE);
-		DefineConstant("EVENT_MOUSEDOWN", EVENT_MOUSEDOWN);
-		DefineConstant("EVENT_MOUSEUP", EVENT_MOUSEUP);
-		DefineConstant("EVENT_NEWITEM", EVENT_NEWITEM);
-		DefineConstant("EVENT_NEWNPC", EVENT_NEWNPC);
-		DefineConstant("EVENT_NPCLIFE", EVENT_NPCLIFE);
-		DefineConstant("EVENT_NPCMOVE", EVENT_NPCMOVE);
-		DefineConstant("EVENT_NPCSTAT", EVENT_NPCSTAT);
-		DefineConstant("EVENT_NPCSTATE", EVENT_NPCSTATE);
-		DefineConstant("EVENT_PARTYMSG", EVENT_PARTYMSG);
-		DefineConstant("EVENT_PLAYERMOVE", EVENT_PLAYERMOVE);
-		DefineConstant("EVENT_PLAYERSTAT", EVENT_PLAYERSTAT);
-		DefineConstant("EVENT_PLAYERSTATE", EVENT_PLAYERSTATE);
-		DefineConstant("EVENT_QUEST", EVENT_QUEST);
-		DefineConstant("EVENT_SCRIPTMSG", EVENT_SCRIPTMSG);
-		DefineConstant("EVENT_UNITMOVE", EVENT_UNITMOVE);
-		DefineConstant("EVENT_WINDOWFOCUS", EVENT_WINDOWFOCUS);
-		DefineConstant("EVENT_CHATCMD", EVENT_CHATCMD);
-		DefineConstant("EVENT_PLAYERASSIGN", EVENT_PLAYERASSIGN);
+		DEFEVENT(AREACHANGE);
+		DEFEVENT(CHATMSG);
+		DEFEVENT(COPYDATA);
+		DEFEVENT(GAMEMSG);
+		DEFEVENT(HOSTILEMSG);
+		DEFEVENT(INPUTLINE);
+		DEFEVENT(ITEMSTAT);
+		DEFEVENT(KEYDOWN);
+		DEFEVENT(KEYUP);
+		DEFEVENT(MELIFE);
+		DEFEVENT(MISSILEMOVE);
+		DEFEVENT(MISSILESTATE);
+		DEFEVENT(MOUSEDOWN);
+		DEFEVENT(MOUSEUP);
+		DEFEVENT(NEWITEM);
+		DEFEVENT(NEWNPC);
+		DEFEVENT(NPCLIFE);
+		DEFEVENT(NPCMOVE);
+		DEFEVENT(NPCSTAT);
+		DEFEVENT(NPCSTATE);
+		DEFEVENT(PARTYMSG);
+		DEFEVENT(PLAYERMOVE);
+		DEFEVENT(PLAYERSTAT);
+		DEFEVENT(PLAYERSTATE);
+		DEFEVENT(QUEST);
+		DEFEVENT(SCRIPTMSG);
+		DEFEVENT(UNITMOVE);
+		DEFEVENT(WINDOWFOCUS);
+		DEFEVENT(CHATCMD);
+		DEFEVENT(PLAYERASSIGN);
+#undef DEFEVENT
+#undef DEFCONST
 
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 0);
 		else
 			script = JS_CompileFile(context, globalObject, fileName);
-
 		if(!script)
-			throw "Couldn't compile script";
+			throw "Couldn't compile the script";
 
 		scriptObject = JS_NewScriptObject(context, script);
 		if(!scriptObject)
 			throw "Couldn't create the script object";
 
 		JS_AddNamedRoot(context, &meObject, "me object");
-		JS_AddRoot(context, &scriptObject);
+		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		RegisterScript(this);
 		Unlock();
-	} catch(char*) {
+	} catch(const char*) {
 		Unlock();
 		DeleteCriticalSection(scriptSection);
 		delete scriptSection;
@@ -156,8 +186,10 @@ Script::~Script(void)
 
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
+
 	JS_RemoveRoot(context, &meObject);
 	JS_RemoveRoot(context, &scriptObject);
+
 	JS_EndRequest(context);
 	JS_DestroyContextNoGC(context);
 
@@ -191,9 +223,12 @@ void Script::DefineConstant(const char* name, int value)
 void Script::Startup(void)
 {
 	if(!runtime)
+	{
 		runtime = JS_NewRuntime(0x800000);
-	criticalSection = new CRITICAL_SECTION;
-	InitializeCriticalSection(criticalSection);
+		// TODO: Look into locking the GC on one thread
+		criticalSection = new CRITICAL_SECTION;
+		InitializeCriticalSection(criticalSection);
+	}
 }
 
 void Script::Shutdown(void)
@@ -226,7 +261,7 @@ void Script::FlushCache(void)
 		if(!(*it)->IsRunning())
 		{
 			activeScripts.erase((*it)->GetFilename());
-			delete *it;
+			delete (*it);
 		}
 	}
 	UnlockAll();
@@ -301,14 +336,13 @@ void Script::Run(void)
 {
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
+	HANDLE pseudoHandle = GetCurrentThread();
+	DuplicateHandle(GetCurrentProcess(), pseudoHandle, GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(context, &main);
-	JS_AddRoot(context, &dummy);
 	JS_ExecuteScript(context, globalObject, script, &dummy);
-	if(JS_GetProperty(context, globalObject, "main", &main) &&
-		JSVAL_IS_OBJECT(main) &&
-		JS_ObjectIsFunction(context, JSVAL_TO_OBJECT(main)))
+	if(JS_GetProperty(context, globalObject, "main", &main) && JSVAL_IS_FUNCTION(main))
 	{
 		JS_SetContextThread(context);
 		JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
@@ -323,9 +357,36 @@ void Script::Run(void)
 	Stop();
 }
 
+void Script::Pause(void)
+{
+	if(!IsPaused() && threadHandle)
+		SuspendThread(threadHandle);
+	isPaused = true;
+}
+
+void Script::Resume(void)
+{
+	if(IsPaused() && threadHandle)
+		ResumeThread(threadHandle);
+	isPaused = false;
+}
+
+bool Script::IsPaused(void)
+{
+	return isPaused;
+}
+
 void Script::Stop(void)
 {
 	isAborted = true;
+	isPaused = false;
+	while(IsRunning())
+		Sleep(500);
+
+	TerminateThread(threadHandle, 0);
+	CloseHandle(threadHandle);
+	threadHandle = NULL;
+
 	ClearAllEvents();
 	Genhook::Clean(this);
 }
@@ -358,7 +419,7 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return !!JS_IsRunning(context);
+	return !isPaused && !!JS_IsRunning(context);
 }
 
 bool Script::IsAborted()
@@ -385,9 +446,11 @@ bool Script::IsLocked(void)
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
-	if(JSVAL_IS_OBJECT(evtFunc) && JS_ObjectIsFunction(context, JSVAL_TO_OBJECT(evtFunc)))
+	if(JSVAL_IS_FUNCTION(evtFunc))
 	{
-		functions[evtName].push_back(new AutoRoot(context, evtFunc));
+		AutoRoot* root = new AutoRoot(context, evtFunc);
+		root->Take();
+		functions[evtName].push_back(root);
 	}
 }
 
@@ -404,6 +467,7 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 		}
 	}
 	functions[evtName].remove(func);
+	func->Release();
 	delete func;
 	Unlock();
 }
@@ -414,6 +478,7 @@ void Script::ClearEvent(const char* evtName)
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		AutoRoot* func = *it;
+		func->Release();
 		delete func;
 	}
 	functions[evtName].clear();
@@ -434,6 +499,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	sprintf(msg, "Script::ExecEvent(%s)", evtName);
 	CDebug cDbg(msg);
 
+	Pause();
 	Lock();
 
 	for(uintN i = 0; i < argc; i++)
@@ -461,6 +527,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	delete[] argv;
 
 	Unlock();
+	Resume();
 
 	return JS_TRUE;
 }
@@ -511,14 +578,14 @@ void Script::ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv)
 
 DWORD WINAPI ScriptThread(void* data)
 {
-	Script* script = (Script*)data;
-	script->Run();
+	((Script*)data)->Run();
 	return 0;
 }
 
 DWORD WINAPI FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
+	evt->owner->Pause();
 	evt->owner->Lock();
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
@@ -529,11 +596,20 @@ DWORD WINAPI FuncThread(void* data)
 
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
+		{
 			args[i] = evt->argv[i]->value();
+			JS_AddRoot(evt->context, &args[i]);
+		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+		{
+			JS_SetContextThread(evt->context);
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			JS_ClearContextThread(evt->context);
+		}
 
+		for(uintN i = 0; i < evt->argc; i++)
+			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
 		// assume that the caller stole the context thread
@@ -542,6 +618,7 @@ DWORD WINAPI FuncThread(void* data)
 		JS_ClearContextThread(evt->context);
 	}
 	evt->owner->Unlock();
+	evt->owner->Resume();
 
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)

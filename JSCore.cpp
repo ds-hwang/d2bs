@@ -33,13 +33,15 @@ INT my_delay(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 	{
-		JS_SetContextThread(cx);
+//		JS_SetContextThread(cx);
 		int nDelay = JSVAL_TO_INT(argv[0]);
 		//jsrefcount depth = JS_SuspendRequest(cx);
 		// TODO: Fix this to sleep in, say, 10ms intervals... suspendrequest may be causing unforseen consequences, investigate later
-		SleepEx(nDelay, TRUE);
+		Sleep(nDelay);
 		//JS_SetContextThread(cx);
 		//JS_ResumeRequest(cx, depth);
+//		if(JS_GetContextThread(cx) == GetCurrentThreadId())
+//			JS_ClearContextThread(cx);
 	}
 
 	return JS_TRUE;

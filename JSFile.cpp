@@ -65,7 +65,7 @@ JSAPI_PROP(file_getProperty)
 				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !feof(fdata->fptr) && !ferror(fdata->fptr)));
 				break;
 			case FILE_WRITEABLE:
-				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !ferror(fdata->fptr) && (fdata->mode % 3) > FILE_READMODE));
+				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !ferror(fdata->fptr) && (fdata->mode % 3) > FILE_READ));
 				break;
 			case FILE_SEEKABLE:
 				*vp = BOOLEAN_TO_JSVAL((fdata->fptr && !ferror(fdata->fptr)));
@@ -145,9 +145,9 @@ JSAPI_FUNC(file_open)
 
 	int32 mode;
 	JS_ValueToInt32(cx, argv[1], &mode);
-	// this could be simplified to: mode > FILE_APPENDMODE || mode < FILE_READMODE
+	// this could be simplified to: mode > FILE_APPEND || mode < FILE_READ
 	// but then it takes a hit for readability
-	if(!(mode == FILE_READMODE || mode == FILE_WRITEMODE || mode == FILE_APPENDMODE))
+	if(!(mode == FILE_READ || mode == FILE_WRITE || mode == FILE_APPEND))
 		THROW_ERROR(cx, obj, "Invalid file mode");
 
 	bool binary = false, autoflush = false, lockFile = false;

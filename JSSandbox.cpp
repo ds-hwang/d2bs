@@ -14,12 +14,12 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 	}
 	JS_InitStandardClasses(box->context, box->innerObj);
-	JS_AddRoot(box->context, &box->innerObj);
 	// TODO: add a default include function for sandboxed scripts
 	// how do I do that individually though? :/
 	box->includes = new CArrayEx<char*, char*>();
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
+	JS_AddRoot(cx, &res);
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
 		delete box->includes;
@@ -29,6 +29,7 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_FALSE;
 	}
 	JS_SetPrivate(cx, res, box);
+	JS_RemoveRoot(cx, &res);
 	*rval = OBJECT_TO_JSVAL(res);
 
 	return JS_TRUE;
@@ -158,7 +159,6 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box) {
 		delete box->includes;
-		JS_RemoveRoot(box->context, &box->innerObj);
 		JS_DestroyContext(box->context);
 		delete box;
 	}

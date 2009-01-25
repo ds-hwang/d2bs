@@ -1,6 +1,7 @@
 #include "D2BS.h"
 #include "Script.h"
 #include <vector>
+#include "Unit.h"
 
 using namespace std;
 
@@ -28,10 +29,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			image->SetX(D2GetScreenSizeX()/2);
 			text->SetX(D2GetScreenSizeX()/2);
 
-			if(!IsTownLevel(GetPlayerArea()) && (Vars.nChickenHP && Vars.nChickenHP >= (INT)GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_HP) >> 8) || (Vars.nChickenMP && Vars.nChickenMP >= (INT)GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_MANA) >> 8))
-			{
-				D2CLIENT_ExitGame();			
-			}
+			if(bInGame && ((Vars.dwMaxGameTime > 0 && Vars.dwGameTime > 0 && (GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime) ||
+				(!IsTownLevel(GetPlayerArea()) && (Vars.nChickenHP > 0 && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) || (Vars.nChickenMP > 0 && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))))
+					D2CLIENT_ExitGame();
 
 			if(!bInGame)
 			{
@@ -47,11 +47,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 
 				bInGame = TRUE;
-			}
-
-			if(bInGame && Vars.dwMaxGameTime > 0 && Vars.dwGameTime && (GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime)
-			{
-				D2CLIENT_ExitGame();
 			}
 		}
 		else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
@@ -281,20 +276,36 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	switch(wParam)
 	{
 		case WM_LBUTTONDOWN:
+			MouseClickEvent(0, pt, false);
 			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
 				if((*it)->Click(0, &pt))
 					clicked = true;
 			break;
+		case WM_LBUTTONUP:
+			MouseClickEvent(0, pt, true);
+			break;
 		case WM_RBUTTONDOWN:
+			MouseClickEvent(1, pt, false);
 			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
 				if((*it)->Click(1, &pt))
 					clicked = true;
 			break;
+		case WM_RBUTTONUP:
+			MouseClickEvent(1, pt, true);
+			break;
+		case WM_MBUTTONDOWN:
+			MouseClickEvent(2, pt, false);
+			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+				if((*it)->Click(2, &pt))
+					clicked = true;
+			break;
+		case WM_MBUTTONUP:
+			MouseClickEvent(2, pt, true);
+			break;
 		case WM_MOUSEMOVE:
-			// disabled because it causes crashes :(
-			//MouseMoveEvent(pt);
-			//for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-				//(*it)->Hover(&pt);
+			MouseMoveEvent(pt);
+			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+				(*it)->Hover(&pt);
 			break;
 	}
 

@@ -169,3 +169,12 @@ BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWOR
 	return FALSE;
 }
 
+INT GetUnitHP(UnitAny* pUnit)
+{
+	return (INT)(GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_HP) >> 8);
+}
+
+INT GetUnitMP(UnitAny* pUnit)
+{
+	return (INT)(GetUnitStat(D2CLIENT_GetPlayerUnit(), STAT_MANA) >> 8);
+}

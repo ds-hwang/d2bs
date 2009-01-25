@@ -566,6 +566,8 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 	return pUnit ? pUnit : D2CLIENT_FindClientSideUnit(dwId, dwType);
 }
 
+// TODO: Rewrite this and split it into two functions
+
 CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 {
 	// AutoDetect the Cell File
@@ -573,8 +575,8 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 	{
 		// Check in our directory first
 
-		CHAR myPath[500] = "";
-		sprintf_s(myPath, 500, "%s\\%s", Vars.szScriptPath, lpszPath);
+		CHAR myPath[MAX_PATH] = "";
+		sprintf(myPath, "%s\\%s", Vars.szPath, lpszPath);
 
 		HANDLE hFile = OpenFileRead(myPath);
 
@@ -598,7 +600,7 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 	else if(bMPQ == FALSE)
 	{
 		CHAR myPath[MAX_PATH] = "";
-		sprintf(myPath, "%s\\%s", Vars.szScriptPath, lpszPath);
+		sprintf(myPath, "%s\\%s", Vars.szPath, lpszPath);
 		return myInitCellFile((CellFile*)LoadBmpCellFile(myPath));
 	}
 
