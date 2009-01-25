@@ -225,7 +225,6 @@ void Script::Startup(void)
 	if(!runtime)
 	{
 		runtime = JS_NewRuntime(0x800000);
-		// TODO: Look into locking the GC on one thread
 		criticalSection = new CRITICAL_SECTION;
 		InitializeCriticalSection(criticalSection);
 	}
@@ -336,13 +335,12 @@ void Script::Run(void)
 {
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
-	HANDLE pseudoHandle = GetCurrentThread();
-	DuplicateHandle(GetCurrentProcess(), pseudoHandle, GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(context, &main);
 	JS_ExecuteScript(context, globalObject, script, &dummy);
-	if(JS_GetProperty(context, globalObject, "main", &main) && JSVAL_IS_FUNCTION(main))
+	if(JS_GetProperty(context, globalObject, "main", &main) && JSVAL_IS_FUNCTION(context, main))
 	{
 		JS_SetContextThread(context);
 		JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
@@ -446,7 +444,7 @@ bool Script::IsLocked(void)
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
-	if(JSVAL_IS_FUNCTION(evtFunc))
+	if(JSVAL_IS_FUNCTION(context, evtFunc))
 	{
 		AutoRoot* root = new AutoRoot(context, evtFunc);
 		root->Take();

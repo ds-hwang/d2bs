@@ -1,13 +1,6 @@
 #ifndef __JSSCREENHOOK_H__
 #define __JSSCREENHOOK_H__
 
-#define SH_LINE		0
-#define SH_BOX		1
-#define SH_IMAGE	2
-#define SH_AUTOMAPLINE	3
-#define SH_AUTOMAPBOX	4
-#define SH_AUTOMAPIMAGE	5
-
 /*********************************************************
 					Frame Header
 **********************************************************/

@@ -78,7 +78,7 @@ JSAPI_PROP(frame_getProperty) {
 			*vp = pFramehook->GetClickHandler();
 			break;
 		case FRAME_ONHOVER:
-			*vp = pFramehook->GetHoverHandler ();
+			*vp = pFramehook->GetHoverHandler();
 			break;
 	}
 	return JS_TRUE;
@@ -90,23 +90,23 @@ JSAPI_PROP(frame_setProperty) {
 
 	switch(JSVAL_TO_INT(id)) {
 		case FRAME_X:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetX(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_Y:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetY(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_XSIZE:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetX2(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_YSIZE:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetY2(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_ALIGN:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_VISIBLE:
@@ -126,9 +126,9 @@ JSAPI_PROP(frame_setProperty) {
 
 
 JSAPI_FUNC(frame_remove) {
+	frame_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	frame_finalize(cx, obj);
 	return JS_TRUE;
 }
 
@@ -172,7 +172,7 @@ VOID box_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("box_finalize");
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	
-	if (pBoxHook)
+	if(pBoxHook)
 		delete pBoxHook;
 }
 JSAPI_PROP(box_getProperty) {
@@ -206,10 +206,10 @@ JSAPI_PROP(box_getProperty) {
 			*vp = BOOLEAN_TO_JSVAL(pBoxHook->GetIsVisible());
 			break;
 		case BOX_ONCLICK:
-			*vp = pBoxHook->GetClickHandler ();
+			*vp = pBoxHook->GetClickHandler();
 			break;
 		case BOX_ONHOVER:
-			*vp = pBoxHook->GetHoverHandler ();
+			*vp = pBoxHook->GetHoverHandler();
 			break;
 	}
 	return JS_TRUE;
@@ -221,35 +221,35 @@ JSAPI_PROP(box_setProperty) {
 
 	switch(JSVAL_TO_INT(id)) {
 		case BOX_X:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetX(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_Y:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetY(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_XSIZE:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetX2(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_YSIZE:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetY2(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_OPACITY:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetOpacity((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case BOX_COLOR:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetColor((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case BOX_ALIGN:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pBoxHook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case BOX_VISIBLE:
-			if (JSVAL_IS_BOOLEAN(*vp))
+			if(JSVAL_IS_BOOLEAN(*vp))
 				pBoxHook->SetIsVisible(JSVAL_IS_BOOLEAN(*vp));
 			break;
 		case BOX_ONCLICK:
@@ -262,10 +262,10 @@ JSAPI_PROP(box_setProperty) {
 	return JS_TRUE;
 }
 
-
-
 JSAPI_FUNC(box_remove) {
 	box_finalize(cx, obj);
+	JS_ClearScope(cx, obj);
+	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
 }
 
@@ -276,7 +276,22 @@ JSAPI_FUNC(line_ctor) {
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	LineHook* pLineHook = new LineHook(script, 0, 0, 0, 0, false, 0, 0, Left, Perm);
+	int x = 0, y = 0, x2 = 0, y2 = 0, color = 0;
+	bool automap = false;
+	if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		x = JSVAL_TO_INT(argv[0]);
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		y = JSVAL_TO_INT(argv[1]);
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		x2 = JSVAL_TO_INT(argv[2]);
+	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+		y2 = JSVAL_TO_INT(argv[3]);
+	if(argc > 4 && JSVAL_IS_INT(argv[4]))
+		color = JSVAL_TO_INT(argv[4]);
+	if(argc > 5 && JSVAL_IS_INT(argv[5]) || JSVAL_IS_BOOLEAN(argv[5]))
+		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
+
+	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, automap, color, 0, Left, script->GetState() == InGame ? IG : OOG);
 
 	if (!pLineHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
@@ -285,28 +300,19 @@ JSAPI_FUNC(line_ctor) {
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create line object");
 
-	if (argc > 0 && JSVAL_IS_INT(argv[0]))
-		pLineHook->SetX(JSVAL_TO_INT(argv[0]));
-	if (argc > 1 && JSVAL_IS_INT(argv[1]))
-		pLineHook->SetY(JSVAL_TO_INT(argv[1]));
-	if (argc > 2 && JSVAL_IS_INT(argv[2]))
-		pLineHook->SetX2(JSVAL_TO_INT(argv[2]));
-	if (argc > 3 && JSVAL_IS_INT(argv[3]))
-		pLineHook->SetY2(JSVAL_TO_INT(argv[3]));
-	if (argc > 4 && JSVAL_IS_INT(argv[4]))
-		pLineHook->SetColor((ushort)JSVAL_TO_INT(argv[4]));
-
 	*rval = OBJECT_TO_JSVAL(hook);
 
 	return JS_TRUE;
 }
+
 VOID line_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("line_finalize");
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	
-	if (pLineHook)
+	if(pLineHook)
 		delete pLineHook;
 }
+
 JSAPI_PROP(line_getProperty) {
 	CDebug cDbg("line_getProperty");
 
@@ -329,17 +335,18 @@ JSAPI_PROP(line_getProperty) {
 			*vp = INT_TO_JSVAL(pLineHook->GetColor());
 			break;
 		case LINE_VISIBLE:
-			*vp = BOOLEAN_TO_JSVAL(pLineHook->GetIsVisible ());
+			*vp = BOOLEAN_TO_JSVAL(pLineHook->GetIsVisible());
 			break;
 		case LINE_ONCLICK:
-			*vp = pLineHook->GetClickHandler ();
+			*vp = pLineHook->GetClickHandler();
 			break;
 		case LINE_ONHOVER:
-			*vp = pLineHook->GetHoverHandler ();
+			*vp = pLineHook->GetHoverHandler();
 			break;
 	}
 	return JS_TRUE;
 }
+
 JSAPI_PROP(line_setProperty) {
 	CDebug cDbg("line_setProperty");
 
@@ -380,13 +387,12 @@ JSAPI_PROP(line_setProperty) {
 	return JS_TRUE;
 }
 
-
-
 JSAPI_FUNC(line_remove) {
 	line_finalize(cx, obj);
+	JS_ClearScope(cx, obj);
+	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
 }
-
 
 // Function to create a text which gets called on a "new text ()"
 // Parameters: text, x, y, color, font, align, automap, onHover, onText
@@ -411,8 +417,7 @@ JSAPI_FUNC(text_ctor) {
 	if(hoverF != NULL)
 		hover = argv[8];
 
-	// texthooks don't work out of game -- they just crash
-	TextHook* pTextHook = new TextHook(script, szText, x, y, !!automap, font, color, 0, (Align)align, IG);
+	TextHook* pTextHook = new TextHook(script, szText, x, y, !!automap, font, color, 0, (Align)align, script->GetState() == InGame ? IG : OOG);
 
 	if (!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");
@@ -433,7 +438,7 @@ VOID text_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("text_finalize");
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	
-	if (pTextHook)
+	if(pTextHook)
 		delete pTextHook;
 }
 
@@ -468,11 +473,12 @@ JSAPI_PROP(text_getProperty) {
 			*vp = pTextHook->GetClickHandler();
 			break;
 		case TEXT_ONHOVER:
-			*vp = pTextHook->GetHoverHandler ();
+			*vp = pTextHook->GetHoverHandler();
 			break;
 	}
 	return JS_TRUE;
 }
+
 JSAPI_PROP(text_setProperty) {
 	CDebug cDbg("text_setProperty");
 
@@ -480,19 +486,19 @@ JSAPI_PROP(text_setProperty) {
 
 	switch(JSVAL_TO_INT(id)) {
 		case TEXT_X:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetX(JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_Y:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetY(JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_COLOR:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetColor((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_FONT:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetFont((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_TEXT:
@@ -502,7 +508,7 @@ JSAPI_PROP(text_setProperty) {
 			}
 			break;
 		case TEXT_ALIGN:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_VISIBLE:
@@ -520,9 +526,9 @@ JSAPI_PROP(text_setProperty) {
 }
 
 JSAPI_FUNC(text_remove) {
+	text_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	text_finalize(cx, obj);
 	return JS_TRUE;
 }
 
@@ -550,7 +556,7 @@ JSAPI_FUNC(image_ctor) {
 
 	ImageHook* pImageHook = new ImageHook(script, szLoc, x, y, !!automap, 0, 0, (Align)align, script->GetState() == InGame ? IG : OOG);
 
-	if (!pImageHook)
+	if(!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");
 
 	pImageHook->SetClickHandler(click);
@@ -569,7 +575,7 @@ VOID image_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("image_finalize");
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	
-	if (pImageHook)
+	if(pImageHook)
 		delete pImageHook;
 }
 
@@ -598,11 +604,12 @@ JSAPI_PROP(image_getProperty) {
 			*vp = pImageHook->GetClickHandler();
 			break;
 		case IMAGE_ONHOVER:
-			*vp = pImageHook->GetHoverHandler ();
+			*vp = pImageHook->GetHoverHandler();
 			break;
 	}
 	return JS_TRUE;
 }
+
 JSAPI_PROP(image_setProperty) {
 	CDebug cDbg("image_setProperty");
 
@@ -610,11 +617,11 @@ JSAPI_PROP(image_setProperty) {
 
 	switch(JSVAL_TO_INT(id)) {
 		case IMAGE_X:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pImageHook->SetX(JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_Y:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pImageHook->SetY(JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_LOCATION:
@@ -624,7 +631,7 @@ JSAPI_PROP(image_setProperty) {
 			}
 			break;
 		case IMAGE_ALIGN:
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 				pImageHook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_VISIBLE:
@@ -642,8 +649,8 @@ JSAPI_PROP(image_setProperty) {
 }
 
 JSAPI_FUNC(image_remove) {
+	image_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	image_finalize(cx, obj);
 	return JS_TRUE;
 }

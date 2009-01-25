@@ -49,12 +49,9 @@ struct Variables;
 
 extern Variables Vars;
 
-#define STACK_CHUNK_SIZE    0x10000
-
 #define ArraySize(x) (sizeof(x) / sizeof(x[0]))
 
 #define PRIVATE_UNIT		1
-#define PRIVATE_SCREENHOOK	2
 #define PRIVATE_CONTROL		3
 
 enum {
@@ -124,8 +121,6 @@ struct Variables
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
 	CCollisionMap* cMap;
-
-	std::vector<Screenhook*> ScreenhookList;
 
 	// Critical Sections
 	CRITICAL_SECTION	cRoomSection;

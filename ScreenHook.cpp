@@ -71,7 +71,7 @@ bool Genhook::Click(int button, POINT* loc)
 	if(!IsInRange(loc))
 		return false;
 
-	if(!owner || !(JSVAL_IS_OBJECT(clicked) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(clicked))))
+	if(!owner || !JSVAL_IS_FUNCTION(owner->GetContext(), clicked))
 		return false;
 
 	Lock();
@@ -101,7 +101,7 @@ void Genhook::Hover(POINT* loc)
 {
 	if(!IsInRange(loc))
 		return;
-	if(!owner || !(JSVAL_IS_OBJECT(hovered) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(hovered))))
+	if(!owner || !(JSVAL_IS_FUNCTION(owner->GetContext(), hovered)))
 		return;
 
 	Lock();
@@ -127,7 +127,7 @@ void Genhook::SetClickHandler(jsval handler)
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(owner->GetContext(), &clicked);
-	if(JSVAL_IS_OBJECT(handler) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(handler)))
+	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
 		JS_AddRoot(owner->GetContext(), &clicked);
@@ -139,7 +139,7 @@ void Genhook::SetHoverHandler(jsval handler)
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))
 		JS_RemoveRoot(owner->GetContext(), &hovered);
-	if(JSVAL_IS_OBJECT(handler) && JS_ObjectIsFunction(owner->GetContext(), JSVAL_TO_OBJECT(handler)))
+	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		hovered = handler;
 	if(!JSVAL_IS_VOID(hovered))
 		JS_AddRoot(owner->GetContext(), &hovered);
@@ -277,102 +277,4 @@ bool FrameHook::IsInRange(int dx, int dy)
 {
 	int x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
 	return (x < dx && y < dy && x2 > dx && y2 > dy);
-}
-
-
-
-
-
-VOID CleanScreenhooks(bool bAll)
-{
-	if(Vars.ScreenhookList.empty())
-		return;
-
-	EnterCriticalSection(&Vars.cScreenhookSection);
-
-	for(vector<Screenhook*>::iterator it = Vars.ScreenhookList.begin(); it != Vars.ScreenhookList.end(); it++)
-	{
-		Screenhook* pScreenhook = *it;
-
-		if(!pScreenhook->bOutOfGame || bAll)
-		{
-			
-			if(pScreenhook->pCellImage)
-			{
-				delete pScreenhook->pCellImage;
-			}
-
-			if(pScreenhook->pText)
-			{
-				delete[] pScreenhook->pText;
-			}
-
-			delete pScreenhook;
-			Vars.ScreenhookList.erase(it);
-		}
-	}
-
-	LeaveCriticalSection(&Vars.cScreenhookSection);
-}
-
-VOID DrawScreenhook(Screenhook* pScreenhook)
-{
-	if(!pScreenhook)
-		return;
-
-	if(pScreenhook->dwType >= SH_AUTOMAPLINE && pScreenhook->dwType <= SH_AUTOMAPIMAGE && D2CLIENT_GetUIState(UI_AUTOMAP))
-	{
-		POINT lpCoord1 = {pScreenhook->dwX * 32, pScreenhook->dwY * 32};
-		POINT lpCoord2 = {pScreenhook->dwX2 * 32, pScreenhook->dwY2 * 32};
-
-		if(pScreenhook->dwX != -1 && pScreenhook->dwY != -1)
-			ScreenToAutomap(&lpCoord1, lpCoord1.x, lpCoord1.y);
-
-		if(pScreenhook->dwX2 != -1 && pScreenhook->dwY2 != -1)
-			ScreenToAutomap(&lpCoord1, lpCoord2.x, lpCoord2.y);
-
-		if(pScreenhook->dwType == SH_AUTOMAPLINE && pScreenhook->dwX != -1 && pScreenhook->dwY != -1 && 
-			pScreenhook->dwX2 != -1 && pScreenhook->dwY2 != -1)
-		{
-			D2GFX_DrawLine(lpCoord1.x, lpCoord1.y,
-				lpCoord2.x, lpCoord2.y, pScreenhook->dwColor, 0xFF);
-		}
-		else if(pScreenhook->dwType == SH_AUTOMAPBOX && pScreenhook->dwX != -1 && pScreenhook->dwY != -1
-					&& pScreenhook->dwX2 != -1 && pScreenhook->dwY2 != -1)
-		{
-			D2GFX_DrawRectangle(lpCoord1.x, lpCoord1.y, lpCoord2.x, lpCoord2.y,
-				pScreenhook->dwColor, pScreenhook->dwOpacity);
-		}
-		else if(pScreenhook->dwType == SH_AUTOMAPIMAGE && pScreenhook->pCellImage && pScreenhook->dwX != -1 && pScreenhook->dwY != -1)
-		{
-			myDrawAutomapCell(pScreenhook->pCellImage, lpCoord1.x, lpCoord1.y, (BYTE)pScreenhook->dwColor);
-		}
-
-		if(pScreenhook->pText && pScreenhook->dwX != -1 && pScreenhook->dwY != -1 && pScreenhook->dwFont != -1 && pScreenhook->dwColor != -1)
-		{
-			myDrawText(pScreenhook->pText, lpCoord1.x, lpCoord1.y, pScreenhook->dwColor, pScreenhook->dwFont);
-		}
-	}
-	else
-	{
-		if(pScreenhook->dwType == SH_LINE && pScreenhook->dwX != -1 && pScreenhook->dwY != -1 && 
-			pScreenhook->dwX2 != -1 && pScreenhook->dwY2 != -1)
-		{
-			D2GFX_DrawLine(pScreenhook->dwX, pScreenhook->dwY, pScreenhook->dwX2, pScreenhook->dwY2, pScreenhook->dwColor, 0xFF);
-		}
-		else if(pScreenhook->dwType == SH_BOX && pScreenhook->dwX != -1 && pScreenhook->dwY != -1
-					&& pScreenhook->dwX2 != -1 && pScreenhook->dwY2 != -1)
-		{
-			D2GFX_DrawRectangle(pScreenhook->dwX, pScreenhook->dwY, pScreenhook->dwX2, pScreenhook->dwY2, pScreenhook->dwColor, pScreenhook->dwOpacity);
-		}
-		else if(pScreenhook->dwType == SH_IMAGE && pScreenhook->pCellImage && pScreenhook->dwX != -1 && pScreenhook->dwY != -1)
-		{
-			myDrawAutomapCell(pScreenhook->pCellImage, pScreenhook->dwX, pScreenhook->dwY, (BYTE)pScreenhook->dwColor);
-		}
-
-		if(pScreenhook->pText && pScreenhook->dwX != -1 && pScreenhook->dwY != -1 && pScreenhook->dwFont != -1 && pScreenhook->dwColor != -1)
-		{
-			myDrawText(pScreenhook->pText, pScreenhook->dwX, pScreenhook->dwY, pScreenhook->dwColor, pScreenhook->dwFont);
-		}
-	}
 }

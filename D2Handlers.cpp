@@ -316,19 +316,6 @@ VOID GameDraw(VOID)
 {
 	if(GameReady())
 		Genhook::DrawAll(IG);
-
-	if(!Vars.ScreenhookList.empty())
-	{
-		EnterCriticalSection(&Vars.cScreenhookSection);
-		for(uint i = 0; i < Vars.ScreenhookList.size(); i++)
-		{
-			Screenhook* pScreenhook = Vars.ScreenhookList[i];
-
-			if(pScreenhook)
-				DrawScreenhook(pScreenhook);
-		}
-		LeaveCriticalSection(&Vars.cScreenhookSection);
-	}
 }
 
 VOID GameDrawOOG(VOID)

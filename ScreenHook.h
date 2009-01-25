@@ -203,34 +203,3 @@ public:
 	uint GetX2(void) const { return x2; }
 	uint GetY2(void) const { return y2; }
 };
-
-
-
-
-
-struct Screenhook
-{
-	DWORD _dwPrivate;
-
-	DWORD dwColor;
-	DWORD dwFont;
-	CellFile* pCellImage;
-	DWORD dwOpacity;
-	CHAR* pText;
-	DWORD dwType;
-	DWORD dwX;
-	DWORD dwX2;
-	DWORD dwY;
-	DWORD dwY2;
-
-
-	JSContext* cx;
-	JSObject* obj;
-
-	BOOL bOutOfGame; // Don't delete this screenhook if it was created out of game.
-};
-
-
-VOID DrawScreenhook(Screenhook* pScreenhook);
-VOID CleanScreenhooks(bool bAll = FALSE);
-
