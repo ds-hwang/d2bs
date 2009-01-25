@@ -80,7 +80,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 DWORD __fastcall GameInput(wchar_t* wMsg)
 {
-
 	if(Vars.bDontCatchNextMsg)
 		return NULL;
 
@@ -124,6 +123,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			Script::FlushCache();
 
 			Print("D2BS: Starting default.dbj...");
+			Vars.bAbortScripts = FALSE;
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
@@ -134,6 +134,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			Print("D2BS: Flushing the script cache...");
 			Script::FlushCache();
+			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "exec"))
 		{
@@ -163,7 +164,6 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 			result = -1;
 		}
-		result = -1;
 	}
 
 	delete[] szBuffer;

@@ -11,7 +11,7 @@ using namespace std;
 AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(1) { JS_AddRoot(cx, &var); }
 AutoRoot::~AutoRoot()
 {
-	if(!!(count--))
+	if(!(count--))
 	{
 		fprintf(stderr, "AutoRoot failed: Count is still %i, but the root is being destroyed", count);
 		DebugBreak();
@@ -256,13 +256,9 @@ void Script::FlushCache(void)
 	LockAll();
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-	{
 		if(!(*it)->IsRunning())
-		{
-			activeScripts.erase((*it)->GetFilename());
 			delete (*it);
-		}
-	}
+
 	UnlockAll();
 }
 
