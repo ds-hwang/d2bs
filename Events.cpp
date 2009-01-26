@@ -3,110 +3,158 @@
 
 VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[2];
-	JSString* nick = JS_NewStringCopyZ(cx, lpszNick);
-	JSString* msg = JS_NewStringCopyZ(cx, lpszMsg);
-	argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(nick));
-	argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(msg));
-	Script::ExecEventAsyncOnAll("chatmsg", 2, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		(*it)->ExecEventAsync("chatmsg", 2, argv);
+	}
 }
 
 VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[2];
-	argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
-	argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
-	Script::ExecEventAsyncOnAll("gamemsg", 2, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		(*it)->ExecEventAsync("gamemsg", 2, argv);
+	}
 }
 
 VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[2];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwLife));
-	argv[1] = new AutoRoot(cx, INT_TO_JSVAL(dwMana));
-	Script::ExecEventAsyncOnAll("melife", 2, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwLife));
+		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(dwMana));
+		(*it)->ExecEventAsync("melife", 2, argv);
+	}
 }
 
 VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[2];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwMode));
-	argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
-	Script::ExecEventAsyncOnAll("copydata", 2, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwMode));
+		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		(*it)->ExecEventAsync("copydata", 2, argv);
+	}
 }
 
 VOID ChatCmdEvent(CHAR* lpszMsg)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
-	Script::ExecEventAsyncOnAll("chatcmd", 1, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		(*it)->ExecEventAsync("chatcmd", 1, argv);
+	}
 }
 
 VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(key));
-	Script::ExecEventAsyncOnAll((bUp ? "keyup" : "keydown"), 1, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(key));
+		(*it)->ExecEventAsync((bUp ? "keyup" : "keydown"), 1, argv);
+	}
 }
 
 VOID PlayerAssignEvent(DWORD dwUnitId)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwUnitId));
-	Script::ExecEventAsyncOnAll("playerassign", 1, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwUnitId));
+		(*it)->ExecEventAsync("playerassign", 1, argv);
+	}
 }
 
 VOID MouseClickEvent(int button, POINT pt, bool bUp)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[3];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(button));
-	argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
-	argv[2] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
-	Script::ExecEventAsyncOnAll((bUp ? "mouseup" : "mousedown"), 3, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[3];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(button));
+		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
+		argv[2] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
+		(*it)->ExecEventAsync((bUp ? "mouseup" : "mousedown"), 3, argv);
+	}
 }
 
 VOID MouseMoveEvent(POINT pt)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[2];
-	argv[0] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
-	argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
-	Script::ExecEventAsyncOnAll("mousemove", 2, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
+		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
+		(*it)->ExecEventAsync("mousemove", 2, argv);
+	}
 }
 
 VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 {
-	if(Script::GetActiveCount() < 1)
-		return;
-	JSContext* cx = Script::GetFirstScript()->second->GetContext();
-	AutoRoot** argv = new AutoRoot*[argc];
-	for(uintN i = 0; i < argc; i++)
-		argv[i] = new AutoRoot(cx, args[i]);
-	Script::ExecEventAsyncOnAll("scriptmsg", argc, argv);
+	ScriptList scripts = Script::GetScripts();
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		JS_SetContextThread(cx);
+		AutoRoot** argv = new AutoRoot*[argc];
+		for(uintN i = 0; i < argc; i++)
+			argv[i] = new AutoRoot(cx, args[i]);
+		(*it)->ExecEventAsync("scriptmsg", argc, argv);
+	}
 }

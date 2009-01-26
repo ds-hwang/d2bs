@@ -40,6 +40,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				Vars.dwGameTime = GetTickCount();
 				D2CLIENT_InitInventory();
 
+				Print("D2BS: Starting default.dbj");
 				char file[_MAX_PATH+_MAX_FNAME];
 				sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 				Script* script = Script::CompileFile(file, InGame);

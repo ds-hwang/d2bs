@@ -139,7 +139,6 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 				if(!jsunit)
 				{
 					delete lpUnit;
-					JS_ClearContextThread(cx);
 					THROW_ERROR(cx, obj, "Couldn't copy unit");
 				}
 

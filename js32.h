@@ -4,6 +4,7 @@
 #define XP_WIN
 
 #include "js32/jsapi.h"
+#include "js32/jsdbgapi.h"
 
 #define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 #define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)

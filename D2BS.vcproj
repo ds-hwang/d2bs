@@ -418,6 +418,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\js32\jsopcode.h"
+					>
+				</File>
+				<File
 					RelativePath=".\js32\jsosdep.h"
 					>
 				</File>
@@ -426,11 +430,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\js32\jsprvtd.h"
+					>
+				</File>
+				<File
 					RelativePath=".\js32\jspubtd.h"
 					>
 				</File>
 				<File
 					RelativePath=".\js32\jstypes.h"
+					>
+				</File>
+				<File
+					RelativePath=".\js32\jsutil.h"
 					>
 				</File>
 			</Filter>

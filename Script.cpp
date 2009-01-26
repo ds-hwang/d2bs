@@ -58,7 +58,7 @@ Script* Script::CompileCommand(const char* command)
 
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), scriptState(state), threadHandle(NULL), threadId(0)
+			execCount(0), isAborted(false), isPaused(false), scriptState(state), threadHandle(NULL), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw "File not found";
@@ -224,6 +224,8 @@ void Script::Startup(void)
 	if(!runtime)
 	{
 		runtime = JS_NewRuntime(0x800000);
+		JS_SetGCCallbackRT(runtime, gcCallback);
+		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
 		criticalSection = new CRITICAL_SECTION;
 		InitializeCriticalSection(criticalSection);
 	}
@@ -255,6 +257,24 @@ void Script::StopAll(void)
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
 		(*it)->Stop();
+	UnlockAll();
+}
+
+void Script::PauseAll(void)
+{
+	LockAll();
+	ScriptList list = GetScripts();
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+		(*it)->Pause();
+	UnlockAll();
+}
+
+void Script::ResumeAll(void)
+{
+	LockAll();
+	ScriptList list = GetScripts();
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+		(*it)->Resume();
 	UnlockAll();
 }
 
@@ -550,7 +570,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	if(!IsAborted() && functions.count(evtName))
+	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
 		char msg[50];
 		sprintf(msg, "Script::ExecEventAsync(%s)", evtName);
@@ -619,9 +639,7 @@ DWORD WINAPI FuncThread(void* data)
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_SetContextThread(evt->context);
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
-			JS_ClearContextThread(evt->context);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
@@ -631,7 +649,6 @@ DWORD WINAPI FuncThread(void* data)
 		// assume that the caller stole the context thread
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
-		JS_ClearContextThread(evt->context);
 	}
 	evt->owner->Unlock();
 	evt->owner->Resume();
@@ -643,6 +660,18 @@ DWORD WINAPI FuncThread(void* data)
 		delete[] evt->argv;
 	delete evt;
 	return 0;
+}
+
+JSTrapStatus debuggerCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
+{
+	// TODO: Have fun with this :D
+	const char* file = JS_GetScriptFilename(cx, script);
+	uintN line = JS_PCToLineNumber(cx, script, pc);
+	JSStackFrame* frame = NULL;
+	JS_FrameIterator(cx, &frame);
+	char* func = JS_GetStringBytes(JS_GetFunctionId(JS_GetFrameFunction(cx, frame)));
+	Log("Hit debugger at %s: %s@%d", file, func, line);
+	return JSTRAP_CONTINUE;
 }
 
 JSBool branchCallback(JSContext* cx, JSScript*)
@@ -673,6 +702,20 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	script->Unlock();
 	branchCount++;*/
 
+	return JS_TRUE;
+}
+
+JSBool gcCallback(JSContext *cx, JSGCStatus status)
+{
+	if(status == JSGC_BEGIN)
+	{
+		Script::PauseAll();
+		JS_SetContextThread(cx);
+	}
+	else if(status == JSGC_END)
+	{
+		Script::ResumeAll();
+	}
 	return JS_TRUE;
 }
 

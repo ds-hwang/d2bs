@@ -394,7 +394,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	
 	if(nType == 100)
 		pUnit = D2CLIENT_GetCursorItem();
-	else if (nType == 101)
+	else if(nType == 101)
 		pUnit = D2CLIENT_GetSelectedUnit();
 	else 
 		pUnit = GetUnit(szName, nClassId, nType, nMode, nUnitId);
@@ -407,11 +407,6 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!pmyUnit)
 		return JS_TRUE;
 
-	JSObject *jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-	if(!jsunit)
-		return JS_TRUE;
-
 	pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 	pmyUnit->dwClassId = nClassId;
 	pmyUnit->dwMode = nMode;
@@ -419,10 +414,11 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	pmyUnit->dwUnitId = pUnit->dwUnitId;
 	strcpy(pmyUnit->szName, szName);
 
-	JS_DefineProperties(cx, jsunit, unit_props);
-	JS_DefineFunctions(cx, jsunit, unit_methods);
+	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
-	JS_SetPrivate(cx, jsunit, pmyUnit);
+	if(!jsunit)
+		return JS_TRUE;
+
 	*rval = OBJECT_TO_JSVAL(jsunit);
 
 	return JS_TRUE;

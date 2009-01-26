@@ -95,6 +95,8 @@ public:
 	static void Startup(void);
 	static void Shutdown(void);
 	static void StopAll(void);
+	static void PauseAll(void);
+	static void ResumeAll(void);
 	static void FlushCache(void);
 	static ScriptList GetScripts(void);
 	static ScriptMap::iterator GetFirstScript(void);
@@ -145,5 +147,7 @@ public:
 
 DWORD WINAPI ScriptThread(void* data);
 DWORD WINAPI FuncThread(void* data);
+JSTrapStatus debuggerCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure);
 JSBool branchCallback(JSContext* cx, JSScript* script);
+JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
