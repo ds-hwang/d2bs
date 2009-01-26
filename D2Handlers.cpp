@@ -194,8 +194,8 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 	}
 	else if(pPacket[0] == 0x26)
 	{
-		CHAR* pName=(CHAR*)pPacket+10;
-		CHAR* pMessage=(CHAR*)pPacket + strlen(pName) + 11;
+		CHAR* pName = (CHAR*)pPacket+10;
+		CHAR* pMessage = (CHAR*)pPacket + strlen(pName) + 11;
 	
 		ChatEvent(pName, pMessage);
 	}
