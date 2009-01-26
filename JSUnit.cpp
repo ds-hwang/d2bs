@@ -106,7 +106,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_DEBUG:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bDebug);
 			break;
-		case ME_MERCCOST:
+		case ME_MERCREVIVECOST:
 			*vp = INT_TO_JSVAL((*p_D2CLIENT_MercReviveCost));
 			break;
 		default:
@@ -394,7 +394,10 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	
 	if(nType == 100)
 		pUnit = D2CLIENT_GetCursorItem();
-	else pUnit = GetUnit(szName, nClassId, nType, nMode, nUnitId);
+	else if (nType == 101)
+		pUnit = D2CLIENT_GetSelectedUnit();
+	else 
+		pUnit = GetUnit(szName, nClassId, nType, nMode, nUnitId);
 
 	if(!pUnit)
 		return JS_TRUE;
