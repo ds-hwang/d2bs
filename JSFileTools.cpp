@@ -143,11 +143,16 @@ JSAPI_FUNC(filetools_readText)
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
 
+	if((_access(porig, 0) != 0 && errno == ENOENT))
+		THROW_ERROR(cx, obj, "File not found");
+
 	FILE* fptr = fopen(porig, "r");
-	int size = _filelength(_fileno(fptr));
+	fseek(fptr, 0, SEEK_END);
+	int size = ftell(fptr);
+	fseek(fptr, 0, SEEK_SET);
 	char* contents = new char[size];
 	memset(contents, 0, size);
-	if(fread(contents, sizeof(char), size, fptr) != size && ferror(fptr))
+	if(fread(contents, 1, size, fptr) != size && ferror(fptr))
 		THROW_ERROR(cx, obj, _strerror("Read failed"));
 	fclose(fptr);
 

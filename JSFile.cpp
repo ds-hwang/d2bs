@@ -308,7 +308,9 @@ JSAPI_FUNC(file_readAll)
 
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
-		int size = _filelength(_fileno(fdata->fptr));
+		fseek(fdata->fptr, 0, SEEK_END);
+		int size = ftell(fdata->fptr);
+		fseek(fdata->fptr, 0, SEEK_SET);
 		char* contents = new char[size];
 		if(fread(contents, sizeof(char), size, fdata->fptr) != size && ferror(fdata->fptr))
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
