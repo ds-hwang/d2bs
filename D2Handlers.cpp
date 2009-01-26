@@ -248,8 +248,10 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
 	if((code == HC_ACTION) &&
+		// ignore key events if the key is a repeat
 		!(!!(lParam & 0x40000000) == 1 && !!(lParam & 0x80000000) == 0) &&
-		!(*p_D2CLIENT_ChatBoxFlag))
+		// ignore key events if the chatbox or the esc menu are open
+		(GameReady() && !(D2CLIENT_GetUIState(5) || D2CLIENT_GetUIState(9))))
 			KeyDownUpEvent(wParam, !!(lParam & 0x80000000));
 	
 	return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
