@@ -12,7 +12,7 @@ VOID script_finalize(JSContext *cx, JSObject *obj)
 		delete ptr;
 }
 
-INT script_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(script_getProperty)
 {
 	CDebug cDbg("script getProperty");
 
@@ -32,6 +32,9 @@ INT script_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case SCRIPT_RUNNING:
 			*vp = BOOLEAN_TO_JSVAL(script->it->second->IsRunning());
 			break;
+		case SCRIPT_THREADID:
+			*vp = INT_TO_JSVAL(script->it->second->GetThreadId());
+			break;
 		default:
 			break;
 	}
@@ -39,7 +42,7 @@ INT script_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-INT script_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(script_getNext)
 {
 	CDebug cDbg("script getNext");
 
@@ -53,7 +56,7 @@ INT script_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	return JS_TRUE;
 }
 
-INT script_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(script_stop)
 {
 	CDebug cDbg("script stop");
 
@@ -63,7 +66,23 @@ INT script_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	return JS_TRUE;
 }
 
-INT script_send(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(script_pause)
+{
+	CDebug cDbg("script pause");
+	ScriptIterator* script = (ScriptIterator*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	script->it->second->Pause();
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(script_resume)
+{
+	CDebug cDbg("script pause");
+	ScriptIterator* script = (ScriptIterator*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	script->it->second->Resume();
+	return JS_TRUE;	
+}
+
+JSAPI_FUNC(script_send)
 {
 	CDebug cDbg("script send");
 
@@ -78,7 +97,7 @@ INT script_send(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	return JS_TRUE;
 }
 
-JSBool my_getScript(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(my_getScript)
 {
 	CDebug cDbg("getScript");
 

@@ -33,7 +33,6 @@ void AutoRoot::Release()
 jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
-
 JSRuntime* Script::runtime = NULL;
 ScriptMap Script::activeScripts = ScriptMap();
 LPCRITICAL_SECTION Script::criticalSection = NULL;
@@ -233,10 +232,9 @@ void Script::Startup(void)
 void Script::Shutdown(void)
 {
 	LockAll();
-	Vars.bAbortScripts = TRUE;
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		delete *it;
+		delete (*it);
 
 	activeScripts.clear();
 
@@ -249,6 +247,15 @@ void Script::Shutdown(void)
 	UnlockAll();
 	DeleteCriticalSection(criticalSection);
 	delete criticalSection;
+}
+
+void Script::StopAll(void)
+{
+	LockAll();
+	ScriptList list = GetScripts();
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+		(*it)->Stop();
+	UnlockAll();
 }
 
 void Script::FlushCache(void)
@@ -325,6 +332,11 @@ int Script::GetActiveCount(bool countUnexecuted)
 int Script::GetExecutionCount(void)
 {
 	return execCount;
+}
+
+int Script::GetThreadId( void )
+{
+	return (threadHandle == NULL ? -1 : ::GetThreadId(threadHandle));
 }
 
 void Script::Run(void)
@@ -446,6 +458,15 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 		root->Take();
 		functions[evtName].push_back(root);
 	}
+}
+
+bool Script::IsRegisteredEvent( const char* evtName, jsval evtFunc )
+{
+	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
+		if((*it)->value() == evtFunc)
+			return true;
+
+	return false;
 }
 
 void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
@@ -627,8 +648,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	if(Vars.bAbortScripts || script->IsAborted() ||
-		((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
+	if(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
 		return JS_FALSE;
 
 	// disabled until I figure out how to fix the random GC crashes

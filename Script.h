@@ -93,6 +93,7 @@ public:
 	static Script* CompileCommand(const char* command);
 	static void Startup(void);
 	static void Shutdown(void);
+	static void StopAll(void);
 	static void FlushCache(void);
 	static ScriptList GetScripts(void);
 	static ScriptMap::iterator GetFirstScript(void);
@@ -117,6 +118,7 @@ public:
 	static int GetCount(void);
 	static int GetActiveCount(bool countUnexecuted = false);
 	int GetExecutionCount(void);
+	int GetThreadId(void);
 
 	void Lock(void);
 	void Unlock(void);
@@ -129,6 +131,7 @@ public:
 	bool Include(const char* file);
 
 	void RegisterEvent(const char* evtName, jsval evtFunc);
+	bool IsRegisteredEvent(const char* evtName, jsval evtFunc);
 	void UnregisterEvent(const char* evtName, jsval evtFunc);
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);

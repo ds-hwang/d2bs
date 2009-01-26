@@ -121,7 +121,7 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	}
 	else
 	{
-		Vars.bAbortScripts = TRUE;
+		Script::StopAll();
 		return JS_FALSE;
 	}
 

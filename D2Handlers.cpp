@@ -38,7 +38,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				Sleep(500);
 
 				Vars.dwGameTime = GetTickCount();
-				Vars.bAbortScripts = FALSE;
 				D2CLIENT_InitInventory();
 
 				char file[_MAX_PATH+_MAX_FNAME];
@@ -94,7 +93,6 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		if(!_strcmpi(argv[0], "start"))
 		{
 			Print("D2BS: Starting default.dbj!");
-			Vars.bAbortScripts = FALSE;
 
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
@@ -104,26 +102,22 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		}
 		else if(!_strcmpi(argv[0], "stop"))
 		{
-			if(!Vars.bAbortScripts)
+			if(Script::GetActiveCount() > 0)
 				Print("D2BS: Stopping all scripts!");
 
-			Vars.bAbortScripts = TRUE;
-			while(Script::GetActiveCount() > 0)
-				Sleep(500);
+			Script::StopAll();
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "reload"))
 		{
-			Print("D2BS: Stopping all scripts...");
-			Vars.bAbortScripts = TRUE;
-			while(Script::GetActiveCount() > 0)
-				Sleep(500);
+			if(Script::GetActiveCount() > 0)
+				Print("D2BS: Stopping all scripts...");
+			Script::StopAll();
 
 			Print("D2BS: Flushing the script cache...");
 			Script::FlushCache();
 
 			Print("D2BS: Starting default.dbj...");
-			Vars.bAbortScripts = FALSE;
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
@@ -140,8 +134,6 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			if(argc >= 2)
 			{
-				Vars.bAbortScripts = FALSE;
-
 				Script* script = Script::CompileCommand(szBuffer+5);
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
@@ -153,7 +145,6 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			if(argc >= 2)
 			{
 				Print("D2BS: Loading %s", argv[1]);
-				Vars.bAbortScripts = FALSE;
 
 				CHAR szPath[8192] = "";
 				sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);

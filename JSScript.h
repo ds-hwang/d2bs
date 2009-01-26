@@ -5,15 +5,13 @@
 #include "Script.h"
 
 VOID script_finalize(JSContext *cx, JSObject *obj);
-INT script_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(script_getProperty);
 
-#define DEFFNC(f) INT f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-
-DEFFNC(script_getNext)
-DEFFNC(script_stop)
-DEFFNC(script_send)
-
-#undef DEFFNC
+JSAPI_FUNC(script_getNext);
+JSAPI_FUNC(script_stop);
+JSAPI_FUNC(script_send);
+JSAPI_FUNC(script_pause);
+JSAPI_FUNC(script_resume);
 
 /**********************************************************
 
@@ -36,7 +34,6 @@ enum script_tinyid {
 	SCRIPT_THREADID,
 };
 
-
 static JSPropertySpec script_props[] = {
 	{"name",			SCRIPT_FILENAME,		JSPROP_PERMANENT_VAR},
 	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR},
@@ -47,6 +44,8 @@ static JSPropertySpec script_props[] = {
 
 static JSFunctionSpec script_methods[] = {
 	{"getNext",			script_getNext,		0},
+	{"pause",			script_pause,		0},
+	{"resume",			script_resume,		0},
 	{"stop",			script_stop,		0},
 	{"send",			script_send,		1},
 	{0},

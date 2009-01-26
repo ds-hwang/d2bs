@@ -105,7 +105,6 @@ struct Variables
 	DWORD	dwGameTime;
 	BOOL	bDontCatchNextMsg;
 	BOOL	bClickAction;
-	BOOL	bAbortScripts;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bDebug;
