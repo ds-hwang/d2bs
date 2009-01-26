@@ -1833,6 +1833,97 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	return JS_TRUE;
 }
 
+//presetunit = getPresetUnits( int area, int type, int classid, roomarray );
+//Summary: Returns an array of objects. Type, classid, and roomarray can be null. If classid is null, 
+// returns all preset units of that type in the area. If type is null, returns all preset units of all types in the area.
+JSAPI_FUNC(my_getPresetUnit)
+{
+	CDebug cDbg("getPresetUnit");
+
+	if(!GameReady()) return JS_TRUE;
+
+
+	if(argc < 1)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
+
+	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
+
+	if(!pLevel)
+	{
+		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
+
+	jsint nClassId = NULL;
+	jsint nType = NULL;
+
+	if(argc >= 2)
+	{
+		nType = JSVAL_TO_INT(argv[1]);
+	}
+	if(argc >= 3)
+	{
+		nClassId = JSVAL_TO_INT(argv[2]);
+	}
+
+	CriticalRoom cRoom;
+	cRoom.EnterSection();
+
+	bool bAddedRoom = FALSE;
+
+	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
+
+		bAddedRoom = FALSE;
+
+		if(!pRoom->pRoom1)
+		{
+			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+			bAddedRoom = TRUE;
+		}
+
+		for(PresetUnit* pUnit = pRoom->pPreset; pUnit; pUnit = pUnit->pPresetNext)
+		{
+			// Does it fit?
+			if((nType == NULL || pUnit->dwType == nType) && (nClassId == NULL || pUnit->dwTxtFileNo == nClassId))
+			{
+				// Yes it fits! Return it
+				myPresetUnit* mypUnit = new myPresetUnit;
+
+				mypUnit->dwPosX = pUnit->dwPosX;
+				mypUnit->dwPosY = pUnit->dwPosY;
+				mypUnit->dwRoomX = pRoom->dwPosX;
+				mypUnit->dwRoomY = pRoom->dwPosY;
+				mypUnit->dwType = pUnit->dwType;
+				mypUnit->dwId = pUnit->dwTxtFileNo;
+
+				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presentunit_props, mypUnit);
+				if(!obj)
+				{
+					delete mypUnit;
+					THROW_ERROR(cx, obj, "Failed to create presetunit object");
+				}
+
+				*rval = OBJECT_TO_JSVAL(obj);
+				return JS_TRUE;
+			}
+		}
+
+		if(bAddedRoom)
+		{
+			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+			bAddedRoom = FALSE;			
+		}
+	}
+
+	*rval = JSVAL_FALSE;
+
+	return JS_TRUE;
+}
+
 INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("getArea");

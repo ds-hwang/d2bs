@@ -20,6 +20,7 @@ JSAPI_FUNC(my_getWaypoint);
 JSAPI_FUNC(my_getScript);
 JSAPI_FUNC(my_getRoom);
 JSAPI_FUNC(my_getParty);
+JSAPI_FUNC(my_getPresetUnit);
 JSAPI_FUNC(my_getPresetUnits);
 JSAPI_FUNC(my_getArea);
 JSAPI_FUNC(my_getExits);
