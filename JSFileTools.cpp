@@ -146,6 +146,7 @@ JSAPI_FUNC(filetools_readText)
 	FILE* fptr = fopen(porig, "r");
 	int size = _filelength(_fileno(fptr));
 	char* contents = new char[size];
+	memset(contents, 0, size);
 	if(fread(contents, sizeof(char), size, fptr) != size && ferror(fptr))
 		THROW_ERROR(cx, obj, _strerror("Read failed"));
 	fclose(fptr);

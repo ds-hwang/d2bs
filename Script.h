@@ -77,6 +77,7 @@ private:
 	LPCRITICAL_SECTION scriptSection;
 	bool isLocked, isPaused;
 	HANDLE threadHandle;
+	DWORD threadId;
 
 	void InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
 					JSFunctionSpec* s_methods, JSPropertySpec* s_props);

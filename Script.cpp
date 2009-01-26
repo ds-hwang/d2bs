@@ -58,7 +58,7 @@ Script* Script::CompileCommand(const char* command)
 
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), scriptState(state), threadHandle(NULL)
+			execCount(0), isAborted(false), scriptState(state), threadHandle(NULL), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw "File not found";
@@ -336,7 +336,7 @@ int Script::GetExecutionCount(void)
 
 int Script::GetThreadId( void )
 {
-	return (threadHandle == NULL ? -1 : ::GetThreadId(threadHandle));
+	return (threadHandle == NULL ? -1 : threadId);
 }
 
 void Script::Run(void)
@@ -344,6 +344,7 @@ void Script::Run(void)
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(context, &main);

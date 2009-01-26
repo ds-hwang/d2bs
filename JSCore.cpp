@@ -14,7 +14,6 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("print");
 
-	JS_SetContextThread(cx);
 	for(uintN i = 0; i < argc; i++)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
@@ -29,17 +28,10 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 INT my_delay(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("delay");
-
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 	{
-//		JS_SetContextThread(cx);
 		int nDelay = JSVAL_TO_INT(argv[0]);
-		//jsrefcount depth = JS_SuspendRequest(cx);
-		// TODO: Fix this to sleep in, say, 10ms intervals... suspendrequest may be causing unforseen consequences, investigate later
 		Sleep(nDelay);
-		//JS_SetContextThread(cx);
-		//JS_ResumeRequest(cx, depth);
 	}
 
 	return JS_TRUE;
@@ -51,7 +43,6 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
-		JS_SetContextThread(cx);
 		Script* execScript = (Script*)JS_GetContextPrivate(cx);
 		ScriptState state = execScript->GetState();
 
@@ -81,7 +72,6 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
-		JS_SetContextThread(cx);
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 
 		if(script)
@@ -111,7 +101,6 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	if(argc > 0 && (JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1) ||
 				(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
 	{
-		JS_SetContextThread(cx);
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 
 		if(script)
@@ -134,7 +123,6 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(argc > 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 	{
-		JS_SetContextThread(cx);
 		*rval = JSVAL_VOID;
 		Private* myPrivate = (Private*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
@@ -218,7 +206,6 @@ INT my_beep(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("beep");
 
-	JS_SetContextThread(cx);
 	jsint nBeepId = NULL;
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
@@ -1452,7 +1439,6 @@ INT my_keystate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 JSAPI_FUNC(my_addEventListener)
 {
 	CDebug cDbg("addEventListener");
-	JS_SetContextThread(cx);
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(argv[1])))
 	{
 		Script* self = (Script*)JS_GetContextPrivate(cx);

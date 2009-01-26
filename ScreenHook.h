@@ -203,3 +203,8 @@ public:
 	uint GetX2(void) const { return x2; }
 	uint GetY2(void) const { return y2; }
 };
+
+class StatusWindow
+{
+
+};
