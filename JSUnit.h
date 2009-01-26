@@ -83,7 +83,7 @@ enum me_tinyid {
 	ME_QUITONERROR,
 	ME_MAXGAMETIME,
 	ME_DEBUG,
-	ME_MERCCOST
+	ME_MERCREVIVECOST
 };
 
 
@@ -111,7 +111,7 @@ static JSPropertySpec me_props[] = {
 	{"quitonerror",	ME_QUITONERROR,		JSPROP_STATIC_VAR},
 	{"maxgametime", ME_MAXGAMETIME,		JSPROP_STATIC_VAR},
 	{"debug",		ME_DEBUG,			JSPROP_STATIC_VAR},
-	{"merccost",	ME_MERCCOST,		JSPROP_PERMANENT_VAR},
+	{"mercrevivecost",	ME_MERCREVIVECOST,	JSPROP_PERMANENT_VAR},
 	{"type",		UNIT_TYPE,			JSPROP_PERMANENT_VAR},
 	{"classid",		UNIT_CLASSID,		JSPROP_PERMANENT_VAR},
 	{"mode",		UNIT_MODE,			JSPROP_PERMANENT_VAR},
