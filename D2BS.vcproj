@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="js32d.lib"
-				OutputFile="$(ProgramFiles)\Diablo II\d2bs\D2BS.dll"
+				OutputFile="C:\Documents and Settings\Administrator\Desktop\mBot\cGuard.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -222,10 +222,6 @@
 				RelativePath=".\D2BS.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\D2BS.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Diablo II"
@@ -332,6 +328,10 @@
 			</File>
 			<File
 				RelativePath=".\CriticalSections.h"
+				>
+			</File>
+			<File
+				RelativePath=".\D2BS.h"
 				>
 			</File>
 			<File

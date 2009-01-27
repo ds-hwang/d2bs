@@ -123,34 +123,34 @@ struct ControlText {
 	ControlText* pNext;//0x1C
 };
 
+
 struct Control {
-	DWORD dwType;					//0x00
-	DWORD _1[2];					//0x04
-	DWORD dwPosX;					//0x0C
-	DWORD dwPosY;					//0x10
-	DWORD dwSizeX;					//0x14
-	DWORD dwSizeY;					//0x18
-	DWORD fnCallback;				//0x1C
-	DWORD _2;						//0x20
-	DWORD fnClick;					//0x24
-	DWORD _3[5];					//0x38
-	Control *pNext;					//0x3C
-	DWORD _4[2];					//0x40
-	ControlText* pFirstText;		//0x48
-	ControlText* pLastText;			//0x48
-	ControlText* pSelectedText;		//0x4C
-	DWORD dwSelectStart;			//0x54
-	DWORD dwSelectEnd;				//0x58
+   DWORD dwType;
+   DWORD _1;
+   DWORD dwDisabled;
+   DWORD dwPosX;
+   DWORD dwPosY;
+   DWORD dwSizeX;
+   DWORD dwSizeY;
+   DWORD _2[8];
+   Control* pNext;
+   DWORD _3[2];
+   DWORD dwMaxLength;
+   DWORD _4[2];
+   DWORD dwSelectEnd;
+   DWORD dwSelectStart;
 	union {
-		wchar_t wText[256];			//0x5C
-		struct {
+		struct {//Textboxes
+			wchar_t wText[256];			//0x5C
+			DWORD dwCursorPos;
+			DWORD dwIsCloaked;
+		};
+		struct {//Buttons
 			DWORD _5[2];			//0x5C
 			wchar_t wText2[256];	//0x64
 		};
 	};
-	DWORD dwCursorPos;				//0x25C
-	DWORD dwIsCloaked;				//0x260
-};
+}; 
 
 #pragma pack(push)
 #pragma pack(1)
