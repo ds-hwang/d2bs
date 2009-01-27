@@ -65,17 +65,16 @@ private:
 
 	char* fileName;
 	int execCount;
-	bool isAborted;
 	ScriptState scriptState;
 	JSContext* context;
 	JSScript* script;
-	JSObject* globalObject;
-	JSObject* scriptObject;
-	JSObject* meObject;
+
+	JSObject *globalObject, *scriptObject, *meObject;
+	bool isLocked, isPaused, isAborted, singleStep;
+
 	IncludeList includes;
 	FunctionMap functions;
 	LPCRITICAL_SECTION scriptSection;
-	bool isLocked, isPaused;
 	HANDLE threadHandle;
 	DWORD threadId;
 
@@ -92,15 +91,22 @@ private:
 public:
 	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
 	static Script* CompileCommand(const char* command);
+
+	static JSRuntime* GetRuntime(void) { return runtime; }
+
 	static void Startup(void);
 	static void Shutdown(void);
-	static void StopAll(void);
-	static void PauseAll(void);
-	static void ResumeAll(void);
 	static void FlushCache(void);
+
 	static ScriptList GetScripts(void);
 	static ScriptMap::iterator GetFirstScript(void);
 	static ScriptMap::iterator GetLastScript(void);
+	static int GetCount(void);
+	static int GetActiveCount(bool countUnexecuted = false);
+
+	static void StopAll(void);
+	static void PauseAll(void);
+	static void ResumeAll(void);
 
 	static void LockAll(void);
 	static void UnlockAll(void);
@@ -112,16 +118,17 @@ public:
 	bool IsPaused(void);
 	void Stop(void);
 
-	static JSRuntime* GetRuntime(void) { return runtime; }
+	void EnableSingleStep(void);
+	void DisableSingleStep(void);
+	bool IsSingleStep(void);
+
 	char* GetFilename(void) { return fileName; }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
 	ScriptState GetState(void) { return scriptState; }
-	static int GetCount(void);
-	static int GetActiveCount(bool countUnexecuted = false);
 	int GetExecutionCount(void);
-	int GetThreadId(void);
+	DWORD GetThreadId(void);
 
 	void Lock(void);
 	void Unlock(void);
@@ -147,7 +154,11 @@ public:
 
 DWORD WINAPI ScriptThread(void* data);
 DWORD WINAPI FuncThread(void* data);
-JSTrapStatus debuggerCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure);
+
+JSBool watchHandler(JSContext* cx, JSObject* obj, jsval id, jsval old, jsval* newval, void* closure);
+JSTrapStatus debuggerCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
+JSTrapStatus exceptionCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
+void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure);
 JSBool branchCallback(JSContext* cx, JSScript* script);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

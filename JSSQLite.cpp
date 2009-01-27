@@ -91,7 +91,6 @@ JSAPI_FUNC(sqlite_ctor)
 	if(JSVAL_IS_BOOLEAN(argv[1]))
 		autoOpen = !!JSVAL_TO_BOOLEAN(argv[1]);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
 	sqlite3* db = NULL;
 	if(autoOpen) {
 		if(SQLITE_OK != sqlite3_open(path, &db)) {
@@ -112,7 +111,6 @@ JSAPI_FUNC(sqlite_ctor)
 	if(path[0] != ':')
 		delete[] path;
 
-	JS_ResumeRequest(cx, depth);
 	JSObject* jsdb = BuildObject(cx, &sqlite_db_ex.base, sqlite_methods, sqlite_props, dbobj);
 	if(!jsdb) {
 		sqlite3_close(db);
@@ -135,15 +133,12 @@ JSAPI_FUNC(sqlite_execute)
 		THROW_ERROR(cx, obj, "Invalid parameters in SQLite.execute");
 
 	char* sql = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), *err = NULL;
-	jsrefcount depth = JS_SuspendRequest(cx);
 	if(SQLITE_OK != sqlite3_exec(dbobj->db, sql, NULL, NULL, &err)) {
 		char msg[2048];
 		strcpy(msg, err);
 		sqlite3_free(err);
-		JS_ResumeRequest(cx, depth);
 		THROW_ERROR(cx, obj, msg);
 	}
-	JS_ResumeRequest(cx, depth);
 	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
@@ -159,16 +154,12 @@ JSAPI_FUNC(sqlite_query)
 
 	char* sql = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	sqlite3_stmt* stmt;
-	jsrefcount depth = JS_SuspendRequest(cx);
 	if(SQLITE_OK != sqlite3_prepare_v2(dbobj->db, sql, strlen(sql), &stmt, NULL)) {
-		JS_ResumeRequest(cx, depth);
 		THROW_ERROR(cx, obj, sqlite3_errmsg(dbobj->db));
 	}
 	if(stmt == NULL) {
-		JS_ResumeRequest(cx, depth);
 		THROW_ERROR(cx, obj, "Statement has no effect");
 	}
-	JS_ResumeRequest(cx, depth);
 
 	for(uintN i = 1; i < argc; i++) {
 		switch(JS_TypeOfValue(cx, argv[i])) {
@@ -233,11 +224,9 @@ JSAPI_FUNC(sqlite_open)
 	CDebug cDbg("sqlite open");
 	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db_ex.base, NULL);
 	if(!dbobj->open) {
-		jsrefcount depth = JS_SuspendRequest(cx);
 		if(SQLITE_OK != sqlite3_open(dbobj->path, &dbobj->db)) {
 			char msg[1024];
 			sprintf(msg, "Could not open database: %s", sqlite3_errmsg(dbobj->db));
-			JS_ResumeRequest(cx, depth);
 			THROW_ERROR(cx, obj, msg);
 		}
 	}
@@ -436,9 +425,7 @@ JSAPI_FUNC(sqlite_stmt_execute)
 
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
 	int res = sqlite3_step(stmtobj->stmt);
-	JS_ResumeRequest(cx, depth);
 
 	if(SQLITE_ROW != res && SQLITE_DONE != res)
 		THROW_ERROR(cx, obj, sqlite3_errmsg(stmtobj->assoc_db->db));
@@ -494,9 +481,7 @@ JSAPI_FUNC(sqlite_stmt_next)
 
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
 	int res = sqlite3_step(stmtobj->stmt);
-	JS_ResumeRequest(cx, depth);
 
 	if(SQLITE_ROW != res && SQLITE_DONE != res)
 		THROW_ERROR(cx, obj, sqlite3_errmsg(stmtobj->assoc_db->db));
@@ -518,11 +503,9 @@ JSAPI_FUNC(sqlite_stmt_skip)
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid parameter to SQLiteStatement.skip");
-	jsrefcount depth = JS_SuspendRequest(cx);
 	for(int i = JSVAL_TO_INT(argv[0])-1; i >= 0; i++) {
 		int res = sqlite3_step(stmtobj->stmt);
 		if(res != SQLITE_ROW) {
-			JS_ResumeRequest(cx, depth);
 			if(res == SQLITE_DONE) {
 				*rval = INT_TO_JSVAL((JSVAL_TO_INT(argv[0]-1)-i));
 				stmtobj->canGet = false;
@@ -533,7 +516,6 @@ JSAPI_FUNC(sqlite_stmt_skip)
 		}
 		stmtobj->canGet = true;
 	}
-	//JS_ResumeRequest(cx, depth);
 	return JS_TRUE;
 }
 

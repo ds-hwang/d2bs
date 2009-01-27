@@ -58,7 +58,8 @@ Script* Script::CompileCommand(const char* command)
 
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), isPaused(false), scriptState(state), threadHandle(NULL), threadId(0)
+			execCount(0), isAborted(false), isPaused(false), singleStep(false), scriptState(state),
+			threadHandle(NULL), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw "File not found";
@@ -225,6 +226,9 @@ void Script::Startup(void)
 	{
 		runtime = JS_NewRuntime(0x800000);
 		JS_SetGCCallbackRT(runtime, gcCallback);
+		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
+		//JS_SetCallHook(runtime, executeCallback, NULL);
+		//JS_SetExecuteHook(runtime, executeCallback, NULL);
 		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
 		criticalSection = new CRITICAL_SECTION;
 		InitializeCriticalSection(criticalSection);
@@ -354,7 +358,7 @@ int Script::GetExecutionCount(void)
 	return execCount;
 }
 
-int Script::GetThreadId( void )
+DWORD Script::GetThreadId(void)
 {
 	return (threadHandle == NULL ? -1 : threadId);
 }
@@ -418,6 +422,21 @@ void Script::Stop(void)
 	threadHandle = NULL;
 }
 
+void Script::EnableSingleStep(void)
+{
+	singleStep = true;
+}
+
+void Script::DisableSingleStep(void)
+{
+	singleStep = false;
+}
+
+bool Script::IsSingleStep(void)
+{
+	return singleStep;
+}
+
 bool Script::IsIncluded(const char* file)
 {
 	return !!includes.count(string(file));
@@ -429,14 +448,12 @@ bool Script::Include(const char* file)
 		return true;
 	Lock();
 	bool rval = false;
-	JS_BeginRequest(context);
 	JSScript* script = JS_CompileFile(context, globalObject, file);
 	if(script)
 	{
 		jsval dummy;
 		rval = !!JS_ExecuteScript(context, globalObject, script, &dummy);
 		JS_DestroyScript(context, script);
-		JS_EndRequest(context);
 		if(rval)
 			includes[file] = true;
 	}
@@ -662,15 +679,32 @@ DWORD WINAPI FuncThread(void* data)
 	return 0;
 }
 
-JSTrapStatus debuggerCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
+
+JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
 {
-	// TODO: Have fun with this :D
-	const char* file = JS_GetScriptFilename(cx, script);
-	uintN line = JS_PCToLineNumber(cx, script, pc);
-	JSStackFrame* frame = NULL;
-	JS_FrameIterator(cx, &frame);
-	char* func = JS_GetStringBytes(JS_GetFunctionId(JS_GetFrameFunction(cx, frame)));
-	Log("Hit debugger at %s: %s@%d", file, func, line);
+	return JSTRAP_CONTINUE;
+}
+
+void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+
+	if(!script)
+		return NULL;
+
+	static JSBool dummy;
+	dummy = (script->IsSingleStep() ? JS_TRUE : JS_FALSE);
+	return dummy ? &dummy : NULL;
+}
+
+JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+
+	if(!script)
+		return JSTRAP_CONTINUE;
+
+	script->EnableSingleStep();
 	return JSTRAP_CONTINUE;
 }
 
@@ -681,9 +715,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
 		return JS_FALSE;
 
-	// disabled until I figure out how to fix the random GC crashes
-	/*static uint32 branchCount = 0;
-	script->Lock();
+	static uint32 branchCount = 0;
 	// every 255 branches, yield the request to allow object sharing
 	// this crashes when the context thread is outside of the current thread
 	if((branchCount % 0xff) == 1) {
@@ -699,8 +731,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		JS_GC(cx);
 		JS_ResumeRequest(cx, depth);
 	}
-	script->Unlock();
-	branchCount++;*/
+	branchCount++;
 
 	return JS_TRUE;
 }

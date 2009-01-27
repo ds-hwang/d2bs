@@ -158,7 +158,6 @@ JSAPI_FUNC(file_open)
 	if(argc > 4 && JSVAL_IS_BOOLEAN(argv[4]))
 		lockFile = !!JSVAL_TO_BOOLEAN(argv[4]);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
 	if(binary)
 		mode += 3;
 	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
@@ -182,7 +181,6 @@ JSAPI_FUNC(file_open)
 	if(lockFile)
 		_lock_file(fptr);
 
-	JS_ResumeRequest(cx, depth);
 	JSObject* res = BuildObject(cx, &file_class_ex.base, file_methods, file_props, fdata);
 	if(!res)
 	{
@@ -216,10 +214,8 @@ JSAPI_FUNC(file_reopen)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 		if(!fdata->fptr) {
-			jsrefcount depth = JS_SuspendRequest(cx);
 			static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 			fdata->fptr = fopen(fdata->path, modes[fdata->mode]);
-			JS_ResumeRequest(cx, depth);
 			if(!fdata->fptr)
 				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
 		} else THROW_ERROR(cx, obj, "File is not closed");
