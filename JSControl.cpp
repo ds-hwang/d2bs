@@ -31,7 +31,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case CONTROL_TEXT:
 			if(pControl->dwIsCloaked == 33)
 				break;
-			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText2));
+			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText));
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			break;
 		case CONTROL_X:
