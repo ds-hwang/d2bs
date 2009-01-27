@@ -29,15 +29,10 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	switch(JSVAL_TO_INT(id))
 	{
 		case CONTROL_TEXT:
-			if (pControl->dwType == 6)
-				tmp = UnicodeToAnsi(pControl->wText2);
-			else
-				tmp = UnicodeToAnsi(pControl->wText);
-			if (pControl->dwIsCloaked == 33)
-				return JS_TRUE;
+			if(pControl->dwIsCloaked == 33)
+				break;
+			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText2));
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
-			if(tmp)
-				delete[] tmp;
 			break;
 		case CONTROL_X:
 			*vp = INT_TO_JSVAL(pControl->dwPosX);
@@ -64,7 +59,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(pControl->dwCursorPos);
 			break;
 		case CONTROL_MAXLENGTH:
-			*vp = INT_TO_JSVAL(pControl->dwMaxLength);
+//			*vp = INT_TO_JSVAL(pControl->dwMaxLength);
 			break;
 		case CONTROL_SELECTSTART:
 			*vp = INT_TO_JSVAL(pControl->dwSelectStart);
@@ -83,7 +78,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 }
 
 JSAPI_PROP(control_setProperty) {
-	CDebug cDbg("control getProperty");
+	CDebug cDbg("control setProperty");
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
@@ -119,8 +114,8 @@ JSAPI_PROP(control_setProperty) {
 		case CONTROL_CURSORPOS: {
 			if (JSVAL_IS_INT(*vp)) {
 				DWORD dwPos = JSVAL_TO_INT(*vp);
-				if (dwPos < 0 || dwPos > pControl->dwMaxLength)
-					return JS_TRUE;
+//				if (dwPos < 0 || dwPos > pControl->dwMaxLength)
+//					return JS_TRUE;
 				memset((VOID*)&pControl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;

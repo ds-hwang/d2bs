@@ -96,7 +96,6 @@ JSAPI_FUNC(sqlite_ctor)
 		if(SQLITE_OK != sqlite3_open(path, &db)) {
 			char msg[1024];
 			sprintf(msg, "Could not open database: %s", sqlite3_errmsg(db));
-			JS_ResumeRequest(cx, depth);
 			THROW_ERROR(cx, obj, msg);
 		}
 	}
