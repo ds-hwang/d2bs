@@ -14,8 +14,9 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {	
 	CDebug cDbg("unit getProperty");
 
-	if(!GameReady())
-		return JS_TRUE;
+	if (JSVAL_TO_INT(id) < OOG_WINDOWTITLE)
+		if(!GameReady())
+			return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -83,10 +84,10 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_REALMSHORT:
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szRealmName2));
 			break;
-		case ME_SCREENSIZE:
+		case OOG_SCREENSIZE:
 			*vp = INT_TO_JSVAL(D2GFX_GetScreenSize());
 			break;
-		case ME_WINDOWTITLE:
+		case OOG_WINDOWTITLE:
 			CHAR szTitle[128];
 			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
@@ -94,16 +95,16 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_PING:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_Ping);
 			break;
-		case ME_INGAME:
+		case OOG_INGAME:
 			*vp = BOOLEAN_TO_JSVAL(D2CLIENT_GetPlayerUnit() ? TRUE : FALSE);
 			break;
-		case ME_QUITONERROR:
+		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
 			break;
-		case ME_MAXGAMETIME:
+		case OOG_MAXGAMETIME:
 			*vp = INT_TO_JSVAL(Vars.dwMaxGameTime);
 			break;
-		case ME_DEBUG:
+		case OOG_DEBUG:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bDebug);
 			break;
 		case ME_MERCREVIVECOST:
@@ -355,11 +356,11 @@ INT unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(JSVAL_IS_BOOLEAN(*vp))
 				Vars.bQuitOnHostile = JSVAL_TO_BOOLEAN(*vp);
 			break;
-		case ME_QUITONERROR:
+		case OOG_QUITONERROR:
 			if(JSVAL_IS_BOOLEAN(*vp))
 				Vars.bQuitOnError	= JSVAL_TO_BOOLEAN(*vp);
 			break;
-		case ME_MAXGAMETIME:
+		case OOG_MAXGAMETIME:
 			if(JSVAL_IS_INT(*vp))
 				Vars.dwMaxGameTime	= JSVAL_TO_INT(*vp);
 			break;

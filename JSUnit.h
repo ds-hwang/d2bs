@@ -58,7 +58,6 @@ static JSClass unit_class = {
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize,
     NULL, NULL, 
 };
-
 enum me_tinyid {
 	ME_ACCOUNT = 100,
 	ME_CHARNAME,
@@ -77,15 +76,14 @@ enum me_tinyid {
 	ME_QUITONHOSTILE,
 	ME_REALM,
 	ME_REALMSHORT,
-	ME_SCREENSIZE,
-	ME_WINDOWTITLE,
-	ME_INGAME,
-	ME_QUITONERROR,
-	ME_MAXGAMETIME,
-	ME_DEBUG,
-	ME_MERCREVIVECOST
+	ME_MERCREVIVECOST,
+	OOG_WINDOWTITLE,
+	OOG_DEBUG,
+	OOG_SCREENSIZE,
+	OOG_INGAME,
+	OOG_QUITONERROR,
+	OOG_MAXGAMETIME,
 };
-
 
 static JSPropertySpec me_props[] = {
 	{"account",		ME_ACCOUNT,			JSPROP_PERMANENT_VAR},
@@ -105,12 +103,6 @@ static JSPropertySpec me_props[] = {
 	{"quitonhostile",ME_QUITONHOSTILE,	JSPROP_STATIC_VAR}, // Goddamnit TPPK whores..
 	{"realm",		ME_REALM,			JSPROP_PERMANENT_VAR},
 	{"realmshort",	ME_REALMSHORT,		JSPROP_PERMANENT_VAR},
-	{"screensize",	ME_SCREENSIZE,		JSPROP_PERMANENT_VAR},
-	{"windowtitle",	ME_WINDOWTITLE,		JSPROP_PERMANENT_VAR},
-	{"ingame",		ME_INGAME,			JSPROP_PERMANENT_VAR},
-	{"quitonerror",	ME_QUITONERROR,		JSPROP_STATIC_VAR},
-	{"maxgametime", ME_MAXGAMETIME,		JSPROP_STATIC_VAR},
-	{"debug",		ME_DEBUG,			JSPROP_STATIC_VAR},
 	{"mercrevivecost",	ME_MERCREVIVECOST,	JSPROP_PERMANENT_VAR},
 	{"type",		UNIT_TYPE,			JSPROP_PERMANENT_VAR},
 	{"classid",		UNIT_CLASSID,		JSPROP_PERMANENT_VAR},
@@ -146,13 +138,19 @@ static JSPropertySpec me_props[] = {
 	{"node",		ITEM_NODE,			JSPROP_PERMANENT_VAR},
 	{"location",	ITEM_LOC,			JSPROP_PERMANENT_VAR},
 	{"sizex",		ITEM_SIZEX,			JSPROP_PERMANENT_VAR},
-	{"uniqueid",	UNIT_UNIQUEID,		JSPROP_PERMANENT_VAR},
 
 	{"sizey",		ITEM_SIZEY,			JSPROP_PERMANENT_VAR},
 	{"itemType",	ITEM_Type,			JSPROP_PERMANENT_VAR},
 	{"description", ITEM_DESC,			JSPROP_PERMANENT_VAR},
 	{"bodylocation",ITEM_BODYLOCATION,	JSPROP_PERMANENT_VAR},
 	{"ilvl",		ITEM_LEVEL,			JSPROP_PERMANENT_VAR},
+
+	{"screensize",	OOG_SCREENSIZE,		JSPROP_PERMANENT_VAR},
+	{"windowtitle",	OOG_WINDOWTITLE,	JSPROP_PERMANENT_VAR},
+	{"ingame",		OOG_INGAME,			JSPROP_PERMANENT_VAR},
+	{"quitonerror", OOG_QUITONERROR,	JSPROP_STATIC_VAR},
+	{"maxgametime", OOG_MAXGAMETIME,	JSPROP_STATIC_VAR},
+	{"debug",		OOG_DEBUG,			JSPROP_STATIC_VAR},
 	{0},
 };
 
