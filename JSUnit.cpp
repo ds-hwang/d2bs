@@ -201,6 +201,12 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				return JS_TRUE;
 			}
 			break;
+		case UNIT_UNIQUEID:
+			if (pUnit->dwType == 1 && pUnit->pMonsterData->fBoss && pUnit->pMonsterData->fNormal)
+				*vp = INT_TO_JSVAL(pUnit->pMonsterData->wUniqueNo);
+			else
+				*vp = INT_TO_JSVAL(-1);
+			break;
 		case ITEM_CODE: // replace with better method if found
 			if(!(pUnit->dwType == UNIT_ITEM) && pUnit->pItemData)
 				break;
