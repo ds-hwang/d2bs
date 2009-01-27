@@ -37,6 +37,7 @@ static JSFunctionSpec global_funcs[] = {
 	// disabled!
 	//{"getScreenHook",		my_getScreenhook,		0},
 	{"getTickCount",		my_getTickCount,		0},
+	{"debugLog",			my_debugLog,			1},
 
 	{"print",				my_print,				1},
 	{"delay",				my_delay,				1},

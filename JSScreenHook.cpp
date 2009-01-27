@@ -24,8 +24,9 @@ JSAPI_FUNC(frame_ctor) {
 	if(hoverF != NULL)
 		hover = argv[8];
 
+	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
 	// framehooks don't work out of game -- they just crash
-	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, !!automap, opacity, (Align)align, IG);
+	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, !!automap, opacity, (Align)align, pState);
 
 	if (!pFramehook)
 		THROW_ERROR(cx, obj, "Failed to create framehook");
@@ -140,7 +141,9 @@ JSAPI_FUNC(box_ctor) {
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	BoxHook* pBoxHook = new BoxHook(script, 0, 0, 0, 0, false, 0, 0, Left, Perm);
+	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
+
+	BoxHook* pBoxHook = new BoxHook(script, 0, 0, 0, 0, false, 0, 0, Left, pState);
 
 	if (!pBoxHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a box class.");
@@ -291,7 +294,8 @@ JSAPI_FUNC(line_ctor) {
 	if(argc > 5 && JSVAL_IS_INT(argv[5]) || JSVAL_IS_BOOLEAN(argv[5]))
 		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
 
-	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, automap, color, 0, Left, script->GetState() == InGame ? IG : OOG);
+	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
+	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, automap, color, 0, Left, pState);
 
 	if (!pLineHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
@@ -417,7 +421,8 @@ JSAPI_FUNC(text_ctor) {
 	if(hoverF != NULL)
 		hover = argv[8];
 
-	TextHook* pTextHook = new TextHook(script, szText, x, y, !!automap, font, color, 0, (Align)align, script->GetState() == InGame ? IG : OOG);
+	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
+	TextHook* pTextHook = new TextHook(script, szText, x, y, !!automap, font, color, 0, (Align)align, pState);
 
 	if (!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");

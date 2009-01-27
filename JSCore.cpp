@@ -1273,6 +1273,18 @@ INT my_version(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	return JS_TRUE;	
 }
 
+INT my_debugLog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+	CDebug cDbg("debugLog");
+
+	if (argc == 0)
+		return JS_TRUE;
+
+	CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	Log("%s", pText);
+
+	return JS_TRUE;
+}
+
 INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("runGC");

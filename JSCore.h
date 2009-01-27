@@ -27,6 +27,7 @@ JSAPI_FUNC(my_getExits);
 JSAPI_FUNC(my_getBaseStat);
 JSAPI_FUNC(my_getControl);
 JSAPI_FUNC(my_getPlayerFlag);
+JSAPI_FUNC(my_debugLog);
 
 JSAPI_FUNC(my_print);
 JSAPI_FUNC(my_delay);
