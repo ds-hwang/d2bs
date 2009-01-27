@@ -14,8 +14,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {	
 	CDebug cDbg("unit getProperty");
 
-	if (JSVAL_TO_INT(id) < OOG_WINDOWTITLE)
-		if(!GameReady())
+	if ((JSVAL_TO_INT(id) < OOG_WINDOWTITLE) && !GameReady())
 			return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
@@ -196,6 +195,8 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 					SpecType |= 0x04;
 				if(pUnit->pMonsterData->fChamp & 1)
 					SpecType |= 0x02;
+				if((pUnit->pMonsterData->fBoss & 1)&& (pUnit->pMonsterData->fNormal & 1))
+					SpecType |= 0x01;
 				if(pUnit->pMonsterData->fNormal & 1)
 					SpecType |= 0x00;
 				*vp = INT_TO_JSVAL(SpecType);
