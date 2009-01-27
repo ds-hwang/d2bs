@@ -361,6 +361,7 @@ int Script::GetThreadId( void )
 
 void Script::Run(void)
 {
+	isAborted = false;
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
@@ -410,12 +411,11 @@ void Script::Stop(void)
 	while(IsRunning())
 		Sleep(500);
 
-	TerminateThread(threadHandle, 0);
-	CloseHandle(threadHandle);
-	threadHandle = NULL;
-
 	ClearAllEvents();
 	Genhook::Clean(this);
+
+	CloseHandle(threadHandle);
+	threadHandle = NULL;
 }
 
 bool Script::IsIncluded(const char* file)

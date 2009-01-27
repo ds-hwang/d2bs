@@ -1438,7 +1438,7 @@ INT my_keystate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 JSAPI_FUNC(my_addEventListener)
 {
 	CDebug cDbg("addEventListener");
-	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(argv[1])))
+	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
 		Script* self = (Script*)JS_GetContextPrivate(cx);
 		self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
