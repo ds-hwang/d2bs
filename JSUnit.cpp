@@ -711,7 +711,7 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(nState > 159 || nState < 0)
 		return JS_TRUE;
 
-	*rval = INT_TO_JSVAL(D2COMMON_GetUnitState(pUnit, nState));
+	*rval = BOOLEAN_TO_JSVAL(!!D2COMMON_GetUnitState(pUnit, nState));
 
 	return JS_TRUE;
 }
