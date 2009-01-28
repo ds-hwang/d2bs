@@ -8,7 +8,7 @@
 
 using namespace std;
 
-AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(1) { JS_AddRoot(cx, &var); }
+AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(0) { Take(); }
 AutoRoot::~AutoRoot()
 {
 	if(!(count--))
@@ -17,9 +17,11 @@ AutoRoot::~AutoRoot()
 		DebugBreak();
 		exit(3);
 	}
+	Script::LockAll();
 	JS_RemoveRoot(context, &var);
+	Script::UnlockAll();
 }
-void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
+void AutoRoot::Take() { count++; Script::LockAll(); JS_AddRoot(context, &var); Script::UnlockAll(); }
 void AutoRoot::Release()
 {
 	count--;
@@ -49,7 +51,7 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 			return activeScripts[file];
 		return new Script(file, state);
 	} catch(std::exception e) {
-		Print(e.what());
+		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
 }
@@ -61,7 +63,7 @@ Script* Script::CompileCommand(const char* command)
 			return activeScripts[command];
 		return new Script(command, Command);
 	} catch(std::exception e) {
-		Print(e.what());
+		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
 }
@@ -754,13 +756,19 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
+	static jsrefcount depth;
 	if(status == JSGC_BEGIN)
 	{
 		Script::PauseAll();
+		Script::LockAll();
 		JS_SetContextThread(cx);
+		depth = JS_SuspendRequest(cx);
 	}
 	else if(status == JSGC_END)
 	{
+		JS_ResumeRequest(cx, depth);
+		depth = 0;
+		Script::UnlockAll();
 		Script::ResumeAll();
 	}
 	return JS_TRUE;
@@ -769,8 +777,8 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
 	char msg[1024];
-	char* type = (JSREPORT_IS_WARNING(report->flags) ? "Warning" : "Error");
-	sprintf(msg, "[%s] %s@%d: %s", type, report->filename, report->lineno, message);
+	char* type = (JSREPORT_IS_WARNING(report->flags) ? "ÿc9Warning" : "ÿc1Error");
+	sprintf(msg, "[%sÿc0] %s/line %d: %s", type, (report->filename+strlen(Vars.szScriptPath)+1), report->lineno, message);
 	Log(msg);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if(script && script->GetState() == InGame || script->GetState() == Command)
