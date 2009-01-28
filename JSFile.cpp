@@ -173,13 +173,14 @@ JSAPI_FUNC(file_open)
 		fclose(fptr);
 		THROW_ERROR(cx, obj, "Couldn't allocate memory for the FileData object");
 	}
+
 	fdata->mode = mode;
 	fdata->path = _strdup(path);
 	fdata->autoflush = autoflush;
 	fdata->locked = lockFile;
 	fdata->fptr = fptr;
-//	if(lockFile)
-//		_lock_file(fptr);
+	if(lockFile)
+		_lock_file(fptr);
 
 	JSObject* res = BuildObject(cx, &file_class_ex.base, file_methods, file_props, fdata);
 	if(!res)
@@ -199,6 +200,8 @@ JSAPI_FUNC(file_close)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 		if(fdata->fptr) {
+			if(fdata->locked)
+				_unlock_file(fdata->fptr);
 			if(!!fclose(fdata->fptr))
 				THROW_ERROR(cx, obj, _strerror("Close failed"));
 			fdata->fptr = NULL;
