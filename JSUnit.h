@@ -82,7 +82,7 @@ enum me_tinyid {
 	OOG_SCREENSIZE,
 	OOG_INGAME,
 	OOG_QUITONERROR,
-	OOG_MAXGAMETIME,
+	OOG_MAXGAMETIME
 };
 
 static JSPropertySpec me_props[] = {
