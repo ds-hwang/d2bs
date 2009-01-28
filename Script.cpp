@@ -40,20 +40,30 @@ bool Script::isAllLocked = false;
 
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 {
-	if(recompile && activeScripts.count(file)) {
-		delete activeScripts[file];
+	try {
+		if(recompile && activeScripts.count(file)) {
+			delete activeScripts[file];
+			return new Script(file, state);
+		}
+		if(activeScripts.count(file) > 0 && !activeScripts[file]->IsRunning())
+			return activeScripts[file];
 		return new Script(file, state);
+	} catch(std::exception e) {
+		Print(e.what());
+		return NULL;
 	}
-	if(activeScripts.count(file) > 0 && !activeScripts[file]->IsRunning())
-		return activeScripts[file];
-	return new Script(file, state);
 }
 
 Script* Script::CompileCommand(const char* command)
 {
-	if(activeScripts.count(command) > 0 && !activeScripts[command]->IsRunning())
-		return activeScripts[command];
-	return new Script(command, Command);
+	try {
+		if(activeScripts.count(command) > 0 && !activeScripts[command]->IsRunning())
+			return activeScripts[command];
+		return new Script(command, Command);
+	} catch(std::exception e) {
+		Print(e.what());
+		return NULL;
+	}
 }
 
 Script::Script(const char* file, ScriptState state) :
@@ -62,7 +72,7 @@ Script::Script(const char* file, ScriptState state) :
 			threadHandle(NULL), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
-		throw "File not found";
+		throw std::exception("File not found");
 
 	scriptSection = new CRITICAL_SECTION;
 	InitializeCriticalSection(scriptSection);
@@ -70,7 +80,7 @@ Script::Script(const char* file, ScriptState state) :
 	fileName = _strdup(file);
 	context = JS_NewContext(runtime, 0x2000);
 	if(!context)
-		throw "Couldn't create the context";
+		throw std::exception("Couldn't create the context");
 	JS_BeginRequest(context);
 	try {
 		JS_SetContextPrivate(context, this);
@@ -81,7 +91,7 @@ Script::Script(const char* file, ScriptState state) :
 
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
 		if(!globalObject)
-			throw "Couldn't create the global object";
+			throw std::exception("Couldn't create the global object");
 
 		JS_InitStandardClasses(context, globalObject);
 		JS_DefineFunctions(context, globalObject, global_funcs);
@@ -99,7 +109,7 @@ Script::Script(const char* file, ScriptState state) :
 		myUnit* lpUnit = new myUnit;
 
 		if(!lpUnit)
-			throw "Couldn't define the 'me' object!";
+			throw std::exception("Couldn't define the 'me' object!");
 
 		memset(lpUnit, NULL, sizeof(myUnit));
 
@@ -157,18 +167,18 @@ Script::Script(const char* file, ScriptState state) :
 		else
 			script = JS_CompileFile(context, globalObject, fileName);
 		if(!script)
-			throw "Couldn't compile the script";
+			throw std::exception("Couldn't compile the script");
 
 		scriptObject = JS_NewScriptObject(context, script);
 		if(!scriptObject)
-			throw "Couldn't create the script object";
+			throw std::exception("Couldn't create the script object");
 
 		JS_AddNamedRoot(context, &meObject, "me object");
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		RegisterScript(this);
 		Unlock();
-	} catch(const char*) {
+	} catch(...) {
 		Unlock();
 		DeleteCriticalSection(scriptSection);
 		delete scriptSection;

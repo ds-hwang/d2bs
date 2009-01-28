@@ -44,7 +44,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				char file[_MAX_PATH+_MAX_FNAME];
 				sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 				Script* script = Script::CompileFile(file, InGame);
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+				if(script)
+					CreateThread(0, 0, ScriptThread, script, 0, 0);
 
 				bInGame = TRUE;
 			}
@@ -65,7 +66,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					sprintf(file, "%s\\starter.dbj", Vars.szScriptPath);
 					if(_access(file, 0) == 0) {
 						Script* script = Script::CompileFile(file, OutOfGame);
-						CreateThread(0, 0, ScriptThread, script, 0, 0);
+						if(script)
+							CreateThread(0, 0, ScriptThread, script, 0, 0);
 						bStarterScript = TRUE;
 					}
 				}
@@ -98,7 +100,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
-			CreateThread(0, 0, ScriptThread, script, 0, 0);
+			if(script)
+				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "stop"))
@@ -122,7 +125,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
-			CreateThread(0, 0, ScriptThread, script, 0, 0);
+			if(script)
+				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "flush"))
@@ -136,7 +140,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			if(argc >= 2)
 			{
 				Script* script = Script::CompileCommand(szBuffer+5);
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+				if(script)
+					CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
 
 			result = -1;
@@ -151,7 +156,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
 
 				Script* script = Script::CompileFile(szPath, InGame, true);
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+				if(script)
+					CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
 
 			result = -1;

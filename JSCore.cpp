@@ -56,7 +56,8 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			if(_access(lpszBuf, 0) == 0)
 			{
 				Script* script = Script::CompileFile(lpszBuf, state);
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+				if(script)
+					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				*rval = JSVAL_TRUE;
 			}
 			else *rval = JSVAL_FALSE;
