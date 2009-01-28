@@ -392,18 +392,22 @@ void Script::Run(void)
 void Script::Pause(void)
 {
 	Lock();
-	if(threadId != GetCurrentThreadId() && !IsPaused() && threadHandle)
+	if(!IsAborted() && threadId != GetCurrentThreadId() && !IsPaused() && threadHandle)
+	{
 		SuspendThread(threadHandle);
-	isPaused = true;
+		isPaused = true;
+	}
 	Unlock();
 }
 
 void Script::Resume(void)
 {
 	Lock();
-	if(threadId != GetCurrentThreadId() && IsPaused() && threadHandle)
+	if(!IsAborted() && threadId != GetCurrentThreadId() && IsPaused() && threadHandle)
+	{
 		ResumeThread(threadHandle);
-	isPaused = false;
+		isPaused = false;
+	}
 	Unlock();
 }
 
@@ -713,9 +717,6 @@ JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc,
 JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
-	while(script->IsPaused())
-		Sleep(50);
 
 	if(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
 		return JS_FALSE;
