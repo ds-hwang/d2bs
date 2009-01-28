@@ -76,7 +76,7 @@ JSAPI_FUNC(script_pause)
 
 JSAPI_FUNC(script_resume)
 {
-	CDebug cDbg("script pause");
+	CDebug cDbg("script resume");
 	ScriptIterator* script = (ScriptIterator*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	script->it->second->Resume();
 	return JS_TRUE;	

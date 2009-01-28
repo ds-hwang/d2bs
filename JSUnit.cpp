@@ -14,6 +14,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {	
 	CDebug cDbg("unit getProperty");
 
+	// TODO: Properly fix this...
 	if ((JSVAL_TO_INT(id) < OOG_WINDOWTITLE) && !GameReady())
 			return JS_TRUE;
 

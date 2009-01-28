@@ -540,10 +540,8 @@ void Script::ClearEvent(const char* evtName)
 
 void Script::ClearAllEvents(void)
 {
-	Lock();
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
-	Unlock();
 }
 
 JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval)
