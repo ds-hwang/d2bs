@@ -781,7 +781,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	sprintf(msg, "[%sÿc0] %s/line %d: %s", type, (report->filename+strlen(Vars.szScriptPath)+1), report->lineno, message);
 	Log(msg);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-	if(script && script->GetState() == InGame || script->GetState() == Command)
+	if(script && script->GetState() != OutOfGame)
 	{
 		if(strlen(msg) <= 200)
 			Print(msg);

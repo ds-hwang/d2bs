@@ -235,7 +235,8 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(pCopy->dwData == 0x1337) // 0x1337 = Execute Script
 				{
 					Script* script = Script::CompileCommand((char*)pCopy->lpData);
-					CreateThread(0, 0, ScriptThread, script, 0, 0);
+					if(script)
+						CreateThread(0, 0, ScriptThread, script, 0, 0);
 				}
 				CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
