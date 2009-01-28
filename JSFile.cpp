@@ -178,8 +178,8 @@ JSAPI_FUNC(file_open)
 	fdata->autoflush = autoflush;
 	fdata->locked = lockFile;
 	fdata->fptr = fptr;
-	if(lockFile)
-		_lock_file(fptr);
+//	if(lockFile)
+//		_lock_file(fptr);
 
 	JSObject* res = BuildObject(cx, &file_class_ex.base, file_methods, file_props, fdata);
 	if(!res)
