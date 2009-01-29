@@ -205,7 +205,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			}
 			break;
 		case UNIT_UNIQUEID:
-			if (pUnit->dwType == 1 && pUnit->pMonsterData->fBoss && pUnit->pMonsterData->fNormal)
+			if(pUnit->dwType == UNIT_MONSTER && pUnit->pMonsterData->fBoss && pUnit->pMonsterData->fNormal)
 				*vp = INT_TO_JSVAL(pUnit->pMonsterData->wUniqueNo);
 			else
 				*vp = INT_TO_JSVAL(-1);

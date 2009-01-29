@@ -11,29 +11,32 @@ VOID Print(CHAR* szFormat, ...)
 	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
-	if(len > 200)
+#define MAXLEN 500
+	if(len > MAXLEN)
 	{
-		for(int i = 0; i < (len/200)+1; i++)
+		for(int i = 0; i < (len/MAXLEN)+1; i++)
 		{
-			char tmp[201] = "";
-			memcpy(tmp, szString+i*200, 200);
+			char tmp[MAXLEN+1] = "";
+			memcpy(tmp, szString+i*MAXLEN, MAXLEN);
 			Print(tmp);
 		}
 		delete[] szString;
 		return;
 	}
+#undef MAXLEN
 
 	EnterCriticalSection(&Vars.cPrintSection);
 	if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
 		wchar_t* wOutput = AnsiToUnicode(szString);
-		if(wcslen(wOutput) > 200)
-			D2CLIENT_PrintGameString(L"Failed to print: string longer than 200 chars!", 0);
-		else
-			D2CLIENT_PrintGameString(wOutput, 0);
+		// the 200 character limit seems to have been lifted... longer than 200 characters didn't crash
+		D2CLIENT_PrintGameString(wOutput, 0);
 		delete[] wOutput;
-	} else if(*p_D2WIN_FirstControl) {
+		// TODO: Fix this detection to figure out if we're in a channel or not
+	} else if(false) {
 		D2MULTI_PrintChannelText(szString, NULL);
+	} else {
+		MessageBox(0, szString, 0);
 	}
 	LeaveCriticalSection(&Vars.cPrintSection);
 	delete[] szString;

@@ -780,15 +780,8 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	char* type = (JSREPORT_IS_WARNING(report->flags) ? "ÿc9Warning" : "ÿc1Error");
 	sprintf(msg, "[%sÿc0] %s/line %d: %s", type, (report->filename+strlen(Vars.szScriptPath)+1), report->lineno, message);
 	Log(msg);
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	if(script && script->GetState() != OutOfGame)
-	{
-		if(strlen(msg) <= 200)
-			Print(msg);
-		else
-			Print("%s logged to D2BS.log!", type);
-	} else
-		MessageBox(0, msg, 0, 0);
+	// all potential cases are handled inside Print now
+	Print(msg);
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
 }
