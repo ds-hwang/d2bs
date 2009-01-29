@@ -69,7 +69,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					sprintf(file, "%s\\starter.dbj", Vars.szScriptPath);
 					if(_access(file, 0) == 0) {
 
-						clickControl((Control*)*p_D2WIN_FirstControl);
+						clickControl(*p_D2WIN_FirstControl);
 						Script* script = Script::CompileFile(file, OutOfGame);
 						if(script)
 							CreateThread(0, 0, ScriptThread, script, 0, 0);

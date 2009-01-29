@@ -730,7 +730,10 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	if(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
+	if(script->IsAborted())
+		return JS_FALSE;
+
+	if((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit())
 		return JS_FALSE;
 
 	return JS_TRUE;
