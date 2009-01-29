@@ -99,6 +99,7 @@ JSAPI_PROP(control_setProperty) {
 				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				wchar_t* szwText = AnsiToUnicode(pText);
 				D2WIN_SetControlText(pControl, szwText);
+				delete[] szwText;
 			}
 			break;
 		}

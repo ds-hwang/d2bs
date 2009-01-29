@@ -142,10 +142,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
 			break;
 		case UNIT_AREA:
-			Room1* pRoom;
-
-			pRoom = D2COMMON_GetRoomFromUnit(pUnit);
-
+			Room1* pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 			if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel)
 				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);			
 			break;
@@ -328,7 +325,13 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case OBJECT_TYPE:
 			if(pUnit->dwType == UNIT_OBJECT)
 				if(pUnit->pObjectData)
-					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
+				{
+					Room1* pRoom = D2COMMON_GetRoomFromUnit(pUnit);
+					if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel && IsTownLevel(pRoom->pRoom2->pLevel->dwLevelNo))
+						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
+					else
+						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
+				}
 		break;
 		case ME_WSWITCH:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
