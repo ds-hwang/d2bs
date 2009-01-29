@@ -11,6 +11,18 @@ VOID Print(CHAR* szFormat, ...)
 	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
+	if(len > 200)
+	{
+		for(int i = 0; i < (len/200)+1; i++)
+		{
+			char tmp[201] = "";
+			memcpy(tmp, szString+i*200, 200);
+			Print(tmp);
+		}
+		delete[] szString;
+		return;
+	}
+
 	EnterCriticalSection(&Vars.cPrintSection);
 	if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
