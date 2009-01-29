@@ -733,24 +733,6 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
 		return JS_FALSE;
 
-	static uint32 branchCount = 0;
-	// every 255 branches, yield the request to allow object sharing
-	// this crashes when the context thread is outside of the current thread
-	if((branchCount % 0xff) == 1) {
-		JS_YieldRequest(cx);
-	// every 4095 branches, check to see if we should GC
-	} else if((branchCount % 0xfff) == 1) {
-		jsrefcount depth = JS_SuspendRequest(cx);
-		JS_MaybeGC(cx);
-		JS_ResumeRequest(cx, depth);
-	// every 65535 branches, force a GC
-	} else if((branchCount % 0xffff) == 1) {
-		jsrefcount depth = JS_SuspendRequest(cx);
-		JS_GC(cx);
-		JS_ResumeRequest(cx, depth);
-	}
-	branchCount++;
-
 	return JS_TRUE;
 }
 
