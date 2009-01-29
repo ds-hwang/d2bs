@@ -251,6 +251,7 @@ void Script::Startup(void)
 
 void Script::Shutdown(void)
 {
+	Script::StopAll(true);
 	LockAll();
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
