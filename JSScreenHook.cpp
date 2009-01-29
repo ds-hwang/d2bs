@@ -24,9 +24,8 @@ JSAPI_FUNC(frame_ctor) {
 	if(hoverF != NULL)
 		hover = argv[8];
 
-	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
 	// framehooks don't work out of game -- they just crash
-	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, !!automap, opacity, (Align)align, pState);
+	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, !!automap, opacity, (Align)align, IG);
 
 	if (!pFramehook)
 		THROW_ERROR(cx, obj, "Failed to create framehook");
@@ -75,6 +74,9 @@ JSAPI_PROP(frame_getProperty) {
 		case FRAME_VISIBLE:
 			*vp = BOOLEAN_TO_JSVAL(pFramehook->GetIsVisible());
 			break;
+		case FRAME_ZORDER:
+			*vp = INT_TO_JSVAL(pFramehook->GetZOrder());
+			break;
 		case FRAME_ONCLICK:
 			*vp = pFramehook->GetClickHandler();
 			break;
@@ -113,6 +115,10 @@ JSAPI_PROP(frame_setProperty) {
 		case FRAME_VISIBLE:
 			if(JSVAL_IS_INT(*vp))
 				pFramehook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			break;
+		case FRAME_ZORDER:
+			if(JSVAL_IS_INT(*vp))
+				pFramehook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_ONCLICK:
 			pFramehook->SetClickHandler(*vp);
@@ -208,6 +214,9 @@ JSAPI_PROP(box_getProperty) {
 		case BOX_VISIBLE:
 			*vp = BOOLEAN_TO_JSVAL(pBoxHook->GetIsVisible());
 			break;
+		case BOX_ZORDER:
+			*vp = INT_TO_JSVAL(pBoxHook->GetZOrder());
+			break;
 		case BOX_ONCLICK:
 			*vp = pBoxHook->GetClickHandler();
 			break;
@@ -254,6 +263,10 @@ JSAPI_PROP(box_setProperty) {
 		case BOX_VISIBLE:
 			if(JSVAL_IS_BOOLEAN(*vp))
 				pBoxHook->SetIsVisible(JSVAL_IS_BOOLEAN(*vp));
+			break;
+		case BOX_ZORDER:
+			if(JSVAL_IS_INT(*vp))
+				pBoxHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case BOX_ONCLICK:
 			pBoxHook->SetClickHandler(*vp);
@@ -341,6 +354,9 @@ JSAPI_PROP(line_getProperty) {
 		case LINE_VISIBLE:
 			*vp = BOOLEAN_TO_JSVAL(pLineHook->GetIsVisible());
 			break;
+		case LINE_ZORDER:
+			*vp = INT_TO_JSVAL(pLineHook->GetZOrder());
+			break;
 		case LINE_ONCLICK:
 			*vp = pLineHook->GetClickHandler();
 			break;
@@ -381,6 +397,10 @@ JSAPI_PROP(line_setProperty) {
 			if (JSVAL_IS_BOOLEAN(*vp))
 				pLineHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
 			break;
+		case LINE_ZORDER:
+			if(JSVAL_IS_INT(*vp))
+				pLineHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
+			break;
 		case LINE_ONCLICK:
 			pLineHook->SetClickHandler(*vp);
 			break;
@@ -411,9 +431,9 @@ JSAPI_FUNC(text_ctor) {
 	char* szText = "";
 
 	JS_ConvertArguments(cx, argc, argv, "scc/cccbff", &szText, &x, &y, &color, &font, &align, &automap, &clickF, &hoverF);
-	
+
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-	
+
 	szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 	if(clickF != NULL)
@@ -474,6 +494,9 @@ JSAPI_PROP(text_getProperty) {
 		case TEXT_VISIBLE:
 			*vp = BOOLEAN_TO_JSVAL(pTextHook->GetIsVisible());
 			break;
+		case TEXT_ZORDER:
+			*vp = INT_TO_JSVAL(pTextHook->GetZOrder());
+			break;
 		case TEXT_ONCLICK:
 			*vp = pTextHook->GetClickHandler();
 			break;
@@ -519,6 +542,10 @@ JSAPI_PROP(text_setProperty) {
 		case TEXT_VISIBLE:
 			if(JSVAL_IS_INT(*vp))
 				pTextHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			break;
+		case TEXT_ZORDER:
+			if(JSVAL_IS_INT(*vp))
+				pTextHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_ONCLICK:
 			pTextHook->SetClickHandler(*vp);
@@ -605,6 +632,9 @@ JSAPI_PROP(image_getProperty) {
 		case IMAGE_VISIBLE:
 			*vp = BOOLEAN_TO_JSVAL(pImageHook->GetIsVisible());
 			break;
+		case IMAGE_ZORDER:
+			*vp = INT_TO_JSVAL(pImageHook->GetZOrder());
+			break;
 		case IMAGE_ONCLICK:
 			*vp = pImageHook->GetClickHandler();
 			break;
@@ -642,6 +672,10 @@ JSAPI_PROP(image_setProperty) {
 		case IMAGE_VISIBLE:
 			if(JSVAL_IS_INT(*vp))
 				pImageHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
+			break;
+		case IMAGE_ZORDER:
+			if(JSVAL_IS_INT(*vp))
+				pImageHook->SetZOrder((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_ONCLICK:
 			pImageHook->SetClickHandler(*vp);

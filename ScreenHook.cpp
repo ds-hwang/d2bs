@@ -14,9 +14,16 @@ HookList Genhook::GetHooks(void)
 	return currentHooks;
 }
 
+bool zOrderSort(Genhook* first, Genhook* second)
+{
+	return first->GetZOrder() < second->GetZOrder();
+}
+
 void Genhook::DrawAll(ScreenhookState type)
 {
-	for(HookIterator it = hooks.begin(); it != hooks.end(); it++)
+	HookList currentHooks = GetHooks();
+	currentHooks.sort(zOrderSort);
+	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible())
 			(*it)->Draw();
 }
@@ -40,7 +47,7 @@ void Genhook::Clean(Script* owner)
 }
 
 Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
-	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState)
+	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState), zorder(1)
 {
 	hookSection = new CRITICAL_SECTION;
 	InitializeCriticalSection(hookSection);

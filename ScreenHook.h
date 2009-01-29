@@ -27,7 +27,7 @@ protected:
 	Align alignment;
 	jsval clicked, hovered;
 	bool isAutomap, isVisible, isLocked;
-	ushort opacity;
+	ushort opacity, zorder;
 	POINT location;
 	LPCRITICAL_SECTION hookSection;
 
@@ -60,6 +60,7 @@ public:
 	void SetAlign(Align nalign) { Lock(); alignment = nalign; Unlock(); }
 	void SetOpacity(ushort nopacity) { Lock(); opacity = nopacity; Unlock(); }
 	void SetIsVisible(bool nisVisible) { Lock(); isVisible = nisVisible; Unlock(); }
+	void SetZOrder(ushort norder) { Lock(); zorder = norder; Unlock(); }
 	void SetClickHandler(jsval handler);
 	void SetHoverHandler(jsval handler);
 
@@ -71,6 +72,7 @@ public:
 	ScreenhookState GetGameState(void) const { return gameState; }
 	bool GetIsAutomap(void) const { return isAutomap; }
 	bool GetIsVisible(void) const { return isVisible; }
+	ushort GetZOrder(void) const { return zorder; }
 	jsval GetClickHandler(void) { return clicked; }
 	jsval GetHoverHandler(void) { return hovered; }
 

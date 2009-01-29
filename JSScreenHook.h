@@ -26,6 +26,7 @@ enum frame_tinyid {
 	FRAME_ALIGN,
 	FRAME_ONCLICK,
 	FRAME_ONHOVER,
+	FRAME_ZORDER
 };
 
 static JSPropertySpec frame_props[] = {
@@ -35,6 +36,7 @@ static JSPropertySpec frame_props[] = {
 	{"ysize",	FRAME_YSIZE,	JSPROP_STATIC_VAR},
 	{"visible",	FRAME_VISIBLE,	JSPROP_STATIC_VAR},
 	{"align",	FRAME_ALIGN,	JSPROP_STATIC_VAR},
+	{"zorder",	FRAME_ZORDER,	JSPROP_STATIC_VAR},
 	{"onClick",	FRAME_ONCLICK,	JSPROP_STATIC_VAR},
 	{"onHover",	FRAME_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
@@ -72,17 +74,19 @@ enum box_tinyid {
 	BOX_ALIGN,
 	BOX_ONCLICK,
 	BOX_ONHOVER,
+	BOX_ZORDER
 };
 
 static JSPropertySpec box_props[] = {
-	{"x",		BOX_X,		JSPROP_STATIC_VAR},
-	{"y",		BOX_Y,		JSPROP_STATIC_VAR},
-	{"xsize",	BOX_XSIZE,	JSPROP_STATIC_VAR},
-	{"ysize",	BOX_YSIZE,	JSPROP_STATIC_VAR},
+	{"x",		BOX_X,			JSPROP_STATIC_VAR},
+	{"y",		BOX_Y,			JSPROP_STATIC_VAR},
+	{"xsize",	BOX_XSIZE,		JSPROP_STATIC_VAR},
+	{"ysize",	BOX_YSIZE,		JSPROP_STATIC_VAR},
 	{"visible",	BOX_VISIBLE,	JSPROP_STATIC_VAR},
-	{"color",	BOX_COLOR,	JSPROP_STATIC_VAR},
+	{"color",	BOX_COLOR,		JSPROP_STATIC_VAR},
 	{"opacity",	BOX_OPACITY,	JSPROP_STATIC_VAR},
-	{"align",	BOX_ALIGN,	JSPROP_STATIC_VAR},
+	{"align",	BOX_ALIGN,		JSPROP_STATIC_VAR},
+	{"zorder",	BOX_ZORDER,		JSPROP_STATIC_VAR},
 	{"onClick",	BOX_ONCLICK,	JSPROP_STATIC_VAR},
 	{"onHover",	BOX_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
@@ -119,15 +123,17 @@ enum line_tinyid {
 	LINE_VISIBLE,
 	LINE_ONCLICK,
 	LINE_ONHOVER,
+	LINE_ZORDER
 };
 
 static JSPropertySpec line_props[] = {
-	{"x",		LINE_X,		JSPROP_STATIC_VAR},
-	{"y",		LINE_Y,		JSPROP_STATIC_VAR},
-	{"xsize",	LINE_XSIZE,	JSPROP_STATIC_VAR},
-	{"ysize",	LINE_YSIZE,	JSPROP_STATIC_VAR},
+	{"x",		LINE_X,			JSPROP_STATIC_VAR},
+	{"y",		LINE_Y,			JSPROP_STATIC_VAR},
+	{"xsize",	LINE_XSIZE,		JSPROP_STATIC_VAR},
+	{"ysize",	LINE_YSIZE,		JSPROP_STATIC_VAR},
 	{"visible",	LINE_VISIBLE,	JSPROP_STATIC_VAR},
-	{"color",	LINE_COLOR,	JSPROP_STATIC_VAR},
+	{"color",	LINE_COLOR,		JSPROP_STATIC_VAR},
+	{"zorder",	LINE_ZORDER,	JSPROP_STATIC_VAR},
 	{"onClick",	LINE_ONCLICK,	JSPROP_STATIC_VAR},
 	{"onHover",	LINE_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
@@ -164,6 +170,7 @@ enum text_tinyid {
 	TEXT_VISIBLE,
 	TEXT_ONCLICK,
 	TEXT_ONHOVER,
+	TEXT_ZORDER
 };
 
 static JSPropertySpec text_props[] = {
@@ -174,6 +181,7 @@ static JSPropertySpec text_props[] = {
 	{"visible",	TEXT_VISIBLE,	JSPROP_STATIC_VAR},
 	{"text",	TEXT_TEXT,		JSPROP_STATIC_VAR},
 	{"align",	TEXT_ALIGN,		JSPROP_STATIC_VAR},
+	{"zorder",	TEXT_ZORDER,	JSPROP_STATIC_VAR},
 	{"onClick",	TEXT_ONCLICK,	JSPROP_STATIC_VAR},
 	{"onHover",	TEXT_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
@@ -208,6 +216,7 @@ enum image_tinyid {
 	IMAGE_VISIBLE,
 	IMAGE_ONCLICK,
 	IMAGE_ONHOVER,
+	IMAGE_ZORDER
 };
 
 static JSPropertySpec image_props[] = {
@@ -216,6 +225,7 @@ static JSPropertySpec image_props[] = {
 	{"visible",	IMAGE_VISIBLE,		JSPROP_STATIC_VAR},
 	{"location",IMAGE_LOCATION,		JSPROP_STATIC_VAR},
 	{"align",	IMAGE_ALIGN,		JSPROP_STATIC_VAR},
+	{"zorder",	IMAGE_ZORDER,		JSPROP_STATIC_VAR},
 	{"onClick",	IMAGE_ONCLICK,		JSPROP_STATIC_VAR},
 	{"onHover",	IMAGE_ONHOVER,		JSPROP_STATIC_VAR},
 	{0},

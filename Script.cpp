@@ -441,8 +441,13 @@ void Script::Stop(bool force, bool reallyForce)
 	ClearAllEvents();
 	Genhook::Clean(this);
 
-	for(int i = 0; i < (reallyForce ? 2 : 30) && IsRunning() && force; i++)
+	int maxCount = reallyForce ? 2 : 30;
+	for(int i = 0; IsRunning(); i++)
+	{
+		if(i >= maxCount)
+			break;
 		Sleep(500);
+	}
 
 	CloseHandle(threadHandle);
 	threadHandle = NULL;
