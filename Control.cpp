@@ -14,3 +14,9 @@ Control* findControl(DWORD dwType, DWORD dwX, DWORD dwY, DWORD dwSizeX, DWORD dw
 
 	return NULL;
 }
+
+void clickControl( Control * pControl )
+{
+	SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 0);
+	SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 1);
+}

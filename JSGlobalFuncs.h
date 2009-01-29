@@ -43,8 +43,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"delay",				my_delay,				1},
 	{"load",				my_load,				1},
 	{"include",				my_include,				1},
-	// disabled for now until it's finished
-	//{"login",				my_login,				1},
+	{"login",				my_login,				1},
 	{"copyUnit",			my_copyUnit,			1},
 	{"stop",				my_stop,				0},
 	{"clickMap",			my_clickMap,			3},

@@ -2208,14 +2208,16 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(login)
+JSAPI_FUNC(my_login)
 {
 	CDebug cDbg("login");
 
-	THROW_ERROR(cx, obj, "This method not yet implemented");
-
-	char file[_MAX_FNAME+MAX_PATH], profile[256], mode[15], username[48], password[256], charname[24];
-	JS_ConvertArguments(cx, argc, argv, "s", profile);
+	char * profile;
+	char file[_MAX_FNAME+MAX_PATH], mode[15], username[48], password[256], charname[24];
+	if(JSVAL_IS_STRING(argv[0]))
+		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	else
+		THROW_ERROR(cx, obj, "no profile specified");
 
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
@@ -2237,10 +2239,50 @@ JSAPI_FUNC(login)
 			// Open Battle.net login
 			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+			if (findControl(4,0,599,200,40))
+			{
+				// Other Multiplayer
+				Control * pControl = findControl(6,264,433,272,35);
+				if (pControl) {
+					clickControl(pControl);
+					pControl = findControl(6,264,310,272,35);
+					if (pControl)
+					{
+						clickControl(pControl);
+						while (pControl = findControl(4,222,360,340,70))
+						{
+							Sleep(500);
+						}
+						if (findControl(1,322,342,162,19))
+						{
+							pControl = findControl(1,322,342,162,19);
+							wchar_t* szwText = AnsiToUnicode(username);
+							if (pControl)
+							{
+								D2WIN_SetControlText(pControl, szwText);
+							}
+							pControl = findControl(4,321,394,300,32);
+							szwText = AnsiToUnicode(password);
+							if (pControl)
+							{
+								D2WIN_SetControlText(pControl, szwText);
+							}
+							delete[] szwText;
+						}
+						else
+						{ // you could be banned, no internet, ok time to parse options... later.
+							return JS_TRUE;
+						}
+					}
+					return JS_TRUE;
+				}
+			}
+
 			break;
 		default:
 			THROW_ERROR(cx, obj, "Invalid login mode specified!");
 			break;
 	}
+	THROW_ERROR(cx, obj, "Something broke in the login function!");
 	return JS_TRUE;
 }

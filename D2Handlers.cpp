@@ -52,9 +52,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		}
 		else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
 		{
+			
+			
 			image->SetX(D2GetScreenSizeX()/2);
 			text->SetX(D2GetScreenSizeX()/2);
-
+			
 			if(bInGame)
 			{
 				Vars.dwGameTime = NULL;
@@ -62,9 +64,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
+					
 					char file[_MAX_PATH+_MAX_FNAME];
 					sprintf(file, "%s\\starter.dbj", Vars.szScriptPath);
 					if(_access(file, 0) == 0) {
+
+						clickControl((Control*)*p_D2WIN_FirstControl);
 						Script* script = Script::CompileFile(file, OutOfGame);
 						if(script)
 							CreateThread(0, 0, ScriptThread, script, 0, 0);

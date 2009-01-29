@@ -38,6 +38,7 @@ VOID Print(CHAR* szFormat, ...)
 	} else {
 		MessageBox(0, szString, "D2BS " D2BS_VERSION, 0);
 	}
+
 	LeaveCriticalSection(&Vars.cPrintSection);
 	delete[] szString;
 }
