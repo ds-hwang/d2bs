@@ -36,7 +36,7 @@ VOID Print(CHAR* szFormat, ...)
 	} else if(false) {
 		D2MULTI_PrintChannelText(szString, NULL);
 	} else {
-		MessageBox(0, szString, 0);
+		MessageBox(0, szString, "D2BS " D2BS_VERSION, 0);
 	}
 	LeaveCriticalSection(&Vars.cPrintSection);
 	delete[] szString;
