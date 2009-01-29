@@ -133,18 +133,22 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY)->pNext;
 
 	if (!pControl) {
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
 
-	pControl = pControl->pNext;
-
 	if(pControl)
 	{
-		JS_SetPrivate(cx, obj, pControl);
+		pData->pControl = pControl;
+		pData->dwType = pData->pControl->dwType;
+		pData->dwX = pData->pControl->dwPosX;
+		pData->dwY = pData->pControl->dwPosY;
+		pData->dwSizeX = pData->pControl->dwSizeX;
+		pData->dwSizeY = pData->pControl->dwSizeY;
+		JS_SetPrivate(cx, obj, pData);
 		*rval = OBJECT_TO_JSVAL(obj);
 	}
 	else
