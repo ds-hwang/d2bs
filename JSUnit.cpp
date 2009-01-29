@@ -120,6 +120,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		return JS_TRUE;
 
 	char* tmp = NULL;
+	Room1* pRoom = NULL;
 
 	switch(JSVAL_TO_INT(id))
 	{
@@ -142,7 +143,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
 			break;
 		case UNIT_AREA:
-			Room1* pRoom = D2COMMON_GetRoomFromUnit(pUnit);
+			pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 			if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel)
 				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);			
 			break;
@@ -326,7 +327,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(pUnit->dwType == UNIT_OBJECT)
 				if(pUnit->pObjectData)
 				{
-					Room1* pRoom = D2COMMON_GetRoomFromUnit(pUnit);
+					pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 					if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel && IsTownLevel(pRoom->pRoom2->pLevel->dwLevelNo))
 						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
 					else
