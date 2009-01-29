@@ -73,7 +73,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 		RemovePatches();
-		Script::Shutdown();
+		Script::Shutdown(true);
 
 		ShutdownDdeServer();
 

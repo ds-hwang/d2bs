@@ -60,7 +60,12 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				*rval = JSVAL_TRUE;
 			}
-			else *rval = JSVAL_FALSE;
+			else
+			{
+				// TODO: Should this actually be there? No notification is bad, but do we want this?
+				Print("File \"%s\" not found.", lpszFileName);
+				*rval = JSVAL_FALSE;
+			}
 		}
 	}
 

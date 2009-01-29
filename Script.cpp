@@ -192,8 +192,8 @@ Script::Script(const char* file, ScriptState state) :
 
 Script::~Script(void)
 {
-	Lock();
 	Stop();
+	Lock();
 	activeScripts.erase(fileName);
 
 	JS_SetContextThread(context);
@@ -213,6 +213,8 @@ Script::~Script(void)
 
 	includes.clear();
 	functions.clear();
+	if(threadHandle)
+		CloseHandle(threadHandle);
 	Unlock();
 	DeleteCriticalSection(scriptSection);
 	delete scriptSection;
@@ -267,12 +269,12 @@ void Script::Shutdown(void)
 	delete criticalSection;
 }
 
-void Script::StopAll(void)
+void Script::StopAll(bool force)
 {
 	LockAll();
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Stop();
+		(*it)->Stop(true, force);
 	UnlockAll();
 }
 
@@ -428,15 +430,18 @@ bool Script::IsPaused(void)
 	return isPaused;
 }
 
-void Script::Stop(void)
+void Script::Stop(bool force, bool reallyForce)
 {
+	AutoLock lock(this);
+
 	isAborted = true;
 	isPaused = false;
-	while(IsRunning())
-		Sleep(500);
 
 	ClearAllEvents();
 	Genhook::Clean(this);
+
+	for(int i = 0; i < (reallyForce ? 2 : 30) && IsRunning() && force; i++)
+		Sleep(500);
 
 	CloseHandle(threadHandle);
 	threadHandle = NULL;
@@ -483,7 +488,7 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return !isPaused && !!JS_IsRunning(context);
+	return !(!JS_IsRunning(context) || isPaused);
 }
 
 bool Script::IsAborted()

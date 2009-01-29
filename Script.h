@@ -104,7 +104,7 @@ public:
 	static int GetCount(void);
 	static int GetActiveCount(bool countUnexecuted = false);
 
-	static void StopAll(void);
+	static void StopAll(bool force = false);
 	static void PauseAll(void);
 	static void ResumeAll(void);
 
@@ -116,7 +116,7 @@ public:
 	void Pause(void);
 	void Resume(void);
 	bool IsPaused(void);
-	void Stop(void);
+	void Stop(bool force = false, bool reallyForce = false);
 
 	void EnableSingleStep(void);
 	void DisableSingleStep(void);
@@ -150,6 +150,15 @@ public:
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 	static void ExecEventOnAll(char* evtName, uintN argc, AutoRoot** argv);
 	static void ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv);
+};
+
+class AutoLock
+{
+private:
+	Script* script;
+public:
+	AutoLock(Script* s) { script = s; s->Lock(); }
+	~AutoLock() { script->Unlock(); }
 };
 
 DWORD WINAPI ScriptThread(void* data);
