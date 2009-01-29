@@ -2254,6 +2254,7 @@ JSAPI_FUNC(my_login)
 					if (pControl)
 					{
 						clickControl(pControl);
+						// Connecting
 						while (pControl = findControl(4,222,360,340,70))
 						{
 							Sleep(500);
@@ -2266,13 +2267,21 @@ JSAPI_FUNC(my_login)
 							{
 								D2WIN_SetControlText(pControl, szwText);
 							}
-							pControl = findControl(4,321,394,300,32);
+							delete[] szwText;
+							pControl = findControl(1,322,396,162,19);
 							szwText = AnsiToUnicode(password);
 							if (pControl)
 							{
 								D2WIN_SetControlText(pControl, szwText);
 							}
 							delete[] szwText;
+							pControl = findControl(6,264,484,272,35);
+							if (pControl) { clickControl(pControl); }
+							while (pControl = findControl(6,351,337,96,32))
+							{
+								Sleep(500);
+							}
+							
 						}
 						else
 						{ // you could be banned, no internet, ok time to parse options... later.
