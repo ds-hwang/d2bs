@@ -32,9 +32,9 @@ VOID Print(CHAR* szFormat, ...)
 		// the 200 character limit seems to have been lifted... longer than 200 characters didn't crash
 		D2CLIENT_PrintGameString(wOutput, 0);
 		delete[] wOutput;
-		// TODO: Fix this detection to figure out if we're in a channel or not
-	} else if(false) {
-		D2MULTI_PrintChannelText(szString, NULL);
+	} else if(findControl(4,28,410,354,298)) {
+		// TODO: Double check this function, make sure it is working as intended.
+		// D2MULTI_PrintChannelText(szString, NULL);
 	} else {
 		MessageBox(0, szString, "D2BS " D2BS_VERSION, 0);
 	}
