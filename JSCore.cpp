@@ -52,12 +52,10 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		{
 			CHAR lpszBuf[_MAX_FNAME];
 			sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, lpszFileName);
-
-			if(_access(lpszBuf, 0) == 0)
+			Script* script = Script::CompileFile(lpszBuf, state);
+			if(script)
 			{
-				Script* script = Script::CompileFile(lpszBuf, state);
-				if(script)
-					CreateThread(0, 0, ScriptThread, script, 0, 0);
+				CreateThread(0, 0, ScriptThread, script, 0, 0);
 				*rval = JSVAL_TRUE;
 			}
 			else
@@ -2217,21 +2215,24 @@ JSAPI_FUNC(my_login)
 {
 	CDebug cDbg("login");
 
-	char * profile;
-	char file[_MAX_FNAME+MAX_PATH], mode[15], username[48], password[256], charname[24];
-	if(JSVAL_IS_STRING(argv[0]))
-		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	else
+	char file[_MAX_FNAME+MAX_PATH], *profile,
+		 mode[15], username[48], password[256], gateway[256], charname[24],
+		 maxLoginTime[10], maxCharTime[10];
+
+	bool handledCase = false;
+	int loginTime = 0, charTime = 0;
+
+	if(!JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid profile specified!");
-	
-	
+
+	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
-	Control * pControl;
 	
 	// Look for the version string, otherwise return.
-	if (!findControl(4,0,599,200,40))
+	if(!findControl(4,0,599,200,40))
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
@@ -2241,140 +2242,72 @@ JSAPI_FUNC(my_login)
 	{
 		case 't':
 			// TCP/IP login - Not implemented.
+			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+			GetPrivateProfileString("settings", "MaxLoginTime", "-1", maxLoginTime, sizeof(maxLoginTime), file);
+			GetPrivateProfileString("settings", "MaxCharSelectTime", "-1", maxCharTime, sizeof(maxCharTime), file);
+
+			loginTime = atoi(maxLoginTime);
+			charTime = atoi(maxCharTime);
+
 			*rval = JSVAL_FALSE;
 			return JS_TRUE;
 			break;
 		case 's':
 			// Single player button
-			pControl = findControl(6,264,324,272,35);
-			if (pControl)
-			{
-				clickControl(pControl);
-				if (OOG_SelectCharacter(charname))
-				{
-					// Need to implement selecting a difficulty!
-					*rval = JSVAL_TRUE;
-				}
-				else
-				{
-					*rval = JSVAL_FALSE;
-				}
-			}
-			return JS_TRUE;
+			if(!clickControl(findControl(6,264,324,272,35)))
+				THROW_ERROR(cx, obj, "Failed to click the 'single player' button?");
 			break;
 		case 'b':
 			// Battle.net login
-			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
-			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+			if(!clickControl(findControl(6,264,366,272,35)))
+				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
+			handledCase = true;
 
-			pControl = findControl(6,264,366,272,35);
-			if (pControl)
-			{
-				clickControl(pControl);
-				while (pControl = findControl(4,222,360,340,70))
-				{
-					Sleep(500);
-				} 
-				if (findControl(1,322,342,162,19))
-				{
-					pControl = findControl(1,322,342,162,19);
-					wchar_t* szwText = AnsiToUnicode(username);
-					if (pControl)
-					{
-						D2WIN_SetControlText(pControl, szwText);
-					}
-					delete[] szwText;
-					// Password text-edit box
-					pControl = findControl(1,322,396,162,19);
-					szwText = AnsiToUnicode(password);
-					if (pControl)
-					{
-						D2WIN_SetControlText(pControl, szwText);
-					}
-					delete[] szwText;
-					// Log-in
-					pControl = findControl(6,264,484,272,35);
-					if (pControl) { clickControl(pControl); }
-					// Connecting
-					while (pControl = findControl(6,351,337,96,32))
-					{
-						Sleep(500);
-					}
-					// Select character.
-					if (OOG_SelectCharacter(charname))
-					{
-						*rval = JSVAL_TRUE;
-					}
-					else
-					{
-						*rval = JSVAL_FALSE;
-					}
-					return JS_TRUE;		
-				}
-			}
-			break;
 		case 'o':
 			// Open Battle.net login
 			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-			// Other Multiplayer
-			pControl = findControl(6,264,433,272,35);
-			if (pControl) {
-				clickControl(pControl);
+			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+			GetPrivateProfileString("settings", "MaxLoginTime", "-1", maxLoginTime, sizeof(maxLoginTime), file);
+			GetPrivateProfileString("settings", "MaxCharSelectTime", "-1", maxCharTime, sizeof(maxCharTime), file);
+
+			loginTime = atoi(maxLoginTime);
+			charTime = atoi(maxCharTime);
+
+			// handle above fall-through case because open and closed use the same method, just a different button set
+			if(!handledCase)
+			{
+				// Other Multiplayer
+				if(!clickControl(findControl(6,264,433,272,35)))
+					THROW_ERROR(cx, obj, "Failed to click the 'Other Multiplayer' button?");
 				// Open Battle.net
-				pControl = findControl(6,264,310,272,35);
-				if (pControl)
-				{
-					clickControl(pControl);
-					// Connecting
-					while (pControl = findControl(4,222,360,340,70))
-					{
-						Sleep(500);
-					}
-					// Username text-edit box
-					if (findControl(1,322,342,162,19))
-					{
-						pControl = findControl(1,322,342,162,19);
-						wchar_t* szwText = AnsiToUnicode(username);
-						if (pControl)
-						{
-							D2WIN_SetControlText(pControl, szwText);
-						}
-						delete[] szwText;
-						// Password text-edit box
-						pControl = findControl(1,322,396,162,19);
-						szwText = AnsiToUnicode(password);
-						if (pControl)
-						{
-							D2WIN_SetControlText(pControl, szwText);
-						}
-						delete[] szwText;
-						// Log-in
-						pControl = findControl(6,264,484,272,35);
-						if (pControl) { clickControl(pControl); }
-						// Connecting
-						while (pControl = findControl(6,351,337,96,32))
-						{
-							Sleep(500);
-						}
+				if(!clickControl(findControl(6,264,310,272,35)))
+					THROW_ERROR(cx, obj, "Failed to click the 'Open Battle.net' button?");
+			}
 
-						if (OOG_SelectCharacter(charname))
-						{
-							*rval = JSVAL_TRUE;
-						}
-						else
-						{
-							*rval = JSVAL_FALSE;
-						}
+			// Connecting
+			for(int i = 0; findControl(4,222,360,340,70); i++)
+			{
+				Sleep(500);
+				if(i*500 > loginTime)
+					THROW_ERROR(cx, obj, "Exceeded max login time");
+			}
 
-						return JS_TRUE;
-					}
-					else
-					{ // you could be banned, no internet, ok time to parse options... later.
-						return JS_TRUE;
-					}
-					return JS_TRUE;
-				}
+			// handle case where cd key is banned, etc.
+
+			// Username text-edit box
+			SetControlText(findControl(1,322,342,162,19), username);
+			// Password text-edit box
+			SetControlText(findControl(1,322,396,162,19), password);
+			// Log-in
+			if(!clickControl(findControl(6,264,484,272,35)))
+				THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
+			// Connecting
+			for(int i = 0; findControl(6,351,337,96,32); i++)
+			{
+				Sleep(500);
+				if(i*500 > charTime)
+					THROW_ERROR(cx, obj, "Exceeded max character select time");
 			}
 
 			break;
@@ -2382,6 +2315,8 @@ JSAPI_FUNC(my_login)
 			THROW_ERROR(cx, obj, "Invalid login mode specified!");
 			break;
 	}
-	THROW_ERROR(cx, obj, "Something broke in the login function!");
+
+	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
+
 	return JS_TRUE;
 }

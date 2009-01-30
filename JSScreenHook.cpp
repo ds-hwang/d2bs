@@ -25,7 +25,7 @@ JSAPI_FUNC(frame_ctor) {
 		hover = argv[8];
 
 	// framehooks don't work out of game -- they just crash
-	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, !!automap, opacity, (Align)align, IG);
+	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, opacity, !!automap, (Align)align, IG);
 
 	if (!pFramehook)
 		THROW_ERROR(cx, obj, "Failed to create framehook");
@@ -63,10 +63,10 @@ JSAPI_PROP(frame_getProperty) {
 			*vp = INT_TO_JSVAL(pFramehook->GetY());
 			break;
 		case FRAME_XSIZE:
-			*vp = INT_TO_JSVAL(pFramehook->GetX2());
+			*vp = INT_TO_JSVAL(pFramehook->GetXSize());
 			break;
 		case FRAME_YSIZE:
-			*vp = INT_TO_JSVAL(pFramehook->GetY2());
+			*vp = INT_TO_JSVAL(pFramehook->GetYSize());
 			break;
 		case FRAME_ALIGN:
 			*vp = INT_TO_JSVAL(pFramehook->GetAlign());
@@ -102,11 +102,11 @@ JSAPI_PROP(frame_setProperty) {
 			break;
 		case FRAME_XSIZE:
 			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetX2(JSVAL_TO_INT(*vp));
+				pFramehook->SetXSize(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_YSIZE:
 			if(JSVAL_IS_INT(*vp))
-				pFramehook->SetY2(JSVAL_TO_INT(*vp));
+				pFramehook->SetYSize(JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_ALIGN:
 			if(JSVAL_IS_INT(*vp))
@@ -146,30 +146,40 @@ JSAPI_FUNC(box_ctor) {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
+	uint x, y, x2, y2, color, opacity;
+	Align align;
+	bool automap;
 
-	BoxHook* pBoxHook = new BoxHook(script, 0, 0, 0, 0, false, 0, 0, Left, pState);
+	if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		x = JSVAL_TO_INT(argv[0]);
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		y = JSVAL_TO_INT(argv[1]);
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		x2 = JSVAL_TO_INT(argv[2]);
+	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+		y2 = JSVAL_TO_INT(argv[3]);
+	if(argc > 4 && JSVAL_IS_INT(argv[4]))
+		color = (ushort)JSVAL_TO_INT(argv[4]);
+	if(argc > 5 && JSVAL_IS_INT(argv[5]))
+		opacity = (ushort)JSVAL_TO_INT(argv[5]);
+	if(argc > 6 && JSVAL_IS_INT(argv[6]))
+		align = (Align)JSVAL_TO_INT(argv[6]);
+	if(argc > 7 && JSVAL_IS_BOOLEAN(argv[7]))
+		automap = !!JSVAL_TO_BOOLEAN(argv[7]);
+
+	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, pState);
 
 	if (!pBoxHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a box class.");
 
+	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
+		pBoxHook->SetClickHandler(argv[8]);
+	if(argc > 9 && JSVAL_IS_FUNCTION(cx, argv[9]))
+		pBoxHook->SetHoverHandler(argv[9]);
+
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props, pBoxHook);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create box object");
-
-	if (argc > 0 && JSVAL_IS_INT(argv[0]))
-		pBoxHook->SetX(JSVAL_TO_INT(argv[0]));
-	if (argc > 1 && JSVAL_IS_INT(argv[1]))
-		pBoxHook->SetY(JSVAL_TO_INT(argv[1]));
-	if (argc > 2 && JSVAL_IS_INT(argv[2]))
-		pBoxHook->SetX2(JSVAL_TO_INT(argv[2]));
-	if (argc > 3 && JSVAL_IS_INT(argv[3]))
-		pBoxHook->SetY2(JSVAL_TO_INT(argv[3]));
-	if (argc > 4 && JSVAL_IS_INT(argv[4]))
-		pBoxHook->SetColor((ushort)JSVAL_TO_INT(argv[4]));
-	if (argc > 5 && JSVAL_IS_INT(argv[5]))
-		pBoxHook->SetOpacity((ushort)JSVAL_TO_INT(argv[5]));
-	if (argc > 6 && JSVAL_IS_INT(argv[6]))
-		pBoxHook->SetAlign((Align)JSVAL_TO_INT(argv[6]));
 
 	*rval = OBJECT_TO_JSVAL(hook);
 
@@ -195,10 +205,10 @@ JSAPI_PROP(box_getProperty) {
 			*vp = INT_TO_JSVAL(pBoxHook->GetY());
 			break;
 		case BOX_XSIZE:
-			*vp = INT_TO_JSVAL(pBoxHook->GetX2());
+			*vp = INT_TO_JSVAL(pBoxHook->GetXSize());
 			break;
 		case BOX_YSIZE:
-			*vp = INT_TO_JSVAL(pBoxHook->GetY2());
+			*vp = INT_TO_JSVAL(pBoxHook->GetYSize());
 			break;
 		case BOX_ALIGN:
 			*vp = INT_TO_JSVAL(pBoxHook->GetAlign());
@@ -240,11 +250,11 @@ JSAPI_PROP(box_setProperty) {
 			break;
 		case BOX_XSIZE:
 			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetX2(JSVAL_TO_INT(*vp));
+				pBoxHook->SetXSize(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_YSIZE:
 			if(JSVAL_IS_INT(*vp))
-				pBoxHook->SetY2(JSVAL_TO_INT(*vp));
+				pBoxHook->SetYSize(JSVAL_TO_INT(*vp));
 			break;
 		case BOX_OPACITY:
 			if(JSVAL_IS_INT(*vp))
@@ -302,7 +312,7 @@ JSAPI_FUNC(line_ctor) {
 		y2 = JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
 		color = JSVAL_TO_INT(argv[4]);
-	if(argc > 5 && JSVAL_IS_INT(argv[5]) || JSVAL_IS_BOOLEAN(argv[5]))
+	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
 		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
 
 	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -310,6 +320,11 @@ JSAPI_FUNC(line_ctor) {
 
 	if (!pLineHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
+
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
+		pLineHook->SetClickHandler(argv[6]);
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
+		pBoxHook->SetHoverHandler(argv[7]);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
 	if(!hook)

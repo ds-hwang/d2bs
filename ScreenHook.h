@@ -90,9 +90,9 @@ private:
 	TextHook(const TextHook&);
 	TextHook& operator=(const TextHook&);
 public:
-	TextHook(Script* owner, char* text, uint x, uint y, bool automap,
-			ushort nfont, ushort ncolor, ushort opacity, Align align,
-			ScreenhookState state) :
+	TextHook(Script* owner, char* text, uint x, uint y, ushort nfont,
+			ushort ncolor, ushort opacity, bool automap = false, Align align = Left,
+			ScreenhookState state = Perm) :
 			Genhook(owner, x, y, opacity, automap, align, state), text(NULL), font(nfont), color(ncolor)
 	{ this->text = _strdup(text); }
 	~TextHook(void) { if(text) delete[] text; }
@@ -119,8 +119,8 @@ private:
 	ImageHook(const ImageHook&);
 	ImageHook& operator=(const ImageHook&);
 public:
-	ImageHook(Script* owner, const char* nloc, uint x, uint y, bool automap,
-		ushort ncolor, ushort opacity, Align align, ScreenhookState state) :
+	ImageHook(Script* owner, const char* nloc, uint x, uint y, ushort ncolor,
+			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, opacity, automap, align, state), color(ncolor)
 	{ location = _strdup(nloc); image = LoadCellFile(location); }
 	~ImageHook(void) { delete[] location; }
@@ -143,8 +143,8 @@ private:
 	LineHook(const LineHook&);
 	LineHook& operator=(const LineHook&);
 public:
-	LineHook(Script* owner, uint x, uint y, uint nx2, uint ny2, bool automap,
-		ushort ncolor, ushort opacity, Align align, ScreenhookState state) :
+	LineHook(Script* owner, uint x, uint y, uint nx2, uint ny2, ushort ncolor,
+			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, opacity, automap, align, state), x2(nx2), y2(ny2), color(ncolor) {}
 	~LineHook(void) {}
 	void Draw(void);
@@ -162,48 +162,48 @@ public:
 class BoxHook : public Genhook
 {
 private:
-	uint x2, y2;
+	uint xsize, ysize;
 	ushort color;
 
 	BoxHook(const BoxHook&);
 	BoxHook& operator=(const BoxHook&);
 public:
-	BoxHook(Script* owner, uint x, uint y, uint nx2, uint ny2, bool automap,
-		ushort ncolor, ushort opacity, Align align, ScreenhookState state) :
-		Genhook(owner, x, y, opacity, automap, align, state), x2(nx2), y2(ny2), color(ncolor) {}
+	BoxHook(Script* owner, uint x, uint y, uint nxsize, uint nysize, ushort ncolor,
+			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+		Genhook(owner, x, y, opacity, automap, align, state), xsize(x+nxsize), ysize(y+nysize), color(ncolor) {}
 	~BoxHook(void) {}
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
 
-	void SetX2(uint nx2) { Lock(); x2 = nx2; Unlock(); }
-	void SetY2(uint ny2) { Lock(); y2 = ny2; Unlock(); }
+	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }
+	void SetYSize(uint nysize) { Lock(); ysize = GetY()+nysize; Unlock(); }
 	void SetColor(ushort ncolor) { Lock(); color = ncolor; Unlock(); }
 
-	uint GetX2(void) const { return x2; }
-	uint GetY2(void) const { return y2; }
+	uint GetXSize(void) const { return GetX()-xsize; }
+	uint GetYSize(void) const { return GetY()-ysize; }
 	ushort GetColor(void) const { return color; }
 };
 
 class FrameHook : public Genhook
 {
 private:
-	uint x2, y2;
+	uint xsize, ysize;
 
 	FrameHook(const FrameHook&);
 	FrameHook& operator=(const FrameHook&);
 public:
-	FrameHook(Script* owner, uint x, uint y, uint nx2, uint ny2, bool automap,
-		ushort opacity, Align align, ScreenhookState state) :
-		Genhook(owner, x, y, opacity, automap, align, state), x2(nx2), y2(ny2) {}
+	FrameHook(Script* owner, uint x, uint y, uint nxsize, uint nysize,
+			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+		Genhook(owner, x, y, opacity, automap, align, state), xsize(x+nxsize), ysize(y+nysize) {}
 	~FrameHook(void) {}
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
 
-	void SetX2(uint nx2) { Lock(); x2 = nx2; Unlock(); }
-	void SetY2(uint ny2) { Lock(); y2 = ny2; Unlock(); }
+	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }
+	void SetYSize(uint nysize) { Lock(); ysize = GetY()+nysize; Unlock(); }
 
-	uint GetX2(void) const { return x2; }
-	uint GetY2(void) const { return y2; }
+	uint GetXSize(void) const { return GetX()-xsize; }
+	uint GetYSize(void) const { return GetY()-ysize; }
 };
 
 class StatusWindow

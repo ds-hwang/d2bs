@@ -111,6 +111,7 @@ struct Variables
 	BOOL	bBlockMinimize;
 	BOOL	bQuitOnError;
 	BOOL	bQuitOnHostile;
+	BOOL	bStartAtMenu;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];

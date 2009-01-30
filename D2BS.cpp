@@ -30,7 +30,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 			 blockMinimize[6],
 			 quitOnHostile[6],
 			 quitOnError[6],
-			 maxGameTime[6];
+			 maxGameTime[6],
+			 startAtMenu[6];
 
 		sprintf(path, "%sD2BS.log", Vars.szPath);
 		sprintf(fname, "%sd2bs.ini", Vars.szPath);
@@ -43,6 +44,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		GetPrivateProfileString("settings", "BlockMinimize", "false", blockMinimize, 6, fname);
 		GetPrivateProfileString("settings", "QuitOnHostile", "false", quitOnHostile, 6, fname);
 		GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
+		GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
 
 		sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
 		Vars.dwGameTime = 0;
@@ -51,6 +53,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		Vars.bBlockMinimize = StringToBool(blockMinimize);
 		Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 		Vars.bQuitOnError = StringToBool(quitOnError);
+		Vars.bStartAtMenu = StringToBool(startAtMenu);
 
 		InitializeCriticalSection(&Vars.cRoomSection);
 		InitializeCriticalSection(&Vars.cMiscSection);

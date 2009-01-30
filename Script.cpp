@@ -660,7 +660,8 @@ void Script::ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv)
 
 DWORD WINAPI ScriptThread(void* data)
 {
-	((Script*)data)->Run();
+	if(data)
+		((Script*)data)->Run();
 	return 0;
 }
 

@@ -1,5 +1,6 @@
 #include "D2BS.h"
 #include "Script.h"
+#include "ScreenHook.h"
 #include <vector>
 #include "Unit.h"
 
@@ -9,25 +10,29 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 {
 	BOOL bInGame = TRUE;
 	BOOL bStarterScript = FALSE;
+	BOOL bClicked = FALSE;
 	Vars.dwGameTime = GetTickCount();
-	Genhook *text, *image;
+
+	char szVersionString[64] = "";
+	sprintf(szVersionString, "D2BS %s",D2BS_VERSION);
+
+	char defaultdbj[_MAX_PATH+_MAX_FNAME];
+	sprintf(defaultdbj, "%s\\default.dbj", Vars.szScriptPath);
+	char starterdbj[_MAX_PATH+_MAX_FNAME];
+	sprintf(starterdbj, "%s\\starter.dbj", Vars.szScriptPath);
+
+	ImageHook image(NULL, "version.bmp", 0, 10, false, 0, 0, Center, Perm);
+	TextHook text(NULL, szVersionString, 0, 15, 13, 4, 0, false, Center, Perm);
 
 	while(TRUE)
 	{
 		if(!Vars.oldWNDPROC && D2WIN_GetHwnd())
-		{
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)GameEventHandler);
-
-			char szVersionString[64] = "";
-			sprintf(szVersionString, "D2BS %s",D2BS_VERSION);
-			image = new ImageHook(NULL, "version.bmp", D2GetScreenSizeX()/2, 10, false, 0, 0, Center, Perm);
-			text = new TextHook(NULL, szVersionString, D2GetScreenSizeX()/2, 15, false, 13, 4, 0, Center, Perm);
-		}
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 
 		if(GameReady())
 		{
-			image->SetX(D2GetScreenSizeX()/2);
-			text->SetX(D2GetScreenSizeX()/2);
+			image.SetX(D2GetScreenSizeX()/2);
+			text.SetX(D2GetScreenSizeX()/2);
 
 			if(bInGame && ((Vars.dwMaxGameTime > 0 && Vars.dwGameTime > 0 && (GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime) ||
 				(!IsTownLevel(GetPlayerArea()) && (Vars.nChickenHP > 0 && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) || (Vars.nChickenMP > 0 && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))))
@@ -40,22 +45,27 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				Vars.dwGameTime = GetTickCount();
 				D2CLIENT_InitInventory();
 
-				Print("D2BS: Starting default.dbj");
-				char file[_MAX_PATH+_MAX_FNAME];
-				sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
-				Script* script = Script::CompileFile(file, InGame);
+				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+				Script* script = Script::CompileFile(defaultdbj, InGame);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
+				else
+					Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 
 				bInGame = TRUE;
 			}
 		}
 		else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
 		{
-			
-			
-			image->SetX(D2GetScreenSizeX()/2);
-			text->SetX(D2GetScreenSizeX()/2);
+			image.SetX(D2GetScreenSizeX()/2);
+			text.SetX(D2GetScreenSizeX()/2);
+
+			if(!bClicked)
+			{
+				if(Vars.bStartAtMenu)
+					clickControl(*p_D2WIN_FirstControl);
+				bClicked = TRUE;
+			}
 			
 			if(bInGame)
 			{
@@ -64,17 +74,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
-					
-					char file[_MAX_PATH+_MAX_FNAME];
-					sprintf(file, "%s\\starter.dbj", Vars.szScriptPath);
-					if(_access(file, 0) == 0) {
-
-						clickControl(*p_D2WIN_FirstControl);
-						Script* script = Script::CompileFile(file, OutOfGame);
-						if(script)
-							CreateThread(0, 0, ScriptThread, script, 0, 0);
-						bStarterScript = TRUE;
-					}
+					Script* script = Script::CompileFile(starterdbj, OutOfGame);
+					if(script)
+						CreateThread(0, 0, ScriptThread, script, 0, 0);
+					else
+						Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
+					bStarterScript = TRUE;
 				}
 			}
 		}
@@ -100,19 +105,21 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 		if(!_strcmpi(argv[0], "start"))
 		{
-			Print("D2BS: Starting default.dbj!");
+			Print("ÿc2D2BSÿc0 :: Starting default.dbj");
 
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			else
+				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "stop"))
 		{
 			if(Script::GetActiveCount() > 0)
-				Print("D2BS: Stopping all scripts!");
+				Print("ÿc2D2BSÿc0 :: Stopping all scripts!");
 
 			Script::StopAll();
 			result = -1;
@@ -120,23 +127,25 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		else if(!_strcmpi(argv[0], "reload"))
 		{
 			if(Script::GetActiveCount() > 0)
-				Print("D2BS: Stopping all scripts...");
+				Print("ÿc2D2BSÿc0 :: Stopping all scripts...");
 			Script::StopAll();
 
-			Print("D2BS: Flushing the script cache...");
+			Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
 			Script::FlushCache();
 
-			Print("D2BS: Starting default.dbj...");
+			Print("ÿc2D2BSÿc0 :: Starting default.dbj...");
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			else
+				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "flush"))
 		{
-			Print("D2BS: Flushing the script cache...");
+			Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
 			Script::FlushCache();
 			result = -1;
 		}
@@ -155,7 +164,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			if(argc >= 2)
 			{
-				Print("D2BS: Loading %s", argv[1]);
+				Print("ÿc2D2BSÿc0 :: Loading %s", argv[1]);
 
 				CHAR szPath[8192] = "";
 				sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
@@ -163,6 +172,8 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				Script* script = Script::CompileFile(szPath, InGame, true);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
+				else
+					Print("ÿc2D2BSÿc0 :: Failed to load %s!", argv[1]);
 			}
 
 			result = -1;

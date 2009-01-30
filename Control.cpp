@@ -15,10 +15,16 @@ Control* findControl(DWORD dwType, DWORD dwX, DWORD dwY, DWORD dwSizeX, DWORD dw
 	return NULL;
 }
 
-void clickControl( Control * pControl )
+bool clickControl(Control* pControl)
 {
-	SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 0);
-	SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 1);
+	if(pControl)
+	{
+		SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 0);
+		Sleep(150);
+		SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 1);
+		return true;
+	}
+	return false;
 }
 
 BOOL OOG_SelectCharacter(char * szCharacter)
@@ -52,4 +58,14 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 		pControl = pControl->pNext;
 	}
 	return FALSE;
+}
+
+void SetControlText(Control* control, char* text)
+{
+	if(control)
+	{
+		wchar_t* szwText = AnsiToUnicode(text);
+		D2WIN_SetControlText(control, szwText);
+		delete[] szwText;
+	}
 }

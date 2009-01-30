@@ -247,7 +247,7 @@ void BoxHook::Draw(void)
 	if(GetX() != -1 && GetY() != -1)
 	{
 		Lock();
-		uint x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
+		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
 		POINT loc = {x, y};
 		POINT sz = {x2, y2};
 		if(GetIsAutomap())
@@ -266,8 +266,8 @@ void BoxHook::Draw(void)
 
 bool BoxHook::IsInRange(int dx, int dy)
 {
-	int x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
-	return (x < dx && y < dy && x2 > dx && y2 > dy);
+	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }
 
 void FrameHook::Draw(void)
@@ -275,8 +275,8 @@ void FrameHook::Draw(void)
 	if(GetX() != -1 && GetY() != -1)
 	{
 		Lock();
-		uint x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
-		RECT rect = {x, y, x2, y2};
+		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+		RECT rect = {x, y, x+x2, y+y2};
 		D2GFX_DrawFrame(&rect);
 		Unlock();
 	}
@@ -284,6 +284,6 @@ void FrameHook::Draw(void)
 
 bool FrameHook::IsInRange(int dx, int dy)
 {
-	int x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
-	return (x < dx && y < dy && x2 > dx && y2 > dy);
+	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }
