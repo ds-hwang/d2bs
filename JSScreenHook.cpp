@@ -130,8 +130,6 @@ JSAPI_PROP(frame_setProperty) {
 	return JS_TRUE;
 }
 
-
-
 JSAPI_FUNC(frame_remove) {
 	frame_finalize(cx, obj);
 	JS_ClearScope(cx, obj);

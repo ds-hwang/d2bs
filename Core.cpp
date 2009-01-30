@@ -2,6 +2,12 @@
 
 VOID Print(CHAR* szFormat, ...)
 {
+	// TODO: Come up with a better replacement for 0x255
+#define REPLACE_CHAR (char)0x255
+	char* c = 0;
+	while((c = strchr(szFormat, '%')) != 0)
+		*c = REPLACE_CHAR;
+
 	char* szString = NULL;
 	va_list vaArgs;
 
@@ -10,6 +16,11 @@ VOID Print(CHAR* szFormat, ...)
 	szString = new char[len+1];
 	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
+
+	c = 0;
+	while((c = strchr(szString, REPLACE_CHAR)) != 0)
+		*c = '%';
+#undef REPLACE_CHAR
 
 #define MAXLEN 500
 	if(len > MAXLEN)

@@ -93,9 +93,9 @@ public:
 	TextHook(Script* owner, char* text, uint x, uint y, bool automap,
 			ushort nfont, ushort ncolor, ushort opacity, Align align,
 			ScreenhookState state) :
-			Genhook(owner, x, y, opacity, automap, align, state), font(nfont), color(ncolor)
+			Genhook(owner, x, y, opacity, automap, align, state), text(NULL), font(nfont), color(ncolor)
 	{ this->text = _strdup(text); }
-	~TextHook(void) { delete[] text; }
+	~TextHook(void) { if(text) delete[] text; }
 
 	void Draw(void);
 	bool IsInRange(int dx, int dy);

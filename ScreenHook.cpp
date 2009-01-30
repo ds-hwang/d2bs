@@ -185,7 +185,9 @@ void TextHook::SetText(const char* ntext)
 	Lock();
 	if(text)
 		delete[] text;
-	text = _strdup(ntext);
+	text = NULL;
+	if(ntext)
+		text = _strdup(ntext);
 	Unlock();
 }
 

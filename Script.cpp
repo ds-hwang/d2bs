@@ -192,7 +192,7 @@ Script::Script(const char* file, ScriptState state) :
 
 Script::~Script(void)
 {
-	Stop();
+	Stop(true, true);
 	Lock();
 	activeScripts.erase(fileName);
 
@@ -684,9 +684,7 @@ DWORD WINAPI FuncThread(void* data)
 		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
-		{
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
-		}
 
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(evt->context, &args[i]);
@@ -752,18 +750,14 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-	static jsrefcount depth;
 	if(status == JSGC_BEGIN)
 	{
 		Script::PauseAll();
 		Script::LockAll();
 		JS_SetContextThread(cx);
-		depth = JS_SuspendRequest(cx);
 	}
 	else if(status == JSGC_END)
 	{
-		JS_ResumeRequest(cx, depth);
-		depth = 0;
 		Script::UnlockAll();
 		Script::ResumeAll();
 	}
