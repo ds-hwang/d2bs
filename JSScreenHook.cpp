@@ -16,7 +16,8 @@ JSAPI_FUNC(frame_ctor) {
 	ushort opacity = 0;
 	JSFunction *clickF = NULL, *hoverF = NULL;
 	JSBool automap = false;
-	JS_ConvertArguments(cx, argc, argv, "cccc/ccbff", &x, &y, &x2, &y2, &align, &opacity, &automap, &clickF, &hoverF);
+	if(!JS_ConvertArguments(cx, argc, argv, "cccc/ccbff", &x, &y, &x2, &y2, &align, &opacity, &automap, &clickF, &hoverF))
+		return JS_FALSE;
 
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 	if(clickF != NULL)
@@ -324,7 +325,7 @@ JSAPI_FUNC(line_ctor) {
 	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
 		pLineHook->SetClickHandler(argv[6]);
 	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		pBoxHook->SetHoverHandler(argv[7]);
+		pLineHook->SetHoverHandler(argv[7]);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
 	if(!hook)
@@ -443,7 +444,8 @@ JSAPI_FUNC(text_ctor) {
 	JSBool automap = false;
 	char* szText = "";
 
-	JS_ConvertArguments(cx, argc, argv, "scc/cccbff", &szText, &x, &y, &color, &font, &align, &automap, &clickF, &hoverF);
+	if(!JS_ConvertArguments(cx, argc, argv, "scc/cccbff", &szText, &x, &y, &color, &font, &align, &automap, &clickF, &hoverF))
+		return JS_FALSE;
 
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
@@ -588,7 +590,8 @@ JSAPI_FUNC(image_ctor) {
 	JSFunction *clickF = NULL, *hoverF = NULL;
 	JSBool automap = false;
 	char* szLoc = "";
-	JS_ConvertArguments(cx, argc, argv, "scc/cbff", &szLoc, &x, &y, &align, &automap, &clickF, &hoverF);
+	if(!JS_ConvertArguments(cx, argc, argv, "scc/cbff", &szLoc, &x, &y, &align, &automap, &clickF, &hoverF))
+		return JS_FALSE;
 	
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 	
