@@ -2222,14 +2222,15 @@ JSAPI_FUNC(my_login)
 	if(JSVAL_IS_STRING(argv[0]))
 		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	else
-		THROW_ERROR(cx, obj, "no profile specified");
+		THROW_ERROR(cx, obj, "Invalid profile specified!");
 	
 	
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 	Control * pControl;
-
+	
+	// Look for the version string, otherwise return.
 	if (!findControl(4,0,599,200,40))
 	{
 		*rval = JSVAL_FALSE;
@@ -2239,55 +2240,25 @@ JSAPI_FUNC(my_login)
 	switch(tolower(mode[0]))
 	{
 		case 't':
-			// TCP/IP login
+			// TCP/IP login - Not implemented.
 			*rval = JSVAL_FALSE;
 			return JS_TRUE;
 			break;
 		case 's':
-			// Single player login
+			// Single player button
 			pControl = findControl(6,264,324,272,35);
 			if (pControl)
 			{
 				clickControl(pControl);
-				pControl = findControl(4,237,178,72,93);
-				ControlText* cText = pControl->pFirstText;
-				int cTextLine = 0;
-				while (pControl != NULL) {
-					while(cText != NULL) {
-						++cTextLine;
-						if (cTextLine == 2)
-						{
-							char * szLine = UnicodeToAnsi(cText->wText);
-							if (strlen(szLine) == strlen(charname))
-							{
-								if (strstr(szLine,charname) != NULL)
-								{
-									clickControl(pControl);
-									// Ok
-									pControl = findControl(6,627,572,128,35);
-									clickControl(pControl);
-									delete[] szLine;
-									*rval = JSVAL_TRUE;
-									return JS_TRUE;
-								}
-							}
-							delete[] szLine;
-							cText = NULL;
-						}
-						else
-						{
-							cText = cText->pNext;
-						}
-								
-					}
-					pControl = pControl->pNext;
-					cText = pControl->pFirstText;
-					cTextLine = 0;
+				if (OOG_SelectCharacter(charname))
+				{
+					// Need to implement selecting a difficulty!
+					*rval = JSVAL_TRUE;
 				}
-			}
-			else
-			{
-				*rval = JSVAL_FALSE;
+				else
+				{
+					*rval = JSVAL_FALSE;
+				}
 			}
 			return JS_TRUE;
 			break;
@@ -2328,6 +2299,15 @@ JSAPI_FUNC(my_login)
 					while (pControl = findControl(6,351,337,96,32))
 					{
 						Sleep(500);
+					}
+					// Select character.
+					if (OOG_SelectCharacter(charname))
+					{
+						*rval = JSVAL_TRUE;
+					}
+					else
+					{
+						*rval = JSVAL_FALSE;
 					}
 					return JS_TRUE;		
 				}
@@ -2378,41 +2358,15 @@ JSAPI_FUNC(my_login)
 							Sleep(500);
 						}
 
-						pControl = findControl(4,237,178,72,93);
-						ControlText* cText = pControl->pFirstText;
-						int cTextLine = 0;
-						while (pControl != NULL) {
-							while(cText != NULL) {
-								++cTextLine;
-								if (cTextLine == 2)
-								{
-									char * szLine = UnicodeToAnsi(cText->wText);
-									if (strlen(szLine) == strlen(charname))
-									{
-										if (strstr(szLine,charname) != NULL)
-										{
-											clickControl(pControl);
-											// Ok
-											pControl = findControl(6,627,572,128,35);
-											clickControl(pControl);
-											delete[] szLine;
-											*rval = JSVAL_TRUE;
-											return JS_TRUE;
-										}
-									}
-									delete[] szLine;
-									cText = NULL;
-								}
-								else
-								{
-									cText = cText->pNext;
-								}
-								
-							}
-							pControl = pControl->pNext;
-							cText = pControl->pFirstText;
-							cTextLine = 0;
+						if (OOG_SelectCharacter(charname))
+						{
+							*rval = JSVAL_TRUE;
 						}
+						else
+						{
+							*rval = JSVAL_FALSE;
+						}
+
 						return JS_TRUE;
 					}
 					else
