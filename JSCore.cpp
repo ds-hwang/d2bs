@@ -2223,70 +2223,201 @@ JSAPI_FUNC(my_login)
 		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	else
 		THROW_ERROR(cx, obj, "no profile specified");
-
+	
+	
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
+	Control * pControl;
+
+	if (!findControl(4,0,599,200,40))
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
+
 	switch(tolower(mode[0]))
 	{
 		case 't':
 			// TCP/IP login
+			*rval = JSVAL_FALSE;
+			return JS_TRUE;
 			break;
 		case 's':
 			// Single player login
+			pControl = findControl(6,264,324,272,35);
+			if (pControl)
+			{
+				clickControl(pControl);
+				pControl = findControl(4,237,178,72,93);
+				ControlText* cText = pControl->pFirstText;
+				int cTextLine = 0;
+				while (pControl != NULL) {
+					while(cText != NULL) {
+						++cTextLine;
+						if (cTextLine == 2)
+						{
+							char * szLine = UnicodeToAnsi(cText->wText);
+							if (strlen(szLine) == strlen(charname))
+							{
+								if (strstr(szLine,charname) != NULL)
+								{
+									clickControl(pControl);
+									// Ok
+									pControl = findControl(6,627,572,128,35);
+									clickControl(pControl);
+									delete[] szLine;
+									*rval = JSVAL_TRUE;
+									return JS_TRUE;
+								}
+							}
+							delete[] szLine;
+							cText = NULL;
+						}
+						else
+						{
+							cText = cText->pNext;
+						}
+								
+					}
+					pControl = pControl->pNext;
+					cText = pControl->pFirstText;
+					cTextLine = 0;
+				}
+			}
+			else
+			{
+				*rval = JSVAL_FALSE;
+			}
+			return JS_TRUE;
 			break;
 		case 'b':
 			// Battle.net login
 			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+
+			pControl = findControl(6,264,366,272,35);
+			if (pControl)
+			{
+				clickControl(pControl);
+				while (pControl = findControl(4,222,360,340,70))
+				{
+					Sleep(500);
+				} 
+				if (findControl(1,322,342,162,19))
+				{
+					pControl = findControl(1,322,342,162,19);
+					wchar_t* szwText = AnsiToUnicode(username);
+					if (pControl)
+					{
+						D2WIN_SetControlText(pControl, szwText);
+					}
+					delete[] szwText;
+					// Password text-edit box
+					pControl = findControl(1,322,396,162,19);
+					szwText = AnsiToUnicode(password);
+					if (pControl)
+					{
+						D2WIN_SetControlText(pControl, szwText);
+					}
+					delete[] szwText;
+					// Log-in
+					pControl = findControl(6,264,484,272,35);
+					if (pControl) { clickControl(pControl); }
+					// Connecting
+					while (pControl = findControl(6,351,337,96,32))
+					{
+						Sleep(500);
+					}
+					return JS_TRUE;		
+				}
+			}
 			break;
 		case 'o':
 			// Open Battle.net login
 			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-			if (findControl(4,0,599,200,40))
-			{
-				// Other Multiplayer
-				Control * pControl = findControl(6,264,433,272,35);
-				if (pControl) {
+			// Other Multiplayer
+			pControl = findControl(6,264,433,272,35);
+			if (pControl) {
+				clickControl(pControl);
+				// Open Battle.net
+				pControl = findControl(6,264,310,272,35);
+				if (pControl)
+				{
 					clickControl(pControl);
-					pControl = findControl(6,264,310,272,35);
-					if (pControl)
+					// Connecting
+					while (pControl = findControl(4,222,360,340,70))
 					{
-						clickControl(pControl);
+						Sleep(500);
+					}
+					// Username text-edit box
+					if (findControl(1,322,342,162,19))
+					{
+						pControl = findControl(1,322,342,162,19);
+						wchar_t* szwText = AnsiToUnicode(username);
+						if (pControl)
+						{
+							D2WIN_SetControlText(pControl, szwText);
+						}
+						delete[] szwText;
+						// Password text-edit box
+						pControl = findControl(1,322,396,162,19);
+						szwText = AnsiToUnicode(password);
+						if (pControl)
+						{
+							D2WIN_SetControlText(pControl, szwText);
+						}
+						delete[] szwText;
+						// Log-in
+						pControl = findControl(6,264,484,272,35);
+						if (pControl) { clickControl(pControl); }
 						// Connecting
-						while (pControl = findControl(4,222,360,340,70))
+						while (pControl = findControl(6,351,337,96,32))
 						{
 							Sleep(500);
 						}
-						if (findControl(1,322,342,162,19))
-						{
-							pControl = findControl(1,322,342,162,19);
-							wchar_t* szwText = AnsiToUnicode(username);
-							if (pControl)
-							{
-								D2WIN_SetControlText(pControl, szwText);
+
+						pControl = findControl(4,237,178,72,93);
+						ControlText* cText = pControl->pFirstText;
+						int cTextLine = 0;
+						while (pControl != NULL) {
+							while(cText != NULL) {
+								++cTextLine;
+								if (cTextLine == 2)
+								{
+									char * szLine = UnicodeToAnsi(cText->wText);
+									if (strlen(szLine) == strlen(charname))
+									{
+										if (strstr(szLine,charname) != NULL)
+										{
+											clickControl(pControl);
+											// Ok
+											pControl = findControl(6,627,572,128,35);
+											clickControl(pControl);
+											delete[] szLine;
+											*rval = JSVAL_TRUE;
+											return JS_TRUE;
+										}
+									}
+									delete[] szLine;
+									cText = NULL;
+								}
+								else
+								{
+									cText = cText->pNext;
+								}
+								
 							}
-							delete[] szwText;
-							pControl = findControl(1,322,396,162,19);
-							szwText = AnsiToUnicode(password);
-							if (pControl)
-							{
-								D2WIN_SetControlText(pControl, szwText);
-							}
-							delete[] szwText;
-							pControl = findControl(6,264,484,272,35);
-							if (pControl) { clickControl(pControl); }
-							while (pControl = findControl(6,351,337,96,32))
-							{
-								Sleep(500);
-							}
-							
+							pControl = pControl->pNext;
+							cText = pControl->pFirstText;
+							cTextLine = 0;
 						}
-						else
-						{ // you could be banned, no internet, ok time to parse options... later.
-							return JS_TRUE;
-						}
+						return JS_TRUE;
+					}
+					else
+					{ // you could be banned, no internet, ok time to parse options... later.
+						return JS_TRUE;
 					}
 					return JS_TRUE;
 				}
