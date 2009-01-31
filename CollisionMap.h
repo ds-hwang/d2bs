@@ -25,6 +25,7 @@ typedef struct LevelExit_t
 	POINT ptPos;
 	DWORD dwTargetLevel;
 	DWORD dwType;
+	DWORD dwId;
 } LevelExit, *LPLevelExit;
 
 ////////////////////////////////////////////////////////////////

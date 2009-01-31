@@ -23,6 +23,7 @@ enum exit_tinyid {
 	EXIT_Y,
 	EXIT_ID,
 	EXIT_TYPE,
+	EXIT_TILEID,
 };
 
 
@@ -31,6 +32,7 @@ static JSPropertySpec exit_props[] = {
 	{"y",			EXIT_Y,			JSPROP_PERMANENT_VAR},
 	{"id",			EXIT_ID,		JSPROP_PERMANENT_VAR},
 	{"type",		EXIT_TYPE,		JSPROP_PERMANENT_VAR},
+	{"tileid",		EXIT_TILEID,	JSPROP_PERMANENT_VAR},
 	{0},
 };
 
@@ -39,6 +41,7 @@ struct myExit {
 	DWORD y;
 	DWORD id;
 	DWORD type;
+	DWORD tileid;
 };
 
 #endif

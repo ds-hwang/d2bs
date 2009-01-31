@@ -35,6 +35,9 @@ INT exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case EXIT_TYPE:
 			*vp = INT_TO_JSVAL(pExit->type);
 			break;
+		case EXIT_TILEID:
+			*vp = INT_TO_JSVAL(pExit->tileid);
+			break;
 		default:
 			break;
 	}

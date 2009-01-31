@@ -703,6 +703,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 							lpLevel[nCurrentExit]->ptPos.x = ptCenters[j].x + m_ptLevelOrigin.x;
 							lpLevel[nCurrentExit]->ptPos.y = ptCenters[j].y + m_ptLevelOrigin.y;
 							lpLevel[nCurrentExit]->dwType = EXIT_LEVEL;
+							lpLevel[nCurrentExit]->dwId = 0;
 							nCurrentExit++;
 						}
 					}
@@ -753,6 +754,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 							lpLevel[nCurrentExit]->ptPos.x = (pRoom->dwPosX * 5) + pUnit->dwPosX;
 							lpLevel[nCurrentExit]->ptPos.y = (pRoom->dwPosY * 5) + pUnit->dwPosY;
 							lpLevel[nCurrentExit]->dwType = EXIT_TILE;
+							lpLevel[nCurrentExit]->dwId = pUnit->dwTxtFileNo;
 							nCurrentExit++;
 						}
 					}

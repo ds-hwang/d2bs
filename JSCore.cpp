@@ -2031,6 +2031,8 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		pExit->x	= pArea->ExitArray[i]->ptPos.x;
 		pExit->y	= pArea->ExitArray[i]->ptPos.y;
 		pExit->type	= pArea->ExitArray[i]->dwType;
+		pExit->tileid = pArea->ExitArray[i]->dwId;
+
 		JS_SetPrivate(cx, jsUnit, pExit);
 
 		jsval a = OBJECT_TO_JSVAL(jsUnit);
