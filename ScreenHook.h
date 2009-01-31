@@ -95,7 +95,7 @@ public:
 			ScreenhookState state = Perm) :
 			Genhook(owner, x, y, opacity, automap, align, state), text(NULL), font(nfont), color(ncolor)
 	{ this->text = _strdup(text); }
-	~TextHook(void) { if(text) delete[] text; }
+	~TextHook(void) { if(text) free(text); }
 
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
@@ -123,11 +123,11 @@ public:
 			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, opacity, automap, align, state), color(ncolor)
 	{ location = _strdup(nloc); image = LoadCellFile(location); }
-	~ImageHook(void) { delete[] location; }
+	~ImageHook(void) { free(location); }
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
 
-	void SetImage(const char* nimage) { Lock(); delete[] location; location = _strdup(nimage); image = LoadCellFile(location); Unlock(); }
+	void SetImage(const char* nimage) { Lock(); free(location); location = _strdup(nimage); image = LoadCellFile(location); Unlock(); }
 	void SetColor(ushort ncolor) { Lock(); color = ncolor; Unlock(); }
 
 	const char* GetImage(void) const { return location; }

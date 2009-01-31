@@ -209,7 +209,7 @@ Script::~Script(void)
 	scriptObject = NULL;
 	globalObject = NULL;
 	script = NULL;
-	delete[] fileName;
+	free(fileName);
 
 	includes.clear();
 	functions.clear();

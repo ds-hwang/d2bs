@@ -62,7 +62,7 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 
 void SetControlText(Control* control, char* text)
 {
-	if(control)
+	if(control && text)
 	{
 		wchar_t* szwText = AnsiToUnicode(text);
 		D2WIN_SetControlText(control, szwText);

@@ -731,7 +731,7 @@ CellFile *LoadBmpCellFile(char *filename)
 	if (buf1 && (bmphead1->bfType == 'MB') && (bmphead2->biBitCount == 8) && (bmphead2->biCompression == BI_RGB)) {
 		ret = (BYTE *)LoadBmpCellFile(buf1+bmphead1->bfOffBits, bmphead2->biWidth, bmphead2->biHeight);
 	}
-	delete buf1;
+	delete[] buf1;
 
 	return (CellFile *)ret;
 }

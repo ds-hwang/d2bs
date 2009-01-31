@@ -79,7 +79,7 @@ void FillBytes(void *pAddr, BYTE bFill, DWORD dwLen)
 
 	WriteBytes(pAddr, bCode, dwLen);
 
-	delete bCode;
+	delete[] bCode;
 }
 
 void InterceptLocalCode(BYTE bInst, DWORD pAddr, DWORD pFunc, DWORD dwLen)
@@ -92,7 +92,7 @@ void InterceptLocalCode(BYTE bInst, DWORD pAddr, DWORD pFunc, DWORD dwLen)
 	*(DWORD *)&bCode[1] = dwFunc;
 	WriteBytes((void*)pAddr, bCode, dwLen);
 
-	delete bCode;
+	delete[] bCode;
 }
 
 void PatchCall(DWORD dwAddr, DWORD dwFunc, DWORD dwLen)
