@@ -18,7 +18,10 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
-			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));		
+			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			char* c = 0;
+			while((c = strchr(lpszText, '%')) != 0)
+				*c = (char)0x255;
 			Print(lpszText);
 		}
 		else Print("undefined");
