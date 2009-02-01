@@ -91,11 +91,15 @@ private:
 	TextHook& operator=(const TextHook&);
 public:
 	TextHook(Script* owner, char* text, uint x, uint y, ushort nfont,
-			ushort ncolor, ushort opacity, bool automap = false, Align align = Left,
+			ushort ncolor, bool automap = false, Align align = Left,
 			ScreenhookState state = Perm) :
-			Genhook(owner, x, y, opacity, automap, align, state), text(NULL), font(nfont), color(ncolor)
+			Genhook(owner, x, y, 0, automap, align, state), text(NULL), font(nfont), color(ncolor)
 	{ this->text = _strdup(text); }
-	~TextHook(void) { if(text) free(text); }
+	~TextHook(void)
+	{
+		if(text)
+			free(text);
+	}
 
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
@@ -120,8 +124,8 @@ private:
 	ImageHook& operator=(const ImageHook&);
 public:
 	ImageHook(Script* owner, const char* nloc, uint x, uint y, ushort ncolor,
-			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, opacity, automap, align, state), color(ncolor)
+			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+		Genhook(owner, x, y, 0, automap, align, state), color(ncolor)
 	{ location = _strdup(nloc); image = LoadCellFile(location); }
 	~ImageHook(void) { free(location); }
 	void Draw(void);
@@ -144,8 +148,8 @@ private:
 	LineHook& operator=(const LineHook&);
 public:
 	LineHook(Script* owner, uint x, uint y, uint nx2, uint ny2, ushort ncolor,
-			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, opacity, automap, align, state), x2(nx2), y2(ny2), color(ncolor) {}
+			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+		Genhook(owner, x, y, 0, automap, align, state), x2(nx2), y2(ny2), color(ncolor) {}
 	~LineHook(void) {}
 	void Draw(void);
 	bool IsInRange(int dx, int dy) { return false; }
@@ -193,8 +197,8 @@ private:
 	FrameHook& operator=(const FrameHook&);
 public:
 	FrameHook(Script* owner, uint x, uint y, uint nxsize, uint nysize,
-			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, opacity, automap, align, state), xsize(x+nxsize), ysize(y+nysize) {}
+			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+		Genhook(owner, x, y, 0, automap, align, state), xsize(x+nxsize), ysize(y+nysize) {}
 	~FrameHook(void) {}
 	void Draw(void);
 	bool IsInRange(int dx, int dy);

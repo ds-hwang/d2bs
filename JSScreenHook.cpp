@@ -6,27 +6,37 @@
 using namespace std;
 
 // Function to create a frame which gets called on a "new Frame ()"
-// Parameters: x, y, xsize, ysize, alignment, opacity, automap, onClick, onHover
+// Parameters: x, y, xsize, ysize, alignment, automap, onClick, onHover
 JSAPI_FUNC(frame_ctor) {
 	CDebug cDbg("frame_ctor");
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	uint x = 0, y = 0, x2 = 0, y2 = 0, align = 0;
+	uint x = 0, y = 0, x2 = 0, y2 = 0;
+	Align align = Left;
 	ushort opacity = 0;
-	JSFunction *clickF = NULL, *hoverF = NULL;
-	JSBool automap = false;
-	if(!JS_ConvertArguments(cx, argc, argv, "cccc/ccbff", &x, &y, &x2, &y2, &align, &opacity, &automap, &clickF, &hoverF))
-		return JS_FALSE;
-
+	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-	if(clickF != NULL)
-		click = argv[7];
-	if(hoverF != NULL)
-		hover = argv[8];
+
+	if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		x = JSVAL_TO_INT(argv[0]);
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		y = JSVAL_TO_INT(argv[1]);
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		x2 = JSVAL_TO_INT(argv[2]);
+	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+		y2 = JSVAL_TO_INT(argv[3]);
+	if(argc > 4 && JSVAL_IS_INT(argv[4]))
+		align = (Align)JSVAL_TO_INT(argv[4]);
+	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
+		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
+		click = argv[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
+		hover = argv[7];
 
 	// framehooks don't work out of game -- they just crash
-	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, opacity, !!automap, (Align)align, IG);
+	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, automap, align, IG);
 
 	if (!pFramehook)
 		THROW_ERROR(cx, obj, "Failed to create framehook");
@@ -140,16 +150,17 @@ JSAPI_FUNC(frame_remove) {
 
 //Box functions
 
-//Parameters: x, y, xsize, ysize, color, opacity, alignment, onClick, onHover
+//Parameters: x, y, xsize, ysize, color, opacity, alignment, automap, onClick, onHover
 JSAPI_FUNC(box_ctor) {
 	CDebug cDbg("box_ctor");
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
-	uint x, y, x2, y2, color, opacity;
-	Align align;
-	bool automap;
+	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	uint x = 0, y = 0, x2 = 0, y2 = 0, color = 0, opacity = 0;
+	Align align = Left;
+	bool automap = false;
+	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		x = JSVAL_TO_INT(argv[0]);
@@ -160,23 +171,25 @@ JSAPI_FUNC(box_ctor) {
 	if(argc > 3 && JSVAL_IS_INT(argv[3]))
 		y2 = JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		color = (ushort)JSVAL_TO_INT(argv[4]);
+		color = JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_INT(argv[5]))
-		opacity = (ushort)JSVAL_TO_INT(argv[5]);
+		opacity = JSVAL_TO_INT(argv[5]);
 	if(argc > 6 && JSVAL_IS_INT(argv[6]))
 		align = (Align)JSVAL_TO_INT(argv[6]);
 	if(argc > 7 && JSVAL_IS_BOOLEAN(argv[7]))
 		automap = !!JSVAL_TO_BOOLEAN(argv[7]);
+	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
+		click = argv[8];
+	if(argc > 9 && JSVAL_IS_FUNCTION(cx, argv[9]))
+		hover = argv[9];
 
-	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, pState);
+	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, state);
 
 	if (!pBoxHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a box class.");
 
-	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
-		pBoxHook->SetClickHandler(argv[8]);
-	if(argc > 9 && JSVAL_IS_FUNCTION(cx, argv[9]))
-		pBoxHook->SetHoverHandler(argv[9]);
+	pBoxHook->SetClickHandler(click);
+	pBoxHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props, pBoxHook);
 	if(!hook)
@@ -296,13 +309,17 @@ JSAPI_FUNC(box_remove) {
 
 //Line functions
 
+// Parameters: x, y, x2, y2, color, automap, click, hover
 JSAPI_FUNC(line_ctor) {
 	CDebug cDbg("line_ctor");
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
+	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
 	int x = 0, y = 0, x2 = 0, y2 = 0, color = 0;
 	bool automap = false;
+	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
+
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		x = JSVAL_TO_INT(argv[0]);
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
@@ -315,17 +332,18 @@ JSAPI_FUNC(line_ctor) {
 		color = JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
 		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
+		click = argv[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
+		hover = argv[7];
 
-	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
-	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, automap, color, 0, Left, pState);
+	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, color, automap, Left, state);
 
 	if (!pLineHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
 
-	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
-		pLineHook->SetClickHandler(argv[6]);
-	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
-		pLineHook->SetHoverHandler(argv[7]);
+	pLineHook->SetClickHandler(click);
+	pLineHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
 	if(!hook)
@@ -433,31 +451,40 @@ JSAPI_FUNC(line_remove) {
 }
 
 // Function to create a text which gets called on a "new text ()"
+
 // Parameters: text, x, y, color, font, align, automap, onHover, onText
 JSAPI_FUNC(text_ctor) {
 	CDebug cDbg("text_ctor");
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	uint x = 0, y = 0, align = 0, color = 0, font = 0;
-	JSFunction *clickF = NULL, *hoverF = NULL;
-	JSBool automap = false;
+	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	uint x = 0, y = 0, color = 0, font = 0;
+	Align align = Left;
+	bool automap = false;
+	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 	char* szText = "";
 
-	if(!JS_ConvertArguments(cx, argc, argv, "scc/cccbff", &szText, &x, &y, &color, &font, &align, &automap, &clickF, &hoverF))
-		return JS_FALSE;
-
-	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-
-	szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-
-	if(clickF != NULL)
+	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
+		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		x = JSVAL_TO_INT(argv[1]);
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		y = JSVAL_TO_INT(argv[2]);
+	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+		color = JSVAL_TO_INT(argv[3]);
+	if(argc > 4 && JSVAL_IS_INT(argv[4]))
+		font = JSVAL_TO_INT(argv[4]);
+	if(argc > 5 && JSVAL_IS_INT(argv[5]))
+		align = (Align)JSVAL_TO_INT(argv[5]);
+	if(argc > 6 && JSVAL_IS_BOOLEAN(argv[6]))
+		automap = !!JSVAL_TO_BOOLEAN(argv[6]);
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
 		click = argv[7];
-	if(hoverF != NULL)
+	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
 		hover = argv[8];
 
-	ScreenhookState pState = (script->GetState () == OutOfGame) ? OOG : IG;
-	TextHook* pTextHook = new TextHook(script, szText, x, y, !!automap, font, color, 0, (Align)align, pState);
+	TextHook* pTextHook = new TextHook(script, szText, x, y, font, color, automap, align, state);
 
 	if (!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");
@@ -580,29 +607,38 @@ JSAPI_FUNC(text_remove) {
 }
 
 // Function to create a image which gets called on a "new Image ()"
-// Parameters: image, x, y, color, font, align, automap, onHover, onimage
+
+// Parameters: image, x, y, color, align, automap, onHover, onimage
 JSAPI_FUNC(image_ctor) {
 	CDebug cDbg("image_ctor");
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	uint x = 0, y = 0, align = 0;
-	JSFunction *clickF = NULL, *hoverF = NULL;
-	JSBool automap = false;
-	char* szLoc = "";
-	if(!JS_ConvertArguments(cx, argc, argv, "scc/cbff", &szLoc, &x, &y, &align, &automap, &clickF, &hoverF))
-		return JS_FALSE;
-	
+	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	uint x = 0, y = 0, color = 0;
+	Align align = Left;
+	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
-	
-	szLoc = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* szText = "";
 
-	if(clickF != NULL)
-		click = argv[7];
-	if(hoverF != NULL)
-		hover = argv[8];
+	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
+		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		x = JSVAL_TO_INT(argv[1]);
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		y = JSVAL_TO_INT(argv[2]);
+	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+		color = JSVAL_TO_INT(argv[3]);
+	if(argc > 4 && JSVAL_IS_INT(argv[4]))
+		align = (Align)JSVAL_TO_INT(argv[4]);
+	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
+		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
+	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
+		click = argv[6];
+	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
+		hover = argv[7];
 
-	ImageHook* pImageHook = new ImageHook(script, szLoc, x, y, !!automap, 0, 0, (Align)align, script->GetState() == InGame ? IG : OOG);
+	ImageHook* pImageHook = new ImageHook(script, szText, x, y, 0, automap, align, state);
 
 	if(!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");

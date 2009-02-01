@@ -84,6 +84,7 @@ VARPTR(D2CLIENT, WaypointTab, DWORD, 0x11B956) // Updated
 VARPTR(D2CLIENT, xShake, int, 0x11B9B4) // Updated
 VARPTR(D2CLIENT, SelectedInvItem, UnitAny*, 0x11B9FC) // Updated
 VARPTR(D2CLIENT, Offset, POINT, 0x11C2E8) // Updated
+VARPTR(D2CLIENT, AutomapOn, DWORD, 0x102B80)
 VARPTR(D2CLIENT, FirstAutomapLayer, AutomapLayer *, 0x11C2B0) // Updated
 VARPTR(D2CLIENT, AutomapLayer, AutomapLayer *, 0x11C2B4) // Updated
 VARPTR(D2CLIENT, AutomapYPosition, int, 0x11C30C) // Updated

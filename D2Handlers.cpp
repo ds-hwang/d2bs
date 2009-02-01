@@ -21,8 +21,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	char starterdbj[_MAX_PATH+_MAX_FNAME];
 	sprintf(starterdbj, "%s\\starter.dbj", Vars.szScriptPath);
 
-	ImageHook image(NULL, "version.bmp", 0, 10, false, 0, 0, Center, Perm);
-	TextHook text(NULL, szVersionString, 0, 15, 13, 4, 0, false, Center, Perm);
+	ImageHook image(NULL, "version.bmp", 0, 10, 0, false, Center, Perm);
+	TextHook text(NULL, szVersionString, 0, 15, 13, 4, false, Center, Perm);
 
 	while(TRUE)
 	{

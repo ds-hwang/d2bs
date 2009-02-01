@@ -56,7 +56,7 @@ void RemovePatches()
 	for(int x = 0; x < ArraySize(pHooks); x++)
 	{
 		WriteBytes((void*)pHooks[x].dwAddr, pHooks[x].bOldCode, pHooks[x].dwLen);
-		delete pHooks[x].bOldCode;
+		delete[] pHooks[x].bOldCode;
 	}
 	
 }

@@ -129,8 +129,8 @@ enum line_tinyid {
 static JSPropertySpec line_props[] = {
 	{"x",		LINE_X,			JSPROP_STATIC_VAR},
 	{"y",		LINE_Y,			JSPROP_STATIC_VAR},
-	{"xsize",	LINE_XSIZE,		JSPROP_STATIC_VAR},
-	{"ysize",	LINE_YSIZE,		JSPROP_STATIC_VAR},
+	{"x2",		LINE_XSIZE,		JSPROP_STATIC_VAR},
+	{"y2",		LINE_YSIZE,		JSPROP_STATIC_VAR},
 	{"visible",	LINE_VISIBLE,	JSPROP_STATIC_VAR},
 	{"color",	LINE_COLOR,		JSPROP_STATIC_VAR},
 	{"zorder",	LINE_ZORDER,	JSPROP_STATIC_VAR},

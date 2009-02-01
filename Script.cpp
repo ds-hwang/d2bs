@@ -43,14 +43,18 @@ bool Script::isAllLocked = false;
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	try {
-		if(recompile && activeScripts.count(file)) {
+		LockAll();
+		if(recompile && activeScripts.count(file) > 0) {
 			delete activeScripts[file];
-			return new Script(file, state);
-		}
-		if(activeScripts.count(file) > 0 && !activeScripts[file]->IsRunning())
+		} else if(activeScripts.count(file) > 0 && !activeScripts[file]->IsRunning()) {
+			UnlockAll();
 			return activeScripts[file];
-		return new Script(file, state);
+		}
+		Script* script = new Script(file, state);
+		UnlockAll();
+		return script;
 	} catch(std::exception e) {
+		UnlockAll();
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -59,10 +63,16 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 Script* Script::CompileCommand(const char* command)
 {
 	try {
-		if(activeScripts.count(command) > 0 && !activeScripts[command]->IsRunning())
+		LockAll();
+		if(activeScripts.count(command) > 0 && !activeScripts[command]->IsRunning()) {
+			UnlockAll();
 			return activeScripts[command];
-		return new Script(command, Command);
+		}
+		Script* script = new Script(command, Command);
+		UnlockAll();
+		return script;
 	} catch(std::exception e) {
+		UnlockAll();
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
