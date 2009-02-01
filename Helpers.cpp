@@ -11,7 +11,7 @@ INT StringTokenize(CHAR * input, CHAR separator, CHAR ** tokenbuf, INT maxtokens
 		if(p)
 			*(p++) = 0;
 	} while (p && ++i < maxtokens);
-	delete[] p;
+	free(p); 
 	return ++i;
 }
 
