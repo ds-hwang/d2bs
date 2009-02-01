@@ -21,7 +21,7 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
-				*c = (char)0xFF;
+				*c = (char)0xFE;
 			Print(lpszText);
 		}
 		else Print("undefined");
