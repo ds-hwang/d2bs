@@ -15,13 +15,17 @@ Control* findControl(DWORD dwType, DWORD dwX, DWORD dwY, DWORD dwSizeX, DWORD dw
 	return NULL;
 }
 
-bool clickControl(Control* pControl)
+bool clickControl(Control* pControl, int x, int y)
 {
 	if(pControl)
 	{
-		SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 0);
+		if(x == -1)
+			x = pControl->dwPosX + (pControl->dwSizeX / 2);
+		if(y == -1)
+			y = pControl->dwPosY - (pControl->dwSizeY / 2);
+		SendMouseClick(x, y, 0);
 		Sleep(150);
-		SendMouseClick(pControl->dwPosX + (pControl->dwSizeX / 2), pControl->dwPosY - (pControl->dwSizeY / 2), 1);
+		SendMouseClick(x, y, 1);
 		return true;
 	}
 	return false;

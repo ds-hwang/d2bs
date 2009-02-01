@@ -40,7 +40,7 @@ VOID Print(const char * szFormat, ...)
 {
 	using namespace std;
 
-	const char REPLACE_CHAR = 255;
+	const char REPLACE_CHAR = (char)0xFF;
 
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);

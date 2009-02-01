@@ -14,7 +14,6 @@ JSAPI_FUNC(frame_ctor) {
 
 	uint x = 0, y = 0, x2 = 0, y2 = 0;
 	Align align = Left;
-	ushort opacity = 0;
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 

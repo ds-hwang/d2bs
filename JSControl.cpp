@@ -178,21 +178,15 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		return JS_TRUE;
 	}
 
-	jsint x=0,y=0;
+	jsint x=-1,y=-1;
 
 	if(argc > 1 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 	{
 		x = JSVAL_TO_INT(argv[0]);
 		y = JSVAL_TO_INT(argv[1]);
 	}
-	if(!x && !y)
-	{
-		x = pControl->dwSizeX / 2;
-		y = pControl->dwSizeY / 2;
-	}
 
-	SendMouseClick(pControl->dwPosX + x, pControl->dwPosY - y, 0);
-	SendMouseClick(pControl->dwPosX + x, pControl->dwPosY - y, 1);
+	clickControl(pControl, x, y);
 
 	return JS_TRUE;
 }
