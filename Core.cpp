@@ -1,52 +1,167 @@
 #include "D2BS.h"
 
-// NOTES: (char)0x255 is filter-replaced to % because of the way my_print has to filter characters
-VOID Print(CHAR* szFormat, ...)
-{
-	char* szString = NULL;
-	va_list vaArgs;
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <list>
 
+
+//! Splits a given string in two substrings, trying not to cut words.
+//!
+//! @param str The string to split.
+//! @param point Point in which to split. Will split at the previous space if possible,
+//! or at the point itself.
+//! @param lst The list in which to insert.
+//! @param split The iterator in which to insert in the list.
+static void SplitStr(const std::string & str, size_t point, 
+					 std::list<std::string> & lst, 
+					 std::list<std::string>::iterator split)
+{
+	using namespace std;
+
+	string::const_reverse_iterator it = 
+		find( string::const_reverse_iterator(str.begin() + point + 1), str.rend(), ' ');
+
+	// Split after the space or in the point itself if no spaces are found.
+	string::const_iterator splitPoint(
+		it != str.rend() ? it.base() : str.begin() + point
+		);
+
+	string temp;
+	copy(str.begin(), splitPoint, back_inserter(temp));
+	lst.insert(split, temp);
+	temp.clear();
+	copy(splitPoint, str.end(), back_inserter(temp));
+	lst.insert(split, temp);
+}
+
+
+VOID Print(const char * szFormat, ...)
+{
+	using namespace std;
+
+	const char REPLACE_CHAR = 255;
+
+	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
-	szString = new char[len+1];
-	vsprintf_s(szString, len+1, szFormat, vaArgs);
+	char * str = new char[len+1];
+	vsprintf_s(str, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
-	char* c = 0;
-	while((c = strchr(szString, (char)0x255)) != 0)
-		*c = '%';
+	replace(str, str + len, REPLACE_CHAR, '%');
 
-#define MAXLEN 500
-	if(len > MAXLEN)
+	const size_t MAXLEN = 500;
+
+
+	// Break into lines through \n.
+	list<string> lines;
+	string temp;
+
+	stringstream ss(str);
+	while(getline(ss, temp))
+		lines.push_back(temp);
+
+	// Make sure every line is smaller than MAXLEN.
+	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
-		for(int i = 0; i < (len/MAXLEN)+1; i++)
+		// If one line is longer, we split it.
+		int siz = it->size();
+		if(it->size() > MAXLEN)
 		{
-			char tmp[MAXLEN+1] = "";
-			memcpy(tmp, szString+i*MAXLEN, MAXLEN);
-			Print(tmp);
+			list<string>::iterator nxi(it);
+			SplitStr(*it, MAXLEN, lines, ++nxi);
+
+			// We erase the line that is too long.
+			list<string>::iterator tempit = it;
+			++it;
+			lines.erase(tempit);
 		}
-		delete[] szString;
-		return;
 	}
-#undef MAXLEN
 
 	EnterCriticalSection(&Vars.cPrintSection);
 	if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
-		wchar_t* wOutput = AnsiToUnicode(szString);
-		// the 200 character limit seems to have been lifted... longer than 200 characters didn't crash
-		D2CLIENT_PrintGameString(wOutput, 0);
-		delete[] wOutput;
-	} else if(findControl(4,28,410,354,298)) {
-		// TODO: Double check this function, make sure it is working as intended.
-		// D2MULTI_PrintChannelText(szString, NULL);
-	} else {
-		MessageBox(0, szString, "D2BS " D2BS_VERSION, 0);
-	}
 
+		// Convert and send every line.
+		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+		{
+			wchar_t * output = AnsiToUnicode(it->c_str());
+			D2CLIENT_PrintGameString(output, 0);
+			delete [] output;
+		}
+	}
+	else if(findControl(4,28,410,354,298)) {
+			// TODO: Double check this function, make sure it is working as intended.
+			// D2MULTI_PrintChannelText(szString, NULL);
+	} else {
+			// Print original string.
+			MessageBox(0, str, "D2BS " D2BS_VERSION, 0);
+	}
 	LeaveCriticalSection(&Vars.cPrintSection);
-	delete[] szString;
+
+	delete [] str;
 }
+
+
+
+//VOID Print(const char * szFormat, ...)
+//{
+//	char * szNCFormat = (char*)szFormat;
+//
+//	// TODO: Come up with a better replacement for 0x255
+//#define REPLACE_CHAR (char)0x255
+//	char* c = 0;
+//	while((c = strchr(szNCFormat, '%')) != 0)
+//		*c = REPLACE_CHAR;
+//
+//	char* szString = NULL;
+//	va_list vaArgs;
+//
+//	va_start(vaArgs, szNCFormat);
+//	int len = _vscprintf(szNCFormat, vaArgs);
+//	szString = new char[len+1];
+//	vsprintf_s(szString, len+1, szNCFormat, vaArgs);
+//	va_end(vaArgs);
+//
+//	c = 0;
+//	while((c = strchr(szString, REPLACE_CHAR)) != 0)
+//		*c = '%';
+//#undef REPLACE_CHAR
+//
+//#define MAXLEN 500
+//	if(len > MAXLEN)
+//	{
+//		for(int i = 0; i < (len/MAXLEN)+1; i++)
+//		{
+//			char tmp[MAXLEN+1] = "";
+//			memcpy(tmp, szString+i*MAXLEN, MAXLEN);
+//			Print(tmp);
+//		}
+//		delete[] szString;
+//		return;
+//	}
+//#undef MAXLEN
+//
+//	EnterCriticalSection(&Vars.cPrintSection);
+//	if(D2CLIENT_GetPlayerUnit() && GameReady())
+//	{
+//		wchar_t* wOutput = AnsiToUnicode(szString);
+//		// the 200 character limit seems to have been lifted... longer than 200 characters didn't crash
+//		D2CLIENT_PrintGameString(wOutput, 0);
+//		delete[] wOutput;
+//	} else if(findControl(4,28,410,354,298)) {
+//		// TODO: Double check this function, make sure it is working as intended.
+//		// D2MULTI_PrintChannelText(szString, NULL);
+//	} else {
+//		MessageBox(0, szString, "D2BS " D2BS_VERSION, 0);
+//	}
+//
+//	LeaveCriticalSection(&Vars.cPrintSection);
+//	delete[] szString;
+//}
+
+
 
 VOID __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 {
