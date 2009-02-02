@@ -408,7 +408,11 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(nType == 100)
 		pUnit = D2CLIENT_GetCursorItem();
 	else if(nType == 101)
+	{
 		pUnit = D2CLIENT_GetSelectedUnit();
+		if(!pUnit)
+			pUnit = (*p_D2CLIENT_SelectedInvItem);
+	}
 	else 
 		pUnit = GetUnit(szName, nClassId, nType, nMode, nUnitId);
 
