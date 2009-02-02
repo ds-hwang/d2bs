@@ -33,7 +33,7 @@ public:
 
 	void EnterSection() {
 		EnterCriticalSection(&Vars.cMiscSection);
-		bEnteredCriticalSection = false;
+		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
