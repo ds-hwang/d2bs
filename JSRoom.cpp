@@ -457,3 +457,39 @@ INT room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	return JS_TRUE;
 }
+
+INT room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
+
+	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
+		return JS_TRUE;
+
+	BOOL bAdded = FALSE;
+	
+	CriticalMisc cMisc;
+
+	if(!pRoom2->pRoom1)
+	{
+		D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		bAdded = TRUE; 
+	}
+
+	DWORD dwOldArea = NULL;
+
+	if(pRoom2->pLevel->dwLevelNo != GetPlayerArea())
+	{
+		dwOldArea = GetPlayerArea();
+		InitAutomapLayer(pRoom2->pLevel->dwLevelNo);
+	}
+
+	D2CLIENT_RevealAutomapRoom(pRoom2->pRoom1, TRUE, (*p_D2CLIENT_AutomapLayer));
+
+	if(dwOldArea)
+		InitAutomapLayer(dwOldArea);
+
+	if(bAdded)
+		D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+
+	return JS_TRUE;
+}

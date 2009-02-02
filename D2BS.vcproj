@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="js32d.lib"
-				OutputFile="$(ProgramFiles)/Diablo II/d2bs/d2bs.dll"
+				OutputFile="C:\Documents and Settings\Administrator\Desktop\mBot\cGuard.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""

@@ -12,6 +12,7 @@ DEFFNC(room_getNearby)
 DEFFNC(room_getStat)
 DEFFNC(room_getFirst)
 DEFFNC(room_unitInRoom)
+DEFFNC(room_reveal)
 
 #undef DEFFNC
 
@@ -54,6 +55,7 @@ static JSFunctionSpec room_methods[] = {
 	{"getStat",			room_getStat,			0},
 	{"getFirst",		room_getFirst,			0},
 	{"unitInRoom",		room_unitInRoom,		1},
+	{"reveal",			room_reveal,			0},
 	{0}
 };
 

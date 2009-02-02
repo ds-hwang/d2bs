@@ -108,13 +108,13 @@ JSAPI_FUNC(sqlite_ctor)
 
 	// if the path is not a special placeholder, it needs to be freed
 	if(path[0] != ':')
-		delete[] path;
+		free(path);
 
 	JSObject* jsdb = BuildObject(cx, &sqlite_db_ex.base, sqlite_methods, sqlite_props, dbobj);
 	if(!jsdb) {
 		sqlite3_close(db);
-		delete[] dbobj->path;
-		delete dbobj;
+		free(dbobj->path);
+		free(dbobj);
 		THROW_ERROR(cx, obj, "Could not create the sqlite object");
 	}
 	*rval = OBJECT_TO_JSVAL(jsdb);
