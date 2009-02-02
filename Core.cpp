@@ -45,14 +45,26 @@ VOID Print(const char * szFormat, ...)
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
-	char * str = new char[len+1];
+
+	
+	char * str;
+	try 
+	{
+		str = new char[len+1];
+	}
+	catch(...)
+	{
+		delete [] str;
+		throw;
+	}
+
+
 	vsprintf_s(str, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
 	replace(str, str + len, REPLACE_CHAR, '%');
 
 	const size_t MAXLEN = 500;
-
 
 	// Break into lines through \n.
 	list<string> lines;
