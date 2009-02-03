@@ -462,7 +462,7 @@ INT room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
-	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
+	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
 	BOOL bAdded = FALSE;
