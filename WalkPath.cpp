@@ -50,7 +50,7 @@ static const int Nearby[8][6] =	{   { 1, 0,   1, 7,   6, 2 },
 
 int DummyMsg(LPCSTR lpszFmt, ...)
 {
-	return 0; // silent toe screen messages
+	return 0; // silent to screen messages
 }
 
 
@@ -190,7 +190,7 @@ void CALLBACK CWalkPath::FindPathProc(int x, int y, LPARAM pWp)
 				&& (TempPoint.y- p->m_LastLineDot.y)==Nearby[i][1])
 				p->m_LStart = p->m_RStart = i;
 		}
-		__PRINTF("sepearate x=%d y=%d\n",p->m_Seperate.x,p->m_Seperate.y);
+		__PRINTF("seperate x=%d y=%d\n",p->m_Seperate.x,p->m_Seperate.y);
 	}
 	else if(!p->IsBarrier(TempPoint) ) 
 	{
@@ -400,6 +400,12 @@ int CWalkPath::FindWalkPath (POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCo
 
 				m_Count = FurtherStraighten(Path, m_Count);
 				__PRINTF("after FurtherStraighten: %d\n", m_Count);
+			}
+			else
+			{
+			for(int j=0; j<ContinuousPath.GetSize(); j++)
+				if(m_Count<(int)dwMaxCount)
+					Path[m_Count++] = ContinuousPath[j];
 			}
 		}
 	}
