@@ -8,7 +8,7 @@
 
 #include "D2BS.h"
 
-//#define __SHOW_DEBUG_INFO__ // comment this line if you do not want to output debug messages
+// #define __SHOW_DEBUG_INFO__ // comment this line if you do not want to output debug messages
 
 #ifndef __SHOW_DEBUG_INFO__
 	#define __PRINTF DummyMsg
@@ -16,7 +16,7 @@
 	#ifndef __IN_DIABLOII__
 		#define __PRINTF printf
 	#else
-		#define __PRINTF GameErrorf
+		#define __PRINTF Print
 	#endif
 #endif
 
@@ -360,7 +360,7 @@ void CALLBACK CWalkPath::IsDirectProc(int x, int y, LPARAM lpData)
 // Public Functions
 ///////////////////////////////////////////////////////////////////////
 
-int CWalkPath::FindWalkPath (POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCount, int Range)
+int CWalkPath::FindWalkPath (POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCount, int Range, bool Reduction)
 {
 	m_Start = m_LastLineDot = Start;
 	m_End = End;
@@ -393,11 +393,14 @@ int CWalkPath::FindWalkPath (POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCo
 			}
 			fclose(fp);*/
 
-			StraightenThePath(Path,dwMaxCount);
-			__PRINTF("after Straighten: %d\n", m_Count);
+			if (Reduction)
+			{
+				StraightenThePath(Path,dwMaxCount);
+				__PRINTF("after Straighten: %d\n", m_Count);
 
-			m_Count = FurtherStraighten(Path, m_Count);
-			__PRINTF("after FurtherStraighten: %d\n", m_Count);
+				m_Count = FurtherStraighten(Path, m_Count);
+				__PRINTF("after FurtherStraighten: %d\n", m_Count);
+			}
 		}
 	}
 

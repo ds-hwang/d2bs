@@ -313,11 +313,14 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
 	BOOL UseTele = IsTownLevel(Area);
+	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
 	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
-	if(argc == 7)
+	if(argc >= 7)
 		Radius = JSVAL_TO_INT(argv[6]);
+	if(argc == 8)
+		Reduction = JSVAL_TO_BOOLEAN(argv[7]);
 
 	CCollisionMap g_collisionMap;
 
@@ -354,7 +357,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		g_collisionMap.ThickenWalls(matrix, 1);
 		CWalkPath wp(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
 
-		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius);
+		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius,Reduction);
 	}
 	if(dwCount > 1)
 		bFix = TRUE;
