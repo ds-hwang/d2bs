@@ -128,7 +128,7 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	CDebug cDbg("copyUnit");
 
-	if(argc > 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
+	if(argc >= 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 	{
 		*rval = JSVAL_VOID;
 		Private* myPrivate = (Private*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
@@ -313,7 +313,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
 	BOOL UseTele = IsTownLevel(Area);
-	BOOL Reduction = true;
+	bool Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
 	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
