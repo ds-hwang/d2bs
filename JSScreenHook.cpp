@@ -637,7 +637,7 @@ JSAPI_FUNC(image_ctor) {
 	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
 		hover = argv[7];
 
-	ImageHook* pImageHook = new ImageHook(script, szText, x, y, 0, automap, align, state);
+	ImageHook* pImageHook = new ImageHook(script, szText, x, y, color, automap, align, state);
 
 	if(!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");
