@@ -45,7 +45,10 @@ public:
 	static HookIterator GetLastHook(void);
 	static void Clean(Script* owner);
 
+protected:
 	virtual void Draw(void) = 0;
+
+public:
 	bool Click(int button, POINT* loc);
 	void Hover(POINT* loc);
 
@@ -101,7 +104,10 @@ public:
 			free(text);
 	}
 
+protected:
 	void Draw(void);
+
+public:
 	bool IsInRange(int dx, int dy);
 
 	void SetFont(ushort nfont) { Lock(); font = nfont; Unlock(); }
@@ -128,7 +134,11 @@ public:
 		Genhook(owner, x, y, 0, automap, align, state), color(ncolor), image(NULL), location(NULL)
 	{ location = _strdup(nloc); image = LoadCellFile(location); }
 	~ImageHook(void) { free(location); delete[] image; }
+
+protected:
 	void Draw(void);
+
+public:
 	bool IsInRange(int dx, int dy);
 
 	void SetImage(const char* nimage);
@@ -151,7 +161,11 @@ public:
 			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, 0, automap, align, state), x2(nx2), y2(ny2), color(ncolor) {}
 	~LineHook(void) {}
+
+protected:
 	void Draw(void);
+
+public:
 	bool IsInRange(int dx, int dy) { return false; }
 
 	void SetX2(uint nx2) { Lock(); x2 = nx2; Unlock(); }
@@ -176,7 +190,11 @@ public:
 			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, opacity, automap, align, state), xsize(x+nxsize), ysize(y+nysize), color(ncolor) {}
 	~BoxHook(void) {}
+
+protected:
 	void Draw(void);
+
+public:
 	bool IsInRange(int dx, int dy);
 
 	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }
@@ -200,7 +218,11 @@ public:
 			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
 		Genhook(owner, x, y, 0, automap, align, state), xsize(x+nxsize), ysize(y+nysize) {}
 	~FrameHook(void) {}
+
+protected:
 	void Draw(void);
+
+public:
 	bool IsInRange(int dx, int dy);
 
 	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }

@@ -163,24 +163,17 @@ void TextHook::Draw(void)
 	if(GetX() != -1 && GetY() != -1)
 	{
 		Lock();
-		try
+		uint x = GetX(), y = GetY(), w = CalculateTextLen(text, font).x;
+		x -= (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
+		POINT loc = {x, y};
+		if(GetIsAutomap())
 		{
-			uint x = GetX(), y = GetY(), w = CalculateTextLen(text, font).x;
-			x -= (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
-			POINT loc = {x, y};
-			if(GetIsAutomap())
-			{
-				x *= 32;
-				y *= 32;
-				ScreenToAutomap(&loc, x, y);
-			}
-			myDrawText(text, loc.x, loc.y, color, font);
-			Unlock();
+			x *= 32;
+			y *= 32;
+			ScreenToAutomap(&loc, x, y);
 		}
-		catch(...)
-		{
-			Unlock();
-		}
+		myDrawText(text, loc.x, loc.y, color, font);
+		Unlock();
 	}
 }
 
