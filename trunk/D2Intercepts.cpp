@@ -1,3 +1,5 @@
+#include "D2Handlers.h"
+#include "D2Ptrs.h"
 #include "D2BS.h"
 
 #include "debugnew/debug_new.h"
@@ -148,4 +150,9 @@ Skip:
 		MOV DWORD PTR DS:[EAX+0xC],0
 		RETN
 	}
+}
+
+VOID GameDraw_Interception(VOID)
+{
+	GameDrawOOG();
 }

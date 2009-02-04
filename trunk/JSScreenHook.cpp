@@ -1,8 +1,8 @@
-#include "D2BS.h"
 #include "JSScreenHook.h"
-#include "js32.h"
+#include "ScreenHook.h"
 #include "Script.h"
 #include "File.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

@@ -1,10 +1,12 @@
 #include "Script.h"
-#include <cstring>
-#include <cstdio>
-#include "windows.h"
 #include "JSGlobalFuncs.h"
-#include "js32.h"
+#include "Core.h"
+#include <io.h>
+#include "JSUnit.h"
+#include "Constants.h"
 #include "D2Ptrs.h"
+#include "D2BS.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
@@ -675,7 +677,7 @@ DWORD WINAPI FuncThread(void* data)
 	Event* evt = (Event*)data;
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
-		jsval dummy;
+		jsval dummy = JSVAL_VOID;
 		// switch the context thread to this one
 		JS_SetContextThread(evt->context);
 		JS_BeginRequest(evt->context);
@@ -691,7 +693,7 @@ DWORD WINAPI FuncThread(void* data)
 		{
 			// TODO: Something needs to be released here... not sure what.
 			// it gets locked in js_CheckScope
-			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+//			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)

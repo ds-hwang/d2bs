@@ -1,5 +1,6 @@
 #include "JSSandbox.h"
 #include "Script.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

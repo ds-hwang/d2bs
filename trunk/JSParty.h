@@ -1,9 +1,11 @@
 #ifndef PARTY_H
 #define PARTY_H
 
-INT party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+#include "js32.h"
 
-#define DEFFNC(f) INT f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+
+#define DEFFNC(f) JSBool f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 DEFFNC(party_getNext)
 

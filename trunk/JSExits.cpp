@@ -1,9 +1,9 @@
-#include "D2BS.h"
 #include "JSExits.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
-VOID exit_finalize(JSContext *cx, JSObject *obj)
+void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("exit finalize");
 
@@ -12,7 +12,7 @@ VOID exit_finalize(JSContext *cx, JSObject *obj)
 		delete pExit;
 }
 
-INT exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("exit getProperty");
 

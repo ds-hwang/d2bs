@@ -1,5 +1,5 @@
-#include "D2BS.h"
 #include "Script.h"
+#include "dde.h"
 
 #include "debugnew/debug_new.h"
 

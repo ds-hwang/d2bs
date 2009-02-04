@@ -1,4 +1,10 @@
 #include "D2BS.h"
+#include <ctime>
+#include <cmath>
+#include "Constants.h"
+#include "Helpers.h"
+#include "D2Skills.h"
+#include "D2Intercepts.h"
 
 #include "debugnew/debug_new.h"
 

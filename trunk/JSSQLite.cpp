@@ -17,7 +17,7 @@
 #include "JSSQLite.h"
 #include "File.h"
 #include <set>
-#include "D2BS.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

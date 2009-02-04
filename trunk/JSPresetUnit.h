@@ -1,8 +1,11 @@
 #ifndef PRESETUNIT_H
 #define PRESETUNIT_H
 
-VOID presetunit_finalize(JSContext *cx, JSObject *obj);
-INT presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+#include <windows.h>
+#include "js32.h"
+
+void presetunit_finalize(JSContext *cx, JSObject *obj);
+JSBool presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 
 /**********************************************************

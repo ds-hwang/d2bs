@@ -1,6 +1,8 @@
 #ifndef _D2STRUCTS_H
 #define _D2STRUCTS_H
 
+#include <windows.h>
+
 struct UnitAny;
 struct Room1;
 struct Room2;

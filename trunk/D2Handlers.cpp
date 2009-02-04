@@ -1,12 +1,20 @@
+#include "D2Handlers.h"
 #include "D2BS.h"
 #include "Script.h"
 #include "ScreenHook.h"
 #include <vector>
 #include "Unit.h"
+#include "Helpers.h"
+#include "Core.h"
+#include "Constants.h"
+#include "Events.h"
+#include "Control.h"
 
 #include "debugnew/debug_new.h"
 
 using namespace std;
+
+Variables Vars;
 
 DWORD WINAPI D2Thread(LPVOID lpParam)
 {
@@ -334,15 +342,15 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 VOID GameDraw(VOID)
 {
-	if(GameReady())
-		Genhook::DrawAll(IG);
+	//if(GameReady())
+		//Genhook::DrawAll(IG);
 }
 
 VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
-	if(!GameReady())
-		Genhook::DrawAll(OOG);
+	//if(!GameReady())
+		//Genhook::DrawAll(OOG);
 	GameDraw();
 }
 

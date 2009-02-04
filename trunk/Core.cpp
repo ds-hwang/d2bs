@@ -1,4 +1,9 @@
-#include "D2BS.h"
+#include "Core.h"
+#include "D2Ptrs.h"
+#include "D2Helpers.h"
+#include "Helpers.h"
+#include "Control.h"
+#include "CriticalSections.h"
 
 #include <string>
 #include <sstream>
@@ -38,7 +43,7 @@ static void SplitStr(const std::string & str, size_t point,
 }
 
 
-VOID Print(const char * szFormat, ...)
+void Print(const char * szFormat, ...)
 {
 	using namespace std;
 
@@ -163,7 +168,7 @@ VOID Print(const char * szFormat, ...)
 
 
 
-VOID __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
+void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 {
 	__asm
 	{
@@ -180,7 +185,7 @@ VOID __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 	}
 }
 
-VOID Say(char *szMessage, ...) 
+void Say(char *szMessage, ...) 
 { 
 	CHAR szBuffer[8192] = {0};
 	va_list vaArgs;
@@ -205,7 +210,7 @@ VOID Say(char *szMessage, ...)
 	}
 }
 
-BOOL ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
+bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 {
 	DWORD dwUnitId = NULL;
 	DWORD dwUnitType = NULL;

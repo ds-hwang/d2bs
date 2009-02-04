@@ -20,6 +20,10 @@
 
 #include "JSDirectory.h"
 #include "File.h"
+#include "CDebug.h"
+#include <direct.h>
+#include <io.h>
+#include <cerrno>
 
 #include "debugnew/debug_new.h"
 

@@ -1,9 +1,13 @@
-#include "D2BS.h"
+//#include "D2BS.h"
+#include "Room.h"
+#include "CriticalSections.h"
 
 BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	bool bAdded = false;
 	bool bInit = false;
 
+	CriticalRoom room;
+	room.EnterSection();
 	//Make sure we have the room.
 	if (!pRoom2)
 		return false;

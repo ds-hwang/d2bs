@@ -10,5 +10,6 @@ VOID Whisper_Intercept();
 VOID GameAttack_STUB();
 VOID PlayerAssignment_STUB();
 VOID GameCrashFix_STUB();
+VOID GameDraw_Interception(VOID);
 
 #endif

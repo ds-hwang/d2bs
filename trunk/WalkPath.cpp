@@ -6,7 +6,8 @@
 //
 /////////////////////////////////////////////////////////////////////
 
-#include "D2BS.h"
+#include "WalkPath.h"
+#include "Common.h"
 
 #include "debugnew/debug_new.h"
 

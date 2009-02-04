@@ -1,11 +1,11 @@
-#include "D2BS.h"
 #include "JSParty.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
 // Yet another Sheppard production!
 
-INT party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("party getProperty");
 
@@ -52,7 +52,7 @@ INT party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-INT party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("party getNext");
 

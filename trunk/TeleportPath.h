@@ -15,6 +15,8 @@
 #ifndef __TELEPORTPATH_H__
 #define __TELEPORTPATH_H__
 
+#include <windows.h>
+
 class CTeleportPath  
 {
 public:	

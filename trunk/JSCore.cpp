@@ -1,5 +1,4 @@
 // Spidermonkey implementation of Core.cpp
-#include "D2BS.h"
 #include "js32.h"
 #include "Script.h"
 #include "JSCore.h"
@@ -9,6 +8,23 @@
 #include "JSPresetUnit.h"
 #include "JSArea.h"
 #include "JSExits.h"
+#include "CDebug.h"
+#include "Core.h"
+#include "D2Ptrs.h"
+#include "CriticalSections.h"
+#include <io.h>
+#include "CollisionMap.h"
+#include "TeleportPath.h"
+#include "WalkPath.h"
+#include "Control.h"
+#include "Constants.h"
+#include "Events.h"
+#include "D2Skills.h"
+#include "Helpers.h"
+#include <windows.h>
+#include "dde.h"
+#include "mpqstats.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -319,7 +335,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(argc >= 7)
 		Radius = JSVAL_TO_INT(argv[6]);
 	if(argc == 8)
-		Reduction = JSVAL_TO_BOOLEAN(argv[7]);
+		Reduction = !!JSVAL_TO_BOOLEAN(argv[7]);
 
 	CCollisionMap g_collisionMap;
 

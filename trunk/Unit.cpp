@@ -1,4 +1,8 @@
-#include "D2BS.h"
+//#include "D2BS.h"
+#include "D2Ptrs.h"
+#include "Unit.h"
+#include "Constants.h"
+#include "D2Helpers.h"
 
 #include "debugnew/debug_new.h"
 

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <windows.h>
+#include "D2Structs.h"
+
 DWORD WINAPI D2Thread(LPVOID lpParam);
 DWORD __fastcall GameInput(wchar_t* wMsg);
 LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

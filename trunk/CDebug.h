@@ -1,12 +1,16 @@
 #pragma once
 
+#include <cstring>
+#include "D2Helpers.h"
+#include "D2BS.h"
+
 class CDebug
 {
 	private:
-	CHAR szString[64];
+	char szString[64];
 
 	public:
-	CDebug(CHAR* pString)
+	CDebug(char* pString)
 	{
 		strcpy(szString, pString);
 		if(Vars.bDebug)

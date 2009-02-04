@@ -1,4 +1,3 @@
-#include "ArrayEx.h"
 #include "D2Structs.h"
 
 #ifdef _DEFINE_VARS

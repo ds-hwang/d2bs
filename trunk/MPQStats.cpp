@@ -1,4 +1,5 @@
-#include "D2BS.h"
+#include "MPQStats.h"
+#include "D2Ptrs.h"
 
 #include "debugnew/debug_new.h"
 

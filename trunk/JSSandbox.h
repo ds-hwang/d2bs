@@ -1,7 +1,6 @@
 #ifndef JSSANDBOX_H
 #define JSSANDBOX_H
 
-#include "D2BS.h"
 #include "Script.h"
 
 JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

@@ -1,6 +1,8 @@
 #pragma once
 
-
+#include "js32.h"
+#include <windows.h>
+#include "D2Ptrs.h"
 
 void control_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(control_getProperty);

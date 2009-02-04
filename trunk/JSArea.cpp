@@ -1,5 +1,7 @@
-#include "D2BS.h"
+//#include "D2BS.h"
 #include "JSArea.h"
+#include "D2Ptrs.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

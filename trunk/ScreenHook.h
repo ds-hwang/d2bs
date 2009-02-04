@@ -1,6 +1,6 @@
 #pragma once
 
-#include "js32.h"
+#include "D2Ptrs.h"
 #include "Script.h"
 #include "D2Helpers.h"
 #include <list>

@@ -1,8 +1,11 @@
 #ifndef EXITS_H
 #define EXITS_H
 
-VOID exit_finalize(JSContext *cx, JSObject *obj);
-INT exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+#include "js32.h"
+#include <windows.h>
+
+void exit_finalize(JSContext *cx, JSObject *obj);
+JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 
 /**********************************************************

@@ -20,7 +20,7 @@
 #include <cstdio>
 #include <io.h>
 #include <errno.h>
-#include "D2BS.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

@@ -1,9 +1,11 @@
 #ifndef AREA_H
 #define AREA_H
 
+#include "js32.h"
+#include "CollisionMap.h"
 
-VOID area_finalize(JSContext *cx, JSObject *obj);
-INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+void area_finalize(JSContext *cx, JSObject *obj);
+JSBool area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
 
 /**********************************************************
 

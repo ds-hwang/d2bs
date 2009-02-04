@@ -1,5 +1,8 @@
-#include "D2BS.h"
+//#include "D2BS.h"
+#include "Control.h"
 #include "JSControl.h"
+#include "CDebug.h"
+#include "Helpers.h"
 
 #include "debugnew/debug_new.h"
 

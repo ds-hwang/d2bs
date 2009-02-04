@@ -21,54 +21,19 @@
 #undef _DEBUG_NEW_TAILCHECK
 #define _DEBUG_NEW_TAILCHECK 0
 
+#define new new (std::nothrow)
+
 #endif
 
 #define D2BS_VERSION "1.1"
 
-
-#pragma comment(lib, "shlwapi.lib")
-
 #include <windows.h>
-#include <stdio.h>
-#include <shlwapi.h>
-#include <ctime>
-#include <math.h>
-#include <direct.h>
-#include <stdlib.h>
-#include <errno.h>
-#include <io.h>
-#include <string.h>
-#include <vector>
+#include "CollisionMap.h"
+#include "ScreenHook.h"
 
 struct Variables;
 
-#include "Offset.h"
-#include "D2Structs.h"
-#include "D2Ptrs.h"
-#include "D2Skills.h"
-#include "D2Helpers.h"
-#include "D2Handlers.h"
-#include "D2Intercepts.h"
-#include "Constants.h"
-#include "Common.h"
-#include "Matrix.h"
-#include "CollisionMap.h"
-#include "TeleportPath.h"
-#include "WalkPath.h"
-#include "Helpers.h"
-#include "dde.h"
-
-#include "Core.h"
-#include "Unit.h"
-#include "ScreenHook.h"
-#include "Events.h"
-#include "Control.h"
-#include "Room.h"
-#include "MPQStats.h"
-
-extern Variables Vars;
-
-#define ArraySize(x) (sizeof(x) / sizeof(x[0]))
+#define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 
 #define PRIVATE_UNIT		1
 #define PRIVATE_CONTROL		3
@@ -155,7 +120,6 @@ struct Variables
 	DWORD dwSelectedUnitType;
 };
 
-#include "CriticalSections.h"
-#include "cDebug.h"
+extern Variables Vars;
 
 #endif

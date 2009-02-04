@@ -1,6 +1,5 @@
-#include "D2BS.h"
+#include "ScreenHook.h"
 #include "JSScreenHook.h"
-#include <vector>
 
 #include "debugnew/debug_new.h"
 
@@ -47,8 +46,12 @@ void Genhook::Clean(Script* owner)
 {
 	HookList currentHooks = GetHooks();
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
+	{
 		if((*it)->owner == owner)
+		{
 			delete *it;
+		}
+	}
 }
 
 Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :

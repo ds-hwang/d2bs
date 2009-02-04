@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
-#include "D2BS.h"
+#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 

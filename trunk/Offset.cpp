@@ -1,10 +1,14 @@
-#include "D2BS.h"
+//#include "D2BS.h"
 
 #define _DEFINE_VARS
 #include "D2Ptrs.h"
 #include "Patch.h"
 
 #include "debugnew/debug_new.h"
+
+#ifndef ArraySize
+#define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
+#endif
 
 void DefineOffsets()
 {

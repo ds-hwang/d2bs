@@ -1,4 +1,5 @@
 #include "JSScript.h"
+#include "CDebug.h"
 #include "Script.h"
 
 #include "debugnew/debug_new.h"

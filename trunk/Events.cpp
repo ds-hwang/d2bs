@@ -1,4 +1,4 @@
-#include "D2BS.h"
+//#include "D2BS.h"
 #include "Script.h"
 
 #include "debugnew/debug_new.h"

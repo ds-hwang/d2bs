@@ -1,6 +1,8 @@
 #ifndef D2HELPERS_H
 #define D2HELPERS_H
 
+#include "D2Structs.h"
+
 enum DistanceType { Euclidean, Chebyshev, Manhattan };
 
 VOID	Log(CHAR* szFormat, ...);

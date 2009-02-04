@@ -1,10 +1,8 @@
 #pragma once
 
-#include "D2BS.h"
 #include "js32.h"
-#include "Script.h"
 
-VOID script_finalize(JSContext *cx, JSObject *obj);
+void script_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(script_getProperty);
 
 JSAPI_FUNC(script_getNext);

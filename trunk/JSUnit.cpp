@@ -1,5 +1,12 @@
 #include "JSUnit.h"
-#include "js32.h"
+#include "CDebug.h"
+#include "D2Ptrs.h"
+#include "Constants.h"
+#include "Helpers.h"
+#include "Unit.h"
+#include "Core.h"
+#include "CriticalSections.h"
+#include "D2Skills.h"
 
 #include "debugnew/debug_new.h"
 

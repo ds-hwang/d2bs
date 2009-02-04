@@ -1,13 +1,15 @@
 // Fixed, rewritten and cleaned up!
-#include "D2BS.h"
 #include "JSRoom.h"
-#include "js32.h"
+#include "CDebug.h"
+#include "CriticalSections.h"
 #include "JSPresetUnit.h"
 #include "JSUnit.h"
+#include "D2Ptrs.h"
+#include "Room.h"
 
 #include "debugnew/debug_new.h"
 
-INT room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("room getProperty");
 
@@ -55,7 +57,7 @@ INT room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-INT room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getNext");
 
@@ -83,7 +85,7 @@ INT room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	return JS_TRUE;
 }
 
-INT room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getPresetUnits");
 
@@ -158,7 +160,7 @@ INT room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, j
 	return JS_TRUE;
 }
 
-INT room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getCollision");
 
@@ -251,7 +253,7 @@ INT room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	return JS_TRUE;
 }
 
-INT room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getNearby");
 
@@ -297,7 +299,7 @@ INT room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 }
 
 // Don't know wether it works
-INT room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getStat");
 
@@ -403,7 +405,7 @@ INT room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	return JS_TRUE;
 }
 
-INT room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getFirst");
 
@@ -431,7 +433,7 @@ INT room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	return JS_TRUE;
 }
 
-INT room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room unitInRoom");
 
@@ -460,7 +462,7 @@ INT room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-INT room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 

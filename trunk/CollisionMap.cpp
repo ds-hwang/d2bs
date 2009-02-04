@@ -1,7 +1,13 @@
 // CollisionMap.cpp: implementation of the CCollisionMap class.
 //
 //////////////////////////////////////////////////////////////////////
-#include "D2BS.h"
+//#include "D2BS.h"
+
+#include "CollisionMap.h"
+#include "D2Helpers.h"
+#include "D2Ptrs.h"
+#include "Constants.h"
+#include "CriticalSections.h"
 
 #include "debugnew/debug_new.h"
 

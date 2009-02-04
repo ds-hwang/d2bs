@@ -3,7 +3,9 @@
 
 // TODO: Rewrite this mess of crap too
 
-#include "D2BS.h"
+#include "js32.h"
+#include <cstdlib>
+#include <cstring>
 
 #define DEFFNC(x) JSBool x (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
@@ -14,7 +16,7 @@ DEFFNC(dir_delete)
 DEFFNC(openDir)
 
 JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);;
-VOID dir_finalize(JSContext *cx, JSObject *obj);
+void dir_finalize(JSContext *cx, JSObject *obj);
 
 #undef DEFFNC
 

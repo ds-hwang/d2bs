@@ -4,6 +4,11 @@
 // Abin (abinn32@yahoo.com)
 //////////////////////////////////////////////////////////////////////
 
+#include "ArrayEx.h"
+#include <windows.h>
+#include "Matrix.h"
+#include "D2Structs.h"
+
 #ifndef __COLLISIONMAP_H__
 #define __COLLISIONMAP_H__
 

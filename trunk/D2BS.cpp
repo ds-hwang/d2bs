@@ -1,11 +1,15 @@
 // Diablo II Botting System Core
 #include "D2BS.h"
+#include "dde.h"
+#include "shlwapi.h"
+#include "Offset.h"
 #include "Script.h"
 #include "Helpers.h"
+#include "D2Handlers.h"
 
 #include "debugnew/debug_new.h"
 
-Variables Vars;
+#include <windows.h>
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {

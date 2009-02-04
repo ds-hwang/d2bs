@@ -1,7 +1,8 @@
 #pragma once
 
+#include <windows.h>
 #include "js32.h"
-#include "D2BS.h"
+//#include "D2BS.h"
 
 JSAPI_FUNC(unit_getUnit);
 JSAPI_FUNC(unit_getNext);

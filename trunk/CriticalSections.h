@@ -1,5 +1,7 @@
 #pragma once
 
+#include "D2BS.h"
+
 class CriticalRoom
 {
 private:
