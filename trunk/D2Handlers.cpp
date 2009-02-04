@@ -342,15 +342,15 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 VOID GameDraw(VOID)
 {
-	//if(GameReady())
-		//Genhook::DrawAll(IG);
+	if(GameReady())
+		Genhook::DrawAll(IG);
 }
 
 VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
-	//if(!GameReady())
-		//Genhook::DrawAll(OOG);
+	if(!GameReady())
+		Genhook::DrawAll(OOG);
 	GameDraw();
 }
 
