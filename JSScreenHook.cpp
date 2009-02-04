@@ -2,6 +2,9 @@
 #include "JSScreenHook.h"
 #include "js32.h"
 #include "Script.h"
+#include "File.h"
+
+#include "debugnew/debug_new.h"
 
 using namespace std;
 
@@ -619,6 +622,7 @@ JSAPI_FUNC(image_ctor) {
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 	char* szText = "";
+	char path[_MAX_FNAME+_MAX_PATH];
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
@@ -637,7 +641,11 @@ JSAPI_FUNC(image_ctor) {
 	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
 		hover = argv[7];
 
-	ImageHook* pImageHook = new ImageHook(script, szText, x, y, color, automap, align, state);
+	if(!isValidPath(path))
+		THROW_ERROR(cx, obj, "Invalid image file path");
+
+	sprintf(path, "%s\\%s", Vars.szScriptPath, path);
+	ImageHook* pImageHook = new ImageHook(script, szText, x, y, 0, automap, align, state);
 
 	if(!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");

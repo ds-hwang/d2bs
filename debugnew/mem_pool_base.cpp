@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+ #ifdef _MSVC_DEBUG
 
 #if defined(_MEM_POOL_USE_MALLOC)
 #include <stdlib.h>
@@ -66,3 +68,5 @@ void mem_pool_base::dealloc_sys(void* __ptr)
 {
     _MEM_POOL_DEALLOCATE(__ptr);
 }
+
+#endif

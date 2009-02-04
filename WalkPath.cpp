@@ -8,6 +8,8 @@
 
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 // #define __SHOW_DEBUG_INFO__ // comment this line if you do not want to output debug messages
 
 #ifndef __SHOW_DEBUG_INFO__

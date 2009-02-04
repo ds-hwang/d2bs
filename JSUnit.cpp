@@ -1,6 +1,8 @@
 #include "JSUnit.h"
 #include "js32.h"
 
+#include "debugnew/debug_new.h"
+
 VOID unit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("unit finalize");
@@ -419,7 +421,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!pUnit)
 		return JS_TRUE;
 
-	myUnit* pmyUnit = new myUnit;
+	myUnit* pmyUnit = new myUnit; // leaked?
 
 	if(!pmyUnit)
 		return JS_TRUE;

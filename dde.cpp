@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "Script.h"
 
+#include "debugnew/debug_new.h"
+
 DWORD DdeSrvInst = 0;
 HSZ hszD2BSns;
 

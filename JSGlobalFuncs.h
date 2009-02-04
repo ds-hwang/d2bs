@@ -34,8 +34,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"getBaseStat",			my_getBaseStat,			0},
 	{"getControl",			my_getControl,			0},
 	{"getPlayerFlag",		my_getPlayerFlag,		2},
-	// disabled!
-	//{"getScreenHook",		my_getScreenhook,		0},
 	{"getTickCount",		my_getTickCount,		0},
 	{"debugLog",			my_debugLog,			1},
 
@@ -64,8 +62,9 @@ static JSFunctionSpec global_funcs[] = {
 	{"sendDDE",				my_sendDDE,				0},
 	{"keystate",			my_keystate,			0},
 	{"addEventListener",	my_addEventListener,	2},
-	// TODO: Deprecate this
-	{"registerEvent",		my_registerEvent,		1},
+	{"removeEventListener",	my_removeEventListener,	2},
+	{"clearEvent",			my_clearEvent,			1},
+	{"clearAllEvents",		my_clearAllEvents,		0},
 	{"clickParty",			my_clickParty,			1},
 	{"blockMinimize",		my_blockMinimize,		0},
 	{"js_strict",			my_js_strict,			0},

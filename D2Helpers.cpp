@@ -1,5 +1,7 @@
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 VOID Log(CHAR* szFormat, ...)
 {
 	CHAR szString[8192] = {NULL};
@@ -575,10 +577,7 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 	{
 		// Check in our directory first
 
-		CHAR myPath[MAX_PATH] = "";
-		sprintf(myPath, "%s\\%s", Vars.szPath, lpszPath);
-
-		HANDLE hFile = OpenFileRead(myPath);
+		HANDLE hFile = OpenFileRead(lpszPath);
 
 		if(hFile != INVALID_HANDLE_VALUE)
 		{
@@ -599,9 +598,7 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 	}
 	else if(bMPQ == FALSE)
 	{
-		CHAR myPath[MAX_PATH] = "";
-		sprintf(myPath, "%s\\%s", Vars.szPath, lpszPath);
-		return myInitCellFile((CellFile*)LoadBmpCellFile(myPath));
+		return myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
 	}
 
 	return NULL;
@@ -1068,9 +1065,16 @@ VOID __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD 
 */
 }
 
-DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2)
+DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 {
- 	return (DWORD)sqrt((double)( ((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2))));
+	DWORD dist = -1;
+	switch(type)
+	{
+		case Euclidean: dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2));
+		case Chebyshev: dist = (DWORD)max(abs((long)(x2-x1)), abs((long)(y2-y1)));
+		case Manhattan: dist = (DWORD)(abs((long)(x2-x1))+abs((long)(y2-y1)));
+	}
+ 	return dist;
 }
 
 

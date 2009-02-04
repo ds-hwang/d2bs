@@ -19,6 +19,8 @@
 #include <cstring>
 #include <cstdlib>
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 char* readLine(FILE* fptr)
@@ -46,7 +48,6 @@ char* readLine(FILE* fptr)
 	return line;
 }
 
-// TODO: All of these calls to fwrite() need to be bracketed with JS_(Suspend|Resume)Request
 bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 {
 	char* str;
@@ -125,9 +126,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 				return true;
 			} else {
 				JSString* jsstr = JS_ValueToString(cx, value);
-				JS_AddNamedRoot(cx, &jsstr, "object string value");
 				str = JS_GetStringBytes(jsstr);
-				JS_RemoveRoot(cx, &jsstr);
 				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
 					return true;
 			}

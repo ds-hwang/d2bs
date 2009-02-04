@@ -10,6 +10,8 @@
 #include "JSArea.h"
 #include "JSExits.h"
 
+#include "debugnew/debug_new.h"
+
 INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("print");
@@ -63,7 +65,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			}
 			else
 			{
-				// TODO: Should this actually be there? No notification is bad, but do we want this?
+				// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
 				Print("File \"%s\" not found.", lpszFileName);
 				*rval = JSVAL_FALSE;
 			}
@@ -173,13 +175,10 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(JSVAL_IS_INT(argv[0]))
 		nClickType = (WORD)JSVAL_TO_INT(argv[0]);
-
 	if(JSVAL_IS_INT(argv[1]))
 		nShift = (WORD)JSVAL_TO_INT(argv[1]);
-
 	if(JSVAL_IS_INT(argv[2]))
 		nX = (WORD)JSVAL_TO_INT(argv[2]);
-
 	if(JSVAL_IS_INT(argv[3]))
 		nY = (WORD)JSVAL_TO_INT(argv[3]);
 
@@ -282,7 +281,7 @@ INT my_blockMinimize(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	CDebug cDbg("blockMinimize");
 
 	if(argc > 0 && (JSVAL_IS_INT(argv[0]) || JSVAL_IS_BOOLEAN(argv[0])))
-		Vars.bBlockMinimize = JSVAL_TO_BOOLEAN(argv[0]);
+		Vars.bBlockMinimize = !!JSVAL_TO_BOOLEAN(argv[0]);
 
 	return JS_TRUE;
 }
@@ -357,7 +356,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		g_collisionMap.ThickenWalls(matrix, 1);
 		CWalkPath wp(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
 
-		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius,Reduction);
+		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius, !!Reduction);
 	}
 	if(dwCount > 1)
 		bFix = TRUE;
@@ -779,6 +778,7 @@ INT my_getLocaleString(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	// TODO: Re-evaluate why the hell we even have this function... it exists in the standard classes via Math
 	CDebug cDbg("rnd");
 
 	if(argc < 2 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]))
@@ -810,6 +810,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(!GameReady())
 		return JS_TRUE;
 
+	// TODO: Add the type of distance to the api design
 	jsint nX1 = NULL;
 	jsint nX2 = NULL;
 	jsint nY1 = NULL;
@@ -1017,13 +1018,14 @@ INT my_getMercHP(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		{
 			for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pListNext)
 			{
-				if(pUnit->dwType == UNIT_MONSTER)
-					if(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 || pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5)
-						if(D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)
-						{
-							*rval = INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId));
-							return JS_TRUE;
-						}
+				if(pUnit->dwType == UNIT_MONSTER &&
+					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
+					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
+					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)
+				{
+					*rval = INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId));
+					return JS_TRUE;
+				}
 			}
 		}
 	}
@@ -1278,19 +1280,21 @@ INT my_version(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;
 	}
 
-	Print("ÿc4D2BSÿc1 ÿc3 %s for Diablo II 1.12a.", D2BS_VERSION); 
+	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.12a.", D2BS_VERSION); 
 
 	return JS_TRUE;	
 }
 
-INT my_debugLog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+JSAPI_FUNC(my_debugLog)
+{
 	CDebug cDbg("debugLog");
 
-	if (argc == 0)
-		return JS_TRUE;
-
-	CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	Log("%s", pText);
+	for(uintN i = 0; i < argc; i++)
+	{
+		// TODO: Filter out %'s so they can be written to the log
+		char* msg = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+		Log(msg);
+	}
 
 	return JS_TRUE;
 }
@@ -1298,7 +1302,6 @@ INT my_debugLog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("runGC");
-/*
 	CriticalRoom cRoom;
 	CriticalMisc cMisc;
 
@@ -1306,7 +1309,7 @@ INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	cMisc.EnterSection();
 
 	JS_YieldRequest(cx);
-*/
+
 	return JS_TRUE;
 }
 
@@ -1364,10 +1367,7 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 	}
 
-	COPYDATASTRUCT aCopy;
-	aCopy.dwData = nModeId;
-	aCopy.lpData = data;
-	aCopy.cbData = strlen(data)+1;
+	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1,data };
 
 	INT sz = SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2WIN_GetHwnd(), (LPARAM)&aCopy);
 	*rval = INT_TO_JSVAL(sz);
@@ -1468,48 +1468,35 @@ JSAPI_FUNC(my_addEventListener)
 	return JS_TRUE;
 }
 
-// NOTE to lord2800: fix this so it is capable of taking multiple events
-INT my_registerEvent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(my_removeEventListener)
 {
-	CDebug cDbg("registerEvent");
-
-	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
+	CDebug cDbg("removeEventListener");
+	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
-		return JS_TRUE;
+		Script* self = (Script*)JS_GetContextPrivate(cx);
+		self->UnregisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
 	}
-
-	Script* js = (Script*)JS_GetContextPrivate(cx);
-
-	if(!js) { 
-		*rval = BOOLEAN_TO_JSVAL(FALSE); 
-		return JS_TRUE; 
-	}
-
-	jsint nEvent = JSVAL_TO_INT(argv[0]);
-	char* events[] = { "",
-		"areachange", "chatmsg", "copydata", "gamemsg", "hostilemsg", "inputline",
-		"itemstat", "keydown", "keyup", "melife", "missilemove", "missilestate",
-		"mousedown", "mouseup", "newitem", "newnpc", "npclife", "npcmove", "npcstat",
-		"npcstate", "partymsg", "playermove", "playerstat", "playerstate", "quest",
-		"scriptmsg", "unitmove", "windowfocus", "chatcmd", "playerassign"
-	};
-
-	if(argc == 1)
-	{
-		js->ClearEvent(events[nEvent]);
-		*rval = JSVAL_TRUE;
-	}
-	else {
-		if(JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(argv[1]))) {
-			js->RegisterEvent(events[nEvent], argv[1]);
-		} else *rval = JSVAL_FALSE;
-	}
-
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_clearEvent)
+{
+	CDebug cDbg("clearEvent");
+	if(JSVAL_IS_STRING(argv[0]))
+	{
+		Script* self = (Script*)JS_GetContextPrivate(cx);
+		self->ClearEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])));
+	}
+	return JS_TRUE;
+}
 
+JSAPI_FUNC(my_clearAllEvents)
+{
+	CDebug cDbg("clearAllEvents");
+	Script* self = (Script*)JS_GetContextPrivate(cx);
+	self->ClearAllEvents();
+	return JS_TRUE;
+}
 
 INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {

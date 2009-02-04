@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="js32d.lib"
-				OutputFile="C:\Documents and Settings\Administrator\Desktop\mBot\cGuard.dll"
+				OutputFile="$(ProgramFiles)\Diablo II\d2bs\d2bs.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -348,6 +348,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Events.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Events.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Helpers.cpp"
 				>
 			</File>
@@ -535,14 +543,6 @@
 					</File>
 					<File
 						RelativePath=".\Core.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Events.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Events.h"
 						>
 					</File>
 					<File

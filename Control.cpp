@@ -1,5 +1,7 @@
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 Control* findControl(DWORD dwType, DWORD dwX, DWORD dwY, DWORD dwSizeX, DWORD dwSizeY)
 {
 	for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)

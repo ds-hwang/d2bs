@@ -4,6 +4,8 @@
 #include "D2Ptrs.h"
 #include "Patch.h"
 
+#include "debugnew/debug_new.h"
+
 void DefineOffsets()
 {
 	DWORD *p = (DWORD *)&_D2PTRS_START;

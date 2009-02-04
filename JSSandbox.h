@@ -2,6 +2,7 @@
 #define JSSANDBOX_H
 
 #include "D2BS.h"
+#include "Script.h"
 
 JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
@@ -28,7 +29,7 @@ void sandbox_finalize(JSContext *cx, JSObject *obj);
 struct sandbox {
 	JSContext* context;
 	JSObject* innerObj;
-	CArrayEx<char*, char*> * includes;
+	IncludeList list;
 };
 
 static JSClass sandbox_class = {

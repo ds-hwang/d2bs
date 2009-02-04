@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "JSPresetUnit.h"
 
+#include "debugnew/debug_new.h"
+
 VOID presetunit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("presetunit finalize");

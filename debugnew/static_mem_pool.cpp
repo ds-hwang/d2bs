@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+ #ifdef _MSVC_DEBUG
 
 #include <algorithm>
 #include "cont_ptr_utils.h"
@@ -92,3 +94,5 @@ void static_mem_pool_set::add(mem_pool_base* __memory_pool_p)
     lock __guard;
     _M_memory_pool_set.push_back(__memory_pool_p);
 }
+
+#endif

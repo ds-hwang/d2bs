@@ -6,6 +6,8 @@
 #include "js32.h"
 #include "D2Ptrs.h"
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(0) { Take(); }
@@ -81,7 +83,7 @@ Script* Script::CompileCommand(const char* command)
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
 			execCount(0), isAborted(false), isPaused(false), singleStep(false), scriptState(state),
-			threadHandle(NULL), threadId(0)
+			threadHandle(NULL), threadId(0), scriptSection(NULL)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");
@@ -90,16 +92,10 @@ Script::Script(const char* file, ScriptState state) :
 	InitializeCriticalSection(scriptSection);
 	Lock();
 	fileName = _strdup(file);
-	context = JS_NewContext(runtime, 0x2000);
-	if(!context)
-		throw std::exception("Couldn't create the context");
-	JS_BeginRequest(context);
 	try {
+		context = BuildContext(runtime);
 		JS_SetContextPrivate(context, this);
-		JS_SetErrorReporter(context, reportError);
-		JS_SetBranchCallback(context, branchCallback);
-		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(context, JSVERSION_1_7);
+		JS_BeginRequest(context);
 
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
 		if(!globalObject)
@@ -118,11 +114,7 @@ Script::Script(const char* file, ScriptState state) :
 		InitClass(&text_class, text_methods, text_props, NULL, NULL);
 		InitClass(&image_class, image_methods, image_props, NULL, NULL);
 
-		myUnit* lpUnit = new myUnit;
-
-		if(!lpUnit)
-			throw std::exception("Couldn't define the 'me' object!");
-
+		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
 
 		lpUnit->dwMode = -1;
@@ -192,8 +184,11 @@ Script::Script(const char* file, ScriptState state) :
 		Unlock();
 	} catch(...) {
 		Unlock();
-		DeleteCriticalSection(scriptSection);
-		delete scriptSection;
+		if(scriptSection)
+		{
+			DeleteCriticalSection(scriptSection);
+			delete scriptSection;
+		}
 		JS_EndRequest(context);
 		JS_DestroyContext(context);
 		throw;
@@ -208,6 +203,9 @@ Script::~Script(void)
 
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
+	myUnit* unit = (myUnit*)JS_GetPrivate(context, meObject);
+	if(unit)
+		delete unit;
 
 	JS_RemoveRoot(context, &meObject);
 	JS_RemoveRoot(context, &scriptObject);
@@ -417,22 +415,16 @@ void Script::Run(void)
 void Script::Pause(void)
 {
 	Lock();
-	if(!IsAborted() && threadId != GetCurrentThreadId() && !IsPaused() && threadHandle)
-	{
-		SuspendThread(threadHandle);
+	if(!IsAborted() && !IsPaused())
 		isPaused = true;
-	}
 	Unlock();
 }
 
 void Script::Resume(void)
 {
 	Lock();
-	if(!IsAborted() && threadId != GetCurrentThreadId() && IsPaused() && threadHandle)
-	{
-		ResumeThread(threadHandle);
+	if(!IsAborted() && IsPaused())
 		isPaused = false;
-	}
 	Unlock();
 }
 
@@ -591,16 +583,18 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	sprintf(msg, "Script::ExecEvent(%s)", evtName);
 	CDebug cDbg(msg);
 
-	Pause();
+//	Pause();
 	Lock();
 
+	JSContext* cx = BuildContext(runtime);
+	JS_SetContextPrivate(cx, this);
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
 	if(JS_GetContextThread(context) != GetCurrentThreadId())
 		THROW_ERROR(context, globalObject, "Cross-thread attempt to execute an event");
 
-	JS_BeginRequest(context);
+	JS_BeginRequest(cx);
 	FunctionList flist = functions[evtName];
 
 	jsval* args = new jsval[argc];
@@ -608,10 +602,10 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 		args[i] = argv[i]->value();
 
 	for(FunctionList::iterator it = flist.begin(); it != flist.end(); it++)
-		JS_CallFunctionValue(context, globalObject, (*it)->value(), argc, args, rval);
+		JS_CallFunctionValue(cx, globalObject, (*it)->value(), argc, args, rval);
 
 	delete[] args;
-	JS_EndRequest(context);
+	JS_EndRequest(cx);
 
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Release();
@@ -619,7 +613,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	delete[] argv;
 
 	Unlock();
-	Resume();
+//	Resume();
 
 	return JS_TRUE;
 }
@@ -640,8 +634,9 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->functions = functions[evtName];
 		evt->argc = argc;
 		evt->argv = argv;
-		evt->context = context;
+		evt->context = BuildContext(runtime);
 		evt->object = globalObject;
+		JS_SetContextPrivate(evt->context, this);
 
 		CreateThread(0, 0, FuncThread, evt, 0, 0);
 	}
@@ -678,8 +673,6 @@ DWORD WINAPI ScriptThread(void* data)
 DWORD WINAPI FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
-	evt->owner->Pause();
-	evt->owner->Lock();
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
 		jsval dummy;
@@ -695,7 +688,11 @@ DWORD WINAPI FuncThread(void* data)
 		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+		{
+			// TODO: Something needs to be released here... not sure what.
+			// it gets locked in js_CheckScope
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+		}
 
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(evt->context, &args[i]);
@@ -705,8 +702,6 @@ DWORD WINAPI FuncThread(void* data)
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
 	}
-	evt->owner->Unlock();
-	evt->owner->Resume();
 
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
@@ -750,6 +745,16 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
+	bool pause = script->IsPaused();
+	jsrefcount depth;
+
+	if(pause)
+		depth = JS_SuspendRequest(cx);
+	while(script->IsPaused())
+		Sleep(50);
+	if(pause)
+		JS_ResumeRequest(cx, depth);
+
 	if(script->IsAborted())
 		return JS_FALSE;
 
@@ -778,11 +783,21 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
 	char msg[1024];
-	char* type = (JSREPORT_IS_WARNING(report->flags) ? "ÿc9Warning" : "ÿc1Error");
-	sprintf(msg, "[%sÿc0] %s/line %d: %s", type, (report->filename+strlen(Vars.szScriptPath)+1), report->lineno, message);
+	bool warn = JSREPORT_IS_WARNING(report->flags);
+	bool isStrict = JSREPORT_IS_STRICT(report->flags);
+	const char* type = (warn ? "Warning" : "Error");
+	const char* strict = (isStrict ? "Strict " : "");
+	const char* filename = (report->filename+strlen(Vars.szScriptPath)+1);
+
+	sprintf(msg, "[%s%s] %s/line %d: (%d) %s\nLine: %s", strict, type, filename, report->lineno,
+					report->errorNumber, message, report->linebuf);
 	Log(msg);
+
 	// all potential cases are handled inside Print now
+	sprintf(msg, "[ÿc%d%s%sÿc0] %s/line %d: (%d) %s", (warn ? 9 : 1), strict, type,
+					filename, report->lineno, report->errorNumber, message);
 	Print(msg);
+
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
 }

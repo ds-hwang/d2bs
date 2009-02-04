@@ -21,4 +21,5 @@
 
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
+JSContext* BuildContext(JSRuntime* runtime);
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)

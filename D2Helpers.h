@@ -1,6 +1,8 @@
 #ifndef D2HELPERS_H
 #define D2HELPERS_H
 
+enum DistanceType { Euclidean, Chebyshev, Manhattan };
+
 VOID	Log(CHAR* szFormat, ...);
 
 WORD	GetUnitX(UnitAny* pUnit);
@@ -75,6 +77,7 @@ DWORD __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
 VOID __fastcall DrawRectFrame_STUB(RECT* rect);
 VOID ChangeStat(BYTE bStatId, BYTE bNewValue);
 VOID __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
-DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2);
+
+DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type = Euclidean);
 
 #endif

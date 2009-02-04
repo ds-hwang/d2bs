@@ -1,5 +1,7 @@
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	// First off all, check for near units

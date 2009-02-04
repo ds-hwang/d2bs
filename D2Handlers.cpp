@@ -4,6 +4,8 @@
 #include <vector>
 #include "Unit.h"
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 DWORD WINAPI D2Thread(LPVOID lpParam)
@@ -13,26 +15,21 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	BOOL bClicked = FALSE;
 	Vars.dwGameTime = GetTickCount();
 
-	char szVersionString[64] = "";
-	sprintf(szVersionString, "D2BS %s",D2BS_VERSION);
-
+	// calculate the path to starter/default.dbj only once
 	char defaultdbj[_MAX_PATH+_MAX_FNAME];
 	sprintf(defaultdbj, "%s\\default.dbj", Vars.szScriptPath);
 	char starterdbj[_MAX_PATH+_MAX_FNAME];
 	sprintf(starterdbj, "%s\\starter.dbj", Vars.szScriptPath);
 
-	ImageHook image(NULL, "version.bmp", 0, 10, 0, false, Center, Perm);
-	TextHook text(NULL, szVersionString, 0, 15, 13, 4, false, Center, Perm);
-
-	while(TRUE)
+	while(Vars.bActive)
 	{
 		if(!Vars.oldWNDPROC && D2WIN_GetHwnd())
 			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 
 		if(GameReady())
 		{
-			image.SetX(D2GetScreenSizeX()/2);
-			text.SetX(D2GetScreenSizeX()/2);
+			Vars.image->SetX(D2GetScreenSizeX()/2);
+			Vars.text->SetX(D2GetScreenSizeX()/2);
 
 			if(bInGame && ((Vars.dwMaxGameTime > 0 && Vars.dwGameTime > 0 && (GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime) ||
 				(!IsTownLevel(GetPlayerArea()) && (Vars.nChickenHP > 0 && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) || (Vars.nChickenMP > 0 && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))))
@@ -57,8 +54,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		}
 		else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
 		{
-			image.SetX(D2GetScreenSizeX()/2);
-			text.SetX(D2GetScreenSizeX()/2);
+			Vars.image->SetX(D2GetScreenSizeX()/2);
+			Vars.text->SetX(D2GetScreenSizeX()/2);
 
 			if(!bClicked)
 			{

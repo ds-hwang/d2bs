@@ -1,6 +1,8 @@
 #include "JSScript.h"
 #include "Script.h"
 
+#include "debugnew/debug_new.h"
+
 typedef struct { ScriptMap::iterator it; } ScriptIterator;
 
 VOID script_finalize(JSContext *cx, JSObject *obj)

@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "JSControl.h"
 
+#include "debugnew/debug_new.h"
+
 void control_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("control finalize");

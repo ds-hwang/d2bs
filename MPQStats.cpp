@@ -1,6 +1,6 @@
 #include "D2BS.h"
 
-
+#include "debugnew/debug_new.h"
 
 MPQTables BaseStatTable[] = {
 	{0x6FDF0438,	0x6FDF0434, ItemTable,			0xC2,	0xFFFF},
@@ -83,9 +83,7 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 			dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
 		else dwMaxEntries = 0xFF;
 
-#pragma warning( disable : 18 )
-		if(nClassId < dwMaxEntries)
-#pragma warning( default : 18 )
+		if((DWORD)nClassId < dwMaxEntries)
 		{
 			DWORD dwMultiplicator = BaseStatTable[nBaseStat].pTable[BaseStatTable[nBaseStat].wTableSize-1].wPtrToAdd;
 			DWORD dwTable = nClassId * dwMultiplicator;
@@ -115,11 +113,9 @@ DWORD sub_6B00F455(JSContext* cx, jsval *argv, int pD2Table, int pMPQTable, int 
   unsigned int v11; // eax@12
   unsigned __int8 v12 = 0; // al@14
   char result = 0; // al@19
-#pragma warning(disable: 4101)
-  __int64 v14; // ST1C_8@19
-  void *v16; // eax@24
-  __int64 v17; // [sp+14h] [bp-8h]@19
-#pragma warning(default: 4101)
+  __int64 v14 = 0; // ST1C_8@19
+  void *v16 = 0; // eax@24
+  __int64 v17 = 0; // [sp+14h] [bp-8h]@19
 
   if ( !pD2Table || nStatNumber >= (int)(wTableSize - 1) )
     return 0;

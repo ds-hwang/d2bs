@@ -2,6 +2,8 @@
 #include "JSScreenHook.h"
 #include <vector>
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 HookList Genhook::hooks = HookList();
@@ -26,7 +28,11 @@ void Genhook::DrawAll(ScreenhookState type)
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
 			(!(*it)->GetIsAutomap() || ((*p_D2CLIENT_AutomapOn) && (*it)->GetIsAutomap())))
-				(*it)->Draw();
+		{
+			(*it)->Lock();
+			(*it)->Draw();
+			(*it)->Unlock();
+		}
 }
 
 HookIterator Genhook::GetFirstHook()
@@ -50,8 +56,7 @@ void Genhook::Clean(Script* owner)
 Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
 	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState), zorder(1)
 {
-	hookSection = new CRITICAL_SECTION;
-	InitializeCriticalSection(hookSection);
+	InitializeCriticalSection(&hookSection);
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
 	SetX(x); SetY(y);
@@ -67,9 +72,8 @@ Genhook::~Genhook(void) {
 
 	hooks.remove(this);
 	Unlock();
-	DeleteCriticalSection(hookSection);
-	delete hookSection;
-	owner = NULL; hookSection = NULL;
+	DeleteCriticalSection(&hookSection);
+	owner = NULL;
 	location.x = -1;
 	location.y = -1;
 }
@@ -226,6 +230,16 @@ bool ImageHook::IsInRange(int dx, int dy)
 		xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w),
 		yp = y - (h/2);
 	return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
+}
+
+void ImageHook::SetImage(const char* nimage)
+{
+	Lock();
+	free(location);
+	delete[] image;
+	location = _strdup(nimage);
+	image = LoadCellFile(location);
+	Unlock();
 }
 
 void LineHook::Draw(void)

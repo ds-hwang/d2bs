@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <cstdarg>
 #include "windows.h"
+#include "Script.h"
+
+#include "debugnew/debug_new.h"
 
 using namespace std;
 
@@ -49,12 +52,37 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 {
 
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
-	// add root to avoid newborn root problem
-	JS_AddRoot(cx, &obj);
-	if(obj && JS_DefineFunctions(cx, obj, funcs) && JS_DefineProperties(cx, obj, props))
-		JS_SetPrivate(cx, obj, priv);
-	else
-		obj = NULL;
-	JS_RemoveRoot(cx, &obj);
+	if(obj)
+	{
+		// add root to avoid newborn root problem
+		JS_AddRoot(cx, &obj);
+		if(funcs && !JS_DefineFunctions(cx, obj, funcs))
+		{
+			obj = NULL;
+		}
+		if(obj && props && !JS_DefineProperties(cx, obj, props))
+		{
+			obj = NULL;
+		}
+		if(obj)
+		{
+			JS_SetPrivate(cx, obj, priv);
+			JS_RemoveRoot(cx, &obj);
+		}
+	}
 	return obj;
+}
+
+JSContext* BuildContext(JSRuntime* runtime)
+{
+	JSContext* context = JS_NewContext(runtime, 0x2000);
+	if(!context)
+		throw std::exception("Couldn't create the context");
+	JS_BeginRequest(context);
+	JS_SetErrorReporter(context, reportError);
+	JS_SetBranchCallback(context, branchCallback);
+	JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
+	JS_SetVersion(context, JSVERSION_1_7);
+	JS_EndRequest(context);
+	return context;
 }

@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "string.h"
 
+#include "debugnew/debug_new.h"
+
 INT StringTokenize(CHAR * input, CHAR separator, CHAR ** tokenbuf, INT maxtokens)
 {
 	CHAR * p = _strdup(input);

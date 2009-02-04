@@ -29,7 +29,7 @@ protected:
 	bool isAutomap, isVisible, isLocked;
 	ushort opacity, zorder;
 	POINT location;
-	LPCRITICAL_SECTION hookSection;
+	CRITICAL_SECTION hookSection;
 
 	Genhook(const Genhook&);
 	Genhook& operator=(const Genhook&);
@@ -76,8 +76,8 @@ public:
 	jsval GetClickHandler(void) { return clicked; }
 	jsval GetHoverHandler(void) { return hovered; }
 
-	void Lock() { EnterCriticalSection(hookSection); isLocked = true; }
-	void Unlock() { if(!IsLocked()) return; LeaveCriticalSection(hookSection); isLocked = false; }
+	void Lock() { EnterCriticalSection(&hookSection); isLocked = true; }
+	void Unlock() { if(!IsLocked()) return; LeaveCriticalSection(&hookSection); isLocked = false; }
 	bool IsLocked() { return isLocked; }
 };
 
@@ -125,13 +125,13 @@ private:
 public:
 	ImageHook(Script* owner, const char* nloc, uint x, uint y, ushort ncolor,
 			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, 0, automap, align, state), color(ncolor)
+		Genhook(owner, x, y, 0, automap, align, state), color(ncolor), image(NULL), location(NULL)
 	{ location = _strdup(nloc); image = LoadCellFile(location); }
-	~ImageHook(void) { free(location); }
+	~ImageHook(void) { free(location); delete[] image; }
 	void Draw(void);
 	bool IsInRange(int dx, int dy);
 
-	void SetImage(const char* nimage) { Lock(); free(location); location = _strdup(nimage); image = LoadCellFile(location); Unlock(); }
+	void SetImage(const char* nimage);
 	void SetColor(ushort ncolor) { Lock(); color = ncolor; Unlock(); }
 
 	const char* GetImage(void) const { return location; }

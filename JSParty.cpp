@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "JSParty.h"
 
+#include "debugnew/debug_new.h"
+
 // Yet another Sheppard production!
 
 INT party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)

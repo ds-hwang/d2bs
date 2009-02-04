@@ -19,6 +19,8 @@
 #include <set>
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 struct SqliteDB;
@@ -58,6 +60,7 @@ void close_db_stmt(DBStmt* stmt) {
 		sqlite3_finalize(stmt->stmt);
 		stmt->stmt = NULL;
 		stmt->open = false;
+		stmt->assoc_db->stmts.erase(stmt);
 	}
 }
 
@@ -101,7 +104,7 @@ JSAPI_FUNC(sqlite_ctor)
 	}
 
 
-	SqliteDB* dbobj = new SqliteDB;
+	SqliteDB* dbobj = new SqliteDB; // leaked?
 	dbobj->db = db;
 	dbobj->open = autoOpen;
 	dbobj->path = _strdup(path);
@@ -538,6 +541,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 	if(stmtobj->current_row)
 		JS_RemoveRoot(cx, &stmtobj->current_row);
 	close_db_stmt(stmtobj);
+	delete stmtobj;
 	*rval = JS_TRUE;
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_NULL, &obj);
@@ -565,11 +569,13 @@ void sqlite_stmt_finalize(JSContext *cx, JSObject *obj)
 	CDebug cDbg("dbstatement finalize");
 
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
-	if(stmtobj->stmt && stmtobj->open) {
-		stmtobj->assoc_db->stmts.erase(stmtobj);
-		if(stmtobj->current_row)
-			JS_RemoveRoot(cx, &stmtobj->current_row);
-		close_db_stmt(stmtobj);
+	if(stmtobj) {
+		if(stmtobj->stmt && stmtobj->open) {
+			stmtobj->assoc_db->stmts.erase(stmtobj);
+			if(stmtobj->current_row)
+				JS_RemoveRoot(cx, &stmtobj->current_row);
+			close_db_stmt(stmtobj);
+		}
 		delete stmtobj;
 	}
 }

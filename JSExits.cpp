@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "JSExits.h"
 
+#include "debugnew/debug_new.h"
+
 VOID exit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("exit finalize");

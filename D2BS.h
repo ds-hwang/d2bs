@@ -10,7 +10,7 @@
 #undef _DEBUG_NEW_REDEFINE_NEW
 #define _DEBUG_NEW_REDEFINE_NEW 1
 #undef _DEBUG_NEW_TAILCHECK
-#define _DEBUG_NEW_TAILCHECK 1
+#define _DEBUG_NEW_TAILCHECK 4
 #undef _DEBUG_NEW_PROGNAME
 #define _DEBUG_NEW_PROGNAME "D2BS"
 
@@ -131,6 +131,7 @@ struct Variables
 	BOOL	bQuitOnError;
 	BOOL	bQuitOnHostile;
 	BOOL	bStartAtMenu;
+	BOOL	bActive;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];
@@ -140,6 +141,9 @@ struct Variables
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
 	CCollisionMap* cMap;
+
+	ImageHook* image;
+	TextHook* text;
 
 	// Critical Sections
 	CRITICAL_SECTION	cRoomSection;

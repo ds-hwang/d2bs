@@ -1,5 +1,7 @@
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 VOID __declspec(naked) GamePacketReceived_STUB()
 {
 	__asm

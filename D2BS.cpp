@@ -3,6 +3,8 @@
 #include "Script.h"
 #include "Helpers.h"
 
+#include "debugnew/debug_new.h"
+
 Variables Vars;
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
@@ -66,9 +68,16 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		CreateDdeServer();
 
+		Vars.bActive = TRUE;
 		Vars.oldWNDPROC = NULL;
 		Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, GetCurrentThreadId());
 		Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, GetCurrentThreadId());
+
+		char versionimg[_MAX_PATH+_MAX_FNAME];
+		sprintf(versionimg, "%s\\version.bmp", Vars.szPath);
+		Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
+		Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
+
 		hD2ThreadHandle = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL);
 	}
 	else if(dwReason == DLL_PROCESS_DETACH)
@@ -80,9 +89,14 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		ShutdownDdeServer();
 
-		TerminateThread(hD2ThreadHandle, NULL);
 		UnhookWindowsHookEx(Vars.hMouseHook);
 		UnhookWindowsHookEx(Vars.hKeybHook);
+
+		Vars.bActive = FALSE;
+		WaitForSingleObject(hD2ThreadHandle, 1000);
+
+		delete Vars.image;
+		delete Vars.text;
 
 		DeleteCriticalSection(&Vars.cRoomSection);
 		DeleteCriticalSection(&Vars.cMiscSection);

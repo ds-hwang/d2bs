@@ -5,6 +5,8 @@
 #include "JSPresetUnit.h"
 #include "JSUnit.h"
 
+#include "debugnew/debug_new.h"
+
 INT room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("room getProperty");

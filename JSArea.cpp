@@ -1,6 +1,8 @@
 #include "D2BS.h"
 #include "JSArea.h"
 
+#include "debugnew/debug_new.h"
+
 VOID area_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("area finalize");

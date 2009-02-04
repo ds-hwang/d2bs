@@ -1,10 +1,12 @@
 #include "JSSandbox.h"
 #include "Script.h"
 
+#include "debugnew/debug_new.h"
+
 JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("sandbox ctor");
-	sandbox* box = new sandbox;
+	sandbox* box = new sandbox; // leaked?
 	box->context = JS_NewContext(Script::GetRuntime(), 0x2000);
 	box->innerObj = JS_NewObject(box->context, &global_obj, NULL, NULL);
 	if(!box->innerObj)
@@ -16,13 +18,11 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	JS_InitStandardClasses(box->context, box->innerObj);
 	// TODO: add a default include function for sandboxed scripts
 	// how do I do that individually though? :/
-	box->includes = new CArrayEx<char*, char*>();
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
 	JS_AddRoot(cx, &res);
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
-		delete box->includes;
 		JS_RemoveRoot(box->context, &box->innerObj);
 		JS_DestroyContext(box->context);
 		delete box;
@@ -158,7 +158,6 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 	CDebug cDbg("sandbox finalize");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box) {
-		delete box->includes;
 		JS_DestroyContext(box->context);
 		delete box;
 	}
@@ -174,8 +173,9 @@ JSBool sandbox_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 			THROW_ERROR(cx, obj, "Invalid execution object!");
 		char* code = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		jsval result;
-		if(JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
-			*rval = result;
+		if(JS_BufferIsCompilableUnit(box->context, box->innerObj, code, strlen(code)) &&
+			JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
+				*rval = result;
 	} else THROW_ERROR(cx, obj, "Invalid parameter, string expected");
 	return JS_TRUE;
 }
@@ -192,7 +192,7 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		{
 			char buf[_MAX_PATH+_MAX_FNAME];
 			sprintf(buf, "%s\\libs\\%s", Vars.szScriptPath, file);
-			if(box->includes->Find(file) == -1)
+			if(box->list.count(std::string(file)) == -1)
 			{
 				JSScript* tmp = JS_CompileFile(box->context, box->innerObj, buf);
 				if(tmp)
@@ -200,7 +200,7 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 					jsval result;
 					if(JS_ExecuteScript(box->context, box->innerObj, tmp, &result))
 					{
-						box->includes->Add(file);
+						box->list[file] = true;
 						*rval = result;
 					}
 					JS_DestroyScript(cx, tmp);
@@ -220,7 +220,7 @@ JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 		char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		char buf[_MAX_PATH+_MAX_FNAME];
 		sprintf(buf, "%s\\libs\\%s", Vars.szScriptPath, file);
-		*rval = BOOLEAN_TO_JSVAL(!!box->includes->Find(buf));
+		*rval = BOOLEAN_TO_JSVAL(!!box->list.count(std::string(buf)));
 	} else THROW_ERROR(cx, obj, "Invalid parameter, file expected");
 	return JS_TRUE;
 }

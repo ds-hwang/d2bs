@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <list>
 
+#include "debugnew/debug_new.h"
+
 
 //! Splits a given string in two substrings, trying not to cut words.
 //!
@@ -45,20 +47,7 @@ VOID Print(const char * szFormat, ...)
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
-
-	
-	char * str;
-	try 
-	{
-		str = new char[len+1];
-	}
-	catch(...)
-	{
-		delete [] str;
-		throw;
-	}
-
-
+	char* str = new char[len+1];
 	vsprintf_s(str, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
@@ -94,7 +83,6 @@ VOID Print(const char * szFormat, ...)
 	EnterCriticalSection(&Vars.cPrintSection);
 	if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
-
 		// Convert and send every line.
 		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 		{

@@ -29,7 +29,7 @@ public:
 
 	// return number of path points found, including the start and the end point
 	// return 0 if pathing fail
-	int FindWalkPath (POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCount, int Range, bool Reduction);
+	int FindWalkPath(POINT Start, POINT End, LPPOINT Path, DWORD dwMaxCount, int Range, bool Reduction);
 
 private:
 

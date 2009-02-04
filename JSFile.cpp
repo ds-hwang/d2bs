@@ -23,6 +23,8 @@
 #include <io.h>
 #include "D2BS.h"
 
+#include "debugnew/debug_new.h"
+
 struct FileData {
 	int mode;
 	char* path;
@@ -81,7 +83,7 @@ JSAPI_PROP(file_getProperty)
 				else *vp = JSVAL_ZERO;
 				break;
 			case FILE_PATH:
-				*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, fdata->path));
+				*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, fdata->path+strlen(Vars.szScriptPath)+1));
 				break;
 			case FILE_POSITION:
 				if(fdata->fptr) *vp = INT_TO_JSVAL(ftell(fdata->fptr));
@@ -95,15 +97,15 @@ JSAPI_PROP(file_getProperty)
 				*vp = BOOLEAN_TO_JSVAL(fdata->autoflush);
 				break;
 			case FILE_ACCESSED:
-				if(fdata->fptr) *vp = INT_TO_JSVAL(filestat.st_atime);
+				if(fdata->fptr) JS_NewNumberValue(cx, (jsdouble)filestat.st_atime, vp);
 				else *vp = JSVAL_ZERO;
 				break;
 			case FILE_MODIFIED:
-				if(fdata->fptr) *vp = INT_TO_JSVAL(filestat.st_mtime);
+				if(fdata->fptr) JS_NewNumberValue(cx, (jsdouble)filestat.st_mtime, vp);
 				else *vp = JSVAL_ZERO;
 				break;
 			case FILE_CREATED:
-				if(fdata->fptr) *vp = INT_TO_JSVAL(filestat.st_ctime);
+				if(fdata->fptr) JS_NewNumberValue(cx, (jsdouble)filestat.st_ctime, vp);
 				else *vp = JSVAL_ZERO;
 				break;
 		}
@@ -167,7 +169,7 @@ JSAPI_FUNC(file_open)
 	if(!fptr)
 		return ThrowJSError(cx, obj, "Couldn't open file %s: %s", file, _strerror(NULL));
 
-	FileData* fdata = new FileData;
+	FileData* fdata = new FileData; // leaked?
 	if(!fdata)
 	{
 		fclose(fptr);

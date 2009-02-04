@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+ #ifdef _MSVC_DEBUG
 
 #include <limits.h>
 #include <string.h>
@@ -209,3 +211,5 @@ void bool_array::flip()
     int __valid_bits_in_last_byte = (_M_length - 1) % 8 + 1;
     _M_byte_ptr[__byte_cnt - 1] &= ~(~0 << __valid_bits_in_last_byte);
 }
+
+#endif
