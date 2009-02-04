@@ -63,6 +63,7 @@ struct Variables;
 #include "ScreenHook.h"
 #include "Events.h"
 #include "Control.h"
+#include "Room.h"
 #include "MPQStats.h"
 
 extern Variables Vars;

@@ -465,31 +465,14 @@ INT room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
-	BOOL bAdded = FALSE;
-	
 	CriticalMisc cMisc;
+	cMisc.EnterSection();
+	
+	bool bDrawPresets = false;
+	if (argc == 1 && JSVAL_IS_BOOLEAN(argv[0]))
+		bDrawPresets = JSVAL_TO_BOOLEAN(argv[0]);
 
-	if(!pRoom2->pRoom1)
-	{
-		D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-		bAdded = TRUE; 
-	}
-
-	DWORD dwOldArea = NULL;
-
-	if(pRoom2->pLevel->dwLevelNo != GetPlayerArea())
-	{
-		dwOldArea = GetPlayerArea();
-		InitAutomapLayer(pRoom2->pLevel->dwLevelNo);
-	}
-
-	D2CLIENT_RevealAutomapRoom(pRoom2->pRoom1, TRUE, (*p_D2CLIENT_AutomapLayer));
-
-	if(dwOldArea)
-		InitAutomapLayer(dwOldArea);
-
-	if(bAdded)
-		D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+	*rval = BOOLEAN_TO_JSVAL(RevealRoom(pRoom2, bDrawPresets));
 
 	return JS_TRUE;
 }

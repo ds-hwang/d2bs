@@ -49,13 +49,13 @@ static JSPropertySpec room_props[] = {
 
 static JSFunctionSpec room_methods[] = {
 	{"getNext",			room_getNext,			0},
+	{"reveal",			room_reveal,			1},
 	{"getPresetUnits",	room_getPresetUnits,	0},
 	{"getCollision",	room_getCollision,		0},
 	{"getNearby",		room_getNearby,			0},
 	{"getStat",			room_getStat,			0},
 	{"getFirst",		room_getFirst,			0},
 	{"unitInRoom",		room_unitInRoom,		1},
-	{"reveal",			room_reveal,			0},
 	{0}
 };
 
