@@ -468,7 +468,7 @@ INT room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	CriticalMisc cMisc;
 	cMisc.EnterSection();
 	
-	bool bDrawPresets = false;
+	BOOL bDrawPresets = false;
 	if (argc == 1 && JSVAL_IS_BOOLEAN(argv[0]))
 		bDrawPresets = JSVAL_TO_BOOLEAN(argv[0]);
 

@@ -562,6 +562,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Room.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Room.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ScreenHook.cpp"
 						>
 					</File>
