@@ -33,7 +33,7 @@ struct sandbox {
 
 static JSClass sandbox_class = {
 	"Sandbox",
-	JSCLASS_CONSTRUCT_PROTOTYPE | JSCLASS_HAS_PRIVATE,
+	JSCLASS_HAS_PRIVATE,
 	sandbox_addProperty, sandbox_delProperty, sandbox_getProperty, sandbox_setProperty,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sandbox_finalize,
 	NULL, NULL, NULL, sandbox_ctor, NULL, NULL, NULL, NULL

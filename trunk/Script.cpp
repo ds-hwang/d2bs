@@ -205,15 +205,12 @@ Script::~Script(void)
 
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
-	myUnit* unit = (myUnit*)JS_GetPrivate(context, meObject);
-	if(unit)
-		delete unit;
 
 	JS_RemoveRoot(context, &meObject);
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	JS_DestroyContextNoGC(context);
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
