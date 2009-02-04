@@ -312,7 +312,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
 	BOOL UseTele = IsTownLevel(Area);
-	bool Reduction = true;
+	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
 	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
