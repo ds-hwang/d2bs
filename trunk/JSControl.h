@@ -8,6 +8,8 @@ JSAPI_PROP(control_setProperty);
 
 JSAPI_FUNC(control_getNext);
 JSAPI_FUNC(control_click);
+JSAPI_FUNC(control_setText);
+JSAPI_FUNC(control_getText);
 
 struct ControlData {
 	DWORD _dwPrivate;
@@ -70,5 +72,7 @@ static JSPropertySpec control_props[] = {
 static JSFunctionSpec control_funcs[] = {
 	{"getNext",			control_getNext,		0},
 	{"click",			control_click,			0},
+	{"setText",			control_setText,		1},
+	{"getText",			control_getText,		0},
 	{0},
 };
