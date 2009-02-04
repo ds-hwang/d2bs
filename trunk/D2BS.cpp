@@ -25,7 +25,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
 #else 	
 		GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
-		PathRemoveFileSpecA(Vars.szPath);
+		PathRemoveFileSpec(Vars.szPath);
 		strcat(Vars.szPath,"\\");
 #endif
 

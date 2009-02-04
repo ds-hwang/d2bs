@@ -82,7 +82,6 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		_itoa_s(i, name, 32, 10);
 		if(box)
 			JS_DeleteProperty(box->context, box->innerObj, name);
-		//JS_DeleteProperty(cx, obj, name);
 		return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
@@ -90,7 +89,6 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		if(box)
 			JS_DeleteProperty(box->context, box->innerObj, name);
-		//JS_DeleteProperty(cx, obj, name);
 		return JS_TRUE;
 	}
 	return JS_FALSE;
@@ -140,7 +138,6 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		_itoa_s(i, name, 32, 10);
 		if(box)
 			JS_SetProperty(box->context, box->innerObj, name, vp);
-		//JS_SetProperty(cx, box->innerObj, name, vp);
 		return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
@@ -148,7 +145,6 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		if(box)
 			JS_SetProperty(box->context, box->innerObj, name, vp);
-		//JS_SetProperty(cx, obj, name, vp);
 		return JS_TRUE;
 	}
 	return JS_FALSE;

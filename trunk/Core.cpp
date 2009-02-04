@@ -185,7 +185,7 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 	}
 }
 
-void Say(char *szMessage, ...) 
+void Say(const char *szMessage, ...) 
 { 
 	CHAR szBuffer[8192] = {0};
 	va_list vaArgs;
