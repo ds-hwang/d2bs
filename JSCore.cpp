@@ -523,7 +523,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 		jsint nClickType = JSVAL_TO_INT(argv[0]);
 
-		if(!pUnit || !pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
+		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
 		{
 			JS_ReportError(cx, "Object not an item");
 			return JS_TRUE;
