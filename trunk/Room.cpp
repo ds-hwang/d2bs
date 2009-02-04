@@ -20,7 +20,6 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 		bAdded = true;
 	}
 	if (!(pRoom2 && pRoom2->pRoom1)){// second check added to see if we DID indeed init the room!
-		Print("ÿc2D2BSÿc0 :: Failed to initialize pRoom2->pRoom1 after trying!");
 		return false;
 	}
 

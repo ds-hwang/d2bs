@@ -144,7 +144,8 @@ JSAPI_PROP(frame_setProperty) {
 }
 
 JSAPI_FUNC(frame_remove) {
-	frame_finalize(cx, obj);
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+//	frame_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
@@ -303,7 +304,8 @@ JSAPI_PROP(box_setProperty) {
 }
 
 JSAPI_FUNC(box_remove) {
-	box_finalize(cx, obj);
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+//	box_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
@@ -446,7 +448,8 @@ JSAPI_PROP(line_setProperty) {
 }
 
 JSAPI_FUNC(line_remove) {
-	line_finalize(cx, obj);
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+//	line_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
@@ -602,7 +605,8 @@ JSAPI_PROP(text_setProperty) {
 }
 
 JSAPI_FUNC(text_remove) {
-	text_finalize(cx, obj);
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+//	text_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
@@ -747,7 +751,8 @@ JSAPI_PROP(image_setProperty) {
 }
 
 JSAPI_FUNC(image_remove) {
-	image_finalize(cx, obj);
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+//	image_finalize(cx, obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;

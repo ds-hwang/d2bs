@@ -450,6 +450,7 @@ void Script::Stop(bool force, bool reallyForce)
 		Sleep(500);
 	}
 
+	JS_MaybeGC(context);
 	CloseHandle(threadHandle);
 	threadHandle = NULL;
 }
