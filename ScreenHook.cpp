@@ -29,9 +29,7 @@ void Genhook::DrawAll(ScreenhookState type)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
 			(!(*it)->GetIsAutomap() || ((*p_D2CLIENT_AutomapOn) && (*it)->GetIsAutomap())))
 		{
-			(*it)->Lock();
 			(*it)->Draw();
-			(*it)->Unlock();
 		}
 }
 
