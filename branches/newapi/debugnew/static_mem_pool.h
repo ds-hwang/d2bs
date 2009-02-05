@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+#ifdef _MSVC_DEBUG
 
 #ifndef _STATIC_MEM_POOL_H
 #define _STATIC_MEM_POOL_H
@@ -373,3 +375,5 @@ public: \
 #undef __PRIVATE
 
 #endif // _STATIC_MEM_POOL_H
+
+#endif

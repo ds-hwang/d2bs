@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+#ifdef _MSVC_DEBUG
 
 #ifndef _CLASS_LEVEL_LOCK_H
 #define _CLASS_LEVEL_LOCK_H
@@ -119,3 +121,5 @@
 # endif // _NOTHREADS
 
 #endif // _CLASS_LEVEL_LOCK_H
+
+#endif

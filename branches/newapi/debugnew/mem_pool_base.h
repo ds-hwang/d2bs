@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _MEM_POOL_BASE_H
 #define _MEM_POOL_BASE_H
 
@@ -57,3 +59,5 @@ public:
 };
 
 #endif // _MEM_POOL_BASE_H
+
+#endif

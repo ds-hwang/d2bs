@@ -37,6 +37,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _CONT_PTR_UTILS_H
 #define _CONT_PTR_UTILS_H
 
@@ -131,3 +133,5 @@ private:
 };
 
 #endif // _CONT_PTR_UTILS_H
+
+#endif

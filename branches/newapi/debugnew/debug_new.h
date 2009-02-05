@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _DEBUG_NEW_H
 #define _DEBUG_NEW_H
 
@@ -177,3 +179,5 @@ public:
 static __debug_new_counter __debug_new_count;
 
 #endif // _DEBUG_NEW_H
+
+#endif
