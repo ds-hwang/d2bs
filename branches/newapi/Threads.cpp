@@ -1,12 +1,15 @@
 #include <windows.h>
+#include "helpers.h"
 #include "Script.h"
 #include "nspr/prthread.h"
 
 #include "debugnew/debug_new.h"
 
-void MainThread(LPVOID lpData)
+void MainThread(void* lpData)
 {
-	Script::CompileFile("default.dbj", false)->Start();
+	Script* script = Script::CompileFile("default.dbj", false);
+	if(script)
+		script->Start();
 
 	while(Script::IsActive())
 	{

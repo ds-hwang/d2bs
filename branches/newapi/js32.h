@@ -12,6 +12,7 @@
 #define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 #define JSVAL_IS_FUNCTION(cx, var) (JSVAL_IS_OBJECT(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
+#define JSVAL_TO_STR(cx, var) (JS_GetStringBytes(JS_ValueToString((cx), (var))))
 
 #define JSPROP_CONSTANT (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)

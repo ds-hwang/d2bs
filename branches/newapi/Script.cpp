@@ -1,5 +1,7 @@
 #include "Script.h"
-#include <io.h>
+#include "helpers.h"
+
+#include "debugnew/debug_new.h"
 
 using namespace std;
 
@@ -8,6 +10,7 @@ CRITICAL_SECTION Script::section = {0};
 ScriptMap Script::scripts = ScriptMap();
 char Script::scriptPath[_MAX_FNAME + _MAX_PATH] = "";
 ScriptCallback Script::scriptCallback = NULL;
+JSBranchCallback Script::branchCallback = NULL;
 
 Script::Script(ScriptType newType, const char* fname) :
 	runCount(0), type(newType), scriptObject(NULL), context(NULL),
@@ -18,7 +21,8 @@ Script::Script(ScriptType newType, const char* fname) :
 	try
 	{
 		// at this point, the file exists (if it's a file), and we need to initialize everything
-		file = string((fname + strlen(scriptPath)));
+		file = string((fname + (strlen(scriptPath))+1));
+		includeDirs.push_back(string("libs"));
 		context = JS_NewContext(runtime, 0x2000);
 		if(!context)
 			throw std::exception("Failed to create context");
@@ -26,6 +30,7 @@ Script::Script(ScriptType newType, const char* fname) :
 		JS_SetContextPrivate(context, this);
 
 		JS_BeginRequest(context);
+		JS_SetBranchCallback(context, branchBack);
 
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
 		if(!globalObject)
@@ -53,7 +58,7 @@ Script::Script(ScriptType newType, const char* fname) :
 		JS_EndRequest(context);
 		Unlock();
 	}
-	catch(...)
+	catch(std::exception&)
 	{
 		if(scriptObject)
 			JS_RemoveRoot(context, &scriptObject);
@@ -91,9 +96,9 @@ Script* Script::CompileFile(const char* file, bool recompile)
 		char path[_MAX_FNAME + _MAX_PATH];
 		sprintf(path, "%s\\%s", scriptPath, file);
 		// see if the file exists, first...
-		if(_access(path, 0) != 0)
+		if(!FileExists(path))
 		{
-			char msg[50];
+			char msg[_MAX_PATH+_MAX_FNAME];
 			sprintf(msg, "File '%s' not found", file);
 			throw std::exception(msg);
 		}
@@ -116,7 +121,7 @@ Script* Script::CompileFile(const char* file, bool recompile)
 			return new Script(File, path);
 		}
 	}
-	catch(std::exception&) { throw; }
+	catch(std::exception&) { return NULL; }
 }
 
 Script* Script::CompileCommand(const char* file, bool recompile)
@@ -174,6 +179,33 @@ void Script::Shutdown(void)
 bool Script::IsActive(void)
 {
 	return !!runtime;
+}
+
+void Script::AbortAll(void)
+{
+	ScriptList list = GetAllScripts();
+	for(ScriptIterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Abort();
+	}
+}
+
+void Script::PauseAll(void)
+{
+	ScriptList list = GetAllScripts();
+	for(ScriptIterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Pause();
+	}
+}
+
+void Script::ResumeAll(void)
+{
+	ScriptList list = GetAllScripts();
+	for(ScriptIterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Resume();
+	}
 }
 
 void Script::LockAll(void)
@@ -269,6 +301,11 @@ void Script::Stop(void)
 		PR_JoinThread(thread);
 }
 
+void Script::Abort(void)
+{
+	isAborted = true;
+}
+
 void Script::Lock(void)
 {
 	EnterCriticalSection(&scriptSection);
@@ -279,11 +316,74 @@ void Script::Unlock(void)
 	LeaveCriticalSection(&scriptSection);
 }
 
-void ScriptThread(LPVOID lpData)
+void Script::AddIncludePath(const char* dir)
+{
+	includeDirs.push_back(string(dir));
+}
+
+bool Script::IsIncluded(const char* file)
+{
+	for(IncludePathIterator it = includeDirs.begin(); it != includeDirs.end(); it++)
+	{
+		char path[_MAX_PATH + _MAX_FNAME];
+		sprintf(path, "%s\\%s\\%s", GetScriptPath(), (*it).c_str(), file);
+		if(includes.count(string(path)))
+			return true;
+	}
+	return false;
+}
+
+bool Script::Include(const char* file)
+{
+	if(IsIncluded(file))
+		return false;
+
+	for(IncludePathIterator it = includeDirs.begin(); it != includeDirs.end(); it++)
+	{
+		char path[_MAX_PATH + _MAX_FNAME];
+		sprintf(path, "%s\\%s\\%s", GetScriptPath(), (*it).c_str(), file);
+		if(FileExists(path))
+		{
+			Lock();
+
+			JSScript* script = JS_CompileFile(context, globalObject, path);
+			if(script)
+			{
+				JSObject* obj = JS_NewScriptObject(context, script);
+				JS_AddRoot(context, &obj);
+
+				jsval dummy;
+				if(!!JS_ExecuteScript(context, globalObject, script, &dummy))
+					includes[string(path)] = true;
+
+				JS_RemoveRoot(context, &obj);
+			}
+
+			Unlock();
+		}
+	}
+	return IsIncluded(file);
+}
+
+JSBool branchBack(JSContext* cx, JSScript* scr)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+
+	while(script->IsPaused())
+		Sleep(50);
+
+	if(script->IsAborted())
+		return JS_FALSE;
+
+	JSBranchCallback callback = script->GetBranchCallback();
+	return callback ? callback(cx, scr) : JS_TRUE;
+}
+
+void ScriptThread(void* lpData)
 {
 	((Script*)lpData)->Run();
 }
 
-void EventThread(LPVOID lpData)
+void EventThread(void* lpData)
 {
 }

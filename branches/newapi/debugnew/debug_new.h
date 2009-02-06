@@ -36,10 +36,11 @@
  *
  */
 
-#ifdef _MSVC_DEBUG
-
+#pragma once
 #ifndef _DEBUG_NEW_H
 #define _DEBUG_NEW_H
+
+#ifdef _MSVC_DEBUG
 
 #include <new>
 #include <stdio.h>

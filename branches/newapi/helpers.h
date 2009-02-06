@@ -11,5 +11,7 @@ struct Config
 
 
 bool LoadConfig(const char* file, Config* config);
+bool FileExists(const char* fname);
+void Log(const char* format, ...);
 
 #endif
