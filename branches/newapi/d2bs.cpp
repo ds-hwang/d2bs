@@ -5,7 +5,9 @@
 #include "jsutilities.h"
 #include "Script.h"
 #include "Threads.h"
+
 #include "nspr/prthread.h"
+#include "nspr/prinit.h"
 
 #include "d2bs.h"
 
