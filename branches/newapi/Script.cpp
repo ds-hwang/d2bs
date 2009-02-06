@@ -75,7 +75,6 @@ Script::~Script(void)
 	Lock();
 	JS_SetContextThread(context);
 	JS_RemoveRoot(context, &scriptObject);
-	JS_DestroyScript(context, script);
 	JS_DestroyContext(context);
 	Unlock();
 }
@@ -94,8 +93,8 @@ Script* Script::CompileFile(const char* file, bool recompile)
 		// see if the file exists, first...
 		if(_access(path, 0) != 0)
 		{
-			char msg[50] = "File '%s' not found";
-			sprintf(msg, msg, file);
+			char msg[50];
+			sprintf(msg, "File '%s' not found", file);
 			throw std::exception(msg);
 		}
 		string fname = string(file);
@@ -117,7 +116,7 @@ Script* Script::CompileFile(const char* file, bool recompile)
 			return new Script(File, path);
 		}
 	}
-	catch(...) { throw; }
+	catch(std::exception&) { throw; }
 }
 
 Script* Script::CompileCommand(const char* file, bool recompile)

@@ -142,7 +142,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32/js32.lib nspr/libnspr4.lib shlwapi.h"
+				AdditionalDependencies="js32/js32.lib nspr/libnspr4.lib shlwapi.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="2"
