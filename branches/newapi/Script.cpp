@@ -6,7 +6,7 @@
 using namespace std;
 
 JSRuntime* Script::runtime = NULL;
-CRITICAL_SECTION Script::section = {0};
+CRITICAL_SECTION Script::section;
 ScriptMap Script::scripts = ScriptMap();
 char Script::scriptPath[_MAX_FNAME + _MAX_PATH] = "";
 ScriptCallback Script::scriptCallback = NULL;
@@ -325,7 +325,7 @@ bool Script::IsIncluded(const char* file)
 {
 	for(IncludePathIterator it = includeDirs.begin(); it != includeDirs.end(); it++)
 	{
-		char path[_MAX_PATH + _MAX_FNAME];
+		char path[_MAX_PATH + _MAX_FNAME] = "";
 		sprintf(path, "%s\\%s\\%s", GetScriptPath(), (*it).c_str(), file);
 		if(includes.count(string(path)))
 			return true;
@@ -340,7 +340,7 @@ bool Script::Include(const char* file)
 
 	for(IncludePathIterator it = includeDirs.begin(); it != includeDirs.end(); it++)
 	{
-		char path[_MAX_PATH + _MAX_FNAME];
+		char path[_MAX_PATH + _MAX_FNAME] = "";
 		sprintf(path, "%s\\%s\\%s", GetScriptPath(), (*it).c_str(), file);
 		if(FileExists(path))
 		{

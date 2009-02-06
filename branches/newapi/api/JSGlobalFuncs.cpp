@@ -1,4 +1,5 @@
 #include "JSGlobalFuncs.h"
+#include "../nspr/prthread.h"
 #include "../helpers.h"
 #include "../Script.h"
 #include <windows.h>
@@ -18,7 +19,7 @@ JSAPI_FUNC(global_sleep)
 {
 	if(JSVAL_IS_INT(argv[0]))
 	{
-		Sleep(JSVAL_TO_INT(argv[0]));
+		PR_Sleep(JSVAL_TO_INT(argv[0]));
 	}
 	return JS_TRUE;
 }

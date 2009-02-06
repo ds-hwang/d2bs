@@ -28,7 +28,10 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 
 		Config config;
 		if(!LoadConfig(ini, &config))
+		{
+			Log("Couldn't find configuration file!");
 			return FALSE;
+		}
 
 		sprintf(path, "%s\\%s", path, config.scriptPath);
 		Script::Startup(path, InitContext, InitScript);
@@ -38,7 +41,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
 		Script::Shutdown();
-		PR_JoinThread(thread);
+		if(thread)
+			PR_JoinThread(thread);
 	}
 	return TRUE;
 }
