@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32/js32d.lib nspr/libnspr4d.lib"
+				AdditionalDependencies="js32/js32d.lib nspr/libnspr4d.lib shlwapi.lib"
 				OutputFile="$(ProgramFiles)\Diablo II\newapi\$(ProjectName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -142,7 +142,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32/js32.lib nspr/libnspr4.lib"
+				AdditionalDependencies="js32/js32.lib nspr/libnspr4.lib shlwapi.h"
 				LinkIncremental="1"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -199,6 +199,22 @@
 		<Filter
 			Name="Utilities"
 			>
+			<File
+				RelativePath=".\helpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\helpers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\jsutilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\jsutilities.h"
+				>
+			</File>
 			<Filter
 				Name="DebugNew"
 				>

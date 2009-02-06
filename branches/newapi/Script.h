@@ -9,6 +9,7 @@
 #include <list>
 #include <string>
 #include "js32.h"
+#include "nspr/prthread.h"
 
 #include "debugnew/debug_new.h"
 
@@ -30,11 +31,13 @@ typedef std::map<std::string, bool> IncludeList;
 typedef std::list<AutoRoot*> EventList;
 typedef EventList::iterator EventIterator;
 typedef std::map<std::string, EventList> EventMap;
-typedef std::list<HANDLE> ActiveEventList;
+typedef std::list<PRThread*> ActiveEventList;
 
 typedef std::list<Script*> ScriptList;
 typedef ScriptList::iterator ScriptIterator;
 typedef std::map<std::string, Script*> ScriptMap;
+
+typedef void (__fastcall *ScriptCallback)(Script*);
 
 class Script
 {
@@ -42,6 +45,9 @@ protected:
 	static ScriptMap scripts;
 	static JSRuntime* runtime;
 	static CRITICAL_SECTION section;
+	static char scriptPath[_MAX_FNAME + _MAX_PATH];
+
+	static ScriptCallback scriptCallback;
 
 	ScriptType type;
 	std::string file;
@@ -51,13 +57,18 @@ protected:
 
 	CRITICAL_SECTION scriptSection;
 
-	JSObject *scriptObject, *globalObject, *meObject;
+	JSObject *scriptObject, *globalObject;
 	JSContext *context;
 	JSScript *script;
 
 	int runCount;
+	bool isPaused, isAborted;
 
-private:
+	PRThread* thread;
+
+	static void LockAll(void);
+	static void UnlockAll(void);
+
 	Script(ScriptType, const char*);
 	~Script(void);
 
@@ -66,17 +77,34 @@ private:
 	Script& operator=(const Script&);
 
 public:
+	static const char* GetScriptPath(void);
 	static Script* CompileFile(const char* file, bool recompile);
 	static Script* CompileCommand(const char* command, bool recompile);
 
-	static void Startup(void);
+	static void Startup(const char* basePath, JSContextCallback contextCallback, ScriptCallback scriptCallback = NULL);
 	static void Shutdown(void);
 	static bool IsActive(void);
 
-	static void LockAll(void);
-	static void UnlockAll(void);
-
 	static ScriptList GetAllScripts(void);
+
+	void Start(void);
+	void Run(void);
+	void Pause(void);
+	void Resume(void);
+	void Stop(void);
+
+	bool IsRunning(void);
+	bool IsPaused(void);
+	bool IsAborted(void);
+
+	void Lock();
+	void Unlock();
+
+	JSContext* GetContext(void) { return context; }
+	JSObject* GetGlobalObject(void) { return globalObject; }
 };
+
+void ScriptThread(LPVOID lpData);
+void EventThread(LPVOID lpData);
 
 #endif

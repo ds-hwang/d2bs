@@ -6,17 +6,11 @@
 
 void MainThread(LPVOID lpData)
 {
+	Script::CompileFile("default.dbj", false)->Start();
+
 	while(Script::IsActive())
 	{
-		// TODO: Add the code to execute scripts here...
+		// TODO: Process stuff here, like events.
 		Sleep(10);
 	}
-}
-
-void ScriptThread(LPVOID lpData)
-{
-}
-
-void EventThread(LPVOID lpData)
-{
 }
