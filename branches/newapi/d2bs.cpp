@@ -29,7 +29,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		Config config;
 		if(!LoadConfig(ini, &config))
 		{
-			Log("Couldn't find configuration file!");
+			Log("Loading configuration failed: couldn't find 'd2bs.ini'!");
 			return FALSE;
 		}
 
@@ -41,8 +41,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
 		Script::Shutdown();
-		if(thread)
-			PR_JoinThread(thread);
+		PR_Cleanup();
 	}
 	return TRUE;
 }
