@@ -20,6 +20,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 	static PRThread* thread = NULL;
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
+
 		char path[_MAX_PATH], ini[_MAX_PATH + _MAX_FNAME], log[_MAX_PATH + _MAX_FNAME];
 		GetModuleFileName(hDll, path, _MAX_FNAME + _MAX_PATH);
 		PathRemoveFileSpec(path);
@@ -43,7 +44,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
 		Script::Shutdown();
-		PR_Cleanup();
+		if (PR_Initialized() == PR_TRUE)
+			PR_Cleanup();
 	}
 	return TRUE;
 }
