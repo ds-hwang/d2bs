@@ -18,6 +18,14 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	DisableThreadLibraryCalls(hDll);
 	static PRThread* thread = NULL;
+
+	static OSVERSIONINFOEX os = {0};
+	if(os.dwMajorVersion == 0)
+	{
+		os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+		GetVersionEx((LPOSVERSIONINFO)&os);
+	}
+
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
 
@@ -33,6 +41,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		if(!LoadConfig(ini, &config))
 		{
 			Log("Loading configuration failed: couldn't find 'd2bs.ini'!");
+			// TODO: Add code to write a default ini file and load that instead of detaching
 			return FALSE;
 		}
 
@@ -44,8 +53,18 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
 		Script::Shutdown();
-		if (PR_Initialized() == PR_TRUE)
-			PR_Cleanup();
+		if(os.dwMajorVersion > 5)
+		{
+			// we're running better than xp
+			if(thread)
+				PR_JoinThread(thread);
+		}
+		else
+		{
+			// we're running xp or lower
+			// assume a static delay of 5 seconds is enough to let the thread end gracefully
+			Sleep(5000);
+		}
 	}
 	return TRUE;
 }
