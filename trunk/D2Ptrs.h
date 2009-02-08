@@ -130,6 +130,7 @@ VARPTR(D2CLIENT, ShopPerformFlag_I, DWORD, 0x11B56B) // Updated
 VARPTR(D2CLIENT, ShopPerformFlag_II, DWORD, 0x11B667) // Updated
 VARPTR(D2CLIENT, GoldDialogAmount, DWORD, 0x11BF38) // Updated
 VARPTR(D2CLIENT, GoldDialogAction, DWORD, 0x102B38) // Updated
+VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C114)
 
 ASMPTR(D2CLIENT, GenerateSpell_I, 0x4F800) //6FAFF800 6FAFFF08  |. E8 F3F8FFFF    CALL D2Client.6FAFF800                   ; \D2Client.6FAFF800
 ASMPTR(D2CLIENT, TestPvpFlag_I, 0x30DD0) // Updated
