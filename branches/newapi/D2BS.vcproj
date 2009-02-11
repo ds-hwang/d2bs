@@ -68,6 +68,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetName).pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -517,11 +518,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\d2bs.cpp"
+			RelativePath=".\D2BS.cpp"
 			>
 		</File>
 		<File
-			RelativePath=".\d2bs.h"
+			RelativePath=".\D2BS.h"
 			>
 		</File>
 		<File
