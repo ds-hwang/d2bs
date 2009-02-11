@@ -1,0 +1,42 @@
+var Status = {Successful:0, Failed:1, Death:2, Skip:3};
+var Boss = {Andariel:1};
+var Type = {Message:0, Warning:1, Error:2};
+
+var Statistics = new function () {
+	this.statusRows = ["runSuccess", "runFailure", "runDeath", "runSkip"];
+	this.statusMsg = ["successful", "failure", "died", "skipped"];
+	this.db = new SQLite("//logs//Statistics.db", true);
+	this.currentBoss = 0;
+	this.bossTimer = 0;
+	this.runId = 0;
+	
+	this.beginBoss = function(boss) {
+		this.currentBoss = boss;
+		this.bossTimer = getTickCount ();
+		this.msg(Type.Message, "Starting boss " + this.getCurrentBoss());
+	}
+	
+	this.getCurrentBoss = function () {
+		for (var n in Boss) {
+			if (Boss[n] == this.currentBoss)
+				return n;
+		}
+		return false;
+	}
+	
+	this.endBoss = function(status) {
+		var timeSpent = (getTickCount () - this.bossTimer);
+		this.db.execute("UPDATE BossStats SET " + this.statusRows[status] + " = " + this.statusRows[status] + " + 1, timeSpent = timeSpent + " + timeSpent + ", runTotal = runTotal + 1 WHERE id = " + this.currentBoss);
+		this.db.execute("UPDATE Runs SET boss" + this.currentBoss + "status = " + status + ", boss" + this.currentBoss + "time = " + timeSpent + " WHERE id = " + this.runId);
+		this.msg(Type.Message, "We have finished the boss " + this.getCurrentBoss() + " in " + (timeSpent / 1000) + " seconds.");
+	}
+	
+	this.msg = function(id, msg) {
+		print("mBot Statistics: " + msg);
+	}
+	
+	this.newRun = function() {
+		this.db.query("INSERT INTO Runs (gameName, gamePass, date) VALUES (?, ?, DATETIME('now'))", me.gamename, me.gamepassword).go();
+		this.runId = this.db.lastRowId;
+	}
+}

@@ -1,0 +1,12 @@
+include("common/constants.dbl");
+include("Pather.dbl");
+include("Attack.dbl");
+include("Precast.dbl");
+include("mBot.dbl");
+
+function main () {
+	mBot.takeWp(Area.Act1.CatacombsLevel2);
+	Pather.exitPath(Area.Act1.CatacombsLevel3, true);
+	Pather.exitPath(Area.Act1.CatacombsLevel4, true);
+	Attack.attack(getUnit(1, "Andariel"));
+}

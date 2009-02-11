@@ -1,0 +1,156 @@
+var mBot = new function () {
+	this.statDB = new SQLite("baseStat.db");
+	
+	this.takeWp = function(areaId) {
+		var waypointUnit = getUnit(2, "Waypoint");
+		if (!waypointUnit)
+			Pather.presetPath(119, 157, 156, 402, 323, 288, 237, 324, 238, 496, 511, 494, 2);
+		var waypointUnit = getUnit(2, "Waypoint");
+		if (!waypointUnit)
+			this.error("We were unable to find the waypoint unit.");
+		Pather.moveTo(waypointUnit);
+		
+		
+		
+		var timeOut = getTickCount ();
+		while(me.area != areaId && (getTickCount () - timeOut) < 1500) {
+			waypointUnit.interact(areaId);
+			delay(100,true);
+		}
+			
+		if (me.area != areaId)
+			this.error("Unable to enter into " + areaId);
+			
+		delay(500);
+		return true;
+	}
+	
+	this.checkMode = function(mode) {
+		var unit;
+		if (arguments.length == 2)
+			unit = arguments[1];
+		else
+			unit = me;
+			
+		if (typeof(mode) == 'object')
+		{
+			for (var i in mode)
+				if (unit.mode == mode[i])
+					return true;
+			return false;
+		} else {
+			return (unit.mode == mode)
+		}
+		return false;
+	}
+
+	this.inTown = function () {
+		for (var levelId in Area.Town)
+			if (me.area == Area.Town[levelId])
+				return true;
+		return false;
+	}
+	
+	this.error = function(errMsg) {
+		print("ÿc5mBot ÿc#::ÿc0 Error: " + errMsg);
+		delay(1500,true);
+		/*var errorFile = File.open("/logs/mBot.log", 0);
+		errorFile.write("mBot Error: " + errMsg);
+		errorFile.close ();*/
+		quit ();
+	}
+	
+	this.setSkill = function(skillId, hand) {
+		if (me.getSkill(skillId, hand) == 0)
+			return false;
+		
+		if (me.getSkill(2 + hand) == skillId)
+			return true;
+			
+		return me.setSkill(skillId, hand);
+	}
+	
+	this.cast = function() {
+		this.skillId = arguments[0];
+		if (arguments.length > 1)
+			this.hand = arguments[1];
+		else
+			this.hand = Hand.Right;
+		this.loc = {x:me.x + 3, y:me.y + 3};
+		if (arguments.length == 4)
+			this.loc = {x:arguments[2], y:arguments[3]};
+		else if (arguments.length == 3)
+			this.loc = copyUnit(arguments[2]);
+		this.clickType = (this.hand == Hand.Left) ? ClickType.Left : ClickType.Right;
+		this.shift = (this.hand == Hand.Left) ? Shift.On : Shift.Off;
+		//Let's make sure actually have the skill!
+		if (me.getSkill(this.skillId, 3) == 0)
+			return false;
+		
+		
+		//Check to make sure we can cast this skill if were in town.
+		if (!parseInt(this.getBaseStat("Skill", this.skillId, "InTown")) && this.inTown())
+			return false;
+			
+		//Check to make sure we have enough mana
+		if (this.getManaCost(this.skillId) > me.mp)
+			return false;
+		
+		
+		//Attempt to place skill on hand.
+		if(!me.setSkill(this.skillId, this.hand))
+			return false;
+		
+		//Lets do this shit.
+		clickMap(this.clickType.Down, this.shift, this.loc.x, this.loc.y);
+		delay(10,true);
+		clickMap(this.clickType.Up, this.shift, this.loc.x, this.loc.y);
+		
+		//Who cares if we have finished casting a hammer?
+		if (this.skillId == Skill.BlessedHammer)
+			return true;
+		
+		//Wait until we're done casting.
+		while(this.checkMode(Mode.Player.Cast))
+			delay(1,true);
+		return true;
+	}
+	
+	this.getManaCost = function(skillId) {
+		var skillLvl = me.getSkill(skillId, 3);
+		var effectiveShift = [1,2,4,8,16,32,64,128,256,512,1024];
+		var ret = Math.max((parseInt(this.getBaseStat("Skill", skillId, "mana")) + (parseInt(this.getBaseStat("Skill", skillId, "lvlmana")) *(skillLvl-1))) * (effectiveShift[parseInt(this.getBaseStat("Skill", skillId, "manashift"))] / 256), parseInt(this.getBaseStat("Skill", skillId, "minmana")));
+		return ret;
+	}
+	
+	this.switchWeapon = function () {
+		var oldSwitch = weaponSwitch(1);
+		while(oldSwitch == weaponSwitch(1)) {
+			weaponSwitch ();
+			delay(100, true);
+		}
+	}
+	
+	this.getBaseStat = function(table, row, column) {
+		var nQuery = this.statDB.query("SELECT " + column + " FROM " + table);
+		for (var n = 0; n < row + 1; n++)
+			nQuery.next();
+			
+		var nRet = nQuery.getObject();
+		nQuery.reset ();
+		nQuery.close ();
+		if (!nRet)
+			return false;
+		return nRet[column];
+	}
+}
+
+function delay(delay) {
+	var nTime = getTickCount ();
+	if (arguments.length == 1)
+		Precast.tick ();
+	while((getTickCount() - nTime) < delay) {
+		
+	}
+	return;
+}

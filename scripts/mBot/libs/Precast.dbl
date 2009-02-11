@@ -1,0 +1,62 @@
+var Precasts = [{Name:"Battle Commands", Id:Skill.BattleCommand, State:State.BattleCommand, Switch:true},
+				{Name:"Battle Orders", Id:Skill.BattleOrders, State:State.BattleOrders, Switch:true},
+				{Name:"Shout", Id:Skill.Shout, Class:Class.Barbarian, State:State.Shout, Switch:true},
+				{Name:"Energy Shield", Id:Skill.EnergyShield, Class:Class.Sorc, State:State.EnergyShield},
+				{Name:"Thunderstorm", Id:Skill.ThunderStorm, Class:Class.Sorc, State:State.ThunderStorm},
+				{Name:"Cold Armor", Id:[Skill.FrozenArmor, Skill.ShiverArmor, Skill.ChillingArmor], Class:Class.Sorc, State:[
+				State.FrozenArmor, State.ShiverArmor, State.ChillingArmor], Priority:[0,1,2]},
+				{Name:"Valkyrie", Id:Skill.Valkyrie, State:State.Valkyrie, Class:Class.Zon},
+				{Name:"Bone Armor", Id:Skill.BoneArmor, State:0, Class:Class.Necro},
+				{Name:"Golem", Id:[Skill.ClayGolem, Skill.FireGolem], Class:Class.Necro, Unit:[]},
+				{Name:"Holy Shield", Id:Skill.HolyShield, Class:Class.Paladin, State:State.HolyShield},
+				];
+
+var Precast = new function () {
+	this.tick = function() {
+		var swWep = weaponSwitch(1);
+		for (var n = 0; n < Precasts.length; n++) {
+			if (Precasts[n].hasOwnProperty("Class") && Precasts[n].Class != me.classid)
+				continue;
+				
+			//This is for precasts like cold armor where there can only be one.
+			if (Precasts[n].Priority) {
+				var bestSkill = -1;
+				//print(me.getSkill(Precasts[n].Id[0], 3))
+				for (var d = 0; d < Precasts[n].Priority.length; d++)
+					if ((me.getSkill(Precasts[n].Id[d], 3) > 0) && ((bestSkill == -1) || (Precasts[n].Priority[d] > Precasts[n].Priority[bestSkill])))
+						bestSkill = d;
+				
+				if (bestSkill == -1)
+					continue;
+					
+				if (me.getState(Precasts[n].State[bestSkill]))
+					continue;
+					
+				
+				if (!mBot.cast(Precasts[n].Id[bestSkill]))
+					continue;
+				print("ÿc4[mBot]:ÿc0Casted " + Precasts[n].Name);
+				continue;
+			}
+			
+			if (me.getState(Precasts[n].State))
+				continue;
+			
+			if (Precasts[n].Switch) {
+				if (swWep == weaponSwitch(1)) {
+					mBot.switchWeapon();
+				}
+			}
+			
+			if (!mBot.cast(Precasts[n].Id))
+				continue;
+			
+			print("ÿc5mBot ÿc#::ÿc0 Casted " + Precasts[n].Name);
+			
+			if (!Precasts[n + 1] || !Precasts[n + 1].hasOwnProperty('Switch')) {
+				if (swWep != weaponSwitch(1))
+					mBot.switchWeapon();
+			}
+		}
+	}
+}
