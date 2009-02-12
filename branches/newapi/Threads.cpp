@@ -1,9 +1,11 @@
 #include <windows.h>
+
 #include "helpers.h"
 #include "Script.h"
-#include "nspr/prthread.h"
+#include "Events.h"
+#include "prthread.h"
 
-#include "debugnew/debug_new.h"
+#include "debug_new.h"
 
 void MainThread(void* lpData)
 {
@@ -14,6 +16,7 @@ void MainThread(void* lpData)
 	while(Script::IsActive())
 	{
 		// TODO: Process stuff here, like events.
-		Sleep(10);
+		PulseEvent();
+		Sleep(1000);
 	}
 }

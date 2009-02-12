@@ -1,10 +1,10 @@
 #include "jsutilities.h"
 #include "Script.h"
 #include "helpers.h"
-#include "api/JSGlobalFuncs.h"
+#include "JSGlobalFuncs.h"
 #include "Script.h"
 
-#include "debugnew/debug_new.h"
+#include "debug_new.h"
 
 JSBool InitContext(JSContext* cx, uintN contextOp)
 {
@@ -17,9 +17,12 @@ JSBool InitContext(JSContext* cx, uintN contextOp)
 	return JS_TRUE;
 }
 
-void __fastcall InitScript(Script* script)
+void __fastcall InitScript(Script* script, bool isDisposing)
 {
-	JS_DefineFunctions(script->GetContext(), script->GetGlobalObject(), global_funcs);
+	if(!isDisposing)
+	{
+		JS_DefineFunctions(script->GetContext(), script->GetGlobalObject(), global_funcs);
+	}
 }
 
 JSBool branch(JSContext* cx, JSScript* scr)

@@ -6,18 +6,18 @@
 #include "Script.h"
 #include "Threads.h"
 
-#include "nspr/prthread.h"
-#include "nspr/prinit.h"
+#include "prthread.h"
+#include "prinit.h"
 
-#include "D2BS.h"
+#include "d2bs.h"
 
-#include "debugnew/debug_new.h"
+#include "debug_new.h"
 
 
-BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
+BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	DisableThreadLibraryCalls(hDll);
-	static PRThread* D2BSThread = NULL;
+	static PRThread* thread = NULL;
 
 	static OSVERSIONINFOEX os = {0};
 	if(os.dwMajorVersion == 0)
@@ -40,26 +40,31 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 		Config config;
 		if(!LoadConfig(ini, &config))
 		{
-			Log("Loading configuration failed: couldn't find 'd2bs.ini'!");
-			// TODO: Add code to write a default ini file and load that instead of detaching
-			return FALSE;
+			Log("Loading configuration failed: couldn't find 'd2bs.ini'! Writing a new one...");
+			WriteConfig(ini);
+			LoadConfig(ini, &config);
 		}
 
 		sprintf(path, "%s\\%s", path, config.scriptPath);
 		Script::Startup(path, InitContext, InitScript);
 		Script::SetBranchCallback(branch);
-		D2BSThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+		thread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 	}
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
-		// TODO: Test to see if threads don't blow up on OS above Windows XP.
 		Script::Shutdown();
 		if(os.dwMajorVersion > 5)
 		{
-			if(PR_Initialized() == PR_TRUE)
-				PR_Cleanup();
+			// we're running better than xp
+			if(thread)
+				PR_JoinThread(thread);
 		}
-		// BOOM -- UNGRACEFUL SHUTDOWN!!
+		else
+		{
+			// we're running xp or lower
+			// assume a static delay of 5 seconds is enough to let the thread end gracefully
+			Sleep(5000);
+		}
 	}
 	return TRUE;
 }

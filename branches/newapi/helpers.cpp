@@ -1,4 +1,3 @@
-#include "helpers.h"
 #include <errno.h>
 #include <io.h>
 #include <windows.h>
@@ -6,7 +5,9 @@
 #include <ctime>
 #include <cstdio>
 
-#include "debugnew/debug_new.h"
+#include "helpers.h"
+
+#include "debug_new.h"
 
 bool LoadConfig(const char* file, Config* config)
 {
@@ -16,6 +17,14 @@ bool LoadConfig(const char* file, Config* config)
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", config->scriptPath, _MAX_FNAME, file);
 
 	return true;
+}
+
+void WriteConfig(const char* file)
+{
+	if(FileExists(file))
+		return;
+
+	WritePrivateProfileString("settings", "ScriptPath", DefaultConfig.scriptPath, file);
 }
 
 bool FileExists(const char* fname)

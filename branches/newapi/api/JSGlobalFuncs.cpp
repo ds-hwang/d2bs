@@ -1,8 +1,9 @@
-#include "JSGlobalFuncs.h"
-#include "../nspr/prthread.h"
-#include "../helpers.h"
-#include "../Script.h"
 #include <windows.h>
+
+#include "JSGlobalFuncs.h"
+#include "prthread.h"
+#include "helpers.h"
+#include "Script.h"
 
 JSAPI_FUNC(global_log)
 {
@@ -24,14 +25,14 @@ JSAPI_FUNC(global_sleep)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(global_abort)
+JSAPI_FUNC(core_abort)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	script->Abort();
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(global_abortAll)
+JSAPI_FUNC(core_abortAll)
 {
 	Script::AbortAll();
 	return JS_TRUE;
@@ -55,5 +56,33 @@ JSAPI_FUNC(script_addIncludePath)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	script->AddIncludePath(JSVAL_TO_STR(cx, argv[0]));
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(core_addEvent)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	script->AddEvent(JSVAL_TO_STR(cx, argv[0]), argv[1]);	
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(core_removeEvent)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	script->RemoveEvent(JSVAL_TO_STR(cx, argv[0]), argv[1]);	
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(core_clearEvent)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	script->ClearEvent(JSVAL_TO_STR(cx, argv[0]));	
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(core_clearAllEvents)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	script->ClearAllEvents();	
 	return JS_TRUE;
 }

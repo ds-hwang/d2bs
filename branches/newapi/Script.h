@@ -8,8 +8,9 @@
 #include <map>
 #include <list>
 #include <string>
+
 #include "js32.h"
-#include "nspr/prthread.h"
+#include "prthread.h"
 
 enum ScriptType { File, Command };
 
@@ -20,12 +21,13 @@ static JSClass global_obj = {
     JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
-class AutoRoot;
 class Script;
+class AutoRoot;
 
 // standard typedefs for convenience
 typedef std::map<std::string, bool> IncludeList;
 
+typedef std::list<AutoRoot*> ArgList;
 typedef std::list<AutoRoot*> EventList;
 typedef EventList::iterator EventIterator;
 typedef std::map<std::string, EventList> EventMap;
@@ -38,7 +40,28 @@ typedef std::map<std::string, Script*> ScriptMap;
 typedef std::list<std::string> IncludePaths;
 typedef IncludePaths::iterator IncludePathIterator;
 
-typedef void (__fastcall *ScriptCallback)(Script*);
+typedef void (__fastcall *ScriptCallback)(Script*, bool);
+
+// supporting objects
+struct EventData
+{
+	Script* owner;
+	JSObject* globalObject;
+	uintN argc;
+	ArgList argv;
+	EventList eventFuncs;
+};
+
+class AutoRoot
+{
+private:
+	JSContext* cx;
+	jsval root;
+public:
+	AutoRoot(JSContext* ncx, jsval val) : cx(ncx), root(val) { JS_AddRoot(cx, &root); }
+	~AutoRoot() { JS_RemoveRoot(cx, &root); }
+	jsval value() { return root; }
+};
 
 class Script
 {
@@ -51,15 +74,14 @@ protected:
 	static ScriptCallback scriptCallback;
 	static JSBranchCallback branchCallback;
 
-	// TODO: Should this be static? That would give us global include paths... but do we want that?
-	IncludePaths includeDirs;
-
 	ScriptType type;
 	std::string file;
+	IncludePaths includeDirs;
 	IncludeList includes;
 	EventMap eventFunctions;
 	ActiveEventList activeEvents;
 
+	// TODO: Use PRLock instead
 	CRITICAL_SECTION scriptSection;
 
 	JSObject *scriptObject, *globalObject;
@@ -69,10 +91,10 @@ protected:
 	int runCount;
 	bool isPaused, isAborted;
 
-	PRThread* thread;
+	PRThread* scriptThread;
 
-	static void LockAll(void);
-	static void UnlockAll(void);
+	static void LockAll(void) { EnterCriticalSection(&section); }
+	static void UnlockAll(void) { LeaveCriticalSection(&section); }
 
 	Script(ScriptType, const char*);
 	~Script(void);
@@ -83,15 +105,17 @@ protected:
 
 public:
 	static const char* GetScriptPath(void);
-	static Script* CompileFile(const char* file, bool recompile);
-	static Script* CompileCommand(const char* command, bool recompile);
+	static Script* CompileFile(const char* file, bool recompile = false);
+	static Script* CompileCommand(const char* command, bool recompile = false);
+	static void FlushCache(void);
+	inline static JSRuntime* GetRuntime(void) { return runtime; }
 
 	static void Startup(const char* basePath, JSContextCallback contextCallback = NULL, ScriptCallback scriptCallback = NULL);
 	static void Shutdown(void);
 	static bool IsActive(void);
 
-	static void SetBranchCallback(JSBranchCallback callback) { branchCallback = callback; }
-	static JSBranchCallback GetBranchCallback(void) { return branchCallback; }
+	static inline void SetBranchCallback(JSBranchCallback callback) { branchCallback = callback; }
+	static inline JSBranchCallback GetBranchCallback(void) { return branchCallback; }
 
 	static void AbortAll(void);
 	static void PauseAll(void);
@@ -110,15 +134,27 @@ public:
 	bool IsPaused(void);
 	bool IsAborted(void);
 
-	void Lock();
-	void Unlock();
-
-	JSContext* GetContext(void) { return context; }
-	JSObject* GetGlobalObject(void) { return globalObject; }
-
+	IncludePaths GetIncludePaths(void);
 	void AddIncludePath(const char* dir);
 	bool IsIncluded(const char* file);
 	bool Include(const char* file);
+
+	void AddEvent(const char* evtName, jsval evtFunc);
+	void RemoveEvent(const char* evtName, jsval evtFunc);
+	void ClearEvent(const char* evtName);
+	void ClearAllEvents(void);
+	void ExecEvent(const char* evtName, uintN argc, jsval* argv);
+
+	void Lock() { EnterCriticalSection(&scriptSection); }
+	void Unlock() { LeaveCriticalSection(&scriptSection); }
+
+	inline JSContext* GetContext(void) { return context; }
+	inline JSObject* GetGlobalObject(void) { return globalObject; }
+	inline const char* GetFileName(void) { return file.c_str() + ((strlen(GetScriptPath())) + 1); }
+	inline PRThread* GetThread(void) { return scriptThread; }
+	inline PRThreadPriority GetThreadPriority(void) { return PR_GetThreadPriority(scriptThread); }
+	inline void SetThreadPriority(PRThreadPriority priority) { return PR_SetThreadPriority(scriptThread, priority); }
+	inline ActiveEventList GetEventThreads(void) { return activeEvents; }
 };
 
 void ScriptThread(void* lpData);

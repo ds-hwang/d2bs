@@ -1,7 +1,14 @@
+#include <windows.h>
+#include <cstdlib>
+#include <map>
+#include <list>
+#include <string>
+#include <algorithm>
+
 #include "Script.h"
 #include "helpers.h"
 
-#include "debugnew/debug_new.h"
+#include "debug_new.h"
 
 using namespace std;
 
@@ -23,14 +30,14 @@ Script::Script(ScriptType newType, const char* fname) :
 		// at this point, the file exists (if it's a file), and we need to initialize everything
 		file = string((fname + (strlen(scriptPath))+1));
 		includeDirs.push_back(string("libs"));
-		context = JS_NewContext(runtime, 0x2000);
+		context = JS_NewContext(GetRuntime(), 0x2000);
 		if(!context)
 			throw std::exception("Failed to create context");
 
 		JS_SetContextPrivate(context, this);
 
 		JS_BeginRequest(context);
-		JS_SetBranchCallback(context, branchBack);
+		branchCallback = JS_SetBranchCallback(context, branchBack);
 
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
 		if(!globalObject)
@@ -52,17 +59,18 @@ Script::Script(ScriptType newType, const char* fname) :
 		JS_AddRoot(context, &scriptObject);
 
 		if(scriptCallback)
-			scriptCallback(this);
+			scriptCallback(this, false);
 
 		scripts[file] = this;
 		JS_EndRequest(context);
+
 		Unlock();
 	}
 	catch(std::exception&)
 	{
 		if(scriptObject)
 			JS_RemoveRoot(context, &scriptObject);
-		if(script)
+		if(script && !scriptObject)
 			JS_DestroyScript(context, script);
 		if(context)
 			JS_DestroyContext(context);
@@ -76,6 +84,9 @@ Script::~Script(void)
 {
 	// we need to set aborted, join the execution thread, and destroy everything
 	Stop();
+
+	if(scriptCallback)
+		scriptCallback(this, true);
 
 	Lock();
 	JS_SetContextThread(context);
@@ -208,16 +219,6 @@ void Script::ResumeAll(void)
 	}
 }
 
-void Script::LockAll(void)
-{
-	EnterCriticalSection(&section);
-}
-
-void Script::UnlockAll(void)
-{
-	LeaveCriticalSection(&section);
-}
-
 ScriptList Script::GetAllScripts(void)
 {
 	ScriptList list;
@@ -243,7 +244,7 @@ bool Script::IsAborted(void)
 
 void Script::Start(void)
 {
-	thread = PR_CreateThread(PR_USER_THREAD, ScriptThread, this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+	scriptThread = PR_CreateThread(PR_USER_THREAD, ScriptThread, this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 }
 
 void Script::Run(void)
@@ -297,23 +298,17 @@ void Script::Stop(void)
 	isPaused = false;
 	isAborted = true;
 
-	if(thread && PR_GetCurrentThread() != thread)
-		PR_JoinThread(thread);
+	for(ActiveEventList::iterator it = activeEvents.begin(); it != activeEvents.end(); it++)
+		PR_JoinThread(*it);
+	if(scriptThread && PR_GetCurrentThread() != scriptThread)
+		PR_JoinThread(scriptThread);
+
+	ClearAllEvents();
 }
 
 void Script::Abort(void)
 {
 	isAborted = true;
-}
-
-void Script::Lock(void)
-{
-	EnterCriticalSection(&scriptSection);
-}
-
-void Script::Unlock(void)
-{
-	LeaveCriticalSection(&scriptSection);
 }
 
 void Script::AddIncludePath(const char* dir)
@@ -365,6 +360,60 @@ bool Script::Include(const char* file)
 	return IsIncluded(file);
 }
 
+void Script::AddEvent(const char* evtName, jsval evtFunc)
+{
+	if(JSVAL_IS_FUNCTION(context, evtFunc))
+	{
+		Lock();
+		eventFunctions[string(evtName)].push_back(new AutoRoot(context, evtFunc));
+		Unlock();
+	}
+}
+
+void Script::RemoveEvent(const char* evtName, jsval evtFunc)
+{
+	if(!JSVAL_IS_FUNCTION(context, evtFunc))
+		return;
+
+	Lock();
+	EventList functions = eventFunctions[string(evtName)];
+	EventIterator it = functions.begin();
+	for(; it != functions.end(); it++)
+		if((*it)->value() == evtFunc)
+			break;
+	AutoRoot* root = *it;
+	eventFunctions[string(evtName)].remove(root);
+	delete root;
+	Unlock();
+}
+
+void Script::ClearEvent(const char* evtName)
+{
+	EventList functions = eventFunctions[evtName];
+	for(EventIterator it = functions.begin(); it != functions.end(); it++)
+		RemoveEvent(evtName, (*it)->value());
+}
+
+void Script::ClearAllEvents(void)
+{
+	for(EventMap::iterator it = eventFunctions.begin(); it != eventFunctions.end(); it++)
+		ClearEvent(it->first.c_str());
+}
+
+void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
+{
+	EventData* eventData = new EventData;
+	eventData->owner = this;
+	eventData->argc = argc;
+	eventData->globalObject = globalObject;
+	eventData->eventFuncs = eventFunctions[string(evtName)];
+	eventData->argv = ArgList();
+	for(uintN i = 0; i < argc; i++)
+		eventData->argv.push_back(new AutoRoot(context, argv[i]));
+
+	activeEvents.push_back(PR_CreateThread(PR_USER_THREAD, EventThread, eventData, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0));
+}
+
 JSBool branchBack(JSContext* cx, JSScript* scr)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
@@ -386,4 +435,37 @@ void ScriptThread(void* lpData)
 
 void EventThread(void* lpData)
 {
+	EventData* data = (EventData*)lpData;
+
+	for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
+	{
+		JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
+		JS_BeginRequest(cx);
+
+		jsval dummy;
+		jsval* argv = new jsval[data->argc];
+		ArgList::iterator it2 = data->argv.begin();
+		for(uintN i = 0; i < data->argc; i++, it2++)
+		{
+			JS_AddRoot(cx, &argv[i]);
+			argv[i] = (*it2)->value();
+		}
+
+		JS_CallFunctionValue(cx, data->globalObject, (*it)->value(), data->argc, argv, &dummy);
+
+		it2 = data->argv.begin();
+		for(uintN i = 0; i < data->argc; i++, it2++)
+		{
+			JS_RemoveRoot(cx, &argv[i]);
+			delete (*it2);
+		}
+
+		delete[] argv;
+
+		JS_EndRequest(cx);
+		JS_DestroyContextMaybeGC(cx);
+	}
+
+	data->owner->GetEventThreads().remove(PR_GetCurrentThread());
+	delete data;
 }

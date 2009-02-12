@@ -1,4 +1,5 @@
 #include <windows.h>
-#include "nspr/prthread.h"
+
+#include "prthread.h"
 
 void MainThread(void* lpData);
