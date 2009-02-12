@@ -16,7 +16,7 @@ void MainThread(void* lpData)
 	while(Script::IsActive())
 	{
 		// TODO: Process stuff here, like events.
-		PulseEvent();
 		Sleep(1000);
+		PulseEvent();
 	}
 }

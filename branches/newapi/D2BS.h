@@ -2,7 +2,7 @@
 
 #ifndef __D2BS_H__
 
-#ifdef DEBUG
+#ifdef _MSVC_DEBUG
 
 #undef _DEBUG_NEW_REDEFINE_NEW
 #define _DEBUG_NEW_REDEFINE_NEW 1
@@ -10,6 +10,7 @@
 #define _DEBUG_NEW_TAILCHECK 4
 #undef _DEBUG_NEW_PROGNAME
 #define _DEBUG_NEW_PROGNAME "D2BS"
+#undef _DEBUG_NEW_VERBOSE_FLAG true
 
 #else
 
