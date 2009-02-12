@@ -16,7 +16,7 @@ void MainThread(void* lpData)
 	while(Script::IsActive())
 	{
 		// TODO: Process stuff here, like events.
-		Sleep(1000);
+		Sleep(500);
 		PulseEvent();
 	}
 	SetEvent(OpenEvent(EVENT_MODIFY_STATE, FALSE, "D2BS\\ShutdownEvent"));

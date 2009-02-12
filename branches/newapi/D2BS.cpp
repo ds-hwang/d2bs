@@ -9,21 +9,21 @@
 #include "prthread.h"
 #include "prinit.h"
 
-#include "d2bs.h"
+#include "D2BS.h"
 
 #include "debug_new.h"
 
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 #ifdef _MSVC_DEBUG
-	new_verbose_flag = true;
+	new_verbose_flag = false;
 #endif
 	DisableThreadLibraryCalls(hDll);
 	static PRThread* D2BSThread = NULL;
 
 	static HANDLE EventHandle = NULL;
 	if(!EventHandle)
-		CreateEvent(0, TRUE, FALSE, "D2BS\\ShutdownEvent");
+		EventHandle = CreateEvent(0, TRUE, FALSE, "D2BS\\ShutdownEvent");
 
 	/*static OSVERSIONINFOEX os = {0};
 	if(os.dwMajorVersion == 0)
