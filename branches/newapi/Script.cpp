@@ -447,7 +447,7 @@ void EventThread(void* lpData)
 		jsval dummy;
 		jsval* argv = new jsval[data->argc];
 		ArgList::iterator it2 = data->argv.begin();
-		for(uintN i = 0; i < data->argc; i++, it2++)
+		for(uintN i = 0; i < data->argc && it2 != data->argv.end(); i++, it2++)
 		{
 			JS_AddRoot(cx, &argv[i]);
 			argv[i] = (*it2)->value();
@@ -455,11 +455,9 @@ void EventThread(void* lpData)
 
 		JS_CallFunctionValue(cx, data->globalObject, (*it)->value(), data->argc, argv, &dummy);
 
-		it2 = data->argv.begin();
-		for(uintN i = 0; i < data->argc; i++, it2++)
+		for(uintN i = 0; i < data->argc; i++)
 		{
 			JS_RemoveRoot(cx, &argv[i]);
-			delete (*it2);
 		}
 
 		delete[] argv;
@@ -467,6 +465,9 @@ void EventThread(void* lpData)
 		JS_EndRequest(cx);
 		//JS_DestroyContextMaybeGC(cx);
 	}
+
+	for(ArgList::iterator it = data->argv.begin(); it != data->argv.end(); it++)
+		delete *it;
 
 	data->owner->GetEventThreads().remove(PR_GetCurrentThread());
 	delete data;

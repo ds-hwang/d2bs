@@ -154,7 +154,7 @@ public:
 	inline PRThread* GetThread(void) { return scriptThread; }
 	inline PRThreadPriority GetThreadPriority(void) { return PR_GetThreadPriority(scriptThread); }
 	inline void SetThreadPriority(PRThreadPriority priority) { return PR_SetThreadPriority(scriptThread, priority); }
-	inline ActiveEventList GetEventThreads(void) { return activeEvents; }
+	inline ActiveEventList& GetEventThreads(void) { return activeEvents; }
 };
 
 void ScriptThread(void* lpData);

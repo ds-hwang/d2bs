@@ -19,4 +19,5 @@ void MainThread(void* lpData)
 		Sleep(1000);
 		PulseEvent();
 	}
+	SetEvent(OpenEvent(EVENT_MODIFY_STATE, FALSE, "D2BS\\ShutdownEvent"));
 }

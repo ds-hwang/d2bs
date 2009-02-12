@@ -13,18 +13,21 @@
 
 #include "debug_new.h"
 
-
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	DisableThreadLibraryCalls(hDll);
 	static PRThread* D2BSThread = NULL;
 
-	static OSVERSIONINFOEX os = {0};
+	static HANDLE EventHandle = NULL;
+	if(!EventHandle)
+		CreateEvent(0, TRUE, FALSE, "D2BS\\ShutdownEvent");
+
+	/*static OSVERSIONINFOEX os = {0};
 	if(os.dwMajorVersion == 0)
 	{
 		os.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 		GetVersionEx((LPOSVERSIONINFO)&os);
-	}
+	}*/
 
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
@@ -59,13 +62,15 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 		is called. */
 
 		Script::Shutdown();
-		
+
+		WaitForSingleObject(EventHandle, INFINITE);
+		CloseHandle(EventHandle);
 		// On Operating Systems, greater than, XP.
-		if(os.dwMajorVersion > 5)
+		/*if(os.dwMajorVersion > 5)
 		{
 			if(D2BSThread)
 				PR_JoinThread(D2BSThread);
-		}
+		}*/
 	}
 	return TRUE;
 }
