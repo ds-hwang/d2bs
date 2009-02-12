@@ -17,7 +17,7 @@
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	DisableThreadLibraryCalls(hDll);
-	static PRThread* thread = NULL;
+	static PRThread* D2BSThread = NULL;
 
 	static OSVERSIONINFOEX os = {0};
 	if(os.dwMajorVersion == 0)
@@ -48,15 +48,23 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 		sprintf(path, "%s\\%s", path, config.scriptPath);
 		Script::Startup(path, InitContext, InitScript);
 		Script::SetBranchCallback(branch);
-		thread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+		D2BSThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 	}
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
+		/* This section of the code needs to be refactored in due time. 
+		On NT Operating Systems, all threads are terminated before DLL_PROCESS_DETACH.
+		Eventually we need to figure out the best way to hook Diablo II's closing
+		procedure, and call a method to shut our threads down safely before FreeLibrary
+		is called. */
+
 		Script::Shutdown();
+		
+		// On Operating Systems, greater than, XP.
 		if(os.dwMajorVersion > 5)
 		{
-			if(PR_Initialized() == PR_TRUE)
-				PR_Cleanup();
+			if(D2BSThread)
+				PR_JoinThread(D2BSThread);
 		}
 	}
 	return TRUE;
