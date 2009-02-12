@@ -55,15 +55,8 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 		Script::Shutdown();
 		if(os.dwMajorVersion > 5)
 		{
-			// we're running better than xp
-			if(thread)
-				PR_JoinThread(thread);
-		}
-		else
-		{
-			// we're running xp or lower
-			// assume a static delay of 5 seconds is enough to let the thread end gracefully
-			Sleep(5000);
+			if(PR_Initialized() == PR_TRUE)
+				PR_Cleanup();
 		}
 	}
 	return TRUE;
