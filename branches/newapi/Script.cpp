@@ -439,7 +439,9 @@ void EventThread(void* lpData)
 
 	for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
 	{
-		JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
+		//JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
+		JSContext* cx = data->owner->GetContext();
+		JS_SetContextThread(cx);
 		JS_BeginRequest(cx);
 
 		jsval dummy;
@@ -463,7 +465,7 @@ void EventThread(void* lpData)
 		delete[] argv;
 
 		JS_EndRequest(cx);
-		JS_DestroyContextMaybeGC(cx);
+		//JS_DestroyContextMaybeGC(cx);
 	}
 
 	data->owner->GetEventThreads().remove(PR_GetCurrentThread());

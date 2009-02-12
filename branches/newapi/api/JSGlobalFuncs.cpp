@@ -38,27 +38,6 @@ JSAPI_FUNC(core_abortAll)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(script_include)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(script->Include(JSVAL_TO_STR(cx, argv[0])));
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(script_isIncluded)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(JSVAL_TO_STR(cx, argv[0])));
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(script_addIncludePath)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	script->AddIncludePath(JSVAL_TO_STR(cx, argv[0]));
-	return JS_TRUE;
-}
-
 JSAPI_FUNC(core_addEvent)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
@@ -84,5 +63,26 @@ JSAPI_FUNC(core_clearAllEvents)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	script->ClearAllEvents();	
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(script_include)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	*rval = BOOLEAN_TO_JSVAL(script->Include(JSVAL_TO_STR(cx, argv[0])));
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(script_isIncluded)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(JSVAL_TO_STR(cx, argv[0])));
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(script_addIncludePath)
+{
+	Script* script = (Script*)JS_GetContextPrivate(cx);
+	script->AddIncludePath(JSVAL_TO_STR(cx, argv[0]));
 	return JS_TRUE;
 }
