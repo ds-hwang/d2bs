@@ -297,7 +297,7 @@ void Script::Stop(void)
 	isPaused = false;
 	isAborted = true;
 
-	if(thread)
+	if(thread && PR_GetCurrentThread() != thread)
 		PR_JoinThread(thread);
 }
 
