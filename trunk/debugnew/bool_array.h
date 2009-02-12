@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+#ifdef _MSVC_DEBUG
 
 #ifndef _BOOL_ARRAY_H
 #define _BOOL_ARRAY_H
@@ -224,3 +226,5 @@ inline void bool_array::set(unsigned long __idx)
 }
 
 #endif // _BOOL_ARRAY_H
+
+#endif

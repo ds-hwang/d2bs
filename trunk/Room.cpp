@@ -1,6 +1,5 @@
 //#include "D2BS.h"
 #include "Room.h"
-#include "Core.h"
 #include "CriticalSections.h"
 
 BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {

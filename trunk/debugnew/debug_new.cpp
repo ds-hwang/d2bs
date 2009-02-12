@@ -36,7 +36,7 @@
  *
  */
  
- #ifdef _MSVC_DEBUG
+#ifdef _MSVC_DEBUG
 
 #include <new>
 #include <assert.h>

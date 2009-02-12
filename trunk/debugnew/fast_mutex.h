@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _FAST_MUTEX_H
 #define _FAST_MUTEX_H
 
@@ -309,3 +311,5 @@ private:
 };
 
 #endif // _FAST_MUTEX_H
+
+#endif

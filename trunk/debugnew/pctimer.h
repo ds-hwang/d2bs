@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _PCTIMER_H
 
 typedef double pctimer_t;
@@ -85,3 +87,5 @@ __inline pctimer_t pctimer(void)
 #endif /* Win32/Cygwin */
 
 #endif /* _PCTIMER_H */
+
+#endif

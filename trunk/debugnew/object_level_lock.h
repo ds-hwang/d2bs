@@ -39,6 +39,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _OBJECT_LEVEL_LOCK_H
 #define _OBJECT_LEVEL_LOCK_H
 
@@ -129,3 +131,5 @@
 # endif // _NOTHREADS
 
 #endif // _OBJECT_LEVEL_LOCK_H
+
+#endif

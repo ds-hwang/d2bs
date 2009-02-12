@@ -35,6 +35,8 @@
  * @author  Wu Yongwei
  *
  */
+ 
+#ifdef _MSVC_DEBUG
 
 #ifndef _SET_ASSIGN_H
 #define _SET_ASSIGN_H
@@ -142,3 +144,5 @@ _Container& set_assign_difference(_Container& __dest,
 }
 
 #endif // _SET_ASSIGN_H
+
+#endif

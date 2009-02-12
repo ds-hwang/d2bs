@@ -36,6 +36,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef STATIC_ASSERT
 
 template <bool> struct __nvwa_compile_time_error;
@@ -48,3 +50,5 @@ template <>     struct __nvwa_compile_time_error<true> {};
     }
 
 #endif // STATIC_ASSERT
+
+#endif

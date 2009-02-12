@@ -50,6 +50,8 @@
  *
  */
 
+#ifdef _MSVC_DEBUG
+
 #ifndef _FIXED_MEM_POOL_H
 #define _FIXED_MEM_POOL_H
 
@@ -310,3 +312,5 @@ public: \
     }
 
 #endif // _FIXED_MEM_POOL_H
+
+#endif

@@ -36,8 +36,11 @@
  *
  */
 
+#pragma once
 #ifndef _DEBUG_NEW_H
 #define _DEBUG_NEW_H
+
+#ifdef _MSVC_DEBUG
 
 #include <new>
 #include <stdio.h>
@@ -177,3 +180,5 @@ public:
 static __debug_new_counter __debug_new_count;
 
 #endif // _DEBUG_NEW_H
+
+#endif
