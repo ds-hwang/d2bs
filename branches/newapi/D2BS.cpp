@@ -15,6 +15,9 @@
 
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {
+#ifdef _MSVC_DEBUG
+	new_verbose_flag = true;
+#endif
 	DisableThreadLibraryCalls(hDll);
 	static PRThread* D2BSThread = NULL;
 

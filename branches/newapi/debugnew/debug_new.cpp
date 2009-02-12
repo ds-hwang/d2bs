@@ -273,12 +273,8 @@ bool new_autocheck_flag = true;
 /**
  * Flag to control whether verbose messages are output.
  */
- 
-#ifndef _DEBUG_NEW_VERBOSE_FLAG
-#define _DEBUG_NEW_VERBOSE_FLAG false
-#endif
 
-bool new_verbose_flag = _DEBUG_NEW_VERBOSE_FLAG;
+bool new_verbose_flag = false;
 
 /**
  * Pointer to the output stream.  The default output is \e stderr, and
