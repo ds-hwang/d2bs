@@ -24,6 +24,8 @@
 
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
+JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char* format, ...);
+JSBool JS_ConvertArgumentsExVA(JSContext* cx, uintN argc, jsval* argv, const char* format, va_list args);
 
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)
 

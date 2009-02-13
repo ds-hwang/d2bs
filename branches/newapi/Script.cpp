@@ -249,6 +249,9 @@ void Script::Start(void)
 
 void Script::Run(void)
 {
+	isPaused = false;
+	isAborted = false;
+
 	// set the context thread and enter a request
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
@@ -295,6 +298,11 @@ void Script::Resume(void)
 
 void Script::Stop(void)
 {
+	if(IsAborted())
+		return;
+
+	Lock();
+
 	isPaused = false;
 	isAborted = true;
 
@@ -302,6 +310,8 @@ void Script::Stop(void)
 		PR_JoinThread(*it);
 	if(scriptThread && PR_GetCurrentThread() != scriptThread)
 		PR_JoinThread(scriptThread);
+
+	Unlock();
 
 	ClearAllEvents();
 }
@@ -402,6 +412,11 @@ void Script::ClearAllEvents(void)
 
 void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
 {
+	if(IsAborted())
+		return;
+
+	Lock();
+
 	EventData* eventData = new EventData;
 	eventData->owner = this;
 	eventData->argc = argc;
@@ -412,6 +427,8 @@ void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
 		eventData->argv.push_back(new AutoRoot(context, argv[i]));
 
 	activeEvents.push_back(PR_CreateThread(PR_USER_THREAD, EventThread, eventData, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0));
+
+	Unlock();
 }
 
 JSBool branchBack(JSContext* cx, JSScript* scr)
@@ -436,6 +453,11 @@ void ScriptThread(void* lpData)
 void EventThread(void* lpData)
 {
 	EventData* data = (EventData*)lpData;
+
+	if(data->owner->IsAborted())
+		return;
+
+	data->owner->Lock();
 
 	for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
 	{
@@ -468,6 +490,8 @@ void EventThread(void* lpData)
 
 	for(ArgList::iterator it = data->argv.begin(); it != data->argv.end(); it++)
 		delete *it;
+
+	data->owner->Unlock();
 
 	data->owner->GetEventThreads().remove(PR_GetCurrentThread());
 	delete data;

@@ -71,3 +71,105 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 	}
 	return obj;
 }
+
+JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	JSBool result = JS_ConvertArgumentsExVA(cx, argc, argv, format, args);
+	va_end(args);
+	return result;
+}
+
+/*
+ * Format is a string of the following characters (spaces are insignificant),
+ * specifying the tabulated type conversions:
+ *
+ *   b      JSBool          Boolean
+ *   c      uint16/jschar   ECMA uint16, Unicode char
+ *   i      int32           ECMA int32
+ *   u      uint32          ECMA uint32
+ *   j      int32           Rounded int32 (coordinate)
+ *   d      jsdouble        IEEE double
+ *   I      jsdouble        Integral IEEE double
+ *   s      char *          C string
+ *   S      JSString *      Unicode string, accessed by a JSString pointer
+ *   W      jschar *        Unicode character vector, 0-terminated (W for wide)
+ *   o      JSObject *      Object reference
+ *   f      JSFunction *    Function private
+ *   F      jsval           Function as jsval (type checked, not converted)
+ *   v      jsval           Argument value (no conversion)
+ *   *      N/A             Skip this argument (no vararg)
+ *   /      N/A             End of required arguments
+ */
+
+JSBool JS_ConvertArgumentsExVA(JSContext* cx, uintN argc, jsval* argv, const char* format, va_list args)
+{
+/*	// TODO: Make this throw real exceptions if possible... might not be because of the js engine
+	int i = 0;
+	int len = strlen(format);
+	char* c = format, msg[1024], error_msg[] = "Argument %d doesn't match expected type %s";
+	while(*c != '\0' && i <= argc)
+	{
+		if(i == argc)
+		{
+			for(int j = 0; j < len; j++)
+				if(
+			JS_ReportError(cx, "Expected %d arguments, %d found.", , argc);
+		}
+		char cx = *c;
+		c++;
+		if(isspace(cx))
+			continue;
+/*
+ * Format is a string of the following characters (spaces are insignificant),
+ * specifying the tabulated type conversions:
+ *
+ *   b      JSBool          Boolean
+ *   c      uint16/jschar   ECMA uint16, Unicode char
+ *   i      int32           ECMA int32
+ *   u      uint32          ECMA uint32
+ *   j      int32           Rounded int32 (coordinate)
+ *   d      jsdouble        IEEE double
+ *   I      jsdouble        Integral IEEE double
+ *   s      char *          C string
+ *   S      JSString *      Unicode string, accessed by a JSString pointer
+ *   W      jschar *        Unicode character vector, 0-terminated (W for wide)
+ *   o      JSObject *      Object reference
+ *   f      JSFunction *    Function private
+ *   F      jsval           Function as jsval (type checked, not converted)
+ *   v      jsval           Argument value (no conversion)
+ *   *      N/A             Skip this argument (no vararg)
+ *   /      N/A             End of required arguments
+ *
+		if(cx == 'b')
+		{
+			if(!JS_ValueToBoolean(cx, argv[i], va_arg(args, JSBool*)))
+			{
+				sprintf(msg, error_msg, i, "Boolean");
+				JS_SetPendingException(cx, STRING_TO_JSVAL(msg));
+				return JS_FALSE;
+			}
+		}
+		else if(cx == 'i')
+		{
+			if(!JS_ValueToECMAInt32(cx, argv[i], va_arg(args, int32*)))
+			{
+				sprintf(msg, error_msg, i, "Integer");
+				JS_SetPendingException(cx, STRING_TO_JSVAL(msg));
+				return JS_FALSE;
+			}
+		}
+		else if(cx == 'u')
+		{
+			if(!JS_ValueToECMAUint32(cx, argv[i], va_arg(args, uint32*)))
+			{
+				sprintf(msg, error_msg, i, "Integer");
+				JS_SetPendingException(cx, STRING_TO_JSVAL(msg));
+				return JS_FALSE;
+			}
+		}
+		else if(cx == 'd')
+	}*/
+	return JS_TRUE;
+}

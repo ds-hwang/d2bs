@@ -22,8 +22,6 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 	static PRThread* D2BSThread = NULL;
 
 	static HANDLE EventHandle = NULL;
-	if(!EventHandle)
-		EventHandle = CreateEvent(0, TRUE, FALSE, "D2BS\\ShutdownEvent");
 
 	/*static OSVERSIONINFOEX os = {0};
 	if(os.dwMajorVersion == 0)
@@ -34,7 +32,6 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
-
 		char path[_MAX_PATH], ini[_MAX_PATH + _MAX_FNAME], log[_MAX_PATH + _MAX_FNAME];
 		GetModuleFileName(hDll, path, _MAX_FNAME + _MAX_PATH);
 		PathRemoveFileSpec(path);
@@ -54,6 +51,12 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 		sprintf(path, "%s\\%s", path, config.scriptPath);
 		Script::Startup(path, InitContext, InitScript);
 		Script::SetBranchCallback(branch);
+		EventHandle = CreateEvent(0, TRUE, FALSE, "Local\\D2BSShutdownEvent");
+		if(!EventHandle)
+		{
+			Log("Error creating the event: %.16d", GetLastError());
+			return FALSE;
+		}
 		D2BSThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 	}
 	else if(dwReason == DLL_PROCESS_DETACH)
@@ -66,8 +69,11 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 
 		Script::Shutdown();
 
-		WaitForSingleObject(EventHandle, INFINITE);
-		CloseHandle(EventHandle);
+		if(EventHandle)
+		{
+			WaitForSingleObject(EventHandle, INFINITE);
+			CloseHandle(EventHandle);
+		}
 		// On Operating Systems, greater than, XP.
 		/*if(os.dwMajorVersion > 5)
 		{
