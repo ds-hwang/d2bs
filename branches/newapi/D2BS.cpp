@@ -54,7 +54,7 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 		EventHandle = CreateEvent(0, TRUE, FALSE, "Local\\D2BSShutdownEvent");
 		if(!EventHandle)
 		{
-			Log("Error creating the event: %.16d", GetLastError());
+			Log("Error creating the event: %x", GetLastError());
 			return FALSE;
 		}
 		D2BSThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);

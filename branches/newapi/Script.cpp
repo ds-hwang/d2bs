@@ -410,6 +410,7 @@ void Script::ClearAllEvents(void)
 		ClearEvent(it->first.c_str());
 }
 
+// this function has a max upper bound of ~75 events/sec. Anything beyond that and events start getting queued up while other events are happening.
 void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
 {
 	if(IsAborted())
@@ -461,6 +462,8 @@ void EventThread(void* lpData)
 
 	for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
 	{
+		// TODO: Determine how to unlock the objects so that other contexts can use them.
+		// NOTE: This is because of bug 402898... re-examine this when SpiderMonkey 1.8 comes out, which fixes this bug
 		//JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
 		JSContext* cx = data->owner->GetContext();
 		JS_SetContextThread(cx);
