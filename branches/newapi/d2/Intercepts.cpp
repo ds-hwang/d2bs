@@ -19,6 +19,11 @@ void GameMinimize_Intercept()
 
 void GameInput_Intercept()
 {
+	static DWORD InputCall_I = NULL;
+	if(!InputCall_I)
+	{
+		InputCall_I = GetD2ClientInputCall_I_ASM();
+	}
 	__asm
 	{
 		pushad
@@ -27,8 +32,7 @@ void GameInput_Intercept()
 		cmp eax, -1
 		popad
 		je BlockIt
-		call GetD2ClientInputCall_I_ASM
-		call eax
+		call InputCall_I
 		ret
 
 BlockIt:
@@ -109,6 +113,11 @@ void GameWhisper_Intercept()
 
 void GameAttack_Intercept()
 {
+	static DWORD Attack_I = NULL;
+	if(!Attack_I)
+	{
+		Attack_I = GetD2ClientAttack_I_ASM();
+	}
 	__asm 
 	{
 		push ecx
@@ -127,8 +136,7 @@ void GameAttack_Intercept()
 		mov [esp+0x0C], 1
 
 OldCode:
-		call GetD2ClientAttack_I_ASM
-		mov eax, [eax]
+		mov eax, [Attack_I]
 		retn
 	}
 }
@@ -149,11 +157,15 @@ Skip:
 
 void GamePlayerAssign_Intercept()
 {
+	static DWORD AssignPlayer_I = NULL;
+	if(!AssignPlayer_I)
+	{
+		AssignPlayer_I = GetD2ClientAssignPlayer_I_ASM();
+	}
 	__asm
 	{
 		fnop
-		call GetD2ClientAssignPlayer_I_ASM
-		call eax
+		call AssignPlayer_I
 		mov ecx, eax
 		call PlayerAssignment_Handler
 		retn

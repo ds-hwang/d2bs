@@ -1,4 +1,4 @@
-#define _DEFINE_STUFF
+#define _CREATE_DEFINITIONS
 
 #include "Macros.h"
 #include "Functions.h"

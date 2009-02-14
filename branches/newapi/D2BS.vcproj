@@ -531,10 +531,6 @@
 				>
 			</File>
 			<Filter
-				Name="Events"
-				>
-			</Filter>
-			<Filter
 				Name="API"
 				>
 				<File
@@ -613,6 +609,10 @@
 					RelativePath=".\d2\Structs.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="Events"
+				>
 			</Filter>
 		</Filter>
 	</Files>

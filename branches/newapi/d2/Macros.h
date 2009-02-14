@@ -10,15 +10,15 @@
 //D2Gfx = 6FA80000  D2Win = 6F8E0000  D2Client = 6FAB0000  D2Net = 0x6FBF0000
 enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClient,Storm,D2Cmp,D2Multi};
 
-#ifdef _DEFINE_STUFF
+#ifdef _CREATE_DEFINITIONS
 
 #define FUNCTION(mod, addr, ret, call, name, args) \
 	__declspec(naked) ret call name args { \
 		static DWORD f##name = NULL; \
 		if(f##name == NULL) { \
-			__asm { pushad } \
+			__asm { pushad; pushfd; } \
 			f##name = GetDllAddress((int)mod, addr); \
-			__asm { popad } \
+			__asm { popad; popfd; } \
 		} \
 		__asm { jmp f##name } \
 	}
