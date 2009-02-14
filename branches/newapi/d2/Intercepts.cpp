@@ -8,7 +8,13 @@
 // disable 'inline asm modifies ebp' warning -- we know it's there, we did it.
 #pragma warning ( disable: 731 )
 
-void GameMinimize_Intercept()
+#ifndef Naked
+#define Naked __declspec( naked )
+#endif
+
+
+
+void Naked GameMinimize_Intercept()
 {
 	__asm
 	{
@@ -17,7 +23,7 @@ void GameMinimize_Intercept()
 	}
 }
 
-void GameInput_Intercept()
+void Naked GameInput_Intercept()
 {
 	static DWORD InputCall_I = NULL;
 	if(!InputCall_I)
@@ -41,7 +47,7 @@ BlockIt:
 	}
 }
 
-void GameInternalDraw_Intercept()
+void Naked GameInternalDraw_Intercept()
 {
 	__asm
 	{
@@ -53,7 +59,7 @@ void GameInternalDraw_Intercept()
 	}
 }
 
-void GamePacketReceived_Intercept()
+void Naked GamePacketReceived_Intercept()
 {
 	__asm
 	{
@@ -96,7 +102,7 @@ void GameExternalDraw_Intercept(void)
 	ExternalDraw_Handler();
 }
 
-void GameWhisper_Intercept()
+void Naked GameWhisper_Intercept()
 {
 	__asm
 	{
@@ -111,7 +117,7 @@ void GameWhisper_Intercept()
 	}
 }
 
-void GameAttack_Intercept()
+void Naked GameAttack_Intercept()
 {
 	static DWORD Attack_I = NULL;
 	if(!Attack_I)
@@ -141,7 +147,7 @@ OldCode:
 	}
 }
 
-void GameCrashFix_Intercept()
+void Naked GameCrashFix_Intercept()
 {
 	__asm
 	{
@@ -155,7 +161,7 @@ Skip:
 	}
 }
 
-void GamePlayerAssign_Intercept()
+void Naked GamePlayerAssign_Intercept()
 {
 	static DWORD AssignPlayer_I = NULL;
 	if(!AssignPlayer_I)
