@@ -16,9 +16,9 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 	__declspec(naked) ret call name args { \
 		static DWORD f##name = NULL; \
 		if(f##name == NULL) { \
-			__asm { pushad; pushfd; } \
+			__asm { pushad } __asm { pushfd } \
 			f##name = GetDllAddress((int)mod, addr); \
-			__asm { popad; popfd; } \
+			__asm { popad } __asm { popfd } \
 		} \
 		__asm { jmp f##name } \
 	}

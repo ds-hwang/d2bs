@@ -14,7 +14,6 @@ extern HMODULE D2BSModule;
 void MainThread(void* lpData)
 {
 	char path[_MAX_PATH], ini[_MAX_PATH + _MAX_FNAME], log[_MAX_PATH + _MAX_FNAME];
-	// TODO: This isn't the correct module, somehow capture it from DllMain?
 	GetModuleFileName(D2BSModule, path, _MAX_FNAME + _MAX_PATH);
 	PathRemoveFileSpec(path);
 	sprintf(ini, "%s\\d2bs.ini", path);
