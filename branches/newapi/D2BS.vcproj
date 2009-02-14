@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)\nspr&quot;;&quot;$(ProjectDir)\js32&quot;;&quot;$(ProjectDir)\debugnew&quot;;&quot;$(ProjectDir)\api&quot;;&quot;$(ProjectDir)&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(ProjectDir)\debugnew&quot;;&quot;$(ProjectDir)\api&quot;;&quot;$(ProjectDir)\d2&quot;;&quot;$(ProjectDir)\nspr&quot;;&quot;$(ProjectDir)\js32&quot;"
 				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;_USRDLL;_MSVC_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -206,18 +206,22 @@
 				RelativePath=".\jsutilities.h"
 				>
 			</File>
+			<Filter
+				Name="Engine"
+				>
+				<File
+					RelativePath=".\Script.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Script.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Utilities"
 			>
-			<File
-				RelativePath=".\helpers.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\helpers.h"
-				>
-			</File>
 			<Filter
 				Name="DebugNew"
 				>
@@ -286,26 +290,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Engine"
-			>
-			<File
-				RelativePath=".\Events.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Events.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Script.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Script.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="NSPR"
@@ -508,26 +492,6 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="API"
-			>
-			<File
-				RelativePath=".\api\JSGlobalFuncs.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\api\JSGlobalFuncs.h"
-				>
-			</File>
-			<Filter
-				Name="Javascript"
-				>
-			</Filter>
-			<Filter
-				Name="Diablo II"
-				>
-			</Filter>
-		</Filter>
-		<Filter
 			Name="D2BS"
 			>
 			<File
@@ -543,6 +507,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Events.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Events.h"
+				>
+			</File>
+			<File
+				RelativePath=".\helpers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\helpers.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Threads.cpp"
 				>
 			</File>
@@ -550,6 +530,90 @@
 				RelativePath=".\Threads.h"
 				>
 			</File>
+			<Filter
+				Name="Events"
+				>
+			</Filter>
+			<Filter
+				Name="API"
+				>
+				<File
+					RelativePath=".\api\JSGlobalFuncs.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\api\JSGlobalFuncs.h"
+					>
+				</File>
+				<Filter
+					Name="Javascript"
+					>
+				</Filter>
+				<Filter
+					Name="Diablo II"
+					>
+				</Filter>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Diablo II"
+			>
+			<File
+				RelativePath=".\d2\Constants.h"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\Handlers.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\Handlers.h"
+				>
+			</File>
+			<Filter
+				Name="Offsets"
+				>
+				<File
+					RelativePath=".\d2\Functions.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Functions.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Intercepts.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Intercepts.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Macros.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Offsets.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Offsets.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Patch.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Pointers.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Structs.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
