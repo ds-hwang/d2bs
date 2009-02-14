@@ -18,7 +18,7 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 		if(f##name == NULL) { \
 			__asm { pushad } __asm { pushfd } \
 			f##name = GetDllAddress((int)mod, addr); \
-			__asm { popad } __asm { popfd } \
+			 __asm { popfd }__asm { popad } \
 		} \
 		__asm { jmp f##name } \
 	}
