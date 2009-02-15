@@ -5,7 +5,7 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#ifdef DEBUG
+#ifdef _MSVC_DEBUG
 
 #undef _DEBUG_NEW_REDEFINE_NEW
 #define _DEBUG_NEW_REDEFINE_NEW 1
@@ -21,7 +21,7 @@
 #undef _DEBUG_NEW_TAILCHECK
 #define _DEBUG_NEW_TAILCHECK 0
 
-#define new new (std::nothrow)
+//#define new new (std::nothrow)
 
 #endif
 
