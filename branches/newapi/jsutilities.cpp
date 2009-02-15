@@ -37,11 +37,12 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
-	const char* filename = (report->filename+strlen(Script::GetScriptPath())+1);
+	const char* filename = (report->filename ? report->filename + strlen(Script::GetScriptPath())+1 : "<unknown>");
 
 	Log("[%s%s] %s/line %d: (%d) %s\n\t\tLine: %s", strict, type, filename, report->lineno,
 					report->errorNumber, message, report->linebuf);
 
+	// TODO: Add a callback for displaying the error in other ways
 	// all potential cases are handled inside Print now
 	// D2Print("[ÿc%d%s%sÿc0] %s/line %d: (%d) %s", (warn ? 9 : 1), strict, type,
 	//				filename, report->lineno, report->errorNumber, message);

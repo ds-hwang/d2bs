@@ -3,6 +3,8 @@
 #include "Functions.h"
 #include "Helpers.h"
 
+#include "SyncLock.h"
+
 #include "debug_new.h"
 
 void GamePrint(const char*);
@@ -60,6 +62,7 @@ const char* PrintHelper(char* szText, va_list args)
 void GamePrint(const char* text)
 {
 	// TODO: surround this with a critical section for locking, because PrintGameString isn't multithreaded
+	PrintLock lock;
 	wchar_t* wtext = AnsiToUnicode(text);
 	PrintGameString(wtext, 0);
 	delete[] wtext;

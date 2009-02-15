@@ -222,6 +222,10 @@
 		<Filter
 			Name="Utilities"
 			>
+			<File
+				RelativePath=".\SyncLock.h"
+				>
+			</File>
 			<Filter
 				Name="DebugNew"
 				>

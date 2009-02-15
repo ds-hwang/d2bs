@@ -3,6 +3,8 @@
 #include "D2BS.h"
 #include "Offsets.h"
 
+#include "SyncLock.h"
+
 #include "debug_new.h"
 
 // TODO: Move these globals somewhere else
@@ -21,6 +23,7 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
+		PrintLock::Initialize();
 		ApplyPatches();
 		D2BSModule = hDll;
 		DisableThreadLibraryCalls(hDll);
@@ -28,6 +31,7 @@ BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
 		RemovePatches();
+		PrintLock::Destroy();
 	}
 	return TRUE;
 }
