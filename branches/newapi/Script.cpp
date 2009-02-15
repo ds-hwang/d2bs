@@ -493,9 +493,9 @@ void EventThread(void* lpData)
 
 	for(ArgList::iterator it = data->argv.begin(); it != data->argv.end(); it++)
 		delete *it;
+	data->argv.clear();
 
 	data->owner->Unlock();
-
 	data->owner->GetEventThreads().remove(PR_GetCurrentThread());
 	delete data;
 }

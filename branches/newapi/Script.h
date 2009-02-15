@@ -59,7 +59,7 @@ private:
 	jsval root;
 public:
 	AutoRoot(JSContext* ncx, jsval val) : cx(ncx), root(val) { JS_AddRoot(cx, &root); }
-	~AutoRoot() { JS_RemoveRoot(cx, &root); }
+	~AutoRoot() { JS_RemoveRoot(cx, &root); cx = NULL; }
 	jsval value() { return root; }
 };
 

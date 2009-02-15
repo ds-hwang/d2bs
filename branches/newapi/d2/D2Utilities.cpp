@@ -10,7 +10,7 @@
 void GamePrint(const char*);
 void OOGPrint(const char*);
 void StatusPrint(const char*);
-const char* PrintHelper(char*, va_list);
+char* PrintHelper(char*, va_list);
 
 bool GameReady(void)
 {
@@ -26,42 +26,40 @@ void D2Print(char* szText, ...)
 {
 	va_list args;
 	va_start(args, szText);
-	const char* text = PrintHelper(szText, args);
+	char* text = PrintHelper(szText, args);
 	va_end(args);
 
 	if(GameReady())
 	{
-		GamePrint(szText);
+		GamePrint(text);
 	}
 	else if(false) // TODO: Make this detect chat vs. non-chat
 	{
-		OOGPrint(szText);
+		OOGPrint(text);
 	}
 	else
 	{
-		StatusPrint(szText);
+		StatusPrint(text);
 	}
 
 	// delete[] from PrintHelper
 	delete[] text;
 }
 
-const char* PrintHelper(char* szText, va_list args)
+char* PrintHelper(char* szText, va_list args)
 {
-	// TODO: Make this format and wrap messages and so forth
 	// return NULL when the string has been fully formatted or something? we gotta figure that one out...
-	char* text = NULL;
-
 	int len = _vscprintf(szText, args);
-	text = new char[len];
+	char* text = new char[len+1];
 	vsprintf(text, szText, args);
+
+	// TODO: Make this format and wrap messages and so forth
 
 	return text;
 }
 
 void GamePrint(const char* text)
 {
-	// TODO: surround this with a critical section for locking, because PrintGameString isn't multithreaded
 	PrintLock lock;
 	wchar_t* wtext = AnsiToUnicode(text);
 	PrintGameString(wtext, 0);
