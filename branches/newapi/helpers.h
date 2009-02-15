@@ -22,5 +22,7 @@ bool LoadConfig(const char* file, Config* config);
 void WriteConfig(const char* file);
 bool FileExists(const char* fname);
 void Log(const char* format, ...);
+wchar_t* AnsiToUnicode(const char* str);
+char* UnicodeToAnsi(const wchar_t* str);
 
 #endif

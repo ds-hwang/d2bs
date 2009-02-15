@@ -6,7 +6,7 @@
 #include "Script.h"
 #include "Events.h"
 #include "prthread.h"
-
+#include "D2Utilities.h"
 #include "debug_new.h"
 
 extern HMODULE D2BSModule;
@@ -34,9 +34,10 @@ void MainThread(void* lpData)
 	Script::Startup(path, InitContext, InitScript);
 	Script::SetBranchCallback(branch);
 
-	Script* script = Script::CompileFile("default.dbj", false);
-	if(script)
-		script->Start();
+	Script* OOGScript = Script::CompileFile("starter.dbj", false);
+	Script* GameScript = Script::CompileFile("default.dbj", false);
+	if(OOGScript)
+		OOGScript->Start();
 
 	while(Script::IsActive())
 	{
@@ -44,5 +45,15 @@ void MainThread(void* lpData)
 		// this processes at 50 just fine, but has an upper bound of ~75 events/sec
 		PR_Sleep(1000);
 		PulseEvent();
+		GamePrint("D2BS:: Initialized");
+		if (GameReady() && GameScript && !GameScript->IsRunning())
+		{
+			GameScript->Start();
+		}
+		else if (!GameReady())
+		{
+			GameScript->Stop();
+			GameScript->Abort();
+		}
 	}
 }

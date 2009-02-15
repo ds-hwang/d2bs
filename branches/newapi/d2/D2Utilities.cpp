@@ -1,6 +1,7 @@
 #include "D2Utilities.h"
 #include "Structs.h"
 #include "Functions.h"
+#include "Helpers.h"
 
 bool GameReady(void)
 {
@@ -10,6 +11,18 @@ bool GameReady(void)
 			player->pPath->pRoom1->pRoom2 &&
 			player->pPath->pRoom1->pRoom2->pLevel &&
 			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+}
+
+void GamePrint(char * szText)
+{
+	if (GameReady())
+	{
+		PrintGameString(AnsiToUnicode(szText),0);
+	}
+	else
+	{
+		MessageBox(0,szText,"D2BS",0);
+	}
 }
 
 UnitAny* FindUnit(DWORD id, DWORD type)
