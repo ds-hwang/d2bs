@@ -3,6 +3,8 @@
 #include "Functions.h"
 #include "Helpers.h"
 
+#include "debug_new.h"
+
 bool GameReady(void)
 {
 	UnitAny* player = GetPlayerUnit();
