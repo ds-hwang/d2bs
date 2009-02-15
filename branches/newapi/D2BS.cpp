@@ -14,6 +14,7 @@ bool bClickAction = false, bBlockMinimize = false;
 WNDPROC oldWndProc = NULL;
 DWORD dwSelectedUnitId = 0, dwSelectedUnitType = 0;
 
+CRITICAL_SECTION PrintLock::SyncObj = {0};
 
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {

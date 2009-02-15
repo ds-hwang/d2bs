@@ -14,8 +14,7 @@ public: \
 	~##name##() { LeaveCriticalSection(&SyncObj); } \
 	static void Initialize(void) { InitializeCriticalSection(&SyncObj); } \
 	static void Destroy(void) { DeleteCriticalSection(&SyncObj); } \
-}; \
-CRITICAL_SECTION name##::SyncObj = {0};
+};
 
 LOCK(PrintLock)
 
