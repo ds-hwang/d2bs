@@ -586,8 +586,8 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 //	Pause();
 	Lock();
 
-	JSContext* cx = BuildContext(runtime);
-	JS_SetContextPrivate(cx, this);
+	JSContext* cx = context; //BuildContext(runtime);
+//	JS_SetContextPrivate(cx, this);
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
@@ -634,7 +634,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->functions = functions[evtName];
 		evt->argc = argc;
 		evt->argv = argv;
-		evt->context = BuildContext(runtime);
+		evt->context = context; //BuildContext(runtime);
 		evt->object = globalObject;
 		JS_SetContextPrivate(evt->context, this);
 
@@ -691,7 +691,10 @@ DWORD WINAPI FuncThread(void* data)
 		{
 			// TODO: Something needs to be released here... not sure what.
 			// it gets locked in js_CheckScope
-//			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			// figured it out: creating a new context doesn't release the variables from the old context, which == deadlock
+			// the correct fix is to call SuspendRequest/ResumeRequest before/after each CallFunctionValue call or wait for 1.8,
+			// but just reusing the context is also valid
+			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)

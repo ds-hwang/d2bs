@@ -6,7 +6,7 @@
 
 //#include "D2BS.H"
 #include "TeleportPath.h"
-//#include <stdio.h>
+#include <stdio.h>
 #include "Common.h"
 
 #include "debugnew/debug_new.h"
