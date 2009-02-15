@@ -118,7 +118,7 @@ FUNCTION(D2Gfx, 0x7CA0, void, __stdcall, DrawLine, (int X1, int Y1, int X2, int 
 FUNCTION(D2Gfx, -10043, DWORD, __stdcall, GetScreenSize, (void))
 FUNCTION(D2Gfx, -10078, HWND, __stdcall, GetHwnd, (void))
 
-FUNCTION(D2Multi, 0xF770, void, __stdcall, PrintChannelText, (CHAR *szText, DWORD dwColor))
+FUNCTION(D2Multi, 0xF770, void, __stdcall, PrintChannelText, (const char* szText, DWORD dwColor))
 FUNCTION(D2Multi, 0xC650, void, __fastcall, DoChat, (void))
 FUNCTION(D2Multi, 0xFC44, void, __fastcall, WhisperIntercept_Jump, (void))
 
