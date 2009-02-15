@@ -22,6 +22,9 @@ JSAPI_FUNC(script_include);
 JSAPI_FUNC(script_isIncluded);
 JSAPI_FUNC(script_addIncludePath);
 
+JSAPI_FUNC(d2_print);
+JSAPI_FUNC(d2_ingame);
+
 static JSFunctionSpec global_funcs[] = {
 	{"log",				global_log,				1},
 	{"sleep",			global_sleep,			1},
@@ -36,6 +39,9 @@ static JSFunctionSpec global_funcs[] = {
 	{"include",			script_include,			1},
 	{"isIncluded",		script_isIncluded,		1},
 	{"addIncludePath",	script_addIncludePath,	1},
+
+	{"Print",			d2_print,				1},
+	{"inGame",			d2_ingame,			0},
 	{0}
 };
 

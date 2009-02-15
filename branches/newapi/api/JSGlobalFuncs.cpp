@@ -5,6 +5,25 @@
 #include "helpers.h"
 #include "Script.h"
 
+// Testing something
+#include "D2Utilities.h"
+JSAPI_FUNC(d2_print)
+{
+	if (argc >= 1)
+	{
+		char * szMessage = JSVAL_TO_STR(cx,argv[0]);
+		D2Print(szMessage);
+	}
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(d2_ingame)
+{
+	*rval = BOOLEAN_TO_JSVAL(GameReady());
+	return JS_TRUE;
+}
+// Done Testing
+
 JSAPI_FUNC(global_log)
 {
 	for(uintN i = 0; i < argc; i++)

@@ -17,18 +17,16 @@ bool GameReady(void)
 
 void D2Print(char * szText)
 {
-	wchar_t * szTextUnicode = AnsiToUnicode(szText);
-
 	if (GameReady())
 	{
+		wchar_t * szTextUnicode = AnsiToUnicode(szText);
 		PrintGameString(szTextUnicode, 0);
+		delete[] szTextUnicode;
 	}
 	else
 	{
 		MessageBox(0, szText, "D2BS", 0);
 	}
-
-	delete[] szTextUnicode;
 }
 
 UnitAny* FindUnit(DWORD id, DWORD type)
