@@ -104,7 +104,7 @@ UnitAny* GameGetSelectedUnit_Intercept(void)
 	return GetSelectedUnit();
 }
 
-__declspec(naked) void GameExternalDraw_Intercept(void)
+void GameExternalDraw_Intercept(void)
 {
 	DrawSprites();
 	ExternalDraw_Handler();
