@@ -4,12 +4,17 @@
 #include "Functions.h"
 #include "Structs.h"
 #include "Constants.h"
+#include "WindowsHooks.h"
 
 #include "Threads.h"
 
 #include "prthread.h"
 
 #include "debug_new.h"
+
+// TODO: Move these globals somewhere else
+extern HHOOK hKeybHook, hMouseHook;
+extern WNDPROC oldWndProc;
 
 DWORD __fastcall Input_Handler(wchar_t* wMsg)
 {
@@ -27,11 +32,17 @@ void InternalDraw_Handler(void)
 
 void ExternalDraw_Handler(void)
 {
-	DrawSprites();
-	static PRThread* D2BSThread = NULL;
-	if(D2BSThread == NULL)
+	static bool IsInitialized = false;
+	if(!IsInitialized)
 	{
-		D2BSThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+		// set windows hooks/wndproc redirect
+		hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, GetCurrentThreadId());
+		hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, GetCurrentThreadId());
+		oldWndProc = (WNDPROC)SetWindowLongPtr(GetHwnd(), GWL_WNDPROC, (LONG)WndProc);
+
+		// create and begin the main thread
+		PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+		IsInitialized = true;
 	}
 	InternalDraw_Handler();
 }

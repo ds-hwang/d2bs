@@ -5,7 +5,13 @@
 
 #include "debug_new.h"
 
+// TODO: Move these globals somewhere else
 HMODULE D2BSModule = NULL;
+HHOOK hKeybHook, hMouseHook;
+bool bClickAction = false, bBlockMinimize = false;
+WNDPROC oldWndProc = NULL;
+DWORD dwSelectedUnitId = 0, dwSelectedUnitType = 0;
+
 
 BOOL WINAPI DllMain(HMODULE hDll, DWORD dwReason, LPVOID lpReserved)
 {

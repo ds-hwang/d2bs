@@ -30,6 +30,7 @@ void MainThread(void* lpData)
 	}
 
 	sprintf(path, "%s\\%s", path, config.scriptPath);
+
 	Script::Startup(path, InitContext, InitScript);
 	Script::SetBranchCallback(branch);
 

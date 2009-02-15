@@ -2,19 +2,18 @@
 #include "Functions.h"
 #include "Intercepts.h"
 #include "Handlers.h"
+#include "D2Utilities.h"
 
 #include "debug_new.h"
+
+// TODO: Move these globals somewhere else
+extern bool bClickAction;
+extern DWORD dwSelectedUnitId, dwSelectedUnitType;
 
 // disable 'inline asm modifies ebp' warning -- we know it's there, we did it.
 #pragma warning ( disable: 731 )
 
-#ifndef Naked
-#define Naked __declspec( naked )
-#endif
-
-
-
-void Naked GameMinimize_Intercept()
+__declspec(naked) void GameMinimize_Intercept()
 {
 	__asm
 	{
@@ -23,12 +22,20 @@ void Naked GameMinimize_Intercept()
 	}
 }
 
-void Naked GameInput_Intercept()
+__declspec(naked) void GameInput_Intercept()
 {
 	static DWORD InputCall_I = NULL;
 	if(!InputCall_I)
 	{
+		__asm {
+			pushad
+			pushfd
+		}
 		InputCall_I = GetD2ClientInputCall_I_ASM();
+		__asm {
+			popfd
+			popad
+		}
 	}
 	__asm
 	{
@@ -47,7 +54,7 @@ BlockIt:
 	}
 }
 
-void Naked GameInternalDraw_Intercept()
+__declspec(naked) void GameInternalDraw_Intercept()
 {
 	__asm
 	{
@@ -59,7 +66,7 @@ void Naked GameInternalDraw_Intercept()
 	}
 }
 
-void Naked GamePacketReceived_Intercept()
+__declspec(naked) void GamePacketReceived_Intercept()
 {
 	__asm
 	{
@@ -84,25 +91,26 @@ OldCode:
 
 UnitAny* GameGetSelectedUnit_Intercept(void)
 {
-/*	if(Vars.bClickAction)
+	if(bClickAction)
 	{
-		if(Vars.dwSelectedUnitId)
+		if(dwSelectedUnitId)
 		{
-			return D2CLIENT_FindUnit(Vars.dwSelectedUnitId, Vars.dwSelectedUnitType);
+			return FindUnit(dwSelectedUnitId, dwSelectedUnitType);
 		}
 
 		return NULL;
-	}*/
+	}
 
 	return GetSelectedUnit();
 }
 
-void GameExternalDraw_Intercept(void)
+__declspec(naked) void GameExternalDraw_Intercept(void)
 {
+	DrawSprites();
 	ExternalDraw_Handler();
 }
 
-void Naked GameWhisper_Intercept()
+__declspec(naked) void GameWhisper_Intercept()
 {
 	__asm
 	{
@@ -117,12 +125,20 @@ void Naked GameWhisper_Intercept()
 	}
 }
 
-void Naked GameAttack_Intercept()
+__declspec(naked) void GameAttack_Intercept()
 {
 	static DWORD Attack_I = NULL;
 	if(!Attack_I)
 	{
+		__asm {
+			pushad
+			pushfd
+		}
 		Attack_I = GetD2ClientAttack_I_ASM();
+		__asm {
+			popfd
+			popad
+		}
 	}
 	__asm 
 	{
@@ -147,7 +163,7 @@ OldCode:
 	}
 }
 
-void Naked GameCrashFix_Intercept()
+__declspec(naked) void GameCrashFix_Intercept()
 {
 	__asm
 	{
@@ -161,12 +177,20 @@ Skip:
 	}
 }
 
-void Naked GamePlayerAssign_Intercept()
+__declspec(naked) void GamePlayerAssign_Intercept()
 {
 	static DWORD AssignPlayer_I = NULL;
 	if(!AssignPlayer_I)
 	{
+		__asm {
+			pushad
+			pushfd
+		}
 		AssignPlayer_I = GetD2ClientAssignPlayer_I_ASM();
+		__asm {
+			popfd
+			popad
+		}
 	}
 	__asm
 	{

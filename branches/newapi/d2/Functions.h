@@ -9,6 +9,11 @@
 #include "Structs.h"
 #include "Pointers.h"
 
+// wrapper functions to handle odd calling convention functions
+DWORD __fastcall GetUIVar(DWORD varno);
+#define GetUIState GetUIVar
+
+// actual functions
 FUNCTION(D2Client, 0x1390,  MonsterTxt*, __fastcall, GetMonsterTxt, (DWORD monno))
 FUNCTION(D2Client, 0x71740, void, __stdcall, PrintGameString, (wchar_t *wMessage, int nColor))
 FUNCTION(D2Client, 0x71500, void, __stdcall, PrintPartyString, (wchar_t *wMessage, int nColor))
@@ -126,6 +131,6 @@ FUNCTION(D2Win, 0xD680, void, __fastcall, DrawSprites, (void))
 FUNCTION(D2Win, -10095, void*, __fastcall, SetControlText, (Control* box, wchar_t* txt))
 FUNCTION(D2Win, -10096, DWORD, __fastcall, GetTextWidthFileNo, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo))
 FUNCTION(D2Win, -10010, DWORD, __fastcall, SetTextSize, (DWORD dwSize))
-FUNCTION(D2Win, -10001, void, __fastcall, DrawText, (wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk))
+FUNCTION(D2Win, -10001, void, __fastcall, DrawGameString, (wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk))
 
 #endif

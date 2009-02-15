@@ -559,11 +559,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\d2\D2Events.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\D2Events.h"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\D2Utilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\D2Utilities.h"
+				>
+			</File>
+			<File
 				RelativePath=".\d2\Handlers.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\d2\Handlers.h"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\WindowsHooks.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\d2\WindowsHooks.h"
 				>
 			</File>
 			<Filter
@@ -609,10 +633,6 @@
 					RelativePath=".\d2\Structs.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="Events"
-				>
 			</Filter>
 		</Filter>
 	</Files>
