@@ -25,7 +25,7 @@ bool GameReady(void)
 void D2Print(char* szText, ...)
 {
 	va_list args;
-	va_start(szText, args);
+	va_start(args, szText);
 	const char* text = PrintHelper(szText, args);
 	va_end(args);
 

@@ -9,9 +9,9 @@
 #include "D2Utilities.h"
 JSAPI_FUNC(d2_print)
 {
-	if (argc >= 1)
+	if(argc >= 1)
 	{
-		char * szMessage = JSVAL_TO_STR(cx,argv[0]);
+		char* szMessage = JSVAL_TO_STR(cx, argv[0]);
 		D2Print(szMessage);
 	}
 	return JS_TRUE;
