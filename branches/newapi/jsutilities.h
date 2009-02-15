@@ -5,6 +5,7 @@
 
 #include "js32.h"
 #include "Script.h"
+#include "D2Utilities.h"
 
 JSBool InitContext(JSContext* cx, uintN contextOp);
 void __fastcall InitScript(Script* script, bool isDisposing);

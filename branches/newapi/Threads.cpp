@@ -34,10 +34,9 @@ void MainThread(void* lpData)
 	Script::Startup(path, InitContext, InitScript);
 	Script::SetBranchCallback(branch);
 
-	Script* OOGScript = Script::CompileFile("starter.dbj", false);
-	Script* GameScript = Script::CompileFile("default.dbj", false);
-	if(OOGScript)
-		OOGScript->Start();
+	Script* DefaultScript = Script::CompileFile("default.dbj", false);
+	if(DefaultScript)
+		DefaultScript->Start();
 
 	while(Script::IsActive())
 	{
@@ -45,15 +44,5 @@ void MainThread(void* lpData)
 		// this processes at 50 just fine, but has an upper bound of ~75 events/sec
 		PR_Sleep(1000);
 		PulseEvent();
-		GamePrint("D2BS:: Initialized");
-		if (GameReady() && GameScript && !GameScript->IsRunning())
-		{
-			GameScript->Start();
-		}
-		else if (!GameReady())
-		{
-			GameScript->Stop();
-			GameScript->Abort();
-		}
 	}
 }

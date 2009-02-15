@@ -43,9 +43,8 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 					report->errorNumber, message, report->linebuf);
 
 	// all potential cases are handled inside Print now
-	//Print("[ÿc%d%s%sÿc0] %s/line %d: (%d) %s", (warn ? 9 : 1), strict, type,
+	// D2Print("[ÿc%d%s%sÿc0] %s/line %d: (%d) %s", (warn ? 9 : 1), strict, type,
 	//				filename, report->lineno, report->errorNumber, message);
-
 	//if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 	//	D2CLIENT_ExitGame();
 }
