@@ -7,6 +7,8 @@
 
 #include "Script.h"
 
+#include "debug_new.h"
+
 #define COPYDATA_EXEC_SCRIPT 0x1337
 
 // TODO: Move these globals somewhere else

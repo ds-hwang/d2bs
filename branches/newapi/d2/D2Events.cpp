@@ -6,6 +6,8 @@
 
 #include "js32.h"
 
+#include "debug_new.h"
+
 bool KeyPressEvent(WPARAM mkey, bool bUp)
 {
 	ScriptList scripts = Script::GetAllScripts();

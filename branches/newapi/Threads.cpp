@@ -2,11 +2,15 @@
 #include <shlwapi.h>
 
 #include "jsutilities.h"
-#include "helpers.h"
 #include "Script.h"
+
+#include "helpers.h"
 #include "Events.h"
+
 #include "prthread.h"
+
 #include "D2Utilities.h"
+
 #include "debug_new.h"
 
 extern HMODULE D2BSModule;
@@ -40,9 +44,9 @@ void MainThread(void* lpData)
 
 	while(Script::IsActive())
 	{
+		PR_Sleep(50);
 		// TODO: Process stuff here, like events.
 		// this processes at 50 just fine, but has an upper bound of ~75 events/sec
-		PR_Sleep(1000);
 		PulseEvent();
 	}
 }

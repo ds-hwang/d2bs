@@ -413,7 +413,7 @@ void Script::ClearAllEvents(void)
 // this function has a max upper bound of ~75 events/sec. Anything beyond that and events start getting queued up while other events are happening.
 void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
 {
-	if(IsAborted())
+	if(IsAborted() || eventFunctions.count(evtName) > 0)
 		return;
 
 	Lock();
@@ -455,40 +455,40 @@ void EventThread(void* lpData)
 {
 	EventData* data = (EventData*)lpData;
 
-	if(data->owner->IsAborted())
-		return;
-
-	data->owner->Lock();
-
-	for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
+	if(!data->owner->IsAborted())
 	{
-		// TODO: Determine how to unlock the objects so that other contexts can use them.
-		// NOTE: This is because of bug 402898... re-examine this when SpiderMonkey 1.8 comes out, which fixes this bug
-		//JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
-		JSContext* cx = data->owner->GetContext();
-		JS_SetContextThread(cx);
-		JS_BeginRequest(cx);
+		data->owner->Lock();
 
-		jsval dummy;
-		jsval* argv = new jsval[data->argc];
-		ArgList::iterator it2 = data->argv.begin();
-		for(uintN i = 0; i < data->argc && it2 != data->argv.end(); i++, it2++)
+		for(EventIterator it = data->eventFuncs.begin(); it != data->eventFuncs.end(); it++)
 		{
-			JS_AddRoot(cx, &argv[i]);
-			argv[i] = (*it2)->value();
+			// TODO: Determine how to unlock the objects so that other contexts can use them.
+			// NOTE: This is because of bug 402898... re-examine this when SpiderMonkey 1.8 comes out, which fixes this bug
+			//JSContext* cx = JS_NewContext(Script::GetRuntime(), 0x2000);
+			JSContext* cx = data->owner->GetContext();
+			JS_SetContextThread(cx);
+			JS_BeginRequest(cx);
+
+			jsval dummy;
+			jsval* argv = new jsval[data->argc];
+			ArgList::iterator it2 = data->argv.begin();
+			for(uintN i = 0; i < data->argc && it2 != data->argv.end(); i++, it2++)
+			{
+				JS_AddRoot(cx, &argv[i]);
+				argv[i] = (*it2)->value();
+			}
+
+			JS_CallFunctionValue(cx, data->globalObject, (*it)->value(), data->argc, argv, &dummy);
+
+			for(uintN i = 0; i < data->argc; i++)
+			{
+				JS_RemoveRoot(cx, &argv[i]);
+			}
+
+			delete[] argv;
+
+			JS_EndRequest(cx);
+			//JS_DestroyContextMaybeGC(cx);
 		}
-
-		JS_CallFunctionValue(cx, data->globalObject, (*it)->value(), data->argc, argv, &dummy);
-
-		for(uintN i = 0; i < data->argc; i++)
-		{
-			JS_RemoveRoot(cx, &argv[i]);
-		}
-
-		delete[] argv;
-
-		JS_EndRequest(cx);
-		//JS_DestroyContextMaybeGC(cx);
 	}
 
 	for(ArgList::iterator it = data->argv.begin(); it != data->argv.end(); it++)

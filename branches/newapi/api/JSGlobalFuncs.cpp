@@ -7,6 +7,9 @@
 
 // Testing something
 #include "D2Utilities.h"
+
+#include "debug_new.h"
+
 JSAPI_FUNC(d2_print)
 {
 	if(argc >= 1)
