@@ -6,14 +6,14 @@
 
 #include "js32.h"
 
-bool KeyPressEvent(WPARAM key, bool bUp)
+bool KeyPressEvent(WPARAM mkey, bool bUp)
 {
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		JSContext* cx = (*it)->GetContext();
 		jsval key = JSVAL_VOID;
-		JS_NewNumberValue(cx, (jsdouble)key, &key);
+		JS_NewNumberValue(cx, (jsdouble)mkey, &key);
 
 		jsval args[] = {key};
 		(*it)->ExecEvent((bUp ? "keyup" : "keydown"), 1, args);
