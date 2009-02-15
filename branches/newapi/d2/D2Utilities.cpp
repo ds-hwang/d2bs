@@ -13,16 +13,20 @@ bool GameReady(void)
 			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
 }
 
-void GamePrint(char * szText)
+void D2Print(char * szText)
 {
+	wchar_t * szTextUnicode = AnsiToUnicode(szText);
+
 	if (GameReady())
 	{
-		PrintGameString(AnsiToUnicode(szText),0);
+		PrintGameString(szTextUnicode, 0);
 	}
 	else
 	{
-		MessageBox(0,szText,"D2BS",0);
+		MessageBox(0, szText, "D2BS", 0);
 	}
+
+	delete[] szTextUnicode;
 }
 
 UnitAny* FindUnit(DWORD id, DWORD type)

@@ -7,6 +7,6 @@
 
 bool GameReady(void);
 UnitAny* FindUnit(DWORD id, DWORD type);
-void GamePrint(char * szText);
+void D2Print(char * szText);
 
 #endif
