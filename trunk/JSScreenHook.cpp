@@ -13,12 +13,19 @@ void hook_finalize(JSContext *cx, JSObject *obj) {
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
 		delete hook;
-	JS_SetPrivate(cx, obj, NULL);
 }
 
 JSAPI_FUNC(hook_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-	hook_finalize(cx,obj);
+	CDebug cDbg("hook remove");
+
+	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
+	if(hook)
+	{
+		hook->SetIsVisible(false);
+		delete hook;
+	}
+
+	JS_SetPrivate(cx, obj, NULL);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;

@@ -23,6 +23,7 @@ bool zOrderSort(Genhook* first, Genhook* second)
 void Genhook::DrawAll(ScreenhookState type)
 {
 	HookList currentHooks = GetHooks();
+	// TODO: examine this, because I suspect there's a different problem as to why this crashes
 	// currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
@@ -49,7 +50,7 @@ void Genhook::Clean(Script* owner)
 	{
 		if((*it)->owner == owner)
 		{
-			delete *it;
+			(*it)->SetIsVisible(false);
 		}
 	}
 }
