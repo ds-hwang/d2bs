@@ -31,7 +31,7 @@ enum presetunit_tinyid {
 };
 
 
-static JSPropertySpec presentunit_props[] = {
+static JSPropertySpec presetunit_props[] = {
 	{"type",		PUNIT_TYPE,			JSPROP_PERMANENT_VAR},
 	{"roomx",		PUNIT_ROOMX,		JSPROP_PERMANENT_VAR},
 	{"roomy",		PUNIT_ROOMY,		JSPROP_PERMANENT_VAR},

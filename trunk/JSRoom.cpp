@@ -128,7 +128,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 				return JS_TRUE;
 			}
 
-			if(!JS_DefineProperties(cx, jsUnit, presentunit_props))
+			if(!JS_DefineProperties(cx, jsUnit, presetunit_props))
 			{
 				*rval = BOOLEAN_TO_JSVAL(FALSE);
 				return JS_TRUE;

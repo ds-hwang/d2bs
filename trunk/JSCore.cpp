@@ -1795,40 +1795,24 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		for(PresetUnit* pUnit = pRoom->pPreset; pUnit; pUnit = pUnit->pPresetNext)
 		{
 			// Does it fit?
-			if(pUnit->dwType == nType || nType == NULL)
-				if(pUnit->dwTxtFileNo == nClassId || nClassId == NULL)
-				{
-					// Yes it fits! Add it to the Array
-					JSObject* jsUnit = JS_NewObject(cx, &presetunit_class, NULL, NULL);
-					
-					if(!jsUnit)
-					{
-						*rval = BOOLEAN_TO_JSVAL(FALSE);
-						return JS_TRUE;
-					}
+			if((nType == NULL || pUnit->dwType == nType) && (nClassId == NULL || pUnit->dwTxtFileNo == nClassId))
+			{
+				myPresetUnit* mypUnit = new myPresetUnit;
 
-					if(!JS_DefineProperties(cx, jsUnit, presentunit_props))
-					{
-						*rval = BOOLEAN_TO_JSVAL(FALSE);
-						return JS_TRUE;
-					}
+				mypUnit->dwPosX = pUnit->dwPosX;
+				mypUnit->dwPosY = pUnit->dwPosY;
+				mypUnit->dwRoomX = pRoom->dwPosX;
+				mypUnit->dwRoomY = pRoom->dwPosY;
+				mypUnit->dwType = pUnit->dwType;
+				mypUnit->dwId = pUnit->dwTxtFileNo;
 
-					myPresetUnit* mypUnit = new myPresetUnit;
+				JSObject* unit = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 
-					mypUnit->dwPosX = pUnit->dwPosX;
-					mypUnit->dwPosY = pUnit->dwPosY;
-					mypUnit->dwRoomX = pRoom->dwPosX;
-					mypUnit->dwRoomY = pRoom->dwPosY;
-					mypUnit->dwType = pUnit->dwType;
-					mypUnit->dwId = pUnit->dwTxtFileNo;
+				jsval a = OBJECT_TO_JSVAL(unit);
+				JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
 
-					JS_SetPrivate(cx, jsUnit, mypUnit);
-
-					jsval a = OBJECT_TO_JSVAL(jsUnit);
-					JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
-
-					dwArrayCount++;
-				}
+				dwArrayCount++;
+			}
 		}
 
 		if(bAddedRoom)
@@ -1910,7 +1894,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				mypUnit->dwType = pUnit->dwType;
 				mypUnit->dwId = pUnit->dwTxtFileNo;
 
-				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presentunit_props, mypUnit);
+				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 				if(!obj)
 				{
 					delete mypUnit;

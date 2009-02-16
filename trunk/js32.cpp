@@ -56,7 +56,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 	{
 		// add root to avoid newborn root problem
 		JS_AddRoot(cx, &obj);
-		if(funcs && !JS_DefineFunctions(cx, obj, funcs))
+		if(obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
 		{
 			obj = NULL;
 		}
