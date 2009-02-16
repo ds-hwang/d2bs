@@ -284,7 +284,7 @@ void BoxHook::Draw(void)
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
 		POINT loc = {x, y};
-		POINT sz = {x2, y2};
+		POINT sz = {x+x2, y+y2};
 		if(GetIsAutomap())
 		{
 			x *= 32;

@@ -188,7 +188,7 @@ private:
 public:
 	BoxHook(Script* owner, uint x, uint y, uint nxsize, uint nysize, ushort ncolor,
 			ushort opacity, bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, opacity, automap, align, state), xsize(x+nxsize), ysize(y+nysize), color(ncolor) {}
+		Genhook(owner, x, y, opacity, automap, align, state), xsize(nxsize), ysize(nysize), color(ncolor) {}
 	~BoxHook(void) {}
 
 protected:
@@ -197,12 +197,12 @@ protected:
 public:
 	bool IsInRange(int dx, int dy);
 
-	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }
-	void SetYSize(uint nysize) { Lock(); ysize = GetY()+nysize; Unlock(); }
+	void SetXSize(uint nxsize) { Lock(); xsize = nxsize; Unlock(); }
+	void SetYSize(uint nysize) { Lock(); ysize = nysize; Unlock(); }
 	void SetColor(ushort ncolor) { Lock(); color = ncolor; Unlock(); }
 
-	uint GetXSize(void) const { return GetX()-xsize; }
-	uint GetYSize(void) const { return GetY()-ysize; }
+	uint GetXSize(void) const { return xsize; }
+	uint GetYSize(void) const { return ysize; }
 	ushort GetColor(void) const { return color; }
 };
 

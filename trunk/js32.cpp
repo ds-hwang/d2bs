@@ -67,8 +67,8 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 		if(obj)
 		{
 			JS_SetPrivate(cx, obj, priv);
-			JS_RemoveRoot(cx, &obj);
 		}
+		JS_RemoveRoot(cx, &obj);
 	}
 	return obj;
 }
