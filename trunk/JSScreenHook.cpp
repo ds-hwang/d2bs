@@ -18,6 +18,7 @@ void hook_finalize(JSContext *cx, JSObject *obj) {
 
 JSAPI_FUNC(hook_remove) {
 	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+	hook_finalize(cx,obj);
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;

@@ -23,7 +23,7 @@ bool zOrderSort(Genhook* first, Genhook* second)
 void Genhook::DrawAll(ScreenhookState type)
 {
 	HookList currentHooks = GetHooks();
-	currentHooks.sort(zOrderSort);
+	// currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
 			(!(*it)->GetIsAutomap() || ((*p_D2CLIENT_AutomapOn) && (*it)->GetIsAutomap())))
@@ -49,7 +49,7 @@ void Genhook::Clean(Script* owner)
 	{
 		if((*it)->owner == owner)
 		{
-			(*it)->SetIsVisible(false);
+			delete *it;
 		}
 	}
 }
@@ -220,10 +220,21 @@ void ImageHook::Draw(void)
 
 bool ImageHook::IsInRange(int dx, int dy)
 {
-	int x = GetX(), y = GetY(), w = image->cells[0]->width, h = image->cells[0]->height,
-		xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w),
-		yp = y - (h/2);
-	return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
+	if (image)
+	{
+		int x = GetX();
+		int y = GetY();
+		int w = image->cells[0]->width;
+		int h = image->cells[0]->height;
+		int xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w);
+		int yp = y - (h/2);
+		return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
+	}
+	else
+	{
+		return false;
+	}
+
 }
 
 void ImageHook::SetImage(const char* nimage)
