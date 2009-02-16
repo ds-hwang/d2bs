@@ -389,6 +389,10 @@ DWORD Script::GetThreadId(void)
 
 void Script::Run(void)
 {
+	// only let the script run if it's not already running
+	if(IsRunning())
+		return;
+
 	isAborted = false;
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);

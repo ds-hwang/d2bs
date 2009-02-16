@@ -1,5 +1,6 @@
 #include "ScreenHook.h"
 #include "JSScreenHook.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -174,7 +175,9 @@ void TextHook::Draw(void)
 			y *= 32;
 			ScreenToAutomap(&loc, x, y);
 		}
+		EnterCriticalSection(&Vars.cTextHookSection);
 		myDrawText(text, loc.x, loc.y, color, font);
+		LeaveCriticalSection(&Vars.cTextHookSection);
 		Unlock();
 	}
 }
@@ -200,7 +203,7 @@ void TextHook::SetText(const char* ntext)
 
 void ImageHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1)
+	if(GetX() != -1 && GetY() != -1 && GetImage() != NULL)
 	{
 		Lock();
 		if (IsBadReadPtr(image, sizeof(CellFile)))
@@ -214,7 +217,9 @@ void ImageHook::Draw(void)
 			y *= 32;
 			ScreenToAutomap(&loc, x, y);
 		}
+		EnterCriticalSection(&Vars.cImageHookSection);
 		myDrawAutomapCell(image, loc.x, loc.y, (BYTE)color);
+		LeaveCriticalSection(&Vars.cImageHookSection);
 		Unlock();
 	}
 }
@@ -265,7 +270,9 @@ void LineHook::Draw(void)
 			ScreenToAutomap(&loc, x, y);
 			ScreenToAutomap(&sz, x2, y2);
 		}
+		EnterCriticalSection(&Vars.cLineHookSection);
 		D2GFX_DrawLine(loc.x, loc.y, sz.x, sz.y, color, 0xFF);
+		LeaveCriticalSection(&Vars.cLineHookSection);
 		Unlock();
 	}
 }
@@ -287,7 +294,9 @@ void BoxHook::Draw(void)
 			ScreenToAutomap(&loc, x, y);
 			ScreenToAutomap(&sz, x2, y2);
 		}
+		EnterCriticalSection(&Vars.cBoxHookSection);
 		D2GFX_DrawRectangle(loc.x, loc.y, sz.x, sz.y, color, opacity);
+		LeaveCriticalSection(&Vars.cBoxHookSection);
 		Unlock();
 	}
 }
@@ -305,7 +314,9 @@ void FrameHook::Draw(void)
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
 		RECT rect = {x, y, x+x2, y+y2};
+		EnterCriticalSection(&Vars.cFrameHookSection);
 		D2GFX_DrawFrame(&rect);
+		LeaveCriticalSection(&Vars.cFrameHookSection);
 		Unlock();
 	}
 }

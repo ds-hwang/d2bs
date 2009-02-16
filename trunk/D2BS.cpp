@@ -66,6 +66,11 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		InitializeCriticalSection(&Vars.cMiscSection);
 		InitializeCriticalSection(&Vars.cScreenhookSection);
 		InitializeCriticalSection(&Vars.cPrintSection);
+		InitializeCriticalSection(&Vars.cBoxHookSection);
+		InitializeCriticalSection(&Vars.cFrameHookSection);
+		InitializeCriticalSection(&Vars.cLineHookSection);
+		InitializeCriticalSection(&Vars.cImageHookSection);
+		InitializeCriticalSection(&Vars.cTextHookSection);
 
 		DefineOffsets();
 		InstallPatches();
@@ -107,6 +112,11 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		DeleteCriticalSection(&Vars.cMiscSection);
 		DeleteCriticalSection(&Vars.cScreenhookSection);
 		DeleteCriticalSection(&Vars.cPrintSection);
+		DeleteCriticalSection(&Vars.cBoxHookSection);
+		DeleteCriticalSection(&Vars.cFrameHookSection);
+		DeleteCriticalSection(&Vars.cLineHookSection);
+		DeleteCriticalSection(&Vars.cImageHookSection);
+		DeleteCriticalSection(&Vars.cTextHookSection);
 	}
 
 	return TRUE;

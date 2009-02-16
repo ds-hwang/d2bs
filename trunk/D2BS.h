@@ -115,6 +115,11 @@ struct Variables
 	CRITICAL_SECTION	cMiscSection;
 	CRITICAL_SECTION	cScreenhookSection;
 	CRITICAL_SECTION	cPrintSection;
+	CRITICAL_SECTION	cTextHookSection;
+	CRITICAL_SECTION	cImageHookSection;
+	CRITICAL_SECTION	cBoxHookSection;
+	CRITICAL_SECTION	cFrameHookSection;
+	CRITICAL_SECTION	cLineHookSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;
