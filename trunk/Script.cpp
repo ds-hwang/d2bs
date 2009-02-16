@@ -50,7 +50,7 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 		LockAll();
 		if(recompile && activeScripts.count(file) > 0) {
 			delete activeScripts[file];
-		} else if(activeScripts.count(file) > 0 && !activeScripts[file]->IsRunning()) {
+		} else if(activeScripts.count(file) > 0) {
 			UnlockAll();
 			return activeScripts[file];
 		}
@@ -68,7 +68,7 @@ Script* Script::CompileCommand(const char* command)
 {
 	try {
 		LockAll();
-		if(activeScripts.count(command) > 0 && !activeScripts[command]->IsRunning()) {
+		if(activeScripts.count(command) > 0) {
 			UnlockAll();
 			return activeScripts[command];
 		}
