@@ -3,19 +3,20 @@
 
 #include "js32.h"
 
+JSAPI_FUNC(hook_remove);
+void hook_finalize(JSContext *cx, JSObject *obj);
+
 /*********************************************************
 					Frame Header
 **********************************************************/
 JSAPI_FUNC(frame_ctor);
-JSAPI_FUNC(frame_remove);
 JSAPI_PROP(frame_getProperty);
 JSAPI_PROP(frame_setProperty);
-void frame_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass frame_class = {
     "Frame",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, frame_getProperty, frame_setProperty,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, frame_finalize,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
 	NULL, NULL, NULL, frame_ctor, NULL, NULL, NULL, NULL
 };
 
@@ -45,7 +46,7 @@ static JSPropertySpec frame_props[] = {
 };
 
 static JSFunctionSpec frame_methods[] = {
-	{"remove",			frame_remove,			0},
+	{"remove",			hook_remove,			0},
 	{0},
 };
 
@@ -53,15 +54,13 @@ static JSFunctionSpec frame_methods[] = {
 					box Header
 **********************************************************/
 JSAPI_FUNC(box_ctor);
-JSAPI_FUNC(box_remove);
 JSAPI_PROP(box_getProperty);
 JSAPI_PROP(box_setProperty);
-void box_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass box_class = {
     "Box",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, box_getProperty, box_setProperty,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, box_finalize,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
 	NULL, NULL, NULL, box_ctor, NULL, NULL, NULL, NULL
 };
 
@@ -95,7 +94,7 @@ static JSPropertySpec box_props[] = {
 };
 
 static JSFunctionSpec box_methods[] = {
-	{"remove",			box_remove,			0},
+	{"remove",			hook_remove,			0},
 	{0},
 };
 
@@ -104,15 +103,13 @@ static JSFunctionSpec box_methods[] = {
 					Line Header
 **********************************************************/
 JSAPI_FUNC(line_ctor);
-JSAPI_FUNC(line_remove);
 JSAPI_PROP(line_getProperty);
 JSAPI_PROP(line_setProperty);
-void line_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass line_class = {
     "Line",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, line_getProperty, line_setProperty,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, line_finalize,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
 	NULL, NULL, NULL, line_ctor, NULL, NULL, NULL, NULL
 };
 
@@ -142,7 +139,7 @@ static JSPropertySpec line_props[] = {
 };
 
 static JSFunctionSpec line_methods[] = {
-	{"remove",			line_remove,			0},
+	{"remove",			hook_remove,			0},
 	{0},
 };
 
@@ -150,15 +147,13 @@ static JSFunctionSpec line_methods[] = {
 					Text Header
 **********************************************************/
 JSAPI_FUNC(text_ctor);
-JSAPI_FUNC(text_remove);
 JSAPI_PROP(text_getProperty);
 JSAPI_PROP(text_setProperty);
-void text_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass text_class = {
     "Text",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, text_getProperty, text_setProperty,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, text_finalize,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
 	NULL, NULL, NULL, text_ctor, NULL, NULL, NULL, NULL
 };
 
@@ -190,7 +185,7 @@ static JSPropertySpec text_props[] = {
 };
 
 static JSFunctionSpec text_methods[] = {
-	{"remove",			text_remove,			0},
+	{"remove",			hook_remove,			0},
 	{0},
 };
 
@@ -198,15 +193,13 @@ static JSFunctionSpec text_methods[] = {
 					Image Header
 **********************************************************/
 JSAPI_FUNC(image_ctor);
-JSAPI_FUNC(image_remove);
 JSAPI_PROP(image_getProperty);
 JSAPI_PROP(image_setProperty);
-void image_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass image_class = {
     "Image",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, image_getProperty, image_setProperty,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, image_finalize,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
 	NULL, NULL, NULL, image_ctor, NULL, NULL, NULL, NULL
 };
 
@@ -234,7 +227,7 @@ static JSPropertySpec image_props[] = {
 };
 
 static JSFunctionSpec image_methods[] = {
-	{"remove",			image_remove,			0},
+	{"remove",			hook_remove,			0},
 	{0},
 };
 

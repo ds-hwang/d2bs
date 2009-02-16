@@ -8,6 +8,21 @@
 
 using namespace std;
 
+void hook_finalize(JSContext *cx, JSObject *obj) {
+	CDebug cDbg("hook finalize");
+	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
+	if(hook)
+		hook->SetIsVisible(false);
+	JS_SetPrivate(cx, obj, NULL);
+}
+
+JSAPI_FUNC(hook_remove) {
+	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
+	JS_ClearScope(cx, obj);
+	JS_ValueToObject(cx, JSVAL_VOID, &obj);
+	return JS_TRUE;
+}
+
 // Function to create a frame which gets called on a "new Frame ()"
 // Parameters: x, y, xsize, ysize, alignment, automap, onClick, onHover
 JSAPI_FUNC(frame_ctor) {
@@ -55,19 +70,12 @@ JSAPI_FUNC(frame_ctor) {
 	return JS_TRUE;
 }
 
-VOID frame_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("frame_finalize");
-	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
-	
-	if (pFramehook)
-		delete pFramehook;
-	JS_SetPrivate(cx, obj, NULL);
-}
-
 JSAPI_PROP(frame_getProperty) {
 	CDebug cDbg("frame_getProperty");
 
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
+	if(!pFramehook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case FRAME_X:
@@ -104,6 +112,8 @@ JSAPI_PROP(frame_setProperty) {
 	CDebug cDbg("frame_setProperty");
 
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
+	if(!pFramehook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case FRAME_X:
@@ -141,14 +151,6 @@ JSAPI_PROP(frame_setProperty) {
 			pFramehook->SetHoverHandler(*vp);
 			break;
 	}
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(frame_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-//	frame_finalize(cx, obj);
-	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
 }
 
@@ -203,18 +205,12 @@ JSAPI_FUNC(box_ctor) {
 
 	return JS_TRUE;
 }
-VOID box_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("box_finalize");
-	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
-	
-	if(pBoxHook)
-		delete pBoxHook;
-	JS_SetPrivate(cx, obj, NULL);
-}
 JSAPI_PROP(box_getProperty) {
 	CDebug cDbg("box_getProperty");
 
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
+	if(!pBoxHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case BOX_X:
@@ -257,6 +253,8 @@ JSAPI_PROP(box_setProperty) {
 	CDebug cDbg("box_setProperty");
 
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
+	if(!pBoxHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case BOX_X:
@@ -305,13 +303,6 @@ JSAPI_PROP(box_setProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(box_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-//	box_finalize(cx, obj);
-	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	return JS_TRUE;
-}
 
 //Line functions
 
@@ -360,19 +351,13 @@ JSAPI_FUNC(line_ctor) {
 	return JS_TRUE;
 }
 
-VOID line_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("line_finalize");
-	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
-	
-	if(pLineHook)
-		delete pLineHook;
-	JS_SetPrivate(cx, obj, NULL);
-}
 
 JSAPI_PROP(line_getProperty) {
 	CDebug cDbg("line_getProperty");
 
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
+	if(!pLineHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case LINE_X:
@@ -410,6 +395,8 @@ JSAPI_PROP(line_setProperty) {
 	CDebug cDbg("line_setProperty");
 
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
+	if(!pLineHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case LINE_X:
@@ -450,13 +437,6 @@ JSAPI_PROP(line_setProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(line_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-//	line_finalize(cx, obj);
-	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	return JS_TRUE;
-}
 
 // Function to create a text which gets called on a "new text ()"
 
@@ -509,19 +489,12 @@ JSAPI_FUNC(text_ctor) {
 	return JS_TRUE;
 }
 
-VOID text_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("text_finalize");
-	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
-	
-	if(pTextHook)
-		delete pTextHook;
-	JS_SetPrivate(cx, obj, NULL);
-}
-
 JSAPI_PROP(text_getProperty) {
 	CDebug cDbg("text_getProperty");
 
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
+	if(!pTextHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case TEXT_X:
@@ -562,6 +535,8 @@ JSAPI_PROP(text_setProperty) {
 	CDebug cDbg("text_setProperty");
 
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
+	if(!pTextHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case TEXT_X:
@@ -608,13 +583,6 @@ JSAPI_PROP(text_setProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(text_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-//	text_finalize(cx, obj);
-	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	return JS_TRUE;
-}
 
 // Function to create a image which gets called on a "new Image ()"
 
@@ -670,19 +638,12 @@ JSAPI_FUNC(image_ctor) {
 	return JS_TRUE;
 }
 
-VOID image_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("image_finalize");
-	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
-	
-	if(pImageHook)
-		delete pImageHook;
-	JS_SetPrivate(cx, obj, NULL);
-}
-
 JSAPI_PROP(image_getProperty) {
 	CDebug cDbg("image_getProperty");
 
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
+	if(!pImageHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case IMAGE_X:
@@ -717,6 +678,8 @@ JSAPI_PROP(image_setProperty) {
 	CDebug cDbg("image_setProperty");
 
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
+	if(!pImageHook)
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id)) {
 		case IMAGE_X:
@@ -755,10 +718,3 @@ JSAPI_PROP(image_setProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(image_remove) {
-	((Genhook*)JS_GetPrivate(cx, obj))->SetIsVisible(false);
-//	image_finalize(cx, obj);
-	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
-	return JS_TRUE;
-}

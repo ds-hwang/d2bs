@@ -212,7 +212,6 @@ Script::~Script(void)
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	// and now this crashes... :(
 	JS_DestroyContext(context);
 
 	context = NULL;
