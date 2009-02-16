@@ -13,6 +13,7 @@
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {
+	new_verbose_flag = false;
 	static HANDLE hD2ThreadHandle = NULL;
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{

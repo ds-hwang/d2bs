@@ -70,7 +70,7 @@ private:
 	JSScript* script;
 
 	JSObject *globalObject, *scriptObject, *meObject;
-	bool isLocked, isPaused, isAborted, singleStep;
+	bool isLocked, isPaused, isReallyPaused, isAborted, singleStep;
 
 	IncludeList includes;
 	FunctionMap functions;
@@ -116,6 +116,8 @@ public:
 	void Pause(void);
 	void Resume(void);
 	bool IsPaused(void);
+	void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
+	bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
 
 	void EnableSingleStep(void);

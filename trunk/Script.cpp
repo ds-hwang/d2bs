@@ -210,7 +210,8 @@ Script::~Script(void)
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	JS_DestroyContext(context);
+	// and now this crashes... :(
+//	JS_DestroyContextMaybeGC(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -582,11 +583,11 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	sprintf(msg, "Script::ExecEvent(%s)", evtName);
 	CDebug cDbg(msg);
 
-//	Pause();
+	Pause();
 	Lock();
 
-	JSContext* cx = context; //BuildContext(runtime);
-//	JS_SetContextPrivate(cx, this);
+	JSContext* cx = BuildContext(runtime);
+	JS_SetContextPrivate(cx, this);
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
@@ -612,7 +613,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	delete[] argv;
 
 	Unlock();
-//	Resume();
+	Resume();
 
 	return JS_TRUE;
 }
@@ -633,7 +634,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->functions = functions[evtName];
 		evt->argc = argc;
 		evt->argv = argv;
-		evt->context = context; //BuildContext(runtime);
+		evt->context = BuildContext(runtime);
 		evt->object = globalObject;
 		JS_SetContextPrivate(evt->context, this);
 
@@ -674,6 +675,9 @@ DWORD WINAPI FuncThread(void* data)
 	Event* evt = (Event*)data;
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
+		evt->owner->Pause();
+		while(!evt->owner->IsReallyPaused())
+			Sleep(1); // let the script really pause
 		jsval dummy = JSVAL_VOID;
 		// switch the context thread to this one
 		JS_SetContextThread(evt->context);
@@ -703,6 +707,7 @@ DWORD WINAPI FuncThread(void* data)
 		// assume that the caller stole the context thread
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
+		evt->owner->Resume();
 	}
 
 	// assume we have to clean up both the event and the args, and release autorooted vars
@@ -751,11 +756,21 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	jsrefcount depth;
 
 	if(pause)
+	{
+		// assume we have to take the context thread
+		JS_SetContextThread(cx);
 		depth = JS_SuspendRequest(cx);
+		script->SetPauseState(true);
+	}
 	while(script->IsPaused())
 		Sleep(50);
 	if(pause)
+	{
+		script->SetPauseState(false);
+		// assume we lost the context thread while paused
+		JS_SetContextThread(cx);
 		JS_ResumeRequest(cx, depth);
+	}
 
 	if(script->IsAborted())
 		return JS_FALSE;
