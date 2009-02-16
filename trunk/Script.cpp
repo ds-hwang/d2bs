@@ -105,7 +105,7 @@ Script::Script(const char* file, ScriptState state) :
 
 		JS_InitStandardClasses(context, globalObject);
 		JS_DefineFunctions(context, globalObject, global_funcs);
-		JS_AddRoot(context, &globalObject);
+		JS_AddRoot(context, &globalObject);// added for testing proper destroy context code
 
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
 		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
@@ -443,7 +443,7 @@ void Script::Stop(bool force, bool reallyForce)
 	isPaused = false;
 
 	ClearAllEvents();
-	Genhook::Clean(this);
+	//Genhook::Clean(this);
 
 	int maxCount = reallyForce ? 2 : 30;
 	for(int i = 0; IsRunning(); i++)
@@ -711,7 +711,7 @@ DWORD WINAPI FuncThread(void* data)
 		// assume that the caller stole the context thread
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
-		JS_DestroyContext(evt->context);
+		JS_DestroyContextNoGC(evt->context);
 		evt->context = NULL;
 		evt->owner->Resume();
 	}

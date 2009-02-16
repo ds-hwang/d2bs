@@ -79,7 +79,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, GetCurrentThreadId());
 
 		char versionimg[_MAX_PATH+_MAX_FNAME];
-		sprintf(versionimg, "%s\\version.bmp", Vars.szPath);
+		sprintf(versionimg, "%sversion.bmp", Vars.szPath);
 		Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
 		Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
 
