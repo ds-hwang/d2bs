@@ -47,6 +47,17 @@ JSAPI_FUNC(global_sleep)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(global_load)
+{
+	if(JSVAL_IS_STRING(argv[0]))
+	{
+		Script* script = Script::CompileFile(JSVAL_TO_STR(cx, argv[0]));
+		if(script)
+			script->Start();
+	}
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(core_abort)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);

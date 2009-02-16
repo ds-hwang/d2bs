@@ -8,6 +8,7 @@
 // TODO: Anywhere we can put these that makes sense?
 JSAPI_FUNC(global_log);
 JSAPI_FUNC(global_sleep);
+JSAPI_FUNC(global_load);
 
 // TODO: Move these to the Core or Script object
 JSAPI_FUNC(core_abort);
@@ -28,6 +29,7 @@ JSAPI_FUNC(d2_ingame);
 static JSFunctionSpec global_funcs[] = {
 	{"log",				global_log,				1},
 	{"sleep",			global_sleep,			1},
+	{"load",			global_load,			1},
 
 	{"abort",			core_abort,				0},
 	{"abortAll",		core_abortAll,			0},

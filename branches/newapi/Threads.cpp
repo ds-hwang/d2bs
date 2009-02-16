@@ -46,7 +46,7 @@ void MainThread(void* lpData)
 	{
 		PR_Sleep(50);
 		// TODO: Process stuff here, like events.
-		// this processes at 50 just fine, but has an upper bound of ~75 events/sec
+		// this processes at 50 just fine, but has an upper bound of ~18 events/sec
 		PulseEvent();
 	}
 }
