@@ -269,6 +269,7 @@ void sqlite_finalize(JSContext *cx, JSObject *obj)
 	CDebug cDbg("sqlite finalize");
 
 	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db_ex.base, NULL);
+	JS_SetPrivate(cx, obj, NULL);
 	if(dbobj) {
 		clean_sqlite_db(dbobj);
 		delete[] dbobj->path;
@@ -542,6 +543,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 		JS_RemoveRoot(cx, &stmtobj->current_row);
 	close_db_stmt(stmtobj);
 	delete stmtobj;
+	JS_SetPrivate(cx, obj, NULL);
 	*rval = JS_TRUE;
 	JS_ClearScope(cx, obj);
 	JS_ValueToObject(cx, JSVAL_NULL, &obj);
@@ -569,6 +571,7 @@ void sqlite_stmt_finalize(JSContext *cx, JSObject *obj)
 	CDebug cDbg("dbstatement finalize");
 
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
+	JS_SetPrivate(cx, obj, NULL);
 	if(stmtobj) {
 		if(stmtobj->stmt && stmtobj->open) {
 			stmtobj->assoc_db->stmts.erase(stmtobj);
