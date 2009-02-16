@@ -25,7 +25,7 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 
 #define VARIABLE(mod, type, name, addr) \
 	type __fastcall Get##mod##name##(void) { \
-		return (type)GetDllAddress((int)mod, addr); \
+		return (type)*(DWORD*)GetDllAddress((int)mod, addr); \
 	}
 
 #define ADDRESS(mod, name, addr) \
