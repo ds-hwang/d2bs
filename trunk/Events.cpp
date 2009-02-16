@@ -131,7 +131,7 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp)
 
 VOID MouseMoveEvent(POINT pt)
 {
-	ScriptList scripts = Script::GetScripts();
+/*	ScriptList scripts = Script::GetScripts();
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -142,7 +142,7 @@ VOID MouseMoveEvent(POINT pt)
 		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
 		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
 		(*it)->ExecEventAsync("mousemove", 2, argv);
-	}
+	}*/
 }
 
 VOID ScriptBroadcastEvent(uintN argc, jsval* args)

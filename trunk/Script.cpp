@@ -105,6 +105,7 @@ Script::Script(const char* file, ScriptState state) :
 
 		JS_InitStandardClasses(context, globalObject);
 		JS_DefineFunctions(context, globalObject, global_funcs);
+		JS_AddRoot(context, &globalObject);
 
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
 		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
@@ -206,12 +207,13 @@ Script::~Script(void)
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
+	JS_RemoveRoot(context, &globalObject);
 	JS_RemoveRoot(context, &meObject);
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
 	// and now this crashes... :(
-//	JS_DestroyContextMaybeGC(context);
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -606,6 +608,8 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 	delete[] args;
 	JS_EndRequest(cx);
+	JS_DestroyContext(cx);
+	cx = NULL;
 
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Release();
@@ -707,6 +711,8 @@ DWORD WINAPI FuncThread(void* data)
 		// assume that the caller stole the context thread
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
+		JS_DestroyContext(evt->context);
+		evt->context = NULL;
 		evt->owner->Resume();
 	}
 

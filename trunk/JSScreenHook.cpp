@@ -61,6 +61,7 @@ VOID frame_finalize(JSContext *cx, JSObject *obj) {
 	
 	if (pFramehook)
 		delete pFramehook;
+	JS_SetPrivate(cx, obj, NULL);
 }
 
 JSAPI_PROP(frame_getProperty) {
@@ -208,6 +209,7 @@ VOID box_finalize(JSContext *cx, JSObject *obj) {
 	
 	if(pBoxHook)
 		delete pBoxHook;
+	JS_SetPrivate(cx, obj, NULL);
 }
 JSAPI_PROP(box_getProperty) {
 	CDebug cDbg("box_getProperty");
@@ -364,6 +366,7 @@ VOID line_finalize(JSContext *cx, JSObject *obj) {
 	
 	if(pLineHook)
 		delete pLineHook;
+	JS_SetPrivate(cx, obj, NULL);
 }
 
 JSAPI_PROP(line_getProperty) {
@@ -512,6 +515,7 @@ VOID text_finalize(JSContext *cx, JSObject *obj) {
 	
 	if(pTextHook)
 		delete pTextHook;
+	JS_SetPrivate(cx, obj, NULL);
 }
 
 JSAPI_PROP(text_getProperty) {
@@ -672,6 +676,7 @@ VOID image_finalize(JSContext *cx, JSObject *obj) {
 	
 	if(pImageHook)
 		delete pImageHook;
+	JS_SetPrivate(cx, obj, NULL);
 }
 
 JSAPI_PROP(image_getProperty) {
