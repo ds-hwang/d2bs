@@ -12,7 +12,7 @@ void hook_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("hook finalize");
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
-		hook->SetIsVisible(false);
+		delete hook;
 	JS_SetPrivate(cx, obj, NULL);
 }
 

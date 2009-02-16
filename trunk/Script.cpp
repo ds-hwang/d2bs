@@ -442,7 +442,7 @@ void Script::Stop(bool force, bool reallyForce)
 	isPaused = false;
 
 	ClearAllEvents();
-	//Genhook::Clean(this);
+	Genhook::Clean(this);
 
 	int maxCount = reallyForce ? 2 : 30;
 	for(int i = 0; IsRunning(); i++)

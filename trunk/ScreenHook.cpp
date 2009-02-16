@@ -49,7 +49,7 @@ void Genhook::Clean(Script* owner)
 	{
 		if((*it)->owner == owner)
 		{
-			delete *it;
+			(*it)->SetIsVisible(false);
 		}
 	}
 }
