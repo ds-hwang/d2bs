@@ -110,6 +110,12 @@ void GameExternalDraw_Intercept(void)
 	ExternalDraw_Handler();
 }
 
+void GameShutdown_Intercept(void)
+{
+	GameShutdown();
+	GameShutdown_Handler();
+}
+
 __declspec(naked) void GameWhisper_Intercept()
 {
 	__asm

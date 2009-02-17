@@ -132,5 +132,6 @@ FUNCTION(D2Win, -10095, void*, __fastcall, SetControlText, (Control* box, wchar_
 FUNCTION(D2Win, -10096, DWORD, __fastcall, GetTextWidthFileNo, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo))
 FUNCTION(D2Win, -10010, DWORD, __fastcall, SetTextSize, (DWORD dwSize))
 FUNCTION(D2Win, -10001, void, __fastcall, DrawGameString, (wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk))
+FUNCTION(D2Win, -10094, void, __stdcall, GameShutdown_Handler, (void))
 
 #endif

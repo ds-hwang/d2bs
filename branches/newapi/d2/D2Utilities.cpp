@@ -7,10 +7,20 @@
 
 #include "debug_new.h"
 
+#include "Threads.h"
+
+#include "prthread.h"
+
 void GamePrint(const char*);
 void OOGPrint(const char*);
 void StatusPrint(const char*);
 char* PrintHelper(char*, va_list);
+
+
+void GameShutdown()
+{
+	Log("Game closed.");
+}
 
 bool GameReady(void)
 {
@@ -31,14 +41,17 @@ void D2Print(char* szText, ...)
 
 	if(GameReady())
 	{
+		//DestroyD2Window();
 		GamePrint(text);
 	}
 	else if(false) // TODO: Make this detect chat vs. non-chat
 	{
-		OOGPrint(text);
+		//DestroyD2Window();
+		//OOGPrint(text);
 	}
 	else
 	{
+		//DestroyD2Window();
 		StatusPrint(text);
 	}
 
@@ -60,10 +73,11 @@ char* PrintHelper(char* szText, va_list args)
 
 void GamePrint(const char* text)
 {
-	PrintLock lock;
+	//PrintLock lock;
 	wchar_t* wtext = AnsiToUnicode(text);
 	PrintGameString(wtext, 0);
 	delete[] wtext;
+	//delete lock;
 }
 
 void OOGPrint(const char* text)
