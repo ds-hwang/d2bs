@@ -5,11 +5,11 @@
 
 #include "SyncLock.h"
 
+#include "Script.h"
+
+#include "js32.h"
+
 #include "debug_new.h"
-
-#include "Threads.h"
-
-#include "prthread.h"
 
 void GamePrint(const char*);
 void OOGPrint(const char*);
@@ -19,7 +19,8 @@ char* PrintHelper(char*, va_list);
 
 void GameShutdown()
 {
-	Log("Game closed.");
+//	Log("Game closed.");
+	Script::Shutdown();
 }
 
 bool GameReady(void)
