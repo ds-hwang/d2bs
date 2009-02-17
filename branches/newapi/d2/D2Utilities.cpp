@@ -42,17 +42,14 @@ void D2Print(char* szText, ...)
 
 	if(GameReady())
 	{
-		//DestroyD2Window();
 		GamePrint(text);
 	}
 	else if(false) // TODO: Make this detect chat vs. non-chat
 	{
-		//DestroyD2Window();
-		//OOGPrint(text);
+		OOGPrint(text);
 	}
 	else
 	{
-		//DestroyD2Window();
 		StatusPrint(text);
 	}
 
