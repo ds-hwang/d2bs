@@ -117,6 +117,7 @@ FUNCTION(D2Gfx, 0x7D10, void, __stdcall, DrawRectangle, (int X1, int Y1, int X2,
 FUNCTION(D2Gfx, 0x7CA0, void, __stdcall, DrawLine, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwUnk))
 FUNCTION(D2Gfx, -10043, DWORD, __stdcall, GetScreenSize, (void))
 FUNCTION(D2Gfx, -10078, HWND, __stdcall, GetHwnd, (void))
+FUNCTION(D2Gfx, -10026, void, __fastcall, WindowCleanup, (void))
 
 FUNCTION(D2Multi, 0xF770, void, __stdcall, PrintChannelText, (const char* szText, DWORD dwColor))
 FUNCTION(D2Multi, 0xC650, void, __fastcall, DoChat, (void))
@@ -132,6 +133,6 @@ FUNCTION(D2Win, -10095, void*, __fastcall, SetControlText, (Control* box, wchar_
 FUNCTION(D2Win, -10096, DWORD, __fastcall, GetTextWidthFileNo, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo))
 FUNCTION(D2Win, -10010, DWORD, __fastcall, SetTextSize, (DWORD dwSize))
 FUNCTION(D2Win, -10001, void, __fastcall, DrawGameString, (wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk))
-FUNCTION(D2Win, -10094, void, __stdcall, GameShutdown_Handler, (void))
+FUNCTION(D2Win, -10121, void,__fastcall, ClientCleanup,(void))
 
 #endif
