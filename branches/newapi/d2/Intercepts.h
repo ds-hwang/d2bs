@@ -15,6 +15,6 @@ void GameWhisper_Intercept();
 void GameAttack_Intercept();
 void GameCrashFix_Intercept();
 void GamePlayerAssign_Intercept();
-void GameShutdown_Intercept(void);
+void ClientShutdown_Intercept(void);
 
 #endif

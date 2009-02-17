@@ -17,9 +17,9 @@ void StatusPrint(const char*);
 char* PrintHelper(char*, va_list);
 
 
-void GameShutdown()
+void D2BSCleanup()
 {
-//	Log("Game closed.");
+	Log("D2BS Cleanup");
 	Script::Shutdown();
 }
 

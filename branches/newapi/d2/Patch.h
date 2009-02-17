@@ -33,7 +33,7 @@ static Patch Patches[] = {
 	{CallPatch,		{"D2Win.dll",		0xD848},		(DWORD)&GameExternalDraw_Intercept,		5},
 	{CallPatch,		{"D2Multi.dll",		0xFC3C},		(DWORD)&GameWhisper_Intercept,			7},
 	{CallPatch,		{"D2Cmp.dll",		0x10DA5},		(DWORD)&GameCrashFix_Intercept,			10},
-	{CallPatch,		{"D2Win.dll",		0xD9A8},		(DWORD)GameShutdown_Intercept,			5},
+	{CallPatch,		{"D2Gfx.dll",		0xCB93},		(DWORD)ClientShutdown_Intercept,		5},
 	{NoPatch}
 };
 

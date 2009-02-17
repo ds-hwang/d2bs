@@ -110,10 +110,12 @@ void GameExternalDraw_Intercept(void)
 	ExternalDraw_Handler();
 }
 
-void GameShutdown_Intercept(void)
+void ClientShutdown_Intercept(void)
 {
-	GameShutdown();
-	GameShutdown_Handler();
+	// Call our cleanup function
+	D2BSCleanup();
+	// Continue with D2's cleanup
+	WindowCleanup();
 }
 
 __declspec(naked) void GameWhisper_Intercept()
