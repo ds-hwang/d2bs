@@ -475,7 +475,7 @@ bool Script::IsIncluded(const char* file)
 
 bool Script::Include(const char* file)
 {
-	if(IsIncluded(file))
+	if(IsIncluded(file) || !!inProgress.count(string(file)))
 		return true;
 	Lock();
 	bool rval = false;
@@ -483,10 +483,12 @@ bool Script::Include(const char* file)
 	if(script)
 	{
 		jsval dummy;
+		inProgress[file] = true;
 		rval = !!JS_ExecuteScript(context, globalObject, script, &dummy);
 		JS_DestroyScript(context, script);
 		if(rval)
 			includes[file] = true;
+		inProgress.erase(file);
 	}
 	Unlock();
 	return rval;
@@ -812,8 +814,8 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	Log(msg);
 
 	// all potential cases are handled inside Print now
-	sprintf(msg, "[ÿc%d%s%sÿc0] %s/line %d: (%d) %s", (warn ? 9 : 1), strict, type,
-					filename, report->lineno, report->errorNumber, message);
+	sprintf(msg, "[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
+					filename, report->lineno, message);
 	Print(msg);
 
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))

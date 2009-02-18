@@ -104,7 +104,7 @@ JSAPI_FUNC(filetools_copy)
 	FILE* fptr1 = fopen(porig, "r");
 	FILE* fptr2 = fopen(pnewName, "w");
 	int size = _filelength(_fileno(fptr1));
-	char* contents = new char[size]; // leaked...
+	char* contents = new char[size];
 	if(fread(contents, sizeof(char), size, fptr1) != size && ferror(fptr1))
 		THROW_ERROR(cx, obj, _strerror("Read failed"));
 	if(fwrite(contents, sizeof(char), size, fptr2) != size && ferror(fptr2))
@@ -153,7 +153,7 @@ JSAPI_FUNC(filetools_readText)
 	fseek(fptr, 0, SEEK_END);
 	int size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
-	char* contents = new char[size]; // leaked...
+	char* contents = new char[size];
 	memset(contents, 0, size);
 	if(fread(contents, 1, size, fptr) != size && ferror(fptr))
 		THROW_ERROR(cx, obj, _strerror("Read failed"));

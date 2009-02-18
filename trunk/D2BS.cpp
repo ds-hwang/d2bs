@@ -13,7 +13,6 @@
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-	new_verbose_flag = false;
 	static HANDLE hD2ThreadHandle = NULL;
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
@@ -25,6 +24,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
 #else 	
+	new_verbose_flag = false;
 		GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
 		PathRemoveFileSpec(Vars.szPath);
 		strcat(Vars.szPath,"\\");

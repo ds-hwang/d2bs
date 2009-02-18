@@ -72,7 +72,7 @@ private:
 	JSObject *globalObject, *scriptObject, *meObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted, singleStep;
 
-	IncludeList includes;
+	IncludeList includes, inProgress;
 	FunctionMap functions;
 	CRITICAL_SECTION scriptSection;
 	HANDLE threadHandle;
