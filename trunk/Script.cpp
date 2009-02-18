@@ -84,7 +84,7 @@ Script* Script::CompileCommand(const char* command)
 
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), isPaused(false), singleStep(false), scriptState(state),
+			execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false), scriptState(state),
 			threadHandle(NULL), threadId(0), scriptSection(NULL)
 {
 	if(scriptState != Command && _access(file, 0) != 0)

@@ -35,15 +35,22 @@ char* readLine(FILE* fptr)
 		size++;
 	} while(c != '\r' && c != '\n');
 	fsetpos(fptr, &pos);
-	line = new char[size];
+	line = new char[size+1]; // might not need this but i think it needs room for the null char
 	memset(line, 0, size);
 	if(fread(line, sizeof(char), size-1, fptr) != size-1 && ferror(fptr)) {
 		delete[] line;
 		return NULL;
 	}
 	fgetpos(fptr, &pos);
-	if(c == '\r' && fgetc(fptr) == '\n')
+	if(c == '\r' || c == '\n' )
+	{
+		do {
+			c = fgetc(fptr);
+		} while(c == '\r' || c == '\n');
+		if(!feof(fptr))
+			fseek( fptr , -1 , SEEK_CUR );
 		return line;
+	}
 	fsetpos(fptr, &pos);
 	return line;
 }
