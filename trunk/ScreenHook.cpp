@@ -283,6 +283,14 @@ void BoxHook::Draw(void)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+		if(alignment == Center)
+		{
+			x -= x2/2;
+		}
+		else if (alignment == Right)
+		{
+			x += x2/2;
+		}
 		POINT loc = {x, y};
 		POINT sz = {x+x2, y+y2};
 		if(GetIsAutomap())
@@ -313,6 +321,14 @@ void FrameHook::Draw(void)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+		if(alignment == Center)
+		{
+			x -= x2/2;
+		}
+		else if (alignment == Right)
+		{
+			x += x2/2;
+		}
 		RECT rect = {x, y, x+x2, y+y2};
 		EnterCriticalSection(&Vars.cFrameHookSection);
 		D2GFX_DrawFrame(&rect);

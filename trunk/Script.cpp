@@ -501,7 +501,7 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return !(!JS_IsRunning(context) || isPaused);
+	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
 bool Script::IsAborted()

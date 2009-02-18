@@ -216,7 +216,7 @@ private:
 public:
 	FrameHook(Script* owner, uint x, uint y, uint nxsize, uint nysize,
 			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
-		Genhook(owner, x, y, 0, automap, align, state), xsize(x+nxsize), ysize(y+nysize) {}
+		Genhook(owner, x, y, 0, automap, align, state), xsize(nxsize), ysize(nysize) {}
 	~FrameHook(void) {}
 
 protected:
@@ -225,11 +225,11 @@ protected:
 public:
 	bool IsInRange(int dx, int dy);
 
-	void SetXSize(uint nxsize) { Lock(); xsize = GetX()+nxsize; Unlock(); }
-	void SetYSize(uint nysize) { Lock(); ysize = GetY()+nysize; Unlock(); }
+	void SetXSize(uint nxsize) { Lock(); xsize = nxsize; Unlock(); }
+	void SetYSize(uint nysize) { Lock(); ysize = nysize; Unlock(); }
 
-	uint GetXSize(void) const { return GetX()-xsize; }
-	uint GetYSize(void) const { return GetY()-ysize; }
+	uint GetXSize(void) const { return xsize; }
+	uint GetYSize(void) const { return ysize; }
 };
 
 class StatusWindow
