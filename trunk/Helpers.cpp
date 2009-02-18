@@ -45,3 +45,12 @@ bool StringToBool(const char* str)
 			return false;
 	}
 }
+
+void StringReplace(char* str, const char find, const char replace)
+{
+	char* c = str;
+	do {
+		if(*c == find)
+			*c = replace;
+	} while(*(++c) != '\0');
+}

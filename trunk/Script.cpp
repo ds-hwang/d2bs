@@ -7,6 +7,7 @@
 #include "D2Ptrs.h"
 #include "D2BS.h"
 #include "CDebug.h"
+#include "Helpers.h"
 
 #include "debugnew/debug_new.h"
 
@@ -92,7 +93,8 @@ Script::Script(const char* file, ScriptState state) :
 		throw std::exception("File not found");
 
 	InitializeCriticalSection(&scriptSection);
-	fileName = _strdup(file);
+	fileName = _strlwr(_strdup(file));
+	StringReplace(fileName, '/', '\\');
 	try {
 		AutoLock lock(this);
 		context = BuildContext(runtime);
@@ -470,25 +472,30 @@ bool Script::IsSingleStep(void)
 
 bool Script::IsIncluded(const char* file)
 {
-	return !!includes.count(string(file));
+	char* fname = const_cast<char*>(file);
+	StringReplace(fname, '/', '\\');
+	return !!includes.count(string(fname));
 }
 
 bool Script::Include(const char* file)
 {
-	if(IsIncluded(file) || !!inProgress.count(string(file)))
+	char* fname = const_cast<char*>(file);
+	StringReplace(fname, '/', '\\');
+	// ignore already included, 'in-progress' includes, and self-inclusion
+	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || strcmp(fileName, fname) == 0)
 		return true;
 	Lock();
 	bool rval = false;
-	JSScript* script = JS_CompileFile(context, globalObject, file);
+	JSScript* script = JS_CompileFile(context, globalObject, fname);
 	if(script)
 	{
 		jsval dummy;
-		inProgress[file] = true;
+		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(context, globalObject, script, &dummy);
 		JS_DestroyScript(context, script);
 		if(rval)
-			includes[file] = true;
-		inProgress.erase(file);
+			includes[fname] = true;
+		inProgress.erase(fname);
 	}
 	Unlock();
 	return rval;
