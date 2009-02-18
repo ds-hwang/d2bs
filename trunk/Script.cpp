@@ -41,7 +41,7 @@ bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
 JSRuntime* Script::runtime = NULL;
 ScriptMap Script::activeScripts = ScriptMap();
-LPCRITICAL_SECTION Script::criticalSection = {0};
+CRITICAL_SECTION Script::criticalSection = {0};
 bool Script::isAllLocked = false;
 
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
@@ -91,7 +91,7 @@ Script::Script(const char* file, ScriptState state) :
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");
 
-	InitializeCriticalSection(scriptSection);
+	InitializeCriticalSection(&scriptSection);
 	fileName = _strdup(file);
 	try {
 		AutoLock lock(this);
@@ -185,7 +185,7 @@ Script::Script(const char* file, ScriptState state) :
 		JS_EndRequest(context);
 		RegisterScript(this);
 	} catch(...) {
-		DeleteCriticalSection(scriptSection);
+		DeleteCriticalSection(&scriptSection);
 		JS_EndRequest(context);
 		JS_DestroyContext(context);
 		throw;
@@ -219,7 +219,7 @@ Script::~Script(void)
 	if(threadHandle)
 		CloseHandle(threadHandle);
 	Unlock();
-	DeleteCriticalSection(scriptSection);
+	DeleteCriticalSection(&scriptSection);
 }
 
 void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
@@ -265,7 +265,7 @@ void Script::Shutdown(void)
 	}
 
 	UnlockAll();
-	DeleteCriticalSection(criticalSection);
+	DeleteCriticalSection(&criticalSection);
 }
 
 void Script::StopAll(bool force)
