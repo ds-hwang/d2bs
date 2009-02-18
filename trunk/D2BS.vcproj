@@ -175,7 +175,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="js32.lib"
 				AdditionalDependencies="js32/js32.lib shlwapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).bin"
 				LinkIncremental="1"
