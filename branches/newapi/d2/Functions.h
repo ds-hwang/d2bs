@@ -10,6 +10,7 @@
 #include "Pointers.h"
 
 // wrapper functions to handle odd calling convention functions
+DWORD __fastcall TestPvpFlag(DWORD planum1, DWORD planum2, DWORD flagmask);
 DWORD __fastcall GetUIVar(DWORD varno);
 #define GetUIState GetUIVar
 
@@ -136,3 +137,4 @@ FUNCTION(D2Win, -10001, void, __fastcall, DrawGameString, (wchar_t *wStr, int xP
 FUNCTION(D2Win, -10121, void,__fastcall, ClientCleanup,(void))
 
 #endif
+
