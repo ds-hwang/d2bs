@@ -49,6 +49,7 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 	try {
 		LockAll();
 		if(recompile && activeScripts.count(file) > 0) {
+			activeScripts[file]->Stop(true, true);
 			delete activeScripts[file];
 		} else if(activeScripts.count(file) > 0) {
 			UnlockAll();
@@ -260,12 +261,10 @@ void Script::Startup(void)
 
 void Script::Shutdown(void)
 {
-	Script::StopAll(true);
-	LockAll();
-	ScriptList list = GetScripts();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		delete (*it);
+	StopAll(true);
+	FlushCache();
 
+	LockAll();
 	activeScripts.clear();
 
 	if(runtime)
@@ -444,15 +443,19 @@ void Script::Stop(bool force, bool reallyForce)
 
 	isAborted = true;
 	isPaused = false;
+	isReallyPaused = false;
 
 	ClearAllEvents();
 	Genhook::Clean(this);
 
-	int maxCount = reallyForce ? 2 : 15;
+	int maxCount = force ? 300 : reallyForce ? 2 : 15;
 	for(int i = 0; IsRunning(); i++)
 	{
 		if(i >= maxCount)
+		{
+			TerminateThread(threadHandle, 0);
 			break;
+		}
 		Sleep(500);
 	}
 

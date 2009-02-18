@@ -1758,11 +1758,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
 
 	if(!pLevel)
-	{
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
-		return JS_TRUE;
-	}
 
 	jsint nClassId = NULL;
 	jsint nType = NULL;

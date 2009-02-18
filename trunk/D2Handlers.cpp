@@ -113,10 +113,9 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = Script::CompileFile(file, InGame);
-			if(script)
+			if(script->GetExecutionCount() == 0)
 			{
-				if(!script->IsRunning())
-					Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
 			else
