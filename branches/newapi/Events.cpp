@@ -6,6 +6,9 @@
 
 void PulseEvent()
 {
+	if(!Script::IsActive())
+		return;
+
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{

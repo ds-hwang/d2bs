@@ -1,5 +1,7 @@
 #include <windows.h>
 
+#include "prthread.h"
+
 #include "D2BS.h"
 #include "Offsets.h"
 
@@ -13,6 +15,7 @@ HHOOK hKeybHook, hMouseHook;
 bool bClickAction = false, bBlockMinimize = false;
 WNDPROC oldWndProc = NULL;
 DWORD dwSelectedUnitId = 0, dwSelectedUnitType = 0;
+PRThread* mainThread = NULL;
 
 CRITICAL_SECTION PrintLock::SyncObj = {0};
 

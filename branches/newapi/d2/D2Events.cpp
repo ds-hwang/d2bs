@@ -10,6 +10,9 @@
 
 bool KeyPressEvent(WPARAM mkey, bool bUp)
 {
+	if(!Script::IsActive())
+		return false;
+
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{
@@ -25,6 +28,9 @@ bool KeyPressEvent(WPARAM mkey, bool bUp)
 
 bool MouseClickEvent(unsigned short mbutton, POINT& pt, bool bUp)
 {
+	if(!Script::IsActive())
+		return false;
+
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{
@@ -42,6 +48,9 @@ bool MouseClickEvent(unsigned short mbutton, POINT& pt, bool bUp)
 
 void MouseMoveEvent(POINT& pt)
 {
+	if(!Script::IsActive())
+		return;
+
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{
@@ -57,6 +66,9 @@ void MouseMoveEvent(POINT& pt)
 
 void CopyDataEvent(DWORD mode, const char* msg)
 {
+	if(!Script::IsActive())
+		return;
+
 	ScriptList scripts = Script::GetAllScripts();
 	for(ScriptIterator it = scripts.begin(); it != scripts.end(); it++)
 	{

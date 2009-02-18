@@ -35,6 +35,7 @@ void MainThread(void* lpData)
 
 	sprintf(path, "%s\\%s", path, config.scriptPath);
 
+	Log("D2BS Startup");
 	Script::Startup(path, InitContext, InitScript);
 	Script::SetBranchCallback(branch);
 

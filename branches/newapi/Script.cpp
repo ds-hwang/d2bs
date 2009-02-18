@@ -410,7 +410,7 @@ void Script::ClearAllEvents(void)
 		ClearEvent(it->first.c_str());
 }
 
-// this function has a max upper bound of ~75 events/sec. Anything beyond that and events start getting queued up while other events are happening.
+// this function has a max upper bound of ~18 events/sec. Anything beyond that and events start getting queued up while other events are happening.
 void Script::ExecEvent(const char* evtName, uintN argc, jsval* argv)
 {
 	if(IsAborted() || eventFunctions.count(evtName) == 0)

@@ -43,7 +43,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"addIncludePath",	script_addIncludePath,	1},
 
 	{"Print",			d2_print,				1},
-	{"inGame",			d2_ingame,			0},
+	{"inGame",			d2_ingame,				0},
 	{0}
 };
 

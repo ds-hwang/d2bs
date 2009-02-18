@@ -11,6 +11,10 @@
 
 #include "debug_new.h"
 
+extern PRThread* mainThread;
+extern HHOOK hKeybHook, hMouseHook;
+extern WNDPROC oldWndProc;
+
 void GamePrint(const char*);
 void OOGPrint(const char*);
 void StatusPrint(const char*);
@@ -21,6 +25,10 @@ void D2BSCleanup()
 {
 	Log("D2BS Cleanup");
 	Script::Shutdown();
+	PR_JoinThread(mainThread);
+	UnhookWindowsHookEx(hKeybHook);
+	UnhookWindowsHookEx(hMouseHook);
+	SetWindowLong(GetHwnd(), GWL_WNDPROC, (LONG)oldWndProc);
 }
 
 bool GameReady(void)
@@ -71,11 +79,10 @@ char* PrintHelper(char* szText, va_list args)
 
 void GamePrint(const char* text)
 {
-	//PrintLock lock;
+	PrintLock lock;
 	wchar_t* wtext = AnsiToUnicode(text);
 	PrintGameString(wtext, 0);
 	delete[] wtext;
-	//delete lock;
 }
 
 void OOGPrint(const char* text)

@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "WindowsHooks.h"
 
+#include "Helpers.h"
 #include "Threads.h"
 
 #include "prthread.h"
@@ -15,6 +16,7 @@
 // TODO: Move these globals somewhere else
 extern HHOOK hKeybHook, hMouseHook;
 extern WNDPROC oldWndProc;
+extern PRThread* mainThread;
 
 DWORD __fastcall Input_Handler(wchar_t* wMsg)
 {
@@ -41,7 +43,7 @@ void ExternalDraw_Handler(void)
 		oldWndProc = (WNDPROC)SetWindowLongPtr(GetHwnd(), GWL_WNDPROC, (LONG)WndProc);
 
 		// create and begin the main thread
-		PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
+		mainThread = PR_CreateThread(PR_USER_THREAD, MainThread, 0, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
 		IsInitialized = true;
 	}
 	InternalDraw_Handler();
