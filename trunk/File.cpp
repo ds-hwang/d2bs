@@ -25,6 +25,8 @@ using namespace std;
 
 char* readLine(FILE* fptr)
 {
+	if(feof(fptr))
+		return NULL;
 	char* line = NULL;
 	fpos_t pos;
 	fgetpos(fptr, &pos);
