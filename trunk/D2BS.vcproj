@@ -17,8 +17,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -43,7 +43,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/D2BS.tlb"
+				TypeLibraryName="$(ConfigurationName)/D2BS.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -58,9 +58,9 @@
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=""
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				AssemblerListingLocation="$(ConfigurationName)/"
+				ObjectFile="$(ConfigurationName)/"
+				ProgramDataBaseFileName="$(ConfigurationName)/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -79,17 +79,17 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32d.lib shlwapi.lib"
-				OutputFile="$(ProgramFiles)\Diablo II\d2bs\d2bs.dll"
+				AdditionalDependencies="js32/js32d.lib shlwapi.lib"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/D2BS.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(TargetName).pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/D2BS.lib"
+				ImportLibrary="$(OutDir)/D2BS.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -116,8 +116,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
@@ -142,7 +142,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\Release/D2BS.tlb"
+				TypeLibraryName="$(ConfigurationName)/D2BS.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -155,10 +155,10 @@
 				EnableFunctionLevelLinking="false"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release/D2BS.pch"
-				AssemblerListingLocation=".\Release/"
+				PrecompiledHeaderFile="$(ConfigurationName)/D2BS.pch"
+				AssemblerListingLocation=".$(ConfigurationName)/"
 				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
+				ProgramDataBaseFileName="$(ConfigurationName)/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
@@ -177,19 +177,19 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="js32.lib"
-				AdditionalDependencies="js32.lib"
+				AdditionalDependencies="js32/js32.lib shlwapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName).bin"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="false"
-				ProgramDatabaseFile=".\Release/D2BS.pdb"
+				ProgramDatabaseFile="$(ConfigurationName)/D2BS.pdb"
 				GenerateMapFile="false"
 				OptimizeReferences="2"
 				SetChecksum="true"
 				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/D2BS.lib"
+				ImportLibrary="$(ConfigurationName)/D2BS.lib"
 				TargetMachine="1"
 			/>
 			<Tool
