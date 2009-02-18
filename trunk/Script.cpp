@@ -472,14 +472,14 @@ bool Script::IsSingleStep(void)
 
 bool Script::IsIncluded(const char* file)
 {
-	char* fname = const_cast<char*>(file);
+	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	return !!includes.count(string(fname));
 }
 
 bool Script::Include(const char* file)
 {
-	char* fname = const_cast<char*>(file);
+	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || strcmp(fileName, fname) == 0)
