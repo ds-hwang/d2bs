@@ -440,15 +440,13 @@ void Script::Stop(bool force, bool reallyForce)
 	ClearAllEvents();
 	Genhook::Clean(this);
 
-	int maxCount = force ? 300 : reallyForce ? 2 : 15;
+	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)
 	{
+		// if we pass the time frame, just ignore the wait because the thread will end forcefully anyway
 		if(i >= maxCount)
-		{
-			TerminateThread(threadHandle, 0);
 			break;
-		}
-		Sleep(500);
+		Sleep(10);
 	}
 
 	CloseHandle(threadHandle);
