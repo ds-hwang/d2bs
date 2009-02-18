@@ -41,7 +41,7 @@ bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
 JSRuntime* Script::runtime = NULL;
 ScriptMap Script::activeScripts = ScriptMap();
-LPCRITICAL_SECTION Script::criticalSection = NULL;
+LPCRITICAL_SECTION Script::criticalSection = {0};
 bool Script::isAllLocked = false;
 
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
@@ -86,16 +86,15 @@ Script* Script::CompileCommand(const char* command)
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
 			execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false), scriptState(state),
-			threadHandle(NULL), threadId(0), scriptSection(NULL)
+			threadHandle(NULL), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");
 
-	scriptSection = new CRITICAL_SECTION;
 	InitializeCriticalSection(scriptSection);
-	Lock();
 	fileName = _strdup(file);
 	try {
+		AutoLock lock(this);
 		context = BuildContext(runtime);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
@@ -185,14 +184,8 @@ Script::Script(const char* file, ScriptState state) :
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		RegisterScript(this);
-		Unlock();
 	} catch(...) {
-		Unlock();
-		if(scriptSection)
-		{
-			DeleteCriticalSection(scriptSection);
-			delete scriptSection;
-		}
+		DeleteCriticalSection(scriptSection);
 		JS_EndRequest(context);
 		JS_DestroyContext(context);
 		throw;
@@ -227,7 +220,6 @@ Script::~Script(void)
 		CloseHandle(threadHandle);
 	Unlock();
 	DeleteCriticalSection(scriptSection);
-	delete scriptSection;
 }
 
 void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
@@ -254,8 +246,7 @@ void Script::Startup(void)
 		//JS_SetCallHook(runtime, executeCallback, NULL);
 		//JS_SetExecuteHook(runtime, executeCallback, NULL);
 		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
-		criticalSection = new CRITICAL_SECTION;
-		InitializeCriticalSection(criticalSection);
+		InitializeCriticalSection(&criticalSection);
 	}
 }
 
@@ -275,7 +266,6 @@ void Script::Shutdown(void)
 
 	UnlockAll();
 	DeleteCriticalSection(criticalSection);
-	delete criticalSection;
 }
 
 void Script::StopAll(bool force)
@@ -344,13 +334,13 @@ void Script::RegisterScript(Script* script)
 
 void Script::LockAll(void)
 {
-	EnterCriticalSection(criticalSection);
+	EnterCriticalSection(&criticalSection);
 	isAllLocked = true;
 }
 
 void Script::UnlockAll(void)
 {
-	LeaveCriticalSection(criticalSection);
+	LeaveCriticalSection(&criticalSection);
 	isAllLocked = false;
 }
 
@@ -514,13 +504,13 @@ bool Script::IsAborted()
 
 void Script::Lock(void)
 {
-	EnterCriticalSection(scriptSection);
+	EnterCriticalSection(&scriptSection);
 	isLocked = true;
 }
 
 void Script::Unlock(void)
 {
-	LeaveCriticalSection(scriptSection);
+	LeaveCriticalSection(&scriptSection);
 	isLocked = false;
 }
 

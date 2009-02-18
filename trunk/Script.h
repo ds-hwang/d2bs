@@ -60,7 +60,7 @@ class Script
 private:
 	static JSRuntime* runtime;
 	static ScriptMap activeScripts;
-	static LPCRITICAL_SECTION criticalSection;
+	static CRITICAL_SECTION criticalSection;
 	static bool isAllLocked;
 
 	char* fileName;
@@ -74,7 +74,7 @@ private:
 
 	IncludeList includes;
 	FunctionMap functions;
-	LPCRITICAL_SECTION scriptSection;
+	CRITICAL_SECTION scriptSection;
 	HANDLE threadHandle;
 	DWORD threadId;
 
