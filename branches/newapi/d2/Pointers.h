@@ -28,6 +28,7 @@ VARIABLE(D2Client, DWORD, Ping, 0x1032BC)
 VARIABLE(D2Client, DWORD, FPS, 0x11C388)
 VARIABLE(D2Client, DWORD, WaypointTab, 0x11B956)
 VARIABLE(D2Client, UnitAny*, SelectedInvItem, 0x11B9FC)
+VARIABLE(D2Client, DWORD, NoPickup, 0x11C114)
 // TODO: Double check this value...
 VARIABLE(D2Client, POINT*, Offset, 0x11C2E8)
 VARIABLE(D2Client, DWORD, AutomapOn, 0x102B80)
