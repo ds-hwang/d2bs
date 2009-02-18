@@ -276,6 +276,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
+	if(Vars.bBlockKeys)
+		return 1;
+
 	// ignore key events if the key is a repeat
 	if((code == HC_ACTION) && !(!!(lParam & 0x40000000) == 1 && !!(lParam & 0x80000000) == 0))
 	{
@@ -295,6 +298,9 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
+	if(Vars.bBlockMouse)
+		return 1;
+
 	if((code != HC_ACTION))
 		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
 	MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;

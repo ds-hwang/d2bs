@@ -119,6 +119,12 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_MERCREVIVECOST:
 			*vp = INT_TO_JSVAL((*p_D2CLIENT_MercReviveCost));
 			break;
+		case ME_BLOCKKEYS:
+			*vp = BOOLEAN_TO_JSVAL(Vars.bBlockKeys);
+			break;
+		case ME_BLOCKMOUSE:
+			*vp = BOOLEAN_TO_JSVAL(Vars.bBlockMouse);
+			break;
 		default:
 			break;
 	}
@@ -378,6 +384,14 @@ INT unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case OOG_MAXGAMETIME:
 			if(JSVAL_IS_INT(*vp))
 				Vars.dwMaxGameTime	= JSVAL_TO_INT(*vp);
+			break;
+		case ME_BLOCKKEYS:
+			if(JSVAL_IS_BOOLEAN(*vp))
+				Vars.bBlockKeys = JSVAL_TO_BOOLEAN(*vp);
+			break;
+		case ME_BLOCKMOUSE:
+			if(JSVAL_IS_BOOLEAN(*vp))
+				Vars.bBlockMouse = JSVAL_TO_BOOLEAN(*vp);
 			break;
 	}
 	return JS_TRUE;

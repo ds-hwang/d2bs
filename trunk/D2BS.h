@@ -97,6 +97,8 @@ struct Variables
 	BOOL	bQuitOnHostile;
 	BOOL	bStartAtMenu;
 	BOOL	bActive;
+	BOOL	bBlockKeys;
+	BOOL	bBlockMouse;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];
