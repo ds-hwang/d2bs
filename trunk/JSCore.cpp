@@ -323,8 +323,23 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
 	DWORD dwCount = NULL;
 	POINT lpBuffer[255] = {0};
+	DWORD *AreaIds;
+	jsuint dwLength = 0;
+	DWORD Area;
 
-	DWORD Area = JSVAL_TO_INT(argv[0]);
+	if (JSVAL_IS_OBJECT(argv[0])) {
+		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);
+		JS_GetArrayLength(cx, pObject, &dwLength);
+		AreaIds = new DWORD[dwLength];
+		jsval nVal;
+		for (int n = 0; n < (INT)dwLength; n++) {
+			JS_GetElement(cx, pObject, n, &nVal);
+			AreaIds[n] = JSVAL_TO_INT(nVal);
+		}
+		Area = AreaIds[0];
+	} else {
+		Area = JSVAL_TO_INT(argv[0]);
+	}
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
 	BOOL UseTele = IsTownLevel(Area);
@@ -339,10 +354,17 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	CCollisionMap g_collisionMap;
 
-	if(!g_collisionMap.CreateMap(Area))
-	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
-		return JS_TRUE;	
+	if (JSVAL_IS_OBJECT(argv[0])) {
+		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
+			*rval = BOOLEAN_TO_JSVAL(false);
+			return JS_TRUE;
+		}
+	} else {
+		if(!g_collisionMap.CreateMap(Area))
+		{
+			*rval = BOOLEAN_TO_JSVAL(FALSE);
+			return JS_TRUE;	
+		}
 	}
 
 	if (!g_collisionMap.IsValidAbsLocation(ptStart.x, ptStart.y) ||

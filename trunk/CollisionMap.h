@@ -50,6 +50,7 @@ public:
 	// Operations
 	////////////////////////////////////////////////////////////
 	BOOL CreateMap(DWORD AreaId); // Create the map data
+	BOOL CreateMap(DWORD AreaId[], int nSize);//Allow for multiple area ids
 	void DestroyMap();
 	BOOL DumpMap(LPCSTR lpszFilePath, const LPPOINT lpPath, DWORD dwCount) const; // Dump map data into a disk file
 
@@ -87,7 +88,7 @@ private:
 	////////////////////////////////////////////////////////////
 	// Private Methods
 	////////////////////////////////////////////////////////////
-	BOOL BuildMapData(DWORD AreaId);
+	BOOL BuildMapData(DWORD AreaIds[], int nSize);
 	void Search(Room2* ro, UnitAny* pPlayer, DwordArray& aSkip, DWORD dwScanArea);
 	void AddCollisionData(const CollMap* pCol);	
 	char IsMarkPoint(const POINT& ptPlayer, int x, int y, const LPPOINT lpPath, DWORD dwCount) const;

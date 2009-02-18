@@ -109,112 +109,59 @@ WORD CCollisionMap::GetMapData(long x, long y, BOOL bAbs) const
 	return wVal;
 }
 
-BOOL CCollisionMap::BuildMapData(DWORD AreaId)
+BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 {
+	UnitAny* pUnit = D2CLIENT_GetPlayerUnit ();
+
 	if (m_map.IsCreated())
 		return TRUE;
 
-	if(!GameReady())
+	if(!pUnit)
 		return FALSE;
 
-	Level* pLevel = GetLevel(AreaId);
 
-	if(!pLevel)
-		return FALSE;
+	//Get the most left-top level for the base and the size of the entire wanted map
+	Level* pBestLevel = GetLevel(AreaIds[0]);
+	DWORD dwXSize = 0;
+	DWORD dwYSize = 0;
+	m_ptLevelOrigin.x = pBestLevel->dwPosX * 5;
+	m_ptLevelOrigin.y = pBestLevel->dwPosY * 5;
+	//Loop all the given areas
+	for (int n = 0; n < nSize; n++) {
+		//Get the level struct for given id
+		Level* pLevel = GetLevel(AreaIds[n]);
 	
-	UnitAny* pPlayer = D2CLIENT_GetPlayerUnit();
+		//Make sure we have pLevel
+		if (!pLevel)
+			continue;
 
-//	LinkedArea* pArea = GetLinkedArea(AreaId);
+		//Check if this level is even more top-left then the current one
+		if((m_ptLevelOrigin.x / 5) > (int)pLevel->dwPosX)
+			m_ptLevelOrigin.x = pLevel->dwPosX * 5;
 
-	// Just build a CollisionMap that doesn't have any linked Area's.
-//	if(!pArea)
-//	{
-		dwLevelId = AreaId;	
-		m_ptLevelOrigin.x = pLevel->dwPosX * 5;
-		m_ptLevelOrigin.y = pLevel->dwPosY * 5;
+		if((m_ptLevelOrigin.y / 5) > (int)pLevel->dwPosY)
+			m_ptLevelOrigin.y = pLevel->dwPosY * 5;
 
-		if (!m_map.Create(pLevel->dwSizeX * 5, pLevel->dwSizeY * 5, MAP_DATA_INVALID))
-		{
-			return FALSE;
-		}
+		//Add the size of the levels.
+		dwXSize += pLevel->dwSizeX * 5;
+		dwYSize += pLevel->dwSizeY * 5;
+	}
+	dwLevelId = AreaIds[0];
 
-		CriticalRoom myRoom;
-		myRoom.EnterSection();
+	if (!m_map.Create(dwXSize, dwYSize, MAP_DATA_INVALID))
+		return FALSE;
 
-		DwordArray aSkip;
-		Search(pLevel->pRoom2First, pPlayer, aSkip, dwLevelId);
+	DwordArray aSkip;
+	for (int n = 0; n < nSize; n++) {
+		Level* pLevel = GetLevel(AreaIds[n]);
+		if (!pLevel)
+			continue;
 
-		// Fill gaps
-		FillGaps();
-		FillGaps();
+		Search(pLevel->pRoom2First, pUnit, aSkip, AreaIds[n]);
+	}
 		
-		return TRUE;
-/*	}
-	else
-	{
-		// For Area linking, we need the lowest level.
-		Level* pBestLevel = NULL;
-
-		for(UINT i = 0; i < pArea->dwAmount; i++)
-		{
-			pLevel = GetLevel(pArea->dwAreas[i]);
-
-			if(!pLevel)
-				return FALSE;
-			
-			if(!pBestLevel)
-				pBestLevel = pLevel;
-			else
-			{
-				if((pLevel->dwPosX < pBestLevel->dwPosX && pLevel->dwPosY < pBestLevel->dwPosY) ||
-						(pLevel->dwPosX == pBestLevel->dwPosX && pLevel->dwPosY < pBestLevel->dwPosY) ||
-							(pLevel->dwPosY == pBestLevel->dwPosY && pLevel->dwPosX < pBestLevel->dwPosY))
-				{
-					pBestLevel = pLevel;
-				}
-			}
-		}
-
-		dwLevelId = pBestLevel->dwLevelNo;
-
-		m_ptLevelOrigin.x = pBestLevel->dwPosX * 5;
-		m_ptLevelOrigin.y = pBestLevel->dwPosY * 5;
-
-		// Generate the Level size
-
-		WORD xSize = NULL, ySize = NULL;
-
-		for(UINT i = 0; i < pArea->dwAmount; i++)
-		{
-			pLevel = GetLevel(pArea->dwAreas[i]);
-
-			if(!pLevel)
-				return FALSE;
-
-			xSize += pLevel->dwSizeX * 5;
-			ySize += pLevel->dwSizeY * 5;
-		}
-
-		if (!m_map.Create(xSize, ySize, MAP_DATA_INVALID))
-			return FALSE;
-
-		DwordArray aSkip;
-
-		for(UINT i = 0; i < pArea->dwAmount; i++)
-		{
-			pLevel = GetLevel(pArea->dwAreas[i]);
-
-			if(!pLevel)
-				return FALSE;
-
-			Search(pLevel->pRoom2First, pPlayer, aSkip, pLevel->dwLevelNo);
-		}
-		// Fill gaps
-		FillGaps();
-		FillGaps();
-
-		return TRUE;
-	}*/
+	FillGaps();
+	FillGaps();
 
 	return TRUE;
 }
@@ -264,14 +211,18 @@ void CCollisionMap::Search(Room2 *ro, UnitAny* ptPlayer, DwordArray &aSkip, DWOR
 	}
 }
 
-BOOL CCollisionMap::CreateMap(DWORD AreaId)
+BOOL CCollisionMap::CreateMap(DWORD AreaId[], int nSize)
 {
 	
-	BOOL bOK = BuildMapData(AreaId);
+	BOOL bOK = BuildMapData(AreaId, nSize);
 
 	return bOK;
 }
-
+BOOL CCollisionMap::CreateMap(DWORD AreaId)
+{
+	DWORD dwAreas[] = {AreaId};
+	return BuildMapData(dwAreas, 1);
+}
 POINT CCollisionMap::GetMapOrigin() const
 {
 	return m_ptLevelOrigin;
