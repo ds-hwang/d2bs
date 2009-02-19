@@ -196,8 +196,8 @@ Script::Script(const char* file, ScriptState state) :
 
 Script::~Script(void)
 {
-	Stop(true, true);
 	Lock();
+	Stop(true, true);
 	activeScripts.erase(fileName);
 
 	JS_SetContextThread(context);
@@ -254,10 +254,10 @@ void Script::Startup(void)
 
 void Script::Shutdown(void)
 {
+	LockAll();
 	StopAll(true);
 	FlushCache();
 
-	LockAll();
 	activeScripts.clear();
 
 	if(runtime)
@@ -310,9 +310,12 @@ void Script::FlushCache(void)
 
 ScriptList Script::GetScripts(void)
 {
+	LockAll();
 	ScriptList scripts;
 	for(ScriptMap::iterator it = activeScripts.begin(); it != activeScripts.end(); it++)
 		scripts.push_back(it->second);
+
+	UnlockAll();
 	return scripts;
 }
 
@@ -477,12 +480,12 @@ bool Script::IsIncluded(const char* file)
 
 bool Script::Include(const char* file)
 {
+	AutoLock lock(this);
 	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || strcmp(fileName, fname) == 0)
 		return true;
-	Lock();
 	bool rval = false;
 	JSScript* script = JS_CompileFile(context, globalObject, fname);
 	if(script)
@@ -495,12 +498,12 @@ bool Script::Include(const char* file)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
-	Unlock();
 	return rval;
 }
 
 bool Script::IsRunning(void)
 {
+	AutoLock lock(this);
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -528,6 +531,7 @@ bool Script::IsLocked(void)
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
+	AutoLock lock(this);
 	if(JSVAL_IS_FUNCTION(context, evtFunc))
 	{
 		AutoRoot* root = new AutoRoot(context, evtFunc);
@@ -538,6 +542,7 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 
 bool Script::IsRegisteredEvent( const char* evtName, jsval evtFunc )
 {
+	AutoLock lock(this);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 		if((*it)->value() == evtFunc)
 			return true;
@@ -547,7 +552,7 @@ bool Script::IsRegisteredEvent( const char* evtName, jsval evtFunc )
 
 void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 {
-	Lock();
+	AutoLock lock(this);
 	AutoRoot* func = NULL;
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
@@ -560,12 +565,11 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 	functions[evtName].remove(func);
 	func->Release();
 	delete func;
-	Unlock();
 }
 
 void Script::ClearEvent(const char* evtName)
 {
-	Lock();
+	AutoLock lock(this);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		AutoRoot* func = *it;
@@ -573,23 +577,23 @@ void Script::ClearEvent(const char* evtName)
 		delete func;
 	}
 	functions[evtName].clear();
-	Unlock();
 }
 
 void Script::ClearAllEvents(void)
 {
+	AutoLock lock(this);
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
 }
 
 JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval)
 {
+	AutoLock lock(this);
 	char msg[50];
 	sprintf(msg, "Script::ExecEvent(%s)", evtName);
 	CDebug cDbg(msg);
 
 	Pause();
-	Lock();
 
 	JSContext* cx = BuildContext(runtime);
 	JS_SetContextPrivate(cx, this);
@@ -619,7 +623,6 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 	delete[] argv;
 
-	Unlock();
 	Resume();
 
 	return JS_TRUE;
@@ -627,6 +630,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
+	AutoLock lock(this);
 	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
 		char msg[50];
@@ -767,6 +771,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 	{
 		// assume we have to take the context thread
+		script->Lock();
 		JS_SetContextThread(cx);
 		depth = JS_SuspendRequest(cx);
 		script->SetPauseState(true);
@@ -779,6 +784,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		// assume we lost the context thread while paused
 		JS_SetContextThread(cx);
 		JS_ResumeRequest(cx, depth);
+		script->Unlock();
 	}
 
 	if(script->IsAborted())
@@ -796,10 +802,16 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	{
 		Script::PauseAll();
 		Script::LockAll();
+		ScriptList scripts = Script::GetScripts();
+		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+			(*it)->Lock();
 		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)
 	{
+		ScriptList scripts = Script::GetScripts();
+		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+			(*it)->Unlock();
 		Script::UnlockAll();
 		Script::ResumeAll();
 	}
