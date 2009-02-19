@@ -449,8 +449,13 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	jsint nLevelId = JSVAL_TO_INT(argv[0]);
 	jsint nX = JSVAL_TO_INT(argv[1]);
 	jsint nY = JSVAL_TO_INT(argv[2]);
+	
+	if (!Vars.cMap)
+	{
+		Vars.cMap = new CCollisionMap;
+	}
 
-	if(nLevelId != Vars.cMap->dwLevelId)
+	if (nLevelId != Vars.cMap->dwLevelId)
 	{
 		Vars.cMap->DestroyMap();
 		Vars.cMap->CreateMap(nLevelId);
