@@ -126,6 +126,8 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 	DWORD dwYSize = 0;
 	m_ptLevelOrigin.x = pBestLevel->dwPosX * 5;
 	m_ptLevelOrigin.y = pBestLevel->dwPosY * 5;
+	dwLevelId = AreaIds[0];
+
 	//Loop all the given areas
 	for (int n = 0; n < nSize; n++) {
 		//Get the level struct for given id
@@ -146,7 +148,6 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 		dwXSize += pLevel->dwSizeX * 5;
 		dwYSize += pLevel->dwSizeY * 5;
 	}
-	dwLevelId = AreaIds[0];
 
 	if (!m_map.Create(dwXSize, dwYSize, MAP_DATA_INVALID))
 		return FALSE;
