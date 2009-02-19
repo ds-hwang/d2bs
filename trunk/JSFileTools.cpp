@@ -107,39 +107,39 @@ JSAPI_FUNC(filetools_copy)
 	//Sanity check to make sure the file opened for reading!
 	if(!fptr1)
 	{
-		THROW_ERROR(cx, obj, _strerror("Read failed"));
+		THROW_ERROR(cx, obj, _strerror("Open of file for reading failed"));
 		return JS_TRUE;
 	}
 	// Same for file opened for writing
 	if(!fptr2)
 	{
-		THROW_ERROR(cx, obj, _strerror("Write failed"));
+		THROW_ERROR(cx, obj, _strerror("Open of file for writing failed"));
 		return JS_TRUE;
 	}
-
-	//int size = _filelength(_fileno(fptr1));// trying someting else.. results wonky with this method..
-	// obtain file size:
-	//fseek(fptr1 , 0 , SEEK_END);
-	//long size = ftell(fptr1); // 44479
-	//rewind(fptr1); 
-	// the above gives the same results as the filelength().. which is also wrong..
-	int size = 0;
-	while(!feof(fptr1))	// this on the other hand.. gives an accurate file after copying.. no damn clue why the number does not match!
+	while(!feof(fptr1)) 
 	{
-		fgetc(fptr1);
-		size++;
+		int ch = fgetc(fptr1);
+		if(ferror(fptr1)) 
+		{
+			THROW_ERROR(cx, obj, _strerror("Read Error"));
+			clearerr(fptr1);
+			break;
+		} 
+		else 
+		{
+			if(!feof(fptr1)) 
+				fputc(ch, fptr2);
+			if(ferror(fptr2)) 
+			{
+				THROW_ERROR(cx, obj, _strerror("Write Error"));
+				clearerr(fptr2);
+				break;
+			}
+		}
 	} 
-	rewind(fptr1); // slap the file back to the begining to prepare for the read operation.
-	char* contents = new char[size];
-	memset(contents, 0, size);
-	if(fread(contents, sizeof(char), size, fptr1) != size && ferror(fptr1))
-		THROW_ERROR(cx, obj, _strerror("Read failed"));
-	if(fwrite(contents, sizeof(char), size, fptr2) != size && ferror(fptr2))
-		THROW_ERROR(cx, obj, _strerror("Write failed"));
 	fflush(fptr2);
 	fclose(fptr2);
 	fclose(fptr1);
-	delete[] contents;
 
 	return JS_TRUE;
 }
