@@ -826,8 +826,8 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
 	const char* filename = (report->filename ? report->filename + strlen(Vars.szScriptPath)+1 : "<unknown>");
-	sprintf(msg, "[%s%s] %s/line %d: (%d) %s\nLine: %s", strict, type, filename, report->lineno,
-					report->errorNumber, message, report->linebuf);
+	sprintf(msg, "[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
+				filename, report->lineno, message, report->linebuf);
 	Log(msg);
 
 	// all potential cases are handled inside Print now
