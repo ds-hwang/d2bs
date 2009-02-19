@@ -9,5 +9,6 @@ bool GameReady(void);
 UnitAny* FindUnit(DWORD id, DWORD type);
 void D2Print(char* szText, ...);
 void D2BSCleanup();
+RosterUnit* FindPlayerRoster(DWORD id);
 
 #endif

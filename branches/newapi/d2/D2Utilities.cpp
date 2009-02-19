@@ -102,3 +102,8 @@ UnitAny* FindUnit(DWORD id, DWORD type)
 	UnitAny* unit = FindServerSideUnit(id, type);
 	return unit ? unit : FindClientSideUnit(id, type);
 }
+RosterUnit* FindPlayerRoster(DWORD id) {
+	for (RosterUnit* pRoster = p_D2CLIENT_PlayerUnitList; pRoster; pRoster = pRoster->pNext)
+		if (pRoster->dwUnitId == id)
+			return pRoster;
+}

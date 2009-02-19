@@ -107,7 +107,6 @@ struct Variables
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
-	CCollisionMap* cMap;
 
 	ImageHook* image;
 	TextHook* text;
