@@ -122,7 +122,6 @@ JSAPI_FUNC(filetools_copy)
 		if(ferror(fptr1)) 
 		{
 			THROW_ERROR(cx, obj, _strerror("Read Error"));
-			//clearerr(fptr1);
 			break;
 		} 
 		else 
@@ -132,16 +131,21 @@ JSAPI_FUNC(filetools_copy)
 			if(ferror(fptr2)) 
 			{
 				THROW_ERROR(cx, obj, _strerror("Write Error"));
-				//clearerr(fptr2);
 				break;
 			}
 		}
 	} 
 	if (ferror(fptr1) || ferror(fptr2))
 	{
+		clearerr(fptr1);
+		clearerr(fptr2);
+		fflush(fptr2);
+		fclose(fptr2);
+		fclose(fptr1);
 		remove(pnewName);// delete the partial file so it doesnt look like we succeeded
 		THROW_ERROR(cx, obj, _strerror("Copied file not the same!"));
 		*rval = BOOLEAN_TO_JSVAL(false);
+		return JS_TRUE;
 	}
 
 	fflush(fptr2);
