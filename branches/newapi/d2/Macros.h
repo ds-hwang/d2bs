@@ -13,9 +13,11 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 #ifdef _CREATE_DEFINITIONS
 
 #define FUNCTION(mod, addr, ret, call, name, args) \
-	__declspec(naked) ret call name args { \
+	__declspec(naked) ret call name args \
+	{ \
 		static DWORD f##name = NULL; \
-		if(f##name == NULL) { \
+		if(f##name == NULL) \
+		{ \
 			__asm { pushad } __asm { pushfd } \
 			f##name = GetDllAddress((int)mod, addr); \
 			 __asm { popfd }__asm { popad } \
@@ -25,15 +27,25 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 
 #define VARIABLE(mod, type, name, addr) \
 	type __fastcall Get##mod##name##(void) { \
-		return (type)*(DWORD*)GetDllAddress((int)mod, addr); \
+		static DWORD v##name = NULL; \
+		if(v##name == NULL) \
+			v##name = GetDllAddress((int)mod, addr); \
+		return (type)*(DWORD*)v##name; \
 	} \
 	type __fastcall Addr##mod##name##(void) { \
-		return (type)(DWORD*)GetDllAddress((int)mod, addr); \
+		static DWORD v##name = NULL; \
+		if(v##name == NULL) \
+			v##name = GetDllAddress((int)mod, addr); \
+		return (type)(DWORD*)v##name; \
 	}
 
 #define ADDRESS(mod, name, addr) \
-	DWORD __fastcall Get##mod##name##_ASM(void) { \
-		return (DWORD)GetDllAddress((int)mod, addr); \
+	DWORD __fastcall Get##mod##name##_ASM(void) \
+	{ \
+		static DWORD v##name = NULL; \
+		if(v##name == NULL) \
+			v##name = GetDllAddress((int)mod, addr); \
+		return (DWORD)v##name; \
 	}
 
 #else
