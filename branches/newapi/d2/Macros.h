@@ -42,10 +42,10 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 #define ADDRESS(mod, name, addr) \
 	DWORD __fastcall Get##mod##name##_ASM(void) \
 	{ \
-		static DWORD v##name = NULL; \
-		if(v##name == NULL) \
-			v##name = GetDllAddress((int)mod, addr); \
-		return (DWORD)v##name; \
+		static DWORD a##name = NULL; \
+		if(a##name == NULL) \
+			a##name = GetDllAddress((int)mod, addr); \
+		return (DWORD)a##name; \
 	}
 
 #else
