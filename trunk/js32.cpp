@@ -50,6 +50,9 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
+	// TODO: determine how to block this when the GC is running...
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
 
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 	if(obj)
@@ -70,6 +73,9 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 		}
 		JS_RemoveRoot(cx, &obj);
 	}
+
+	JS_SetContextThread(cx);
+	JS_EndRequest(cx);
 	return obj;
 }
 

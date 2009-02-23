@@ -1,8 +1,9 @@
+#include <vector>
+
 #include "D2Handlers.h"
 #include "D2BS.h"
 #include "Script.h"
 #include "ScreenHook.h"
-#include <vector>
 #include "Unit.h"
 #include "Helpers.h"
 #include "Core.h"

@@ -48,19 +48,19 @@ bool Script::isAllLocked = false;
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	try {
-		LockAll();
+//		LockAll();
 		if(recompile && activeScripts.count(file) > 0) {
 			activeScripts[file]->Stop(true, true);
 			delete activeScripts[file];
 		} else if(activeScripts.count(file) > 0) {
-			UnlockAll();
+//			UnlockAll();
 			return activeScripts[file];
 		}
 		Script* script = new Script(file, state);
-		UnlockAll();
+//		UnlockAll();
 		return script;
 	} catch(std::exception e) {
-		UnlockAll();
+//		UnlockAll();
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -87,7 +87,7 @@ Script* Script::CompileCommand(const char* command)
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
 			execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false), scriptState(state),
-			threadHandle(NULL), threadId(0)
+			threadHandle(NULL), threadId(0), lockThreadId(-1)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");
@@ -341,12 +341,14 @@ void Script::LockAll(void)
 {
 	EnterCriticalSection(&criticalSection);
 	isAllLocked = true;
+	Log("LockAll: entering on thread %d", GetCurrentThreadId());
 }
 
 void Script::UnlockAll(void)
 {
 	LeaveCriticalSection(&criticalSection);
 	isAllLocked = false;
+	Log("UnlockAll: leaving on thread %d", GetCurrentThreadId());
 }
 
 bool Script::IsAllLocked(void)
@@ -503,7 +505,6 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	AutoLock lock(this);
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -514,12 +515,16 @@ bool Script::IsAborted()
 
 void Script::Lock(void)
 {
-	EnterCriticalSection(&scriptSection);
+	lockThreadId = GetCurrentThreadId();
 	isLocked = true;
+	EnterCriticalSection(&scriptSection);
+	Log("Lock: entering lock for %s on thread %d", fileName, lockThreadId);
 }
 
 void Script::Unlock(void)
 {
+	Log("Unlock: leaving lock for %s on thread %d", fileName, lockThreadId);
+	lockThreadId = -1;
 	LeaveCriticalSection(&scriptSection);
 	isLocked = false;
 }
@@ -527,6 +532,11 @@ void Script::Unlock(void)
 bool Script::IsLocked(void)
 {
 	return isLocked;
+}
+
+DWORD Script::LockingThread()
+{
+	return lockThreadId;
 }
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
@@ -686,9 +696,6 @@ DWORD WINAPI FuncThread(void* data)
 	Event* evt = (Event*)data;
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
-		evt->owner->Pause();
-		while(!evt->owner->IsReallyPaused())
-			Sleep(1); // let the script really pause
 		jsval dummy = JSVAL_VOID;
 		// switch the context thread to this one
 		JS_SetContextThread(evt->context);
@@ -703,11 +710,6 @@ DWORD WINAPI FuncThread(void* data)
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			// TODO: Something needs to be released here... not sure what.
-			// it gets locked in js_CheckScope
-			// figured it out: creating a new context doesn't release the variables from the old context, which == deadlock
-			// the correct fix is to call SuspendRequest/ResumeRequest before/after each CallFunctionValue call or wait for 1.8,
-			// but just reusing the context is also valid
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
 		}
 
@@ -720,7 +722,6 @@ DWORD WINAPI FuncThread(void* data)
 		JS_EndRequest(evt->context);
 		JS_DestroyContextNoGC(evt->context);
 		evt->context = NULL;
-		evt->owner->Resume();
 	}
 
 	// assume we have to clean up both the event and the args, and release autorooted vars
@@ -766,14 +767,14 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
-	jsrefcount depth;
+	JS_SetContextThread(cx);
+	jsrefcount depth = JS_SuspendRequest(cx);
+
 
 	if(pause)
 	{
 		// assume we have to take the context thread
 		script->Lock();
-		JS_SetContextThread(cx);
-		depth = JS_SuspendRequest(cx);
 		script->SetPauseState(true);
 	}
 	while(script->IsPaused())
@@ -782,38 +783,49 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	{
 		script->SetPauseState(false);
 		// assume we lost the context thread while paused
-		JS_SetContextThread(cx);
-		JS_ResumeRequest(cx, depth);
 		script->Unlock();
 	}
 
-	if(script->IsAborted())
-		return JS_FALSE;
+	JS_SetContextThread(cx);
+	JS_ResumeRequest(cx, depth);
 
-	if((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit())
-		return JS_FALSE;
-
-	return JS_TRUE;
+	return !(script->IsAborted() &&
+			((script->GetState() != OutOfGame) &&
+			!D2CLIENT_GetPlayerUnit()));
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
+	static bool enteredLock = false;
+	// TODO: This deadlocks when one thread is attempting to enter the GC while the GC is already active
 	if(status == JSGC_BEGIN)
 	{
-		Script::PauseAll();
-		Script::LockAll();
 		ScriptList scripts = Script::GetScripts();
+		// break the locks if something has them already
 		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-			(*it)->Lock();
+			if(!(*it)->IsLocked())
+				(*it)->Lock();
+		if(!Script::IsAllLocked())
+		{
+			Script::LockAll();
+			enteredLock = true;
+		}
+		Script::PauseAll();
 		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)
 	{
+		Script::ResumeAll();
+		// break the lock if something has the lock already
+		if(enteredLock)
+		{
+			Script::UnlockAll();
+			enteredLock = false;
+		}
 		ScriptList scripts = Script::GetScripts();
 		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-			(*it)->Unlock();
-		Script::UnlockAll();
-		Script::ResumeAll();
+			if((*it)->LockingThread() == GetCurrentThreadId())
+				(*it)->Unlock();
 	}
 	return JS_TRUE;
 }

@@ -76,7 +76,7 @@ private:
 	FunctionMap functions;
 	CRITICAL_SECTION scriptSection;
 	HANDLE threadHandle;
-	DWORD threadId;
+	DWORD threadId, lockThreadId;
 
 	void InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
 					JSFunctionSpec* s_methods, JSPropertySpec* s_props);
@@ -135,6 +135,7 @@ public:
 	void Lock(void);
 	void Unlock(void);
 	bool IsLocked(void);
+	DWORD LockingThread(void);
 
 	bool IsRunning(void);
 	bool IsAborted(void);
