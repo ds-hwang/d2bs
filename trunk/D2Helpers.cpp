@@ -10,10 +10,11 @@
 
 VOID Log(CHAR* szFormat, ...)
 {
-	CHAR szString[8192] = {NULL};
 	va_list vaArgs;
 
 	va_start(vaArgs, szFormat);
+	int len = _vscprintf(szFormat, vaArgs);
+	char* szString = new char[len+1];
 	vsprintf(szString, szFormat, vaArgs);
 	va_end(vaArgs);
 
@@ -24,6 +25,7 @@ VOID Log(CHAR* szFormat, ...)
 
 	fprintf(stderr, "%s %s\n", szTime, szString);
 	fflush(stderr);
+	delete[] szString;
 }
 
 // NOTE TO CALLERS: szTmp must be a PRE-INITIALIZED string.

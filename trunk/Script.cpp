@@ -832,20 +832,17 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
-	char msg[1024];
 	bool warn = JSREPORT_IS_WARNING(report->flags);
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
 	const char* filename = (report->filename ? report->filename + strlen(Vars.szScriptPath)+1 : "<unknown>");
-	sprintf(msg, "[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
+	Log("[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
 				filename, report->lineno, message, report->linebuf);
-	Log(msg);
 
 	// all potential cases are handled inside Print now
-	sprintf(msg, "[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
+	Print("[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
 					filename, report->lineno, message);
-	Print(msg);
 
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
