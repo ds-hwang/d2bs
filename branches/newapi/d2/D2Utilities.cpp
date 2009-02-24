@@ -20,7 +20,7 @@ void OOGPrint(const char* text);
 void StatusPrint(const char* text);
 char* PrintHelper(const char* format, va_list args);
 
-void D2BSCleanup()
+void D2BSCleanup(void)
 {
 	Log("D2BS Cleanup");
 	Script::Shutdown();
@@ -40,7 +40,7 @@ bool GameReady(void)
 			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
 }
 
-void D2Print(char* format, ...)
+void D2Print(const char* format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -64,7 +64,7 @@ void D2Print(char* format, ...)
 	delete[] text;
 }
 
-char* PrintHelper(char* format, va_list args)
+char* PrintHelper(const char* format, const va_list args)
 {
 	// return NULL when the string has been fully formatted or something? we gotta figure that one out...
 	int len = _vscprintf(format, args);
