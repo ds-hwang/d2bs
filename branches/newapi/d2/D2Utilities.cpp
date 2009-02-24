@@ -15,11 +15,10 @@ extern PRThread* mainThread;
 extern HHOOK hKeybHook, hMouseHook;
 extern WNDPROC oldWndProc;
 
-void GamePrint(const char*);
-void OOGPrint(const char*);
-void StatusPrint(const char*);
-char* PrintHelper(char*, va_list);
-
+void GamePrint(const char* text);
+void OOGPrint(const char* text);
+void StatusPrint(const char* text);
+char* PrintHelper(const char* format, va_list args);
 
 void D2BSCleanup()
 {
@@ -41,11 +40,11 @@ bool GameReady(void)
 			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
 }
 
-void D2Print(char* szText, ...)
+void D2Print(char* format, ...)
 {
 	va_list args;
-	va_start(args, szText);
-	char* text = PrintHelper(szText, args);
+	va_start(args, format);
+	char* text = PrintHelper(format, args);
 	va_end(args);
 
 	if(GameReady())
@@ -65,12 +64,12 @@ void D2Print(char* szText, ...)
 	delete[] text;
 }
 
-char* PrintHelper(char* szText, va_list args)
+char* PrintHelper(char* format, va_list args)
 {
 	// return NULL when the string has been fully formatted or something? we gotta figure that one out...
-	int len = _vscprintf(szText, args);
+	int len = _vscprintf(format, args);
 	char* text = new char[len+1];
-	vsprintf(text, szText, args);
+	vsprintf(text, format, args);
 
 	// TODO: Make this format and wrap messages and so forth
 
@@ -102,8 +101,11 @@ UnitAny* FindUnit(DWORD id, DWORD type)
 	UnitAny* unit = FindServerSideUnit(id, type);
 	return unit ? unit : FindClientSideUnit(id, type);
 }
-RosterUnit* FindPlayerRoster(DWORD id) {
-	for (RosterUnit* pRoster = p_D2CLIENT_PlayerUnitList; pRoster; pRoster = pRoster->pNext)
-		if (pRoster->dwUnitId == id)
+
+RosterUnit* FindPlayerRoster(DWORD id)
+{
+	for(RosterUnit* pRoster = p_D2CLIENT_PlayerUnitList; pRoster; pRoster = pRoster->pNext)
+		if(pRoster->dwUnitId == id)
 			return pRoster;
 }
+

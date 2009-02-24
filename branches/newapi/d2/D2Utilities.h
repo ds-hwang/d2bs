@@ -6,9 +6,10 @@
 #include "Structs.h"
 
 bool GameReady(void);
+void D2BSCleanup(void);
+void D2Print(char* format, ...);
 UnitAny* FindUnit(DWORD id, DWORD type);
-void D2Print(char* szText, ...);
-void D2BSCleanup();
 RosterUnit* FindPlayerRoster(DWORD id);
 
 #endif
+
