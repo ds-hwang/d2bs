@@ -114,6 +114,7 @@ JSAPI_FUNC(sqlite_ctor)
 		free(path);
 
 	JSObject* jsdb = BuildObject(cx, &sqlite_db_ex.base, sqlite_methods, sqlite_props, dbobj);
+	JS_SetContextThread(cx);
 	if(!jsdb) {
 		sqlite3_close(db);
 		free(dbobj->path);
@@ -198,6 +199,7 @@ JSAPI_FUNC(sqlite_query)
 	dbobj->stmts.insert(dbstmt);
 
 	JSObject* row = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, dbstmt);
+	JS_SetContextThread(cx);
 	if(!row) {
 		sqlite3_finalize(stmt);
 		delete dbstmt;
@@ -254,6 +256,7 @@ JSAPI_PROP(sqlite_getProperty)
 			for(StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
 				if((*it)->open) {
 					JSObject* stmt = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, *it);
+					JS_SetContextThread(cx);
 					jsval tmp = OBJECT_TO_JSVAL(stmt);
 					JS_SetElement(cx, stmts, i, &tmp);
 				}

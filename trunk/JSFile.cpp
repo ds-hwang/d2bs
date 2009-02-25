@@ -185,6 +185,7 @@ JSAPI_FUNC(file_open)
 		_lock_file(fptr);
 
 	JSObject* res = BuildObject(cx, &file_class_ex.base, file_methods, file_props, fdata);
+	JS_SetContextThread(cx);
 	if(!res)
 	{
 		fclose(fptr);

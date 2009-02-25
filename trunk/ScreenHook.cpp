@@ -91,6 +91,7 @@ bool Genhook::Click(int button, POINT* loc)
 
 	Lock();
 
+	JS_ClearContextThread(owner->GetContext());
 	JS_SetContextThread(owner->GetContext());
 	jsval rval;
 	JS_AddRoot(owner->GetContext(), &rval);
@@ -120,6 +121,7 @@ void Genhook::Hover(POINT* loc)
 		return;
 
 	Lock();
+	JS_ClearContextThread(owner->GetContext());
 	JS_SetContextThread(owner->GetContext());
 
 	jsval rval = JSVAL_VOID;

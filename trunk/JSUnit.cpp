@@ -455,6 +455,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	strcpy(pmyUnit->szName, szName);
 
 	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+	JS_SetContextThread(cx);
 
 	if(!jsunit)
 		return JS_TRUE;

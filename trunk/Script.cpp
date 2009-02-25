@@ -129,6 +129,7 @@ Script::Script(const char* file, ScriptState state) :
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
 		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
+		JS_SetContextThread(context);
 		JS_AddRoot(context, &meObject);
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
@@ -200,6 +201,7 @@ Script::~Script(void)
 	Stop(true, true);
 	activeScripts.erase(fileName);
 
+	JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
@@ -395,6 +397,7 @@ void Script::Run(void)
 		return;
 
 	isAborted = false;
+	JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
@@ -405,12 +408,14 @@ void Script::Run(void)
 	JS_ExecuteScript(context, globalObject, script, &dummy);
 	if(JS_GetProperty(context, globalObject, "main", &main) && JSVAL_IS_FUNCTION(context, main))
 	{
+		JS_ClearContextThread(context);
 		JS_SetContextThread(context);
 		JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
 	}
 
 	JS_RemoveRoot(context, &main);
 	// the context's thread most likely was trampled on by now, reset it
+	JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_EndRequest(context);
 	JS_ClearContextThread(context);
@@ -710,6 +715,7 @@ DWORD WINAPI FuncThread(void* data)
 	{
 		jsval dummy = JSVAL_VOID;
 		// switch the context thread to this one
+		JS_ClearContextThread(evt->context);
 		JS_SetContextThread(evt->context);
 		JS_BeginRequest(evt->context);
 
@@ -730,6 +736,7 @@ DWORD WINAPI FuncThread(void* data)
 		delete[] args;
 
 		// assume that the caller stole the context thread
+		JS_ClearContextThread(evt->context);
 		JS_SetContextThread(evt->context);
 		JS_EndRequest(evt->context);
 		evt->context = NULL;
@@ -781,9 +788,9 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
+	JS_ClearContextThread(cx);
 	JS_SetContextThread(cx);
 	jsrefcount depth = JS_SuspendRequest(cx);
-
 
 	if(pause)
 	{
@@ -798,11 +805,11 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 	{
 		script->SetPauseState(false);
-		// assume we lost the context thread while paused
 		if(script->LockingThread() == GetCurrentThreadId())
 			script->Unlock();
 	}
 
+	JS_ClearContextThread(cx);
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
 
@@ -829,6 +836,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 			enteredLock = true;
 		}
 		Script::PauseAll();*/
+		JS_ClearContextThread(cx);
 		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)

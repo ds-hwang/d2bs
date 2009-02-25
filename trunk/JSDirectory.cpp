@@ -55,7 +55,8 @@ JSBool openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	{
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &directory_class, dir_methods, dir_props, d);
-		*rval=OBJECT_TO_JSVAL(jsdir);
+		JS_SetContextThread(cx);
+		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
 
 	return JS_TRUE;
@@ -171,7 +172,8 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &directory_class, dir_methods, dir_props, d);
-		*rval=OBJECT_TO_JSVAL(jsdir);
+		JS_SetContextThread(cx);
+		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
 
 	return JS_TRUE;

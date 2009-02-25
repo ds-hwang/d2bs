@@ -70,6 +70,7 @@ JSAPI_FUNC(frame_ctor) {
 	pFramehook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &frame_class, frame_methods, frame_props, pFramehook);
+	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create frame object");
 
@@ -206,6 +207,7 @@ JSAPI_FUNC(box_ctor) {
 	pBoxHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props, pBoxHook);
+	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create box object");
 
@@ -351,6 +353,7 @@ JSAPI_FUNC(line_ctor) {
 	pLineHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
+	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create line object");
 
@@ -489,6 +492,7 @@ JSAPI_FUNC(text_ctor) {
 	pTextHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props, pTextHook);
+	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create text object");
 
@@ -638,6 +642,7 @@ JSAPI_FUNC(image_ctor) {
 	pImageHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &image_class, image_methods, image_props, pImageHook);
+	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create image object");
 

@@ -107,6 +107,7 @@ JSAPI_FUNC(my_getScript)
 	ScriptIterator* ptr = new ScriptIterator();
 	ptr->it = Script::GetFirstScript();
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, ptr);
+	JS_SetContextThread(cx);
 	if(!res)
 		THROW_ERROR(cx, obj, "Failed to build the script object");
 	*rval = OBJECT_TO_JSVAL(res);

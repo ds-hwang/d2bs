@@ -169,6 +169,7 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
 
 				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+				JS_SetContextThread(cx);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -1832,6 +1833,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 				mypUnit->dwId = pUnit->dwTxtFileNo;
 
 				JSObject* unit = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
+				JS_SetContextThread(cx);
 
 				jsval a = OBJECT_TO_JSVAL(unit);
 				JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
@@ -1920,6 +1922,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				mypUnit->dwId = pUnit->dwTxtFileNo;
 
 				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
+				JS_SetContextThread(cx);
 				if(!obj)
 				{
 					delete mypUnit;
