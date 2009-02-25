@@ -160,7 +160,7 @@ class AutoLock
 private:
 	Script* script;
 public:
-	AutoLock(Script* s) { script = s; s->Lock(); }
+	AutoLock(Script* s) { script = s; script->Lock(); }
 	~AutoLock() { script->Unlock(); }
 };
 

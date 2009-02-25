@@ -135,7 +135,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			if(Script::GetActiveCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts...");
-			Script::StopAll();
+			Script::StopAll(true);
 
 			Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
 			Script::FlushCache();

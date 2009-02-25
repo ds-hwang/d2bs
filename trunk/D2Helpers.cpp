@@ -8,7 +8,7 @@
 
 #include "debugnew/debug_new.h"
 
-VOID Log(CHAR* szFormat, ...)
+void Log(char* szFormat, ...)
 {
 	va_list vaArgs;
 

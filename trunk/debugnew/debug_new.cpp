@@ -530,9 +530,13 @@ static void free_pointer(void* pointer, void* addr, bool is_array)
             (new_ptr_list_t*)((char*)pointer - ALIGNED_LIST_ITEM_SIZE);
 	if (ptr->magic == 0xFDFDFDFD) // special case for MSVC debug runtime
 	{
-		fprintf(new_output_fp, "delete%s: called on pointer from "
-								"external malloc (no problem here)\n",
-                    is_array ? "[]" : "");
+		if (new_verbose_flag)
+		{
+			fast_mutex_autolock lock(new_output_lock);
+			fprintf(new_output_fp, "delete%s: called on pointer from "
+									"external malloc (no problem here)\n",
+			            is_array ? "[]" : "");
+		}
 		free(pointer);
 		return;
 	}

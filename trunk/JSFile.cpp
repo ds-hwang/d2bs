@@ -423,7 +423,7 @@ void file_finalize(JSContext *cx, JSObject *obj)
 
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata) {
-		delete[] fdata->path;
+		free(fdata->path);
 		if(fdata->locked && fdata->fptr)
 			_unlock_file(fdata->fptr);
 		if(fdata->fptr)
