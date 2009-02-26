@@ -14,8 +14,16 @@ JSAPI_FUNC(d2_print)
 {
 	if(argc >= 1)
 	{
+		int color = 0;
 		char* szMessage = JSVAL_TO_STR(cx, argv[0]);
-		D2Print(szMessage);
+		if (argc >= 2)
+		{
+			if (JSVAL_IS_INT(argv[1]))
+			{
+				color = JSVAL_TO_INT(argv[1]);
+			}
+		}
+		D2Print(szMessage,color);
 	}
 	return JS_TRUE;
 }

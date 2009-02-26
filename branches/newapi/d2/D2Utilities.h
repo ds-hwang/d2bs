@@ -7,7 +7,7 @@
 
 bool GameReady(void);
 void D2BSCleanup(void);
-void D2Print(const char* format, ...);
+void D2Print(const char* format, int color, ...);
 UnitAny* FindUnit(DWORD id, DWORD type);
 RosterUnit* FindPlayerRoster(DWORD id);
 

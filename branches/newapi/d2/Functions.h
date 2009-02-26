@@ -120,10 +120,10 @@ FUNCTION(D2Gfx, -10043, DWORD, __stdcall, GetScreenSize, (void))
 FUNCTION(D2Gfx, -10078, HWND, __stdcall, GetHwnd, (void))
 FUNCTION(D2Gfx, -10026, void, __fastcall, WindowCleanup, (void))
 
-FUNCTION(D2Multi, 0xF770, void, __stdcall, PrintChannelText, (const char* szText, DWORD dwColor))
+FUNCTION(D2Multi, 0xF8C0, void, __stdcall, PrintChannelText, (const char* szText, DWORD dwColor)) // Updated.
+FUNCTION(D2Multi, 0xFE50, void, __stdcall, SayChannelText, (const char * szText)) // Clientside
 FUNCTION(D2Multi, 0xC650, void, __fastcall, DoChat, (void))
 FUNCTION(D2Multi, 0xFC44, void, __fastcall, WhisperIntercept_Jump, (void))
-
 FUNCTION(D2Cmp, -10006, void, __stdcall, InitCellFile, (void *cellfile, CellFile **outptr, char *srcfile, DWORD lineno, DWORD filever, char *filename))
 FUNCTION(D2Cmp, -10106, void, __stdcall, DeleteCellFile, (CellFile *cellfile)) 
 

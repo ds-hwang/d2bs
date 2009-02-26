@@ -15,8 +15,8 @@ extern PRThread* mainThread;
 extern HHOOK hKeybHook, hMouseHook;
 extern WNDPROC oldWndProc;
 
-void GamePrint(const char* text);
-void OOGPrint(const char* text);
+void GamePrint(const char* text, int color);
+void OOGPrint(const char* text, int color);
 void StatusPrint(const char* text);
 char* PrintHelper(const char* format, va_list args);
 
@@ -40,7 +40,7 @@ bool GameReady(void)
 			player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
 }
 
-void D2Print(const char* format, ...)
+void D2Print(const char* format, int color, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -49,11 +49,11 @@ void D2Print(const char* format, ...)
 
 	if(GameReady())
 	{
-		GamePrint(text);
+		GamePrint(text,color);
 	}
 	else if(false) // TODO: Make this detect chat vs. non-chat
 	{
-		OOGPrint(text);
+		OOGPrint(text,color);
 	}
 	else
 	{
@@ -76,18 +76,18 @@ char* PrintHelper(const char* format, const va_list args)
 	return text;
 }
 
-void GamePrint(const char* text)
+void GamePrint(const char* text, int color)
 {
 	PrintLock lock;
 	wchar_t* wtext = AnsiToUnicode(text);
-	PrintGameString(wtext, 0);
+	PrintGameString(wtext, color);
 	delete[] wtext;
 }
 
-void OOGPrint(const char* text)
+void OOGPrint(const char* text, int color)
 {
 	// TODO: is this multithreaded?
-	PrintChannelText(text, 0);
+	PrintChannelText(text, color);
 }
 
 void StatusPrint(const char* text)
