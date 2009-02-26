@@ -13,15 +13,18 @@
 
 #include "debug_new.h"
 
+// Globals
 extern HMODULE D2BSModule;
+extern char D2BSModulePath[_MAX_PATH];
 
 void MainThread(void* lpData)
 {
-	char path[_MAX_PATH], ini[_MAX_PATH + _MAX_FNAME], log[_MAX_PATH + _MAX_FNAME];
-	GetModuleFileName(D2BSModule, path, _MAX_FNAME + _MAX_PATH);
-	PathRemoveFileSpec(path);
-	sprintf(ini, "%s\\d2bs.ini", path);
-	sprintf(log, "%s\\d2bs.log", path);
+	Log("MainThread Initialized");
+
+	char path[_MAX_PATH + _MAX_FNAME], ini[_MAX_PATH + _MAX_FNAME], log[_MAX_PATH + _MAX_FNAME];
+
+	sprintf(ini, "%sd2bs.ini", D2BSModulePath);
+	sprintf(log, "%sd2bs.log", D2BSModulePath);
 
 	freopen(log, "a+t", stderr);
 
@@ -33,9 +36,8 @@ void MainThread(void* lpData)
 		LoadConfig(ini, &config);
 	}
 
-	sprintf(path, "%s\\%s", path, config.scriptPath);
+	sprintf(path, "%s\\%s", D2BSModulePath, config.scriptPath);
 
-	Log("D2BS Startup");
 	Script::Startup(path, InitContext, InitScript);
 	Script::SetBranchCallback(branch);
 
@@ -45,9 +47,11 @@ void MainThread(void* lpData)
 
 	while(Script::IsActive())
 	{
-		PR_Sleep(50);
+		PR_Sleep(1000);
 		// TODO: Process stuff here, like events.
 		// this processes at 50 just fine, but has an upper bound of ~18 events/sec
 		PulseEvent();
 	}
+
+	Log("MainThread Terminated");
 }

@@ -18,6 +18,16 @@
 #undef _DEBUG_NEW_TAILCHECK
 #define _DEBUG_NEW_TAILCHECK 0
 
+struct Module
+{	
+	union {
+		HMODULE hModule;
+		DWORD dwBaseAddress;
+	};
+	DWORD _1;
+	CHAR szPath[MAX_PATH];
+};
+
 #define new new (std::nothrow)
 
 #endif
