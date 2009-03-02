@@ -216,7 +216,7 @@ FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD 
 FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (), -10043)  // Updated
 VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ACC); // Updated
 
-FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (CHAR *szText, DWORD dwColor), 0xF770) // Updated
+FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (CHAR *szText, DWORD dwColor),  0xF8C0) // Updated - Okaygo found new offset
 FUNCPTR(D2MULTI, DoChat, VOID __fastcall, (VOID), 0xC650) // Updated
 FUNCPTR(D2MULTI, WhisperIntercept_Jump, VOID __fastcall, (VOID), 0xFC3C+8)
 VARPTR(D2MULTI, ChatBoxMsg, CHAR*, 0x38F18) // Updated 

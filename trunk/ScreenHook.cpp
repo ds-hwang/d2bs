@@ -248,7 +248,8 @@ bool ImageHook::IsInRange(int dx, int dy)
 void ImageHook::SetImage(const char* nimage)
 {
 	Lock();
-	free(location);
+	if(location)
+		free(location);
 	delete[] image;
 	location = _strdup(nimage);
 	image = LoadCellFile(location);

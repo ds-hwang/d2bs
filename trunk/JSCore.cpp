@@ -74,6 +74,8 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
 		Script* execScript = (Script*)JS_GetContextPrivate(cx);
 		ScriptState state = execScript->GetState();
+		if(state == Command)
+			state = (GameReady() ? InGame : OutOfGame);
 
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 

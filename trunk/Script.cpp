@@ -98,6 +98,9 @@ Script::Script(const char* file, ScriptState state) :
 	try {
 		AutoLock lock(this);
 		context = BuildContext(runtime);
+		if(!context)
+			throw std::exception("Couldn't create the context");
+
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
@@ -129,6 +132,9 @@ Script::Script(const char* file, ScriptState state) :
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
 		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
+		if(!meObject)
+			throw std::exception("Couldn't create the meObject");
+
 		JS_SetContextThread(context);
 		JS_AddRoot(context, &meObject);
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
@@ -173,7 +179,7 @@ Script::Script(const char* file, ScriptState state) :
 #undef DEFCONST
 
 		if(state == Command)
-			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 0);
+			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName);
 		if(!script)
@@ -190,7 +196,7 @@ Script::Script(const char* file, ScriptState state) :
 	} catch(...) {
 		DeleteCriticalSection(&scriptSection);
 		JS_EndRequest(context);
-		JS_DestroyContext(context);
+		JS_DestroyContextNoGC(context);
 		throw;
 	}
 }
@@ -210,7 +216,7 @@ Script::~Script(void)
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	JS_DestroyContext(context);
+	JS_DestroyContextNoGC(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
 
 	context = NULL;
 	scriptObject = NULL;
