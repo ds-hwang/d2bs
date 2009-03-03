@@ -107,5 +107,6 @@ RosterUnit* FindPlayerRoster(DWORD id)
 	for(RosterUnit* pRoster = p_D2CLIENT_PlayerUnitList; pRoster; pRoster = pRoster->pNext)
 		if(pRoster->dwUnitId == id)
 			return pRoster;
+	return NULL;
 }
 
