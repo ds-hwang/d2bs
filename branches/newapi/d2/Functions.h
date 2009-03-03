@@ -11,6 +11,7 @@
 
 // wrapper functions to handle odd calling convention functions
 DWORD __fastcall TestPvpFlag(DWORD planum1, DWORD planum2, DWORD flagmask);
+DWORD __fastcall clickParty(RosterUnit* pUnit, INT nMode)
 DWORD __fastcall GetUIVar(DWORD varno);
 #define GetUIState GetUIVar
 

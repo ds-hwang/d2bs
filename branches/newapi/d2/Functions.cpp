@@ -25,6 +25,20 @@ __declspec(naked) DWORD __fastcall TestPvpFlag(DWORD planum1, DWORD planum2, DWO
 	}
 }
 
+__declspec(naked) DWORD __fastcall clickParty(RosterUnit* pUnit, INT Mode)
+{
+	static DWORD ClickParty_I = NULL;
+
+	if(!ClickParty_I)
+		ClickParty_I = GetD2ClientClickParty_I_ASM();
+
+	__asm
+	{
+		mov eax, ecx
+		jmp ClickParty_I
+	}
+										}
+
 __declspec(naked) DWORD __fastcall GetUIVar(DWORD varno)
 {
 	__asm 
