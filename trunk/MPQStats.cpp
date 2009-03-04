@@ -53,7 +53,7 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 			dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
 		else dwMaxEntries = 0xFF;
 
-		if(nClassId < dwMaxEntries)
+		if((DWORD)nClassId < dwMaxEntries)
 		{
 			DWORD dwMultiplicator = BaseStatTable[nBaseStat].pTable[BaseStatTable[nBaseStat].wTableSize-1].dwFieldOffset;
 			DWORD dwTable = nClassId * dwMultiplicator;

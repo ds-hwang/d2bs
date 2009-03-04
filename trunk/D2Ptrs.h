@@ -183,6 +183,7 @@ FUNCPTR(D2COMMON, GetRoomFromUnit,  Room1* __stdcall, (UnitAny * ptUnit), -10366
 FUNCPTR(D2COMMON, GetSkillLevel, INT __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10904) // Updated
 FUNCPTR(D2COMMON, CheckUnitCollision, DWORD __stdcall, (UnitAny* pUnitA, UnitAny* pUnitB, DWORD dwBitMask), -10233) // Updated
 FUNCPTR(D2COMMON, GetBaseStat, DWORD __stdcall, (UnitAny *Unit, DWORD dwStat, DWORD dwUkn), -10494) // Updated
+FUNCPTR(D2COMMON, GetItemLevelRequirement, DWORD __stdcall, (UnitAny* pItem, UnitAny* pPlayer), -10113)
 FUNCPTR(D2COMMON, GetCursorItem, UnitAny * __stdcall, (Inventory * ptInventory), -10310) // Updated
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10295) // Updated
 FUNCPTR(D2COMMON, GetItemFlag, DWORD __stdcall, (UnitAny *Item, DWORD dwFlagMask, DWORD dwLineNo, char *szFileName), -10554) // Updated

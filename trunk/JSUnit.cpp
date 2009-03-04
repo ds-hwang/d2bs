@@ -334,6 +334,11 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(pUnit->pItemData)
 				*vp = INT_TO_JSVAL(pUnit->pItemData->dwItemLevel);
 			break;
+		case ITEM_LEVELREQ:
+			if(pUnit->dwType != UNIT_ITEM)
+				break;
+			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
+			break;
 		case UNIT_DIRECTION:
 			if(pUnit->pPath)
 				*vp = INT_TO_JSVAL(pUnit->pPath->bDirection);
