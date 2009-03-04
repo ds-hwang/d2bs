@@ -4,64 +4,33 @@
 #include "debugnew/debug_new.h"
 
 MPQTables BaseStatTable[] = {
-	{0x6FDF0438,	0x6FDF0434, ItemTable,			0xC2,	0xFFFF},
-	{0xA78,			0xA80,		MonstatsTable,		0xF6,	0xFFFF},
-	{0xB8C,			0xB94,		SkilldescTable,		0x72,	0xFFFF},
-	{0xB98,			0xBA0,		SkillTable,			0xEF,	0xFFFF},
-	{0x6FDF13E4,	0x6FDF13E8,	ObjectTable,		0x9E,	0xFFFF},
-	{0xB64,			0xB6C,		MissileTable,		0x93,	0xFFFF},
-	{0xA90,			0xA98,		Monstats2Table,		0x6E,	0xFFFF},
-	{0xBCC,			0xBD4,		ItemstatcostTable,	0x34,	0xFFFF},
-	{0xC58,			0xC5C,		LevelTable,			0x8E,	0xFFFF},
-	{0xC60,			0xC5C,		LeveldefTable,		0x2B,	0xFFFF},
-	{0x6FDF1430,	0x6FDF1434,	lvlmazeTable,		0x8,	0xFFFF}, // v
-	{0x6FDF1438,	0x6FDF143C,	lvlsubTable,		0x17,	0xFFFF}, // v
-	{0x6FDF1428,	0x6FDF142C,	lvlwarpTable,		0xD,	0xFFFF}, // v
-	{0xC64,			0xC68,		lvlprestTable,		0x18,	0xFFFF},
-	{0x6FDF1418,	0x6FDF1420,	lvltypesTable,		0x23,	0xFFFF}, // v
-	{0xBC4,			0xBC8,		CharstatsTable,		0x49,	0xFFFF},
-	{0xC18,			0xC1C,		SetitemTable,		0x60,	0xFFFF},
-	{0xC24,			0xC28,		UniqueItemTable,	0x46,	0xFFFF},
-	{0xC0C,			0xC10,		SetsTable,			0x44,	0xFFFF},
-	{0xBF8,			0xBFC,		ItemtypesTable,		0x24,	0xFFFF},
-	{0x6FDF0478,	0x6FDF0474,	RunesTable,			0x30,	0xFFFF}, // v
-	{0x6FDF148C,	0x6FDF1490,	CubemainTable,		0xC4,	0xFFFF}, // v
-	{0x6FDF0470,	0x6FDF046C,	GemsTable,			0x2A,	0xFFFF},
-	{0x6FDF13D0,	0x0,		ExperienceTable,	0x9,	0xFFFF}, // v
-	{0xBE8,			0xBF0,		PettypeTable,		0x15,	0xFFFF},
-	{0xAD4,			0xADC,		SuperUniquesTable,	0x15,	0xFFFF},
+	{0x6FDF0438, 0x6FDF0434, itemTable, ARRAYSIZE(itemTable), 0xFFFF},
+	{0xA78, 0xA80, monstatsTable, ARRAYSIZE(monstatsTable), 0xFFFF},
+	{0xB8C, 0xB94, skilldescTable, ARRAYSIZE(skilldescTable), 0xFFFF},
+	{0xB98, 0xBA0, skillsTable, ARRAYSIZE(skillsTable), 0xFFFF},
+	{0x6FDF13E4, 0x6FDF13E8, objectsTable, ARRAYSIZE(objectsTable), 0xFFFF},
+	{0xB64, 0xB6C, missilesTable, ARRAYSIZE(missilesTable), 0xFFFF},
+	{0xA90, 0xA98, monstats2Table, ARRAYSIZE(monstats2Table), 0xFFFF},
+	{0xBCC, 0xBD4, itemstatcostTable, ARRAYSIZE(itemstatcostTable), 0xFFFF},
+	{0xC58, 0xC5C, levelsTable, ARRAYSIZE(levelsTable), 0xFFFF},
+	{0xC60, 0xC5C, leveldefsTable, ARRAYSIZE(leveldefsTable), 0xFFFF},
+	{0x6FDF1430, 0x6FDF1434, lvlmazeTable, ARRAYSIZE(lvlmazeTable), 0xFFFF},
+	{0x6FDF1438, 0x6FDF143C, lvlsubTable, ARRAYSIZE(lvlsubTable), 0xFFFF}, // v
+	{0x6FDF1428, 0x6FDF142C, lvlwarpTable, ARRAYSIZE(lvlwarpTable), 0xFFFF}, // v
+	{0xC64, 0xC68, lvlprestTable, ARRAYSIZE(lvlprestTable), 0xFFFF},
+	{0x6FDF1418, 0x6FDF1420, lvltypesTable, ARRAYSIZE(lvltypesTable), 0xFFFF}, // v
+	{0xBC4, 0xBC8, charstatsTable, ARRAYSIZE(charstatsTable), 0xFFFF},
+	{0xC18, 0xC1C, setitemsTable, ARRAYSIZE(setitemsTable), 0xFFFF},
+	{0xC24, 0xC28, uniqueitemsTable, ARRAYSIZE(uniqueitemsTable), 0xFFFF},
+	{0xC0C, 0xC10, setsTable, ARRAYSIZE(setsTable), 0xFFFF},
+	{0xBF8, 0xBFC, itemtypesTable, ARRAYSIZE(itemtypesTable), 0xFFFF},
+	{0x6FDF0478, 0x6FDF0474, runesTable, ARRAYSIZE(runesTable), 0xFFFF}, // v
+	{0x6FDF148C, 0x6FDF1490, cubemainTable, ARRAYSIZE(cubemainTable), 0xFFFF}, //v
+	{0x6FDF0470, 0x6FDF046C, gemsTable, ARRAYSIZE(gemsTable), 0xFFFF},
+	{0x6FDF13D0, 0x0, experienceTable, ARRAYSIZE(experienceTable), 0xFFFF}, // v
+	{0xBE8, 0xBF0, pettypeTable, ARRAYSIZE(pettypeTable), 0xFFFF},
+	{0xAD4, 0xADC, superuniquesTable, ARRAYSIZE(superuniquesTable), 0xFFFF},
 };
-
-/*
-MPQTables BaseStatTable[] = {
-	{ItemTable,			0xC2,	0xFFFF,	0x6FDF0438,	0x6FDF0434},
-	{MonstatsTable,		0xF6,	0xFFFF,	0xB8C,		0xB94},
-	{SkilldescTable,	0x72,	0xFFFF,	0xB98,		0xBA0},
-	{SkillTable,		0xEF,	0xFFFF,	0x6FDF13E4,	0x6FDF13E8},
-	{ObjectTable,		0x9E,	0xFFFF,	0xB64,		0xB6C},
-	{MissileTable,		0x93,	0xFFFF,	0xA90,		0xA98},
-	{Monstats2Table,	0x6E,	0xFFFF,	0xBCC,		0xBD4},
-	{ItemstatcostTable,	0x34,	0xFFFF,	0xC58,		0xC5C},
-	{LevelTable,		0x8E,	0xFFFF,	0xC60,		0xC5C},
-	{LeveldefTable,		0x2B,	0xFFFF,	0x6FDF1430,	0x6FDF1434},
-	{lvlmazeTable,		0x8,	0xFFFF,	0x6FDF1438,	0x6FDF143C},
-	{lvlsubTable,		0x17,	0xFFFF,	0x6FDF1428,	0x6FDF142C},
-	{lvlwarpTable,		0xD,	0xFFFF,	0xC64,		0xC68},
-	{lvlprestTable,		0x18,	0xFFFF,	0x6FDF1418,	0x6FDF1424},
-	{lvltypesTable,		0x23,	0xFFFF,	0xBC4,		0xBC8},
-	{CharstatsTable,	0x49,	0xFFFF,	0xC18,		0xC1C},
-	{SetitemTable,		0x60,	0xFFFF,	0xC24,		0xC28},
-	{UniqueItemTable,	0x46,	0xFFFF,	0xC0C,		0xC10},
-	{SetsTable,			0x44,	0xFFFF,	0xBF8,		0xBFC},
-	{ItemtypesTable,	0x24,	0xFFFF,	0x6FDF0478,	0x6FDF0474},
-	{RunesTable,		0x30,	0xFFFF,	0x6FDF148C,	0x6FDF148C+4},
-	{CubemainTable,		0xC4,	0xFFFF,	0x6FDF0470,	0x6FDF0470-4},
-	{GemsTable,			0x2A,	0xFFFF,	0x6FDF13D0,	0x0},
-	{ExperienceTable,	0x9,	0xFFFF,	0xBE8,		0xBF0},
-	{PettypeTable,		0x15,	0xFFFF,	0xAD4,		0xADC},
-	{SuperUniquesTable,	0x15,	0xFFFF,	0x1,		0x332F68},
-};
-*/
 
 DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 {
@@ -84,9 +53,9 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 			dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
 		else dwMaxEntries = 0xFF;
 
-		if((DWORD)nClassId < dwMaxEntries)
+		if(nClassId < dwMaxEntries)
 		{
-			DWORD dwMultiplicator = BaseStatTable[nBaseStat].pTable[BaseStatTable[nBaseStat].wTableSize-1].wPtrToAdd;
+			DWORD dwMultiplicator = BaseStatTable[nBaseStat].pTable[BaseStatTable[nBaseStat].wTableSize-1].dwFieldOffset;
 			DWORD dwTable = nClassId * dwMultiplicator;
 			dwResult = *(DWORD*)(dwTableOffset + dwD2MPQTable) + dwTable;
 		}
@@ -96,95 +65,89 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 }
 
 
-DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber)
+DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber, CHAR* szStat)
 {
-  MPQTable* pTable = BaseStatTable[nBaseStat].pTable;
-  DWORD dwRetValue = GetBaseTable(nBaseStat, nClassId);
-  return sub_6B00F455(cx, argv, dwRetValue, (INT)pTable, nStatNumber, BaseStatTable[nBaseStat].wTableSize);
-}
+	BinField* pTable = BaseStatTable[nBaseStat].pTable;
+	DWORD dwRetValue = GetBaseTable(nBaseStat, nClassId);
 
-DWORD sub_6B00F455(JSContext* cx, jsval *argv, int pD2Table, int pMPQTable, int nStatNumber, int wTableSize)
-{
-  int v5; // eargv@3
-  int v6; // edi@3
-  size_t v7; // esi@3
-  char v8; // al@6
-  int v9; // edx@11
-  unsigned int v10; // esi@11
-  unsigned int v11; // eax@12
-  unsigned __int8 v12 = 0; // al@14
-  char result = 0; // al@19
-  __int64 v14 = 0; // ST1C_8@19
-  void *v16 = 0; // eax@24
-  __int64 v17 = 0; // [sp+14h] [bp-8h]@19
+	if(szStat)
+	{
+		nStatNumber = -1;
 
-  if ( !pD2Table || nStatNumber >= (int)(wTableSize - 1) )
-    return 0;
+		for(INT i = 0; i < BaseStatTable[nBaseStat].wTableSize; i++)
+		{
+			if(!_strcmpi(szStat, pTable[i].szFieldName))
+				nStatNumber = i;
+		}
 
-  v5 = *(WORD *)(pMPQTable + 4 * nStatNumber);
-  v6 = pMPQTable + 4 * nStatNumber;
-  v7 = *(WORD *)(pMPQTable + 4 * nStatNumber + 4) - v5;
-  if ( !v7 )
-  {
-    if ( *(BYTE *)(v6 + 2) == 26 )
-    {
-      v7 = 4;
-      goto LABEL_6;
-    }
-    return 0;
-  }
-LABEL_6:
-  v8 = *(BYTE *)(v6 + 2);
-  if ( v8 == 1 || v8 == 9 || v8 == 10 || v8 == 16 )
-  {
-    v16 = malloc(v7 + 1);
-    wTableSize = (int)v16;
-    memset(v16, 0, v7 + 1);
-    memcpy((void *)wTableSize, (const void *)(pD2Table + *(WORD *)v6), v7);
-	*argv = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (CHAR*)wTableSize));
-  }
-  else
-  {
-    if ( v8 == 26 )
-    {
-      v10 = *(BYTE *)(v6 + 3);
-      v9 = 0;
-      if ( v10 > 0x1F )
-      {
-        v11 = v10 >> 5;
-        v9 = 4 * (v10 >> 5);
-        do
-        {
-          v10 -= 32;
-          --v11;
-        }
-        while ( v11 );
-      }
-	  DWORD dwBuffer;
-      memcpy(&dwBuffer, (const void *)(pD2Table + v9 + v5), 4u);
-	  *argv = INT_TO_JSVAL(dwBuffer);
-	 // Print("->> %d", (pD2Table + v9 + v5));
-    //  v12 = 2 * ((argv & (1 << (char)v10)) != 0);
-      return v12 | 1;
-    }
-    if ( pMPQTable != (DWORD)ExperienceTable || v8 != 2 )
-    {
-      nStatNumber = 0;
-      if ( v7 >= 5 )
-        v7 = 4;
-      memcpy(&nStatNumber, (const void *)(pD2Table + v5), v7);
-      v12 = 2 * (BYTE)nStatNumber;
-	*argv = INT_TO_JSVAL(nStatNumber);
-      return v12 | 1;
-    }
-    wTableSize = 0;
-    if ( v7 >= 5 )
-      v7 = 4;
-    memcpy(&wTableSize, (const void *)(pD2Table + v5), v7);
-//	Print("%s", wTableSize);
-//    *((DWORD *)&v17 + 1) = 0;
-//    *(DWORD *)&v17 = wTableSize;
-	JS_NewNumberValue(cx, wTableSize, argv);
-  }
-  return result;
+		if(nStatNumber == -1)
+			return FALSE;
+	}
+
+	if(dwRetValue)
+	{
+		if(nStatNumber > BaseStatTable[nBaseStat].wTableSize)
+			return FALSE;
+
+		DWORD dwBuffer = 0;
+		WORD wBuffer = 0;
+		BYTE bBuffer = 0;
+		CHAR* szBuffer = NULL;
+		
+		switch(pTable[nStatNumber].eFieldType)
+		{
+			case FIELDTYPE_DATA_ASCII:
+				szBuffer = (CHAR*)malloc(pTable[nStatNumber].dwFieldLength + 1);
+				strcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength, (CHAR*)dwRetValue+pTable[nStatNumber].dwFieldOffset);
+				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
+				free(szBuffer);
+				return TRUE;
+
+			case FIELDTYPE_CALC_TO_DWORD:
+			case FIELDTYPE_DATA_DWORD_2:
+			case FIELDTYPE_DATA_DWORD:
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				JS_NewNumberValue(cx, dwBuffer, argv);
+				return TRUE;
+
+			case FIELDTYPE_NAME_TO_INDEX:
+			case FIELDTYPE_NAME_TO_INDEX_2:
+			case FIELDTYPE_CODE_TO_WORD:
+			case FIELDTYPE_NAME_TO_WORD:
+			case FIELDTYPE_NAME_TO_WORD_2:
+			case FIELDTYPE_KEY_TO_WORD:
+			case FIELDTYPE_DATA_WORD:
+				memcpy(&wBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
+				(*argv) = INT_TO_JSVAL(wBuffer);
+				return TRUE;
+
+			case FIELDTYPE_DATA_BYTE_2:
+			case FIELDTYPE_CODE_TO_BYTE:
+			case FIELDTYPE_DATA_BYTE:
+				memcpy(&bBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(BYTE));
+				(*argv) = INT_TO_JSVAL(bBuffer);
+				break;
+
+			case FIELDTYPE_DATA_BIT:
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				(*argv) = INT_TO_JSVAL((dwBuffer & pTable[nStatNumber].dwFieldLength) ? 1 : 0);
+				return TRUE;
+
+			case FIELDTYPE_ASCII_TO_CODE:
+			case FIELDTYPE_DATA_RAW:
+				szBuffer = (CHAR*)malloc(5);
+				memset(szBuffer, NULL, 5);
+				memcpy(szBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
+				free(szBuffer);
+				return TRUE;
+
+			case FIELDTYPE_MONSTER_COMPS:
+				// ..? :E
+				return FALSE;
+
+		}
+	}
+
+	return FALSE;
 }

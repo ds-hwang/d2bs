@@ -2070,13 +2070,34 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	return JS_TRUE;
 }
 
-
 INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("getBaseStat");
+	if(Vars.bDebug)
+		CDebug cDbg("getBaseStat");
 
-	if(argc > 2 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]))
-		FillBaseStat(cx, rval, JSVAL_TO_INT(argv[0]), JSVAL_TO_INT(argv[1]), JSVAL_TO_INT(argv[2]));
+	if(argc > 2)
+	{
+		CHAR* szStatName = NULL;
+		jsint nBaseStat = 0;
+		jsint nClassId = 0;
+		jsint nStat = -1;
+
+		if(JSVAL_IS_INT(argv[0]))
+			nBaseStat = JSVAL_TO_INT(argv[0]);
+		else return JS_TRUE;
+
+		if(JSVAL_IS_INT(argv[1]))
+			nClassId = JSVAL_TO_INT(argv[1]);
+		else return JS_TRUE;
+
+		if(JSVAL_IS_STRING(argv[2]))
+			szStatName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+		else if(JSVAL_IS_INT(argv[2]))
+			nStat = JSVAL_TO_INT(argv[2]);
+		else return JS_TRUE;
+
+		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szStatName);
+	}
 
 	return JS_TRUE;
 }
