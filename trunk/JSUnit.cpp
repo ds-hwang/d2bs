@@ -686,6 +686,10 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		sprintf(szExp, "%u", D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szExp));
 	}
+	else if(nStat == 92)
+	{
+		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
+	}
 	else if(nStat == -1)
 	{
 		Stat aStatList[256] = { NULL };
