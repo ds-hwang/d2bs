@@ -656,10 +656,10 @@ INT D2GetScreenSizeY()
 
 VOID myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col)
 {
+	if(!cellfile)return;
 	CellContext ct;
 	memset(&ct, 0, sizeof(ct));
 	ct.pCellFile = cellfile;
-	if (!ct.pCellFile) return;
 
 	xpos -= (cellfile->cells[0]->width/2);
 	ypos += (cellfile->cells[0]->height/2);
