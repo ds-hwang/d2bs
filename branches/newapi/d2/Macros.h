@@ -43,8 +43,11 @@ enum Dll {D2Client,D2Common,D2Gfx,D2Lang,D2Win,D2Net,D2Game,D2Launch,Fog,BNClien
 	DWORD __fastcall Get##mod##name##_ASM(void) \
 	{ \
 		static DWORD a##name = NULL; \
-		if(a##name == NULL) \
+		if(a##name == NULL) { \
+			__asm { pushad } __asm { pushfd } \
 			a##name = GetDllAddress((int)mod, addr); \
+			__asm { popfd } __asm { popad } \
+		} \
 		return (DWORD)a##name; \
 	}
 
