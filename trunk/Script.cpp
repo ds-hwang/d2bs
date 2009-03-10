@@ -207,7 +207,8 @@ Script::~Script(void)
 	Stop(true, true);
 	activeScripts.erase(fileName);
 
-	JS_ClearContextThread(context);
+	if(JS_GetContextThread(context))
+		JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
@@ -216,7 +217,8 @@ Script::~Script(void)
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	JS_DestroyContextNoGC(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
+	if(JS_GetContextThread(context))
+		JS_DestroyContextNoGC(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
 
 	context = NULL;
 	scriptObject = NULL;
@@ -403,7 +405,8 @@ void Script::Run(void)
 		return;
 
 	isAborted = false;
-	JS_ClearContextThread(context);
+	if(JS_GetContextThread(context))
+		JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
@@ -421,10 +424,12 @@ void Script::Run(void)
 
 	JS_RemoveRoot(context, &main);
 	// the context's thread most likely was trampled on by now, reset it
-	JS_ClearContextThread(context);
+	if(JS_GetContextThread(context))
+		JS_ClearContextThread(context);
 	JS_SetContextThread(context);
 	JS_EndRequest(context);
-	JS_ClearContextThread(context);
+	if(JS_GetContextThread(context))
+		JS_ClearContextThread(context);
 	execCount++;
 	Stop();
 }
@@ -794,7 +799,8 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
-	JS_ClearContextThread(cx);
+	if(JS_GetContextThread(cx))
+		JS_ClearContextThread(cx);
 	JS_SetContextThread(cx);
 	jsrefcount depth = JS_SuspendRequest(cx);
 
@@ -814,8 +820,8 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		if(script->LockingThread() == GetCurrentThreadId())
 			script->Unlock();
 	}
-
-	JS_ClearContextThread(cx);
+	if(JS_GetContextThread(cx))
+		JS_ClearContextThread(cx);
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
 
@@ -842,7 +848,8 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 			enteredLock = true;
 		}
 		Script::PauseAll();*/
-		JS_ClearContextThread(cx);
+		if(JS_GetContextThread(cx))
+			JS_ClearContextThread(cx);
 		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)
