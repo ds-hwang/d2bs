@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="D2BS"
 	ProjectGUID="{0EB43FEB-A856-4370-9F46-C8D252D9E153}"
 	RootNamespace="D2BS"
@@ -79,7 +79,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="js32/js32d.lib shlwapi.lib"
-				OutputFile="D:\Projekte\js\D2BS\cGuard.dll"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -176,7 +176,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="js32/js32.lib shlwapi.lib"
-				OutputFile="D:\Projekte\js\D2BS\cGuard.dll"
+				OutputFile="$(OutDir)\$(ProjectName).bin"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""

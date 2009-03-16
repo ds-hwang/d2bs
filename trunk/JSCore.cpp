@@ -1700,7 +1700,6 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!pUnit || !mypUnit)
 		return JS_TRUE;
 
-
 	BOOL bFound = FALSE;
 
 	for(RosterUnit* pScan = mypUnit; pScan; pScan = pScan->pNext)
@@ -1718,14 +1717,14 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(nMode == 0 && pData && !(pData->nCharFlags & PLAYER_TYPE_HARDCORE))
 		return JS_TRUE;
 
-	// Attempt to party a player who is allready in party ^_~
+	// Attempt to party a player who is already in party ^_~
 	if(nMode == 2 && pUnit->wPartyId != 0xFFFF && mypUnit->wPartyId == pUnit->wPartyId && pUnit->wPartyId != 0xFFFF)
 		return JS_TRUE;
 
 	// don't leave a party if we are in none!
 	if(nMode == 3 && pUnit->wPartyId == 0xFFFF)
 		return JS_TRUE;
-	else {
+	else if(nMode == 3 && pUnit->wPartyId != 0xFFFF) {
 		*rval = BOOLEAN_TO_JSVAL(TRUE);
 		D2CLIENT_LeaveParty();
 		return JS_TRUE;	
@@ -1734,7 +1733,11 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(nMode < 0 || nMode > 3)
 		return JS_TRUE;
 
-	D2CLIENT_clickParty(pUnit, nMode);
+
+	if(nMode == 1)
+		D2CLIENT_HostilePartyUnit(pUnit, 1);
+	else
+		D2CLIENT_clickParty(pUnit, nMode);
 
 	*rval = BOOLEAN_TO_JSVAL(TRUE);
 

@@ -1084,6 +1084,15 @@ __declspec(naked) DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD
 	}
 }
 
+__declspec(naked) VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton)
+{
+	__asm
+	{
+		MOV EAX, EDX
+		JMP [D2CLIENT_clickParty_II]
+	}
+}
+
 DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 {
 	DWORD dist = -1;

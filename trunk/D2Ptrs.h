@@ -141,6 +141,7 @@ ASMPTR(D2CLIENT, GetUnitName_I, 0x1F3D0) // Updated
 ASMPTR(D2CLIENT, InputCall_I, 0x79670) // Updated
 ASMPTR(D2CLIENT, Interact_I, 0x5CDD0) // Updated
 ASMPTR(D2CLIENT, clickParty_I, 0x78D10) // Updated
+ASMPTR(D2CLIENT, clickParty_II, 0x62400)
 ASMPTR(D2CLIENT, clickLocPtrs, 0xDCAE4) // Updated
 ASMPTR(D2CLIENT, ClickShopItem_I, 0x191C0) // Updated
 ASMPTR(D2CLIENT, ShopAction_I, 0x19E00) // Updated

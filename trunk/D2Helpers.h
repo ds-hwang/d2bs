@@ -79,6 +79,7 @@ DWORD __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
 VOID __fastcall DrawRectFrame_STUB(RECT* rect);
 VOID __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
 DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
+VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
 
 DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type = Euclidean);
 
