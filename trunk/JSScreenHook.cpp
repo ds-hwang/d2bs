@@ -11,8 +11,12 @@ using namespace std;
 void hook_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("hook finalize");
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
+
 	if(hook)
+	{
+		JS_SetPrivate(cx, obj, NULL);
 		delete hook;
+	}
 }
 
 JSAPI_FUNC(hook_remove) {

@@ -1074,6 +1074,16 @@ VOID __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD 
 */
 }
 
+__declspec(naked) DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
+{
+	__asm
+	{
+		MOV EAX, ECX
+		MOV ESI, EDX
+		JMP [D2CLIENT_GetMinionCount_I]
+	}
+}
+
 DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 {
 	DWORD dist = -1;
@@ -1085,15 +1095,3 @@ DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 	}
  	return dist;
 }
-
-
-VOID ChangeStat(BYTE bStatId, BYTE bNewValue)
-{
-	BYTE aPacket[3];
-	aPacket[0] = 0x1D;
-	aPacket[1] = bStatId;
-	aPacket[2] = bNewValue;
-
-	D2NET_ReceivePacket(aPacket, sizeof(aPacket));
-}
-

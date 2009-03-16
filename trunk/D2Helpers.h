@@ -77,8 +77,8 @@ VOID __fastcall D2CLIENT_PlaySound(DWORD dwSoundId);
 VOID __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelId);
 DWORD __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
 VOID __fastcall DrawRectFrame_STUB(RECT* rect);
-VOID ChangeStat(BYTE bStatId, BYTE bNewValue);
 VOID __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
+DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
 
 DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type = Euclidean);
 

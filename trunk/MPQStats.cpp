@@ -1,5 +1,6 @@
 #include "MPQStats.h"
 #include "D2Ptrs.h"
+#include "Core.h"
 
 #include "debugnew/debug_new.h"
 

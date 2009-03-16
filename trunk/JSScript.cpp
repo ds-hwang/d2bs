@@ -11,8 +11,11 @@ VOID script_finalize(JSContext *cx, JSObject *obj)
 	CDebug cDbg("script finalize");
 
 	ScriptIterator* ptr = (ScriptIterator*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+
 	if(ptr)
+	{
 		delete ptr;
+	}
 }
 
 JSAPI_PROP(script_getProperty)

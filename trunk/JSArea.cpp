@@ -12,7 +12,10 @@ VOID area_finalize(JSContext *cx, JSObject *obj)
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
 	if(pArea)
+	{
+		JS_SetPrivate(cx, obj, NULL);
 		delete pArea;
+	}
 }
 
 INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)

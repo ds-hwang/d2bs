@@ -26,6 +26,7 @@ JSAPI_FUNC(item_shop);
 JSAPI_FUNC(my_overhead);
 JSAPI_FUNC(unit_getEnchant);
 JSAPI_FUNC(unit_getQuest);
+JSAPI_FUNC(unit_getMinionCount);
 
 void unit_finalize(JSContext *cx, JSObject *obj);
 JSBool unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
@@ -226,5 +227,6 @@ static JSFunctionSpec unit_methods[] = {
 	{"setSkill",		unit_setskill,		2},
 	{"move",			unit_move,			2},
 	{"getQuest",		unit_getQuest,		2},
+	{"getMinionCount",	unit_getMinionCount, 1},
 	{0},
 };

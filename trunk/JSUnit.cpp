@@ -16,21 +16,15 @@ VOID unit_finalize(JSContext *cx, JSObject *obj)
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(lpUnit)
+	{
+		JS_SetPrivate(cx, obj, NULL);
 		delete lpUnit;
+	}
 }
 
 INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {	
 	CDebug cDbg("unit getProperty");
-
-	// TODO: Properly fix this...
-	if ((JSVAL_TO_INT(id) < OOG_WINDOWTITLE) && !GameReady())
-			return JS_TRUE;
-
-	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
-	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
-		return JS_TRUE;
 
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
@@ -128,6 +122,19 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		default:
 			break;
 	}
+
+/*
+	// TODO: Properly fix this...
+	if ((JSVAL_TO_INT(id) < OOG_WINDOWTITLE) && !GameReady())
+			return JS_TRUE;
+*/
+	if(!GameReady())
+		return JS_TRUE;
+
+	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+
+	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
+		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
@@ -1509,5 +1516,32 @@ INT unit_getQuest(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	*rval = INT_TO_JSVAL(D2COMMON_GetQuestFlag(D2CLIENT_GetQuestInfo(), nAct, nQuest));
 
+	return JS_TRUE;
+}
+
+INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	CDebug cDbg("unit getMinionCount");
+
+	if(!GameReady())
+		return JS_TRUE;
+	
+	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
+		return JS_TRUE;
+
+	jsint nType = JSVAL_TO_INT(argv[0]);
+
+	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
+
+	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
+		return JS_TRUE;
+
+	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+
+	if(!pUnit || (pUnit->dwType != UNIT_MONSTER && pUnit->dwType != UNIT_PLAYER))
+		return JS_TRUE;
+
+	*rval = INT_TO_JSVAL(D2CLIENT_GetMinionCount(pUnit, (DWORD)nType));
+	
 	return JS_TRUE;
 }

@@ -161,6 +161,7 @@ ASMPTR(D2CLIENT, clickMap_1, 0x102B7C) // Updated
 ASMPTR(D2CLIENT, clickMap_2, 0x11C1D8) // Updated
 ASMPTR(D2CLIENT, clickMap_3, 0x5D5A0) // Updated
 ASMPTR(D2CLIENT, clickMap_4, 0x5CEF9) // Updated
+ASMPTR(D2CLIENT, GetMinionCount_I, 0xC3340)
 
 FUNCPTR(D2COMMON, AddRoomData, void __stdcall, (Act * ptAct, int LevelId, int Xpos, int Ypos, Room1 * pRoom), -10184) // Updated
 FUNCPTR(D2COMMON, RemoveRoomData, void __stdcall, (Act * ptAct, int LevelId, int Xpos, int Ypos, Room1 * pRoom), -11009) // Updated

@@ -2371,3 +2371,38 @@ JSAPI_FUNC(my_login)
 
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_getMouseCoords)
+{
+	CDebug cDbg("getMouseCoords");
+
+	jsint nFlag = 0;
+
+	if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		nFlag = JSVAL_TO_INT(argv[0]);
+
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+	if(!pReturnArray)
+		return JS_TRUE;
+
+	POINT Coords = {*p_D2CLIENT_MouseX, *p_D2CLIENT_MouseY};
+
+	if(nFlag == 1)
+	{
+		Coords.x += *p_D2CLIENT_MouseOffsetX;
+		Coords.y += *p_D2CLIENT_MouseOffsetY;
+
+		D2COMMON_AbsScreenToMap(&Coords.x, &Coords.y);
+	}
+
+	jsval jsX = INT_TO_JSVAL(Coords.x);
+	jsval jsY = INT_TO_JSVAL(Coords.y);
+
+	JS_SetElement(cx, pReturnArray, 0, &jsX);
+	JS_SetElement(cx, pReturnArray, 1, &jsY);
+
+	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	
+	return JS_TRUE;
+}

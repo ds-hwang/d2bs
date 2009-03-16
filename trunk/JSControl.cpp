@@ -13,7 +13,10 @@ void control_finalize(JSContext *cx, JSObject *obj)
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(pData)
+	{
+		JS_SetPrivate(cx, obj, NULL);
 		delete pData;
+	}
 }
 JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {

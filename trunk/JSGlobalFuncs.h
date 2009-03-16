@@ -42,6 +42,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"load",				my_load,				1},
 	{"include",				my_include,				1},
 	{"login",				my_login,				1},
+	{"getMouseCoords",		my_getMouseCoords,		1},
 	{"copyUnit",			my_copyUnit,			1},
 	{"stop",				my_stop,				0},
 	{"clickMap",			my_clickMap,			3},
