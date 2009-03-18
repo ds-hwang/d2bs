@@ -359,7 +359,6 @@ VOID GameDrawOOG(VOID)
 	D2WIN_DrawSprites();
 	if(!GameReady())
 		Genhook::DrawAll(OOG);
-	GameDraw();
 }
 
 VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText)
@@ -395,3 +394,4 @@ VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
+
