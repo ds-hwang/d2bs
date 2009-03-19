@@ -52,6 +52,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				D2CLIENT_InitInventory();
 
 				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+				Script::FlushCache();
 				Script* script = Script::CompileFile(defaultdbj, InGame);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -80,6 +81,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
+					Script::FlushCache();
 					Script* script = Script::CompileFile(starterdbj, OutOfGame);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -128,7 +130,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			if(Script::GetActiveCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts!");
 
-			Script::StopAll();
+			Script::StopAll(true);
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "reload"))

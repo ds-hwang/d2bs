@@ -169,9 +169,11 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
-
+				//JS_SetContextThread(cx);
+				//JS_BeginRequest(cx);
 				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
-				JS_SetContextThread(cx);
+				//JS_EndRequest(cx);
+				//JS_SetContextThread(cx);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -2001,8 +2003,10 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	
 	pArea->Exits = cMap.GetLevelExits(pArea->ExitArray);
-
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
 	JSObject* jsUnit = JS_NewObject(cx, &area_class, NULL, NULL);
+	JS_EndRequest(cx);
 
 	if(!jsUnit)
 	{

@@ -97,13 +97,12 @@ Script::Script(const char* file, ScriptState state) :
 	StringReplace(fileName, '/', '\\');
 	try {
 		AutoLock lock(this);
-		context = BuildContext(runtime);
+		context = BuildContext(GetRuntime());
 		if(!context)
 			throw std::exception("Couldn't create the context");
-
-		JS_SetContextPrivate(context, this);
+		JS_SetContextThread(context);
 		JS_BeginRequest(context);
-
+		JS_SetContextPrivate(context, this);
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
 		if(!globalObject)
 			throw std::exception("Couldn't create the global object");
@@ -135,8 +134,8 @@ Script::Script(const char* file, ScriptState state) :
 		if(!meObject)
 			throw std::exception("Couldn't create the meObject");
 
-		JS_SetContextThread(context);
 		JS_AddRoot(context, &meObject);
+		JS_SetContextThread(context);
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
 #define DEFCONST(vp) DefineConstant(#vp, vp)
@@ -192,11 +191,16 @@ Script::Script(const char* file, ScriptState state) :
 		JS_AddNamedRoot(context, &meObject, "me object");
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
+		JS_ClearContextThread(context);
 		RegisterScript(this);
-	} catch(...) {
+	} catch(std::exception&) {
 		DeleteCriticalSection(&scriptSection);
-		JS_EndRequest(context);
-		JS_DestroyContextNoGC(context);
+		if(scriptObject)
+			JS_RemoveRoot(context, &scriptObject);
+		if(script && !scriptObject)
+			JS_DestroyScript(context, script);
+		if(context)
+			JS_DestroyContext(context);
 		throw;
 	}
 }
@@ -206,9 +210,7 @@ Script::~Script(void)
 	Lock();
 	Stop(true, true);
 	activeScripts.erase(fileName);
-
-	if(JS_GetContextThread(context))
-		JS_ClearContextThread(context);
+	
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
@@ -217,8 +219,7 @@ Script::~Script(void)
 	JS_RemoveRoot(context, &scriptObject);
 
 	JS_EndRequest(context);
-	if(JS_GetContextThread(context))
-		JS_DestroyContextNoGC(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
+	JS_DestroyContext(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
 
 	context = NULL;
 	scriptObject = NULL;
@@ -403,35 +404,37 @@ void Script::Run(void)
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;
-
 	isAborted = false;
-	if(JS_GetContextThread(context))
-		JS_ClearContextThread(context);
-	JS_SetContextThread(context);
-	JS_BeginRequest(context);
+
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 	threadId = GetCurrentThreadId();
 
-	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(context, &main);
-	JS_ExecuteScript(context, globalObject, script, &dummy);
-	if(JS_GetProperty(context, globalObject, "main", &main) && JSVAL_IS_FUNCTION(context, main))
-	{
-		JS_ClearContextThread(context);
-		JS_SetContextThread(context);
-		JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
-	}
+	JS_SetContextThread(GetContext());
+	JS_BeginRequest(GetContext());
 
-	JS_RemoveRoot(context, &main);
-	// the context's thread most likely was trampled on by now, reset it
-	if(JS_GetContextThread(context))
-		JS_ClearContextThread(context);
-	JS_SetContextThread(context);
-	JS_EndRequest(context);
-	if(JS_GetContextThread(context))
-		JS_ClearContextThread(context);
+	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
+	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
+	
+	JS_GetProperty(GetContext(), globalObject, "main", &main);
+	JS_AddRoot(GetContext(), &main);
+
+	if(JSVAL_IS_FUNCTION(GetContext(), main))
+	{
+		JS_CallFunctionValue(GetContext(), globalObject, main, 0, 0, &dummy);
+	}
+	
+	// context has been trampled.
+	if ((DWORD)JS_GetContextThread(GetContext()) != GetThreadId())
+		JS_SetContextThread(GetContext());
+
+	Stop(true,true);
+
+	JS_RemoveRoot(GetContext(), &main);
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
+
 	execCount++;
-	Stop();
+
 }
 
 void Script::Pause(void)
@@ -530,6 +533,8 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
+	if (!context)
+		return false;
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -722,13 +727,15 @@ DWORD WINAPI ScriptThread(void* data)
 DWORD WINAPI FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
+
+	JS_SetContextThread(evt->context);
+	JS_BeginRequest(evt->context);
+
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
 		jsval dummy = JSVAL_VOID;
 		// switch the context thread to this one
-		JS_ClearContextThread(evt->context);
-		JS_SetContextThread(evt->context);
-		JS_BeginRequest(evt->context);
+
 
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
@@ -746,13 +753,17 @@ DWORD WINAPI FuncThread(void* data)
 			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
-		// assume that the caller stole the context thread
-		JS_ClearContextThread(evt->context);
-		JS_SetContextThread(evt->context);
-		JS_EndRequest(evt->context);
-		evt->context = NULL;
+		// check if that the caller stole the context thread
+
+
+		
 	}
 
+	if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
+		JS_SetContextThread(evt->context);	
+	JS_EndRequest(evt->context);
+	JS_ClearContextThread(evt->context);
+	//JS_DestroyContextMaybeGC(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
 		evt->argv[i]->Release();
@@ -760,8 +771,7 @@ DWORD WINAPI FuncThread(void* data)
 		delete[] evt->argv;
 	delete evt;
 
-	JS_DestroyContext(evt->context);
-
+	
 	return 0;
 }
 
@@ -799,9 +809,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
-	if(JS_GetContextThread(cx))
-		JS_ClearContextThread(cx);
-	JS_SetContextThread(cx);
+
 	jsrefcount depth = JS_SuspendRequest(cx);
 
 	if(pause)
@@ -820,8 +828,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		if(script->LockingThread() == GetCurrentThreadId())
 			script->Unlock();
 	}
-	if(JS_GetContextThread(cx))
-		JS_ClearContextThread(cx);
+	// assume it was trampled.
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
 
@@ -836,8 +843,9 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	if(status == JSGC_BEGIN)
 	{
 		Log("*** ENTERING GC ***");
-		Script::FlushCache();
-/*		ScriptList scripts = Script::GetScripts();
+		//Script::FlushCache();
+
+		/*ScriptList scripts = Script::GetScripts();
 		// break the locks if something has them already
 		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 			if(!(*it)->IsLocked())
@@ -847,14 +855,14 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 			Script::LockAll();
 			enteredLock = true;
 		}
-		Script::PauseAll();*/
-		if(JS_GetContextThread(cx))
-			JS_ClearContextThread(cx);
-		JS_SetContextThread(cx);
+		Script::PauseAll();
+		//if(JS_GetContextThread(cx))
+		//	JS_ClearContextThread(cx);
+		//JS_SetContextThread(cx);*/
 	}
 	else if(status == JSGC_END)
 	{
-/*		Script::ResumeAll();
+		/*Script::ResumeAll();
 		// break the lock if something has the lock already
 		if(enteredLock)
 		{
