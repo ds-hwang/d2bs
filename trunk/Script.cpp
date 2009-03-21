@@ -49,20 +49,16 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	file = _strlwr(_strdup(file));
 	try {
-//		LockAll();
 		if(recompile && activeScripts.count(file) > 0) {
 			activeScripts[file]->Stop(true, true);
 			delete activeScripts[file];
 		} else if(activeScripts.count(file) > 0) {
-//			UnlockAll();
 			activeScripts[file]->Stop(true, true);
 			return activeScripts[file];
 		}
 		Script* script = new Script(file, state);
-//		UnlockAll();
 		return script;
 	} catch(std::exception e) {
-//		UnlockAll();
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -71,16 +67,12 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 Script* Script::CompileCommand(const char* command)
 {
 	try {
-//		LockAll();
-		if(activeScripts.count(strlwr(_strdup(command))) > 0) {
-//			UnlockAll();
-			return activeScripts[strlwr(_strdup(command))];
+		if(activeScripts.count(_strlwr(_strdup(command))) > 0) {
+			return activeScripts[_strlwr(_strdup(command))];
 		}
 		Script* script = new Script(command, Command);
-//		UnlockAll();
 		return script;
 	} catch(std::exception e) {
-//		UnlockAll();
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
