@@ -1712,7 +1712,7 @@ static BinField charstatsTable[] = {
 	{"end", NULL, 0x0, 0xc4},
 };
 static BinField setitemsTable[] = {
-	{"index", FIELDTYPE_DATA_ASCII, 3, 0},
+	{"index", FIELDTYPE_CODE_TO_WORD, 3, 0},
 	{"name", FIELDTYPE_DATA_ASCII, 0x1F, 0x2},
 	{"version", FIELDTYPE_DATA_WORD, 0, 0x22},
 	{"namestr", FIELDTYPE_DATA_WORD, 0, 0x24},
