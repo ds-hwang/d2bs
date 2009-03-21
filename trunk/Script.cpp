@@ -70,12 +70,11 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 
 Script* Script::CompileCommand(const char* command)
 {
-	command = _strlwr(_strdup(command));
 	try {
 //		LockAll();
-		if(activeScripts.count(command) > 0) {
+		if(activeScripts.count(strlwr(_strdup(command))) > 0) {
 //			UnlockAll();
-			return activeScripts[command];
+			return activeScripts[strlwr(_strdup(command))];
 		}
 		Script* script = new Script(command, Command);
 //		UnlockAll();
