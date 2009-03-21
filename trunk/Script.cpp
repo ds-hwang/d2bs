@@ -47,6 +47,7 @@ bool Script::isAllLocked = false;
 
 Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 {
+	file = _strlwr(_strdup(file));
 	try {
 //		LockAll();
 		if(recompile && activeScripts.count(file) > 0) {
@@ -54,6 +55,7 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 			delete activeScripts[file];
 		} else if(activeScripts.count(file) > 0) {
 //			UnlockAll();
+			activeScripts[file]->Stop(true, true);
 			return activeScripts[file];
 		}
 		Script* script = new Script(file, state);
@@ -68,6 +70,7 @@ Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
 
 Script* Script::CompileCommand(const char* command)
 {
+	command = _strlwr(_strdup(command));
 	try {
 //		LockAll();
 		if(activeScripts.count(command) > 0) {
@@ -192,7 +195,6 @@ Script::Script(const char* file, ScriptState state) :
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		JS_ClearContextThread(context);
-		delete lpUnit;
 		RegisterScript(this);
 	} catch(std::exception&) {
 		DeleteCriticalSection(&scriptSection);
@@ -406,13 +408,11 @@ void Script::Run(void)
 	if(IsRunning())
 		return;
 	isAborted = false;
-	//DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	//threadId = GetCurrentThreadId();
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	threadId = GetCurrentThreadId();
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(GetContext(), &main);
@@ -462,16 +462,15 @@ bool Script::IsPaused(void)
 
 void Script::Stop(bool force, bool reallyForce)
 {
-	// break the lock if necessary
-	if(!IsLocked() && !reallyForce)
-		Lock();
+	AutoLock lock(this);
+	
+	// Clear the Events/Genhooks before aborting the script, otherwise we can't clean up all the events in the context, shit could blow up!
+	ClearAllEvents();
+	Genhook::Clean(this);
 
 	isAborted = true;
 	isPaused = false;
 	isReallyPaused = false;
-
-	ClearAllEvents();
-	Genhook::Clean(this);
 
 	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)
@@ -482,12 +481,10 @@ void Script::Stop(bool force, bool reallyForce)
 		Sleep(10);
 	}
 
-	CloseHandle(threadHandle);
+	if (threadHandle)
+		CloseHandle(threadHandle);
 	threadHandle = NULL;
 
-	// break the lock if necessary
-	if(IsLocked() && LockingThread() == GetCurrentThreadId())
-		Unlock();
 }
 
 void Script::EnableSingleStep(void)
@@ -853,10 +850,10 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	// assume it was trampled.
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
-
-	return !(script->IsAborted() &&
-			((script->GetState() != OutOfGame) &&
-			!D2CLIENT_GetPlayerUnit()));
+	if (script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
+		return JS_FALSE;
+	else
+		return JS_TRUE;
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
