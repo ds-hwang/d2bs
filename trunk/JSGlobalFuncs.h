@@ -37,6 +37,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getTickCount",		my_getTickCount,		0},
 	{"debugLog",			my_debugLog,			1},
 
+	{"submitItem",			my_submitItem,			0},
 	{"print",				my_print,				1},
 	{"delay",				my_delay,				1},
 	{"load",				my_load,				1},

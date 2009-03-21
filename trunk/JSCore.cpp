@@ -2415,3 +2415,16 @@ JSAPI_FUNC(my_getMouseCoords)
 	
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_submitItem)
+{
+	CDebug cDbg("submitItem");
+
+	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
+	{
+		D2CLIENT_submitItem(pUnit->dwUnitId);
+		*rval = BOOLEAN_TO_JSVAL(TRUE);
+	} else *rval = BOOLEAN_TO_JSVAL(FALSE);
+
+	return JS_TRUE;
+}

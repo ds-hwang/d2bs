@@ -14,7 +14,7 @@ MPQTables BaseStatTable[] = {
 	{0xA90, 0xA98, monstats2Table, ARRAYSIZE(monstats2Table), 0xFFFF},
 	{0xBCC, 0xBD4, itemstatcostTable, ARRAYSIZE(itemstatcostTable), 0xFFFF},
 	{0xC58, 0xC5C, levelsTable, ARRAYSIZE(levelsTable), 0xFFFF},
-	{0xC60, 0xC5C, leveldefsTable, ARRAYSIZE(leveldefsTable), 0xFFFF},
+	{0xC60, 0x00, leveldefsTable, ARRAYSIZE(leveldefsTable), 0xFFFF},
 	{0x6FDF1430, 0x6FDF1434, lvlmazeTable, ARRAYSIZE(lvlmazeTable), 0xFFFF},
 	{0x6FDF1438, 0x6FDF143C, lvlsubTable, ARRAYSIZE(lvlsubTable), 0xFFFF}, // v
 	{0x6FDF1428, 0x6FDF142C, lvlwarpTable, ARRAYSIZE(lvlwarpTable), 0xFFFF}, // v

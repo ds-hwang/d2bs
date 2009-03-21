@@ -201,8 +201,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 				return FALSE;
 		}
 	}
-	else {
-		
+	else {	
 		if(!GameReady())
 			return FALSE;
 		
@@ -1090,6 +1089,24 @@ __declspec(naked) VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, D
 	{
 		MOV EAX, EDX
 		JMP [D2CLIENT_clickParty_II]
+	}
+}
+
+__declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
+{
+	__asm
+	{
+		POP EAX
+		PUSH 0
+		PUSH EAX
+		PUSH EBP
+		PUSH ESI
+		PUSH EDI
+		PUSH EBX
+		XOR EDI,EDI
+		MOV EBX,1
+		LEA EBP,DWORD PTR SS:[EBP-0x20]
+		JMP [D2CLIENT_TakeWaypoint_I]
 	}
 }
 

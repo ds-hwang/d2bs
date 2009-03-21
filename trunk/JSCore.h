@@ -68,3 +68,4 @@ JSAPI_FUNC(my_iniread);
 JSAPI_FUNC(my_iniwrite);
 JSAPI_FUNC(my_login);
 JSAPI_FUNC(my_getMouseCoords);
+JSAPI_FUNC(my_submitItem);
