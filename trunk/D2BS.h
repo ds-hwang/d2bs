@@ -90,6 +90,8 @@ struct Variables
 	BOOL	bDontCatchNextMsg;
 	BOOL	bClickAction;
 
+	CCollisionMap cCollisionMap;
+
 	DWORD	dwMaxGameTime;
 	BOOL	bDebug;
 	BOOL	bBlockMinimize;

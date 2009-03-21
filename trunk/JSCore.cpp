@@ -457,19 +457,21 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	CriticalRoom myMisc;
-	CCollisionMap cMap;
 	myMisc.EnterSection();
 
 	jsint nLevelId = JSVAL_TO_INT(argv[0]);
 	jsint nX = JSVAL_TO_INT(argv[1]);
 	jsint nY = JSVAL_TO_INT(argv[2]);
-
-	cMap.CreateMap(nLevelId);
+	if (Vars.cCollisionMap.dwLevelId && Vars.cCollisionMap.dwLevelId != nLevelId)
+	{
+		Vars.cCollisionMap.DestroyMap();
+		Vars.cCollisionMap.CreateMap(nLevelId);
+	}
 	
-	if(cMap.IsValidAbsLocation(nX, nY))
-		*rval = INT_TO_JSVAL(cMap.GetMapData(nX,nY, TRUE));
+	if(Vars.cCollisionMap.IsValidAbsLocation(nX, nY))
+		*rval = INT_TO_JSVAL(Vars.cCollisionMap.GetMapData(nX,nY, TRUE));
 
-	cMap.DestroyMap();
+	
 
 	return JS_TRUE;
 }
