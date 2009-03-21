@@ -106,25 +106,26 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 				szBuffer = (CHAR*)malloc(pTable[nStatNumber].dwFieldLength + 1);
 				memset(szBuffer, NULL, pTable[nStatNumber].dwFieldLength + 1);
 				memcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength + 1);
-			//	strcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (CHAR*)dwRetValue+pTable[nStatNumber].dwFieldOffset);
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
 				free(szBuffer);
 				return TRUE;
 
 			case FIELDTYPE_CALC_TO_DWORD:
-			case FIELDTYPE_DATA_DWORD_2:
 			case FIELDTYPE_NAME_TO_DWORD:
-			case FIELDTYPE_DATA_DWORD:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
 				(*argv) = INT_TO_JSVAL(dwBuffer);
-			//	JS_NewNumberValue(cx, dwBuffer, argv);
 				return TRUE;
 
+			
+			case FIELDTYPE_DATA_DWORD:
+			case FIELDTYPE_DATA_DWORD_2:
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				JS_NewNumberValue(cx, dwBuffer, argv);
+				return TRUE;
 			
 			case FIELDTYPE_UNKNOWN_11:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
 				(*argv) = INT_TO_JSVAL(dwBuffer);
-			//	JS_NewNumberValue(cx, dwBuffer, argv);
 				return TRUE;
 
 			case FIELDTYPE_NAME_TO_INDEX:
