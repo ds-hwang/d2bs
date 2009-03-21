@@ -94,6 +94,11 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 		WORD wBuffer = 0;
 		BYTE bBuffer = 0;
 		CHAR* szBuffer = NULL;
+
+		DWORD dwHelperSize = pTable[nStatNumber + 1].dwFieldOffset - pTable[nStatNumber].dwFieldOffset;
+
+		if(dwHelperSize > 4)
+			dwHelperSize = 4;
 		
 		switch(pTable[nStatNumber].eFieldType)
 		{
@@ -107,41 +112,45 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 				return TRUE;
 
 			case FIELDTYPE_CALC_TO_DWORD:
+			case FIELDTYPE_DATA_DWORD_2:
+			case FIELDTYPE_NAME_TO_DWORD:
+			case FIELDTYPE_DATA_DWORD:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
 				(*argv) = INT_TO_JSVAL(dwBuffer);
 			//	JS_NewNumberValue(cx, dwBuffer, argv);
 				return TRUE;
 
 			
-			case FIELDTYPE_DATA_DWORD_2:
-			case FIELDTYPE_DATA_DWORD:
+			case FIELDTYPE_UNKNOWN_11:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
-				JS_NewNumberValue(cx, dwBuffer, argv);
+				(*argv) = INT_TO_JSVAL(dwBuffer);
+			//	JS_NewNumberValue(cx, dwBuffer, argv);
 				return TRUE;
 
 			case FIELDTYPE_NAME_TO_INDEX:
 			case FIELDTYPE_NAME_TO_INDEX_2:
-			case FIELDTYPE_CODE_TO_WORD:
 			case FIELDTYPE_NAME_TO_WORD:
 			case FIELDTYPE_NAME_TO_WORD_2:
 			case FIELDTYPE_KEY_TO_WORD:
 			case FIELDTYPE_DATA_WORD:
+			case FIELDTYPE_CODE_TO_WORD:
 				memcpy(&wBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
 				(*argv) = INT_TO_JSVAL(wBuffer);
 				return TRUE;
 
-			case FIELDTYPE_DATA_BYTE_2:
 			case FIELDTYPE_CODE_TO_BYTE:
+			case FIELDTYPE_DATA_BYTE_2:
 			case FIELDTYPE_DATA_BYTE:
-				memcpy(&bBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(BYTE));
-				(*argv) = INT_TO_JSVAL(bBuffer);
-				break;
+				dwBuffer = NULL;
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), dwHelperSize);
+				(*argv) = INT_TO_JSVAL(dwBuffer);
+				return TRUE;
 
 			case FIELDTYPE_DATA_BIT:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
-				(*argv) = INT_TO_JSVAL((dwBuffer & pTable[nStatNumber].dwFieldLength) ? 1 : 0);
+				(*argv) = INT_TO_JSVAL((dwBuffer & (1 << pTable[nStatNumber].dwFieldLength)) ? 1 : 0);
 				return TRUE;
-
+			
 			case FIELDTYPE_ASCII_TO_CODE:
 			case FIELDTYPE_DATA_RAW:
 				szBuffer = (CHAR*)malloc(5);
