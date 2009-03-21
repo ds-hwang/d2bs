@@ -2286,14 +2286,14 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 
-	Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
-
 	// Look for the version string, otherwise return.
 	if(!findControl(4,0,599,200,40))
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
+
+	Vars.bBlockKeys = Vars.bBlockMouse = 1;
 
 	switch(tolower(mode[0]))
 	{
@@ -2307,7 +2307,7 @@ JSAPI_FUNC(my_login)
 			charTime = atoi(maxCharTime);
 
 			*rval = JSVAL_FALSE;
-			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
+			Vars.bBlockKeys = Vars.bBlockMouse = 0;
 			return JS_TRUE;
 			break;
 		case 's':
@@ -2320,7 +2320,7 @@ JSAPI_FUNC(my_login)
 			if(!clickControl(findControl(6,264,366,272,35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
 			handledCase = true;
-
+			
 		case 'o':
 			// Open Battle.net login
 			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
@@ -2376,7 +2376,7 @@ JSAPI_FUNC(my_login)
 
 	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
 
-	Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
+	Vars.bBlockKeys = Vars.bBlockMouse = 0;
 
 	return JS_TRUE;
 }

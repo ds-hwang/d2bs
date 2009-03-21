@@ -142,7 +142,11 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY)->pNext;
+	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	if (pControl && pControl->pNext)
+		pControl = pControl->pNext;
+	else
+		pControl = NULL;
 
 	if (!pControl) {
 		*rval = INT_TO_JSVAL(0);
