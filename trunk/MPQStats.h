@@ -1637,7 +1637,7 @@ static BinField lvltypesTable[] = {
 	{"end", NULL, 0x0, 0x788},
 };
 static BinField charstatsTable[] = {
-	{"wclass", FIELDTYPE_DATA_ASCII, 0x0, 0x0},
+	{"wclass", FIELDTYPE_DATA_ASCII, 0x20, 0x00},
 	{"class", FIELDTYPE_DATA_ASCII, 0xf, 0x20},
 	{"str", FIELDTYPE_DATA_BYTE, 0x0, 0x30},
 	{"dex", FIELDTYPE_DATA_BYTE, 0x0, 0x31},

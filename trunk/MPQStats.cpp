@@ -44,7 +44,7 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 		DWORD dwTableOffset = BaseStatTable[nBaseStat].dwEntry;
 
 		// Locate the table.
-		if(dwTableOffset <= 0xFFFFFF)
+		if(dwTableOffset <= 0xFFFF)
 			dwD2MPQTable = (*p_D2COMMON_sqptDataTable);
 		else dwD2MPQTable = NULL;
 
@@ -99,12 +99,20 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 		{
 			case FIELDTYPE_DATA_ASCII:
 				szBuffer = (CHAR*)malloc(pTable[nStatNumber].dwFieldLength + 1);
-				strcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength, (CHAR*)dwRetValue+pTable[nStatNumber].dwFieldOffset);
+				memset(szBuffer, NULL, pTable[nStatNumber].dwFieldLength + 1);
+				memcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength + 1);
+			//	strcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (CHAR*)dwRetValue+pTable[nStatNumber].dwFieldOffset);
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
 				free(szBuffer);
 				return TRUE;
 
 			case FIELDTYPE_CALC_TO_DWORD:
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				(*argv) = INT_TO_JSVAL(dwBuffer);
+			//	JS_NewNumberValue(cx, dwBuffer, argv);
+				return TRUE;
+
+			
 			case FIELDTYPE_DATA_DWORD_2:
 			case FIELDTYPE_DATA_DWORD:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
