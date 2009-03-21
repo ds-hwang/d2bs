@@ -449,7 +449,7 @@ JSAPI_FUNC(sqlite_stmt_bind)
 	if(argc < 2 || argc > 2 || !(JSVAL_IS_STRING(argv[0]) || JSVAL_IS_INT(argv[0])))
 		THROW_ERROR(cx, obj, "Invalid parameters for SQLiteStatement.bind");
 
-	char *value = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	//char *value = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 	int colnum = -1;
 	if(JSVAL_IS_INT(argv[0]))
 		colnum = JSVAL_TO_INT(argv[0]);

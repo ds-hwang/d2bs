@@ -81,7 +81,7 @@ WORD GetUnitX(UnitAny* pUnit)
 		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosX : NULL;
 	else
 		return pUnit->pPath ? (WORD)pUnit->pPath->xPos : NULL;
-	return NULL;
+	//return NULL;
 }
 
 WORD GetUnitY(UnitAny* pUnit)
@@ -93,7 +93,7 @@ WORD GetUnitY(UnitAny* pUnit)
 		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosY : NULL;
 	else
 		return pUnit->pPath ? (WORD)pUnit->pPath->yPos : NULL;
-	return NULL;
+	//return NULL;
 }
 
 bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
@@ -102,7 +102,7 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 
 UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
 	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
-		if(GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
+		if((DWORD)GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
 			return pItem;
 	}
 	return NULL;
@@ -597,7 +597,7 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 			return LoadCellFile(lpszPath, TRUE);
 		}
 
-		return NULL;
+		//return NULL;
 	}
 
 	if(bMPQ == TRUE)
@@ -668,7 +668,7 @@ VOID myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col)
 	if ((xpos2 >= D2GetScreenSizeX()) || ((xpos2 + (int)cellfile->cells[0]->width) <= 0) || (ypos2 >= D2GetScreenSizeY()) || ((ypos2 + (int)cellfile->cells[0]->height) <= 0)) return;
 
 	static BYTE coltab[2][256];//, tabno = 0, lastcol = 0;
-	if (!coltab[0][1]) for (int k = 0; k < 255; k++) coltab[0][k] = coltab[1][k] = k;
+	if (!coltab[0][1]) for (int k = 0; k < 255; k++) coltab[0][k] = coltab[1][k] = (BYTE)k;
 	cellfile->mylastcol = coltab[cellfile->mytabno ^= (col != cellfile->mylastcol)][255] = col;
 
 	D2GFX_DrawAutomapCell2(&ct, xpos, ypos, -1, 5, coltab[cellfile->mytabno]);

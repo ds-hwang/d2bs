@@ -47,7 +47,7 @@ void Print(const char * szFormat, ...)
 {
 	using namespace std;
 
-	const char REPLACE_CHAR = (char)0xFE;
+	const char REPLACE_CHAR = (const char)0xFE;
 
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
@@ -72,7 +72,6 @@ void Print(const char * szFormat, ...)
 	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		// If one line is longer, we split it.
-		int siz = it->size();
 		if(it->size() > MAXLEN)
 		{
 			list<string>::iterator nxi(it);

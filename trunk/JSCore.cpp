@@ -485,7 +485,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	myUnit* pmyUnit = NULL;
 	UnitAny* pUnit = NULL;
 
-	INT ScreenSize = D2GFX_GetScreenSize();
+	//INT ScreenSize = D2GFX_GetScreenSize();
 	
 		POINT Belt[] = {
 			{0,0}, // 0

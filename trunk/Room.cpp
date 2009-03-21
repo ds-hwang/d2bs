@@ -49,7 +49,7 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
  */
 void DrawPresets (Room2 *pRoom2)
 {
-	UnitAny* Player = D2CLIENT_GetPlayerUnit ();
+	//UnitAny* Player = D2CLIENT_GetPlayerUnit();
 	//Grabs all the preset units in room.
 	for (PresetUnit *pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext)
 	{

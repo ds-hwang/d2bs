@@ -29,7 +29,7 @@ INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		return JS_TRUE;
 
 	Level* pLevel = GetLevel(pArea->AreaId);
-	char* tmp = NULL;
+	//char* tmp = NULL;
 
 	if(!pLevel)
 		return JS_TRUE;

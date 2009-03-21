@@ -192,6 +192,7 @@ Script::Script(const char* file, ScriptState state) :
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		JS_ClearContextThread(context);
+		delete lpUnit;
 		RegisterScript(this);
 	} catch(std::exception&) {
 		DeleteCriticalSection(&scriptSection);
@@ -405,36 +406,39 @@ void Script::Run(void)
 	if(IsRunning())
 		return;
 	isAborted = false;
-
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	threadId = GetCurrentThreadId();
+	//DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	//threadId = GetCurrentThreadId();
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
+	JS_AddRoot(GetContext(), &main);
 	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
 	
 	JS_GetProperty(GetContext(), globalObject, "main", &main);
-	JS_AddRoot(GetContext(), &main);
+	//JS_AddRoot(GetContext(), &main);
 
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-		JS_CallFunctionValue(GetContext(), globalObject, main, 0, 0, &dummy);
+		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 	}
 	
+	JS_RemoveRoot(GetContext(), &main);
 	// context has been trampled.
 	if ((DWORD)JS_GetContextThread(GetContext()) != GetThreadId())
 		JS_SetContextThread(GetContext());
 
-	Stop(true,true);
+	//Stop(true,true);
 
-	JS_RemoveRoot(GetContext(), &main);
+	//JS_RemoveRoot(GetContext(), &main);
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
 	execCount++;
-
+	Stop();
 }
 
 void Script::Pause(void)
@@ -532,9 +536,9 @@ bool Script::Include(const char* file)
 }
 
 bool Script::IsRunning(void)
-{
-	if (!context)
-		return false;
+{// TODO :: fix the redundant checks here -TechnoHunter
+	//if (!context)
+		//return false;
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -727,15 +731,22 @@ DWORD WINAPI ScriptThread(void* data)
 DWORD WINAPI FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
+	if(!evt)
+		return 0;
 
-	JS_SetContextThread(evt->context);
-	JS_BeginRequest(evt->context);
+//	JS_SetContextThread(evt->context);
+//	JS_BeginRequest(evt->context);
 
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
 		jsval dummy = JSVAL_VOID;
-		// switch the context thread to this one
-
+		// switch the context thread to this one if it's not already
+		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
+		{
+			JS_ClearContextThread(evt->context);
+			JS_SetContextThread(evt->context);	
+		}
+		JS_BeginRequest(evt->context);
 
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
@@ -753,24 +764,35 @@ DWORD WINAPI FuncThread(void* data)
 			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
-		// check if that the caller stole the context thread
-
-
-		
+		// check if the coller stole the context thread
+		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
+		{
+			JS_ClearContextThread(evt->context);
+		JS_SetContextThread(evt->context);	
+		}
+		//JS_ClearContextThread(evt->context);
+		//JS_SetContextThread(evt->context);
+	JS_EndRequest(evt->context);
+		//evt->context = NULL;
 	}
 
-	if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
-		JS_SetContextThread(evt->context);	
-	JS_EndRequest(evt->context);
+	//if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
+	//	JS_SetContextThread(evt->context);	
+	//JS_EndRequest(evt->context);
 	JS_ClearContextThread(evt->context);
 	//JS_DestroyContextMaybeGC(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
+	{
 		evt->argv[i]->Release();
+		if(evt->argv[i])
+			delete evt->argv[i];
+	}
 	if(evt->argv)
 		delete[] evt->argv;
 	delete evt;
 
+	//JS_DestroyContext(evt->context);
 	
 	return 0;
 }
