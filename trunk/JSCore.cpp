@@ -1821,7 +1821,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		
 		bAddedRoom = FALSE;
 
-		if(!pRoom->pRoom1)
+		if(!pRoom->pPreset)
 		{
 			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = TRUE;
