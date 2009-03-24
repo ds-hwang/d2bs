@@ -115,7 +115,7 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 			case FIELDTYPE_DATA_DWORD:
 			case FIELDTYPE_DATA_DWORD_2:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
-				(*argv) = INT_TO_JSVAL(dwBuffer);
+				JS_NewNumberValue(cx,(jsdouble)dwBuffer,argv);
 				return TRUE;
 			
 			case FIELDTYPE_UNKNOWN_11:
