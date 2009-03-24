@@ -189,7 +189,8 @@ FUNCPTR(D2COMMON, GetBaseStat, DWORD __stdcall, (UnitAny *Unit, DWORD dwStat, DW
 FUNCPTR(D2COMMON, GetItemLevelRequirement, DWORD __stdcall, (UnitAny* pItem, UnitAny* pPlayer), -10113)
 FUNCPTR(D2COMMON, GetCursorItem, UnitAny * __stdcall, (Inventory * ptInventory), -10310) // Updated
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10295) // Updated
-FUNCPTR(D2COMMON, GetItemFlag, DWORD __stdcall, (UnitAny *Item, DWORD dwFlagMask, DWORD dwLineNo, char *szFileName), -10554) // Updated
+//FUNCPTR(D2COMMON, GetItemFlag, DWORD __stdcall, (UnitAny *Item, DWORD dwFlagMask, DWORD dwLineNo, char *szFileName), -10554) // Updated
+FUNCPTR(D2COMMON, GetItemFlag, DWORD __fastcall, (UnitAny *Item, DWORD dwFlagMask, DWORD dwLineNo, char *szFileName), -10554) // Updated
 FUNCPTR(D2COMMON, GetItemUnit, UnitAny *__stdcall, (DWORD dwId), -10852) // Updated
 FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10611) // Updated
 FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10373) // Updated 
