@@ -111,6 +111,13 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 				return TRUE;
 
 			case FIELDTYPE_CALC_TO_DWORD:
+				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				if (dwBuffer == 0xFFFFFFFF)
+					(*argv) = INT_TO_JSVAL(-1);
+				else
+					JS_NewNumberValue(cx,(jsdouble)dwBuffer,argv);
+				return TRUE;
+
 			case FIELDTYPE_NAME_TO_DWORD:
 			case FIELDTYPE_DATA_DWORD:
 			case FIELDTYPE_DATA_DWORD_2:
@@ -127,9 +134,16 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 			case FIELDTYPE_NAME_TO_INDEX_2:
 			case FIELDTYPE_NAME_TO_WORD:
 			case FIELDTYPE_NAME_TO_WORD_2:
+			case FIELDTYPE_CODE_TO_WORD:
+				memcpy(&wBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
+				if (wBuffer == 0xFFFF)
+					(*argv) = INT_TO_JSVAL(-1);
+				else
+					(*argv) = INT_TO_JSVAL(wBuffer);
+				return TRUE;
+
 			case FIELDTYPE_KEY_TO_WORD:
 			case FIELDTYPE_DATA_WORD:
-			case FIELDTYPE_CODE_TO_WORD:
 				memcpy(&wBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
 				(*argv) = INT_TO_JSVAL(wBuffer);
 				return TRUE;
