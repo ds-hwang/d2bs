@@ -5,6 +5,7 @@
 #include "debugnew/debug_new.h"
 
 MPQTables BaseStatTable[] = {
+	//	DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, WORD wTableSize, WORD wUnknown
 	{0x6FDF0438,	0x6FDF0434,	itemTable,			ARRAYSIZE(itemTable),			0xFFFF},
 	{0xA78,			0xA80,		monstatsTable,		ARRAYSIZE(monstatsTable),		0xFFFF},
 	{0xB8C,			0xB94,		skilldescTable,		ARRAYSIZE(skilldescTable),		0xFFFF},
@@ -19,7 +20,7 @@ MPQTables BaseStatTable[] = {
 	{0x6FDF1438,	0x6FDF143C,	lvlsubTable,		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
 	{0x6FDF1428,	0x6FDF142C,	lvlwarpTable,		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
 	{0xC64,			0xC68,		lvlprestTable,		ARRAYSIZE(lvlprestTable),		0xFFFF},
-	{0x6FDF1418,	0x6FDF1420,	lvltypesTable,		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v
+	{0x6FDF1418,	0x6FDF1424,	lvltypesTable,		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
 	{0xBC4,			0xBC8,		charstatsTable,		ARRAYSIZE(charstatsTable),		0xFFFF},
 	{0xC18,			0xC1C,		setitemsTable,		ARRAYSIZE(setitemsTable),		0xFFFF},
 	{0xC24,			0xC28,		uniqueitemsTable,	ARRAYSIZE(uniqueitemsTable),	0xFFFF},
@@ -28,7 +29,7 @@ MPQTables BaseStatTable[] = {
 	{0x6FDF0478,	0x6FDF0474,	runesTable,			ARRAYSIZE(runesTable),			0xFFFF}, // v
 	{0x6FDF148C,	0x6FDF1490,	cubemainTable,		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
 	{0x6FDF0470,	0x6FDF046C,	gemsTable,			ARRAYSIZE(gemsTable),			0xFFFF},
-	{0x6FDF13D0,	0x0,		experienceTable,	ARRAYSIZE(experienceTable),		0xFFFF}, // v
+	{0x6FDF13D0,	0x0,		experienceTable,	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
 	{0xBE8,			0xBF0,		pettypeTable,		ARRAYSIZE(pettypeTable),		0xFFFF},
 	{0xAD4,			0xADC,		superuniquesTable,	ARRAYSIZE(superuniquesTable),	0xFFFF},
 };
@@ -130,8 +131,10 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 			case FIELDTYPE_NAME_TO_INDEX_2:
 			case FIELDTYPE_NAME_TO_WORD_2:
 				memcpy(&wBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
-				//JS_NewNumberValue(cx,wBuffer,argv);
-				(*argv) = INT_TO_JSVAL((short)wBuffer);
+				if (wBuffer >= 0xFFFF){
+					wBuffer = ((wBuffer - 0xFFFF) * -1);
+				}
+				(*argv) = INT_TO_JSVAL(wBuffer);
 				return TRUE;
 
 			case FIELDTYPE_NAME_TO_INDEX:
