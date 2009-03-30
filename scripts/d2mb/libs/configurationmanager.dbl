@@ -1,0 +1,70 @@
+/**
+XMLManager by okaygo.
+Takes XML, creates a nice accessable array of an xml file.
+
+Todo: Needs sub-sections, do I want to stick to global/char config?
+**/
+
+if(js_strict)
+	js_strict(true);
+
+function XMLToArray(xmlobject)
+{
+	var rval = {};
+	for each(var node in xmlobject)
+	{
+	
+		if (!rval[node.name()])
+			rval[node.name()] = [];
+		
+		
+		var attributes = GetXMLProperties(node);
+		var array = XMLToArray(node);
+
+		rval[node.name()][rval[node.name()].length] = [attributes, array];
+			
+		/*
+		if (node.attributes().length() > 0)
+			rval[node.name()][rval[node.name()].length] = GetXMLProperties(node);
+			
+		if (array)
+			rval[node.name()][rval[node.name()].length] = XMLToArray(node);
+		*/
+	}
+	
+	// a dumb hack...
+	for each(var x in rval)	return rval;
+	return null;
+}
+
+function GetXMLProperties(xmlobject)
+{
+	var rval = {};
+	for each (var attribute in xmlobject.attributes())
+		rval[attribute.name()] = attribute;
+	for each(var x in rval)	return rval;
+	return null;
+}
+
+function ConfigurationManager(file) {
+	var fname = 'config/'+file;
+	var type = fname.substring(fname.lastIndexOf('.')+1);
+	this.store = {};
+
+	this.reload = function () {
+		switch(type) {
+			case 'xml':
+				// After trying for a long time, I realized that there are some null terminators, so we remove those, and bam, it works!
+				var contents = FileTools.readText(fname).replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, "").replace("\n","","g").replace("\r","","g").replace("\t","","g").replace("\0","","g");
+				contents = new XML(contents);
+				this.store = XMLToArray(contents);
+				break;
+
+			default: throw new Error("Unsupported data storage!");
+		}
+	};
+
+	this.reload();
+}
+
+var DefaultManager = new ConfigurationManager("settings.xml");

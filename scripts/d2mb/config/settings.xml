@@ -1,0 +1,8 @@
+<root>
+
+	<config>
+		<setting key="debug" value="false" />
+		<setting key="fun" value="no" />
+	</config>
+	
+</root>

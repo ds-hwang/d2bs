@@ -1,0 +1,106 @@
+js_strict(true);
+
+
+include("constants.dbl");
+include("pather.dbl");
+include("attack.dbl");
+include("d2mb.dbl");
+include("configurationmanager.dbl"); // rename this file
+include("skill.dbl");
+
+
+function main()
+{
+	var BuildXML = new ConfigurationManager("builds.xml");
+	var MyBuilds = new Builds(BuildXML.store.config[0][1].build);
+	D2MB.takeWp(Area.Act3.DuranceOfHateLevel2);
+	Pather.exitPath(Area.Act3.DuranceOfHateLevel3, true);
+	var point = {};
+	point.x = 17586;
+	point.y = 8068;
+	Pather.moveTo(point,true);
+	var boss = getUnit(1, "Mephisto");
+	if (boss)
+		Attack.attack(MyBuilds.get(MyBuilds.findMyBuild()).attackseq[0],boss);
+	Pather.presetPath(342,2);
+	var Portal = getUnit(2, "portal");
+	if (Portal)
+	{
+		Portal.interact();
+	}
+	while (me.act != 4)
+	{
+		delay(10);
+	}
+	delay(50);
+}
+
+// todo: I should eventually make this code readable, maybe some kind of better object handling.
+// also i need to move it ;)
+
+function Builds(buildele) {
+	this.builds = {};
+
+	this.init = function() {
+		for ( var item = 0; item < buildele.length; item++ )
+		{	
+			var build = new Build(buildele[item]);
+			this.builds[build.name] = build;
+		}
+	}
+	
+	this.init();
+
+	this.get = function(name) {
+		return this.builds[name];
+	}
+	
+	this.findMyBuild = function() {
+		var buildscore = {};
+		var bestscore = 0;
+		var bestbuild = -1;
+		
+		for ( build in this.builds ) {
+			var size = 0;
+			buildscore[build] = 0;
+			for each ( skill in this.builds[build].settings ) {
+				var skill = new PlayerSkill(Number(skill));
+				buildscore[build] += skill.getLevel();
+				size++;
+			}
+			buildscore[build] /= size;
+		}
+
+		for (score in buildscore) {
+			if (buildscore[score] > bestscore) {
+				bestscore = buildscore[score];
+				bestbuild = score;
+			}
+		}
+		
+		return bestbuild;
+	}
+}
+
+// Todo: Make some damn error catching. I also want to clean this up, it's pretty ugly... I should just make some type of interface for all these damn 2d arrays.
+
+function Build(build) {
+
+	this.name = build[0].key;
+	this.settings = [];
+	this.attackseq = [];
+
+	var primary = [];
+	var range;
+	
+	range = build[1].attack[0][1].setting[0][0].value;
+	primary[0] = build[1].attack[0][1].setting[1][0].left;
+	primary[1] = build[1].attack[0][1].setting[1][0].right;
+	
+	this.attackseq[0] = new AttackSequence(range,primary);
+	
+	for ( var attr = 0; attr < build[1].setting.length; attr++ )
+	{
+		this.settings[build[1].setting[attr][0].key] = build[1].setting[attr][0].value;
+	}
+}

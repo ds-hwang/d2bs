@@ -1,0 +1,178 @@
+if(js_strict)
+	js_strict(true);
+	
+var PlayerSkill = function(id) {
+	this.id = id;
+	this.name = getLocaleString(getBaseStat(2, this.id, "str name"));
+	this.level = me.getSkill(this.id, 1);
+	this.base = me.getSkill(this.id, 0);
+	this.classId = getBaseStat(3, this.id, "charclass");
+	
+	this.Skill = {}
+	
+	this.Skill.Type = {Ranged:0, Combat:1, Aura:2, Mastery:3, Summon:4, Curse:5, Scroll:6}
+	this.Skill.Type.Name = ["Ranged", "Combat", "Aura", "Mastery", "Summon", "Curse", "Scroll"];
+	
+	this.Skill.Elem = {None:0, Fire:1, Lightning:2, Magic:3, Cold:4, Poison:5, Stun:9};
+	this.Skill.Elem.Name = ["None", "Fire", "Lightning", "Magic", "Cold", "Poison", "Unknown", "Unknown", "Unknown", "Stun"];
+	
+	this.Skill.Range = {None:0, Range:1, HandToHand:2, Both:3}
+	this.Skill.Range.Name = [ "none", "rng", "h2h", "both" ];
+	
+	this.getType = function () {
+		if (getBaseStat(3, this.id, "aura") == 1)
+			return this.Skill.Type.Aura;
+		if (getBaseStat(3, this.id, "passivestate") > 0)
+			return this.Skill.Type.Mastery;
+		if (getBaseStat(3, this.id, "summon") > 0)
+			return this.Skill.Type.Summon;
+		if (getBaseStat(3, this.id, "cltstfunc") == 18)
+			return this.Skill.Type.Curse;
+		if (getBaseStat(3, this.id, "scroll") > 0)
+			return this.Skill.Type.Scroll;
+		if (getBaseStat(3, this.id, "srvmissile") > 0 || 
+			getBaseStat(3, this.id, "srvmissilea") > 0 || 
+			getBaseStat(3, this.id, "srvmissileb") > 0 || 
+			getBaseStat(3, this.id, "srvmissilec") > 0)
+			return this.Skill.Type.Ranged;
+		return this.Skill.Type.Combat;
+	}
+	
+	this.getName = function () {
+		return this.name;
+	}
+	
+	this.getTypeName = function () {
+		return this.Skill.Type.Name[this.getType()];
+	}
+	
+	this.getLevel = function () {
+		return this.level;
+	}
+	
+	this.getManaCost = function() {
+		var skillLvl = me.getSkill(this.id, 3);
+		var effectiveShift = [1,2,4,8,16,32,64,128,256,512,1024];
+		var ret = Math.max((getBaseStat(3, this.id, "mana") + (getBaseStat(3, this.id, "lvlmana") *(skillLvl-1))) * (effectiveShift[getBaseStat(3, this.id, "manashift")] / 256), getBaseStat(3, this.id, "minmana"));
+		return ret;	
+	}
+	
+	this.getRange = function () {
+		return getBaseStat(3, this.id, "range");
+	}
+	
+	this.getRangeName = function () {
+		return this.Skill.Range.Name[this.getRange()];
+	}
+	
+	this.getElement = function () {
+		return getBaseStat(3, this.id, "EType");
+	}
+	
+	
+	this.getElementName = function () {
+		return this.Skill.Elem.Name[this.getElement()];
+	}
+	
+	this.inTown = function () {
+		return getBaseStat(3, this.id, "InTown");
+	}
+	
+	this.isObtainable = function () {
+		if (this.classId != me.classid)
+			return false;
+		if (me.getStat(12) < getBaseStat(3, this.id, "reqlevel"))
+			return false;
+		for (var n = 1; n < 4; n++) {
+			var nSkillId = getBaseStat(3, this.id, "reqskill" + n);
+			if (nSkillId > 0 && me.getSkill(nSkillId, 0) == 0)
+				return false;
+		}
+		return true;
+	}
+	
+	this.getElementBonus = function () {
+		var bonusArray = [0, me.getStat(329), me.getStat(330), 0, me.getStat(331), me.getStat(332), 0, 0, 0];
+		return bonusArray[this.getElement()];
+	}
+	
+	// level 1 - no syngergy, no bonus... element only
+	/*
+			damage[type] = ((base_damage*srcdamage/128)+(skill_damage*effectiveshift*(100+synergy)/100))*(100+enhancer_stat)/100
+			base_damage is the damage you would do with a normal attack (this is seperated by element, so consider this whole thing is done for each element involved, including physical damage and lifesteal/manasteal) in addition to any bonus added by damage enhancements applied by the skill through calc fields.
+			skill_damage is the additional offweapon damage granted by the skill (all sLvl boni included here).
+			enhancer_stat is a stat that increases this damage type as a whole (the 'extra fire damage' style stats).
+	*/
+	this.getBaseDamage = function() {
+		var skillLvl = me.getSkill(this.id, 3);
+		var effectiveShift = [1,2,4,8,16,32,64,128,256,512,1024];
+		var HitShift = effectiveShift[getBaseStat(3,this.id,"HitShift")] / 256;
+		
+		// Elemental Properties
+		var eleBaseMin = getBaseStat(3,this.id,"EMin");
+		var eleBaseMax = getBaseStat(3,this.id,"EMax");
+		var eleDamageShiftMin = [getBaseStat(3,this.id,"EMinLev1"),getBaseStat(3,this.id,"EMinLev2"),getBaseStat(3,this.id,"EMinLev3"),getBaseStat(3,this.id,"EMinLev4"),getBaseStat(3,this.id,"EMinLev5")];
+		var eleDamageShiftMax = [getBaseStat(3,this.id,"EMaxLev1"),getBaseStat(3,this.id,"EMaxLev2"),getBaseStat(3,this.id,"EMaxLev3"),getBaseStat(3,this.id,"EMaxLev4"),getBaseStat(3,this.id,"EMaxLev5")];
+		var eleDmgMin = 0;
+		var eleDmgMax = 0;
+		
+		
+		for (var level = 0; level <= skillLvl; level++)
+		{
+			switch(level)
+			{
+				case 1:
+					eleDmgMin = eleBaseMin;
+					eleDmgMax = eleBaseMax;
+					break;
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+					eleDmgMin += eleDamageShiftMin[0];
+					eleDmgMax += eleDamageShiftMax[0];
+					break;
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+				case 16:
+					eleDmgMin += eleDamageShiftMin[1];
+					eleDmgMax += eleDamageShiftMax[1];
+					break;
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+					eleDmgMin += eleDamageShiftMin[2];
+					eleDmgMax += eleDamageShiftMax[2];
+					break;
+				case 23:
+				case 24:
+				case 25:
+				case 26:
+				case 27:
+				case 28:
+					eleDmgMin += eleDamageShiftMin[3];
+					eleDmgMax += eleDamageShiftMax[3];
+					break;
+				default:
+					eleDmgMin += eleDamageShiftMin[4];
+					eleDmgMax += eleDamageShiftMax[4];
+					break;
+			}
+		}
+		
+		var ret_max = eleDmgMax*HitShift * ((100 + this.getElementBonus()) / 100);
+		var ret_min = eleDmgMin*HitShift * ((100 + this.getElementBonus()) / 100);
+		return Math.floor(ret_min) + "-" + Math.floor(ret_max);
+	}
+}

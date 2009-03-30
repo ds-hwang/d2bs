@@ -1,0 +1,32 @@
+<root>
+	<config>
+		<build key="hammerdin">
+			<setting key="0" value="112" /> <!-- Blessed Hammer -->
+			<setting key="1" value="113" /> <!-- Concentration -->
+			<setting key="2" value="108" /> <!-- Blessed Aim -->
+			<setting key="3" value="115" /> <!-- Vigor -->
+			<attack>
+				<setting key="range" value="8" />
+				<setting key="primary" left="112" right="113" cast="left" /> <!-- Blessed Hammer, Concentration -->
+			</attack>
+		</build>
+		<build key="firesorc">
+			<setting key="0" value="61" /> <!-- Fire Mastery -->
+			<setting key="1" value="56" /> <!-- Meteor -->
+			<setting key="2" value="47" /> <!-- Fire Ball -->
+			<attack>
+				<setting key="range" value="15" />
+				<setting key="primary" left="56" right="47" cast="left" /> <!-- Fire Ball, Meteor -->
+			</attack>
+		</build>
+		<build key="lightsorc">
+			<setting key="0" value="63" /> <!-- Lightning Mastery -->
+			<setting key="1" value="49" /> <!-- Lightning -->
+			<setting key="2" value="53" /> <!-- Chain Lightning -->
+			<attack>
+				<setting key="range" value="7" />
+				<setting key="primary" left="47" right="56" cast="left" /> <!-- Fire Ball, Meteor -->
+			</attack>
+		</build>
+	</config>
+</root>

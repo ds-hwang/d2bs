@@ -1,0 +1,66 @@
+include("constants.dbl");
+
+const ACT_1 = 1;
+const ACT_2 = 40;
+const ACT_3 = 75;
+const ACT_4 = 103;
+const ACT_5 = 109;
+
+const TownAreas = [ ACT_1, ACT_2, ACT_3, ACT_4, ACT_5 ];
+
+function TakeWP(areaId)
+{
+	var waypointUnit = getUnit(2, "Waypoint");
+	if (!waypointUnit)
+		Pather.presetPath(119, 157, 156, 402, 323, 288, 237, 324, 238, 496, 511, 494, 2);
+	var waypointUnit = getUnit(2, "Waypoint");
+	if (!waypointUnit)
+		this.error("We were unable to find the waypoint unit.");
+	Pather.moveTo(waypointUnit);
+		
+	var timeOut = getTickCount ();
+	while(me.area != areaId && (getTickCount () - timeOut) < 1500) {
+		waypointUnit.interact(areaId);
+		delay(100,true);
+	}
+			
+	if (me.area != areaId)
+		this.error("Unable to enter into " + areaId);
+			
+	delay(500);
+	return true;
+}
+
+// You can pass a point (an object containing x, y)
+function PlayerMove()
+{
+	var destination = new Point();
+	var args = Array.prototype.slice.call(arguments);
+	if (args.length < 1)
+		return false;
+	if (args[0].hasOwnProperty(x) && args[0].hasOwnProperty(y))
+	{
+		destination.x = args[0].x;
+		destination.y = args[0].y;
+	}
+	return true;
+}
+
+function PlayerInTown()
+{
+	return TownAreas.indexOf(me.area);
+}
+
+function PlayerHasSkill(skillid)
+{
+	return me.getSkill(skillid,0);
+}
+
+// Move this to objects.dbl
+
+function Point(x, y)
+{
+	this.x = x;
+	this.y = y;
+}
+
