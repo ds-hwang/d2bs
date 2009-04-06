@@ -1,6 +1,5 @@
 js_strict(true);
 
-
 include("constants.dbl");
 include("pather.dbl");
 include("attack.dbl");
@@ -8,43 +7,104 @@ include("d2mb.dbl");
 include("configurationmanager.dbl"); // rename this file
 include("skill.dbl");
 
+// Define my builds.
+var BuildXML = new ConfigurationManager("builds.xml");
+var MyBuilds = new Builds(BuildXML.store.config[0][1].build);
+	
+// Define my sequences.	
+var SequenceXML = new ConfigurationManager("sequences.xml");
+var MySequences = new Sequences(SequenceXML.store.config[0][1].sequence);
 
 function main()
 {
-	var BuildXML = new ConfigurationManager("builds.xml");
-	var MyBuilds = new Builds(BuildXML.store.config[0][1].build);
-	D2MB.takeWp(Area.Act3.DuranceOfHateLevel2);
-	Pather.exitPath(Area.Act3.DuranceOfHateLevel3, true);
-	var point = {};
-	point.x = 17586;
-	point.y = 8068;
-	Pather.moveTo(point,true);
-	var boss = getUnit(1, "Mephisto");
-	if (boss)
-		Attack.attack(MyBuilds.get(MyBuilds.findMyBuild()).attackseq[0],boss);
-	Pather.presetPath(342,2);
-	var Portal = getUnit(2, "portal");
-	if (Portal)
-	{
-		Portal.interact();
-	}
-	while (me.act != 4)
-	{
-		delay(10);
-	}
-	delay(50);
+	MySequences.execute("mephisto");
 }
+
+// START OF SEQUENCE CODE
+
+function Sequences(sequences)
+{
+	this.Sequences = {};
+	
+	this.init = function() {
+		for ( var item = 0; item < sequences.length; item++ )
+		{
+			var sequence = new Sequence(sequences[item]);
+			this.Sequences[sequence.Name] = sequence;
+		}
+	}
+
+	/*this.get = function(name) {
+		return this.sequences[name];
+	}*/ 
+	
+	this.execute = function(name) {
+		
+		for ( var instruction = 0; instruction < this.Sequences[name].Commands.Path.length; instruction++ )
+		{
+			var type = this.Sequences[name].Commands.Path[instruction].type;
+			var value = this.Sequences[name].Commands.Path[instruction].value;
+			print("Executing: ÿc1" + type + "ÿc0 with value(s) ÿc2" + value.toString() + "ÿc0.");
+			switch(String(type))
+			{
+				case "waypoint":
+					D2MB.takeWp(Number(value[0]));
+					break;
+				case "exit":
+					var goThru = (String(value[1]).toLowerCase().charAt(0) == "t") ? true : false;
+					Pather.exitPath(Number(value[0]), goThru);
+					break;
+				case "point":
+					var point = {};
+					point.x = Number(value[0]);
+					point.y = Number(value[1]);
+					var walkPath = (String(value[2]).toLowerCase().charAt(0) == "t") ? true : false;
+					Pather.moveTo(point, walkPath);
+					break;
+				case "attack":
+					var unit = getUnit(1, String(value[0]));
+					if (unit) {	Attack.attack(MyBuilds.get(MyBuilds.findMyBuild()).attackseq[0],unit); }
+					break;
+				default:
+					print("Could not find instruction set for type 'ÿc1" + type + "ÿc0'.");
+					break;
+			}
+		}
+	}
+	
+	this.init();
+}
+
+function Sequence(sequence)
+{
+	this.Name = sequence[0].key;
+	this.Commands = { Town:[], Path:[] };
+	for ( var command = 0; command < sequence[1].path.length; command++ )
+	{
+			var type = sequence[1].path[command][0].type;
+			var value = sequence[1].path[command][0].value.split(",");
+			this.Commands.Path.push(new SequenceCommand(type,value));
+	}
+}
+
+function SequenceCommand(type, value)
+{
+	this.type = type;
+	this.value = value;
+}
+
+// END OF SEQUENCE CODE
 
 // todo: I should eventually make this code readable, maybe some kind of better object handling.
 // also i need to move it ;)
 
-function Builds(buildele) {
+function Builds(builds) {
 	this.builds = {};
 
 	this.init = function() {
-		for ( var item = 0; item < buildele.length; item++ )
+		for ( var item = 0; item < builds.length; item++ )
 		{	
-			var build = new Build(buildele[item]);
+			var build = new Build(builds[item]);
 			this.builds[build.name] = build;
 		}
 	}

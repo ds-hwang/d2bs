@@ -1,0 +1,27 @@
+<root>
+	<config>
+		<sequence key="andariel"> 					
+			<path type="waypoint" value="35" /> 		<!-- CatacombsLevel2 -->
+			<path type="exit" value="36,true" /> 			<!-- CatacombsLevel3 -->
+			<path type="exit" value="37,true" /> 			<!-- CatacombsLevel4 -->
+			<path type="attack" value="Andariel" />		<!-- Andariel -->
+			<town type="tp" />
+		</sequence>
+		<sequence key="mephisto">
+			<path type="waypoint" value="101" />		<!-- DuranceOfHateLevel2 -->
+			<path type="exit" value="102,true"/>			<!-- DuranceOfHateLevel3 -->
+			<path type="point" value="17591,8069,false" />  	<!-- Moat -->
+			<path type="point" value="17577,8069,true" />  		<!-- Moat -->
+			<path type="attack" value="Mephisto" />		<!-- Mephisto -->
+			<town type="presetpath" value="342,2" />
+			<town type="interact" value="2,portal" />
+		</sequence>
+		<sequence key="travincal">
+			<path type="waypoint" value="83" />		<!-- Travincal -->
+			<path type="exit" value="100,false" />		<!-- DuranceOfHateLevel1 -->
+			<path type="attack" value="Ismail Vilehand" /> 	<!-- Ismail Vilehand -->
+			<path type="attack" value="Geleb Flamefinger" />	<!-- Geleb Flamefinger -->
+			<path type="attack" value="Toorc Icefist" />	<!-- Toorc Icefist -->
+		</sequence>
+	</config>
+</root>

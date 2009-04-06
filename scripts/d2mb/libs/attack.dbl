@@ -56,7 +56,7 @@ var Attack = new function () {
 		return getDistance(me, unit);
 	}
 	
-	this.update = function(unit) {
+	this.update = function(unit,attackseq) {
 		if (!this.isValidMonster(unit))
 			return me.overhead(unit.name + "(Dead)");
 		var nPercent = Math.round(unit.hp/unit.hpmax * 100);
@@ -67,15 +67,15 @@ var Attack = new function () {
 			nColor = 8;
 		if (nPercent < 25)
 			nColor = 1;
-		return me.overhead(unit.name + "(ÿc" + nColor + Math.round(unit.hp/unit.hpmax * 100) + "%)");
+		return me.overhead("Distance: " + this.distance(unit) + "\rAttack Range: " + attackseq.range + "\rMonster: " + unit.name + "\r Health: ÿc" + nColor + Math.round(unit.hp/unit.hpmax * 100) + "%");
 	}
 	
 	this.attack = function(attackseq,unit) {
 
 		while(this.isValidMonster(unit)) {
-			this.update(unit);
+			this.update(unit,attackseq);
 			if (this.distance(unit) > attackseq.range)
-				Pather.monsterPath(unit,(attackseq.cast.getRangeName == "h2h" ? 0 : 1));
+				Pather.monsterPath(unit,attackseq.range);
 				
 			D2MB.setSkill(attackseq.leftskill.id, Hand.Left);
 			D2MB.setSkill(attackseq.rightskill.id, Hand.Right);

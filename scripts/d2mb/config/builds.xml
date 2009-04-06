@@ -1,3 +1,8 @@
+<!-- Builds.xml :: Contains information regarding auto-build detection, the sequence can be overridden,
+however it should be done inside of the global configuration for simplicity. -->
+
+<!-- TODO: Attack sequences should have a list of states to stop on, and use the next sequence in the list. -->
+
 <root>
 	<config>
 		<build key="hammerdin">
@@ -6,8 +11,8 @@
 			<setting key="2" value="108" /> <!-- Blessed Aim -->
 			<setting key="3" value="115" /> <!-- Vigor -->
 			<attack>
-				<setting key="range" value="8" />
-				<setting key="primary" left="112" right="113" cast="left" /> <!-- Blessed Hammer, Concentration -->
+				<setting key="range" value="3" /> <!-- Todo: Remove this -->
+				<setting key="primary" left="112" right="113" cast="left" range="3" /> <!-- Blessed Hammer, Concentration -->
 			</attack>
 		</build>
 		<build key="firesorc">
@@ -15,8 +20,8 @@
 			<setting key="1" value="56" /> <!-- Meteor -->
 			<setting key="2" value="47" /> <!-- Fire Ball -->
 			<attack>
-				<setting key="range" value="15" />
-				<setting key="primary" left="56" right="47" cast="left" /> <!-- Fire Ball, Meteor -->
+				<setting key="range" value="15" /> <!-- Todo: Remove this -->
+				<setting key="primary" left="56" right="47" cast="left" range="15" /> <!-- Fire Ball, Meteor -->
 			</attack>
 		</build>
 		<build key="lightsorc">
@@ -24,8 +29,8 @@
 			<setting key="1" value="49" /> <!-- Lightning -->
 			<setting key="2" value="53" /> <!-- Chain Lightning -->
 			<attack>
-				<setting key="range" value="7" />
-				<setting key="primary" left="47" right="56" cast="left" /> <!-- Fire Ball, Meteor -->
+				<setting key="range" value="20" /> <!-- Todo: Remove this -->
+				<setting key="primary" left="49" right="53" cast="left" range="55" /> <!-- Lightning, Chain Lightning -->
 			</attack>
 		</build>
 	</config>

@@ -133,9 +133,10 @@ var Pather = new function () {
 		return true;
 	}
 	
-	this.moveTo = function(pointTo) {
+	this.moveTo = function(pointTo, walk) {
+		if (!walk) walk = false;
 		//Determine if we should teleport, and if the range we will move
-		this.useTele = (!D2MB.inTown() && me.getSkill(Skill.Teleport, 3)) ? true : false;
+		this.useTele = walk ? false : ((!D2MB.inTown() && me.getSkill(Skill.Teleport, 3)) ? true : false);
 		this.range = (this.useTele) ? 35 : 20;
 		
 			
@@ -169,18 +170,15 @@ var Pather = new function () {
 		this.moveNode(pointTo.x, pointTo.y, this.useTele);
 	}
 	
-	this.monsterPath = function(unit, type) {
+	this.monsterPath = function(unit, minrange) {
 		this.useTele = (!D2MB.inTown() && me.getSkill(Skill.Teleport, 3)) ? true : false;
 		this.range = (this.useTele) ? 35 : 20;
 		
 		var path = getPath(me.area, me.x, me.y, unit.x, unit.y, this.useTele, this.range);
 		
-		//Only need LOS
-		if (type == 1)
-			path.pop ();
-		
 		for (var n in path) {
-			this.moveNode(path[n][0], path[n][1], this.useTele, true);
+			if (getDistance(me, unit.x, unit.y) > minrange)
+				this.moveNode(path[n][0], path[n][1], this.useTele, true);
 		}
 		
 	}
