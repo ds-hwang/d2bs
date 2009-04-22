@@ -276,6 +276,8 @@ JSAPI_FUNC(file_readLine)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		char* line = readLine(fdata->fptr);
+		if (strlen(line) == 0)
+			return JS_TRUE;
 		if(!line)
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));

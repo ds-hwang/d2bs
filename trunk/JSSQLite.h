@@ -31,7 +31,8 @@ void sqlite_stmt_finalize(JSContext *cx, JSObject *obj);
 enum {
 	SQLITE_PATH,
 	SQLITE_STMTS,
-	SQLITE_OPEN
+	SQLITE_OPEN,
+	SQLITE_LASTROWID,
 };
 
 enum {
@@ -65,6 +66,7 @@ static JSPropertySpec sqlite_props[] = {
 	{"path",		SQLITE_PATH,	JSPROP_PERMANENT_VAR},
 	{"statements",	SQLITE_STMTS,	JSPROP_PERMANENT_VAR},
 	{"isOpen",		SQLITE_OPEN,	JSPROP_PERMANENT_VAR},
+	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR},
 	{0}
 };
 

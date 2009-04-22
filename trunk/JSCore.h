@@ -69,3 +69,4 @@ JSAPI_FUNC(my_iniwrite);
 JSAPI_FUNC(my_login);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_submitItem);
+JSAPI_FUNC(my_getInteractedNPC);

@@ -61,7 +61,7 @@ UnitAny* GetNextUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType
 					return pItem;
 			}
 
-			return NULL;
+			//return NULL;
 		}
 		// Was the item we looked for in an NPC inventory? If so .. Check our inventory!
 		if((pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) &&

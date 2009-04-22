@@ -114,7 +114,7 @@ Script::Script(const char* file, ScriptState state) :
 		InitClass(&line_class, line_methods, line_props, NULL, NULL);
 		InitClass(&text_class, text_methods, text_props, NULL, NULL);
 		InitClass(&image_class, image_methods, image_props, NULL, NULL);
-
+		JS_DefineObject(context, globalObject, "Unit", &unit_class, NULL, NULL);
 		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
 

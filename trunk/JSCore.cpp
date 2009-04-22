@@ -2428,3 +2428,33 @@ JSAPI_FUNC(my_submitItem)
 
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_getInteractedNPC)
+{
+	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
+	if (!pNPC) {
+		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		return JS_TRUE;
+	}
+
+	myUnit* pmyUnit = new myUnit; // leaked?
+
+	if(!pmyUnit)
+		return JS_TRUE;
+
+	CHAR szName[128] = "";
+	pmyUnit->_dwPrivateType = PRIVATE_UNIT;
+	pmyUnit->dwClassId = pNPC->dwTxtFileNo;
+	pmyUnit->dwMode = pNPC->dwMode;
+	pmyUnit->dwType = pNPC->dwType;
+	pmyUnit->dwUnitId = pNPC->dwUnitId;
+	strcpy(pmyUnit->szName, szName);
+
+	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+
+	if(!jsunit)
+		return JS_TRUE;
+
+	*rval = OBJECT_TO_JSVAL(jsunit);
+	return JS_TRUE;
+}

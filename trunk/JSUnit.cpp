@@ -821,7 +821,7 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	jsint nFlag = JSVAL_TO_INT(argv[0]);
 
-	*rval = BOOLEAN_TO_JSVAL(!!(nFlag & pUnit->pItemData->dwFlags));
+	*rval = BOOLEAN_TO_JSVAL((nFlag & pUnit->pItemData->dwFlags));
 
 	return JS_TRUE;
 }
@@ -977,6 +977,34 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			case 1: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wLeftSkillId].name)); break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
+			case 4: {
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+				if(pReturnArray)
+				{
+					int i = 0;
+					for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+
+						if(!pArrayInsert)
+							continue;
+
+						jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
+						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
+						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, 1));
+
+						JS_SetElement(cx, pArrayInsert, 0, &nId);
+						JS_SetElement(cx, pArrayInsert, 1, &nBase);
+						JS_SetElement(cx, pArrayInsert, 2, &nTotal);
+
+						jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
+
+						JS_SetElement(cx, pReturnArray, i, &aObj);
+						i++;
+					}
+					*rval = OBJECT_TO_JSVAL(pReturnArray);
+				}
+			} break;
 			default: *rval = BOOLEAN_TO_JSVAL(FALSE); break;
 		}
 		return JS_TRUE;
@@ -1027,97 +1055,32 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
 
-	UnitAny* pNPC = NULL;
-	DWORD dwMode = NULL;
+	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
+	DWORD dwMode = JSVAL_TO_INT(argv[argc - 1]);
 
-	if(argc > 1 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_INT(argv[1]))
-	{
-		myUnit* pmyNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+	//Check if we are interacted.
+	if (IsBadReadPtr(pNPC, sizeof(UnitAny)) || !pNPC)
+		return JS_TRUE;
+	
+	//Check for proper mode.
+	//if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
+	//	return JS_TRUE;
 
-		if(!pmyNpc || IsBadReadPtr(pmyNpc, sizeof(myUnit)))
+	//Selling an Item 
+	if (dwMode == 1) {
+		//Check if we own the item!
+		if (!pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == D2CLIENT_GetPlayerUnit()->dwUnitId)
+			return JS_TRUE;
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+	} else {
+		//Make sure the item is owned by the NPC interacted with.
+		if (!pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == pNPC->dwUnitId)
 			return JS_TRUE;
 
-		pNPC = D2CLIENT_FindUnit(pmyNpc->dwUnitId, pmyNpc->dwType);
-
-		if(!pNPC || pNPC->dwType != UNIT_MONSTER)
-			return JS_TRUE;
-
-		dwMode = JSVAL_TO_INT(argv[1]);
-	}
-	else if(argc == 1 && JSVAL_IS_INT(argv[0]))
-	{
-		pNPC = D2CLIENT_GetCurrentInteractingNPC();
-
-		dwMode = JSVAL_TO_INT(argv[0]);
-	}
-	else
-		return JS_TRUE;
-
-	if(!pNPC)
-		return JS_TRUE;
-
-	if(dwMode != 1 && dwMode != 2 && dwMode != 6)
-		return JS_TRUE;
-
-	if(!pItem->pItemData || !pItem->pItemData->pOwnerInventory || !pItem->pItemData->pOwnerInventory->pOwner || (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == D2CLIENT_GetPlayerUnit()->dwUnitId && pItem->pItemData->pOwnerInventory->pOwner->dwType == UNIT_PLAYER))
-		return JS_TRUE;
-
-	// TODO: replace this with a non-packet-based method
-	BYTE pPacket[17] = {NULL};
-
-	if(dwMode == 2 || dwMode == 6)
-		pPacket[0] = 0x32;
-	else pPacket[0] = 0x33;
-
-	*(DWORD*)&pPacket[1] = pNPC->dwUnitId;
-	*(DWORD*)&pPacket[5] = pItem->dwUnitId;
-
-   	if(dwMode == 1) // Sell
-	*(DWORD*)&pPacket[9] = 0x04;
-	else if(dwMode == 2) // Buy
-	{
-		if(pItem->pItemData->dwFlags & 0x10)
-			*(DWORD*)&pPacket[9] = 0x00;
-		else
-			*(DWORD*)&pPacket[9] = 0x02;
-	}
-	else
-		*(BYTE*)&pPacket[9+3] = 0x80;
-
-	INT nBuySell = NULL;
-
-	if(dwMode == 2 || dwMode == 6)
-		nBuySell = NULL;
-	else nBuySell = 1;
-
-	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
-
-	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
-
-	//1 - Buy
-//2 - Sell
-//6 - Shift Buy (Scrolls, Potions)
-	/*
-Buy   32 [DWORD entity id] [DWORD item id] [DWORD tab] [DWORD cost]
-Sell  33 [DWORD entity id] [DWORD item id] [DWORD tab] [DWORD cost]
-
-	INT diff = D2CLIENT_GetDifficulty();
-	//D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell)
-
-
-	33 0E 00 00 00 10 00 00 00 04 00 00 00 88 13 00 00 00
-
-	if(*p_D2CLIENT_ShopPerformFlag_II == NULL)
-	{
-		DWORD dwSell = NULL;
-
-		if(dwMode == 1)
-			dwSell = 1;
-
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, dwSell, (DWORD)0, dwMode, 1, NULL);
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
 	}
 
-	*/
+	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 
 	*rval = BOOLEAN_TO_JSVAL(TRUE);
 
@@ -1197,13 +1160,7 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 			pmyUnit->dwMode = pUnit->pItemData->pOwnerInventory->pOwner->dwMode;
 			pmyUnit->dwType = pUnit->pItemData->pOwnerInventory->pOwner->dwType;
 			pmyUnit->szName[0] = NULL;
-
-			JSObject* jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-			if(!jsunit || !JS_SetPrivate(cx, jsunit, pmyUnit) ||
-				!JS_DefineProperties(cx, jsunit, unit_props) ||
-				!JS_DefineFunctions(cx, jsunit, unit_methods))
-				return JS_TRUE;
+			JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
 			*rval = OBJECT_TO_JSVAL(jsunit);
 		}

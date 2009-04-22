@@ -35,10 +35,13 @@ char* readLine(FILE* fptr)
 	do {
 		c = fgetc(fptr);
 		size++;
-	} while(c != '\r' && c != '\n');
-	fsetpos(fptr, &pos);
+	} while(c != '\r' && c != '\n' && !feof(fptr));
 	line = new char[size+1]; // might not need this but i think it needs room for the null char
 	memset(line, 0, size);
+	if (size == 1) {
+		return line;
+	}
+	fsetpos(fptr, &pos);
 	if(fread(line, sizeof(char), size-1, fptr) != size-1 && ferror(fptr)) {
 		delete[] line;
 		return NULL;

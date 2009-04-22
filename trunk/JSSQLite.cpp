@@ -250,6 +250,9 @@ JSAPI_PROP(sqlite_getProperty)
 		case SQLITE_OPEN:
 			*vp = BOOLEAN_TO_JSVAL(dbobj->open);
 			break;
+		case SQLITE_LASTROWID:
+			*vp = INT_TO_JSVAL(sqlite3_last_insert_rowid(dbobj->db));
+			break;
 		case SQLITE_STMTS:
 			JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
 			int i = 0;

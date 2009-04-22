@@ -55,7 +55,7 @@ enum unit_tinyid {
 };
 
 static JSClass unit_class = {
-    "unit",	JSCLASS_HAS_PRIVATE,
+    "Unit",	JSCLASS_CONSTRUCT_PROTOTYPE | JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, unit_getProperty, unit_setProperty,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize,
     NULL, NULL, 
