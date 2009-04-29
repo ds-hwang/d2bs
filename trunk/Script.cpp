@@ -118,10 +118,11 @@ Script::Script(const char* file, ScriptState state) :
 		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
 
+		UnitAny* player = D2CLIENT_GetPlayerUnit();
 		lpUnit->dwMode = -1;
 		lpUnit->dwClassId = -1;
 		lpUnit->dwType = UNIT_PLAYER;
-		lpUnit->dwUnitId = D2CLIENT_GetPlayerUnit() ? D2CLIENT_GetPlayerUnit()->dwUnitId : NULL;
+		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
 		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
@@ -204,15 +205,14 @@ Script::~Script(void)
 	Lock();
 	Stop(true, true);
 	activeScripts.erase(fileName);
-	
-	JS_SetContextThread(context);
 
 	// use the RT version of RemoveRoot to prevent crashes
 	JS_RemoveRootRT(runtime, &globalObject);
 	JS_RemoveRootRT(runtime, &meObject);
 	JS_RemoveRootRT(runtime, &scriptObject);
 
-	JS_DestroyContext(context);
+	JS_SetContextThread(context);
+	JS_DestroyContextNoGC(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -412,7 +412,6 @@ void Script::Run(void)
 	JS_BeginRequest(GetContext());
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(GetContext(), &main);
 	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
 	
 	JS_GetProperty(GetContext(), globalObject, "main", &main);
@@ -456,7 +455,8 @@ void Script::Stop(bool force, bool reallyForce)
 {
 	AutoLock lock(this);
 	
-	// Clear the Events/Genhooks before aborting the script, otherwise we can't clean up all the events in the context, shit could blow up!
+	// Clear the events/hooks before aborting the script, otherwise we can't clean up all the events in the context
+	// what could possibly blow up by cleaning up hooks/events after stopping the script?
 	ClearAllEvents();
 	Genhook::Clean(this);
 
@@ -838,12 +838,10 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-	static bool enteredLock = false;
 	if(status == JSGC_BEGIN)
 	{
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");
-		Script::FlushCache();
 		if(JS_GetContextThread(cx))
 			JS_ClearContextThread(cx);
 		JS_SetContextThread(cx);
@@ -852,6 +850,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	{
 		if(Vars.bDebug)
 			Log("*** LEAVING GC ***");
+		Script::FlushCache();
 	}
 	return JS_TRUE;
 }
