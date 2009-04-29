@@ -123,6 +123,7 @@ struct Variables
 	CRITICAL_SECTION	cBoxHookSection;
 	CRITICAL_SECTION	cFrameHookSection;
 	CRITICAL_SECTION	cLineHookSection;
+	CRITICAL_SECTION	cFlushCacheSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;

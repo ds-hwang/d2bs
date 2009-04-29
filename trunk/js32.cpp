@@ -82,6 +82,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 
 JSContext* BuildContext(JSRuntime* runtime)
 {
+	// 8192 (0x2000) is the recommended default and shouldn't be tinkered with
 	JSContext* context = JS_NewContext(runtime, 0x2000);
 	if(!context)
 		throw std::exception("Couldn't create the context");

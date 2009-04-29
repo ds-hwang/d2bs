@@ -206,14 +206,13 @@ Script::~Script(void)
 	activeScripts.erase(fileName);
 	
 	JS_SetContextThread(context);
-	JS_BeginRequest(context);
 
-	JS_RemoveRoot(context, &globalObject);
-	JS_RemoveRoot(context, &meObject);
-	JS_RemoveRoot(context, &scriptObject);
+	// use the RT version of RemoveRoot to prevent crashes
+	JS_RemoveRootRT(runtime, &globalObject);
+	JS_RemoveRootRT(runtime, &meObject);
+	JS_RemoveRootRT(runtime, &scriptObject);
 
-	JS_EndRequest(context);
-	JS_DestroyContext(context); // calling it with JS_DestroyContext calls the GC which calls flushCache.. BOOM
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -247,8 +246,8 @@ void Script::Startup(void)
 {
 	if(!runtime)
 	{
-		// set the memory limit at 100mb
-		runtime = JS_NewRuntime(0x640000);
+		// set the memory limit at 200mb
+		runtime = JS_NewRuntime(0xC80000);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
 		//JS_SetCallHook(runtime, executeCallback, NULL);
@@ -305,12 +304,19 @@ void Script::ResumeAll(void)
 
 void Script::FlushCache(void)
 {
+	static bool isFlushing = false;
+	if(isFlushing)
+		return;
 	LockAll();
+	EnterCriticalSection(&Vars.cFlushCacheSection);
+	isFlushing = true;
 	ScriptList list = GetScripts();
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
 		if(!(*it)->IsRunning())
 			delete (*it);
 
+	isFlushing = false;
+	LeaveCriticalSection(&Vars.cFlushCacheSection);
 	UnlockAll();
 }
 
@@ -410,21 +416,16 @@ void Script::Run(void)
 	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
 	
 	JS_GetProperty(GetContext(), globalObject, "main", &main);
-	//JS_AddRoot(GetContext(), &main);
 
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 	{
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 	}
 	
-	JS_RemoveRoot(GetContext(), &main);
-	// context has been trampled.
+	// assume the context has been trampled
 	if ((DWORD)JS_GetContextThread(GetContext()) != GetThreadId())
 		JS_SetContextThread(GetContext());
 
-	//Stop(true,true);
-
-	//JS_RemoveRoot(GetContext(), &main);
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
@@ -509,24 +510,25 @@ bool Script::Include(const char* file)
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || strcmp(fileName, fname) == 0)
 		return true;
 	bool rval = false;
-	JSScript* script = JS_CompileFile(context, globalObject, fname);
+	JSContext* tmpcx = BuildContext(runtime);
+	JS_SetContextPrivate(tmpcx, this);
+	JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
 	if(script)
 	{
 		jsval dummy;
 		inProgress[fname] = true;
-		rval = !!JS_ExecuteScript(context, globalObject, script, &dummy);
+		rval = !!JS_ExecuteScript(tmpcx, globalObject, script, &dummy);
 		JS_DestroyScript(context, script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
+	JS_DestroyContextMaybeGC(tmpcx);
 	return rval;
 }
 
 bool Script::IsRunning(void)
-{// TODO :: fix the redundant checks here -TechnoHunter
-	//if (!context)
-		//return false;
+{
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -576,7 +578,7 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 	}
 }
 
-bool Script::IsRegisteredEvent( const char* evtName, jsval evtFunc )
+bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 {
 	AutoLock lock(this);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
@@ -722,19 +724,14 @@ DWORD WINAPI FuncThread(void* data)
 	if(!evt)
 		return 0;
 
-//	JS_SetContextThread(evt->context);
-//	JS_BeginRequest(evt->context);
+	// switch the context thread once and only once to this one, since it won't be this thread's context
+	JS_ClearContextThread(evt->context);
+	JS_SetContextThread(evt->context);	
+	JS_BeginRequest(evt->context);
 
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
 		jsval dummy = JSVAL_VOID;
-		// switch the context thread to this one if it's not already
-		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
-		{
-			JS_ClearContextThread(evt->context);
-			JS_SetContextThread(evt->context);	
-		}
-		JS_BeginRequest(evt->context);
 
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
@@ -752,23 +749,18 @@ DWORD WINAPI FuncThread(void* data)
 			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
-		// check if the coller stole the context thread
+		// check if the caller stole the context thread
 		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
 		{
 			JS_ClearContextThread(evt->context);
-		JS_SetContextThread(evt->context);	
+			JS_SetContextThread(evt->context);	
 		}
-		//JS_ClearContextThread(evt->context);
-		//JS_SetContextThread(evt->context);
-	JS_EndRequest(evt->context);
-		//evt->context = NULL;
+		JS_EndRequest(evt->context);
 	}
 
-	//if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
-	//	JS_SetContextThread(evt->context);	
-	//JS_EndRequest(evt->context);
+	JS_EndRequest(evt->context);
 	JS_ClearContextThread(evt->context);
-	//JS_DestroyContextMaybeGC(evt->context);
+	JS_DestroyContext(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
 	{
@@ -779,8 +771,6 @@ DWORD WINAPI FuncThread(void* data)
 	if(evt->argv)
 		delete[] evt->argv;
 	delete evt;
-
-	//JS_DestroyContext(evt->context);
 	
 	return 0;
 }
@@ -841,10 +831,9 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	// assume it was trampled.
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
-	if (script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()))
-		return JS_FALSE;
-	else
-		return JS_TRUE;
+	// there is no need to use up MORE processor time for an if statement when it can be collapsed down.
+	// JS_TRUE and JS_FALSE are simply typecasted 1 and 0 respectively.
+	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
@@ -852,38 +841,17 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	static bool enteredLock = false;
 	if(status == JSGC_BEGIN)
 	{
-		Log("*** ENTERING GC ***");
-		//Script::FlushCache();
-
-		/*ScriptList scripts = Script::GetScripts();
-		// break the locks if something has them already
-		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-			if(!(*it)->IsLocked())
-				(*it)->Lock();
-		if(!Script::IsAllLocked())
-		{
-			Script::LockAll();
-			enteredLock = true;
-		}
-		Script::PauseAll();
-		//if(JS_GetContextThread(cx))
-		//	JS_ClearContextThread(cx);
-		//JS_SetContextThread(cx);*/
+		if(Vars.bDebug)
+			Log("*** ENTERING GC ***");
+		Script::FlushCache();
+		if(JS_GetContextThread(cx))
+			JS_ClearContextThread(cx);
+		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)
 	{
-		/*Script::ResumeAll();
-		// break the lock if something has the lock already
-		if(enteredLock)
-		{
-			Script::UnlockAll();
-			enteredLock = false;
-		}
-		ScriptList scripts = Script::GetScripts();
-		for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-			if((*it)->LockingThread() == GetCurrentThreadId())
-				(*it)->Unlock();*/
-		Log("*** LEAVING GC ***");
+		if(Vars.bDebug)
+			Log("*** LEAVING GC ***");
 	}
 	return JS_TRUE;
 }

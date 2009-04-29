@@ -71,6 +71,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		InitializeCriticalSection(&Vars.cLineHookSection);
 		InitializeCriticalSection(&Vars.cImageHookSection);
 		InitializeCriticalSection(&Vars.cTextHookSection);
+		InitializeCriticalSection(&Vars.cFlushCacheSection);
 
 		DefineOffsets();
 		InstallPatches();
@@ -117,6 +118,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		DeleteCriticalSection(&Vars.cLineHookSection);
 		DeleteCriticalSection(&Vars.cImageHookSection);
 		DeleteCriticalSection(&Vars.cTextHookSection);
+		DeleteCriticalSection(&Vars.cFlushCacheSection);
 	}
 
 	return TRUE;

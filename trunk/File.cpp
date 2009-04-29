@@ -53,7 +53,7 @@ char* readLine(FILE* fptr)
 			c = fgetc(fptr);
 		} while(c == '\r' || c == '\n');
 		if(!feof(fptr))
-			fseek( fptr , -1 , SEEK_CUR );
+			fseek(fptr, -1, SEEK_CUR);
 		return line;
 	}
 	fsetpos(fptr, &pos);
