@@ -305,7 +305,7 @@ void Script::ResumeAll(void)
 void Script::FlushCache(void)
 {
 	static bool isFlushing = false;
-	if(isFlushing)
+	if(isFlushing || Vars.bDisableCache)
 		return;
 	LockAll();
 	EnterCriticalSection(&Vars.cFlushCacheSection);
@@ -343,6 +343,9 @@ ScriptMap::iterator Script::GetLastScript(void)
 
 void Script::RegisterScript(Script* script)
 {
+	if(Vars.bDisableCache)
+		return;
+
 	LockAll();
 	if(activeScripts.count(script->fileName) < 1)
 		activeScripts[script->fileName] = script;

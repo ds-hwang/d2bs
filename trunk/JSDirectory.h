@@ -13,7 +13,7 @@ DEFFNC(dir_getFiles)
 DEFFNC(dir_getDirectories)
 DEFFNC(dir_create)
 DEFFNC(dir_delete)
-DEFFNC(openDir)
+DEFFNC(my_openDir)
 
 JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);;
 void dir_finalize(JSContext *cx, JSObject *obj);

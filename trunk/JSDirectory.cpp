@@ -31,7 +31,7 @@
 // Directory stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-JSBool openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("openDir");
 

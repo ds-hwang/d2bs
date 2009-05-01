@@ -124,7 +124,7 @@ public:
 	void DisableSingleStep(void);
 	bool IsSingleStep(void);
 
-	char* GetFilename(void) { return fileName; }
+	char* GetFilename(void) { return scriptState == Command ? "<Command Line>" : fileName; }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
