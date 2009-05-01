@@ -106,16 +106,11 @@ JSAPI_FUNC(filetools_copy)
 
 	//Sanity check to make sure the file opened for reading!
 	if(!fptr1)
-	{
-		THROW_ERROR(cx, obj, _strerror("Open of file for reading failed"));
-		return JS_TRUE;
-	}
+		THROW_ERROR(cx, obj, _strerror("Read file open failed"));
 	// Same for file opened for writing
 	if(!fptr2)
-	{
-		THROW_ERROR(cx, obj, _strerror("Open of file for writing failed"));
-		return JS_TRUE;
-	}
+		THROW_ERROR(cx, obj, _strerror("Write file open failed"));
+
 	while(!feof(fptr1)) 
 	{
 		int ch = fgetc(fptr1);
@@ -135,15 +130,15 @@ JSAPI_FUNC(filetools_copy)
 			}
 		}
 	} 
-	if (ferror(fptr1) || ferror(fptr2))
+	if(ferror(fptr1) || ferror(fptr2))
 	{
 		clearerr(fptr1);
 		clearerr(fptr2);
 		fflush(fptr2);
 		fclose(fptr2);
 		fclose(fptr1);
-		remove(pnewName);// delete the partial file so it doesnt look like we succeeded
-		THROW_ERROR(cx, obj, _strerror("Copied file not the same!"));
+		remove(pnewName); // delete the partial file so it doesnt look like we succeeded
+		THROW_ERROR(cx, obj, _strerror("File copy failed"));
 		*rval = BOOLEAN_TO_JSVAL(false);
 		return JS_TRUE;
 	}
