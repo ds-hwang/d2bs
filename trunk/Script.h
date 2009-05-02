@@ -85,7 +85,6 @@ private:
 	static void RegisterScript(Script* script);
 
 	Script(const char* file, ScriptState state);
-	~Script(void);
 	Script(const Script&);
 	Script& operator=(const Script&);
 public:
@@ -111,6 +110,8 @@ public:
 	static void LockAll(void);
 	static void UnlockAll(void);
 	static bool IsAllLocked(void);
+
+	~Script(void);
 
 	void Run(void);
 	void Pause(void);

@@ -81,7 +81,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
-					//Script::FlushCache();
 					Script* script = Script::CompileFile(starterdbj, OutOfGame);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);

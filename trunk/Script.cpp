@@ -212,7 +212,10 @@ Script::~Script(void)
 	JS_RemoveRootRT(runtime, &scriptObject);
 
 	JS_SetContextThread(context);
-	JS_DestroyContextNoGC(context);
+	if(Vars.bDisableCache)
+		JS_DestroyContext(context);
+	else
+		JS_DestroyContextNoGC(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -476,7 +479,7 @@ void Script::Stop(bool force, bool reallyForce)
 		Sleep(10);
 	}
 
-	if (threadHandle)
+	if(threadHandle)
 		CloseHandle(threadHandle);
 	threadHandle = NULL;
 
@@ -514,6 +517,7 @@ bool Script::Include(const char* file)
 		return true;
 	bool rval = false;
 	JSContext* tmpcx = BuildContext(runtime);
+	JS_BeginRequest(tmpcx);
 	JS_SetContextPrivate(tmpcx, this);
 	JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
 	if(script)
@@ -526,6 +530,7 @@ bool Script::Include(const char* file)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
+	JS_EndRequest(tmpcx);
 	JS_DestroyContextMaybeGC(tmpcx);
 	return rval;
 }
@@ -716,8 +721,13 @@ void Script::ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv)
 
 DWORD WINAPI ScriptThread(void* data)
 {
-	if(data)
-		((Script*)data)->Run();
+	Script* script = (Script*)data;
+	if(script)
+	{
+		script->Run();
+		if(Vars.bDisableCache)
+			delete script;
+	}
 	return 0;
 }
 
