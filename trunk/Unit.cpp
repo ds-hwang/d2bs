@@ -27,6 +27,13 @@ UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 		}
 	}
 
+	// We couldn't find it, let's check our Inventory
+	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(player->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+	{
+		if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, dwUnitId))
+			return pItem;
+	}
+
 	// No match, check the inventory of the unit we are currently interacted with
 	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
 	if(D2CLIENT_GetUIState(UI_NPCSHOP) && npc)
@@ -35,13 +42,6 @@ UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 			if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, dwUnitId))
 				return pItem;
 		}
-
-	// We couldn't find it, let's check our Inventory
-	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(player->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-	{
-		if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, dwUnitId))
-			return pItem;
-	}
 
 	return NULL;
 }
@@ -60,19 +60,18 @@ UnitAny* GetNextUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType
 				if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
 					return pItem;
 			}
-
 			//return NULL;
 		}
-		// Was the item we looked for in an NPC inventory? If so .. Check our inventory!
-		if((pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner) &&
-			(pUnit->pItemData->pOwnerInventory->pOwner->dwType != UNIT_PLAYER ||
-				pUnit->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId))
-		{
-			for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-			{
-				if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
-					return pItem;
-			}				
+		//Check if the last item was from our inventory
+		if (pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory == D2CLIENT_GetPlayerUnit()->pInventory) {
+			UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
+			if (pNPC) {
+				for(UnitAny* pItem = D2COMMON_GetItemFromInventory(pNPC->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+				{
+					if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
+						return pItem;
+				}		
+			}
 		}
 	}
 
@@ -108,10 +107,13 @@ UnitAny* GetNextUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType
 	// Item wasn't found on the ground -> check the inventory again ..!
 	if(pUnit->dwType == UNIT_ITEM && (!pUnit->pItemData || !pUnit->pItemData->pOwnerInventory))
 	{
-		for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-		{
-			if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
-				return pItem;
+		UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
+		if (pUnit) {
+			for(UnitAny* pItem = D2COMMON_GetItemFromInventory(pUnit->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+			{
+				if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
+					return pItem;
+			}
 		}
 	}
 

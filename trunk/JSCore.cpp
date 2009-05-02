@@ -25,6 +25,7 @@
 #include "dde.h"
 #include "mpqstats.h"
 #include "D2BS.h"
+#include "AreaLinker.h"
 
 #include "debugnew/debug_new.h"
 
@@ -367,17 +368,30 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	CCollisionMap g_collisionMap;
 
+	DWORD nAreas[64] = {0};
+	INT nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
+
+	
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
 			*rval = BOOLEAN_TO_JSVAL(false);
 			return JS_TRUE;
 		}
 	} else {
-		if(!g_collisionMap.CreateMap(Area))
+		if(nLen)
 		{
-			*rval = BOOLEAN_TO_JSVAL(FALSE);
-			return JS_TRUE;	
+			if(!g_collisionMap.CreateMap(nAreas, nLen))
+			{
+				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				return JS_TRUE;	
+			}			
 		}
+		else
+			if(!g_collisionMap.CreateMap(Area))
+			{
+				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				return JS_TRUE;	
+			}
 	}
 
 	if (!g_collisionMap.IsValidAbsLocation(ptStart.x, ptStart.y) ||
@@ -1569,12 +1583,10 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			if(!pLevel || !pLevel->pRoom2First)
 				return JS_TRUE;
 
-			JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
-
-			if(!jsroom || !JS_DefineProperties(cx, jsroom, room_props) || !JS_DefineFunctions(cx, jsroom, room_methods)) 
+			JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pLevel->pRoom2First);
+			if (!jsroom)
 				return JS_TRUE;
 
-			JS_SetPrivate(cx, jsroom, pLevel->pRoom2First);
 			*rval=OBJECT_TO_JSVAL(jsroom);	
 			
 			return JS_TRUE;
@@ -1586,12 +1598,9 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			if(!pRoom1 || !pRoom1->pRoom2)
 				return JS_TRUE;
 
-			JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
-
-			if(!jsroom || !JS_DefineProperties(cx, jsroom, room_props) || !JS_DefineFunctions(cx, jsroom, room_methods)) 
+			JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom1->pRoom2);
+			if (!jsroom)
 				return JS_TRUE;
-
-			JS_SetPrivate(cx, jsroom, pRoom1->pRoom2);
 			*rval=OBJECT_TO_JSVAL(jsroom);	
 
 			return JS_TRUE;
@@ -1646,12 +1655,9 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 						if(bAdded)
 							D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 					
-						JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
-
-						if(!jsroom || !JS_DefineProperties(cx, jsroom, room_props) || !JS_DefineFunctions(cx, jsroom, room_methods)) 
-							return JS_TRUE;
-
-						JS_SetPrivate(cx, jsroom, pRoom);
+						JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom);
+						if (!jsroom)
+						return JS_TRUE;
 
 						*rval=OBJECT_TO_JSVAL(jsroom);
 
@@ -1662,23 +1668,19 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 		}
 
-		JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
-
-		if(!jsroom || !JS_DefineProperties(cx, jsroom, room_props) || !JS_DefineFunctions(cx, jsroom, room_methods)) 
+		JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pLevel->pRoom2First);
+		if (!jsroom)
 			return JS_TRUE;
 
-		JS_SetPrivate(cx, jsroom, pLevel->pRoom2First);
 		*rval=OBJECT_TO_JSVAL(jsroom);	
 
 		return JS_TRUE;
 	}
 	else {
-		JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
-
-		if(!jsroom || !JS_DefineProperties(cx, jsroom, room_props) || !JS_DefineFunctions(cx, jsroom, room_methods)) 
+		JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->pRoom2First);
+		if (!jsroom)
 			return JS_TRUE;
 
-		JS_SetPrivate(cx, jsroom, D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->pRoom2First);
 		*rval=OBJECT_TO_JSVAL(jsroom);		
 		return JS_TRUE;
 	}

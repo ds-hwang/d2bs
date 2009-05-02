@@ -919,16 +919,9 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		pmyUnit->dwUnitId = pItem->dwUnitId;
 		pmyUnit->dwType = UNIT_ITEM;
 
-		JSObject* jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-		if(!jsunit)
-			return TRUE;
-
-		if(!JS_SetPrivate(cx, jsunit, pmyUnit))	return JS_TRUE;
-
- 		if(!JS_DefineProperties(cx, jsunit, unit_props)) return JS_TRUE;
- 		if(!JS_DefineFunctions(cx, jsunit, unit_methods)) return JS_TRUE;
-
+		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+		if (!jsunit)
+			return JS_TRUE;
 		jsval a = OBJECT_TO_JSVAL(jsunit);
 		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
 		dwArrayCount++;		
@@ -1125,11 +1118,8 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 						pmyUnit->dwType = pMonster->dwType;
 						pmyUnit->szName[0] = NULL;
 
-						JSObject* jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-						if(!jsunit || !JS_SetPrivate(cx, jsunit, pmyUnit) ||
-							!JS_DefineProperties(cx, jsunit, unit_props) ||
-							!JS_DefineFunctions(cx, jsunit, unit_methods))
+						JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+						if (!jsunit)
 							return JS_TRUE;
 						*rval = OBJECT_TO_JSVAL(jsunit);
 					}
@@ -1245,11 +1235,8 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 							pmyUnit->dwType = UNIT_MONSTER;
 							pmyUnit->szName[0] = NULL;
 
-							JSObject* jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-							if(!jsunit || !JS_SetPrivate(cx, jsunit, pmyUnit) ||
-								!JS_DefineProperties(cx, jsunit, unit_props) ||
-								!JS_DefineFunctions(cx, jsunit, unit_methods))
+							JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+							if (!jsunit)
 								return JS_TRUE;
 
 							*rval = OBJECT_TO_JSVAL(jsunit);								
@@ -1371,11 +1358,8 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 					pmyUnit->dwType = UNIT_ITEM;
 					pmyUnit->szName[0] = NULL;
 
-					JSObject* jsunit = JS_NewObject(cx, &unit_class, NULL, NULL);
-
-					if(!jsunit || !JS_SetPrivate(cx, jsunit, pmyUnit) ||
-						!JS_DefineProperties(cx, jsunit, unit_props) ||
-						!JS_DefineFunctions(cx, jsunit, unit_methods))
+					JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+					if (!jsunit)
 						return JS_TRUE;
 
 					*rval = OBJECT_TO_JSVAL(jsunit);

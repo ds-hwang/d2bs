@@ -263,6 +263,14 @@
 				Name="Pathing"
 				>
 				<File
+					RelativePath=".\AreaLinker.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AreaLinker.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CollisionMap.cpp"
 					>
 				</File>
