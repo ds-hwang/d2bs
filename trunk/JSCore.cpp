@@ -2007,10 +2007,9 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	
 	pArea->Exits = cMap.GetLevelExits(pArea->ExitArray);
-	JS_SetContextThread(cx);
-	JS_BeginRequest(cx);
+	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
+/*	JS_SetContextThread(cx);
 	JSObject* jsUnit = JS_NewObject(cx, &area_class, NULL, NULL);
-	JS_EndRequest(cx);
 
 	if(!jsUnit)
 	{
@@ -2024,9 +2023,9 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;
 	}
 
-	JS_SetPrivate(cx, jsUnit, pArea);
+	JS_SetPrivate(cx, jsUnit, pArea);*/
 
-	*rval = OBJECT_TO_JSVAL(jsUnit);
+	*rval = OBJECT_TO_JSVAL(unit);
 
 	return JS_TRUE;
 }

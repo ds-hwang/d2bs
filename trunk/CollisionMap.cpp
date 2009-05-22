@@ -167,20 +167,9 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 	return TRUE;
 }
 
-void CCollisionMap::Search(Room2 *ro, UnitAny* ptPlayer, DwordArray &aSkip, DWORD dwScanArea)
+void CCollisionMap::Search(Room2 *ro, UnitAny* pPlayer, DwordArray &aSkip, DWORD dwScanArea)
 {
-	if (!ro)
-		return;
-
-	if(ro->pLevel->dwLevelNo != dwScanArea)
-		return;
-
-	if (aSkip.Find((DWORD)ro) != -1)
-		return;
-
-	UnitAny* pPlayer = D2CLIENT_GetPlayerUnit();
-
-	if (pPlayer == NULL)
+	if (!ro || ro->pLevel->dwLevelNo != dwScanArea || aSkip.Find((DWORD)ro) != -1 || pPlayer == NULL)
 		return;
 
 	BOOL add_room=FALSE;
@@ -203,7 +192,7 @@ void CCollisionMap::Search(Room2 *ro, UnitAny* ptPlayer, DwordArray &aSkip, DWOR
 	Room2 **n = ro->pRoom2Near;
 	for(UINT i=0; i < ro->dwRoomsNear; i++)
 	{
-		Search(n[i], ptPlayer,aSkip, dwScanArea);
+		Search(n[i], pPlayer, aSkip, dwScanArea);
 	}
 	
 	if(add_room)

@@ -19,45 +19,20 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <string>
+
 #include "debugnew/debug_new.h"
 
 using namespace std;
 
-char* readLine(FILE* fptr)
+const char* readLine(FILE* fptr)
 {
 	if(feof(fptr))
 		return NULL;
-	char* line = NULL;
-	fpos_t pos;
-	fgetpos(fptr, &pos);
-	char c;
-	int size = 0;
-	do {
-		c = fgetc(fptr);
-		size++;
-	} while(c != '\r' && c != '\n' && !feof(fptr));
-	line = new char[size+1]; // might not need this but i think it needs room for the null char
-	memset(line, 0, size);
-	if (size == 1) {
-		return line;
-	}
-	fsetpos(fptr, &pos);
-	if(fread(line, sizeof(char), size-1, fptr) != size-1 && ferror(fptr)) {
-		delete[] line;
-		return NULL;
-	}
-	fgetpos(fptr, &pos);
-	if(c == '\r' || c == '\n' )
-	{
-		do {
-			c = fgetc(fptr);
-		} while(c == '\r' || c == '\n');
-		if(!feof(fptr))
-			fseek(fptr, -1, SEEK_CUR);
-		return line;
-	}
-	fsetpos(fptr, &pos);
-	return line;
+	string buffer;
+	char c = 0;
+	do { c = fgetc(fptr); if(c != '\r') buffer.append(c); } while(!feof(fptr) && c != '\r');
+	return buffer.c_str();
 }
 
 bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)

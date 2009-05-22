@@ -525,7 +525,7 @@ bool Script::Include(const char* file)
 		jsval dummy;
 		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(tmpcx, globalObject, script, &dummy);
-		JS_DestroyScript(context, script);
+		JS_DestroyScript(tmpcx, script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
@@ -878,7 +878,6 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	Log("[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
 				filename, report->lineno, message, report->linebuf);
 
-	// all potential cases are handled inside Print now
 	Print("[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
 					filename, report->lineno, message);
 

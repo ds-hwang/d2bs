@@ -275,8 +275,8 @@ JSAPI_FUNC(file_readLine)
 
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
-		char* line = readLine(fdata->fptr);
-		if (strlen(line) == 0)
+		const char* line = readLine(fdata->fptr);
+		if(strlen(line) == 0)
 			return JS_TRUE;
 		if(!line)
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
@@ -295,7 +295,7 @@ JSAPI_FUNC(file_readAllLines)
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		int i = 0;
 		while(!feof(fdata->fptr)) {
-			char* line = readLine(fdata->fptr);
+			const char* line = readLine(fdata->fptr);
 			if(!line)
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
 			jsval val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
