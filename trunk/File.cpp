@@ -35,9 +35,9 @@ const char* readLine(FILE* fptr)
 	do {
 		c = fgetc(fptr);
 		// append the new character unless it's a carriage return
-		if(c != '\r')
+		if(c != '\r' && c != '\n')
 			buffer.append(1, c);
-	} while(!feof(fptr) && c != '\r');
+	} while(!feof(fptr) && c != '\n');
 	// clear the newline from the stream, and assume that the
 	// lines are \r\n terminated (generally the case)
 	fgetc(fptr);
