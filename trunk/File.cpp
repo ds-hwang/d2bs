@@ -35,7 +35,7 @@ const char* readLine(FILE* fptr)
 	do {
 		c = fgetc(fptr);
 		// append the new character unless it's a carriage return
-		if(c != '\r' && c != '\n')
+		if(c != '\r' && c != '\n' && !feof(fptr))
 			buffer.append(1, c);
 	} while(!feof(fptr) && c != '\n');
 	return _strdup(buffer.c_str());
