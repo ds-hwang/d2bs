@@ -41,7 +41,7 @@ const char* readLine(FILE* fptr)
 	// clear the newline from the stream, and assume that the
 	// lines are \r\n terminated (generally the case)
 	fgetc(fptr);
-	return buffer.c_str();
+	return _strdup(buffer.c_str());
 }
 
 bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)

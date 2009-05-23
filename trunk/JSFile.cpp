@@ -281,7 +281,8 @@ JSAPI_FUNC(file_readLine)
 		if(!line)
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
-		delete[] line;
+		free(line);
+		//delete[] line;
 	}
 	return JS_TRUE;
 }
