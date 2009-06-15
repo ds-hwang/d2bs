@@ -59,13 +59,13 @@ struct GfxCell {
 
 struct InteractStruct
 {
-	DWORD dwMoveType;			//0x00
-	UnitAny* lpPlayerUnit;		//0x04
-	UnitAny* lpTargetUnit;		//0x08
-	DWORD dwTargetX;			//0x0C
-	DWORD dwTargetY;			//0x10
-	DWORD _1;					//0x14
-	DWORD _2;					//0x18
+	DWORD dwMoveType;				//0x00
+	UnitAny* lpPlayerUnit;			//0x04
+	UnitAny* lpTargetUnit;			//0x08
+	DWORD dwTargetX;				//0x0C
+	DWORD dwTargetY;				//0x10
+	DWORD _1;						//0x14
+	DWORD _2;						//0x18
 };
 
 struct CellFile {
@@ -120,11 +120,11 @@ struct LevelTxt {
 };
 
 struct ControlText {
-	wchar_t* wText; //0x00
-	DWORD _1[4];	//0x04
-	DWORD dwColor;	//0x14
-	DWORD _2;		//0x18
-	ControlText* pNext;//0x1C
+	wchar_t* wText;					//0x00
+	DWORD _1[4];					//0x04
+	DWORD dwColor;					//0x14
+	DWORD _2;						//0x18
+	ControlText* pNext;				//0x1C
 };
 
 struct Control {
@@ -210,7 +210,7 @@ struct PlayerData {
 	QuestInfo *pNormalQuest;		//0x10
 	QuestInfo *pNightmareQuest;		//0x14
 	QuestInfo *pHellQuest;			//0x18
-	Waypoint *pNormalWaypoint;		//0x1c
+	Waypoint *pNormalWaypoint;		//0x1C
 	Waypoint *pNightmareWaypoint;	//0x20
 	Waypoint *pHellWaypoint;		//0x24
 };
@@ -262,18 +262,22 @@ struct Room2 {
 	DWORD dwRoomsNear;				//0x08
 	RoomTile* pRoomTiles;			//0x0C
 	Room2 **pRoom2Near;				//0x10
-	DWORD _3[6];					//0x14
+	DWORD _2[5];					//0x14
+	Room2* pRoom2Prev;				//0x28
 	DWORD dwPosX;					//0x2C
 	DWORD dwPosY;					//0x30
 	DWORD dwSizeX;					//0x34
 	DWORD dwSizeY;					//0x38
 	DWORD *pType2Info;				//0x3C
-	DWORD _4[0x20];					//0x40
+	DWORD _3[32];					//0x40
 	DWORD dwPresetType;				//0xC0
 	PresetUnit*	pPreset;			//0xC4
-	DWORD _5[0x3];					//0xC8
-	Room2* pRoom2Next;				//0xD4
+	DWORD _4[3];					//0xC8
+	Room2* pRoom2Other;				//0xD4
 	Room1* pRoom1;					//0xD8
+	DWORD dwSeed[2];				//0xDC
+	DWORD _5;						//0xE4
+	Room2* pRoom2Next;				//0xE8
 };
 
 #pragma pack(pop)

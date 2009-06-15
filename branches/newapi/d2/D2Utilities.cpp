@@ -110,3 +110,12 @@ RosterUnit* FindPlayerRoster(DWORD id)
 	return NULL;
 }
 
+Level* GetLevel(DWORD dwLevelNo)
+{
+	ActMisc* misc = GetPlayerUnit()->pAct->pMisc;
+	for(Level* pLevel = misc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
+		if(pLevel->dwLevelNo == dwLevelNo)
+			return pLevel;
+
+	return GetLevel(misc, dwLevelNo);
+}

@@ -10,6 +10,8 @@
 #include "prthread.h"
 
 #include "D2Utilities.h"
+#include "Functions.h"
+#include "Map.h"
 
 #include "debug_new.h"
 
@@ -51,6 +53,12 @@ void MainThread(void* lpData)
 		// TODO: Process stuff here, like events.
 		// this processes at 50 just fine, but has an upper bound of ~18 events/sec
 		PulseEvent();
+		if(GetPlayerUnit())
+		{
+			PR_Sleep(5000);
+			Map map(1, true);
+			map.Dump();
+		}
 	}
 
 	Log("MainThread Terminated");

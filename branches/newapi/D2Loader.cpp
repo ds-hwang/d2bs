@@ -22,15 +22,8 @@ typedef DWORD ( __stdcall * PluginEntryFunc)(DWORD dwReason, LPVOID lpData);
 
 DWORD __stdcall PluginEntry(DWORD dwReason, LPVOID lpData)
 {
-	if (dwReason == REASON_INIT)
-	{
-
-	}
-	if (dwReason == REASON_CLEANUP)
-	{
+	if(dwReason == REASON_CLEANUP)
 		D2BSCleanup();
-	}
-
 	return TRUE; 
 }
 

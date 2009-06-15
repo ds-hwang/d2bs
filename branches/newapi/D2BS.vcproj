@@ -638,6 +638,42 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Map"
+				>
+				<File
+					RelativePath=".\d2\Map.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Map.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\Pather.h"
+					>
+				</File>
+				<Filter
+					Name="Pathers"
+					>
+					<File
+						RelativePath=".\d2\AStarPather.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\d2\AStarPather.h"
+						>
+					</File>
+					<File
+						RelativePath=".\d2\BestFirstPather.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\d2\BestFirstPather.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

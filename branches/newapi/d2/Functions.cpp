@@ -37,7 +37,7 @@ __declspec(naked) DWORD __fastcall clickParty(RosterUnit* pUnit, INT Mode)
 		mov eax, ecx
 		jmp ClickParty_I
 	}
-										}
+}
 
 __declspec(naked) DWORD __fastcall GetUIVar(DWORD varno)
 {
