@@ -113,8 +113,8 @@ void Map::AddCollisionMap(const CollMap* const map)
 	WORD* p = map->pMapStart;
 
 	// walk over the collision map, adding each point
-	for(int j = x; j < dx && p != map->pMapEnd; j++)
-		for(int i = y; i < dy && p != map->pMapEnd; i++, p++)
+	for(int i = y; i < dy && p != map->pMapEnd; i++)
+		for(int j = x; j < dx && p != map->pMapEnd; j++, p++)
 			SetCollisionData(i, j, *p);
 }
 
@@ -167,7 +167,7 @@ void Map::FillGaps(void)
 	LeaveCriticalSection(&lock);
 }
 
-WORD Map::GetCollisionData(int x, int y) const
+WORD Map::GetCollisionData(int x, int y)
 {
 	if(!built)
 		Build();
@@ -183,7 +183,7 @@ WORD Map::GetCollisionData(int x, int y) const
 	return value;
 }
 
-void Map::Dump(void) const
+void Map::Dump(void)
 {
 	char map[1024];
 	sprintf(map, "%s\\map-%d.txt", Script::GetScriptPath(), areaId);
@@ -200,9 +200,9 @@ void Map::Dump(void) const
 		for(int j = 0; j < width; j++)
 		{
 			WORD data = GetCollisionData(i, j);
-			char c = 'X';
+			char c = ' ';
 			if(data % 2)
-				c = ' ';
+				c = 'X';
 			else if(data == 0x2B6B)
 				c = '.';
 			else if(data == 0xFFFF)

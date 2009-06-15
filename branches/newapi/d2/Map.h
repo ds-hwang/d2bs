@@ -41,9 +41,9 @@ public:
 	Map(int areaId, bool buildMap = false);
 	~Map(void);
 
-	WORD GetCollisionData(int x, int y) const;
-	static DWORD GetMapId(void) const { return GetD2ClientMapId(); }
-	void Dump(void) const;
+	WORD GetCollisionData(int x, int y);
+	static DWORD GetMapId(void) { return GetD2ClientMapId(); }
+	void Dump(void);
 };
 
 #endif
