@@ -5,6 +5,9 @@
 #include <assert.h>
 #include "Script.h"
 
+namespace Pathing
+{
+
 Map::Map(int areaId, bool buildMap)
 {
 	InitializeCriticalSection(&lock);
@@ -60,7 +63,8 @@ void Map::Build(void)
 	AddRoom(level->pRoom2First, level, player, addedRooms);
 
 	built = true;
-	FillGaps();
+	// TODO: figure out how to design this to be able to remove rows/cols
+//	ShrinkMap();
 	FillGaps();
 
 	LeaveCriticalSection(&lock);
@@ -113,6 +117,7 @@ void Map::AddCollisionMap(const CollMap* const map)
 	WORD* p = map->pMapStart;
 
 	// walk over the collision map, adding each point
+	// the map is constructed backwards, so we must walk over it from y to x
 	for(int i = y; i < dy && p != map->pMapEnd; i++)
 		for(int j = x; j < dx && p != map->pMapEnd; j++, p++)
 			SetCollisionData(i, j, *p);
@@ -124,9 +129,6 @@ void Map::SetCollisionData(int x, int y, WORD value)
 	EnterCriticalSection(&lock);
 
 	assert((x >= 0 && y >= 0 && x < height && y < width));
-	if(value == 0x400) value = 0x2b6b;
-	if(std::find(collisionValues.begin(), collisionValues.end(), value) == collisionValues.end())
-		collisionValues.push_back(value);
 	mapPoints[x][y] = value;
 
 	LeaveCriticalSection(&lock);
@@ -167,7 +169,43 @@ void Map::FillGaps(void)
 	LeaveCriticalSection(&lock);
 }
 
-WORD Map::GetCollisionData(int x, int y)
+void Map::ShrinkMap(void)
+{
+	if(!built)
+		Build();
+
+	EnterCriticalSection(&lock);
+
+	bool blankRow = true;
+	// walk over the rows, finding all blank (fully unwalkable) ones
+	for(int i = 0; i < height; i++)
+	{
+		for(int j = 0; j < width; j++)
+			if(SpaceIsWalkable(i, j))
+				blankRow = false;
+		if(blankRow)
+		{
+			// remove that row from the map, since it's irrelevant
+		}
+	}
+
+	bool blankCol = true;
+	// walk over the columns, finding all blank (fully unwalkable) ones
+	for(int i = 0; i < width; i++)
+	{
+		for(int j = 0; j < height; j++)
+			if(SpaceIsWalkable(j, i))
+				blankCol = false;
+		if(blankCol)
+		{
+			// remove that column from the map, since it's irrelevant
+		}
+	}
+
+	LeaveCriticalSection(&lock);
+}
+
+WORD Map::GetCollisionData(WORD x, WORD y)
 {
 	if(!built)
 		Build();
@@ -183,33 +221,54 @@ WORD Map::GetCollisionData(int x, int y)
 	return value;
 }
 
+bool Map::SpaceHasFlag(CollFlags flag, WORD x, WORD y) { return ((GetCollisionData(x, y) & flag) == flag); }
+bool Map::SpaceIsWalkable(WORD x, WORD y) { return SpaceHasFlag(Map::Walkable, x, y) || SpaceHasFlag(Map::PlayerWalkable, x, y); }
+bool Map::SpaceHasLineOfSight(WORD x, WORD y) { return SpaceHasFlag(Map::LineOfSight, x, y); }
+bool Map::SpaceIsInvalid(WORD x, WORD y) { return GetCollisionData(x, y) == 0xFFF; }
+
+bool Map::SpaceHasFlag(CollFlags flag, POINT point) { return SpaceHasFlag(flag, (WORD)point.x, (WORD)point.y); }
+bool Map::SpaceIsWalkable(POINT point) { return SpaceIsWalkable((WORD)point.x, (WORD)point.y); }
+bool Map::SpaceHasLineOfSight(POINT point) { return SpaceHasLineOfSight((WORD)point.x, (WORD)point.y); }
+bool Map::SpaceIsInvalid(POINT point) { return SpaceIsInvalid((WORD)point.x, (WORD)point.y); }
+
+bool Map::PathIsWalkable(MapPointList points)
+{
+	for(MapPointList::iterator it = points.begin(); it != points.end(); it++)
+		if(!SpaceIsWalkable(it->point))
+			return false;
+	return true;
+}
+
+bool Map::PathHasLineOfSight(MapPointList points)
+{
+	for(MapPointList::iterator it = points.begin(); it != points.end(); it++)
+		if(!SpaceHasLineOfSight(it->point))
+			return false;
+	return true;
+}
+
 void Map::Dump(void)
 {
 	char map[1024];
 	sprintf(map, "%s\\map-%d.txt", Script::GetScriptPath(), areaId);
 	FILE* f = fopen(map, "wt");
-	fprintf(f, "Map (%d x %d, id %d) for area %d:\r\nCollision values:\r\n", width, height, GetMapId(), areaId);
-	std::sort(collisionValues.begin(), collisionValues.end());
+	fprintf(f, "Map (%d x %d, id %d) for area %d:\r\n", width, height, GetMapId(), areaId);
 
-	for(WordList::iterator it = collisionValues.begin(); it != collisionValues.end(); it++)
-		fprintf(f, "0x%X\r\n", *it);
-
-	fprintf(f, "\r\n\r\n");
 	for(int i = 0; i < height; i++)
 	{
 		for(int j = 0; j < width; j++)
 		{
 			WORD data = GetCollisionData(i, j);
 			char c = ' ';
-			if(data % 2)
+			if(SpaceIsWalkable(i, j))
 				c = 'X';
-			else if(data == 0x2B6B)
-				c = '.';
-			else if(data == 0xFFFF)
+			else if(SpaceIsInvalid(i, j))
 				c = '?';
 			fprintf(f, "%c", c);
 		}
 		fprintf(f, "\r\n");
 	}
 	fclose(f);
+}
+
 }

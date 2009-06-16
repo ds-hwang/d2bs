@@ -15,6 +15,8 @@
 
 #include "debug_new.h"
 
+using namespace Pathing;
+
 // Globals
 extern HMODULE D2BSModule;
 extern char D2BSModulePath[_MAX_PATH];
@@ -56,8 +58,11 @@ void MainThread(void* lpData)
 		if(GetPlayerUnit())
 		{
 			PR_Sleep(5000);
-			Map map(1, true);
-			map.Dump();
+			for(int i = 0; i < 133; i++)
+			{
+				Map map(i, true);
+				map.Dump();
+			}
 		}
 	}
 
