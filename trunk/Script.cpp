@@ -1,13 +1,16 @@
+#include <io.h>
+#include <algorithm>
+
 #include "Script.h"
 #include "JSGlobalFuncs.h"
 #include "Core.h"
-#include <io.h>
 #include "JSUnit.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
 #include "CDebug.h"
 #include "Helpers.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 
@@ -22,11 +25,9 @@ AutoRoot::~AutoRoot()
 		DebugBreak();
 		exit(3);
 	}
-	Script::LockAll();
 	JS_RemoveRoot(context, &var);
-	Script::UnlockAll();
 }
-void AutoRoot::Take() { count++; Script::LockAll(); JS_AddRoot(context, &var); Script::UnlockAll(); }
+void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
 void AutoRoot::Release()
 {
 	count--;
@@ -40,62 +41,23 @@ void AutoRoot::Release()
 jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
-JSRuntime* Script::runtime = NULL;
-ScriptMap Script::activeScripts = ScriptMap();
-CRITICAL_SECTION Script::criticalSection = {0};
-bool Script::isAllLocked = false;
-
-Script* Script::CompileFile(const char* file, ScriptState state, bool recompile)
-{
-	file = _strlwr(_strdup(file));
-	try {
-		if(!Vars.bDisableCache) {
-			if(recompile && activeScripts.count(file) > 0) {
-				activeScripts[file]->Stop(true, true);
-				delete activeScripts[file];
-			} else if(activeScripts.count(file) > 0) {
-				activeScripts[file]->Stop(true, true);
-				return activeScripts[file];
-			}
-		}
-		Script* script = new Script(file, state);
-		return script;
-	} catch(std::exception e) {
-		Print(const_cast<char*>(e.what()));
-		return NULL;
-	}
-}
-
-Script* Script::CompileCommand(const char* command)
-{
-	try {
-		if(!Vars.bDisableCache) {
-			if(activeScripts.count(_strlwr(_strdup(command))) > 0) {
-				return activeScripts[_strlwr(_strdup(command))];
-			}
-		}
-		Script* script = new Script(command, Command);
-		return script;
-	} catch(std::exception e) {
-		Print(const_cast<char*>(e.what()));
-		return NULL;
-	}
-}
 
 Script::Script(const char* file, ScriptState state) :
-			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), fileName(NULL),
-			execCount(0), isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false), scriptState(state),
-			threadHandle(NULL), threadId(0), lockThreadId(-1)
+			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
+			isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false),
+			scriptState(state), threadHandle(NULL), threadId(0), lockThreadId(-1)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");
 
-	InitializeCriticalSection(&scriptSection);
-	fileName = _strlwr(_strdup(file));
-	StringReplace(fileName, '/', '\\');
+	InitializeCriticalSection(&lock);
+	EnterCriticalSection(&lock);
+
+	fileName = string(_strlwr(_strdup(file)));
+	replace(fileName.begin(), fileName.end(), '/', '\\');
+	//StringReplace(fileName, '/', '\\');
 	try {
-		AutoLock lock(this);
-		context = BuildContext(GetRuntime());
+		context = BuildContext(ScriptEngine::GetRuntime());
 		if(!context)
 			throw std::exception("Couldn't create the context");
 		JS_SetContextThread(context);
@@ -118,6 +80,7 @@ Script::Script(const char* file, ScriptState state) :
 		InitClass(&line_class, line_methods, line_props, NULL, NULL);
 		InitClass(&text_class, text_methods, text_props, NULL, NULL);
 		InitClass(&image_class, image_methods, image_props, NULL, NULL);
+
 		JS_DefineObject(context, globalObject, "Unit", &unit_class, NULL, NULL);
 		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
@@ -179,7 +142,7 @@ Script::Script(const char* file, ScriptState state) :
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
-			script = JS_CompileFile(context, globalObject, fileName);
+			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)
 			throw std::exception("Couldn't compile the script");
 
@@ -191,29 +154,27 @@ Script::Script(const char* file, ScriptState state) :
 		JS_AddNamedRoot(context, &scriptObject, "script object");
 		JS_EndRequest(context);
 		JS_ClearContextThread(context);
-		RegisterScript(this);
+		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
-		DeleteCriticalSection(&scriptSection);
 		if(scriptObject)
 			JS_RemoveRoot(context, &scriptObject);
 		if(script && !scriptObject)
 			JS_DestroyScript(context, script);
 		if(context)
 			JS_DestroyContext(context);
+		LeaveCriticalSection(&lock);
 		throw;
 	}
 }
 
 Script::~Script(void)
 {
-	Lock();
 	Stop(true, true);
-	activeScripts.erase(fileName);
 
 	// use the RT version of RemoveRoot to prevent crashes
-	JS_RemoveRootRT(runtime, &globalObject);
-	JS_RemoveRootRT(runtime, &meObject);
-	JS_RemoveRootRT(runtime, &scriptObject);
+	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
+	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &meObject);
+	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
 	JS_SetContextThread(context);
 	if(Vars.bDisableCache)
@@ -225,14 +186,10 @@ Script::~Script(void)
 	scriptObject = NULL;
 	globalObject = NULL;
 	script = NULL;
-	free(fileName);
 
 	includes.clear();
-	functions.clear();
 	if(threadHandle)
 		CloseHandle(threadHandle);
-	Unlock();
-	DeleteCriticalSection(&scriptSection);
 }
 
 void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
@@ -249,152 +206,7 @@ void Script::DefineConstant(const char* name, int value)
 		throw std::exception("Couldn't initialize the constant");
 }
 
-void Script::Startup(void)
-{
-	if(!runtime)
-	{
-		// set the memory limit at 200mb
-		runtime = JS_NewRuntime(0xC80000);
-		JS_SetGCCallbackRT(runtime, gcCallback);
-		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
-		//JS_SetCallHook(runtime, executeCallback, NULL);
-		//JS_SetExecuteHook(runtime, executeCallback, NULL);
-		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
-		InitializeCriticalSection(&criticalSection);
-	}
-}
 
-void Script::Shutdown(void)
-{
-	LockAll();
-	StopAll(true);
-	FlushCache();
-
-	activeScripts.clear();
-
-	if(runtime)
-	{
-		JS_DestroyRuntime(runtime);
-		JS_ShutDown();
-	}
-
-	UnlockAll();
-	DeleteCriticalSection(&criticalSection);
-}
-
-void Script::StopAll(bool force)
-{
-	LockAll();
-	ScriptList list = GetScripts();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Stop(true, force);
-	UnlockAll();
-}
-
-void Script::PauseAll(void)
-{
-	LockAll();
-	ScriptList list = GetScripts();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Pause();
-	UnlockAll();
-}
-
-void Script::ResumeAll(void)
-{
-	LockAll();
-	ScriptList list = GetScripts();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Resume();
-	UnlockAll();
-}
-
-void Script::FlushCache(void)
-{
-	static bool isFlushing = false;
-	if(isFlushing || Vars.bDisableCache)
-		return;
-	LockAll();
-	EnterCriticalSection(&Vars.cFlushCacheSection);
-	isFlushing = true;
-	ScriptList list = GetScripts();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		if(!(*it)->IsRunning())
-			delete (*it);
-
-	isFlushing = false;
-	LeaveCriticalSection(&Vars.cFlushCacheSection);
-	UnlockAll();
-}
-
-ScriptList Script::GetScripts(void)
-{
-	LockAll();
-	ScriptList scripts;
-	for(ScriptMap::iterator it = activeScripts.begin(); it != activeScripts.end(); it++)
-		scripts.push_back(it->second);
-
-	UnlockAll();
-	return scripts;
-}
-
-ScriptMap::iterator Script::GetFirstScript(void)
-{
-	return activeScripts.begin();
-}
-
-ScriptMap::iterator Script::GetLastScript(void)
-{
-	return activeScripts.end();
-}
-
-void Script::RegisterScript(Script* script)
-{
-	LockAll();
-	if(activeScripts.count(script->fileName) < 1)
-		activeScripts[script->fileName] = script;
-	UnlockAll();
-}
-
-void Script::LockAll(void)
-{
-/*	EnterCriticalSection(&criticalSection);
-	isAllLocked = true;
-#ifdef _MSVC_DEBUG
-	Log("LockAll: entering on thread %d", GetCurrentThreadId());
-#endif*/
-}
-
-void Script::UnlockAll(void)
-{
-/*	LeaveCriticalSection(&criticalSection);
-	isAllLocked = false;
-#ifdef _MSVC_DEBUG
-	Log("UnlockAll: leaving on thread %d", GetCurrentThreadId());
-#endif*/
-}
-
-bool Script::IsAllLocked(void)
-{
-	return isAllLocked;
-}
-
-int Script::GetCount(void)
-{
-	return activeScripts.size();
-}
-
-int Script::GetActiveCount(bool countUnexecuted)
-{
-	LockAll();
-	int count = 0;
-	for(ScriptMap::iterator it = activeScripts.begin(); it != activeScripts.end(); it++)
-		if((it->second->IsRunning() && !it->second->IsAborted()) ||
-			(countUnexecuted && (it->second->GetExecutionCount() == 0)))
-			count++;
-	UnlockAll();
-	return count;
-}
 
 int Script::GetExecutionCount(void)
 {
@@ -441,14 +253,12 @@ void Script::Run(void)
 
 void Script::Pause(void)
 {
-	AutoLock lock(this);
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
 }
 
 void Script::Resume(void)
 {
-	AutoLock lock(this);
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
 }
@@ -459,11 +269,9 @@ bool Script::IsPaused(void)
 }
 
 void Script::Stop(bool force, bool reallyForce)
-{
-	AutoLock lock(this);
-	
-	// Clear the events/hooks before aborting the script, otherwise we can't clean up all the events in the context
-	// what could possibly blow up by cleaning up hooks/events after stopping the script?
+{	
+	// Clear the events/hooks before aborting the script
+	// otherwise we can't clean up all the events in the context
 	ClearAllEvents();
 	Genhook::Clean(this);
 
@@ -510,14 +318,13 @@ bool Script::IsIncluded(const char* file)
 
 bool Script::Include(const char* file)
 {
-	AutoLock lock(this);
 	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || strcmp(fileName, fname) == 0)
+	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)) == 0)
 		return true;
 	bool rval = false;
-	JSContext* tmpcx = BuildContext(runtime);
+	JSContext* tmpcx = BuildContext(ScriptEngine::GetRuntime());
 	JS_BeginRequest(tmpcx);
 	JS_SetContextPrivate(tmpcx, this);
 	JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
@@ -538,7 +345,10 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return context && !(!JS_IsRunning(context) || IsPaused());
+	EnterCriticalSection(&lock);
+	bool result = context && !(!JS_IsRunning(context) || IsPaused());
+	LeaveCriticalSection(&lock);
+	return result;
 }
 
 bool Script::IsAborted()
@@ -546,39 +356,8 @@ bool Script::IsAborted()
 	return isAborted;
 }
 
-void Script::Lock(void)
-{
-/*	lockThreadId = GetCurrentThreadId();
-	isLocked = true;
-	EnterCriticalSection(&scriptSection);
-#ifdef _MSVC_DEBUG
-	Log("Lock: entering lock for %s on thread %d", fileName, lockThreadId);
-#endif*/
-}
-
-void Script::Unlock(void)
-{
-/*#ifdef _MSVC_DEBUG
-	Log("Unlock: leaving lock for %s on thread %d", fileName, lockThreadId);
-#endif
-	lockThreadId = -1;
-	LeaveCriticalSection(&scriptSection);
-	isLocked = false;*/
-}
-
-bool Script::IsLocked(void)
-{
-	return isLocked;
-}
-
-DWORD Script::LockingThread()
-{
-	return lockThreadId;
-}
-
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
-	AutoLock lock(this);
 	if(JSVAL_IS_FUNCTION(context, evtFunc))
 	{
 		AutoRoot* root = new AutoRoot(context, evtFunc);
@@ -589,7 +368,6 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 
 bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 {
-	AutoLock lock(this);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 		if((*it)->value() == evtFunc)
 			return true;
@@ -599,7 +377,6 @@ bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 
 void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 {
-	AutoLock lock(this);
 	AutoRoot* func = NULL;
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
@@ -616,7 +393,6 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 
 void Script::ClearEvent(const char* evtName)
 {
-	AutoLock lock(this);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		AutoRoot* func = *it;
@@ -628,7 +404,6 @@ void Script::ClearEvent(const char* evtName)
 
 void Script::ClearAllEvents(void)
 {
-	AutoLock lock(this);
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
 }
@@ -641,7 +416,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 	Pause();
 
-	JSContext* cx = BuildContext(runtime);
+	JSContext* cx = BuildContext(ScriptEngine::GetRuntime());
 	JS_SetContextPrivate(cx, this);
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
@@ -676,7 +451,6 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	AutoLock lock(this);
 	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
 		char msg[50];
@@ -691,33 +465,12 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->functions = functions[evtName];
 		evt->argc = argc;
 		evt->argv = argv;
-		evt->context = BuildContext(runtime);
+		evt->context = BuildContext(ScriptEngine::GetRuntime());
 		evt->object = globalObject;
 		JS_SetContextPrivate(evt->context, this);
 
 		CreateThread(0, 0, FuncThread, evt, 0, 0);
 	}
-}
-
-void Script::ExecEventOnAll(char* evtName, uintN argc, AutoRoot** argv)
-{
-	LockAll();
-	jsval dummy;
-	ScriptList scripts = GetScripts();
-	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-		if(!(*it)->IsAborted())
-			(*it)->ExecEvent(evtName, argc, argv, &dummy);
-	UnlockAll();
-}
-
-void Script::ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv)
-{
-	LockAll();
-	ScriptList scripts = GetScripts();
-	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
-		if(!(*it)->IsAborted())
-			(*it)->ExecEventAsync(evtName, argc, argv);
-	UnlockAll();
 }
 
 DWORD WINAPI ScriptThread(void* data)
@@ -727,7 +480,7 @@ DWORD WINAPI ScriptThread(void* data)
 	{
 		script->Run();
 		if(Vars.bDisableCache)
-			delete script;
+			ScriptEngine::DisposeScript(script);
 	}
 	return 0;
 }
@@ -790,98 +543,3 @@ DWORD WINAPI FuncThread(void* data)
 }
 
 
-JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
-{
-	return JSTRAP_CONTINUE;
-}
-
-void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-
-	if(!script)
-		return NULL;
-
-	static JSBool dummy;
-	dummy = (script->IsSingleStep() ? JS_TRUE : JS_FALSE);
-	return dummy ? &dummy : NULL;
-}
-
-JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-
-	if(!script)
-		return JSTRAP_CONTINUE;
-
-	script->EnableSingleStep();
-	return JSTRAP_CONTINUE;
-}
-
-JSBool branchCallback(JSContext* cx, JSScript*)
-{
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-
-	bool pause = script->IsPaused();
-
-	jsrefcount depth = JS_SuspendRequest(cx);
-
-	if(pause)
-	{
-		// assume we have to take the context thread
-		// break the locks if necessary
-		if(!script->IsLocked())
-			script->Lock();
-		script->SetPauseState(true);
-	}
-	while(script->IsPaused())
-		Sleep(50);
-	if(pause)
-	{
-		script->SetPauseState(false);
-		if(script->LockingThread() == GetCurrentThreadId())
-			script->Unlock();
-	}
-	// assume it was trampled.
-	JS_SetContextThread(cx);
-	JS_ResumeRequest(cx, depth);
-	// there is no need to use up MORE processor time for an if statement when it can be collapsed down.
-	// JS_TRUE and JS_FALSE are simply typecasted 1 and 0 respectively.
-	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
-}
-
-JSBool gcCallback(JSContext *cx, JSGCStatus status)
-{
-	if(status == JSGC_BEGIN)
-	{
-		if(Vars.bDebug)
-			Log("*** ENTERING GC ***");
-		if(JS_GetContextThread(cx))
-			JS_ClearContextThread(cx);
-		JS_SetContextThread(cx);
-	}
-	else if(status == JSGC_END)
-	{
-		if(Vars.bDebug)
-			Log("*** LEAVING GC ***");
-		Script::FlushCache();
-	}
-	return JS_TRUE;
-}
-
-void reportError(JSContext *cx, const char *message, JSErrorReport *report)
-{
-	bool warn = JSREPORT_IS_WARNING(report->flags);
-	bool isStrict = JSREPORT_IS_STRICT(report->flags);
-	const char* type = (warn ? "Warning" : "Error");
-	const char* strict = (isStrict ? "Strict " : "");
-	const char* filename = (report->filename ? report->filename + strlen(Vars.szScriptPath)+1 : "<unknown>");
-	Log("[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
-				filename, report->lineno, message, report->linebuf);
-
-	Print("[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
-					filename, report->lineno, message);
-
-	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
-		D2CLIENT_ExitGame();
-}

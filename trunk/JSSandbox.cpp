@@ -1,5 +1,5 @@
 #include "JSSandbox.h"
-#include "Script.h"
+#include "ScriptEngine.h"
 #include "CDebug.h"
 
 #include "debugnew/debug_new.h"
@@ -8,7 +8,7 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 {
 	CDebug cDbg("sandbox ctor");
 	sandbox* box = new sandbox; // leaked?
-	box->context = JS_NewContext(Script::GetRuntime(), 0x2000);
+	box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 	box->innerObj = JS_NewObject(box->context, &global_obj, NULL, NULL);
 	if(!box->innerObj)
 	{

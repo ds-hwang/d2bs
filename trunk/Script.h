@@ -40,11 +40,12 @@ public:
 	bool operator==(AutoRoot& other);
 };
 
+// TODO: replace this with a std::set and use that
+// to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
 typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
 typedef std::list<Script*> ScriptList;
-typedef std::map<std::string, Script*> ScriptMap;
 
 struct Event {
 	Script* owner;
@@ -58,12 +59,7 @@ struct Event {
 class Script
 {
 private:
-	static JSRuntime* runtime;
-	static ScriptMap activeScripts;
-	static CRITICAL_SECTION criticalSection;
-	static bool isAllLocked;
-
-	char* fileName;
+	std::string fileName;
 	int execCount;
 	ScriptState scriptState;
 	JSContext* context;
@@ -74,43 +70,19 @@ private:
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
-	CRITICAL_SECTION scriptSection;
 	HANDLE threadHandle;
 	DWORD threadId, lockThreadId;
+	CRITICAL_SECTION lock;
 
 	void InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
 					JSFunctionSpec* s_methods, JSPropertySpec* s_props);
 	void DefineConstant(const char* name, int value);
 
-	static void RegisterScript(Script* script);
-
 	Script(const char* file, ScriptState state);
 	Script(const Script&);
 	Script& operator=(const Script&);
 public:
-	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
-	static Script* CompileCommand(const char* command);
-
-	static JSRuntime* GetRuntime(void) { return runtime; }
-
-	static void Startup(void);
-	static void Shutdown(void);
-	static void FlushCache(void);
-
-	static ScriptList GetScripts(void);
-	static ScriptMap::iterator GetFirstScript(void);
-	static ScriptMap::iterator GetLastScript(void);
-	static int GetCount(void);
-	static int GetActiveCount(bool countUnexecuted = false);
-
-	static void StopAll(bool force = false);
-	static void PauseAll(void);
-	static void ResumeAll(void);
-
-	static void LockAll(void);
-	static void UnlockAll(void);
-	static bool IsAllLocked(void);
-
+	friend class ScriptEngine;
 	~Script(void);
 
 	void Run(void);
@@ -125,18 +97,13 @@ public:
 	void DisableSingleStep(void);
 	bool IsSingleStep(void);
 
-	char* GetFilename(void) { return scriptState == Command ? "<Command Line>" : fileName; }
+	char* GetFilename(void) { return scriptState == Command ? "<Command Line>" : fileName.c_str(); }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
 	ScriptState GetState(void) { return scriptState; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
-
-	void Lock(void);
-	void Unlock(void);
-	bool IsLocked(void);
-	DWORD LockingThread(void);
 
 	bool IsRunning(void);
 	bool IsAborted(void);
@@ -152,26 +119,7 @@ public:
 
 	JSBool ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval);
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-	static void ExecEventOnAll(char* evtName, uintN argc, AutoRoot** argv);
-	static void ExecEventAsyncOnAll(char* evtName, uintN argc, AutoRoot** argv);
-};
-
-class AutoLock
-{
-private:
-	Script* script;
-public:
-	AutoLock(Script* s) { script = s; script->Lock(); }
-	~AutoLock() { script->Unlock(); }
 };
 
 DWORD WINAPI ScriptThread(void* data);
 DWORD WINAPI FuncThread(void* data);
-
-JSBool watchHandler(JSContext* cx, JSObject* obj, jsval id, jsval old, jsval* newval, void* closure);
-JSTrapStatus debuggerCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
-JSTrapStatus exceptionCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
-void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure);
-JSBool branchCallback(JSContext* cx, JSScript* script);
-JSBool gcCallback(JSContext* cx, JSGCStatus status);
-void reportError(JSContext *cx, const char *message, JSErrorReport *report);

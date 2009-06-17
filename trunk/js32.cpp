@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include "windows.h"
 #include "Script.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 

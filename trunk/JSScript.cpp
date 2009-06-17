@@ -1,6 +1,7 @@
 #include "JSScript.h"
 #include "CDebug.h"
 #include "Script.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 
@@ -53,7 +54,7 @@ JSAPI_FUNC(script_getNext)
 	CDebug cDbg("script getNext");
 
 	ScriptIterator* script = (ScriptIterator*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
-	if(script->it != Script::GetLastScript())
+	if(script->it != ScriptEngine::GetLastScript())
 	{
 		script->it++;
 		*rval = BOOLEAN_TO_JSVAL(TRUE);
@@ -108,7 +109,7 @@ JSAPI_FUNC(my_getScript)
 	CDebug cDbg("getScript");
 
 	ScriptIterator* ptr = new ScriptIterator();
-	ptr->it = Script::GetFirstScript();
+	ptr->it = ScriptEngine::GetFirstScript();
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, ptr);
 	JS_SetContextThread(cx);
 	if(!res)

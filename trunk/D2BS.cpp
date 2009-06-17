@@ -3,7 +3,7 @@
 #include "dde.h"
 #include "shlwapi.h"
 #include "Offset.h"
-#include "Script.h"
+#include "ScriptEngine.h"
 #include "Helpers.h"
 #include "D2Handlers.h"
 
@@ -78,7 +78,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		DefineOffsets();
 		InstallPatches();
-		Script::Startup();
+		ScriptEngine::Startup();
 
 		CreateDdeServer();
 
@@ -99,7 +99,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 		RemovePatches();
-		Script::Shutdown();
+		ScriptEngine::Shutdown();
 
 		ShutdownDdeServer();
 

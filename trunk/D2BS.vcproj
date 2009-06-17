@@ -751,6 +751,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Engine"
+				>
+				<File
+					RelativePath=".\ScriptEngine.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ScriptEngine.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

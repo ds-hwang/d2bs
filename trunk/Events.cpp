@@ -1,11 +1,12 @@
 //#include "D2BS.h"
-#include "Script.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 
 VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -20,7 +21,8 @@ VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 
 VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -35,7 +37,8 @@ VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 
 VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -50,7 +53,8 @@ VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 
 VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -65,7 +69,8 @@ VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 
 VOID ChatCmdEvent(CHAR* lpszMsg)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -79,7 +84,8 @@ VOID ChatCmdEvent(CHAR* lpszMsg)
 
 VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -93,7 +99,8 @@ VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 
 VOID PlayerAssignEvent(DWORD dwUnitId)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -107,7 +114,8 @@ VOID PlayerAssignEvent(DWORD dwUnitId)
 
 VOID MouseClickEvent(int button, POINT pt, bool bUp)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -123,7 +131,8 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp)
 
 VOID MouseMoveEvent(POINT pt)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())
@@ -138,7 +147,8 @@ VOID MouseMoveEvent(POINT pt)
 
 VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 {
-	ScriptList scripts = Script::GetScripts();
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
 		if(!(*it)->IsRunning())

@@ -26,6 +26,7 @@
 #include "mpqstats.h"
 #include "D2BS.h"
 #include "AreaLinker.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 
@@ -84,7 +85,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		{
 			CHAR lpszBuf[_MAX_FNAME];
 			sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, lpszFileName);
-			Script* script = Script::CompileFile(lpszBuf, state);
+			Script* script = ScriptEngine::CompileFile(lpszBuf, state);
 			if(script)
 			{
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -146,7 +147,7 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	}
 	else
 	{
-		Script::StopAll();
+		ScriptEngine::StopAll();
 		return JS_FALSE;
 	}
 

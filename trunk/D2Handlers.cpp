@@ -10,6 +10,8 @@
 #include "Constants.h"
 #include "Events.h"
 #include "Control.h"
+#include "CollisionMap.h"
+#include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"
 
@@ -50,10 +52,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				Vars.dwGameTime = GetTickCount();
 				D2CLIENT_InitInventory();
+				Sleep(5000);
 
 				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-				//Script::FlushCache();
-				Script* script = Script::CompileFile(defaultdbj, InGame);
+				Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				else
@@ -81,7 +83,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
-					Script* script = Script::CompileFile(starterdbj, OutOfGame);
+					Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
 					else
@@ -114,7 +116,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = Script::CompileFile(file, InGame);
+			Script* script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 			{
 				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
@@ -126,25 +128,28 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		}
 		else if(!_strcmpi(argv[0], "stop"))
 		{
-			if(Script::GetActiveCount() > 0)
+			if(ScriptEngine::GetCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts!");
 
-			Script::StopAll(true);
+			ScriptEngine::StopAll(true);
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "reload"))
 		{
-			if(Script::GetActiveCount() > 0)
+			if(ScriptEngine::GetCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts...");
-			Script::StopAll(true);
+			ScriptEngine::StopAll(true);
 
-			Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
-			Script::FlushCache();
+			if(!Vars.bDisableCache)
+			{
+				Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
+				ScriptEngine::FlushCache();
+			}
 
 			Print("ÿc2D2BSÿc0 :: Starting default.dbj...");
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = Script::CompileFile(file, InGame);
+			Script* script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
@@ -153,15 +158,18 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		}
 		else if(!_strcmpi(argv[0], "flush"))
 		{
-			Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
-			Script::FlushCache();
+			if(!Vars.bDisableCache)
+			{
+				Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
+				ScriptEngine::FlushCache();
+			}
 			result = -1;
 		}
 		else if(!_strcmpi(argv[0], "exec"))
 		{
 			if(argc >= 2)
 			{
-				Script* script = Script::CompileCommand(szBuffer+5);
+				Script* script = ScriptEngine::CompileCommand(szBuffer+5);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
@@ -177,7 +185,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				CHAR szPath[8192] = "";
 				sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
 
-				Script* script = Script::CompileFile(szPath, InGame, true);
+				Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				else
@@ -258,7 +266,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if(pCopy->dwData == 0x1337) // 0x1337 = Execute Script
 				{
-					Script* script = Script::CompileCommand((char*)pCopy->lpData);
+					Script* script = ScriptEngine::CompileCommand((char*)pCopy->lpData);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
 				}
