@@ -52,7 +52,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				Vars.dwGameTime = GetTickCount();
 				D2CLIENT_InitInventory();
-				Sleep(5000);
 
 				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
 				Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);

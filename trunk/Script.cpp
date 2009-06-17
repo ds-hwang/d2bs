@@ -41,7 +41,6 @@ void AutoRoot::Release()
 jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
-
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 			isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false),
@@ -321,7 +320,7 @@ bool Script::Include(const char* file)
 	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)) == 0)
+	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
 		return true;
 	bool rval = false;
 	JSContext* tmpcx = BuildContext(ScriptEngine::GetRuntime());
