@@ -87,11 +87,9 @@ JSContext* BuildContext(JSRuntime* runtime)
 	JSContext* context = JS_NewContext(runtime, 0x2000);
 	if(!context)
 		throw std::exception("Couldn't create the context");
-	JS_BeginRequest(context);
 	JS_SetErrorReporter(context, reportError);
 	JS_SetBranchCallback(context, branchCallback);
 	JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
 	JS_SetVersion(context, JSVERSION_1_7);
-	JS_EndRequest(context);
 	return context;
 }

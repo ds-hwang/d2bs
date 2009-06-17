@@ -14,6 +14,7 @@ typedef std::map<std::string, Script*> ScriptMap;
 enum EngineState {
 	Starting,
 	Running,
+	Paused,
 	Stopping,
 	Stopped
 };

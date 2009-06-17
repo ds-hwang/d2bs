@@ -54,22 +54,25 @@ Script::Script(const char* file, ScriptState state) :
 
 	fileName = string(_strlwr(_strdup(file)));
 	replace(fileName.begin(), fileName.end(), '/', '\\');
-	//StringReplace(fileName, '/', '\\');
 	try {
 		context = BuildContext(ScriptEngine::GetRuntime());
 		if(!context)
 			throw std::exception("Couldn't create the context");
 		JS_SetContextThread(context);
-		JS_BeginRequest(context);
 		JS_SetContextPrivate(context, this);
+		JS_BeginRequest(context);
 		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
+		JS_EndRequest(context);
 		if(!globalObject)
 			throw std::exception("Couldn't create the global object");
 
+		JS_BeginRequest(context);
 		JS_InitStandardClasses(context, globalObject);
 		JS_DefineFunctions(context, globalObject, global_funcs);
+		JS_EndRequest(context);
 		JS_AddRoot(context, &globalObject);// added for testing proper destroy context code
 
+		JS_BeginRequest(context);
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
 		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
 		InitClass(&sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
@@ -79,8 +82,11 @@ Script::Script(const char* file, ScriptState state) :
 		InitClass(&line_class, line_methods, line_props, NULL, NULL);
 		InitClass(&text_class, text_methods, text_props, NULL, NULL);
 		InitClass(&image_class, image_methods, image_props, NULL, NULL);
+		JS_EndRequest(context);
 
+		JS_BeginRequest(context);
 		JS_DefineObject(context, globalObject, "Unit", &unit_class, NULL, NULL);
+		JS_EndRequest(context);
 		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
 
@@ -96,7 +102,7 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Couldn't create the meObject");
 
 		JS_AddRoot(context, &meObject);
-		JS_SetContextThread(context);
+		JS_BeginRequest(context);
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
 #define DEFCONST(vp) DefineConstant(#vp, vp)
@@ -137,21 +143,25 @@ Script::Script(const char* file, ScriptState state) :
 		DEFEVENT(PLAYERASSIGN);
 #undef DEFEVENT
 #undef DEFCONST
+		JS_EndRequest(context);
 
+		JS_BeginRequest(context);
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)
 			throw std::exception("Couldn't compile the script");
+		JS_EndRequest(context);
 
+		JS_BeginRequest(context);
 		scriptObject = JS_NewScriptObject(context, script);
+		JS_EndRequest(context);
 		if(!scriptObject)
 			throw std::exception("Couldn't create the script object");
 
 		JS_AddNamedRoot(context, &meObject, "me object");
 		JS_AddNamedRoot(context, &scriptObject, "script object");
-		JS_EndRequest(context);
 		JS_ClearContextThread(context);
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
@@ -323,22 +333,29 @@ bool Script::Include(const char* file)
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
 		return true;
 	bool rval = false;
-	JSContext* tmpcx = BuildContext(ScriptEngine::GetRuntime());
-	JS_BeginRequest(tmpcx);
-	JS_SetContextPrivate(tmpcx, this);
-	JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
+	///JSContext* tmpcx = BuildContext(ScriptEngine::GetRuntime());
+	//JS_SetContextPrivate(tmpcx, this);
+	//JS_BeginRequest(tmpcx);
+	//JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
+	//JS_EndRequest(tmpcx);
+	JS_BeginRequest(GetContext());
+	JSScript* script = JS_CompileFile(GetContext(), globalObject, fname);
+	JS_EndRequest(GetContext());
 	if(script)
 	{
 		jsval dummy;
 		inProgress[fname] = true;
-		rval = !!JS_ExecuteScript(tmpcx, globalObject, script, &dummy);
-		JS_DestroyScript(tmpcx, script);
+		//JS_BeginRequest(tmpcx);
+		//rval = !!JS_ExecuteScript(tmpcx, globalObject, script, &dummy);
+		//JS_DestroyScript(tmpcx, script);
+		//JS_EndRequest(tmpcx);
+		rval = !!JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
+		JS_DestroyScript(GetContext(), script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
-	JS_EndRequest(tmpcx);
-	JS_DestroyContextMaybeGC(tmpcx);
+	//JS_DestroyContextMaybeGC(tmpcx);
 	return rval;
 }
 
@@ -493,7 +510,6 @@ DWORD WINAPI FuncThread(void* data)
 	// switch the context thread once and only once to this one, since it won't be this thread's context
 	JS_ClearContextThread(evt->context);
 	JS_SetContextThread(evt->context);	
-	JS_BeginRequest(evt->context);
 
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
@@ -508,7 +524,9 @@ DWORD WINAPI FuncThread(void* data)
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
+			JS_BeginRequest(evt->context);
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			JS_EndRequest(evt->context);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
@@ -521,10 +539,8 @@ DWORD WINAPI FuncThread(void* data)
 			JS_ClearContextThread(evt->context);
 			JS_SetContextThread(evt->context);	
 		}
-		JS_EndRequest(evt->context);
 	}
 
-	JS_EndRequest(evt->context);
 	JS_ClearContextThread(evt->context);
 	JS_DestroyContext(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars

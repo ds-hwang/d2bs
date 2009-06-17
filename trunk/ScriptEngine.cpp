@@ -134,8 +134,8 @@ struct Resume : public unary_function<ScriptPair, void> {
 };
 
 void ScriptEngine::StopAll(bool forceStop) { for_each(scripts.begin(), scripts.end(), Stop()); }
-void ScriptEngine::PauseAll(void) { for_each(scripts.begin(), scripts.end(), Pause()); }
-void ScriptEngine::ResumeAll(void) { for_each(scripts.begin(), scripts.end(), Resume()); }
+void ScriptEngine::PauseAll(void) { for_each(scripts.begin(), scripts.end(), Pause()); state = Paused; }
+void ScriptEngine::ResumeAll(void) { for_each(scripts.begin(), scripts.end(), Resume()); state = Running; }
 
 void ScriptEngine::FlushCache(void)
 {
@@ -231,11 +231,11 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		Sleep(50);
 	if(pause)
 		script->SetPauseState(false);
-	// assume it was trampled.
+
+	// assume the context thread was trampled over
 	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
-	// there is no need to use up MORE processor time for an if statement when it can be collapsed down.
-	// JS_TRUE and JS_FALSE are simply typecasted 1 and 0 respectively.
+
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
 
@@ -243,6 +243,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
 	if(status == JSGC_BEGIN)
 	{
+		ScriptEngine::PauseAll();
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");
 		if(JS_GetContextThread(cx))
@@ -253,7 +254,8 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	{
 		if(Vars.bDebug)
 			Log("*** LEAVING GC ***");
-		ScriptEngine::FlushCache();
+		//ScriptEngine::FlushCache();
+		ScriptEngine::ResumeAll();
 	}
 	return JS_TRUE;
 }
