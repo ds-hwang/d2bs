@@ -6,6 +6,7 @@
 #include "ScriptEngine.h"
 #include "Helpers.h"
 #include "D2Handlers.h"
+#include "Console.h"
 
 #include "debugnew/debug_new.h"
 
@@ -100,6 +101,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		RemovePatches();
 		ScriptEngine::Shutdown();
+		Console::Destroy();
 
 		ShutdownDdeServer();
 

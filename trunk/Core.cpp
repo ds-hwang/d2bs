@@ -4,6 +4,7 @@
 #include "Helpers.h"
 #include "Control.h"
 #include "CriticalSections.h"
+#include "Console.h"
 
 #include <string>
 #include <sstream>
@@ -58,7 +59,7 @@ void Print(const char * szFormat, ...)
 
 	replace(str, str + len, REPLACE_CHAR, '%');
 
-	const size_t MAXLEN = 500;
+	const size_t MAXLEN = 98;
 
 	// Break into lines through \n.
 	list<string> lines;
@@ -85,7 +86,11 @@ void Print(const char * szFormat, ...)
 	}
 
 	EnterCriticalSection(&Vars.cPrintSection);
-	if(D2CLIENT_GetPlayerUnit() && GameReady())
+	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+	{
+		Console::AddLine(*it);
+	}
+	/*if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
 		// Convert and send every line.
 		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -101,7 +106,7 @@ void Print(const char * szFormat, ...)
 	} else {
 			// Print original string.
 			MessageBox(0, str, "D2BS " D2BS_VERSION, 0);
-	}
+	}*/
 	LeaveCriticalSection(&Vars.cPrintSection);
 
 	delete [] str;

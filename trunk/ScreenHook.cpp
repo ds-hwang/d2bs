@@ -28,7 +28,7 @@ void Genhook::DrawAll(ScreenhookState type)
 	// currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
-			(!(*it)->GetIsAutomap() || ((*p_D2CLIENT_AutomapOn) && (*it)->GetIsAutomap())))
+			(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
 		{
 			(*it)->Draw();
 		}

@@ -12,6 +12,7 @@
 #include "Control.h"
 #include "CollisionMap.h"
 #include "ScriptEngine.h"
+#include "Console.h"
 
 #include "debugnew/debug_new.h"
 
@@ -277,7 +278,6 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(!wParam && Vars.bBlockMinimize)
 				return NULL;
 			break;
-
 	}
 
 	return (LONG)CallWindowProcA(Vars.oldWNDPROC, hWnd, uMsg, wParam, lParam);
@@ -285,33 +285,70 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
+	if((code != HC_ACTION))
+		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
+
 	if(Vars.bBlockKeys)
 		return 1;
 
 	// ignore key events if the key is a repeat
-	if((code == HC_ACTION) && !(!!(lParam & 0x40000000) == 1 && !!(lParam & 0x80000000) == 0))
+	bool altState = !!(lParam & 0x20000000);
+	bool previousState = !!(lParam & 0x40000000);
+	bool transitionState = !!(lParam & 0x80000000);
+	bool gameState = !!GameReady();
+	bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
+	bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
+
+	if(wParam != 0xFF && !(previousState && !transitionState))
 	{
-		if(GameReady())
+		// VK_OEM_3 == `, the toggle console key
+		if(wParam == VK_OEM_3 && altState && transitionState && !(chatBoxOpen || escMenuOpen))
 		{
-			// ignore key events if the chatbox or the esc menu are open
-			if(!(D2CLIENT_GetUIState(5) || D2CLIENT_GetUIState(9)))
-				KeyDownUpEvent(wParam, !!(lParam & 0x80000000));
+			Console::Toggle();
+			return 1;
 		}
-		else
-			KeyDownUpEvent(wParam, !!(lParam & 0x80000000));
+		if(Console::IsVisible())
+		{
+			if(wParam == VK_RETURN)
+			{
+				if(transitionState)
+					Console::ExecuteCommand();
+				return 1;
+			}
+			else if(wParam == VK_BACK)
+			{
+				if(transitionState)
+					Console::RemoveLastKey();
+				return 1;
+			}
+			else
+			{
+				BYTE layout[256];
+				GetKeyboardState(layout);
+				WORD out[2];
+				if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
+				{
+					if(transitionState)
+						Console::AddKey(out[0]);
+					return 1;
+				}
+			}
+		}
+		if(!(chatBoxOpen || escMenuOpen))
+			KeyDownUpEvent(wParam, transitionState);
 	}
 	
 	return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 }
 
-
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
+	if((code != HC_ACTION))
+		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
+
 	if(Vars.bBlockMouse)
 		return 1;
 
-	if((code != HC_ACTION))
-		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
 	MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
 	POINT pt = mouse->pt;
 	ScreenToClient(mouse->hwnd, &pt);
@@ -358,6 +395,9 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 VOID GameDraw(VOID)
 {
+	if(!Console::IsReady())
+		Console::Initialize();
+	Console::Draw();
 	if(GameReady())
 		Genhook::DrawAll(IG);
 }
@@ -365,6 +405,9 @@ VOID GameDraw(VOID)
 VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
+	if(!Console::IsReady())
+		Console::Initialize();
+	Console::Draw();
 	if(!GameReady())
 		Genhook::DrawAll(OOG);
 }

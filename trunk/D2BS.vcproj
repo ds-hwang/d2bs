@@ -340,6 +340,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Console.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Console.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CriticalSections.h"
 				>
 			</File>
