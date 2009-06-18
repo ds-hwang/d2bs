@@ -40,8 +40,8 @@ static JSPropertySpec frame_props[] = {
 	{"visible",	FRAME_VISIBLE,	JSPROP_STATIC_VAR},
 	{"align",	FRAME_ALIGN,	JSPROP_STATIC_VAR},
 	{"zorder",	FRAME_ZORDER,	JSPROP_STATIC_VAR},
-	{"onClick",	FRAME_ONCLICK,	JSPROP_STATIC_VAR},
-	{"onHover",	FRAME_ONHOVER,	JSPROP_STATIC_VAR},
+	{"click",	FRAME_ONCLICK,	JSPROP_STATIC_VAR},
+	{"hover",	FRAME_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
 };
 
@@ -88,8 +88,8 @@ static JSPropertySpec box_props[] = {
 	{"opacity",	BOX_OPACITY,	JSPROP_STATIC_VAR},
 	{"align",	BOX_ALIGN,		JSPROP_STATIC_VAR},
 	{"zorder",	BOX_ZORDER,		JSPROP_STATIC_VAR},
-	{"onClick",	BOX_ONCLICK,	JSPROP_STATIC_VAR},
-	{"onHover",	BOX_ONHOVER,	JSPROP_STATIC_VAR},
+	{"click",	BOX_ONCLICK,	JSPROP_STATIC_VAR},
+	{"hover",	BOX_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
 };
 
@@ -133,8 +133,8 @@ static JSPropertySpec line_props[] = {
 	{"visible",	LINE_VISIBLE,	JSPROP_STATIC_VAR},
 	{"color",	LINE_COLOR,		JSPROP_STATIC_VAR},
 	{"zorder",	LINE_ZORDER,	JSPROP_STATIC_VAR},
-	{"onClick",	LINE_ONCLICK,	JSPROP_STATIC_VAR},
-	{"onHover",	LINE_ONHOVER,	JSPROP_STATIC_VAR},
+	{"click",	LINE_ONCLICK,	JSPROP_STATIC_VAR},
+	{"hover",	LINE_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
 };
 
@@ -179,8 +179,8 @@ static JSPropertySpec text_props[] = {
 	{"text",	TEXT_TEXT,		JSPROP_STATIC_VAR},
 	{"align",	TEXT_ALIGN,		JSPROP_STATIC_VAR},
 	{"zorder",	TEXT_ZORDER,	JSPROP_STATIC_VAR},
-	{"onClick",	TEXT_ONCLICK,	JSPROP_STATIC_VAR},
-	{"onHover",	TEXT_ONHOVER,	JSPROP_STATIC_VAR},
+	{"click",	TEXT_ONCLICK,	JSPROP_STATIC_VAR},
+	{"hover",	TEXT_ONHOVER,	JSPROP_STATIC_VAR},
 	{0},
 };
 
@@ -221,8 +221,8 @@ static JSPropertySpec image_props[] = {
 	{"location",IMAGE_LOCATION,		JSPROP_STATIC_VAR},
 	{"align",	IMAGE_ALIGN,		JSPROP_STATIC_VAR},
 	{"zorder",	IMAGE_ZORDER,		JSPROP_STATIC_VAR},
-	{"onClick",	IMAGE_ONCLICK,		JSPROP_STATIC_VAR},
-	{"onHover",	IMAGE_ONHOVER,		JSPROP_STATIC_VAR},
+	{"click",	IMAGE_ONCLICK,		JSPROP_STATIC_VAR},
+	{"hover",	IMAGE_ONHOVER,		JSPROP_STATIC_VAR},
 	{0},
 };
 

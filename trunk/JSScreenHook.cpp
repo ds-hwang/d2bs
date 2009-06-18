@@ -150,7 +150,7 @@ JSAPI_PROP(frame_setProperty) {
 				pFramehook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case FRAME_VISIBLE:
-			if(JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_BOOLEAN(*vp))
 				pFramehook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
 			break;
 		case FRAME_ZORDER:
@@ -301,7 +301,7 @@ JSAPI_PROP(box_setProperty) {
 			break;
 		case BOX_VISIBLE:
 			if(JSVAL_IS_BOOLEAN(*vp))
-				pBoxHook->SetIsVisible(JSVAL_IS_BOOLEAN(*vp));
+				pBoxHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
 			break;
 		case BOX_ZORDER:
 			if(JSVAL_IS_INT(*vp))
@@ -582,7 +582,7 @@ JSAPI_PROP(text_setProperty) {
 				pTextHook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_VISIBLE:
-			if(JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_BOOLEAN(*vp))
 				pTextHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
 			break;
 		case TEXT_ZORDER:
@@ -718,7 +718,7 @@ JSAPI_PROP(image_setProperty) {
 				pImageHook->SetAlign((Align)JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_VISIBLE:
-			if(JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_BOOLEAN(*vp))
 				pImageHook->SetIsVisible(!!JSVAL_TO_BOOLEAN(*vp));
 			break;
 		case IMAGE_ZORDER:

@@ -133,9 +133,9 @@ struct Resume : public unary_function<ScriptPair, void> {
 	}
 };
 
-void ScriptEngine::StopAll(bool forceStop) { for_each(scripts.begin(), scripts.end(), Stop()); }
-void ScriptEngine::PauseAll(void) { for_each(scripts.begin(), scripts.end(), Pause()); state = Paused; }
-void ScriptEngine::ResumeAll(void) { for_each(scripts.begin(), scripts.end(), Resume()); state = Running; }
+void ScriptEngine::StopAll(bool forceStop) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Stop()); }
+void ScriptEngine::PauseAll(void) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Pause()); state = Paused; }
+void ScriptEngine::ResumeAll(void) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Resume()); state = Running; }
 
 void ScriptEngine::FlushCache(void)
 {

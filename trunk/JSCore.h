@@ -51,7 +51,6 @@ JSAPI_FUNC(my_say);
 JSAPI_FUNC(my_sendCopyData);
 JSAPI_FUNC(my_sendDDE);
 JSAPI_FUNC(my_keystate);
-JSAPI_FUNC(my_getScreenhook);
 JSAPI_FUNC(my_getTickCount);
 JSAPI_FUNC(my_addEventListener);
 JSAPI_FUNC(my_removeEventListener);

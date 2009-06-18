@@ -237,23 +237,22 @@ void Script::Run(void)
 	threadId = GetCurrentThreadId();
 
 	JS_SetContextThread(GetContext());
-	JS_BeginRequest(GetContext());
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
+	JS_BeginRequest(GetContext());
 	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
-	
-	JS_GetProperty(GetContext(), globalObject, "main", &main);
 
+	JS_GetProperty(GetContext(), globalObject, "main", &main);
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 	{
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 	}
+	JS_EndRequest(GetContext());
 	
 	// assume the context has been trampled
 	if ((DWORD)JS_GetContextThread(GetContext()) != GetThreadId())
 		JS_SetContextThread(GetContext());
 
-	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
 	execCount++;
