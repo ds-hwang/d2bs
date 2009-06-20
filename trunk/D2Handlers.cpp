@@ -307,43 +307,54 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
 	bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
 
-	if(wParam == VK_HOME && !altState && isUp && !(chatBoxOpen || escMenuOpen))
+	if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 	{
-		Console::Toggle();
+		if(!altState && isUp)
+			Console::ToggleBuffer();
 		return 1;
 	}
-	else if(Console::IsVisible())
+	else if(wParam == VK_OEM_3 && !(chatBoxOpen || escMenuOpen))
 	{
-		if(wParam == VK_ESCAPE && !isRepeat)
+		if(altState && isUp)
+			Console::Toggle();
+		return 1;
+	}
+	else if(Console::IsEnabled())
+	{
+		BYTE layout[256];
+		WORD out[2];
+		switch(wParam)
 		{
-			if(isUp)
-				Console::Toggle();
-			return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
+			case VK_TAB:
+				if(isUp)
+					for(int i = 0; i < 5; i++)
+						Console::AddKey((unsigned int)" ");
+				break;
+			case VK_ESCAPE:
+				if(isUp && !isRepeat)
+					Console::Toggle();
+				break;
+			case VK_RETURN:
+				if(isUp && !isRepeat && !escMenuOpen)
+					Console::ExecuteCommand();
+				break;
+			case VK_BACK:
+				if(isUp)
+					Console::RemoveLastKey();
+				break;
+			default:
+				if(isDown)
+				{
+					GetKeyboardState(layout);
+					if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
+					{
+						for(int i = 0; i < repeatCount; i++)
+							Console::AddKey(out[0]);
+					}
+				}
+				break;
 		}
-		else if(wParam == VK_RETURN && !isRepeat && !escMenuOpen)
-		{
-			if(isUp)
-				Console::ExecuteCommand();
-			return 1;
-		}
-		else if(wParam == VK_BACK)
-		{
-			if(isUp)
-				Console::RemoveLastKey();
-			return 1;
-		}
-		else if(isDown)
-		{
-			BYTE layout[256];
-			GetKeyboardState(layout);
-			WORD out[2];
-			if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
-			{
-				for(int i = 0; i < repeatCount; i++)
-					Console::AddKey(out[0]);
-				return 1;
-			}
-		}
+		return 1;
 	}
 	else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
 			KeyDownUpEvent(wParam, transitionState);

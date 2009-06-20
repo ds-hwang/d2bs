@@ -11,7 +11,7 @@
 class Console
 {
 private:
-	static bool visible, initialized;
+	static bool visible, enabled, initialized;
 	static std::vector<std::string> lines;
 	static BoxHook* box;
 	static TextHook* prompt;
@@ -26,36 +26,14 @@ public:
 	static void Destroy(void);
 	static bool IsReady(void) { return initialized; }
 
-	static void Toggle(void) { if(IsVisible()) Hide(); else Show(); }
-	static void Hide(void)
-	{
-		visible = false;
-
-		box->SetIsVisible(false);
-		prompt->SetIsVisible(false);
-		text->SetIsVisible(false);
-		cursor->SetIsVisible(false);
-		for(unsigned int i = 0; i < lineCount; i++)
-			lineBuffers[i]->SetIsVisible(false);
-
-		Vars.image->SetY(10);
-		Vars.text->SetY(15);
-	}
-	static void Show(void)
-	{
-		visible = true;
-
-		box->SetIsVisible(true);
-		prompt->SetIsVisible(true);
-		text->SetIsVisible(true);
-		cursor->SetIsVisible(true);
-		for(unsigned int i = 0; i < lineCount; i++)
-			lineBuffers[i]->SetIsVisible(true);
-
-		Vars.image->SetY(box->GetYSize()+9);
-		Vars.text->SetY(box->GetYSize()+14);
-	}
+	static void Toggle(void) { if(IsEnabled()) Hide(); else Show(); }
+	static void ToggleBuffer(void) { if(IsVisible()) HideBuffer(); else ShowBuffer(); }
+	static void Hide(void);
+	static void HideBuffer(void);
+	static void Show(void);
+	static void ShowBuffer(void);
 	static bool IsVisible(void) { return visible; }
+	static bool IsEnabled(void) { return enabled; }
 
 	static void AddKey(unsigned int key);
 	static void ExecuteCommand(void);

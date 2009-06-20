@@ -5,6 +5,7 @@
 #include <string>
 
 bool Console::visible = false;
+bool Console::enabled = false;
 bool Console::initialized = false;
 std::vector<std::string> Console::lines = std::vector<std::string>();
 BoxHook* Console::box = NULL;
@@ -108,6 +109,54 @@ void Console::AddLine(std::string line)
 
 void Console::Clear(void) { lines.clear(); }
 
+void Console::Hide(void)
+{
+	EnterCriticalSection(&lock);
+	enabled = false;
+	HideBuffer();
+	prompt->SetIsVisible(false);
+	cursor->SetIsVisible(false);
+	LeaveCriticalSection(&lock);
+}
+
+void Console::HideBuffer(void)
+{
+	EnterCriticalSection(&lock);
+	visible = false;
+	box->SetIsVisible(false);
+	text->SetIsVisible(false);
+	for(unsigned int i = 0; i < lineCount; i++)
+		lineBuffers[i]->SetIsVisible(false);
+
+	Vars.image->SetY(10);
+	Vars.text->SetY(15);
+	LeaveCriticalSection(&lock);
+}
+
+void Console::Show(void)
+{
+	EnterCriticalSection(&lock);
+	enabled = true;
+	ShowBuffer();
+	prompt->SetIsVisible(true);
+	cursor->SetIsVisible(true);
+	LeaveCriticalSection(&lock);
+}
+
+void Console::ShowBuffer(void)
+{
+	EnterCriticalSection(&lock);
+	visible = true;
+	box->SetIsVisible(true);
+	text->SetIsVisible(true);
+	for(unsigned int i = 0; i < lineCount; i++)
+		lineBuffers[i]->SetIsVisible(true);
+
+	Vars.image->SetY(box->GetYSize()+9);
+	Vars.text->SetY(box->GetYSize()+14);
+	LeaveCriticalSection(&lock);
+}
+
 void Console::Draw(void)
 {
 	// update the hooks to their necessary values
@@ -115,7 +164,7 @@ void Console::Draw(void)
 
 	if(IsVisible())
 	{
-		if(count % 30 == 0)
+		if(count % 30 == 0 && IsEnabled())
 			cursor->SetIsVisible(!cursor->GetIsVisible());
 
 		// TODO: make this respect wrapping
