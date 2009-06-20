@@ -87,7 +87,12 @@ void Console::RemoveLastKey(void)
 {
 	EnterCriticalSection(&lock);
 	char* newcmd = _strdup(text->GetText());
-	newcmd[strlen(newcmd)] = '\0';
+	if(strlen(newcmd) == 0)
+	{
+		LeaveCriticalSection(&lock);
+		return;
+	}
+	newcmd[strlen(newcmd)-1] = '\0';
 	text->SetText(newcmd);
 	delete newcmd;
 	LeaveCriticalSection(&lock);
