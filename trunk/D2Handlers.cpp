@@ -314,7 +314,13 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	}
 	else if(Console::IsVisible())
 	{
-		if(wParam == VK_RETURN && !isRepeat)
+		if(wParam == VK_ESCAPE && !isRepeat)
+		{
+			if(isUp)
+				Console::Toggle();
+			return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
+		}
+		else if(wParam == VK_RETURN && !isRepeat && !escMenuOpen)
 		{
 			if(isUp)
 				Console::ExecuteCommand();
@@ -322,7 +328,8 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		}
 		else if(wParam == VK_BACK)
 		{
-			Console::RemoveLastKey();
+			if(isUp)
+				Console::RemoveLastKey();
 			return 1;
 		}
 		else if(isDown)
