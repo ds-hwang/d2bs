@@ -6,6 +6,7 @@
 #include "D2BS.h"
 #include <vector>
 #include <string>
+#include <windows.h>
 
 class Console
 {
@@ -13,10 +14,12 @@ private:
 	static bool visible, initialized;
 	static std::vector<std::string> lines;
 	static BoxHook* box;
+	static TextHook* prompt;
 	static TextHook* text;
 	static LineHook* cursor;
 	static TextHook* lineBuffers[14];
-	static int lineCount;
+	static unsigned int lineCount;
+	static CRITICAL_SECTION lock;
 
 public:
 	static void Initialize(void);
@@ -29,9 +32,10 @@ public:
 		visible = false;
 
 		box->SetIsVisible(false);
+		prompt->SetIsVisible(false);
 		text->SetIsVisible(false);
 		cursor->SetIsVisible(false);
-		for(int i = 0; i < lineCount; i++)
+		for(unsigned int i = 0; i < lineCount; i++)
 			lineBuffers[i]->SetIsVisible(false);
 
 		Vars.image->SetY(10);
@@ -42,9 +46,10 @@ public:
 		visible = true;
 
 		box->SetIsVisible(true);
+		prompt->SetIsVisible(true);
 		text->SetIsVisible(true);
 		cursor->SetIsVisible(true);
-		for(int i = 0; i < lineCount; i++)
+		for(unsigned int i = 0; i < lineCount; i++)
 			lineBuffers[i]->SetIsVisible(true);
 
 		Vars.image->SetY(box->GetYSize()+9);
