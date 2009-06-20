@@ -45,6 +45,7 @@ public:
 	static void DisposeScript(Script* script);
 
 	static void GetScripts(ScriptList& list);
+	// TODO: This will cause crashes because it can't be sync'd
 	static ScriptMap::iterator GetFirstScript(void) { return scripts.begin(); }
 	static ScriptMap::iterator GetLastScript(void) { return scripts.end(); }
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);

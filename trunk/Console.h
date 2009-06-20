@@ -16,6 +16,7 @@ private:
 	static TextHook* text;
 	static LineHook* cursor;
 	static TextHook* lineBuffers[14];
+	static int lineCount;
 
 public:
 	static void Initialize(void);
@@ -30,7 +31,7 @@ public:
 		box->SetIsVisible(false);
 		text->SetIsVisible(false);
 		cursor->SetIsVisible(false);
-		for(int i = 0; i < 15; i++)
+		for(int i = 0; i < lineCount; i++)
 			lineBuffers[i]->SetIsVisible(false);
 
 		Vars.image->SetY(10);
@@ -43,7 +44,7 @@ public:
 		box->SetIsVisible(true);
 		text->SetIsVisible(true);
 		cursor->SetIsVisible(true);
-		for(int i = 0; i < 15; i++)
+		for(int i = 0; i < lineCount; i++)
 			lineBuffers[i]->SetIsVisible(true);
 
 		Vars.image->SetY(box->GetYSize()+9);

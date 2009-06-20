@@ -86,11 +86,13 @@ void Print(const char * szFormat, ...)
 	}
 
 	EnterCriticalSection(&Vars.cPrintSection);
+#ifndef _USE_CONSOLE_ONLY
 	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
 		Console::AddLine(*it);
 	}
-	/*if(D2CLIENT_GetPlayerUnit() && GameReady())
+#else
+	if(D2CLIENT_GetPlayerUnit() && GameReady())
 	{
 		// Convert and send every line.
 		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -106,7 +108,8 @@ void Print(const char * szFormat, ...)
 	} else {
 			// Print original string.
 			MessageBox(0, str, "D2BS " D2BS_VERSION, 0);
-	}*/
+	}
+#endif
 	LeaveCriticalSection(&Vars.cPrintSection);
 
 	delete [] str;

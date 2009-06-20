@@ -24,10 +24,13 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return scripts[file];
 			}
 		}
+		EnterCriticalSection(&lock);
 		Script* script = new Script(file, state);
 		scripts[file] = script;
+		LeaveCriticalSection(&lock);
 		return script;
 	} catch(std::exception e) {
+		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -42,10 +45,13 @@ Script* ScriptEngine::CompileCommand(const char* command)
 				return scripts[file];
 			}
 		}
+		EnterCriticalSection(&lock);
 		Script* script = new Script(command, Command);
 		scripts[file] = script;
+		LeaveCriticalSection(&lock);
 		return script;
 	} catch(std::exception e) {
+		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -53,13 +59,16 @@ Script* ScriptEngine::CompileCommand(const char* command)
 
 void ScriptEngine::DisposeScript(Script* script)
 {
+	EnterCriticalSection(&lock);
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
 	delete script;
+	LeaveCriticalSection(&lock);
 }
 
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
+	EnterCriticalSection(&lock);
 	ScriptList list;
 	GetScripts(list);
 	unsigned int count = list.size();
@@ -70,6 +79,7 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 		if(!unexecuted && it->second->GetExecutionCount() == 0)
 			count--;
 	}
+	LeaveCriticalSection(&lock);
 	return count;
 }
 
@@ -77,6 +87,8 @@ void ScriptEngine::Startup(void)
 {
 	if(!runtime)
 	{
+		InitializeCriticalSection(&lock);
+		EnterCriticalSection(&lock);
 		state = Starting;
 		// set the memory limit at 200mb
 		runtime = JS_NewRuntime(0xC80000);
@@ -85,14 +97,15 @@ void ScriptEngine::Startup(void)
 		//JS_SetCallHook(runtime, executeCallback, NULL);
 		//JS_SetExecuteHook(runtime, executeCallback, NULL);
 		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
-		InitializeCriticalSection(&lock);
 		state = Running;
+		LeaveCriticalSection(&lock);
 	}
 }
 
 void ScriptEngine::Shutdown(void)
 {
 	// bring the engine down properly
+	EnterCriticalSection(&lock);
 	state = Stopping;
 	StopAll(true);
 
@@ -109,33 +122,52 @@ void ScriptEngine::Shutdown(void)
 		runtime = NULL;
 	}
 
+	LeaveCriticalSection(&lock);
 	DeleteCriticalSection(&lock);
 	state = Stopped;
 }
 
-typedef pair<const string, Script*> ScriptPair;
+void ScriptEngine::StopAll(bool forceStop)
+{
+	EnterCriticalSection(&lock);
 
-struct Stop : public unary_function<ScriptPair, void> {
-	void operator() (ScriptPair& script) {
-		script.second->Stop(true, (ScriptEngine::GetState() == Stopping));
+	ScriptList list;
+	GetScripts(list);
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Stop(true, (ScriptEngine::GetState() == Stopping));
 	}
-};
 
-struct Pause : public unary_function<ScriptPair, void> {
-	void operator() (ScriptPair& script) {
-		script.second->Pause();
+	LeaveCriticalSection(&lock);
+}
+
+void ScriptEngine::PauseAll(void)
+{
+	EnterCriticalSection(&lock);
+
+	ScriptList list;
+	GetScripts(list);
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Pause();
 	}
-};
 
-struct Resume : public unary_function<ScriptPair, void> {
-	void operator() (ScriptPair& script) {
-		script.second->Resume();
+	LeaveCriticalSection(&lock);
+}
+
+void ScriptEngine::ResumeAll(void)
+{
+	EnterCriticalSection(&lock);
+
+	ScriptList list;
+	GetScripts(list);
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+	{
+		(*it)->Resume();
 	}
-};
 
-void ScriptEngine::StopAll(bool forceStop) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Stop()); }
-void ScriptEngine::PauseAll(void) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Pause()); state = Paused; }
-void ScriptEngine::ResumeAll(void) { if(!scripts.empty()) for_each(scripts.begin(), scripts.end(), Resume()); state = Running; }
+	LeaveCriticalSection(&lock);
+}
 
 void ScriptEngine::FlushCache(void)
 {
@@ -143,6 +175,7 @@ void ScriptEngine::FlushCache(void)
 	if(isFlushing || Vars.bDisableCache)
 		return;
 
+	EnterCriticalSection(&lock);
 	EnterCriticalSection(&Vars.cFlushCacheSection);
 
 	isFlushing = true;
@@ -161,13 +194,16 @@ void ScriptEngine::FlushCache(void)
 	isFlushing = false;
 
 	LeaveCriticalSection(&Vars.cFlushCacheSection);
+	LeaveCriticalSection(&lock);
 }
 
 void ScriptEngine::GetScripts(ScriptList& list)
 {
+	EnterCriticalSection(&lock);
 	list.clear();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 		list.push_back(it->second);
+	LeaveCriticalSection(&lock);
 }
 
 void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)

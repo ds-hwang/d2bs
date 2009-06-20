@@ -291,52 +291,55 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	if(Vars.bBlockKeys)
 		return 1;
 
+	if(wParam == 0xFF)
+		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
+
 	// ignore key events if the key is a repeat
-	bool altState = !!(lParam & 0x20000000);
-	bool previousState = !!(lParam & 0x40000000);
-	bool transitionState = !!(lParam & 0x80000000);
+	WORD repeatCount = LOWORD(lParam);
+	bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
+	bool previousState = !!(HIWORD(lParam) & KF_REPEAT);
+	bool transitionState = !!(HIWORD(lParam) & KF_UP);
+	bool isRepeat = !transitionState && repeatCount != 1;
+	bool isDown = !(previousState && transitionState);
+	bool isUp = previousState && transitionState;
+
 	bool gameState = !!GameReady();
 	bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
 	bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
 
-	if(wParam != 0xFF && !(previousState && !transitionState))
+	if(wParam == VK_HOME && !altState && isUp && !(chatBoxOpen || escMenuOpen))
 	{
-		// VK_OEM_3 == `, the toggle console key
-		if(wParam == VK_OEM_3 && altState && transitionState && !(chatBoxOpen || escMenuOpen))
+		Console::Toggle();
+		return 1;
+	}
+	else if(Console::IsVisible())
+	{
+		if(wParam == VK_RETURN && !isRepeat)
 		{
-			Console::Toggle();
+			if(isUp)
+				Console::ExecuteCommand();
 			return 1;
 		}
-		if(Console::IsVisible())
+		else if(wParam == VK_BACK)
 		{
-			if(wParam == VK_RETURN)
+			Console::RemoveLastKey();
+			return 1;
+		}
+		else if(isDown)
+		{
+			BYTE layout[256];
+			GetKeyboardState(layout);
+			WORD out[2];
+			if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
 			{
-				if(transitionState)
-					Console::ExecuteCommand();
+				for(int i = 0; i < repeatCount; i++)
+					Console::AddKey(out[0]);
 				return 1;
-			}
-			else if(wParam == VK_BACK)
-			{
-				if(transitionState)
-					Console::RemoveLastKey();
-				return 1;
-			}
-			else
-			{
-				BYTE layout[256];
-				GetKeyboardState(layout);
-				WORD out[2];
-				if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
-				{
-					if(transitionState)
-						Console::AddKey(out[0]);
-					return 1;
-				}
 			}
 		}
-		if(!(chatBoxOpen || escMenuOpen))
-			KeyDownUpEvent(wParam, transitionState);
 	}
+	else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
+			KeyDownUpEvent(wParam, transitionState);
 	
 	return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 }

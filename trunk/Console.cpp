@@ -11,6 +11,7 @@ BoxHook* Console::box = NULL;
 TextHook* Console::text = NULL;
 LineHook* Console::cursor = NULL;
 TextHook* Console::lineBuffers[14];
+int Console::lineCount = 14;
 
 void Console::Initialize(void)
 {
@@ -30,7 +31,7 @@ void Console::Initialize(void)
 	// the cursor's height is basically hand-crafted, if you change
 	// the font, make sure to double check the char height
 	cursor = new LineHook(NULL, cx, height-charheight, cx, height-2, 0xff);
-	for(int i = 0; i < 14; i++)
+	for(int i = 0; i < lineCount; i++)
 	{
 		lineBuffers[i] = new TextHook(NULL, "", 2+charheight, 2+charheight+(i*charheight), 0, 0);
 		lineBuffers[i]->SetIsVisible(false);
@@ -103,7 +104,7 @@ void Console::Draw(void)
 			box->SetXSize(width);
 		}
 		std::vector<std::string>::reverse_iterator it = lines.rbegin();
-		for(int i = 13; i >= 0 && it != lines.rend(); i--, it++)
+		for(int i = lineCount-1; i >= 0 && it != lines.rend(); i--, it++)
 			lineBuffers[i]->SetText(it->c_str());
 	}
 

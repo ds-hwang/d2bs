@@ -186,10 +186,8 @@ Script::~Script(void)
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
 	JS_SetContextThread(context);
-	if(Vars.bDisableCache)
-		JS_DestroyContext(context);
-	else
-		JS_DestroyContextNoGC(context);
+	JS_BeginRequest(context);
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
