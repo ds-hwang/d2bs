@@ -285,7 +285,8 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-	if((code != HC_ACTION))
+	//if((code != HC_ACTION)) // changed to reflect code found on MSDN -- TechnoHunter
+	if(code < 0)
 		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 
 	if(Vars.bBlockKeys)
@@ -364,7 +365,8 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
-	if((code != HC_ACTION))
+	//if((code != HC_ACTION)) // changed to reflect code found on MSDN -- TechnoHunter
+	if((code < 0))
 		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
 
 	if(Vars.bBlockMouse)
