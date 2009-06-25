@@ -7,7 +7,7 @@
 bool Console::visible = false;
 bool Console::enabled = false;
 bool Console::initialized = false;
-std::vector<std::string> Console::lines = std::vector<std::string>();
+std::deque<std::string> Console::lines = std::deque<std::string>();
 BoxHook* Console::box = NULL;
 TextHook* Console::prompt = NULL;
 TextHook* Console::text = NULL;
@@ -101,7 +101,7 @@ void Console::AddLine(std::string line)
 {
 	EnterCriticalSection(&lock);
 	lines.push_back(line);
-	std::vector<std::string>::reverse_iterator it = lines.rbegin();
+	std::deque<std::string>::reverse_iterator it = lines.rbegin();
 	for(int i = lineCount-1; i >= 0 && it != lines.rend(); i--, it++)
 		lineBuffers[i]->SetText(it->c_str());
 	LeaveCriticalSection(&lock);
@@ -183,14 +183,10 @@ void Console::Draw(void)
 		// TODO: This is slow, replace with a better solution later
 		// TEMPORARY HACK: clear the old lines out every 2 minutes
 		EnterCriticalSection(&lock);
-		if(lines.size() > lineCount && count % 3600)
+		if(lines.size() > lineCount && (count % 3600 == 0))
 		{
-			std::vector<std::string> tmp;
-			for(unsigned int i = 0; i < lineCount; i++)
-				tmp.push_back(lines[i]);
-			lines.clear();
-			for(unsigned int i = 0; i < lineCount; i++)
-				lines.push_back(tmp[i]);
+			while(lines.size() > lineCount)
+				lines.pop_front();
 		}
 		LeaveCriticalSection(&lock);
 	}

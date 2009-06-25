@@ -4,7 +4,7 @@
 
 #include "Screenhook.h"
 #include "D2BS.h"
-#include <vector>
+#include <deque>
 #include <string>
 #include <windows.h>
 
@@ -12,7 +12,7 @@ class Console
 {
 private:
 	static bool visible, enabled, initialized;
-	static std::vector<std::string> lines;
+	static std::deque<std::string> lines;
 	static BoxHook* box;
 	static TextHook* prompt;
 	static TextHook* text;
