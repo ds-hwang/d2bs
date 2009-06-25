@@ -26,11 +26,14 @@ public:
 	static void Destroy(void);
 	static bool IsReady(void) { return initialized; }
 
-	static void Toggle(void) { if(IsEnabled()) Hide(); else Show(); }
-	static void ToggleBuffer(void) { if(IsVisible()) HideBuffer(); else ShowBuffer(); }
+	static void Toggle(void);
+	static void TogglePrompt(void);
+	static void ToggleBuffer(void);
 	static void Hide(void);
+	static void HidePrompt(void);
 	static void HideBuffer(void);
 	static void Show(void);
+	static void ShowPrompt(void);
 	static void ShowBuffer(void);
 	static bool IsVisible(void) { return visible; }
 	static bool IsEnabled(void) { return enabled; }

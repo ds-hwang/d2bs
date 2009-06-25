@@ -312,13 +312,15 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 	{
 		if(!altState && isUp)
+		{
 			Console::ToggleBuffer();
+		}
 		return 1;
 	}
 	else if(wParam == VK_OEM_3 && !(chatBoxOpen || escMenuOpen))
 	{
 		if(altState && isUp)
-			Console::Toggle();
+			Console::TogglePrompt();
 		return 1;
 	}
 	else if(Console::IsEnabled())
@@ -330,11 +332,11 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 			case VK_TAB:
 				if(isUp)
 					for(int i = 0; i < 5; i++)
-						Console::AddKey((unsigned int)" ");
+						Console::AddKey(' ');
 				break;
 			case VK_ESCAPE:
 				if(isUp && !isRepeat)
-					Console::Toggle();
+					Console::Hide();
 				break;
 			case VK_RETURN:
 				if(isUp && !isRepeat && !escMenuOpen)

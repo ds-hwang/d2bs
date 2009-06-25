@@ -100,20 +100,58 @@ void Console::RemoveLastKey(void)
 void Console::AddLine(std::string line)
 {
 	EnterCriticalSection(&lock);
+
+	// add the new line to the list
 	lines.push_back(line);
+
+	// update all of the screenhooks to use the new lines
 	std::deque<std::string>::reverse_iterator it = lines.rbegin();
 	for(int i = lineCount-1; i >= 0 && it != lines.rend(); i--, it++)
 		lineBuffers[i]->SetText(it->c_str());
+
+	// clear out old lines
+	while(lines.size() > lineCount)
+		lines.pop_front();
+
 	LeaveCriticalSection(&lock);
 }
 
 void Console::Clear(void) { lines.clear(); }
 
+void Console::Toggle(void)
+{
+	ToggleBuffer();
+	TogglePrompt();
+}
+
+void Console::TogglePrompt(void)
+{
+	if(!IsEnabled())
+		ShowPrompt();
+	else
+		HidePrompt();
+}
+
+void Console::ToggleBuffer(void)
+{
+	if(!IsVisible())
+		ShowBuffer();
+	else
+		HideBuffer();
+}
+
 void Console::Hide(void)
 {
 	EnterCriticalSection(&lock);
-	enabled = false;
+	HidePrompt();
 	HideBuffer();
+	LeaveCriticalSection(&lock);
+}
+
+void Console::HidePrompt(void)
+{
+	EnterCriticalSection(&lock);
+	enabled = false;
 	prompt->SetIsVisible(false);
 	cursor->SetIsVisible(false);
 	LeaveCriticalSection(&lock);
@@ -123,6 +161,8 @@ void Console::HideBuffer(void)
 {
 	EnterCriticalSection(&lock);
 	visible = false;
+	if(IsEnabled())
+		HidePrompt();
 	box->SetIsVisible(false);
 	text->SetIsVisible(false);
 	for(unsigned int i = 0; i < lineCount; i++)
@@ -136,8 +176,17 @@ void Console::HideBuffer(void)
 void Console::Show(void)
 {
 	EnterCriticalSection(&lock);
-	enabled = true;
 	ShowBuffer();
+	ShowPrompt();
+	LeaveCriticalSection(&lock);
+}
+
+void Console::ShowPrompt(void)
+{
+	EnterCriticalSection(&lock);
+	enabled = true;
+	if(!IsVisible())
+		ShowBuffer();
 	prompt->SetIsVisible(true);
 	cursor->SetIsVisible(true);
 	LeaveCriticalSection(&lock);
@@ -179,16 +228,6 @@ void Console::Draw(void)
 			// screen resolution reset, time to adjust all coordinates as necessary
 			box->SetXSize(width);
 		}
-		// clear old lines as necessary
-		// TODO: This is slow, replace with a better solution later
-		// TEMPORARY HACK: clear the old lines out every 2 minutes
-		EnterCriticalSection(&lock);
-		if(lines.size() > lineCount && (count % 3600 == 0))
-		{
-			while(lines.size() > lineCount)
-				lines.pop_front();
-		}
-		LeaveCriticalSection(&lock);
 	}
 
 	count++;
