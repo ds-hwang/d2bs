@@ -343,7 +343,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 					Console::ExecuteCommand();
 				break;
 			case VK_BACK:
-				if(isUp)
+				if(isDown)
 					Console::RemoveLastKey();
 				break;
 			default:
