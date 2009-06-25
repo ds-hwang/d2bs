@@ -179,19 +179,20 @@ void Console::Draw(void)
 			// screen resolution reset, time to adjust all coordinates as necessary
 			box->SetXSize(width);
 		}
-	}
-
-	// clear old lines as necessary
-	// TODO: This is slow, replace with a better solution later
-	// TEMPORARY HACK: clear the old lines out every 2 minutes
-	if(lines.size() > lineCount && count % 3600)
-	{
-		std::vector<std::string> tmp;
-		for(unsigned int i = 0; i < lineCount; i++)
-			tmp.push_back(lines[i]);
-		lines.clear();
-		for(unsigned int i = 0; i < lineCount; i++)
-			lines.push_back(tmp[i]);
+		// clear old lines as necessary
+		// TODO: This is slow, replace with a better solution later
+		// TEMPORARY HACK: clear the old lines out every 2 minutes
+		EnterCriticalSection(&lock);
+		if(lines.size() > lineCount && count % 3600)
+		{
+			std::vector<std::string> tmp;
+			for(unsigned int i = 0; i < lineCount; i++)
+				tmp.push_back(lines[i]);
+			lines.clear();
+			for(unsigned int i = 0; i < lineCount; i++)
+				lines.push_back(tmp[i]);
+		}
+		LeaveCriticalSection(&lock);
 	}
 
 	count++;

@@ -83,6 +83,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript)
 				{
+					Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
 					Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
