@@ -1,0 +1,101 @@
+#ifndef SQLITE_H
+#define SQLITE_H
+
+#include "js32.h"
+#include "sqlite3.h"
+
+JSAPI_FUNC(my_sqlite_version);
+
+JSAPI_FUNC(sqlite_ctor);
+JSAPI_FUNC(sqlite_execute);
+JSAPI_FUNC(sqlite_query);
+JSAPI_FUNC(sqlite_close);
+JSAPI_FUNC(sqlite_open);
+JSAPI_PROP(sqlite_getProperty);
+void sqlite_finalize(JSContext *cx, JSObject *obj);
+JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
+
+JSAPI_FUNC(sqlite_stmt_getobject);
+JSAPI_FUNC(sqlite_stmt_colcount);
+JSAPI_FUNC(sqlite_stmt_colval);
+JSAPI_FUNC(sqlite_stmt_colname);
+JSAPI_FUNC(sqlite_stmt_execute);
+JSAPI_FUNC(sqlite_stmt_next);
+JSAPI_FUNC(sqlite_stmt_reset);
+JSAPI_FUNC(sqlite_stmt_skip);
+JSAPI_FUNC(sqlite_stmt_close);
+JSAPI_FUNC(sqlite_stmt_bind);
+JSAPI_PROP(sqlite_stmt_getProperty);
+void sqlite_stmt_finalize(JSContext *cx, JSObject *obj);
+
+enum {
+	SQLITE_PATH,
+	SQLITE_STMTS,
+	SQLITE_OPEN,
+	SQLITE_LASTROWID,
+};
+
+enum {
+	SQLITE_STMT_SQL,
+	SQLITE_STMT_READY
+};
+
+static JSClass sqlite_db = {
+	"SQLite",
+	JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
+	JS_PropertyStub, JS_PropertyStub, sqlite_getProperty, JS_PropertyStub,
+	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_finalize,
+	NULL, NULL, NULL, sqlite_ctor, NULL, NULL, NULL, NULL
+};
+
+static JSExtendedClass sqlite_db_ex = {
+	sqlite_db,
+	sqlite_equal,
+	NULL, NULL, NULL, NULL
+};
+
+static JSFunctionSpec sqlite_methods[] = {
+	{"execute",	sqlite_execute,	1},
+	{"query",	sqlite_query,	1},
+	{"open",	sqlite_open,	0},
+	{"close",	sqlite_close,	0},
+	{0}
+};
+
+static JSPropertySpec sqlite_props[] = {
+	{"path",		SQLITE_PATH,	JSPROP_PERMANENT_VAR},
+	{"statements",	SQLITE_STMTS,	JSPROP_PERMANENT_VAR},
+	{"isOpen",		SQLITE_OPEN,	JSPROP_PERMANENT_VAR},
+	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR},
+	{0}
+};
+
+static JSClass sqlite_stmt = {
+	"DBStatement",
+	JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub, JS_PropertyStub, sqlite_stmt_getProperty, JS_PropertyStub,
+	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_stmt_finalize,
+	JSCLASS_NO_OPTIONAL_MEMBERS
+};
+
+static JSFunctionSpec sqlite_stmt_methods[] = {
+	{"getObject",		sqlite_stmt_getobject,	0},
+	{"getColumnCount",	sqlite_stmt_colcount,	0},
+	{"getColumnValue",	sqlite_stmt_colval,		1},
+	{"getColumnName",	sqlite_stmt_colname,	1},
+	{"go",				sqlite_stmt_execute,	0},
+	{"next",			sqlite_stmt_next,		0},
+	{"skip",			sqlite_stmt_skip,		1},
+	{"reset",			sqlite_stmt_reset,		0},
+	{"close",			sqlite_stmt_close,		0},
+	{"bind",			sqlite_stmt_bind,		2},
+	{0}
+};
+
+static JSPropertySpec sqlite_stmt_props[] = {
+	{"sql",		SQLITE_STMT_SQL,	JSPROP_PERMANENT_VAR},
+	{"ready",	SQLITE_STMT_READY,	JSPROP_PERMANENT_VAR},
+	{0}
+};
+
+#endif SQLITE_H
