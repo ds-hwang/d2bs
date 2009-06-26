@@ -296,7 +296,6 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	if(wParam == 0xFF)
 		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 
-	// ignore key events if the key is a repeat
 	WORD repeatCount = LOWORD(lParam);
 	bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
 	bool previousState = !!(HIWORD(lParam) & KF_REPEAT);
@@ -323,14 +322,14 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 			Console::TogglePrompt();
 		return 1;
 	}
-	else if(Console::IsEnabled())
+	else if(Console::IsVisible())
 	{
 		BYTE layout[256];
 		WORD out[2];
 		switch(wParam)
 		{
 			case VK_TAB:
-				if(isUp)
+				if(isUp && Console::IsEnabled())
 					for(int i = 0; i < 5; i++)
 						Console::AddKey(' ');
 				break;
@@ -339,15 +338,15 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 					Console::Hide();
 				break;
 			case VK_RETURN:
-				if(isUp && !isRepeat && !escMenuOpen)
+				if(isUp && !isRepeat && !escMenuOpen && Console::IsEnabled())
 					Console::ExecuteCommand();
 				break;
 			case VK_BACK:
-				if(isDown)
+				if(isDown && Console::IsEnabled())
 					Console::RemoveLastKey();
 				break;
 			default:
-				if(isDown)
+				if(isDown && Console::IsEnabled())
 				{
 					GetKeyboardState(layout);
 					if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
@@ -361,7 +360,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		return 1;
 	}
 	else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
-			KeyDownUpEvent(wParam, transitionState);
+		KeyDownUpEvent(wParam, transitionState);
 	
 	return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 }
