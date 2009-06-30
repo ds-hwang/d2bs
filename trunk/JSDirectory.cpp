@@ -39,6 +39,7 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 
 	char path[_MAX_PATH];
+//Oh here there
 	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 
 	if(!isValidPath(name))
@@ -48,6 +49,7 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	if((_mkdir(path) == -1) && (errno == ENOENT))
 	{
+//Oh here there
 		JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
 		return JS_TRUE;
 	}
@@ -55,6 +57,7 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &directory_class, dir_methods, dir_props, d);
+//Oh here there
 		JS_SetContextThread(cx);
 		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
@@ -75,9 +78,12 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	CDebug cDbg("dir getFiles");
 
 	if(argc > 1) return JS_TRUE;
+//Oh here there
 	if(argc < 1) argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
+//Oh here there
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 	long hFile;
@@ -92,17 +98,22 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	else
 	{
 		jsint element=0;
+//Oh here there
 		JSObject *jsarray = JS_NewArrayObject(cx, 0, NULL);
 		jsval file;
 		if(!(found.attrib & _A_SUBDIR))
 		{
+//Oh here there
 			file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+//Oh here there
 			JS_SetElement(cx, jsarray, element++, &file);
 		}
 		while(_findnext(hFile, &found) == 0)
 		{
 			if((found.attrib & _A_SUBDIR)) continue;
+//Oh here there
 			file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+//Oh here there
 			JS_SetElement(cx, jsarray, element++, &file);
 		}
 		*rval=OBJECT_TO_JSVAL(jsarray);
@@ -116,9 +127,12 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	CDebug cDbg("dir getDirectories");
 
 	if(argc > 1) return JS_TRUE;
+//Oh here there
 	if(argc < 1) argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
+//Oh here there
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 	long hFile;
@@ -133,17 +147,22 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	else
 	{
 		jsint element=0;
+//Oh here there
 		JSObject *jsarray = JS_NewArrayObject(cx, 0, NULL);
 		jsval file;
 		if(!strcmp(found.name, ".") && !strcmp(found.name, "..") && (found.attrib & _A_SUBDIR))
 		{
+//Oh here there
 			file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+//Oh here there
 			JS_SetElement(cx, jsarray, element++, &file);
 		}
 		while(_findnext(hFile, &found) == 0)
 		{
 			if(!strcmp(found.name, "..") || !strcmp(found.name, ".") || !(found.attrib & _A_SUBDIR)) continue;
+//Oh here there
 			file = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, found.name));
+//Oh here there
 			JS_SetElement(cx, jsarray, element++, &file);
 		}
 		*rval=OBJECT_TO_JSVAL(jsarray);
@@ -156,8 +175,10 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 {
 	CDebug cDbg("dir create");
 
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char path[_MAX_PATH];
+//Oh here there
 	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 
 	if(!isValidPath(name))
@@ -166,12 +187,14 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	sprintf(path, "%s\\%s\\%s", Vars.szScriptPath, d->name, name);
 	if(_mkdir(path) == -1 && (errno == ENOENT))
 	{
+//Oh here there
 		JS_ReportError(cx, "Couldn't create directory %s, path %s not found", JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), path);
 	}
 	else
 	{
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &directory_class, dir_methods, dir_props, d);
+//Oh here there
 		JS_SetContextThread(cx);
 		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
@@ -182,6 +205,7 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 {
 	CDebug cDbg("dir delete");
 
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
 	char path[_MAX_PATH];
@@ -191,8 +215,10 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		// TODO: Make an optional param that specifies recursive delete
 		if(errno == ENOTEMPTY)
+//Oh here there
 			JS_ReportError(cx, "Tried to delete %s directory, but it is not empty or is the current working directory", path);
 		if(errno == ENOENT)
+//Oh here there
 			JS_ReportError(cx, "Path %s not found", path);
 	}
 	else
@@ -207,12 +233,14 @@ JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("dir getProperty");
 
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
 	if(JSVAL_IS_INT(id))
 		switch(JSVAL_TO_INT(id))
 		{
 			case DIR_NAME:
+//Oh here there
 				*vp=STRING_TO_JSVAL(STRING_TO_JSVAL(JS_InternString(cx, d->name)));
 				break;
 		}
@@ -221,6 +249,7 @@ JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 void dir_finalize(JSContext *cx, JSObject *obj)
 {
+//Oh here there
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	if(d) delete d;
 }

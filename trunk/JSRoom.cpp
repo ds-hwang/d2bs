@@ -13,6 +13,7 @@ JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("room getProperty");
 
+//Oh here there
 	Room2 *pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if (!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
@@ -61,6 +62,7 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 {
 	CDebug cDbg("room getNext");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
@@ -73,11 +75,14 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(!pRoom2)
 	{
+//Oh here there
 		JS_ClearScope(cx, obj);
+//Oh here there
 		JS_ValueToObject(cx, JSVAL_NULL, &obj);
 		*rval = BOOLEAN_TO_JSVAL(FALSE);
 	}
 	else {
+//Oh here there
 		JS_SetPrivate(cx, obj, pRoom2);
 		*rval = BOOLEAN_TO_JSVAL(TRUE);
 	}
@@ -89,6 +94,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 {
 	CDebug cDbg("room getPresetUnits");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
@@ -104,6 +110,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 
 	bool bAdded = FALSE;
 	DWORD dwArrayCount = NULL;
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	CriticalRoom cRoom;
@@ -120,6 +127,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 	{
 		if((pUnit->dwType == nType || nType == NULL) && (pUnit->dwTxtFileNo == nClass || nClass == NULL))
 		{
+//Oh here there
 			JSObject* jsUnit = JS_NewObject(cx, &presetunit_class, NULL, NULL);
 			
 			if(!jsUnit)
@@ -128,6 +136,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 				return JS_TRUE;
 			}
 
+//Oh here there
 			if(!JS_DefineProperties(cx, jsUnit, presetunit_props))
 			{
 				*rval = BOOLEAN_TO_JSVAL(FALSE);
@@ -143,9 +152,11 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 			mypUnit->dwType = pUnit->dwType;
 			mypUnit->dwId = pUnit->dwTxtFileNo;
 
+//Oh here there
 			JS_SetPrivate(cx, jsUnit, mypUnit);
 
 			jsval a = OBJECT_TO_JSVAL(jsUnit);
+//Oh here there
 			JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
 
 			dwArrayCount++;				
@@ -164,11 +175,13 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 {
 	CDebug cDbg("room getCollision");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
+//Oh here there
 	JSObject* jsobjy = JS_NewArrayObject(cx, NULL, NULL);
 
 	if(!jsobjy)
@@ -210,6 +223,7 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 
 	for (int j = y; j < nLimitY; j++)		
 	{
+//Oh here there
 		JSObject* jsobjx = JS_NewArrayObject(cx, NULL, NULL);
 		
 		INT nCurrentArrayX = NULL;
@@ -218,6 +232,7 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 		{
 			jsval nNode = INT_TO_JSVAL(*p);
 
+//Oh here there
 			if(!JS_SetElement(cx, jsobjx, nCurrentArrayX, &nNode))
 			{
 				if(bAdded)
@@ -233,6 +248,7 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 
 		jsval jsu = OBJECT_TO_JSVAL(jsobjx);
 
+//Oh here there
 		if(!JS_SetElement(cx, jsobjy, nCurrentArrayY, &jsu))
 		{
 			if(bAdded)
@@ -257,11 +273,13 @@ JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 {
 	CDebug cDbg("room getNearby");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
+//Oh here there
 	JSObject* jsobj = JS_NewArrayObject(cx, NULL, NULL);
 
 	if(!jsobj)
@@ -272,21 +290,26 @@ JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	for(UINT i = 0; i < pRoom2->dwRoomsNear; i++)
 	{
 
+//Oh here there
 		JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
 
 		if(!jsroom)
 			return JS_TRUE;
 
+//Oh here there
 		if(!JS_DefineProperties(cx, jsroom, room_props))
 			return JS_TRUE;
 
+//Oh here there
 		if(!JS_DefineFunctions(cx, jsroom, room_methods))
 			return JS_TRUE;
 
+//Oh here there
 		JS_SetPrivate(cx, jsroom, pRoom2->pRoom2Near[i]);
 		
 		jsval jsu = OBJECT_TO_JSVAL(jsroom);
 
+//Oh here there
 		if(!JS_SetElement(cx, jsobj, dwArrayCount, &jsu))
 			return JS_TRUE;
 
@@ -303,6 +326,7 @@ JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 {
 	CDebug cDbg("room getStat");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
@@ -409,23 +433,28 @@ JSBool room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 {
 	CDebug cDbg("room getFirst");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || !pRoom2->pLevel || !pRoom2->pLevel->pRoom2First )
 		return JS_TRUE;
 
 
+//Oh here there
 		JSObject* jsroom = JS_NewObject(cx, &room_class, NULL, NULL);
 
 		if(!jsroom)
 			return JS_TRUE;
 
+//Oh here there
 		if(!JS_DefineProperties(cx, jsroom, room_props))
 			return JS_TRUE;
 
+//Oh here there
 		if(!JS_DefineFunctions(cx, jsroom, room_methods))
 			return JS_TRUE;
 
+//Oh here there
 		JS_SetPrivate(cx, jsroom, pRoom2->pLevel->pRoom2First);
 		
 		*rval = OBJECT_TO_JSVAL(jsroom);
@@ -437,11 +466,13 @@ JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("room unitInRoom");
 
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
 	if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -464,6 +495,7 @@ JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+//Oh here there
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))

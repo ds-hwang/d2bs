@@ -10,10 +10,12 @@ void control_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("control finalize");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(pData)
 	{
+//Oh here there
 		JS_SetPrivate(cx, obj, NULL);
 		delete pData;
 	}
@@ -22,6 +24,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("control getProperty");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -40,6 +43,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(pControl->dwIsCloaked == 33)
 				break;
 			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText));
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			break;
 		case CONTROL_X:
@@ -88,6 +92,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 JSAPI_PROP(control_setProperty) {
 	CDebug cDbg("control setProperty");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -104,6 +109,7 @@ JSAPI_PROP(control_setProperty) {
 			if (!(pControl->dwType == 1))
 				return JS_TRUE;
 			if(JSVAL_IS_STRING(*vp)) {
+//Oh here there
 				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				wchar_t* szwText = AnsiToUnicode(pText);
 				D2WIN_SetControlText(pControl, szwText);
@@ -137,6 +143,7 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("control getNext");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -161,12 +168,15 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		pData->dwY = pData->pControl->dwPosY;
 		pData->dwSizeX = pData->pControl->dwSizeX;
 		pData->dwSizeY = pData->pControl->dwSizeY;
+//Oh here there
 		JS_SetPrivate(cx, obj, pData);
 		*rval = OBJECT_TO_JSVAL(obj);
 	}
 	else
 	{
+//Oh here there
 		JS_ClearScope(cx, obj);
+//Oh here there
 		JS_ValueToObject(cx, JSVAL_NULL, &obj);
 		*rval = INT_TO_JSVAL(0);
 	}
@@ -178,6 +188,7 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 {
 	CDebug cDbg("Control click");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -207,6 +218,7 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("Control setText");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -222,6 +234,7 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(argc < 0 || !JSVAL_IS_STRING(argv[0]))
 		return JS_TRUE;
 
+//Oh here there
 	char* pText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	wchar_t* szwText = AnsiToUnicode(pText);
 
@@ -235,6 +248,7 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("Control getText");
 
+//Oh here there
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
@@ -250,6 +264,7 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(pControl->dwType != 4 || !pControl->pFirstText)
 		return JS_TRUE;
 
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	INT nArrayCount = 0;
 
@@ -260,8 +275,10 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 		char* tmp = UnicodeToAnsi(pText->wText);
 
+//Oh here there
 		jsval aString = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
 		delete[] tmp;
+//Oh here there
 		JS_SetElement(cx, pReturnArray, nArrayCount, &aString); 
 
 		nArrayCount++;				
@@ -300,8 +317,10 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!pControl)
 		return JS_TRUE;
 
+//Oh here there
 	JSObject* control = JS_NewObject(cx, &control_class, NULL, NULL);
 
+//Oh here there
 	if(!control || !JS_DefineFunctions(cx, control, control_funcs) || !JS_DefineProperties(cx, control, control_props))
 		return JS_TRUE;
 	
@@ -311,6 +330,7 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	data->dwY = nY;
 	data->dwSizeX = nXSize;
 	data->dwSizeY = nYSize;
+//Oh here there
 	JS_SetPrivate(cx, control, data);
 
 	*rval = OBJECT_TO_JSVAL(control);

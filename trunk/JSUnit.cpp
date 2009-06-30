@@ -13,10 +13,12 @@
 VOID unit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("unit finalize");
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(lpUnit)
 	{
+//Oh here there
 		JS_SetPrivate(cx, obj, NULL);
 		delete lpUnit;
 	}
@@ -34,11 +36,13 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_ACCOUNT:
 			if(!pData)
 				return JS_TRUE;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szAccountName));
 			break;
 		case ME_CHARNAME:
 			if(!pInfo)
 				return JS_TRUE;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szCharName));
 			break;
 		case ME_CHICKENHP:
@@ -53,16 +57,19 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_GAMENAME:
 			if(!pInfo)
 				return JS_TRUE;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGameName));
 			break;
 		case ME_GAMEPASSWORD:
 			if(!pInfo)
 				return JS_TRUE;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGamePassword));
 			break;
 		case ME_GAMESERVERIP:
 			if(!pInfo)
 				return JS_TRUE;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGameServerIp));
 			break;
 		case ME_GAMESTARTTIME:
@@ -82,9 +89,11 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnHostile);
 			break;
 		case ME_REALM:
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szRealmName));
 			break;
 		case ME_REALMSHORT:
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pData->szRealmName2));
 			break;
 		case OOG_SCREENSIZE:
@@ -93,6 +102,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case OOG_WINDOWTITLE:
 			CHAR szTitle[128];
 			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
 			break;
 		case ME_PING:
@@ -131,6 +141,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -158,6 +169,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case UNIT_NAME:
 			tmp = new char[8192];
 			GetUnitName(pUnit, tmp);
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			delete[] tmp;
 			break;
@@ -236,23 +248,27 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			ItemTxt* pTxt;
 			pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
 			if(!pTxt) {
+//Oh here there
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, "Unknown"));
 				return JS_TRUE;
 			}
 			CHAR szCode[4];
 			memcpy(szCode, pTxt->szCode, 3);
 			szCode[3] = 0x00;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, szCode));
 			break;
 		case ITEM_PREFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix))
+//Oh here there
 					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix)));
 			break;
 			
 		case ITEM_SUFFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix))
+//Oh here there
 					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix)));
 			break;
 		case ITEM_PREFIXNUM:
@@ -270,6 +286,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
+//Oh here there
 					*vp = STRING_TO_JSVAL(STRING_TO_JSVAL(JS_InternString(cx, tmp)));
 					delete[] tmp;
 				}
@@ -316,6 +333,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			memset(wBuffer, NULL, sizeof(wBuffer));
 			D2CLIENT_GetItemDesc(pUnit, wBuffer);
 			tmp = UnicodeToAnsi(wBuffer);
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			delete[] tmp;
 			break;
@@ -427,6 +445,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	else return JS_TRUE;
 
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
+//Oh here there
 		strcpy(szName, JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
@@ -467,6 +486,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	strcpy(pmyUnit->szName, szName);
 
 	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+//Oh here there
 	JS_SetContextThread(cx);
 
 	if(!jsunit)
@@ -481,6 +501,7 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 {
 	CDebug cDbg("unit getNext");
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -492,6 +513,7 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
+//Oh here there
 		strcpy(lpUnit->szName, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
@@ -504,12 +526,15 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	if(!pUnit)
 	{
+//Oh here there
 		JS_ClearScope(cx, obj);
+//Oh here there
 		JS_ValueToObject(cx, JSVAL_NULL, &obj);
 		*rval = INT_TO_JSVAL(0);
 	}
 	else {
 		lpUnit->dwUnitId = pUnit->dwUnitId;
+//Oh here there
 		JS_SetPrivate(cx, obj, lpUnit);
 		*rval = INT_TO_JSVAL(1);
 	}
@@ -547,6 +572,7 @@ INT unit_repair(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	CDebug cDbg("unit repair");
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
 
@@ -575,6 +601,7 @@ INT unit_useMenu(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 {
 	CDebug cDbg("unit useMenu");
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
 
@@ -601,6 +628,7 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
@@ -669,6 +697,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
@@ -695,6 +724,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	{
 		CHAR szExp[32] = "";
 		sprintf(szExp, "%u", D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
+//Oh here there
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szExp));
 	}
 	else if(nStat == 92)
@@ -710,12 +740,14 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		{
 			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
 			
+//Oh here there
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 			if(pReturnArray)
 			{
 				for(UINT i = 0; i < dwStats; i++)
 				{
+//Oh here there
 					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 
 					if(!pArrayInsert)
@@ -725,12 +757,16 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 					jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
 					jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
 
+//Oh here there
 					JS_SetElement(cx, pArrayInsert, 0, &nIndex);
+//Oh here there
 					JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
+//Oh here there
 					JS_SetElement(cx, pArrayInsert, 2, &nValue);	
 
 					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
+//Oh here there
 					JS_SetElement(cx, pReturnArray, i, &aObj);
 				}
 
@@ -752,6 +788,7 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	*rval = BOOLEAN_TO_JSVAL(FALSE);
@@ -766,6 +803,7 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	jsint nState;
 
+//Oh here there
 	JS_ValueToInt32(cx, argv[0], &nState);
 
 	// TODO: make these constants so we know what we're checking here
@@ -784,6 +822,7 @@ INT item_getFlags(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -809,6 +848,7 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -838,6 +878,7 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	INT buysell = 0;
 	INT NPCID = 148;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -852,6 +893,7 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		if(JSVAL_IS_OBJECT(argv[0]))
 		{
+//Oh here there
 			myUnit* pmyNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 			
 			if(!pmyNpc || IsBadReadPtr(pmyNpc, sizeof(myUnit)) || pmyNpc->_dwPrivateType != PRIVATE_UNIT)
@@ -886,6 +928,7 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -897,6 +940,7 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 
 	
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, NULL, NULL);
 	
 	if(!pReturnArray)
@@ -923,6 +967,7 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		if (!jsunit)
 			return JS_TRUE;
 		jsval a = OBJECT_TO_JSVAL(jsunit);
+//Oh here there
 		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
 		dwArrayCount++;		
 	}
@@ -966,17 +1011,21 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		WORD wRightSkillId = D2CLIENT_GetPlayerUnit()->pInfo->pRightSkill->pSkillInfo->wSkillId;
 		switch(nSkillId)
 		{
+//Oh here there
 			case 0: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wRightSkillId].name)); break;
+//Oh here there
 			case 1: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wLeftSkillId].name)); break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
 			case 4: {
+//Oh here there
 				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 				if(pReturnArray)
 				{
 					int i = 0;
 					for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+//Oh here there
 						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 
 						if(!pArrayInsert)
@@ -986,12 +1035,16 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
 						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, 1));
 
+//Oh here there
 						JS_SetElement(cx, pArrayInsert, 0, &nId);
+//Oh here there
 						JS_SetElement(cx, pArrayInsert, 1, &nBase);
+//Oh here there
 						JS_SetElement(cx, pArrayInsert, 2, &nTotal);
 
 						jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
+//Oh here there
 						JS_SetElement(cx, pReturnArray, i, &aObj);
 						i++;
 					}
@@ -1032,6 +1085,7 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpItem || IsBadReadPtr(lpItem, sizeof(myUnit)) || lpItem->_dwPrivateType != PRIVATE_UNIT)
@@ -1087,6 +1141,7 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1132,6 +1187,7 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 			CHAR szBuffer[128] = "";
 			strcpy(szBuffer, pUnit->pObjectData->szOwner);
 
+//Oh here there
 			*rval = STRING_TO_JSVAL(JS_InternString(cx, szBuffer));
 		}
 	} else if(pUnit->dwType == UNIT_ITEM) {
@@ -1167,6 +1223,7 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1266,6 +1323,7 @@ INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 
 	if(JSVAL_IS_STRING(argv[0]))
+//Oh here there
 		nSkillId = GetSkillByName(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 	else if(JSVAL_IS_INT(argv[0]))
 		nSkillId = (WORD)JSVAL_TO_INT(argv[0]);
@@ -1290,6 +1348,7 @@ INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1302,6 +1361,7 @@ INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(!JSVAL_IS_NULL(argv[0]) && !JSVAL_IS_VOID(argv[0]))
 	{
+//Oh here there
 		CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(lpszText && lpszText[0])
 		{
@@ -1325,6 +1385,7 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1378,6 +1439,7 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	if(!GameReady())
 		return JS_TRUE;
 
+//Oh here there
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1397,7 +1459,9 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		if (argc < 2) 
 			return JS_TRUE;
 
+//Oh here there
 		JS_ValueToInt32(cx, argv[0], &x);
+//Oh here there
 		JS_ValueToInt32(cx, argv[1], &y);
 	}
 	else {
@@ -1422,6 +1486,7 @@ INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
 
+//Oh here there
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -1476,6 +1541,7 @@ INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, j
 
 	jsint nType = JSVAL_TO_INT(argv[0]);
 
+//Oh here there
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)

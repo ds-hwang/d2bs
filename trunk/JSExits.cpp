@@ -7,6 +7,7 @@ void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("exit finalize");
 
+//Oh here there
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 	if(pExit)
 		delete pExit;
@@ -16,6 +17,7 @@ JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("exit getProperty");
 
+//Oh here there
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
 	*vp = BOOLEAN_TO_JSVAL(FALSE);

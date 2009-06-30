@@ -38,6 +38,7 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
+//Oh here there
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
@@ -53,6 +54,7 @@ INT my_delay(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 	{
+//Oh here there
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 		int nDelay = JSVAL_TO_INT(argv[0]);
 		for(int i = nDelay/50; i > 0; i--)
@@ -74,11 +76,13 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
+//Oh here there
 		Script* execScript = (Script*)JS_GetContextPrivate(cx);
 		ScriptState state = execScript->GetState();
 		if(state == Command)
 			state = (GameReady() ? InGame : OutOfGame);
 
+//Oh here there
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 		if(lpszFileName && strlen(lpszFileName) < _MAX_PATH)
@@ -109,10 +113,12 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
+//Oh here there
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 
 		if(script)
 		{
+//Oh here there
 			CHAR * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
@@ -138,16 +144,19 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	if(argc > 0 && (JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1) ||
 				(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
 	{
+//Oh here there
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 
 		if(script)
 			script->Stop();
 
+//Oh here there
 		return JS_FALSE;
 	}
 	else
 	{
 		ScriptEngine::StopAll();
+//Oh here there
 		return JS_FALSE;
 	}
 
@@ -161,20 +170,26 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(argc >= 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 	{
 		*rval = JSVAL_VOID;
+//Oh here there
 		Private* myPrivate = (Private*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
 		if(myPrivate && myPrivate->dwPrivateType == PRIVATE_UNIT)
 		{
+//Oh here there
 			myUnit* lpOldUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 			myUnit* lpUnit = new myUnit;
 
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
+//Oh here there
 				//JS_SetContextThread(cx);
+//Oh here there
 				//JS_BeginRequest(cx);
 				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+//Oh here there
 				//JS_EndRequest(cx);
+//Oh here there
 				//JS_SetContextThread(cx);
 				if(!jsunit)
 				{
@@ -215,6 +230,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
+//Oh here there
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
 		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || mypUnit->_dwPrivateType != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
@@ -344,10 +360,12 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);
+//Oh here there
 		JS_GetArrayLength(cx, pObject, &dwLength);
 		AreaIds = new DWORD[dwLength];
 		jsval nVal;
 		for (int n = 0; n < (INT)dwLength; n++) {
+//Oh here there
 			JS_GetElement(cx, pObject, n, &nVal);
 			AreaIds[n] = JSVAL_TO_INT(nVal);
 		}
@@ -427,6 +445,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(dwCount > 1)
 		bFix = TRUE;
 	if(dwCount) {
+//Oh here there
 		JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 		for (DWORD i = 0; i < dwCount; i++)
 			g_collisionMap.RelativeToAbs(lpBuffer[i]);
@@ -438,16 +457,20 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 		while(i < dwCount) 
 		{
+//Oh here there
 			JSObject* pArrayInsert = JS_NewArrayObject(cx, NULL, NULL);
 
 			jsval x = INT_TO_JSVAL(lpBuffer[i].x);
 			jsval y = INT_TO_JSVAL(lpBuffer[i].y);
 
+//Oh here there
 			JS_SetElement(cx, pArrayInsert, 0, &x);
+//Oh here there
 			JS_SetElement(cx, pArrayInsert, 1, &y);	
 
 			jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
+//Oh here there
 			JS_SetElement(cx, pReturnArray, dwArray, &aObj);
 			dwArray++;
 			i++;
@@ -529,6 +552,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	if(argc == 1 && JSVAL_IS_OBJECT(argv[0]))
 	{
+//Oh here there
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		
 		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -581,6 +605,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	}
 	else if(argc == 2 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_OBJECT(argv[1]))
 	{
+//Oh here there
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		
 		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -592,6 +617,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
 		{
+//Oh here there
 			JS_ReportError(cx, "Object not an item");
 			return JS_TRUE;
 		}
@@ -837,6 +863,7 @@ INT my_getLocaleString(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 	wchar_t* wString = D2LANG_GetLocaleText((WORD)JSVAL_TO_INT(argv[0]));
 	char* szTmp = UnicodeToAnsi(wString);
+//Oh here there
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTmp));
 	delete[] szTmp;
 	
@@ -859,7 +886,9 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	jsint high;
 	jsint low;
 
+//Oh here there
 	JS_ValueToInt32(cx, argv[0], &low);
+//Oh here there
 	JS_ValueToInt32(cx, argv[1], &high);
 
 	if (high > low+1) {
@@ -885,7 +914,9 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	if(argc == 2 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]))
 	{
+//Oh here there
 		myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+//Oh here there
 		myUnit* pUnit2 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 
 		if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
@@ -910,6 +941,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	{
 		if(JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]))
 		{
+//Oh here there
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
 			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
@@ -927,6 +959,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		}
 		else if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_OBJECT(argv[2]))
 		{
+//Oh here there
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
 			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
@@ -990,7 +1023,9 @@ INT my_checkCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JSVAL_IS_INT(argv[2]))
 	{
+//Oh here there
 		myUnit*	pUnitA = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+//Oh here there
 		myUnit*	pUnitB = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		jsint			nBitMask = JSVAL_TO_INT(argv[2]);
 
@@ -1051,7 +1086,9 @@ INT my_checkCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JSVAL_IS_INT(argv[2]))
 	{
 
+//Oh here there
 		myUnit*	pUnitA = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+//Oh here there
 		myUnit*	pUnitB = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		jsint			nBitMask = JSVAL_TO_INT(argv[2]);
 
@@ -1121,6 +1158,7 @@ INT my_getSkillByName(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		return JS_TRUE;
 
+//Oh here there
 	CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 	for(INT i = 0; i < ArraySize(Game_Skills); i++)
@@ -1146,6 +1184,7 @@ INT my_getSkillById(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(nId < 0 || nId > 280)
 	{
+//Oh here there
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx,"Unknown"));
 		return JS_TRUE;
 	}
@@ -1153,6 +1192,7 @@ INT my_getSkillById(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	for(UINT i = 0; i < ArraySize(Game_Skills); i++)
 		if(Game_Skills[i].skillID == nId)
 		{
+//Oh here there
 			*rval =  STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[i].name));
 			return JS_TRUE;
 		}
@@ -1186,14 +1226,18 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 		return JS_TRUE;
 	}
 
+//Oh here there
 	CHAR* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
 	POINT r = CalculateTextLen(pString, JSVAL_TO_INT(argv[1]));
 	jsval x = INT_TO_JSVAL(r.x);
 	jsval y = INT_TO_JSVAL(r.y);
 
+//Oh here there
 	JSObject* pObj = JS_NewArrayObject(cx, NULL, NULL);
+//Oh here there
 	JS_SetElement(cx, pObj, 0, &x);
+//Oh here there
 	JS_SetElement(cx, pObj, 1, &y);
 
 	*rval = OBJECT_TO_JSVAL(pObj);
@@ -1224,6 +1268,7 @@ INT my_getTradeInfo(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	else if(nMode == 1)
 	{
 		char* tmp = UnicodeToAnsi((wchar_t*)(*p_D2CLIENT_RecentTradeName));
+//Oh here there
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
 		delete[] tmp;
 		
@@ -1288,8 +1333,10 @@ INT my_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 	}
 	
+//Oh here there
 	CHAR* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 
+//Oh here there
 	Script* js = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(js->IsIncluded(szFile));
 
@@ -1343,6 +1390,7 @@ INT my_version(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(argc < 1)
 	{
+//Oh here there
 		*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
 		return JS_TRUE;
 	}
@@ -1359,6 +1407,7 @@ JSAPI_FUNC(my_debugLog)
 	for(uintN i = 0; i < argc; i++)
 	{
 		// TODO: Filter out %'s so they can be written to the log
+//Oh here there
 		char* msg = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 		Log(msg);
 	}
@@ -1375,6 +1424,7 @@ INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	cRoom.EnterSection();
 	cMisc.EnterSection();
 
+//Oh here there
 	JS_YieldRequest(cx);
 
 	return JS_TRUE;
@@ -1394,6 +1444,7 @@ INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
 		if(!JSVAL_IS_NULL(argv[i]) && !JSVAL_IS_VOID(argv[i]))
 		{
+//Oh here there
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			Say(lpszText);
 		}
@@ -1418,12 +1469,16 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	jsint nModeId = NULL;
 
 	if(JSVAL_IS_STRING(argv[0]))
+//Oh here there
 		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(JSVAL_IS_STRING(argv[1]))
+//Oh here there
 		windowName		= JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(JSVAL_IS_INT(argv[2]))
+//Oh here there
 		JS_ValueToInt32(cx, argv[2], &nModeId);
 	if(JSVAL_IS_STRING(argv[3]))
+//Oh here there
 		data			= JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
@@ -1451,16 +1506,21 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;
 
 	jsint mode;
+//Oh here there
 	JS_ValueToInt32(cx, argv[0], &mode);
+//Oh here there
 	char *pszDDEServer = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!strlen(pszDDEServer))
 		pszDDEServer = "\"\"";
+//Oh here there
 	char *pszTopic = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 	if(!strlen(pszTopic))
 		pszTopic = "\"\"";
+//Oh here there
 	char *pszItem = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(!strlen(pszItem))
 		pszItem = "\"\"";
+//Oh here there
 	char *pszData = JS_GetStringBytes(JS_ValueToString(cx, argv[4]));
 	if(!strlen(pszData))
 		pszData = "\"\"";
@@ -1495,6 +1555,7 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
 			DdeGetData(DdeSrvData, (LPBYTE)pszDdeRet, sizeof(pszDdeRet), 0);
 			if(pszDdeRet)
+//Oh here there
 				*rval=STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pszDdeRet));
 			break;
 		case 1:
@@ -1529,7 +1590,9 @@ JSAPI_FUNC(my_addEventListener)
 	CDebug cDbg("addEventListener");
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
+//Oh here there
 		Script* self = (Script*)JS_GetContextPrivate(cx);
+//Oh here there
 		self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
 	}
 	return JS_TRUE;
@@ -1540,7 +1603,9 @@ JSAPI_FUNC(my_removeEventListener)
 	CDebug cDbg("removeEventListener");
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
+//Oh here there
 		Script* self = (Script*)JS_GetContextPrivate(cx);
+//Oh here there
 		self->UnregisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
 	}
 	return JS_TRUE;
@@ -1551,7 +1616,9 @@ JSAPI_FUNC(my_clearEvent)
 	CDebug cDbg("clearEvent");
 	if(JSVAL_IS_STRING(argv[0]))
 	{
+//Oh here there
 		Script* self = (Script*)JS_GetContextPrivate(cx);
+//Oh here there
 		self->ClearEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])));
 	}
 	return JS_TRUE;
@@ -1560,6 +1627,7 @@ JSAPI_FUNC(my_clearEvent)
 JSAPI_FUNC(my_clearAllEvents)
 {
 	CDebug cDbg("clearAllEvents");
+//Oh here there
 	Script* self = (Script*)JS_GetContextPrivate(cx);
 	self->ClearAllEvents();
 	return JS_TRUE;
@@ -1701,6 +1769,7 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(argc < 2 || !JSVAL_IS_OBJECT(argv[0]) || !JSVAL_IS_INT(argv[1]))
 		return JS_TRUE;
 	
+//Oh here there
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 	RosterUnit* mypUnit = *p_D2CLIENT_PlayerUnitList;
 
@@ -1763,15 +1832,19 @@ INT my_getParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!pUnit)
 		return JS_TRUE;
 
+//Oh here there
 	JSObject* jsUnit = JS_NewObject(cx, &party_class, NULL, NULL);
 	if(!jsUnit)
 		return JS_TRUE;
 
+//Oh here there
 	if(!JS_DefineProperties(cx, jsUnit, party_props))
 		return JS_TRUE;
+//Oh here there
 	if(!JS_DefineFunctions(cx, jsUnit, party_methods)) 
 		return JS_TRUE;
 	
+//Oh here there
 	JS_SetPrivate(cx, jsUnit, pUnit);
 
 	*rval = OBJECT_TO_JSVAL(jsUnit);
@@ -1795,6 +1868,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		return JS_TRUE;
 	}
 
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
@@ -1845,9 +1919,11 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 				mypUnit->dwId = pUnit->dwTxtFileNo;
 
 				JSObject* unit = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
+//Oh here there
 				JS_SetContextThread(cx);
 
 				jsval a = OBJECT_TO_JSVAL(unit);
+//Oh here there
 				JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
 
 				dwArrayCount++;
@@ -1934,6 +2010,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				mypUnit->dwId = pUnit->dwTxtFileNo;
 
 				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
+//Oh here there
 				JS_SetContextThread(cx);
 				if(!obj)
 				{
@@ -2009,7 +2086,9 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	
 	pArea->Exits = cMap.GetLevelExits(pArea->ExitArray);
 	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
+//Oh here there
 /*	JS_SetContextThread(cx);
+//Oh here there
 	JSObject* jsUnit = JS_NewObject(cx, &area_class, NULL, NULL);
 
 	if(!jsUnit)
@@ -2018,12 +2097,14 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;		
 	}
 
+//Oh here there
 	if(!JS_DefineProperties(cx, jsUnit, area_props))
 	{
 		*rval = BOOLEAN_TO_JSVAL(FALSE);
 		return JS_TRUE;
 	}
 
+//Oh here there
 	JS_SetPrivate(cx, jsUnit, pArea);*/
 
 	*rval = OBJECT_TO_JSVAL(unit);
@@ -2045,18 +2126,22 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
 
+//Oh here there
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
 	
 	if(!pArea)
 		return JS_TRUE;
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	DWORD dwArrayCount = 0;
 
 	for(UINT i = 0; i < pArea->Exits; i++)
 	{
+//Oh here there
 		JSObject* jsUnit = JS_NewObject(cx, &exit_class, NULL, NULL);
+//Oh here there
 		if(!JS_DefineProperties(cx, jsUnit, exit_props))
 			return JS_TRUE;
 		
@@ -2067,9 +2152,11 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		pExit->type	= pArea->ExitArray[i]->dwType;
 		pExit->tileid = pArea->ExitArray[i]->dwId;
 
+//Oh here there
 		JS_SetPrivate(cx, jsUnit, pExit);
 
 		jsval a = OBJECT_TO_JSVAL(jsUnit);
+//Oh here there
 		JS_SetElement(cx, pReturnArray, i, &a);
 		dwArrayCount++;
 	}
@@ -2102,6 +2189,7 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		else return JS_TRUE;
 
 		if(JSVAL_IS_STRING(argv[2]))
+//Oh here there
 			szStatName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 		else if(JSVAL_IS_INT(argv[2]))
 			nStat = JSVAL_TO_INT(argv[2]);
@@ -2113,27 +2201,33 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	return JS_TRUE;
 }
 
+//Oh here there
 INT my_js_strict(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+//Oh here there
 	CDebug cDbg("js_strict");
 
 	if(argc == NULL)
 	{
+//Oh here there
 		*rval = BOOLEAN_TO_JSVAL(((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT));
 		return JS_TRUE;
 	}
 
 	if(argc == 1)
 	{
+//Oh here there
 		bool bFlag = ((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT);
 		if(JSVAL_TO_BOOLEAN(argv[0]))
 		{
 			if(!bFlag)
+//Oh here there
 				JS_ToggleOptions(cx, JSOPTION_STRICT);
 		}
 		else
 		{
 			if(bFlag)
+//Oh here there
 				JS_ToggleOptions(cx, JSOPTION_STRICT);
 		}
 	}
@@ -2150,6 +2244,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	jsint nParameter = NULL;
 	if(argc > 0)
+//Oh here there
 		JS_ValueToInt32(cx, argv[0], &nParameter);
 	
 	if(nParameter == NULL)
@@ -2230,17 +2325,22 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 {
 	CDebug cDbg("IniRead");
 
+//Oh here there
 	char *pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
     char   szBuffer[65535];        // Max ini line length is 65535 under 95
 
+//Oh here there
     char   *pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+//Oh here there
     char   *pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+//Oh here there
     char   *pDefault = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 
     GetPrivateProfileString(pSectionName, pKeyName, pDefault, szBuffer, 65535, lpszBuf);
+//Oh here there
     *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
     return JS_TRUE;
 }
@@ -2255,12 +2355,16 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	CDebug cDbg("IniWrite");
 
+//Oh here there
 	char *pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
+//Oh here there
     char   *pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+//Oh here there
     char   *pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+//Oh here there
     char   *pValue = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(WritePrivateProfileString(pSectionName, pKeyName, pValue, lpszBuf))
 		WritePrivateProfileString(NULL, NULL, NULL, lpszBuf);	// Flush
@@ -2282,6 +2386,7 @@ JSAPI_FUNC(my_login)
 	if(!JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid profile specified!");
 
+//Oh here there
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
@@ -2392,6 +2497,7 @@ JSAPI_FUNC(my_getMouseCoords)
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nFlag = JSVAL_TO_INT(argv[0]);
 
+//Oh here there
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	if(!pReturnArray)
@@ -2410,7 +2516,9 @@ JSAPI_FUNC(my_getMouseCoords)
 	jsval jsX = INT_TO_JSVAL(Coords.x);
 	jsval jsY = INT_TO_JSVAL(Coords.y);
 
+//Oh here there
 	JS_SetElement(cx, pReturnArray, 0, &jsX);
+//Oh here there
 	JS_SetElement(cx, pReturnArray, 1, &jsY);
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);

@@ -50,12 +50,14 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 	//jsuint uival = 0;
 	bool bval;
 
+//Oh here there
 	switch(JS_TypeOfValue(cx, value)) {
 		case JSTYPE_VOID: case JSTYPE_NULL:
 			if(fwrite(&ival, sizeof(int), 1, fptr) == 1)
 				return true;
 			break;
 		case JSTYPE_STRING:
+//Oh here there
 			str = JS_GetStringBytes(JSVAL_TO_STRING(value));
 			if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
 				return true;
@@ -63,16 +65,19 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 		case JSTYPE_NUMBER:
 			if(isBinary) {
 				if(JSVAL_IS_DOUBLE(value)) {
+//Oh here there
 					JS_ValueToNumber(cx, value, &dval);
 					if(fwrite(&dval, sizeof(jsdouble), 1, fptr) == 1)
 						return true;
 				} else if(JSVAL_IS_INT(value)) {
+//Oh here there
 					JS_ValueToInt32(cx, value, &ival);
 					if(fwrite(&ival, sizeof(int32), 1, fptr) == 1)
 						return true;
 				}
 			} else {
 				if(JSVAL_IS_DOUBLE(value)) {
+//Oh here there
 					JS_ValueToNumber(cx, value, &dval);
 					// jsdouble will never be a 64-char string, but I'd rather be safe than sorry
 					str = new char[64];
@@ -83,6 +88,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 					if(result == len)
 						return true;
 				} else if(JSVAL_IS_INT(value)) {
+//Oh here there
 					JS_ValueToInt32(cx, value, &ival);
 					str = new char[16];
 					_itoa(ival, str, 10);
@@ -108,17 +114,22 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 			break;
 /*		case JSTYPE_OBJECT:
 			JSObject *arr = JSVAL_TO_OBJECT(value);
+//Oh here there
 			if(JS_IsArrayObject(cx, arr)) {
+//Oh here there
 				JS_GetArrayLength(cx, arr, &uival);
 				for(jsuint i = 0; i < uival; i++) {
 					jsval val;
+//Oh here there
 					JS_GetElement(cx, arr, i, &val);
 					if(!writeValue(fptr, cx, val, isBinary))
 						return false;
 				}
 				return true;
 			} else {
+//Oh here there
 				JSString* jsstr = JS_ValueToString(cx, value);
+//Oh here there
 				str = JS_GetStringBytes(jsstr);
 				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
 					return true;

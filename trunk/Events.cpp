@@ -13,7 +13,9 @@ VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
+//Oh here there
 		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+//Oh here there
 		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("chatmsg", 2, argv);
 	}
@@ -29,7 +31,9 @@ VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
+//Oh here there
 		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+//Oh here there
 		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("gamemsg", 2, argv);
 	}
@@ -62,6 +66,7 @@ VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwMode));
+//Oh here there
 		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("copydata", 2, argv);
 	}
@@ -77,6 +82,7 @@ VOID ChatCmdEvent(CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
+//Oh here there
 		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("chatcmd", 1, argv);
 	}

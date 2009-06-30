@@ -9,10 +9,12 @@ VOID area_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("area finalize");
 
+//Oh here there
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
 	if(pArea)
 	{
+//Oh here there
 		JS_SetPrivate(cx, obj, NULL);
 		delete pArea;
 	}
@@ -23,6 +25,7 @@ INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	CDebug cDbg("area getProperty");
 	
 	*vp = INT_TO_JSVAL(0);
+//Oh here there
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
 	if(!pArea)
@@ -44,6 +47,7 @@ INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			pTxt = D2COMMON_GetLevelTxt(pArea->AreaId);
 			if(!pTxt)
 				break;
+//Oh here there
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
 			break;
 		case AUNIT_X:

@@ -91,11 +91,17 @@ void ScriptEngine::Startup(void)
 		EnterCriticalSection(&lock);
 		state = Starting;
 		// set the memory limit at 200mb
+//Oh here there
 		runtime = JS_NewRuntime(0xC80000);
+//Oh here there
 		JS_SetGCCallbackRT(runtime, gcCallback);
+//Oh here there
 		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
+//Oh here there
 		//JS_SetCallHook(runtime, executeCallback, NULL);
+//Oh here there
 		//JS_SetExecuteHook(runtime, executeCallback, NULL);
+//Oh here there
 		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
 		state = Running;
 		LeaveCriticalSection(&lock);
@@ -117,7 +123,9 @@ void ScriptEngine::Shutdown(void)
 
 	if(runtime)
 	{
+//Oh here there
 		JS_DestroyRuntime(runtime);
+//Oh here there
 		JS_ShutDown();
 		runtime = NULL;
 	}
@@ -232,6 +240,7 @@ JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, 
 
 void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
 {
+//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	if(!script)
@@ -244,6 +253,7 @@ void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool*
 
 JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
 {
+//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	if(!script)
@@ -255,10 +265,12 @@ JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc,
 
 JSBool branchCallback(JSContext* cx, JSScript*)
 {
+//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
 
+//Oh here there
 	jsrefcount depth = JS_SuspendRequest(cx);
 
 	if(pause)
@@ -269,7 +281,9 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 		script->SetPauseState(false);
 
 	// assume the context thread was trampled over
+//Oh here there
 	JS_SetContextThread(cx);
+//Oh here there
 	JS_ResumeRequest(cx, depth);
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
@@ -282,8 +296,11 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 		ScriptEngine::PauseAll();
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");
+//Oh here there
 		if(JS_GetContextThread(cx))
+//Oh here there
 			JS_ClearContextThread(cx);
+//Oh here there
 		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)

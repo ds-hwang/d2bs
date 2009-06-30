@@ -470,4 +470,3 @@ VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
-
