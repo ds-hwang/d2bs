@@ -334,7 +334,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 						Console::AddKey(' ');
 				break;
 			case VK_ESCAPE:
-				if(isUp && !isRepeat)
+				if(isUp)
 					Console::Hide();
 				break;
 			case VK_RETURN:

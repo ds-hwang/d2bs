@@ -107,14 +107,12 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 				szBuffer = (CHAR*)malloc(pTable[nStatNumber].dwFieldLength + 1);
 				memset(szBuffer, NULL, pTable[nStatNumber].dwFieldLength + 1);
 				memcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength + 1);
-//Oh here there
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
 				free(szBuffer);
 				return TRUE;
 
 			case FIELDTYPE_DATA_DWORD:
 				memcpy(&dwBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
-//Oh here there
 				JS_NewNumberValue(cx,(jsdouble)dwBuffer,argv);
 				return TRUE;
 
@@ -166,7 +164,6 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 				szBuffer = (CHAR*)malloc(5);
 				memset(szBuffer, NULL, 5);
 				memcpy(szBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
-//Oh here there
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
 				free(szBuffer);
 				return TRUE;

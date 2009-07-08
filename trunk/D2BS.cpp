@@ -40,7 +40,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 			 quitOnError[6],
 			 maxGameTime[6],
 			 startAtMenu[6],
-			 disableCache[6];
+			 disableCache[6],
+			 memUsage[6];
 
 		sprintf(path, "%sD2BS.log", Vars.szPath);
 		sprintf(fname, "%sd2bs.ini", Vars.szPath);
@@ -55,6 +56,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
 		GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
 		GetPrivateProfileString("settings", "DisableCache", "false", disableCache, 6, fname);
+		GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 
 		sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
 		Vars.dwGameTime = 0;
@@ -65,6 +67,10 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		Vars.bQuitOnError = StringToBool(quitOnError);
 		Vars.bStartAtMenu = StringToBool(startAtMenu);
 		Vars.bDisableCache = StringToBool(disableCache);
+		Vars.dwMemUsage = atoi(memUsage);
+		if(Vars.dwMemUsage == -1)
+			Vars.dwMemUsage = 50;
+		Vars.dwMemUsage *= 1024*1024;
 
 		InitializeCriticalSection(&Vars.cRoomSection);
 		InitializeCriticalSection(&Vars.cMiscSection);

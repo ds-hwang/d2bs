@@ -81,9 +81,9 @@ private:
 	Script(const char* file, ScriptState state);
 	Script(const Script&);
 	Script& operator=(const Script&);
+	~Script(void);
 public:
 	friend class ScriptEngine;
-	~Script(void);
 
 	void Run(void);
 	void Pause(void);

@@ -102,6 +102,7 @@ struct Variables
 	BOOL	bBlockKeys;
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
+	INT		dwMemUsage;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];

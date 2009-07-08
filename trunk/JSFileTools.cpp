@@ -38,7 +38,6 @@ JSAPI_FUNC(filetools_remove)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply a file name");
-//Oh here there
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -56,7 +55,6 @@ JSAPI_FUNC(filetools_rename)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
-//Oh here there
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -65,7 +63,6 @@ JSAPI_FUNC(filetools_rename)
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, obj, "You must supply a new file name");
-//Oh here there
 	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -83,7 +80,6 @@ JSAPI_FUNC(filetools_copy)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
-//Oh here there
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -92,7 +88,6 @@ JSAPI_FUNC(filetools_copy)
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, obj, "You must supply a new file name");
-//Oh here there
 	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -161,7 +156,6 @@ JSAPI_FUNC(filetools_exists)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid file name");
-//Oh here there
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -179,7 +173,6 @@ JSAPI_FUNC(filetools_readText)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
-//Oh here there
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -199,7 +192,6 @@ JSAPI_FUNC(filetools_readText)
 		THROW_ERROR(cx, obj, _strerror("Read failed"));
 	fclose(fptr);
 
-//Oh here there
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));
 	delete[] contents;
 	return JS_TRUE;
@@ -211,7 +203,6 @@ JSAPI_FUNC(filetools_writeText)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
-//Oh here there
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
@@ -236,7 +227,6 @@ JSAPI_FUNC(filetools_appendText)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
-//Oh here there
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");

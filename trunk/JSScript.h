@@ -2,7 +2,6 @@
 
 #include "js32.h"
 
-void script_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(script_getProperty);
 
 JSAPI_FUNC(script_getNext);
@@ -21,7 +20,7 @@ JSAPI_FUNC(script_resume);
 static JSClass script_class = {
     "Script",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, script_getProperty, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, script_finalize,
+	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
     NULL, NULL, 
 };
 

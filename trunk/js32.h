@@ -17,9 +17,8 @@
 
 #define NUM(x) #x
 #define NAME(line, v) (__FILE__ "@" NUM(line) ": " #v)
-#define JS_AddRoot(cx, vp) JS_AddNamedRoot((cx), (vp), NAME(__LINE__, vp))
+#define JS_AddRoot(cx, vp) JS_AddNamedRootRT(ScriptEngine::GetRuntime(), (vp), NAME(__LINE__, vp))
 
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
-JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
-JSContext* BuildContext(JSRuntime* runtime);
+JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)

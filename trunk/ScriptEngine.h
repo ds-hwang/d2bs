@@ -45,9 +45,6 @@ public:
 	static void DisposeScript(Script* script);
 
 	static void GetScripts(ScriptList& list);
-	// TODO: This will cause crashes because it can't be sync'd
-	static ScriptMap::iterator GetFirstScript(void) { return scripts.begin(); }
-	static ScriptMap::iterator GetLastScript(void) { return scripts.end(); }
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
@@ -67,5 +64,6 @@ JSTrapStatus debuggerCallback(JSContext* cx, JSScript* script, jsbytecode* pc, j
 JSTrapStatus exceptionCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
 void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure);
 JSBool branchCallback(JSContext* cx, JSScript* script);
+JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

@@ -7,12 +7,10 @@ VOID presetunit_finalize(JSContext *cx, JSObject *obj)
 {
 	CDebug cDbg("presetunit finalize");
 
-//Oh here there
 	myPresetUnit *pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 
 	if(pUnit)
 	{
-//Oh here there
 		JS_SetPrivate(cx, obj, NULL);
 		delete pUnit;
 	}
@@ -22,7 +20,6 @@ INT presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("presetunit getProperty");
 
-//Oh here there
 	myPresetUnit* pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pUnit)

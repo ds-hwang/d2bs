@@ -69,10 +69,8 @@ Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutoma
 Genhook::~Genhook(void) {
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
-//Oh here there
 		JS_RemoveRoot(owner->GetContext(), &clicked);
 	if(!JSVAL_IS_VOID(hovered))
-//Oh here there
 		JS_RemoveRoot(owner->GetContext(), &hovered);
 
 	hooks.remove(this);
@@ -83,6 +81,7 @@ Genhook::~Genhook(void) {
 	location.y = -1;
 }
 
+// TODO: make this properly manage the context thread...
 bool Genhook::Click(int button, POINT* loc)
 {
 	if(!IsInRange(loc))
@@ -93,39 +92,26 @@ bool Genhook::Click(int button, POINT* loc)
 
 	Lock();
 
-//Oh here there
-	//JS_ClearContextThread(owner->GetContext());
-//Oh here there
-	JS_SetContextThread(owner->GetContext());
 	jsval rval;
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &rval);
 	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &args[0]);
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &args[1]);
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &args[2]);
 
-//Oh here there
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
 
-//Oh here there
 	JS_RemoveRoot(owner->GetContext(), &args[0]);
-//Oh here there
 	JS_RemoveRoot(owner->GetContext(), &args[1]);
-//Oh here there
 	JS_RemoveRoot(owner->GetContext(), &args[2]);
 
 	bool result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
-//Oh here there
-	JS_ClearContextThread(owner->GetContext());
 	Unlock();
 
 	return result;
 }
 
+// TODO: make this properly manage the context thread...
 void Genhook::Hover(POINT* loc)
 {
 	if(!IsInRange(loc))
@@ -134,30 +120,18 @@ void Genhook::Hover(POINT* loc)
 		return;
 
 	Lock();
-//Oh here there
-	//JS_ClearContextThread(owner->GetContext());
-//Oh here there
-	JS_SetContextThread(owner->GetContext());
 
 	jsval rval = JSVAL_VOID;
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &rval);
 	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &args[0]);
-//Oh here there
 	JS_AddRoot(owner->GetContext(), &args[1]);
 
-//Oh here there
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
 
-//Oh here there
 	JS_RemoveRoot(owner->GetContext(), &args[0]);
-//Oh here there
 	JS_RemoveRoot(owner->GetContext(), &args[1]);
 
-//Oh here there
-	JS_ClearContextThread(owner->GetContext());
 	Unlock();
 }
 
@@ -165,12 +139,10 @@ void Genhook::SetClickHandler(jsval handler)
 {
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
-//Oh here there
 		JS_RemoveRoot(owner->GetContext(), &clicked);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
-//Oh here there
 		JS_AddRoot(owner->GetContext(), &clicked);
 	Unlock();
 }
@@ -179,12 +151,10 @@ void Genhook::SetHoverHandler(jsval handler)
 {
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))
-//Oh here there
 		JS_RemoveRoot(owner->GetContext(), &hovered);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		hovered = handler;
 	if(!JSVAL_IS_VOID(hovered))
-//Oh here there
 		JS_AddRoot(owner->GetContext(), &hovered);
 	Unlock();
 }

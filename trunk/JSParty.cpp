@@ -9,7 +9,6 @@ JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("party getProperty");
 
-//Oh here there
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pUnit || IsBadReadPtr(pUnit, sizeof(RosterUnit)))
@@ -18,7 +17,6 @@ JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	switch(JSVAL_TO_INT(id))
 	{
 		case PARTY_NAME:
-//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pUnit->szName));
 			break;
 		case PARTY_X:
@@ -61,7 +59,6 @@ JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	if(!GameReady())
 		return JS_TRUE;
 
-//Oh here there
 	RosterUnit *pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
 	if (!pUnit) {
@@ -73,15 +70,12 @@ JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 
 	if(pUnit)
 	{
-//Oh here there
 		JS_SetPrivate(cx, obj, pUnit);
 		*rval = OBJECT_TO_JSVAL(obj);
 	}
 	else
 	{
-//Oh here there
 		JS_ClearScope(cx, obj);
-//Oh here there
 		JS_ValueToObject(cx, JSVAL_NULL, &obj);
 		*rval = INT_TO_JSVAL(0);
 	}

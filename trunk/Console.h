@@ -35,8 +35,8 @@ public:
 	static void Show(void);
 	static void ShowPrompt(void);
 	static void ShowBuffer(void);
-	static bool IsVisible(void) { return visible; }
-	static bool IsEnabled(void) { return enabled; }
+	static bool IsVisible(void) { if(!IsReady()) return false; return visible; }
+	static bool IsEnabled(void) { if(!IsReady()) return false; return enabled; }
 
 	static void AddKey(unsigned int key);
 	static void ExecuteCommand(void);

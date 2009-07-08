@@ -144,7 +144,7 @@ Level* GetLevel(DWORD dwLevelNo)
 	return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 }
 
-
+// TODO: make this use SIZE for clarity
 POINT CalculateTextLen(CHAR* szwText, INT Font)
 {
 	POINT ret = {0,0};
@@ -637,6 +637,7 @@ int RemoveColorSpecs(wchar_t *lpwsz)
 // Original Sourcecode from Stings or Mousepad's
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: make this use SIZE instead of POINT for clarity
 POINT GetScreenSize()
 {
 	POINT sizes[] = { {640, 480}, {800, 600}, {800, 600} };

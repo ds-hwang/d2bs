@@ -13,45 +13,57 @@ CRITICAL_SECTION ScriptEngine::lock = {0};
 
 Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
 {
+	if(GetState() != Running)
+		return NULL;
 	file = _strlwr(_strdup(file));
 	try {
 		if(!Vars.bDisableCache) {
 			if(recompile && scripts.count(file) > 0) {
 				scripts[file]->Stop(true, true);
-				delete scripts[file];
+				DisposeScript(scripts[file]);
 			} else if(scripts.count(file) > 0) {
-				scripts[file]->Stop(true, true);
-				return scripts[file];
+				Script* ret = scripts[file];
+				ret->Stop(true, true);
+				delete[] file;
+				return ret;
 			}
 		}
 		EnterCriticalSection(&lock);
 		Script* script = new Script(file, state);
 		scripts[file] = script;
 		LeaveCriticalSection(&lock);
+		delete[] file;
 		return script;
 	} catch(std::exception e) {
 		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
+		delete[] file;
 		return NULL;
 	}
 }
 
 Script* ScriptEngine::CompileCommand(const char* command)
 {
+	if(GetState() != Running)
+		return NULL;
 	char* file = _strlwr(_strdup(command));
 	try {
 		if(!Vars.bDisableCache) {
 			if(scripts.count(file) > 0) {
-				return scripts[file];
+				Script* ret = scripts[file];
+				delete[] file;
+				return ret;
 			}
 		}
 		EnterCriticalSection(&lock);
 		Script* script = new Script(command, Command);
 		scripts[file] = script;
 		LeaveCriticalSection(&lock);
+		delete[] file;
 		return script;
 	} catch(std::exception e) {
 		LeaveCriticalSection(&lock);
+		delete[] file;
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
@@ -60,49 +72,52 @@ Script* ScriptEngine::CompileCommand(const char* command)
 void ScriptEngine::DisposeScript(Script* script)
 {
 	EnterCriticalSection(&lock);
+
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
 	delete script;
+
 	LeaveCriticalSection(&lock);
 }
 
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
+	if(GetState() != Running)
+		return -1;
+
 	EnterCriticalSection(&lock);
 	ScriptList list;
 	GetScripts(list);
-	unsigned int count = list.size();
-	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
+	int count = list.size();
+	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
 	{
-		if(!active && it->second->IsRunning() && !it->second->IsAborted())
+		if(!active && (*it)->IsRunning() && !(*it)->IsAborted())
 			count--;
-		if(!unexecuted && it->second->GetExecutionCount() == 0)
+		if(!unexecuted && (*it)->GetExecutionCount() == 0)
 			count--;
 	}
+	assert(count >= 0);
 	LeaveCriticalSection(&lock);
 	return count;
 }
 
 void ScriptEngine::Startup(void)
 {
-	if(!runtime)
+	if(GetState() == Stopped)
 	{
+		state = Starting;
 		InitializeCriticalSection(&lock);
 		EnterCriticalSection(&lock);
-		state = Starting;
-		// set the memory limit at 200mb
-//Oh here there
-		runtime = JS_NewRuntime(0xC80000);
-//Oh here there
+		// create the runtime with the requested memory limit
+		runtime = JS_NewRuntime(Vars.dwMemUsage);
+		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
-//Oh here there
+
 		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
-//Oh here there
 		//JS_SetCallHook(runtime, executeCallback, NULL);
-//Oh here there
 		//JS_SetExecuteHook(runtime, executeCallback, NULL);
-//Oh here there
 		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
+
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
@@ -110,40 +125,46 @@ void ScriptEngine::Startup(void)
 
 void ScriptEngine::Shutdown(void)
 {
-	// bring the engine down properly
-	EnterCriticalSection(&lock);
-	state = Stopping;
-	StopAll(true);
-
-	// delete all scripts now that they're stopped
-	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
-		delete (it->second);
-
-	scripts.clear();
-
-	if(runtime)
+	if(GetState() == Running)
 	{
-//Oh here there
-		JS_DestroyRuntime(runtime);
-//Oh here there
-		JS_ShutDown();
-		runtime = NULL;
-	}
+		// bring the engine down properly
+		EnterCriticalSection(&lock);
+		state = Stopping;
+		StopAll(true);
 
-	LeaveCriticalSection(&lock);
-	DeleteCriticalSection(&lock);
-	state = Stopped;
+		// clear all scripts now that they're stopped
+		ScriptList list;
+		GetScripts(list);
+		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+			DisposeScript(*it);
+
+		scripts.clear();
+
+		if(runtime)
+		{
+			JS_DestroyRuntime(runtime);
+			JS_ShutDown();
+			runtime = NULL;
+		}
+
+		LeaveCriticalSection(&lock);
+		DeleteCriticalSection(&lock);
+		state = Stopped;
+	}
 }
 
 void ScriptEngine::StopAll(bool forceStop)
 {
+	if(GetState() != Running)
+		return;
+
 	EnterCriticalSection(&lock);
 
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
 	{
-		(*it)->Stop(true, (ScriptEngine::GetState() == Stopping));
+		(*it)->Stop(forceStop, (ScriptEngine::GetState() == Stopping));
 	}
 
 	LeaveCriticalSection(&lock);
@@ -151,6 +172,9 @@ void ScriptEngine::StopAll(bool forceStop)
 
 void ScriptEngine::PauseAll(void)
 {
+	if(GetState() != Running)
+		return;
+
 	EnterCriticalSection(&lock);
 
 	ScriptList list;
@@ -165,6 +189,9 @@ void ScriptEngine::PauseAll(void)
 
 void ScriptEngine::ResumeAll(void)
 {
+	if(GetState() != Running)
+		return;
+
 	EnterCriticalSection(&lock);
 
 	ScriptList list;
@@ -179,11 +206,16 @@ void ScriptEngine::ResumeAll(void)
 
 void ScriptEngine::FlushCache(void)
 {
+	if(GetState() != Running)
+		return;
+
 	static bool isFlushing = false;
+
 	if(isFlushing || Vars.bDisableCache)
 		return;
 
 	EnterCriticalSection(&lock);
+	// TODO: examine if this lock is necessary any more
 	EnterCriticalSection(&Vars.cFlushCacheSection);
 
 	isFlushing = true;
@@ -194,8 +226,7 @@ void ScriptEngine::FlushCache(void)
 	{
 		if(!(*it)->IsRunning())
 		{
-			scripts.erase((*it)->GetFilename());
-			delete *it;
+			DisposeScript(*it);
 		}
 	}
 
@@ -208,14 +239,19 @@ void ScriptEngine::FlushCache(void)
 void ScriptEngine::GetScripts(ScriptList& list)
 {
 	EnterCriticalSection(&lock);
+
 	list.clear();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 		list.push_back(it->second);
+
 	LeaveCriticalSection(&lock);
 }
 
 void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)
 {
+	if(GetState() != Running)
+		return;
+
 	jsval dummy;
 	ScriptList list;
 	GetScripts(list);
@@ -226,6 +262,9 @@ void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)
 
 void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 {
+	if(GetState() != Running)
+		return;
+
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
@@ -240,7 +279,6 @@ JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, 
 
 void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
 {
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	if(!script)
@@ -253,7 +291,6 @@ void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool*
 
 JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
 {
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	if(!script)
@@ -265,12 +302,10 @@ JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc,
 
 JSBool branchCallback(JSContext* cx, JSScript*)
 {
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	bool pause = script->IsPaused();
 
-//Oh here there
 	jsrefcount depth = JS_SuspendRequest(cx);
 
 	if(pause)
@@ -280,13 +315,21 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 		script->SetPauseState(false);
 
-	// assume the context thread was trampled over
-//Oh here there
-	JS_SetContextThread(cx);
-//Oh here there
 	JS_ResumeRequest(cx, depth);
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
+}
+
+JSBool contextCallback(JSContext* cx, uintN contextOp)
+{
+	if(contextOp == JSCONTEXT_NEW)
+	{
+		JS_SetErrorReporter(cx, reportError);
+		JS_SetBranchCallback(cx, branchCallback);
+		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
+		JS_SetVersion(cx, JSVERSION_1_7);
+	}
+	return JS_TRUE;
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
@@ -296,18 +339,11 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 		ScriptEngine::PauseAll();
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");
-//Oh here there
-		if(JS_GetContextThread(cx))
-//Oh here there
-			JS_ClearContextThread(cx);
-//Oh here there
-		JS_SetContextThread(cx);
 	}
 	else if(status == JSGC_END)
 	{
 		if(Vars.bDebug)
 			Log("*** LEAVING GC ***");
-		//ScriptEngine::FlushCache();
 		ScriptEngine::ResumeAll();
 	}
 	return JS_TRUE;

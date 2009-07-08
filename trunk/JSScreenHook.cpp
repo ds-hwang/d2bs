@@ -10,12 +10,10 @@ using namespace std;
 
 void hook_finalize(JSContext *cx, JSObject *obj) {
 	CDebug cDbg("hook finalize");
-//Oh here there
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 
 	if(hook)
 	{
-//Oh here there
 		JS_SetPrivate(cx, obj, NULL);
 		delete hook;
 	}
@@ -24,7 +22,6 @@ void hook_finalize(JSContext *cx, JSObject *obj) {
 JSAPI_FUNC(hook_remove) {
 	CDebug cDbg("hook remove");
 
-//Oh here there
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
 	{
@@ -32,11 +29,8 @@ JSAPI_FUNC(hook_remove) {
 		delete hook;
 	}
 
-//Oh here there
 	JS_SetPrivate(cx, obj, NULL);
-//Oh here there
 	JS_ClearScope(cx, obj);
-//Oh here there
 	JS_ValueToObject(cx, JSVAL_VOID, &obj);
 	return JS_TRUE;
 }
@@ -46,7 +40,6 @@ JSAPI_FUNC(hook_remove) {
 JSAPI_FUNC(frame_ctor) {
 	CDebug cDbg("frame_ctor");
 
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	uint x = 0, y = 0, x2 = 0, y2 = 0;
@@ -81,8 +74,6 @@ JSAPI_FUNC(frame_ctor) {
 	pFramehook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &frame_class, frame_methods, frame_props, pFramehook);
-//Oh here there
-	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create frame object");
 
@@ -94,7 +85,6 @@ JSAPI_FUNC(frame_ctor) {
 JSAPI_PROP(frame_getProperty) {
 	CDebug cDbg("frame_getProperty");
 
-//Oh here there
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
 	if(!pFramehook)
 		return JS_TRUE;
@@ -133,7 +123,6 @@ JSAPI_PROP(frame_getProperty) {
 JSAPI_PROP(frame_setProperty) {
 	CDebug cDbg("frame_setProperty");
 
-//Oh here there
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
 	if(!pFramehook)
 		return JS_TRUE;
@@ -183,7 +172,6 @@ JSAPI_PROP(frame_setProperty) {
 JSAPI_FUNC(box_ctor) {
 	CDebug cDbg("box_ctor");
 
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -222,8 +210,6 @@ JSAPI_FUNC(box_ctor) {
 	pBoxHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props, pBoxHook);
-//Oh here there
-	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create box object");
 
@@ -234,7 +220,6 @@ JSAPI_FUNC(box_ctor) {
 JSAPI_PROP(box_getProperty) {
 	CDebug cDbg("box_getProperty");
 
-//Oh here there
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	if(!pBoxHook)
 		return JS_TRUE;
@@ -279,7 +264,6 @@ JSAPI_PROP(box_getProperty) {
 JSAPI_PROP(box_setProperty) {
 	CDebug cDbg("box_setProperty");
 
-//Oh here there
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	if(!pBoxHook)
 		return JS_TRUE;
@@ -338,7 +322,6 @@ JSAPI_PROP(box_setProperty) {
 JSAPI_FUNC(line_ctor) {
 	CDebug cDbg("line_ctor");
 
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -372,8 +355,6 @@ JSAPI_FUNC(line_ctor) {
 	pLineHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
-//Oh here there
-	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create line object");
 
@@ -386,7 +367,6 @@ JSAPI_FUNC(line_ctor) {
 JSAPI_PROP(line_getProperty) {
 	CDebug cDbg("line_getProperty");
 
-//Oh here there
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	if(!pLineHook)
 		return JS_TRUE;
@@ -426,7 +406,6 @@ JSAPI_PROP(line_getProperty) {
 JSAPI_PROP(line_setProperty) {
 	CDebug cDbg("line_setProperty");
 
-//Oh here there
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	if(!pLineHook)
 		return JS_TRUE;
@@ -477,7 +456,6 @@ JSAPI_PROP(line_setProperty) {
 JSAPI_FUNC(text_ctor) {
 	CDebug cDbg("text_ctor");
 
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -488,7 +466,6 @@ JSAPI_FUNC(text_ctor) {
 	char* szText = "";
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-//Oh here there
 		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
@@ -516,8 +493,6 @@ JSAPI_FUNC(text_ctor) {
 	pTextHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props, pTextHook);
-//Oh here there
-	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create text object");
 
@@ -529,7 +504,6 @@ JSAPI_FUNC(text_ctor) {
 JSAPI_PROP(text_getProperty) {
 	CDebug cDbg("text_getProperty");
 
-//Oh here there
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	if(!pTextHook)
 		return JS_TRUE;
@@ -548,7 +522,6 @@ JSAPI_PROP(text_getProperty) {
 			*vp = INT_TO_JSVAL(pTextHook->GetFont());
 			break;
 		case TEXT_TEXT:
-//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pTextHook->GetText()));
 			break;
 		case TEXT_ALIGN:
@@ -573,7 +546,6 @@ JSAPI_PROP(text_getProperty) {
 JSAPI_PROP(text_setProperty) {
 	CDebug cDbg("text_setProperty");
 
-//Oh here there
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	if(!pTextHook)
 		return JS_TRUE;
@@ -597,7 +569,6 @@ JSAPI_PROP(text_setProperty) {
 			break;
 		case TEXT_TEXT:
 			if(JSVAL_IS_STRING(*vp)) {
-//Oh here there
 				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				pTextHook->SetText(pText);
 			}
@@ -631,7 +602,6 @@ JSAPI_PROP(text_setProperty) {
 JSAPI_FUNC(image_ctor) {
 	CDebug cDbg("image_ctor");
 
-//Oh here there
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -643,7 +613,6 @@ JSAPI_FUNC(image_ctor) {
 	char path[_MAX_FNAME+_MAX_PATH];
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-//Oh here there
 		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
@@ -673,8 +642,6 @@ JSAPI_FUNC(image_ctor) {
 	pImageHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &image_class, image_methods, image_props, pImageHook);
-//Oh here there
-	JS_SetContextThread(cx);
 	if(!hook)
 		THROW_ERROR(cx, obj, "Failed to create image object");
 
@@ -686,7 +653,6 @@ JSAPI_FUNC(image_ctor) {
 JSAPI_PROP(image_getProperty) {
 	CDebug cDbg("image_getProperty");
 
-//Oh here there
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	if(!pImageHook)
 		return JS_TRUE;
@@ -699,7 +665,6 @@ JSAPI_PROP(image_getProperty) {
 			*vp = INT_TO_JSVAL(pImageHook->GetY());
 			break;
 		case IMAGE_LOCATION:
-//Oh here there
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pImageHook->GetImage()));
 			break;
 		case IMAGE_ALIGN:
@@ -724,7 +689,6 @@ JSAPI_PROP(image_getProperty) {
 JSAPI_PROP(image_setProperty) {
 	CDebug cDbg("image_setProperty");
 
-//Oh here there
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	if(!pImageHook)
 		return JS_TRUE;
@@ -740,7 +704,6 @@ JSAPI_PROP(image_setProperty) {
 			break;
 		case IMAGE_LOCATION:
 			if(JSVAL_IS_STRING(*vp)) {
-//Oh here there
 				char* pimage = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				pImageHook->SetImage(pimage);
 			}

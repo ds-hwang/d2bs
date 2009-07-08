@@ -25,10 +25,8 @@ AutoRoot::~AutoRoot()
 		DebugBreak();
 		exit(3);
 	}
-//Oh here there
 	JS_RemoveRoot(context, &var);
 }
-//Oh here there
 void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
 void AutoRoot::Release()
 {
@@ -57,53 +55,10 @@ Script::Script(const char* file, ScriptState state) :
 	fileName = string(_strlwr(_strdup(file)));
 	replace(fileName.begin(), fileName.end(), '/', '\\');
 	try {
-		context = BuildContext(ScriptEngine::GetRuntime());
+		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
-//Oh here there
-		JS_SetContextThread(context);
-//Oh here there
-		JS_SetContextPrivate(context, this);
-//Oh here there
-		JS_BeginRequest(context);
-//Oh here there
-		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
-//Oh here there
-		JS_EndRequest(context);
-		if(!globalObject)
-			throw std::exception("Couldn't create the global object");
 
-//Oh here there
-		JS_BeginRequest(context);
-//Oh here there
-		JS_InitStandardClasses(context, globalObject);
-//Oh here there
-		JS_DefineFunctions(context, globalObject, global_funcs);
-//Oh here there
-		JS_EndRequest(context);
-//Oh here there
-		JS_AddRoot(context, &globalObject);// added for testing proper destroy context code
-
-//Oh here there
-		JS_BeginRequest(context);
-		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
-		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
-		InitClass(&sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
-		InitClass(&sandbox_class, sandbox_methods, NULL, NULL, NULL);
-		InitClass(&frame_class, frame_methods, frame_props, NULL, NULL);
-		InitClass(&box_class, box_methods, box_props, NULL, NULL);
-		InitClass(&line_class, line_methods, line_props, NULL, NULL);
-		InitClass(&text_class, text_methods, text_props, NULL, NULL);
-		InitClass(&image_class, image_methods, image_props, NULL, NULL);
-//Oh here there
-		JS_EndRequest(context);
-
-//Oh here there
-		JS_BeginRequest(context);
-//Oh here there
-		JS_DefineObject(context, globalObject, "Unit", &unit_class, NULL, NULL);
-//Oh here there
-		JS_EndRequest(context);
 		myUnit* lpUnit = new myUnit; // leaked
 		memset(lpUnit, NULL, sizeof(myUnit));
 
@@ -114,15 +69,35 @@ Script::Script(const char* file, ScriptState state) :
 		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
+		JS_SetContextThread(context);
+		JS_SetContextPrivate(context, this);
+		JS_BeginRequest(context);
+
+		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
+		if(!globalObject)
+			throw std::exception("Couldn't create the global object");
+
+		JS_InitStandardClasses(context, globalObject);
+		JS_DefineFunctions(context, globalObject, global_funcs);
+		JS_AddRoot(context, &globalObject);// added for testing proper destroy context code
+
+		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
+		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
+		InitClass(&sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
+		InitClass(&sandbox_class, sandbox_methods, NULL, NULL, NULL);
+		InitClass(&frame_class, frame_methods, frame_props, NULL, NULL);
+		InitClass(&box_class, box_methods, box_props, NULL, NULL);
+		InitClass(&line_class, line_methods, line_props, NULL, NULL);
+		InitClass(&text_class, text_methods, text_props, NULL, NULL);
+		InitClass(&image_class, image_methods, image_props, NULL, NULL);
+		InitClass(&unit_class, unit_methods, unit_props, NULL, NULL);
+
 		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
 		if(!meObject)
 			throw std::exception("Couldn't create the meObject");
 
-//Oh here there
 		JS_AddRoot(context, &meObject);
-//Oh here there
-		JS_BeginRequest(context);
-//Oh here there
+
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
 #define DEFCONST(vp) DefineConstant(#vp, vp)
@@ -163,48 +138,33 @@ Script::Script(const char* file, ScriptState state) :
 		DEFEVENT(PLAYERASSIGN);
 #undef DEFEVENT
 #undef DEFCONST
-//Oh here there
-		JS_EndRequest(context);
-
-//Oh here there
-		JS_BeginRequest(context);
 		if(state == Command)
-//Oh here there
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
-//Oh here there
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)
 			throw std::exception("Couldn't compile the script");
-//Oh here there
-		JS_EndRequest(context);
 
-//Oh here there
-		JS_BeginRequest(context);
-//Oh here there
 		scriptObject = JS_NewScriptObject(context, script);
-//Oh here there
-		JS_EndRequest(context);
 		if(!scriptObject)
 			throw std::exception("Couldn't create the script object");
 
-//Oh here there
 		JS_AddNamedRoot(context, &meObject, "me object");
-//Oh here there
 		JS_AddNamedRoot(context, &scriptObject, "script object");
-//Oh here there
-		JS_ClearContextThread(context);
+
+		JS_EndRequest(context);
+
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
 		if(scriptObject)
-//Oh here there
 			JS_RemoveRoot(context, &scriptObject);
 		if(script && !scriptObject)
-//Oh here there
 			JS_DestroyScript(context, script);
 		if(context)
-//Oh here there
+		{
+			JS_EndRequest(context);
 			JS_DestroyContext(context);
+		}
 		LeaveCriticalSection(&lock);
 		throw;
 	}
@@ -214,19 +174,14 @@ Script::~Script(void)
 {
 	Stop(true, true);
 
+	JS_SetContextThread(context);
+	JS_BeginRequest(context);
+
 	// use the RT version of RemoveRoot to prevent crashes
-//Oh here there
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
-//Oh here there
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &meObject);
-//Oh here there
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
-//Oh here there
-	JS_SetContextThread(context);
-//Oh here there
-	JS_BeginRequest(context);
-//Oh here there
 	JS_DestroyContext(context);
 
 	context = NULL;
@@ -242,7 +197,6 @@ Script::~Script(void)
 void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
 					   JSFunctionSpec* s_methods, JSPropertySpec* s_props)
 {
-//Oh here there
 	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0,
 		props, methods, s_props, s_methods))
 		throw std::exception("Couldn't initialize the class");
@@ -250,12 +204,9 @@ void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec*
 
 void Script::DefineConstant(const char* name, int value)
 {
-//Oh here there
 	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_CONSTANT))
 		throw std::exception("Couldn't initialize the constant");
 }
-
-
 
 int Script::GetExecutionCount(void)
 {
@@ -272,37 +223,26 @@ void Script::Run(void)
 	// only let the script run if it's not already running
 	if(IsRunning())
 		return;
+
 	isAborted = false;
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 	threadId = GetCurrentThreadId();
 
-//Oh here there
-	JS_SetContextThread(GetContext());
-
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-//Oh here there
+
+	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
-//Oh here there
+
 	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
 
-//Oh here there
 	JS_GetProperty(GetContext(), globalObject, "main", &main);
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-//Oh here there
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 	}
-//Oh here there
-	JS_EndRequest(GetContext());
-	
-	// assume the context has been trampled
-//Oh here there
-	if ((DWORD)JS_GetContextThread(GetContext()) != GetThreadId())
-//Oh here there
-		JS_SetContextThread(GetContext());
 
-//Oh here there
-	JS_ClearContextThread(GetContext());
+	JS_SetContextThread(GetContext());
+	JS_EndRequest(GetContext());	
 
 	execCount++;
 	Stop();
@@ -351,20 +291,9 @@ void Script::Stop(bool force, bool reallyForce)
 
 }
 
-void Script::EnableSingleStep(void)
-{
-	singleStep = true;
-}
-
-void Script::DisableSingleStep(void)
-{
-	singleStep = false;
-}
-
-bool Script::IsSingleStep(void)
-{
-	return singleStep;
-}
+void Script::EnableSingleStep(void) { singleStep = true; }
+void Script::DisableSingleStep(void) { singleStep = false; }
+bool Script::IsSingleStep(void) { return singleStep; }
 
 bool Script::IsIncluded(const char* file)
 {
@@ -381,50 +310,29 @@ bool Script::Include(const char* file)
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
 		return true;
 	bool rval = false;
-	///JSContext* tmpcx = BuildContext(ScriptEngine::GetRuntime());
-//Oh here there
-	//JS_SetContextPrivate(tmpcx, this);
-//Oh here there
-	//JS_BeginRequest(tmpcx);
-//Oh here there
-	//JSScript* script = JS_CompileFile(tmpcx, globalObject, fname);
-//Oh here there
-	//JS_EndRequest(tmpcx);
-//Oh here there
 	JS_BeginRequest(GetContext());
-//Oh here there
+
 	JSScript* script = JS_CompileFile(GetContext(), globalObject, fname);
-//Oh here there
-	JS_EndRequest(GetContext());
 	if(script)
 	{
 		jsval dummy;
 		inProgress[fname] = true;
-//Oh here there
-		//JS_BeginRequest(tmpcx);
-//Oh here there
-		//rval = !!JS_ExecuteScript(tmpcx, globalObject, script, &dummy);
-//Oh here there
-		//JS_DestroyScript(tmpcx, script);
-//Oh here there
-		//JS_EndRequest(tmpcx);
-//Oh here there
 		rval = !!JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
-//Oh here there
 		JS_DestroyScript(GetContext(), script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
-//Oh here there
-	//JS_DestroyContextMaybeGC(tmpcx);
+
+	// HACK: assume we have to reclaim ownership
+	JS_SetContextThread(GetContext());
+	JS_EndRequest(GetContext());
 	return rval;
 }
 
 bool Script::IsRunning(void)
 {
 	EnterCriticalSection(&lock);
-//Oh here there
 	bool result = context && !(!JS_IsRunning(context) || IsPaused());
 	LeaveCriticalSection(&lock);
 	return result;
@@ -495,18 +403,17 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 	Pause();
 
-	JSContext* cx = BuildContext(ScriptEngine::GetRuntime());
-//Oh here there
+	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+
+	JS_BeginRequest(cx);
+
 	JS_SetContextPrivate(cx, this);
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
-//Oh here there
 	if(JS_GetContextThread(context) != GetCurrentThreadId())
 		THROW_ERROR(context, globalObject, "Cross-thread attempt to execute an event");
 
-//Oh here there
-	JS_BeginRequest(cx);
 	FunctionList flist = functions[evtName];
 
 	jsval* args = new jsval[argc];
@@ -514,13 +421,10 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 		args[i] = argv[i]->value();
 
 	for(FunctionList::iterator it = flist.begin(); it != flist.end(); it++)
-//Oh here there
 		JS_CallFunctionValue(cx, globalObject, (*it)->value(), argc, args, rval);
 
 	delete[] args;
-//Oh here there
-	JS_EndRequest(cx);
-//Oh here there
+
 	JS_DestroyContext(cx);
 	cx = NULL;
 
@@ -550,9 +454,8 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->functions = functions[evtName];
 		evt->argc = argc;
 		evt->argv = argv;
-		evt->context = BuildContext(ScriptEngine::GetRuntime());
+		evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		evt->object = globalObject;
-//Oh here there
 		JS_SetContextPrivate(evt->context, this);
 
 		CreateThread(0, 0, FuncThread, evt, 0, 0);
@@ -577,11 +480,8 @@ DWORD WINAPI FuncThread(void* data)
 	if(!evt)
 		return 0;
 
-	// switch the context thread once and only once to this one, since it won't be this thread's context
-//Oh here there
-	JS_ClearContextThread(evt->context);
-//Oh here there
-	JS_SetContextThread(evt->context);	
+	JS_SetContextThread(evt->context);
+	JS_BeginRequest(evt->context);
 
 	if(!evt->owner->IsAborted() || !(evt->owner->GetState() == InGame && !GameReady()))
 	{
@@ -591,39 +491,26 @@ DWORD WINAPI FuncThread(void* data)
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = evt->argv[i]->value();
-//Oh here there
 			JS_AddRoot(evt->context, &args[i]);
 		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-//Oh here there
-			JS_BeginRequest(evt->context);
-//Oh here there
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
-//Oh here there
-			JS_EndRequest(evt->context);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
-//Oh here there
 			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
 		// check if the caller stole the context thread
-//Oh here there
 		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
 		{
-//Oh here there
 			JS_ClearContextThread(evt->context);
-//Oh here there
 			JS_SetContextThread(evt->context);	
 		}
 	}
 
-//Oh here there
-	JS_ClearContextThread(evt->context);
-//Oh here there
 	JS_DestroyContext(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
