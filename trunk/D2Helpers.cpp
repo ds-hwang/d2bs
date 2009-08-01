@@ -1122,3 +1122,4 @@ DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 	}
  	return dist;
 }
+
