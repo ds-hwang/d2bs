@@ -2246,15 +2246,28 @@ JSAPI_FUNC(my_login)
 			break;
 		case 'b':
 			// Battle.net login
+			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
+			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+
+			// check to make sure the gateway is correct, before clicking the bnet button
+			OOG_SelectGateway(gateway);
+
+			Vars.bBlockKeys = Vars.bBlockMouse = 0;// REMOVE AFTER TESTING
+			return JS_TRUE;// REMOVE AFTER TESTING -- TechnoHunter
+
 			if(!clickControl(findControl(6,264,366,272,35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
 			handledCase = true;
 			
 		case 'o':
 			// Open Battle.net login
-			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
-			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+			if(!handledCase)
+			{
+				GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
+				GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+				GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+			}
 			GetPrivateProfileString("settings", "MaxLoginTime", "-1", maxLoginTime, sizeof(maxLoginTime), file);
 			GetPrivateProfileString("settings", "MaxCharSelectTime", "-1", maxCharTime, sizeof(maxCharTime), file);
 

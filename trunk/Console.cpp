@@ -213,7 +213,7 @@ void Console::Draw(void)
 
 	if(IsVisible())
 	{
-		if(count % 30 == 0 && IsEnabled())
+		if(count % 15 == 0 && IsEnabled())
 			cursor->SetIsVisible(!cursor->GetIsVisible());
 
 		// TODO: make this respect wrapping
