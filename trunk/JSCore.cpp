@@ -2253,8 +2253,8 @@ JSAPI_FUNC(my_login)
 			// check to make sure the gateway is correct, before clicking the bnet button
 			OOG_SelectGateway(gateway);
 
-			Vars.bBlockKeys = Vars.bBlockMouse = 0;// REMOVE AFTER TESTING
-			return JS_TRUE;// REMOVE AFTER TESTING -- TechnoHunter
+			//Vars.bBlockKeys = Vars.bBlockMouse = 0;// REMOVE AFTER TESTING
+			//return JS_TRUE;// REMOVE AFTER TESTING -- TechnoHunter
 
 			if(!clickControl(findControl(6,264,366,272,35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
@@ -2293,7 +2293,7 @@ JSAPI_FUNC(my_login)
 					THROW_ERROR(cx, obj, "Exceeded max login time");
 			}
 
-			// handle case where cd key is banned, etc.
+			// TODO :: handle case where cd key is banned, etc.
 
 			// Username text-edit box
 			SetControlText(findControl(1,322,342,162,19), username);
@@ -2302,6 +2302,8 @@ JSAPI_FUNC(my_login)
 			// Log-in
 			if(!clickControl(findControl(6,264,484,272,35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
+
+			// TODO - handle bad password here -TechnoHunter
 			// Connecting
 			for(int i = 0; findControl(6,351,337,96,32); i++)
 			{

@@ -39,7 +39,7 @@ bool clickControl(Control* pControl, int x, int y)
 
 BOOL OOG_SelectCharacter(char * szCharacter)
 {
-	return TRUE;//testing only -- remove after testing!
+	//return TRUE;//testing only -- remove after testing!
 
 	// Select the first control on the character selection screen.
 	Control* pControl = findControl(4,237,178,72,93);
@@ -119,24 +119,14 @@ BOOL OOG_SelectGateway(char * szGateway)
 				}
 				if(gatefound)
 				{
-					/*cText = pControl->pSelectedText;
-					while(cText != NULL)
-					{
-						char * szGatelist = _strlwr(UnicodeToAnsi(cText->wText));
-						if(strstr(szGatelist,szGateway) != NULL)
-							break;
-						delete[] szGatelist;
-						cText = cText->pNext;
-						Sleep(1500);
-					}*/
 				// click the correct gateway using the control plus a default x and a y based on (index*24)+12
-				clickControl(pControl,-1,pControl->dwPosY + ((index*24)+12));
+				clickControl(pControl, -1, 344 + ((index*24)+12));
 				}
 			}
 
 			// OK Button, gateway select screen
 			pControl = findControl(6,281,538,96,32);
-			//clickControl(pControl);
+			clickControl(pControl);
 			delete[] szLine;
 			return TRUE;
 		}
