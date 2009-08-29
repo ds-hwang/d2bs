@@ -105,7 +105,7 @@ void Startup(void)
 		Log("SetWindowsHookEx returned error 0x%x when attempting to set a mouse hook", GetLastError());
 
 	Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, GetCurrentThreadId());
-	if(Vars.hMouseHook == NULL)
+	if(Vars.hKeybHook == NULL)
 		Log("SetWindowsHookEx returned error 0x%x when attempting to set a keyboard hook", GetLastError());
 
 	DefineOffsets();
