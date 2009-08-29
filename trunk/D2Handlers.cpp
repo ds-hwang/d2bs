@@ -427,7 +427,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 VOID GameDraw(VOID)
 {
 	Console::Draw();
-	if(GameReady())
+	if(GetClientState() != ClientStateOOG)
 		Genhook::DrawAll(IG);
 }
 
@@ -435,7 +435,7 @@ VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
 	Console::Draw();
-	if(!GameReady())
+	if(GetClientState() == ClientStateOOG)
 		Genhook::DrawAll(OOG);
 }
 
@@ -471,3 +471,4 @@ VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
+

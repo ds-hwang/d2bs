@@ -15,3 +15,4 @@ VOID GameDrawOOG(VOID);
 VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText);
 DWORD __fastcall GameAttack(AttackStruct* pAttack);
 VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer);
+
