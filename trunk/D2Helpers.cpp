@@ -133,7 +133,7 @@ BOOL GameReady(VOID)
 			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1 &&
 			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2 &&
 			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel &&
-			GetPlayerArea());
+			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo);
 }
 
 DWORD GetPlayerArea(VOID)
