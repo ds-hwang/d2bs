@@ -5,10 +5,13 @@
 
 enum DistanceType { Euclidean, Chebyshev, Manhattan };
 
+enum ClientState { ClientStateOOG, ClientStateReady, ClientStateBusy };
+
 VOID	Log(CHAR* szFormat, ...);
 
 WORD	GetUnitX(UnitAny* pUnit);
 WORD	GetUnitY(UnitAny* pUnit);
+ClientState GetClientState(VOID);
 BOOL	GameReady(VOID);
 DWORD	GetPlayerArea(VOID);
 VOID	ScreenSizeCheck(POINT* pPoint);

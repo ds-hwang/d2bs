@@ -113,26 +113,32 @@ VOID SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 	*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
 }
 
+ClientState GetClientState(VOID)
+{
+	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
+		return ClientStateReady;
+	else if(*p_D2CLIENT_PlayerUnit && *p_D2WIN_FirstControl)
+		return ClientStateBusy;
+	else
+		return ClientStateOOG;
+}
+
 BOOL GameReady(VOID)
 {
-	UnitAny* player = D2CLIENT_GetPlayerUnit();
-	return !!(player &&
-			player->pInventory &&
-			player->pPath &&
-			player->pPath->xPos &&
-			player->pPath->pRoom1 &&
-			player->pPath->pRoom1->pRoom2 &&
-			player->pPath->pRoom1->pRoom2->pLevel &&
+	return !!(GetClientState() == ClientStateReady &&
+			*p_D2CLIENT_PlayerUnit &&
+			(*p_D2CLIENT_PlayerUnit)->pInventory &&
+			(*p_D2CLIENT_PlayerUnit)->pPath &&
+			(*p_D2CLIENT_PlayerUnit)->pPath->xPos &&
+			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1 &&
+			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2 &&
+			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel &&
 			GetPlayerArea());
 }
 
 DWORD GetPlayerArea(VOID)
 {
-	UnitAny* player = D2CLIENT_GetPlayerUnit();
-	if(player && player->pPath && player->pPath->pRoom1 &&
-		player->pPath->pRoom1->pRoom2 && player->pPath->pRoom1->pRoom2->pLevel)
-			return player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
-	return NULL;
+	return (GameReady() ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
 }
 
 Level* GetLevel(DWORD dwLevelNo)
