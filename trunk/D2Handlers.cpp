@@ -286,7 +286,6 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-	//if((code != HC_ACTION)) // changed to reflect code found on MSDN -- TechnoHunter
 	if(code < 0)
 		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 
@@ -345,6 +344,14 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 				if(isDown && Console::IsEnabled())
 					Console::RemoveLastKey();
 				break;
+			case VK_UP:
+				if(isUp && !isRepeat && Console::IsEnabled())
+					Console::PrevCommand();
+				break;
+			case VK_DOWN:
+				if(isUp && !isRepeat && Console::IsEnabled())
+					Console::NextCommand();
+				break;
 			default:
 				if(isDown && Console::IsEnabled())
 				{
@@ -367,8 +374,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
-	//if((code != HC_ACTION)) // changed to reflect code found on MSDN -- TechnoHunter
-	if((code < 0))
+	if(code < 0)
 		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
 
 	if(Vars.bBlockMouse)
@@ -420,8 +426,6 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 VOID GameDraw(VOID)
 {
-	if(!Console::IsReady())
-		Console::Initialize();
 	Console::Draw();
 	if(GameReady())
 		Genhook::DrawAll(IG);
@@ -430,8 +434,6 @@ VOID GameDraw(VOID)
 VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
-	if(!Console::IsReady())
-		Console::Initialize();
 	Console::Draw();
 	if(!GameReady())
 		Genhook::DrawAll(OOG);
@@ -444,7 +446,6 @@ VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText)
 
 DWORD __fastcall GameAttack(AttackStruct* pAttack)
 {
-
 	if(!pAttack)
 		return -1;
 

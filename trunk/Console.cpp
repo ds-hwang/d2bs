@@ -1,5 +1,6 @@
 #include "Console.h"
 #include "ScriptEngine.h"
+#include "Helpers.h"
 
 #include <sstream>
 #include <string>
@@ -8,12 +9,14 @@ bool Console::visible = false;
 bool Console::enabled = false;
 bool Console::initialized = false;
 std::deque<std::string> Console::lines = std::deque<std::string>();
+std::deque<std::string> Console::commands = std::deque<std::string>();
 BoxHook* Console::box = NULL;
 TextHook* Console::prompt = NULL;
 TextHook* Console::text = NULL;
 LineHook* Console::cursor = NULL;
 TextHook* Console::lineBuffers[14];
 unsigned int Console::lineCount = 14;
+unsigned int Console::commandPos = 0;
 CRITICAL_SECTION Console::lock = {0};
 
 void Console::Initialize(void)
@@ -78,9 +81,89 @@ void Console::AddKey(unsigned int key)
 
 void Console::ExecuteCommand(void)
 {
-	Script* script = ScriptEngine::CompileCommand(text->GetText());
-	if(script)
-		CreateThread(0, 0, ScriptThread, script, 0, 0);
+	const char* cmd = text->GetText();
+	char *argv[2];
+	INT argc = StringTokenize(const_cast<char*>(cmd), ' ', argv, 2);
+
+	commands.push_back(std::string(cmd));
+	commandPos = commands.size();
+
+	if(!_strcmpi(argv[0], "start"))
+	{
+		char file[_MAX_PATH+_MAX_FNAME];
+		sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+		Script* script = ScriptEngine::CompileFile(file, InGame);
+		if(script)
+		{
+			AddLine("ÿc2D2BSÿc0 :: Starting default.dbj");
+			CreateThread(0, 0, ScriptThread, script, 0, 0);
+		}
+		else
+			AddLine("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
+	}
+	else if(!_strcmpi(argv[0], "stop"))
+	{
+		if(ScriptEngine::GetCount() > 0)
+			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts!");
+
+		ScriptEngine::StopAll(true);
+	}
+	else if(!_strcmpi(argv[0], "flush"))
+	{
+		if(!Vars.bDisableCache)
+		{
+			AddLine("ÿc2D2BSÿc0 :: Flushing the script cache...");
+			ScriptEngine::FlushCache();
+		}
+	}
+	else if(!_strcmpi(argv[0], "load"))
+	{
+		if(argc >= 2)
+		{
+			char msg[256];
+			sprintf(msg, "ÿc2D2BSÿc0 :: Loading %s", argv[1]);
+			AddLine(msg);
+
+			CHAR szPath[8192] = "";
+			sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
+
+			Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
+			if(script)
+				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			else
+			{
+				sprintf(msg, "ÿc2D2BSÿc0 :: Failed to load %s!", argv[1]);
+				AddLine(msg);
+			}
+		}
+	}
+	else if(!_strcmpi(argv[0], "reload"))
+	{
+		if(ScriptEngine::GetCount() > 0)
+			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts...");
+		ScriptEngine::StopAll(true);
+
+		if(!Vars.bDisableCache)
+		{
+			AddLine("ÿc2D2BSÿc0 :: Flushing the script cache...");
+			ScriptEngine::FlushCache();
+		}
+
+		AddLine("ÿc2D2BSÿc0 :: Starting default.dbj...");
+		char file[_MAX_PATH+_MAX_FNAME];
+		sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+		Script* script = ScriptEngine::CompileFile(file, InGame);
+		if(script)
+			CreateThread(0, 0, ScriptThread, script, 0, 0);
+		else
+			AddLine("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
+	}
+	else
+	{
+		Script* script = ScriptEngine::CompileCommand(cmd);
+		if(script)
+			CreateThread(0, 0, ScriptThread, script, 0, 0);
+	}
 	text->SetText("");
 }
 
@@ -95,6 +178,24 @@ void Console::RemoveLastKey(void)
 		delete newcmd;
 	}
 	LeaveCriticalSection(&lock);
+}
+
+void Console::PrevCommand(void)
+{
+	if(commandPos < 1)
+		return;
+
+	commandPos--;
+	text->SetText(commands[commandPos].c_str());
+}
+
+void Console::NextCommand(void)
+{
+	if(commandPos >= commands.size())
+		return;
+
+	commandPos++;
+	text->SetText(commands[commandPos].c_str());
 }
 
 void Console::AddLine(std::string line)
@@ -116,7 +217,10 @@ void Console::AddLine(std::string line)
 	LeaveCriticalSection(&lock);
 }
 
-void Console::Clear(void) { lines.clear(); }
+void Console::Clear(void)
+{
+	lines.clear();
+}
 
 void Console::Toggle(void)
 {
@@ -210,6 +314,8 @@ void Console::Draw(void)
 {
 	// update the hooks to their necessary values
 	static DWORD count = 0;
+	if(!IsReady())
+		Initialize();
 
 	if(IsVisible())
 	{
@@ -226,6 +332,7 @@ void Console::Draw(void)
 		if(box->GetXSize() != width)
 		{
 			// screen resolution reset, time to adjust all coordinates as necessary
+			// TODO: fix up the lines when the screen resizes
 			box->SetXSize(width);
 		}
 	}

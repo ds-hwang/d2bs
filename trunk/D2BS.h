@@ -133,4 +133,7 @@ struct Variables
 
 extern Variables Vars;
 
+void Startup(void);
+void Shutdown(void);
+
 #endif

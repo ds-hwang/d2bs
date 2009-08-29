@@ -17,6 +17,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 		return NULL;
 	file = _strlwr(_strdup(file));
 	try {
+		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
 			if(recompile && scripts.count(file) > 0) {
 				scripts[file]->Stop(true, true);
@@ -28,7 +29,6 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return ret;
 			}
 		}
-		EnterCriticalSection(&lock);
 		Script* script = new Script(file, state);
 		scripts[file] = script;
 		LeaveCriticalSection(&lock);
@@ -48,6 +48,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		return NULL;
 	char* file = _strlwr(_strdup(command));
 	try {
+		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
 			if(scripts.count(file) > 0) {
 				Script* ret = scripts[file];
@@ -55,7 +56,6 @@ Script* ScriptEngine::CompileCommand(const char* command)
 				return ret;
 			}
 		}
-		EnterCriticalSection(&lock);
 		Script* script = new Script(command, Command);
 		scripts[file] = script;
 		LeaveCriticalSection(&lock);

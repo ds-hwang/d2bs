@@ -12,13 +12,13 @@ class Console
 {
 private:
 	static bool visible, enabled, initialized;
-	static std::deque<std::string> lines;
+	static std::deque<std::string> lines, commands;
 	static BoxHook* box;
 	static TextHook* prompt;
 	static TextHook* text;
 	static LineHook* cursor;
 	static TextHook* lineBuffers[14];
-	static unsigned int lineCount;
+	static unsigned int lineCount, commandPos;
 	static CRITICAL_SECTION lock;
 
 public:
@@ -41,6 +41,8 @@ public:
 	static void AddKey(unsigned int key);
 	static void ExecuteCommand(void);
 	static void RemoveLastKey(void);
+	static void PrevCommand(void);
+	static void NextCommand(void);
 	static void AddLine(std::string line);
 	static void Clear(void);
 	static void Draw(void);
