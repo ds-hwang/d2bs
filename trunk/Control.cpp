@@ -5,15 +5,15 @@
 
 #include "debugnew/debug_new.h"
 
-Control* findControl(DWORD dwType, char* Text, DWORD dwDisabled, DWORD dwPosX, DWORD dwPosY, DWORD dwSizeX, DWORD dwSizeY)
+Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
 {
 	BOOL bFound = FALSE;
 
 	for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
 	{
-		if(dwType >= 0 && pControl->dwType == dwType)
+		if(Type >= 0 && static_cast<int>(pControl->dwType) == Type)
 			bFound = TRUE;
-		else if(dwType >= 0 && pControl->dwType != dwType)
+		else if(Type >= 0 && static_cast<int>(pControl->dwType) != Type)
 		{
 			bFound = FALSE;
 			continue;
@@ -23,13 +23,14 @@ Control* findControl(DWORD dwType, char* Text, DWORD dwDisabled, DWORD dwPosX, D
 		{
 			if(strcmp(UnicodeToAnsi(pControl->wText2), Text) == 0)
 				bFound = TRUE;
-			else {
+			else
+			{
 				bFound = FALSE;
 				continue;
 			}
 		}
 
-		if(dwDisabled >= 0 && pControl->dwDisabled == dwDisabled)
+		if(Disabled >= 0 && static_cast<int>(pControl->dwDisabled) == Disabled)
 		{
 			if(pControl->dwType == 6 && pControl->unkState == 1)
 			{
@@ -38,39 +39,39 @@ Control* findControl(DWORD dwType, char* Text, DWORD dwDisabled, DWORD dwPosX, D
 			}
 			bFound = TRUE;
 		}
-		else if(dwDisabled >= 0 && pControl->dwDisabled != dwDisabled)
+		else if(Disabled >= 0 && static_cast<int>(pControl->dwDisabled) != Disabled)
 		{			
 			bFound = FALSE;
 			continue;
 		}
 
-		if(dwPosX >= 0 && pControl->dwPosX == dwPosX)
+		if(PosX >= 0 && static_cast<int>(pControl->dwPosX) == PosX)
 			bFound = TRUE;
-		else if(dwPosX >= 0 && pControl->dwPosX != dwPosX)
+		else if(PosX >= 0 && static_cast<int>(pControl->dwPosX) != PosX)
 		{
 			bFound = FALSE;
 			continue;
 		}
 
-		if(dwPosY >= 0 && pControl->dwPosY == dwPosY)
+		if(PosY >= 0 && static_cast<int>(pControl->dwPosY) == PosY)
 			bFound = TRUE;
-		else if(dwPosY >= 0 && pControl->dwPosY != dwPosY)
+		else if(PosY >= 0 && static_cast<int>(pControl->dwPosY) != PosY)
 		{
 			bFound = FALSE;
 			continue;
 		}
 
-		if(dwSizeX >= 0 && pControl->dwSizeX == dwSizeX)
+		if(SizeX >= 0 && static_cast<int>(pControl->dwSizeX) == SizeX)
 			bFound = TRUE;
-		else if(dwSizeX >= 0 && pControl->dwSizeX != dwSizeX)
+		else if(SizeX >= 0 && static_cast<int>(pControl->dwSizeX) != SizeX)
 		{
 			bFound = FALSE;
 			continue;
 		}
 
-		if(dwSizeY >= 0 && pControl->dwSizeY == dwSizeY)
+		if(SizeY >= 0 && static_cast<int>(pControl->dwSizeY) == SizeY)
 			bFound = TRUE;
-		else if(dwSizeY >= 0 && pControl->dwSizeY != dwSizeY)
+		else if(SizeY >= 0 && static_cast<int>(pControl->dwSizeY) != SizeY)
 		{
 			bFound = FALSE;
 			continue;
