@@ -2203,6 +2203,7 @@ JSAPI_FUNC(my_login)
 		 mode[15], username[48], password[256], gateway[256], charname[24],
 		 maxLoginTime[10], maxCharTime[10];
 
+	Control* pControl = NULL;
 	bool handledCase = false;
 	int loginTime = 0, charTime = 0;
 
@@ -2216,7 +2217,7 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 
 	// Look for the version string, otherwise return.
-	if(!findControl(4,0,599,200,40))
+	if(!findControl(4, NULL, -1, 0, 599, 200, 40))
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
@@ -2241,7 +2242,7 @@ JSAPI_FUNC(my_login)
 			break;
 		case 's':
 			// Single player button
-			if(!clickControl(findControl(6,264,324,272,35)))
+			if(!clickControl(findControl(6, NULL, -1, 264, 324, 272, 35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'single player' button?");
 			break;
 		case 'b':
@@ -2256,7 +2257,7 @@ JSAPI_FUNC(my_login)
 			//Vars.bBlockKeys = Vars.bBlockMouse = 0;// REMOVE AFTER TESTING
 			//return JS_TRUE;// REMOVE AFTER TESTING -- TechnoHunter
 
-			if(!clickControl(findControl(6,264,366,272,35)))
+			if(!clickControl(findControl(6, NULL, -1, 264, 366, 272, 35)))
 				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
 			handledCase = true;
 			
@@ -2278,36 +2279,51 @@ JSAPI_FUNC(my_login)
 			if(!handledCase)
 			{
 				// Other Multiplayer
-				if(!clickControl(findControl(6,264,433,272,35)))
+				if(!clickControl(findControl(6, NULL, -1, 264, 433, 272, 35)))
 					THROW_ERROR(cx, obj, "Failed to click the 'Other Multiplayer' button?");
 				// Open Battle.net
-				if(!clickControl(findControl(6,264,310,272,35)))
+				if(!clickControl(findControl(6, NULL, -1, 264, 310, 272, 35)))
 					THROW_ERROR(cx, obj, "Failed to click the 'Open Battle.net' button?");
 			}
 
 			// Connecting
-			for(int i = 0; findControl(4,222,360,340,70); i++)
+			for(int i = 0; pControl = findControl(4, NULL, -1, 222, 360, 340, 70); i++)
 			{
-				Sleep(500);
+				if(!pControl)
+					Sleep(500);
+
 				if(i*500 > loginTime)
 					THROW_ERROR(cx, obj, "Exceeded max login time");
 			}
 
 			// TODO :: handle case where cd key is banned, etc.
 
-			// Username text-edit box
-			SetControlText(findControl(1,322,342,162,19), username);
-			// Password text-edit box
-			SetControlText(findControl(1,322,396,162,19), password);
-			// Log-in
-			if(!clickControl(findControl(6,264,484,272,35)))
-				THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
+			//Username text-edit box
+			if(pControl = findControl(1, NULL, -1, 322, 342, 162, 19))
+				SetControlText(pControl, username);
+			else
+				THROW_ERROR(cx, obj, "Failed to set the 'Username' text-edit box.");
 
-			// TODO - handle bad password here -TechnoHunter
+			// Password text-edit box
+			if(pControl = findControl(1, NULL, -1, 322, 396, 162, 19))
+				SetControlText(pControl, password);
+			else
+				THROW_ERROR(cx, obj, "Failed to set the 'Password' text-edit box.");
+
+			// Log-in
+			if(pControl = findControl(6, NULL, -1, 264, 484, 272, 35))
+				if(!clickControl(pControl))
+					THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
+
+			// TODO
+			// - handle bad password here -TechnoHunter
+
 			// Connecting
-			for(int i = 0; findControl(6,351,337,96,32); i++)
+			for(int i = 0; pControl = findControl(6, NULL, -1, 351, 337, 96, 32); i++)
 			{
-				Sleep(500);
+				if(!pControl)
+					Sleep(500);
+				
 				if(i*500 > charTime)
 					THROW_ERROR(cx, obj, "Exceeded max character select time");
 			}

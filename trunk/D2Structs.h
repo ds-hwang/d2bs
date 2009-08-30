@@ -144,7 +144,7 @@ struct Control {
    DWORD _9;						//0x38
    Control* pNext;					//0x3C
    DWORD _10;						//0x40
-   DWORD _11;						//0x44
+   DWORD unkState; 					//0x44 __11 0 when button avail to be clicked 1 when greyed - still need to look at this more
    ControlText* pFirstText;			//0x48
    ControlText* pLastText;			//0x4C
    ControlText* pSelectedText;		//0x50

@@ -1,4 +1,3 @@
-//#include "D2BS.h"
 #include "Control.h"
 #include "JSControl.h"
 #include "CDebug.h"
@@ -27,7 +26,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 
 	if(!pControl)
 		return JS_TRUE;
@@ -93,17 +92,19 @@ JSAPI_PROP(control_setProperty) {
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 
 	if(!pControl)
 		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id))
 	{
-		case CONTROL_TEXT: {
+		case CONTROL_TEXT: 
+		{
 			if (!(pControl->dwType == 1))
 				return JS_TRUE;
-			if(JSVAL_IS_STRING(*vp)) {
+			if(JSVAL_IS_STRING(*vp))
+			{
 				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				wchar_t* szwText = AnsiToUnicode(pText);
 				D2WIN_SetControlText(pControl, szwText);
@@ -111,8 +112,10 @@ JSAPI_PROP(control_setProperty) {
 			}
 			break;
 		}
-		case CONTROL_STATE: {
-			if (JSVAL_IS_INT(*vp)) {
+		case CONTROL_STATE:
+		{
+			if (JSVAL_IS_INT(*vp))
+			{
 				int nState = JSVAL_TO_INT(*vp);
 				if (nState < 0 || nState > 3)
 					return JS_TRUE;
@@ -120,8 +123,10 @@ JSAPI_PROP(control_setProperty) {
 			}
 			break;
 		}
-		case CONTROL_CURSORPOS: {
-			if (JSVAL_IS_INT(*vp)) {
+		case CONTROL_CURSORPOS:
+		{
+			if (JSVAL_IS_INT(*vp))
+			{
 				DWORD dwPos = JSVAL_TO_INT(*vp);
 //				if (dwPos < 0 || dwPos > pControl->dwMaxLength)
 //					return JS_TRUE;
@@ -142,13 +147,14 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-	if (pControl && pControl->pNext)
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	if(pControl && pControl->pNext)
 		pControl = pControl->pNext;
 	else
 		pControl = NULL;
 
-	if (!pControl) {
+	if(!pControl)
+	{
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
@@ -183,9 +189,10 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 
-	if (!pControl) {
+	if(!pControl)
+	{
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
@@ -212,9 +219,10 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 
-	if (!pControl) {
+	if(!pControl)
+	{
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
@@ -240,9 +248,10 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 
-	if (!pControl) {
+	if(!pControl)
+	{
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
@@ -259,7 +268,6 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 			continue;
 
 		char* tmp = UnicodeToAnsi(pText->wText);
-
 		jsval aString = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, tmp));
 		delete[] tmp;
 		JS_SetElement(cx, pReturnArray, nArrayCount, &aString); 
@@ -285,15 +293,16 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		if(JSVAL_IS_INT(argv[i]))
 			*args[i] = JSVAL_TO_INT(argv[i]);
 
-	if(argc > 0 && (nType != -1 || nX != -1 || nY != -1 || nXSize != -1 || nYSize != -1)) {
+	if(argc > 0 && (nType != -1 || nX != -1 || nY != -1 || nXSize != -1 || nYSize != -1))
+	{
 		for(pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
 		{
 			if((nType != -1 && pControl->dwType == nType) &&
-			   (nX != -1 && pControl->dwPosX == nX) &&
-			   (nY != -1 && pControl->dwPosY == nY) &&
-			   (nXSize != -1 && pControl->dwSizeX == nXSize) &&
-			   (nYSize != -1 && pControl->dwSizeY == nYSize))
-					break;
+					(nX != -1 && pControl->dwPosX == nX) &&
+					(nY != -1 && pControl->dwPosY == nY) &&
+					(nXSize != -1 && pControl->dwSizeX == nXSize) &&
+					(nYSize != -1 && pControl->dwSizeY == nYSize))
+				break;
 		}
 	}
 
@@ -315,3 +324,4 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	return JS_TRUE;
 }
+
