@@ -2201,11 +2201,11 @@ JSAPI_FUNC(my_login)
 
 	char file[_MAX_FNAME+MAX_PATH], *profile,
 		 mode[15], username[48], password[256], gateway[256], charname[24],
-		 maxLoginTime[10], maxCharTime[10];
+		 difficulty[10], maxLoginTime[10], maxCharTime[10];
 
 	Control* pControl = NULL;
 	bool handledCase = false;
-	int loginTime = 0, charTime = 0;
+	int loginTime = 0, charTime = 0, SPdifficulty = 0;
 
 	if(!JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid profile specified!");
@@ -2215,6 +2215,9 @@ JSAPI_FUNC(my_login)
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
+	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(charname), file);
+
+	SPdifficulty = atoi(difficulty);
 
 	// Look for the version string, otherwise return.
 	if(!findControl(4, NULL, -1, 0, 599, 200, 40))
@@ -2328,10 +2331,32 @@ JSAPI_FUNC(my_login)
 			break;
 	}
 
-	// wait until the character select screen is loaded
-	//Sleep(3000);
-
 	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
+
+	if(tolower(mode[0]) == 's')
+	{
+		switch(SPdifficulty)
+		{
+			case 0:
+				// normal button
+				if(!clickControl(findControl(6, NULL, -1, 264, 297, 272, 35)))
+					THROW_ERROR(cx, obj, "Failed to click the 'Normal Difficulty' button?");
+				break;
+			case 1:
+				// nightmare button
+				if(!clickControl(findControl(6, NULL, -1, 264, 340, 272, 35)))
+					THROW_ERROR(cx, obj, "Failed to click the 'Nightmare Difficulty' button?");
+				break;
+			case 2:
+				// hell button/
+				if(!clickControl(findControl(6, NULL, -1, 264, 383, 272, 35)))
+					THROW_ERROR(cx, obj, "Failed to click the 'Hell Difficulty' button?");
+				break;
+			default:
+				THROW_ERROR(cx, obj, "Invalid single player difficulty level specified!");
+				break;
+		}
+	}
 
 	// wait until the game is loading, to prevent misclicks
 	Sleep(1000);
