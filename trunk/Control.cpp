@@ -104,9 +104,23 @@ bool clickControl(Control* pControl, int x, int y)
 
 BOOL OOG_SelectCharacter(char * szCharacter)
 {
-
+	//delay for fist char box and char info fillin
+	// should prevent trying to select char on realm down. bobite
+	bool found= false;
+	int timeout = 0;
+	Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
+	while(!found){
+		Sleep(500);
+		pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
+		if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL){
+			found= true;
+		}
+		timeout++;
+		if (timeout > 30)
+			return false;
+	}
 	// Select the first control on the character selection screen.
-	Control* pControl = findControl(4, NULL, -1, 237, 178, 72, 93);
+	 pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
 	ControlText* cText;
 
 	while(pControl != NULL)

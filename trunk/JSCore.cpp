@@ -2329,7 +2329,7 @@ JSAPI_FUNC(my_login)
 	}
 
 	// wait until the character select screen is loaded
-	Sleep(3000);
+	//Sleep(3000);
 
 	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
 
