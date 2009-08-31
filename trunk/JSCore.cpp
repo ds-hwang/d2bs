@@ -2287,11 +2287,9 @@ JSAPI_FUNC(my_login)
 			}
 
 			// Connecting
-			for(int i = 0; pControl = findControl(4, NULL, -1, 222, 360, 340, 70); i++)
+			for(int i = 0; findControl(4, NULL, -1, 222, 360, 340, 70); i++)
 			{
-				if(!pControl)
-					Sleep(500);
-
+				Sleep(500);
 				if(i*500 > loginTime)
 					THROW_ERROR(cx, obj, "Exceeded max login time");
 			}
@@ -2319,11 +2317,9 @@ JSAPI_FUNC(my_login)
 			// - handle bad password here -TechnoHunter
 
 			// Connecting
-			for(int i = 0; pControl = findControl(6, NULL, -1, 351, 337, 96, 32); i++)
+			for(int i = 0; findControl(6, NULL, -1, 351, 337, 96, 32); i++)
 			{
-				if(!pControl)
-					Sleep(500);
-				
+				Sleep(500);
 				if(i*500 > charTime)
 					THROW_ERROR(cx, obj, "Exceeded max character select time");
 			}
