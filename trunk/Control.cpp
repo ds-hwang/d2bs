@@ -216,9 +216,20 @@ BOOL OOG_SelectGateway(char * szGateway)
 				}
 			}
 
-			// OK Button, gateway select screen	
-			if(findControl(6, NULL, -1, 281, 538, 96, 32))
-				clickControl(pControl);
+			// OK Button, gateway select screen
+			if(pControl = findControl(6, NULL, -1, 281, 538, 96, 32))
+			{
+				if(!clickControl(pControl))
+				{
+					delete[] szLine;
+					return FALSE;
+				}
+			}
+			else
+			{
+				delete[] szLine;
+				return FALSE;
+			}
 			delete[] szLine;
 			return TRUE;
 		}
