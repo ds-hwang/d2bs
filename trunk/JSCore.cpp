@@ -2239,7 +2239,6 @@ JSAPI_FUNC(my_login)
 			*rval = JSVAL_FALSE;
 			Vars.bBlockKeys = Vars.bBlockMouse = 0;
 			return JS_TRUE;
-			break;
 		case 's':
 			// Single player button
 			if(!clickControl(findControl(6, NULL, -1, 264, 324, 272, 35)))
@@ -2313,8 +2312,7 @@ JSAPI_FUNC(my_login)
 				if(!clickControl(pControl))
 					THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
 
-			// TODO
-			// - handle bad password here -TechnoHunter
+			// TODO - handle bad password here -TechnoHunter
 
 			// Connecting
 			for(int i = 0; findControl(6, NULL, -1, 351, 337, 96, 32); i++)
@@ -2329,6 +2327,9 @@ JSAPI_FUNC(my_login)
 			THROW_ERROR(cx, obj, "Invalid login mode specified!");
 			break;
 	}
+
+	// wait until the character select screen is loaded
+	Sleep(3000);
 
 	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
 
