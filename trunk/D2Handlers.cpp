@@ -92,7 +92,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				{
 					Vars.dwGameTime = NULL;
 					bInGame = FALSE;
-
+				}
+				else
+				{
 					if(!bStarterScript)
 					{
 						Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
