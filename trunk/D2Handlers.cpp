@@ -88,23 +88,21 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					bClicked = TRUE;
 				}
 
+				if(!bStarterScript)
+				{
+					Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
+					Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
+					if(script)
+						CreateThread(0, 0, ScriptThread, script, 0, 0);
+					else
+						Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
+					bStarterScript = TRUE;
+				}
+
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
 					bInGame = FALSE;
-				}
-				else
-				{
-					if(!bStarterScript)
-					{
-						Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
-						Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
-						if(script)
-							CreateThread(0, 0, ScriptThread, script, 0, 0);
-						else
-							Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
-						bStarterScript = TRUE;
-					}
 				}
 
 				break;
