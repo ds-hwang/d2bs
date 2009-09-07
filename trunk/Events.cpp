@@ -19,7 +19,7 @@ VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 	}
 }
 
-VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
+VOID WhisperEvent(CHAR* lpszNick, CHAR* lpszMsg)
 {
 	ScriptList scripts;
 	ScriptEngine::GetScripts(scripts);
@@ -31,7 +31,7 @@ VOID BNCSChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
 		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
-		(*it)->ExecEventAsync("gamemsg", 2, argv);
+		(*it)->ExecEventAsync("whispermsg", 2, argv);
 	}
 }
 
@@ -67,7 +67,7 @@ VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 	}
 }
 
-VOID ChatCmdEvent(CHAR* lpszMsg)
+VOID GameMsgEvent(CHAR* lpszMsg)
 {
 	ScriptList scripts;
 	ScriptEngine::GetScripts(scripts);
@@ -78,7 +78,7 @@ VOID ChatCmdEvent(CHAR* lpszMsg)
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
-		(*it)->ExecEventAsync("chatcmd", 1, argv);
+		(*it)->ExecEventAsync("gamemsg", 1, argv);
 	}
 }
 
@@ -158,5 +158,23 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 		for(uintN i = 0; i < argc; i++)
 			argv[i] = new AutoRoot(cx, args[i]);
 		(*it)->ExecEventAsync("scriptmsg", argc, argv);
+	}
+}
+VOID ItemDropEvent(DWORD GID,CHAR* Code,WORD itemX,WORD itemY,WORD Mode)
+{
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning())
+			continue;
+		JSContext* cx = (*it)->GetContext();
+		AutoRoot** argv = new AutoRoot*[5];
+		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(GID));
+		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Code)));
+		argv[2] = new AutoRoot(cx, INT_TO_JSVAL(itemX));
+		argv[3] = new AutoRoot(cx, INT_TO_JSVAL(itemY));
+		argv[4] = new AutoRoot(cx, INT_TO_JSVAL(Mode));
+		(*it)->ExecEventAsync("itemdrop", 5, argv);
 	}
 }

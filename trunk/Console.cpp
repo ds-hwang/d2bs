@@ -200,6 +200,8 @@ void Console::NextCommand(void)
 
 void Console::AddLine(std::string line)
 {
+if(!IsReady())
+		Initialize();
 	EnterCriticalSection(&lock);
 
 	// add the new line to the list
