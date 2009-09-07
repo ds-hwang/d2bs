@@ -5,15 +5,15 @@
 
 INT StringTokenize(CHAR * input, CHAR separator, CHAR ** tokenbuf, INT maxtokens)
 {
-	CHAR * p = _strdup(input);
+	CHAR * p = _strdup(input), * j = p;
 	INT i = 0;
 	do {
-		tokenbuf[i] = p;
+		tokenbuf[i] = (input + (p - j));
 		p = strchr(p, separator);
 		if(p)
 			*(p++) = 0;
 	} while (p && ++i < maxtokens);
-	free(p); 
+	free(j); 
 	return ++i;
 }
 

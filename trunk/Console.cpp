@@ -191,7 +191,7 @@ void Console::PrevCommand(void)
 
 void Console::NextCommand(void)
 {
-	if(commandPos >= commands.size())
+	if(commandPos > commands.size())
 		return;
 
 	commandPos++;

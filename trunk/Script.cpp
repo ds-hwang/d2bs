@@ -79,7 +79,6 @@ Script::Script(const char* file, ScriptState state) :
 
 		JS_InitStandardClasses(context, globalObject);
 		JS_DefineFunctions(context, globalObject, global_funcs);
-		JS_AddRoot(context, &globalObject);// added for testing proper destroy context code
 
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
 		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
@@ -333,7 +332,7 @@ bool Script::Include(const char* file)
 bool Script::IsRunning(void)
 {
 	EnterCriticalSection(&lock);
-	bool result = context && !(!JS_IsRunning(context) || IsPaused());
+	bool result = !IsBadReadPtr(this, sizeof(this)) && context && !(!JS_IsRunning(context) || IsPaused());
 	LeaveCriticalSection(&lock);
 	return result;
 }
