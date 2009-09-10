@@ -331,10 +331,8 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	EnterCriticalSection(&lock);
-	bool result = !IsBadReadPtr(this, sizeof(this)) && context && !(!JS_IsRunning(context) || IsPaused());
-	LeaveCriticalSection(&lock);
-	return result;
+	return !IsBadReadPtr(this, sizeof(this)) && !IsBadReadPtr(context, sizeof(context)) &&
+					context && !(!JS_IsRunning(context) || IsPaused());
 }
 
 bool Script::IsAborted()
