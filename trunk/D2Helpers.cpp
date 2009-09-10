@@ -117,10 +117,10 @@ ClientState GetClientState(VOID)
 {
 	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
 		return ClientStateReady;
-	else if(*p_D2CLIENT_PlayerUnit && *p_D2WIN_FirstControl)
-		return ClientStateBusy;
-	else
+	else if(!(*p_D2CLIENT_PlayerUnit) && *p_D2WIN_FirstControl)
 		return ClientStateOOG;
+	else
+		return ClientStateBusy;
 }
 
 BOOL GameReady(VOID)
