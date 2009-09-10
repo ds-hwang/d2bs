@@ -99,6 +99,7 @@ void Startup(void)
 	InitializeCriticalSection(&Vars.cImageHookSection);
 	InitializeCriticalSection(&Vars.cTextHookSection);
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
+	InitializeCriticalSection(&Vars.cConsoleSection);
 
 	Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, GetCurrentThreadId());
 	if(Vars.hMouseHook == NULL)
@@ -149,4 +150,5 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cImageHookSection);
 	DeleteCriticalSection(&Vars.cTextHookSection);
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
+	DeleteCriticalSection(&Vars.cConsoleSection);
 }

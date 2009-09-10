@@ -19,7 +19,6 @@ private:
 	static LineHook* cursor;
 	static TextHook* lineBuffers[14];
 	static unsigned int lineCount, commandPos;
-	static CRITICAL_SECTION lock;
 
 public:
 	static void Initialize(void);

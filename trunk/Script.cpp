@@ -261,7 +261,7 @@ void Script::Resume(void)
 
 bool Script::IsPaused(void)
 {
-	return isPaused;
+	return IsBadReadPtr(this, sizeof(this)) ? false : isPaused;
 }
 
 void Script::Stop(bool force, bool reallyForce)
@@ -339,7 +339,7 @@ bool Script::IsRunning(void)
 
 bool Script::IsAborted()
 {
-	return isAborted;
+	return IsBadReadPtr(this, sizeof(this)) ? true : isAborted;
 }
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)

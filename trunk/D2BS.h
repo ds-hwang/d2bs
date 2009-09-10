@@ -112,8 +112,8 @@ struct Variables
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
 
-	ImageHook* image;
-	TextHook* text;
+	ImageHook *image;
+	TextHook  *text;
 
 	// Critical Sections
 	CRITICAL_SECTION	cRoomSection;
@@ -126,6 +126,7 @@ struct Variables
 	CRITICAL_SECTION	cFrameHookSection;
 	CRITICAL_SECTION	cLineHookSection;
 	CRITICAL_SECTION	cFlushCacheSection;
+	CRITICAL_SECTION	cConsoleSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;

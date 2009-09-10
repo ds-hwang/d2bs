@@ -17,14 +17,12 @@ LineHook* Console::cursor = NULL;
 TextHook* Console::lineBuffers[14];
 unsigned int Console::lineCount = 14;
 unsigned int Console::commandPos = 0;
-CRITICAL_SECTION Console::lock = {0};
 
 void Console::Initialize(void)
 {
 	if(!initialized)
 	{
-		InitializeCriticalSection(&lock);
-		EnterCriticalSection(&lock);
+		EnterCriticalSection(&Vars.cConsoleSection);
 		POINT size = GetScreenSize();
 		int xsize = size.x;
 		int ysize = size.y;
@@ -53,30 +51,31 @@ void Console::Initialize(void)
 		cursor->SetIsVisible(false);
 
 		initialized = true;
-		LeaveCriticalSection(&lock);
+		LeaveCriticalSection(&Vars.cConsoleSection);
 	}
 }
 
 void Console::Destroy(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	delete box;
 	delete prompt;
 	delete text;
 	delete cursor;
 	initialized = false;
-	LeaveCriticalSection(&lock);
-	DeleteCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::AddKey(unsigned int key)
 {
+	EnterCriticalSection(&Vars.cConsoleSection);
 	const char* cmd = text->GetText();
 	int len = strlen(cmd);
 	char* newcmd = new char[len+2];
 	sprintf(newcmd, "%s%c", cmd, (char)key);
 	text->SetText(newcmd);
 	delete[] newcmd;
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::ExecuteCommand(void)
@@ -169,7 +168,7 @@ void Console::ExecuteCommand(void)
 
 void Console::RemoveLastKey(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	char* newcmd = _strdup(text->GetText());
 	if(strlen(newcmd) != 0)
 	{
@@ -177,33 +176,37 @@ void Console::RemoveLastKey(void)
 		text->SetText(newcmd);
 		delete newcmd;
 	}
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::PrevCommand(void)
 {
+	EnterCriticalSection(&Vars.cConsoleSection);
 	if(commandPos < 1)
 		return;
 
 	commandPos--;
 	text->SetText(commands[commandPos].c_str());
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::NextCommand(void)
 {
+	EnterCriticalSection(&Vars.cConsoleSection);
 	if(commandPos > commands.size())
 		return;
 
 	commandPos++;
 	text->SetText(commands[commandPos].c_str());
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::AddLine(std::string line)
 {
-if(!IsReady())
-		Initialize();
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 
+	if(!IsReady())
+		Initialize();
 	// add the new line to the list
 	lines.push_back(line);
 
@@ -216,12 +219,14 @@ if(!IsReady())
 	while(lines.size() > lineCount)
 		lines.pop_front();
 
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::Clear(void)
 {
+	EnterCriticalSection(&Vars.cConsoleSection);
 	lines.clear();
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::Toggle(void)
@@ -248,24 +253,24 @@ void Console::ToggleBuffer(void)
 
 void Console::Hide(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	HidePrompt();
 	HideBuffer();
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::HidePrompt(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	enabled = false;
 	prompt->SetIsVisible(false);
 	cursor->SetIsVisible(false);
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::HideBuffer(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	visible = false;
 	if(IsEnabled())
 		HidePrompt();
@@ -276,31 +281,31 @@ void Console::HideBuffer(void)
 
 	Vars.image->SetY(10);
 	Vars.text->SetY(15);
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::Show(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	ShowBuffer();
 	ShowPrompt();
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::ShowPrompt(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	enabled = true;
 	if(!IsVisible())
 		ShowBuffer();
 	prompt->SetIsVisible(true);
 	cursor->SetIsVisible(true);
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::ShowBuffer(void)
 {
-	EnterCriticalSection(&lock);
+	EnterCriticalSection(&Vars.cConsoleSection);
 	visible = true;
 	box->SetIsVisible(true);
 	text->SetIsVisible(true);
@@ -309,7 +314,7 @@ void Console::ShowBuffer(void)
 
 	Vars.image->SetY(box->GetYSize()+9);
 	Vars.text->SetY(box->GetYSize()+14);
-	LeaveCriticalSection(&lock);
+	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
 void Console::Draw(void)

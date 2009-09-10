@@ -78,6 +78,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			//case ClientStateBusy:
 			case ClientStateOOG:
 			{
+				if(bInGame)
+				{
+					Vars.dwGameTime = NULL;
+					bInGame = FALSE;
+				}
+
 				Vars.image->SetX(D2GetScreenSizeX()/2);
 				Vars.text->SetX(D2GetScreenSizeX()/2);
 
@@ -90,6 +96,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 				if(!bStarterScript && Vars.oldWNDPROC) // Vars.oldWNDPROC makes this debug mode friendly 
 				{
+					Sleep(500);
+
 					Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
 					Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
 					if(script)
@@ -98,13 +106,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 						Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
 					bStarterScript = TRUE;
 				}
-
-				if(bInGame)
-				{
-					Vars.dwGameTime = NULL;
-					bInGame = FALSE;
-				}
-
 				break;
 			}
 		}
