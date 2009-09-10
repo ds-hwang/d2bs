@@ -1019,10 +1019,10 @@ INT my_getMercHP(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 				if(pUnit->dwType == UNIT_MONSTER &&
 					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
 					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId &&
-					pUnit->dwMode != 12) 
+					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)									
+
 				{
-					*rval = INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId));
+					*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId)));
 					return JS_TRUE;
 				}
 			}
