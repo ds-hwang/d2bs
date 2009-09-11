@@ -72,7 +72,7 @@ void Startup(void)
 	GetPrivateProfileString("settings", "QuitOnHostile", "false", quitOnHostile, 6, fname);
 	GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
 	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
-	GetPrivateProfileString("settings", "DisableCache", "false", disableCache, 6, fname);
+	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 
 	sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
