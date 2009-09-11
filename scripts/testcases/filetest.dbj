@@ -1,0 +1,41 @@
+function main() {
+	print('starting File test');
+	if(!File)
+		throw new Error("File object not found?!");
+
+	var file = File.open("0kb.txt", FILE_WRITE, false, true, true);
+	for(var i in file)
+		print(i + " = " + file[i]);
+	if(!file.seekable)
+		throw new Error("file is not seekable?!");
+	if(file.mode != FILE_WRITE)
+		throw new Error("file isn't marked as being in write mode?!");
+	if(file.length != 0)
+		throw new Error("0-byte file is not 0 bytes?! reported length: " + file.length);
+
+	print('writing to the file');
+	file.write("test\r\ntest2\r\n");
+	if(file.length != 15)
+		throw new Error("writing 15 bytes didn't increase the file length to 15?! reported length: " + file.length);
+
+	print('testing file reading');
+	if(file.reset().read(1) != 't')
+		throw new Error("first character written to the file is not 't'?!");
+	if(file.reset().readLine() != 'test')
+		throw new Error("first line written to the file is not 'test'?!");
+	if(file.readLine() != 'test2')
+		throw new Error("second line written to the file is not 'test2'?!");
+
+	print('testing file flags');
+	if(file.close().readable)
+		throw new Error("closed file is still readable?!");
+	if(!file.reopen().writeable)
+		throw new Error("reopened writeable file is not writeable?!");
+	if(file.binaryMode)
+		throw new Error("file not opened in binary mode is considered in binary mode?!");
+	if(!file.autoflush)
+		throw new Error("file specified autoflush, but not set to autoflush?!");
+	file.close();
+	FileTools.remove("0kb.txt");
+	print('File test finished');
+}

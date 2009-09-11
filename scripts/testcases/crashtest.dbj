@@ -1,0 +1,9 @@
+function main() {
+	print("Crash test loaded!");
+	delay(5000);
+	print("Crash test beginning.");
+	let x = 0;
+	while(x++ < 65535)
+		scriptBroadcast("test");
+	print("Crash test done");
+}

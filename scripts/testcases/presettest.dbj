@@ -1,0 +1,106 @@
+//
+// Script presetTest.dbj
+// Author TechnoHunter
+// This example lists the classid's, the type, and the placement(x/y) for all preset-units of the area you staying in.
+//
+
+
+
+//This example lists the classid's, the type, the placment and the room number for all preset-units of the area you staying in.
+
+
+// Types 0 1 2 3 4 5
+var types      = ["Player ", "Mon/npc", "Object  ", "Missile", "Item   ", "Tile     "];
+var shouldSave = false;
+var notDone    = true;
+var file       = File.open("presetUnits.txt", FILE_APPEND);
+
+
+function KeyUpManager(keyup) {
+	//if(getUIFlag(0x05)==1 && keyup != 19)
+		//return;
+	switch (keyup) {
+		case 35: // "End" was pressed
+			print("ÿc;Key 'end' was pressed, ending script.");
+			notDone = false;
+			break;
+		case 88: // "X" was pressed
+			print("ÿc;Key 'X' was pressed, stopping the running script.");
+			delay(500);
+			stop(1);
+			break;
+		case 112: // "F1" was pressed
+			getPresets(0);
+			break;
+		case 113: // "F2" was pressed
+			getPresets(1);
+			break;
+		case 114: // "F3" was pressed
+			getPresets(2);
+			break;
+		case 115: // "F4" was pressed
+			getPresets(3);
+			break;
+		case 116: // "F5" was pressed
+			getPresets(4);
+			break;
+		case 117: // "F6" was pressed
+			getPresets(5);
+			break;
+		case 118: // "F7" was pressed
+			getPresets(null);
+			break;
+		case 122: // "F11" was pressed
+			shouldSave = !shouldSave;
+			print("Saving results to file : " + (shouldSave ? "enabled." : "disabled." ) );
+			break;
+	}
+}
+
+
+function getPresets(uType){
+	var presetunits = getPresetUnits(me.area, uType, null, null);
+	
+	if (!presetunits){
+		print("No presetunits of type : " + (uType ? types[uType] : "all") + " in this area.");
+		return;
+	}
+	print(presetunits.length + " presetunits of type : " + (uType ? types[uType] : "all") + " found...");
+	
+	for (var myType=0; myType < 6; myType++)
+		for (var i=0; i < presetunits.length; i++) {
+			if(presetunits[i].type === myType){
+				print("Type: " + presetunits[i].type + " (" + types[presetunits[i].type] + ") " +
+					"ClassID: "    + presetunits[i].id + " " +
+					"X-Pos: "      + (presetunits[i].roomx * 5 + presetunits[i].x) + " " +
+					"Y-Pos: "      + (presetunits[i].roomy * 5 + presetunits[i].y) + " ");// +
+					//"RoomNum: "    + (presetunits[i].roomid));
+				if(shouldSave){
+					file.write("Type: " + presetunits[i].type + " (" + types[presetunits[i].type] + ") " +
+								"ClassID: "    + presetunits[i].id + " " +
+								"X-Pos: "      + (presetunits[i].roomx * 5 + presetunits[i].x) + " " +
+								"Y-Pos: "      + (presetunits[i].roomy * 5 + presetunits[i].y) + " \n");
+				}
+			}
+	}
+	print("Listing of presetunits done.");
+}
+
+
+function main(){
+
+	print("Welcome to the presetUnit test script!");
+	print("please press one of the following keys to continue");
+	print("F1 = players, F2 = mon/npcs, F3 = Objects, F4 = Missiles, F5 = Items, F6 = Tiles");
+	print("F7 = all.  hit the F11 key to log results to a file");
+	print("To end the script hit the 'end' key");
+	addEventListener("keyup", KeyUpManager);
+
+	while(notDone)
+	{
+	delay(500);
+	}
+	
+	print("me.x = " + me.x + " and me.y = " + me.y);
+	return;
+}

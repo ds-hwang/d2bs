@@ -1,0 +1,42 @@
+function main() {
+	print('starting FileTools test');
+	if(!FileTools)
+		throw new Error("FileTools object not found?!");
+
+	var f1 = "something.txt", f2 = "other.txt", f3 = "newname.txt";
+	File.open(f1, FILE_WRITE).write("0").close();
+	print("Checking if " + f1 + " exists");
+	if(!FileTools.exists(f1))
+		throw new Error("file just created isn't found?!");
+
+	print("Copying " + f1 + " to " + f2);
+	FileTools.copy(f1, f2);
+	if(!FileTools.exists(f1) && !FileTools.exists(f2))
+		throw new Error("file just copied isn't found?!");
+	print("Renaming " + f2 + " to " + f3);
+	FileTools.rename(f2, f3);
+	if(!FileTools.exists(f3) && FileTools.exists(f2))
+		throw new Error("renamed file isn't renamed?!");
+	print("Removing " + f3);
+	FileTools.remove(f3);
+	if(FileTools.exists(f3))
+		throw new Error("removed file still exists?!");
+
+	print("Reading from " + f1);
+	if(FileTools.readText(f1) != "0")
+		throw new Error("file content isn't what was written?!");
+
+	print("Writing to " + f1);
+	FileTools.writeText(f1, "hi", /*{toString:function(){return " there";}},*/ 0);
+	if(FileTools.readText(f1) != "hi0")
+		throw new Error("file write failed?!");
+
+	print("Appending to " + f1);
+	FileTools.appendText(f1, "yo");
+	if(FileTools.readText(f1) != "hi0yo")
+		throw new Error("file append failed?!");
+
+	print("Removing " + f1);
+	FileTools.remove(f1);
+	print('FileTools test finished');
+}

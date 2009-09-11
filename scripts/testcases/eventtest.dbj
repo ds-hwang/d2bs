@@ -1,0 +1,22 @@
+/*
+	Script: eventtest.dbj
+	Author: TechnoHunter
+	Edited by: lord2800
+*/
+
+function main() {
+	print("Event Tester Running!");
+	var events = ["chatmsg", "gamemsg", "hostilemsg", "partymsg", "scriptmsg", "keydown", "keyup", "melife",
+				  "chatcmd", "mousemove", "mousedown", "mouseup", "copydata", "areachange", "inputline", "itemstat",
+				  "missilemove", "missilestate", "newitem", "newnpc", "npclife", "npcmove", "npcstat", "npcstate",
+				  "playermove", "playerstat", "playerstate", "quest", "unitmove"];
+
+	for each(var event in events)
+		addEventListener(event, handlerGenerator(event));
+
+	while(me.ingame) delay(100);
+}
+
+function handlerGenerator(name) {
+	return function () { var fname = name; var args = Array.prototype.slice.call(arguments); print("function " + fname + "() : args = " + args.toSource()); };
+}

@@ -1,0 +1,13 @@
+js_strict(true);
+
+function main() {
+//	load("presettest.dbj");
+//	load("eventtest.dbj");
+//	load("crashtest.dbj");
+	load("filetest.dbj");
+//	load("filetoolstest.dbj");
+//	load("sqlitetest.dbj");
+//	load("sandboxtest.dbj");
+//	load("unittest.dbj");
+//	load("consoletest.dbj");
+}

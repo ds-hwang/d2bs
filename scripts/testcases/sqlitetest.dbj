@@ -1,0 +1,34 @@
+function main() {
+	print('SQLite tests started');
+
+	print('opening and inserting values into db');
+	var mydb = new SQLite(":memory:");
+	mydb.execute("CREATE TABLE IF NOT EXISTS temp (id INTEGER PRIMARY KEY AUTOINCREMENT, val TEXT NOT NULL);");
+	mydb.query("INSERT INTO temp (val) VALUES (?);", me.name).go();
+
+	var res = mydb.query("SELECT id, val FROM temp;");
+	res.next();
+	print('printing the result');
+	print('number of columns: ' + res.getColumnCount());
+	for(var i = 0; i < res.getColumnCount(); i++)
+		print(res.getColumnName(i) + ": " + res.getColumnValue(i));
+
+	var obj = res.getObject();
+	print('result object: '+obj.toSource());
+	for(var i in obj)
+		print(i + ': ' + obj[i]);
+	res.close();
+
+	res = mydb.query("UPDATE temp SET val = ? WHERE id = 1;");
+	res.bind(1, "test");
+	res.next();
+
+	print("printing the new result");
+	print('result object (expected null): ' + res.getObject());
+
+	print('closing stuff');
+	res.close();
+	mydb.close();
+
+	print('SQLite tests done');
+}

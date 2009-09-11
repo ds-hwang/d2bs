@@ -1,0 +1,16 @@
+js_strict(true);
+
+function main() {
+	var sb = new Sandbox();
+	sb.x = this.x = 5;
+	if(sb.x != this.x)
+		print("sandbox not saving values (js engine broken?)");
+	for(var i in sb)
+		print(i + " = " + sb[i]);
+	var result = sb.evaluate("this.x = 10;");
+	if(result != 10)
+		print("sandboxed code not being evaluated");
+	if(sb.x == this.x)
+		print("sandbox broken (what? how?)");
+	print(sb.x, this.x);
+}

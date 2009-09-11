@@ -1,0 +1,13 @@
+js_strict(true);
+
+function main() {
+	print("Properties on me");
+	for(let i in me)
+		print(i + " = " + me[i]);
+	for(let i = 0; i < 6; i++) {
+		print("Properties on the first unit of type " + i);
+		var unit = getUnit(i);
+		for(let j in unit)
+			print(j + " = " + unit[j]);
+	}
+}
