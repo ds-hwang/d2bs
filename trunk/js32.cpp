@@ -27,7 +27,8 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	JSString* jsstr = JS_NewStringCopyZ(cx, msg);
 	if(!jsstr)
 		return JS_FALSE;
-	JS_AddNamedRoot(cx, &jsstr, "errstr");
+	if(JS_AddNamedRoot(cx, &jsstr, "errstr") == JS_FALSE)
+		return JS_FALSE;
 
 	const char* ccargs[] = {"msg"};
 	const char* body = "throw new Error(msg);";
@@ -35,7 +36,8 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	JSObject* funcObj = JS_GetFunctionObject(func);
 	if(!funcObj)
 		return JS_FALSE;
-	JS_AddNamedRoot(cx, &funcObj, "error function");
+	if(JS_AddNamedRoot(cx, &funcObj, "error function") == JS_FALSE)
+		return JS_FALSE;
 
 	jsval dummy;
 	jsval jsargs[]={STRING_TO_JSVAL(jsstr)};

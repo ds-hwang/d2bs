@@ -149,8 +149,10 @@ Script::Script(const char* file, ScriptState state) :
 		if(!scriptObject)
 			throw std::exception("Couldn't create the script object");
 
-		JS_AddNamedRoot(context, &meObject, "me object");
-		JS_AddNamedRoot(context, &scriptObject, "script object");
+		if(JS_AddNamedRoot(context, &meObject, "me object") == JS_FALSE)
+			throw std::exception("Couldn't add named root");
+		if(JS_AddNamedRoot(context, &scriptObject, "script object") == JS_FALSE)
+			throw std::exception("Couldn't add named root");
 
 		JS_EndRequest(context);
 
