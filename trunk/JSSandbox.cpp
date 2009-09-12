@@ -21,7 +21,10 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		delete box;
 		return JS_TRUE;
 	}
-	JS_InitStandardClasses(box->context, box->innerObj);
+
+	if(JS_InitStandardClasses(box->context, box->innerObj) == JS_FALSE)
+		return JS_FALSE;
+
 	// TODO: add a default include function for sandboxed scripts
 	// how do I do that individually though? :/
 

@@ -77,7 +77,8 @@ Script::Script(const char* file, ScriptState state) :
 		if(!globalObject)
 			throw std::exception("Couldn't create the global object");
 
-		JS_InitStandardClasses(context, globalObject);
+		if(JS_InitStandardClasses(context, globalObject) == JS_FALSE)
+			throw std::exception("Couldn't init standard classes");
 		JS_DefineFunctions(context, globalObject, global_funcs);
 
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
