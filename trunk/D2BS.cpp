@@ -31,7 +31,8 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		strcat(Vars.szPath,"\\");
 #endif
 
-		Startup();
+		if(!Startup())
+			return FALSE;
 
 		hD2ThreadHandle = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL);
 	}
@@ -45,7 +46,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 	return TRUE;
 }
 
-void Startup(void)
+BOOL Startup(void)
 {
 	char path[_MAX_FNAME+MAX_PATH],
 		 fname[_MAX_FNAME+MAX_PATH],
@@ -112,7 +113,8 @@ void Startup(void)
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
-	ScriptEngine::Startup();
+	if(!ScriptEngine::Startup())
+		return FALSE;
 
 	Vars.bActive = TRUE;
 	Vars.oldWNDPROC = NULL;
@@ -121,6 +123,8 @@ void Startup(void)
 	sprintf(versionimg, "%sversion.bmp", Vars.szPath);
 	Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
 	Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
+
+	return TRUE;
 }
 
 void Shutdown(void)

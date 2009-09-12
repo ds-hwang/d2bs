@@ -101,7 +101,7 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 	return count;
 }
 
-void ScriptEngine::Startup(void)
+BOOL ScriptEngine::Startup(void)
 {
 	if(GetState() == Stopped)
 	{
@@ -110,6 +110,8 @@ void ScriptEngine::Startup(void)
 		EnterCriticalSection(&lock);
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
+		if(!runtime)
+			return FALSE;
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
@@ -121,6 +123,7 @@ void ScriptEngine::Startup(void)
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
+	return TRUE;
 }
 
 void ScriptEngine::Shutdown(void)

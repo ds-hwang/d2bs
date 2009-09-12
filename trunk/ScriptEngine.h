@@ -34,7 +34,7 @@ class ScriptEngine
 public:
 	friend class Script;
 
-	static void Startup(void);
+	static BOOL Startup(void);
 	static void Shutdown(void);
 	static EngineState GetState(void) { return state; }
 
