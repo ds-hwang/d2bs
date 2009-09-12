@@ -437,7 +437,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	return JS_TRUE;
 }
 
-JSBool Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
+void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
 	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
