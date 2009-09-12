@@ -353,7 +353,8 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		}
 	}
 	stmtobj->current_row = obj2;
-	JS_AddRoot(cx, &stmtobj->current_row);
+	if(JS_AddRoot(cx, &stmtobj->current_row) == JS_FALSE)
+		return JS_FALSE;
 	*rval = OBJECT_TO_JSVAL(obj2);
 	return JS_TRUE;
 }

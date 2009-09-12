@@ -95,7 +95,8 @@ Script::Script(const char* file, ScriptState state) :
 		if(!meObject)
 			throw std::exception("Couldn't create the meObject");
 
-		JS_AddRoot(context, &meObject);
+		if(JS_AddRoot(context, &meObject) == JS_FALSE)
+			throw std::exception("Couldn't add root");
 
 		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
 
@@ -495,7 +496,13 @@ DWORD WINAPI FuncThread(void* data)
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = evt->argv[i]->value();
-			JS_AddRoot(evt->context, &args[i]);
+			if(JS_AddRoot(evt->context, &args[i]) == JS_FALSE)
+			{
+				if(evt->argv)
+					delete[] evt->argv;
+				delete evt;
+				return NULL;
+			}
 		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)

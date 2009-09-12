@@ -26,7 +26,8 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	// how do I do that individually though? :/
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
-	JS_AddRoot(cx, &res);
+	if(JS_AddRoot(cx, &res) == JS_FALSE)
+		return JS_FALSE;
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
 		JS_RemoveRoot(box->context, &box->innerObj);
