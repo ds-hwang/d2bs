@@ -401,6 +401,8 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	Pause();
 
 	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+	if(!cx)
+		return JS_FALSE;
 
 	JS_BeginRequest(cx);
 
@@ -452,6 +454,9 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->argc = argc;
 		evt->argv = argv;
 		evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+		if(!evt->context)
+			return;
+
 		evt->object = globalObject;
 		JS_SetContextPrivate(evt->context, this);
 

@@ -9,6 +9,11 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	CDebug cDbg("sandbox ctor");
 	sandbox* box = new sandbox; // leaked?
 	box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+	if(!box->context)
+	{
+		delete box;
+		return JS_TRUE;
+	}
 	box->innerObj = JS_NewObject(box->context, &global_obj, NULL, NULL);
 	if(!box->innerObj)
 	{
