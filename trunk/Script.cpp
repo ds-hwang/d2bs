@@ -437,7 +437,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 	return JS_TRUE;
 }
 
-void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
+JSBool Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
 	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
@@ -455,8 +455,10 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		evt->argv = argv;
 		evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!evt->context)
+		{
+			delete evt;
 			return;
-
+		}
 		evt->object = globalObject;
 		JS_SetContextPrivate(evt->context, this);
 
