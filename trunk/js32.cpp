@@ -33,6 +33,8 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	const char* ccargs[] = {"msg"};
 	const char* body = "throw new Error(msg);";
 	JSFunction* func = JS_CompileFunction(cx, obj, NULL, 1, ccargs, body, strlen(body), NULL, 0);
+	if(!func)
+		return JS_FALSE;
 	JSObject* funcObj = JS_GetFunctionObject(func);
 	if(!funcObj)
 		return JS_FALSE;

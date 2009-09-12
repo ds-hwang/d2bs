@@ -326,6 +326,8 @@ bool Script::Include(const char* file)
 			includes[fname] = true;
 		inProgress.erase(fname);
 	}
+	else
+		return false;
 
 	// HACK: assume we have to reclaim ownership
 	JS_SetContextThread(GetContext());

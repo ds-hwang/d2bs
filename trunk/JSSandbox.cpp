@@ -211,9 +211,14 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 					}
 					JS_DestroyScript(cx, tmp);
 				}
+				else
+					return JS_FALSE;
 			}
 		}
-	} else THROW_ERROR(cx, obj, "Invalid parameter, file expected");
+	}
+	else
+		THROW_ERROR(cx, obj, "Invalid parameter, file expected");
+
 	return JS_TRUE;
 }
 
