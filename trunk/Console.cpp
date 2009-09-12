@@ -81,13 +81,13 @@ void Console::AddKey(unsigned int key)
 void Console::ExecuteCommand(void)
 {
 	const char* cmd = text->GetText();
-	char *argv[2];
-	INT argc = StringTokenize(const_cast<char*>(cmd), ' ', argv, 2);
+	char* buf = _strdup(cmd);
+	char* argv = strtok(buf+1, " ");
 
 	commands.push_back(std::string(cmd));
 	commandPos = commands.size();
 
-	if(!_strcmpi(argv[0], "start"))
+	if(!_strcmpi(argv, "start"))
 	{
 		char file[_MAX_PATH+_MAX_FNAME];
 		sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
@@ -100,14 +100,14 @@ void Console::ExecuteCommand(void)
 		else
 			AddLine("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 	}
-	else if(!_strcmpi(argv[0], "stop"))
+	else if(!_strcmpi(argv, "stop"))
 	{
 		if(ScriptEngine::GetCount() > 0)
 			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts!");
 
 		ScriptEngine::StopAll(true);
 	}
-	else if(!_strcmpi(argv[0], "flush"))
+	else if(!_strcmpi(argv, "flush"))
 	{
 		if(!Vars.bDisableCache)
 		{
@@ -115,28 +115,29 @@ void Console::ExecuteCommand(void)
 			ScriptEngine::FlushCache();
 		}
 	}
-	else if(!_strcmpi(argv[0], "load"))
+	else if(!_strcmpi(argv, "load"))
 	{
-		if(argc >= 2)
+		const char* arg = cmd+5;
+		if(strlen(arg) > 0)
 		{
 			char msg[256];
-			sprintf(msg, "ÿc2D2BSÿc0 :: Loading %s", argv[1]);
+			sprintf(msg, "ÿc2D2BSÿc0 :: Loading %s", arg);
 			AddLine(msg);
 
 			CHAR szPath[8192] = "";
-			sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
+			sprintf(szPath, "%s\\%s", Vars.szScriptPath, arg);
 
 			Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
 			{
-				sprintf(msg, "ÿc2D2BSÿc0 :: Failed to load %s!", argv[1]);
+				sprintf(msg, "ÿc2D2BSÿc0 :: Failed to load %s!", arg);
 				AddLine(msg);
 			}
 		}
 	}
-	else if(!_strcmpi(argv[0], "reload"))
+	else if(!_strcmpi(argv, "reload"))
 	{
 		if(ScriptEngine::GetCount() > 0)
 			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts...");
