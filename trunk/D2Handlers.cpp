@@ -121,14 +121,14 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		return NULL;
 
 	char* szBuffer = UnicodeToAnsi(wMsg);
-	char *argv[0x10];
 	int result = 0;
 
 	if(szBuffer[0] == '.')
 	{
-		INT argc = StringTokenize(szBuffer + 1, ' ', argv, 0x10);
+		char* buf = _strdup(szBuffer);
+		char* cmd = strtok(buf+1, " ");
 
-		if(!_strcmpi(argv[0], "start"))
+		if(!_strcmpi(cmd, "start"))
 		{
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
@@ -142,7 +142,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 			result = -1;
 		}
-		else if(!_strcmpi(argv[0], "stop"))
+		else if(!_strcmpi(cmd, "stop"))
 		{
 			if(ScriptEngine::GetCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts!");
@@ -150,7 +150,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			ScriptEngine::StopAll(true);
 			result = -1;
 		}
-		else if(!_strcmpi(argv[0], "reload"))
+		else if(!_strcmpi(cmd, "reload"))
 		{
 			if(ScriptEngine::GetCount() > 0)
 				Print("ÿc2D2BSÿc0 :: Stopping all scripts...");
@@ -172,7 +172,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 			result = -1;
 		}
-		else if(!_strcmpi(argv[0], "flush"))
+		else if(!_strcmpi(cmd, "flush"))
 		{
 			if(!Vars.bDisableCache)
 			{
@@ -181,34 +181,37 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			}
 			result = -1;
 		}
-		else if(!_strcmpi(argv[0], "exec"))
+		else if(!_strcmpi(cmd, "exec"))
 		{
-			if(argc >= 2)
+			char* arg = szBuffer+6;
+			if(strlen(arg) > 0)
 			{
-				Script* script = ScriptEngine::CompileCommand(szBuffer+5);
+				Script* script = ScriptEngine::CompileCommand(arg);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
 
 			result = -1;
 		}
-		else if(!_strcmpi(argv[0], "load"))
+		else if(!_strcmpi(cmd, "load"))
 		{
-			if(argc >= 2)
+			char* arg = szBuffer+6;
+			if(strlen(arg) > 0)
 			{
-				Print("ÿc2D2BSÿc0 :: Loading %s", argv[1]);
+				Print("ÿc2D2BSÿc0 :: Loading %s", arg);
 
 				CHAR szPath[8192] = "";
-				sprintf(szPath, "%s\\%s", Vars.szScriptPath, argv[1]);
+				sprintf(szPath, "%s\\%s", Vars.szScriptPath, arg);
 
 				Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				else
-					Print("ÿc2D2BSÿc0 :: Failed to load %s!", argv[1]);
+					Print("ÿc2D2BSÿc0 :: Failed to load %s!", arg);
 			}
 
 			result = -1;
+			delete[] buf;
 		}
 	}
 
