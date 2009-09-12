@@ -31,7 +31,8 @@ JSAPI_FUNC(hook_remove) {
 
 	JS_SetPrivate(cx, obj, NULL);
 	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_VOID, &obj);
+	if(JS_ValueToObject(cx, JSVAL_VOID, &obj) == JS_FALSE)
+		return JS_FALSE;
 	return JS_TRUE;
 }
 
@@ -466,7 +467,9 @@ JSAPI_FUNC(text_ctor) {
 	char* szText = "";
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		szText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		if(!szText)
+			return JS_FALSE;
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
@@ -486,7 +489,7 @@ JSAPI_FUNC(text_ctor) {
 
 	TextHook* pTextHook = new TextHook(script, szText, x, y, font, color, automap, align, state);
 
-	if (!pTextHook)
+	if(!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");
 
 	pTextHook->SetClickHandler(click);
@@ -568,8 +571,11 @@ JSAPI_PROP(text_setProperty) {
 				pTextHook->SetFont((ushort)JSVAL_TO_INT(*vp));
 			break;
 		case TEXT_TEXT:
-			if(JSVAL_IS_STRING(*vp)) {
-				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
+			if(JSVAL_IS_STRING(*vp))
+			{
+				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				if(!pText)
+					return JS_FALSE;
 				pTextHook->SetText(pText);
 			}
 			break;
@@ -614,6 +620,8 @@ JSAPI_FUNC(image_ctor) {
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		if(!szText)
+			return JS_FALSE;
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
@@ -703,8 +711,11 @@ JSAPI_PROP(image_setProperty) {
 				pImageHook->SetY(JSVAL_TO_INT(*vp));
 			break;
 		case IMAGE_LOCATION:
-			if(JSVAL_IS_STRING(*vp)) {
+			if(JSVAL_IS_STRING(*vp))
+			{
 				char* pimage = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				if(!pimage)
+					return JS_FALSE;
 				pImageHook->SetImage(pimage);
 			}
 			break;
@@ -729,3 +740,4 @@ JSAPI_PROP(image_setProperty) {
 	}
 	return JS_TRUE;
 }
+

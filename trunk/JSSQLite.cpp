@@ -550,7 +550,8 @@ JSAPI_FUNC(sqlite_stmt_close)
 	JS_SetPrivate(cx, obj, NULL);
 	*rval = JS_TRUE;
 	JS_ClearScope(cx, obj);
-	JS_ValueToObject(cx, JSVAL_NULL, &obj);
+	if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
+		return JS_FALSE;
 
 	return JS_TRUE;
 }
@@ -588,3 +589,4 @@ void sqlite_stmt_finalize(JSContext *cx, JSObject *obj)
 		delete stmtobj;
 	}
 }
+

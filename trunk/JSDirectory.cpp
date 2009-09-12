@@ -73,12 +73,15 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 {
 	CDebug cDbg("dir getFiles");
 
-	if(argc > 1) return JS_TRUE;
-	if(argc < 1) argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
+	if(argc > 1)
+		return JS_TRUE;
+	if(argc < 1)
+		argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-
+	if(!search)
+		return JS_TRUE;
 	long hFile;
 	char path[_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, d->name);
@@ -116,11 +119,15 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 {
 	CDebug cDbg("dir getDirectories");
 
-	if(argc > 1) return JS_TRUE;
-	if(argc < 1) argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
+	if(argc > 1)
+		return JS_TRUE;
+	if(argc < 1)
+		argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*.*"));
 
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!search)
+		return JS_TRUE;
 
 	long hFile;
 	char path[_MAX_PATH];

@@ -39,6 +39,8 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			if(!lpszText)
+				return JS_FALSE;
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
 				*c = (char)0xFE;
@@ -80,7 +82,6 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			state = (GameReady() ? InGame : OutOfGame);
 
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-
 		if(lpszFileName && strlen(lpszFileName) < _MAX_PATH)
 		{
 			CHAR lpszBuf[_MAX_FNAME];
@@ -98,6 +99,8 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 				*rval = JSVAL_FALSE;
 			}
 		}
+		else
+			return JS_FALSE;
 	}
 
 	return JS_TRUE;
@@ -114,19 +117,21 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		if(script)
 		{
 			CHAR * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-
 			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
 			{
-
 				CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
 				sprintf(lpszBuf, "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
 				if(_access(lpszBuf, 0) == 0)
 					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
-				else *rval = JSVAL_FALSE;
-			} else
-				*rval= JSVAL_FALSE;
+				else
+					*rval = JSVAL_FALSE;
+			}
+			else
+				*rval = JSVAL_FALSE;
 		}
-	} else *rval = JSVAL_FALSE;
+	}
+	else
+		*rval = JSVAL_FALSE;
 
 	return JS_TRUE;
 }
@@ -852,13 +857,18 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	jsint high;
 	jsint low;
 
-	JS_ValueToInt32(cx, argv[0], &low);
-	JS_ValueToInt32(cx, argv[1], &high);
+	if(JS_ValueToInt32(cx, argv[0], &low) == JS_FALSE)
+		return JS_FALSE;
+	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
+		return JS_FALSE;
 
-	if (high > low+1) {
+	if (high > low+1)
+	{
 		int i = seed%((high-1)-low) + low+1;
 		*rval = INT_TO_JSVAL(i);
-	} else *rval = INT_TO_JSVAL(high);
+	}
+	else
+		*rval = INT_TO_JSVAL(high);
 
 	return JS_TRUE;
 }
@@ -1054,6 +1064,8 @@ INT my_getSkillByName(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		return JS_TRUE;
 
 	CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!lpszText)
+		return JS_FALSE;
 
 	for(INT i = 0; i < ArraySize(Game_Skills); i++)
 	{
@@ -1119,6 +1131,8 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	}
 
 	CHAR* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!pString)
+		return JS_FALSE;
 
 	POINT r = CalculateTextLen(pString, JSVAL_TO_INT(argv[1]));
 	jsval x = INT_TO_JSVAL(r.x);
@@ -1231,6 +1245,8 @@ INT my_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	}
 
 	CHAR* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!szFile)
+		return JS_FALSE;
 
 	Script* js = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(js->IsIncluded(szFile));
@@ -1301,6 +1317,8 @@ JSAPI_FUNC(my_debugLog)
 	for(uintN i = 0; i < argc; i++)
 	{
 		char* msg = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+		if(!msg)
+			return JS_FALSE;
 		// this encodes %'s
 		sprintf(msg, "%s", msg);
 		Log(msg);
@@ -1339,12 +1357,13 @@ INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		if(!JSVAL_IS_NULL(argv[i]) && !JSVAL_IS_VOID(argv[i]))
 		{
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			if(!lpszText)
+				return JS_FALSE;
 			Say(lpszText);
 		}
 	}
 
 	*rval = BOOLEAN_TO_JSVAL(TRUE);
-
 	return JS_TRUE;
 }
 
@@ -1362,13 +1381,39 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	jsint nModeId = NULL;
 
 	if(JSVAL_IS_STRING(argv[0]))
+	{
 		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		if(!windowClassName)
+			return JS_FALSE;
+	}
+	else
+		return JS_FALSE;
+	
 	if(JSVAL_IS_STRING(argv[1]))
-		windowName		= JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	{
+		windowName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+		if(!windowName)
+			return JS_FALSE;
+	}
+	else
+		return JS_FALSE;
+	
 	if(JSVAL_IS_INT(argv[2]))
-		JS_ValueToInt32(cx, argv[2], &nModeId);
+	{
+		if(JS_ValueToInt32(cx, argv[2], &nModeId) == JS_FALSE)
+			return JS_FALSE;
+	}
+	else
+		return JS_FALSE;
+	
 	if(JSVAL_IS_STRING(argv[3]))
-		data			= JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+	{
+		data = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+		if(!data)
+			return JS_FALSE;
+	}
+	else
+		return JS_FALSE;
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
 
@@ -1395,7 +1440,8 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;
 
 	jsint mode;
-	JS_ValueToInt32(cx, argv[0], &mode);
+	if(JS_ValueToInt32(cx, argv[0], &mode) == JS_FALSE)
+		return JS_FALSE;
 	char *pszDDEServer = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!strlen(pszDDEServer))
 		pszDDEServer = "\"\"";
@@ -1417,7 +1463,8 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	HDDEDATA DdeSrvData;
 
 	int ret = DdeInitialize(&pidInst, (PFNCALLBACK) DdeCallback, APPCMD_CLIENTONLY, 0);
-	if(ret != DMLERR_NO_ERROR) {
+	if(ret != DMLERR_NO_ERROR)
+	{
 		sprintf(buf, "DdeInitialize Error: %X", ret);
 		OutputDebugString(buf);
 		return JS_TRUE;
@@ -1427,7 +1474,8 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	HSZ hszTopic = DdeCreateStringHandle(pidInst, pszTopic, CP_WINANSI);
 	HSZ hszCommand = DdeCreateStringHandle(pidInst, pszItem, CP_WINANSI);
 
-	if(!hszDDEServer || !hszTopic || !hszCommand) {
+	if(!hszDDEServer || !hszTopic || !hszCommand)
+	{
 		Log("Error creating DDE Handles: Server:%s, Topic:%s, Command:%s, Data:%s", pszDDEServer, pszTopic, pszItem, pszData);
 		// this should never fail, so die if it does
 		return JS_FALSE;
@@ -1435,7 +1483,8 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	hConv = DdeConnect(pidInst, hszDDEServer, hszTopic, 0);
 
-	switch(mode) {
+	switch(mode)
+	{
 		case 0:
 			DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
 			DdeGetData(DdeSrvData, (LPBYTE)pszDdeRet, sizeof(pszDdeRet), 0);
@@ -2023,17 +2072,24 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 		if(JSVAL_IS_INT(argv[0]))
 			nBaseStat = JSVAL_TO_INT(argv[0]);
-		else return JS_TRUE;
+		else
+			return JS_TRUE;
 
 		if(JSVAL_IS_INT(argv[1]))
 			nClassId = JSVAL_TO_INT(argv[1]);
-		else return JS_TRUE;
+		else
+			return JS_TRUE;
 
 		if(JSVAL_IS_STRING(argv[2]))
+		{
 			szStatName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+			if(!szStatName)
+				return JS_TRUE;
+		}
 		else if(JSVAL_IS_INT(argv[2]))
 			nStat = JSVAL_TO_INT(argv[2]);
-		else return JS_TRUE;
+		else
+			return JS_TRUE;
 
 		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szStatName);
 	}
@@ -2078,7 +2134,8 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	jsint nParameter = NULL;
 	if(argc > 0)
-		JS_ValueToInt32(cx, argv[0], &nParameter);
+		if(JS_ValueToInt32(cx, argv[0], &nParameter) == JS_FALSE)
+			return JS_FALSE;
 	
 	if(nParameter == NULL)
 	{
@@ -2092,6 +2149,8 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 				return JS_TRUE;
 			}
 		}
+		else
+			return JS_FALSE;
 
 		BYTE aPacket[1];
 		aPacket[0] = 0x60;
@@ -2158,19 +2217,27 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 {
 	CDebug cDbg("IniRead");
 
-	char *pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!pFileName)
+		return JS_FALSE;
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
-    char   szBuffer[65535];        // Max ini line length is 65535 under 95
+    	char szBuffer[65535];        // Max ini line length is 65535 under 95
 
-    char   *pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-    char   *pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
-    char   *pDefault = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	if(!pSectionName)
+		return JS_FALSE;
+	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+	if(!pKeyName)
+		return JS_FALSE;
+	char* pDefault = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+	if(!pDefault)
+		return JS_FALSE;
 
-    GetPrivateProfileString(pSectionName, pKeyName, pDefault, szBuffer, 65535, lpszBuf);
-    *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
-    return JS_TRUE;
+	GetPrivateProfileString(pSectionName, pKeyName, pDefault, szBuffer, 65535, lpszBuf);
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
+	return JS_TRUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2183,13 +2250,22 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	CDebug cDbg("IniWrite");
 
-	char *pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!pFileName)
+		return JS_FALSE;
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
-    char   *pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-    char   *pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
-    char   *pValue = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	if(!pSectionName)
+		return JS_FALSE;
+	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+	if(!pKeyName)
+		return JS_FALSE;
+	char* pValue = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+	if(!pValue)
+		return JS_FALSE;
+
 	if(WritePrivateProfileString(pSectionName, pKeyName, pValue, lpszBuf))
 		WritePrivateProfileString(NULL, NULL, NULL, lpszBuf);	// Flush
 
@@ -2455,3 +2531,4 @@ JSAPI_FUNC(my_getInteractedNPC)
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
+

@@ -50,7 +50,8 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 	//jsuint uival = 0;
 	bool bval;
 
-	switch(JS_TypeOfValue(cx, value)) {
+	switch(JS_TypeOfValue(cx, value))
+	{
 		case JSTYPE_VOID: case JSTYPE_NULL:
 			if(fwrite(&ival, sizeof(int), 1, fptr) == 1)
 				return true;
@@ -61,19 +62,29 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 				return true;
 			break;
 		case JSTYPE_NUMBER:
-			if(isBinary) {
-				if(JSVAL_IS_DOUBLE(value)) {
-					JS_ValueToNumber(cx, value, &dval);
-					if(fwrite(&dval, sizeof(jsdouble), 1, fptr) == 1)
+			if(isBinary)
+			{
+				if(JSVAL_IS_DOUBLE(value))
+				{
+					if(JS_ValueToNumber(cx, value, &dval) && fwrite(&dval, sizeof(jsdouble), 1, fptr) == 1)
 						return true;
-				} else if(JSVAL_IS_INT(value)) {
-					JS_ValueToInt32(cx, value, &ival);
-					if(fwrite(&ival, sizeof(int32), 1, fptr) == 1)
-						return true;
+					else
+						return false;
 				}
-			} else {
-				if(JSVAL_IS_DOUBLE(value)) {
-					JS_ValueToNumber(cx, value, &dval);
+				else if(JSVAL_IS_INT(value))
+				{
+					if(JS_ValueToInt32(cx, value, &ival) && fwrite(&ival, sizeof(int32), 1, fptr) == 1)
+						return true;
+					else
+						return false;
+				}
+			}
+			else
+			{
+				if(JSVAL_IS_DOUBLE(value))
+				{
+					if(JS_ValueToNumber(cx, value, &dval) == JS_FALSE)
+						return false;
 					// jsdouble will never be a 64-char string, but I'd rather be safe than sorry
 					str = new char[64];
 					sprintf_s(str, 64, "%.16f", dval);
@@ -82,8 +93,11 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 					delete[] str;
 					if(result == len)
 						return true;
-				} else if(JSVAL_IS_INT(value)) {
-					JS_ValueToInt32(cx, value, &ival);
+				}
+				else if(JSVAL_IS_INT(value))
+				{
+					if(JS_ValueToInt32(cx, value, &ival) == JS_FALSE)
+						return false;
 					str = new char[16];
 					_itoa(ival, str, 10);
 					len = strlen(str);
@@ -95,12 +109,15 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 			}
 			break;
 		case JSTYPE_BOOLEAN:
-			if(!isBinary) {
+			if(!isBinary)
+			{
 				bval = !!JSVAL_TO_BOOLEAN(value);
 				str = bval ? "true" : "false";
 				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
 					return true;
-			} else {
+			}
+			else
+			{
 				bval = !!JSVAL_TO_BOOLEAN(value);
 				if(fwrite(&bval, sizeof(bool), 1, fptr) == 1)
 					return true;
@@ -110,20 +127,24 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 			JSObject *arr = JSVAL_TO_OBJECT(value);
 			if(JS_IsArrayObject(cx, arr)) {
 				JS_GetArrayLength(cx, arr, &uival);
-				for(jsuint i = 0; i < uival; i++) {
+				for(jsuint i = 0; i < uival; i++)
+				{
 					jsval val;
 					JS_GetElement(cx, arr, i, &val);
 					if(!writeValue(fptr, cx, val, isBinary))
 						return false;
 				}
 				return true;
-			} else {
+			}
+			else
+			{
 				JSString* jsstr = JS_ValueToString(cx, value);
 				str = JS_GetStringBytes(jsstr);
 				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
 					return true;
 			}
-			break;*/
+			break;
+*/
 	}
 	return false;
 }
@@ -132,3 +153,4 @@ bool isValidPath(const char* name)
 {
 	return (!strstr(name, "..\\") && !strstr(name, "../") && (strcspn(name, "\":?*<>|") == strlen(name)));
 }
+

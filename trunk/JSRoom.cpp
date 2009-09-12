@@ -74,7 +74,8 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	if(!pRoom2)
 	{
 		JS_ClearScope(cx, obj);
-		JS_ValueToObject(cx, JSVAL_NULL, &obj);
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
+			return JS_FALSE;
 		*rval = BOOLEAN_TO_JSVAL(FALSE);
 	}
 	else {
@@ -450,3 +451,4 @@ JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	return JS_TRUE;
 }
+

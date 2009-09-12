@@ -61,7 +61,8 @@ JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 
 	RosterUnit *pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
-	if (!pUnit) {
+	if(!pUnit)
+	{
 		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
 	}
@@ -76,7 +77,8 @@ JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	else
 	{
 		JS_ClearScope(cx, obj);
-		JS_ValueToObject(cx, JSVAL_NULL, &obj);
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
+			return JS_FALSE;
 		*rval = INT_TO_JSVAL(0);
 	}
 	

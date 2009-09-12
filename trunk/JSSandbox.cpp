@@ -55,7 +55,8 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(JSVAL_IS_INT(id))
 	{
 		int32 i;
-		JS_ValueToInt32(cx, id, &i);
+		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
+			return JS_FALSE;;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		JSBool found;
@@ -86,7 +87,8 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(JSVAL_IS_INT(id))
 	{
 		int32 i;
-		JS_ValueToInt32(cx, id, &i);
+		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
+			return JS_FALSE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
@@ -111,7 +113,8 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(JSVAL_IS_INT(id))
 	{
 		int32 i;
-		JS_ValueToInt32(cx, id, &i);
+		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
+			return JS_FALSE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		*vp = JSVAL_VOID;
@@ -142,7 +145,8 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	if(JSVAL_IS_INT(id))
 	{
 		int32 i;
-		JS_ValueToInt32(cx, id, &i);
+		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
+			return JS_FALSE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
@@ -244,3 +248,4 @@ JSBool sandbox_clear(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		JS_ClearScope(cx, box->innerObj);
 	return JS_TRUE;
 }
+

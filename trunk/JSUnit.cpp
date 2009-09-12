@@ -504,10 +504,12 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(!pUnit)
 	{
 		JS_ClearScope(cx, obj);
-		JS_ValueToObject(cx, JSVAL_NULL, &obj);
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
+			return JS_FALSE;
 		*rval = INT_TO_JSVAL(0);
 	}
-	else {
+	else
+	{
 		lpUnit->dwUnitId = pUnit->dwUnitId;
 		JS_SetPrivate(cx, obj, lpUnit);
 		*rval = INT_TO_JSVAL(1);
@@ -767,7 +769,8 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	jsint nState;
 
-	JS_ValueToInt32(cx, argv[0], &nState);
+	if(JS_ValueToInt32(cx, argv[0], &nState) == JS_FALSE)
+		return JS_FALSE;
 
 	// TODO: make these constants so we know what we're checking here
 	if(nState > 159 || nState < 0)
@@ -1312,6 +1315,8 @@ INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 				pUnit->pOMsg = pMsg;
 			}
 		}
+		else
+			return JS_FALSE;
 	}
 
 	return JS_TRUE;
@@ -1392,15 +1397,19 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
 	int32 x, y;
 
-	if (pUnit == pPlayer) {
+	if(pUnit == pPlayer)
+	{
 
 		if (argc < 2) 
 			return JS_TRUE;
 
-		JS_ValueToInt32(cx, argv[0], &x);
-		JS_ValueToInt32(cx, argv[1], &y);
+		if(JS_ValueToInt32(cx, argv[0], &x) == JS_FALSE)
+			return JS_FALSE;
+		if(JS_ValueToInt32(cx, argv[1], &y) == JS_FALSE)
+			return JS_FALSE;
 	}
-	else {
+	else
+	{
 		x = GetUnitX(pUnit);
 		y = GetUnitY(pUnit);
 	}
@@ -1490,3 +1499,4 @@ INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, j
 	
 	return JS_TRUE;
 }
+

@@ -84,7 +84,8 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(control_setProperty) {
+JSAPI_PROP(control_setProperty)
+{
 	CDebug cDbg("control setProperty");
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
@@ -105,7 +106,9 @@ JSAPI_PROP(control_setProperty) {
 				return JS_TRUE;
 			if(JSVAL_IS_STRING(*vp))
 			{
-				CHAR* pText	= JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				if(!pText)
+					return JS_TRUE;
 				wchar_t* szwText = AnsiToUnicode(pText);
 				D2WIN_SetControlText(pControl, szwText);
 				delete[] szwText;
@@ -173,7 +176,8 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	else
 	{
 		JS_ClearScope(cx, obj);
-		JS_ValueToObject(cx, JSVAL_NULL, &obj);
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
+			return JS_TRUE;
 		*rval = INT_TO_JSVAL(0);
 	}
 	
@@ -231,6 +235,8 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		return JS_TRUE;
 
 	char* pText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!pText)
+		return JS_TRUE;
 	wchar_t* szwText = AnsiToUnicode(pText);
 
 	D2WIN_SetControlText(pControl, szwText);
