@@ -236,7 +236,8 @@ void Script::Run(void)
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
-	JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
+	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
+		return;
 
 	JS_GetProperty(GetContext(), globalObject, "main", &main);
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
