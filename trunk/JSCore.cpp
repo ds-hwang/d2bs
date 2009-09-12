@@ -2216,7 +2216,7 @@ JSAPI_FUNC(my_login)
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
-	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(charname), file);
+	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(difficulty), file);
 
 	SPdifficulty = atoi(difficulty);
 
