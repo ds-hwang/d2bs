@@ -1394,16 +1394,12 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		if(!windowName)
 			return JS_FALSE;
 	}
-	else
-		return JS_FALSE;
 	
 	if(JSVAL_IS_INT(argv[2]))
 	{
 		if(JS_ValueToInt32(cx, argv[2], &nModeId) == JS_FALSE)
 			return JS_FALSE;
 	}
-	else
-		return JS_FALSE;
 	
 	if(JSVAL_IS_STRING(argv[3]))
 	{
@@ -1411,8 +1407,6 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		if(!data)
 			return JS_FALSE;
 	}
-	else
-		return JS_FALSE;
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
 
