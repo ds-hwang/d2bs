@@ -458,31 +458,39 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	if(!IsAborted() && !IsPaused() && functions.count(evtName))
+	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
 	{
-		char msg[50];
-		sprintf(msg, "Script::ExecEventAsync(%s)", evtName);
-		CDebug cDbg(msg);
-
+		// no event will happen, clean up the roots
 		for(uintN i = 0; i < argc; i++)
-			argv[i]->Take();
-
-		Event* evt = new Event;
-		evt->owner = this;
-		evt->functions = functions[evtName];
-		evt->argc = argc;
-		evt->argv = argv;
-		evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
-		if(!evt->context)
 		{
-			delete evt;
-			return;
+			argv[i]->Release();
+			delete evt->argv[i];
 		}
-		evt->object = globalObject;
-		JS_SetContextPrivate(evt->context, this);
-
-		CreateThread(0, 0, FuncThread, evt, 0, 0);
+		return;
 	}
+
+	char msg[50];
+	sprintf(msg, "Script::ExecEventAsync(%s)", evtName);
+	CDebug cDbg(msg);
+
+	for(uintN i = 0; i < argc; i++)
+		argv[i]->Take();
+
+	Event* evt = new Event;
+	evt->owner = this;
+	evt->functions = functions[evtName];
+	evt->argc = argc;
+	evt->argv = argv;
+	evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+	if(!evt->context)
+	{
+		delete evt;
+		return;
+	}
+	evt->object = globalObject;
+	JS_SetContextPrivate(evt->context, this);
+
+	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
 
 DWORD WINAPI ScriptThread(void* data)
@@ -554,4 +562,3 @@ DWORD WINAPI FuncThread(void* data)
 	
 	return 0;
 }
-
