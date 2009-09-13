@@ -477,7 +477,7 @@ JSAPI_FUNC(sqlite_stmt_bind)
 			break;
 	}
 
-	*rval = JS_TRUE;
+	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
 
@@ -533,7 +533,7 @@ JSAPI_FUNC(sqlite_stmt_reset)
 	if(SQLITE_OK != sqlite3_reset(stmtobj->stmt))
 		THROW_ERROR(cx, obj, sqlite3_errmsg(stmtobj->assoc_db->db));
 	stmtobj->canGet = false;
-	*rval = JS_TRUE;
+	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
 
@@ -548,7 +548,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 	delete stmtobj;
 
 	JS_SetPrivate(cx, obj, NULL);
-	*rval = JS_TRUE;
+	*rval = JSVAL_TRUE;
 	JS_ClearScope(cx, obj);
 	if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 		return JS_FALSE;
