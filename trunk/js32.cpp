@@ -63,21 +63,14 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 		// add root to avoid newborn root problem
 		if(JS_AddRoot(cx, &obj) == JS_FALSE)
 			return NULL;
-
 		if(obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
-		{
 			obj = NULL;
-		}
 		if(obj && props && !JS_DefineProperties(cx, obj, props))
-		{
 			obj = NULL;
-		}
 		if(obj)
-		{
 			JS_SetPrivate(cx, obj, priv);
-		}
 		JS_RemoveRoot(cx, &obj);
 	}
-
 	return obj;
 }
+

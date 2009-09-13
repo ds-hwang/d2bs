@@ -79,7 +79,8 @@ Script::Script(const char* file, ScriptState state) :
 
 		if(JS_InitStandardClasses(context, globalObject) == JS_FALSE)
 			throw std::exception("Couldn't init standard classes");
-		JS_DefineFunctions(context, globalObject, global_funcs);
+		if(JS_DefineFunctions(context, globalObject, global_funcs) == JS_FALSE)
+			throw std::exception("Couldn't define functions");
 
 		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
 		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
@@ -99,7 +100,8 @@ Script::Script(const char* file, ScriptState state) :
 		if(JS_AddRoot(context, &meObject) == JS_FALSE)
 			throw std::exception("Couldn't add root");
 
-		JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT);
+		if(JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
+			throw std::exception("Couldn't define property \"me\"");
 
 #define DEFCONST(vp) DefineConstant(#vp, vp)
 #define DEFEVENT(vp) DEFCONST(EVENT_##vp)
@@ -328,7 +330,11 @@ bool Script::Include(const char* file)
 		inProgress.erase(fname);
 	}
 	else
+	{
+		JS_SetContextThread(GetContext());
+		JS_EndRequest(GetContext());
 		return false;
+	}
 
 	// HACK: assume we have to reclaim ownership
 	JS_SetContextThread(GetContext());
@@ -542,3 +548,4 @@ DWORD WINAPI FuncThread(void* data)
 	
 	return 0;
 }
+
