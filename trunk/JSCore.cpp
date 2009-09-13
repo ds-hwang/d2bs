@@ -1143,8 +1143,10 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	{
 		// return an object with a height/width rather than an array
 		pObj = BuildObject(cx, NULL);
-		JS_SetProperty(cx, pObj, "width", &x);
-		JS_SetProperty(cx, pObj, "height", &y);
+		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
+			return JS_FALSE;
+		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
+			return JS_FALSE;;
 	}
 	else
 	{
@@ -2467,8 +2469,10 @@ JSAPI_FUNC(my_getMouseCoords)
 	if(nReturn)
 	{
 		pObj = BuildObject(cx, NULL);
-		JS_SetProperty(cx, pObj, "x", &jsX);
-		JS_SetProperty(cx, pObj, "y", &jsY);
+		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
+			return JS_FALSE;
+		if(JS_SetProperty(cx, pObj, "y", &jsY) == JS_FALSE)
+			return JS_FALSE;
 	}
 	else
 	{

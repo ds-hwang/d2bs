@@ -150,14 +150,16 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
-			JS_SetProperty(box->context, box->innerObj, name, vp);
+			if(JS_SetProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		if(box)
-			JS_SetProperty(box->context, box->innerObj, name, vp);
+			if(JS_SetProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	return JS_FALSE;
