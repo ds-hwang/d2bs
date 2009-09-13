@@ -239,13 +239,19 @@ void Script::Run(void)
 	JS_BeginRequest(GetContext());
 
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
-		return;
-
-	JS_GetProperty(GetContext(), globalObject, "main", &main);
-	if(JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
+		JS_SetContextThread(GetContext());
+		JS_EndRequest(GetContext());
+		return;
 	}
+	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
+	{
+		JS_SetContextThread(GetContext());
+		JS_EndRequest(GetContext());
+		return;
+	}
+	if(JSVAL_IS_FUNCTION(GetContext(), main))
+		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
 	JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());	
