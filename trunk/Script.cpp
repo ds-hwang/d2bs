@@ -462,10 +462,8 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	{
 		// no event will happen, clean up the roots
 		for(uintN i = 0; i < argc; i++)
-		{
-			argv[i]->Release();
 			delete argv[i];
-		}
+		delete[] argv;
 		return;
 	}
 
