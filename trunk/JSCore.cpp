@@ -1386,8 +1386,7 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		if(!windowClassName)
 			return JS_FALSE;
 	}
-	else
-		return JS_FALSE;
+	
 	
 	if(JSVAL_IS_STRING(argv[1]))
 	{
