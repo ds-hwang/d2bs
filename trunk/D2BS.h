@@ -2,6 +2,10 @@
 #define __D2BS_H__
 
 #pragma once
+
+#define WIN32_MEAN_AND_LEAN
+#define WIN32_EXTRA_LEAN
+
 #define XP_WIN
 #define JS_THREADSAFE
 
