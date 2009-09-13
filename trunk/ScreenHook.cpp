@@ -94,14 +94,26 @@ bool Genhook::Click(int button, POINT* loc)
 
 	jsval rval;
 	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
+	{
+		Unlock();
 		return false;
+	}
 	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
+	{
+		Unlock();
 		return false;
+	}
 	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
+	{
+		Unlock();
 		return false;
+	}
 	if(JS_AddRoot(owner->GetContext(), &args[2]) == JS_FALSE)
+	{
+		Unlock();
 		return false;
+	}
 
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
 
@@ -127,13 +139,21 @@ void Genhook::Hover(POINT* loc)
 
 	jsval rval = JSVAL_VOID;
 	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
+	{
+		Unlock();
 		return;
+	}
 	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
+	{
+		Unlock();
 		return;
+	}
 	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
+	{
+		Unlock();
 		return;
-
+	}
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
 
 	JS_RemoveRoot(owner->GetContext(), &args[0]);
@@ -150,8 +170,13 @@ void Genhook::SetClickHandler(jsval handler)
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
+	{
 		if(JS_AddRoot(owner->GetContext(), &clicked) == JS_FALSE)
+		{
+			Unlock();
 			return;
+		}
+	}
 	Unlock();
 }
 
@@ -163,8 +188,13 @@ void Genhook::SetHoverHandler(jsval handler)
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		hovered = handler;
 	if(!JSVAL_IS_VOID(hovered))
+	{
 		if(JS_AddRoot(owner->GetContext(), &hovered) == JS_FALSE)
+		{
+			Unlock();
 			return;
+		}
+	}
 	Unlock();
 }
 
