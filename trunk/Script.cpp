@@ -464,7 +464,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		for(uintN i = 0; i < argc; i++)
 		{
 			argv[i]->Release();
-			delete evt->argv[i];
+			delete argv[i];
 		}
 		return;
 	}
