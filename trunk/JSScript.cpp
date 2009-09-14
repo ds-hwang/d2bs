@@ -40,10 +40,13 @@ JSAPI_FUNC(script_getNext)
 	CDebug cDbg("script getNext");
 
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
-	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
-		return JS_FALSE;
-	JS_SetPrivate(cx, obj, iterp);
-	*rval = JSVAL_TRUE;
+	if(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) == NULL || !JS_GetContextPrivate(iterp))
+		*rval = JSVAL_FALSE;
+	else
+	{
+		JS_SetPrivate(cx, obj, iterp);
+		*rval = JSVAL_TRUE;
+	}
 
 	return JS_TRUE;
 }

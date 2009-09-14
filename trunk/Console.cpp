@@ -82,7 +82,7 @@ void Console::ExecuteCommand(void)
 {
 	const char* cmd = text->GetText();
 	char* buf = _strdup(cmd);
-	char* argv = strtok(buf+1, " ");
+	char* argv = strtok(buf, " ");
 
 	commands.push_back(std::string(cmd));
 	commandPos = commands.size();
