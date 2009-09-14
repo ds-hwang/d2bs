@@ -229,11 +229,11 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		Vars.dwSelectedUnitId = NULL;
 		Vars.dwSelectedUnitType = NULL;
 
-		*rval = JSVAL_TO_BOOLEAN(ClickMap(nClickType, nX, nY, nShift, pUnit));
+		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, pUnit));
 	}
 	else if(argc > 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
 	{
-		*rval = JSVAL_TO_BOOLEAN(ClickMap(nClickType, nX, nY, nShift, NULL));
+		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, NULL));
 	}
 
 	return JS_TRUE;
