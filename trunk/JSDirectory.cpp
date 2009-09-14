@@ -204,7 +204,7 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		if(errno == ENOENT)
 			THROW_ERROR(cx, obj, "Path not found");
 	}
-	*rval=BOOLEAN_TO_JSVAL(true);
+	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -231,3 +231,4 @@ void dir_finalize(JSContext *cx, JSObject *obj)
 	if(d)
 		delete d;
 }
+

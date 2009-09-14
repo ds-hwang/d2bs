@@ -549,7 +549,7 @@ INT unit_repair(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	CDebug cDbg("unit repair");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
@@ -567,7 +567,7 @@ INT unit_repair(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	// note: this crashes while minimized
 //	D2CLIENT_PerformNpcAction(pUnit,1, NULL);
-	*rval = BOOLEAN_TO_JSVAL(TRUE);
+	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -577,7 +577,7 @@ INT unit_useMenu(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	CDebug cDbg("unit useMenu");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
@@ -604,7 +604,7 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
@@ -646,7 +646,7 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 	//	D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 
 		return JS_TRUE;
 	}
@@ -655,7 +655,7 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		// Accept Trade
 	}  else
 	{
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 		ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
 		//D2CLIENT_Interact(pUnit, 0x45);
 	}
@@ -672,7 +672,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
@@ -757,7 +757,7 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
@@ -1001,7 +1001,9 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 					*rval = OBJECT_TO_JSVAL(pReturnArray);
 				}
 				break;
-			default: *rval = BOOLEAN_TO_JSVAL(FALSE); break;
+			default:
+				*rval = JSVAL_FALSE;
+				break;
 		}
 		return JS_TRUE;
 	}
@@ -1078,7 +1080,7 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 
-	*rval = BOOLEAN_TO_JSVAL(TRUE);
+	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -1196,7 +1198,7 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 					{
 						if(D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)
 						{
-							*rval = BOOLEAN_TO_JSVAL(TRUE);
+							*rval = JSVAL_TRUE;
 							return JS_TRUE;
 						}
 					}
@@ -1205,9 +1207,9 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		}
 
 		if(pMerc)
-			*rval = BOOLEAN_TO_JSVAL(TRUE);
+			*rval = JSVAL_TRUE;
 		else if(*p_D2CLIENT_MercStrIndex == 0xFFFF)
-			*rval = BOOLEAN_TO_JSVAL(FALSE);
+			*rval = JSVAL_FALSE;
 		else
 			*rval = JSVAL_NULL;
 
@@ -1263,7 +1265,7 @@ INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	WORD nSkillId = -1;
 	BOOL nHand = FALSE;
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(argc < 1)
 		return JS_TRUE;
@@ -1281,7 +1283,7 @@ INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 
 	if(SetSkill(nSkillId, nHand))
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -1448,7 +1450,7 @@ INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	for(INT i = 0; i < 9; i++)
 		if(pUnit->pMonsterData->anEnchants[i] == nEnchant)
 		{
-			*rval = BOOLEAN_TO_JSVAL(TRUE);
+			*rval = JSVAL_TRUE;
 			break;
 		}
 

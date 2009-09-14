@@ -18,7 +18,7 @@ JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
-	*vp = BOOLEAN_TO_JSVAL(FALSE);
+	*vp = JSVAL_FALSE;
 
 	if(!pExit)
 		return JS_TRUE;

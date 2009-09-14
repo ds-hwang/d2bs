@@ -283,28 +283,28 @@ INT my_acceptTrade(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		if((*p_D2CLIENT_bTradeBlock))
 		{
 			// Don't operate if we can't trade anyway ...
-			*rval = BOOLEAN_TO_JSVAL(FALSE);
+			*rval = JSVAL_FALSE;
 			return JS_TRUE;
 		}
 		else if((*p_D2CLIENT_bTradeAccepted))
 		{
 			(*p_D2CLIENT_bTradeAccepted) = FALSE;
 			D2CLIENT_CancelTrade();
-			*rval = BOOLEAN_TO_JSVAL(TRUE);
+			*rval = JSVAL_TRUE;
 			return JS_TRUE;
 		}
 		else
 		{
 			(*p_D2CLIENT_bTradeAccepted) = TRUE;
 			D2CLIENT_AcceptTrade();
-			*rval = BOOLEAN_TO_JSVAL(TRUE);
+			*rval = JSVAL_TRUE;
 			return JS_TRUE;
 		}
 	}
 
 	THROW_ERROR(cx, obj, "Invalid parameter passed to acceptTrade!");
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 	return JS_TRUE;
 }
 
@@ -329,14 +329,14 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(argc < 5)
 	{
 		THROW_ERROR(cx, obj, "Not enough parameters were passed to getPath!");
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 	DWORD dwCount = NULL;
 	POINT lpBuffer[255] = {0};
 	DWORD *AreaIds;
@@ -376,7 +376,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
-			*rval = BOOLEAN_TO_JSVAL(false);
+			*rval = JSVAL_FALSE;
 			return JS_TRUE;
 		}
 	} else {
@@ -384,14 +384,14 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		{
 			if(!g_collisionMap.CreateMap(nAreas, nLen))
 			{
-				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				*rval = JSVAL_FALSE;
 				return JS_TRUE;	
 			}			
 		}
 		else
 			if(!g_collisionMap.CreateMap(Area))
 			{
-				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				*rval = JSVAL_FALSE;
 				return JS_TRUE;	
 			}
 	}
@@ -1126,7 +1126,7 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[0]) || !JSVAL_IS_INT(argv[1]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1168,7 +1168,7 @@ INT my_getTradeInfo(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(argc < 1)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1192,7 +1192,7 @@ INT my_getTradeInfo(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
 		return JS_TRUE;
 	}
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	return JS_TRUE;
 }
@@ -1222,7 +1222,7 @@ INT my_getWaypoint(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1242,7 +1242,7 @@ INT my_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1285,14 +1285,14 @@ INT my_playSound(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
 	jsint nSoundId = JSVAL_TO_INT(argv[0]);
 	D2CLIENT_PlaySound(nSoundId);
 
-	*rval = BOOLEAN_TO_JSVAL(TRUE);
+	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -1350,7 +1350,7 @@ INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1365,7 +1365,7 @@ INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		}
 	}
 
-	*rval = BOOLEAN_TO_JSVAL(TRUE);
+	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
 
@@ -1375,7 +1375,7 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(argc < 4)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1388,7 +1388,6 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		if(!windowClassName)
 			return JS_FALSE;
 	}
-	
 	
 	if(JSVAL_IS_STRING(argv[1]))
 	{
@@ -1414,7 +1413,7 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(!hWnd)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1685,7 +1684,7 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 
 	if(argc < 2 || !JSVAL_IS_OBJECT(argv[0]) || !JSVAL_IS_INT(argv[1]))
 		return JS_TRUE;
@@ -1721,7 +1720,7 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(nMode == 3 && pUnit->wPartyId == 0xFFFF)
 		return JS_TRUE;
 	else if(nMode == 3 && pUnit->wPartyId != 0xFFFF) {
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 		D2CLIENT_LeaveParty();
 		return JS_TRUE;	
 	}
@@ -1735,7 +1734,7 @@ INT my_clickParty(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	else
 		D2CLIENT_clickParty(pUnit, nMode);
 
-	*rval = BOOLEAN_TO_JSVAL(TRUE);
+	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
 }
@@ -1773,7 +1772,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 
 	if(argc < 1)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1963,7 +1962,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	
 	if(!pLevel)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1972,7 +1971,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(!pArea)
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -1985,7 +1984,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(!cMap.CreateMap(nArea))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 	
@@ -2009,7 +2008,7 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!GameReady())
 		return JS_TRUE;
 
-	*rval = BOOLEAN_TO_JSVAL(FALSE);
+	*rval = JSVAL_FALSE;
 	if(argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
 		return JS_TRUE;
 
@@ -2140,7 +2139,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		{
 			if(!(pData->nCharFlags & PLAYER_TYPE_EXPAC))
 			{
-				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				*rval = JSVAL_FALSE;
 				return JS_TRUE;
 			}
 		}
@@ -2150,7 +2149,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		BYTE aPacket[1];
 		aPacket[0] = 0x60;
 		D2NET_SendPacket(1, 1, aPacket);
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 	}
 	else
 	{
@@ -2493,8 +2492,10 @@ JSAPI_FUNC(my_submitItem)
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
 		D2CLIENT_submitItem(pUnit->dwUnitId);
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
-	} else *rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_TRUE;
+	}
+	else
+		*rval = JSVAL_FALSE;
 
 	return JS_TRUE;
 }
@@ -2502,8 +2503,9 @@ JSAPI_FUNC(my_submitItem)
 JSAPI_FUNC(my_getInteractedNPC)
 {
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
-	if (!pNPC) {
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+	if (!pNPC)
+	{
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 

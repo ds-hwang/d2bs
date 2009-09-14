@@ -139,7 +139,7 @@ JSAPI_FUNC(filetools_copy)
 		fclose(fptr1);
 		remove(pnewName); // delete the partial file so it doesnt look like we succeeded
 		THROW_ERROR(cx, obj, _strerror("File copy failed"));
-		*rval = BOOLEAN_TO_JSVAL(false);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 

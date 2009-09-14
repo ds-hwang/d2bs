@@ -65,7 +65,7 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 	{
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -76,11 +76,12 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 			return JS_FALSE;
-		*rval = BOOLEAN_TO_JSVAL(FALSE);
+		*rval = JSVAL_FALSE;
 	}
-	else {
+	else
+	{
 		JS_SetPrivate(cx, obj, pRoom2);
-		*rval = BOOLEAN_TO_JSVAL(TRUE);
+		*rval = JSVAL_TRUE;
 	}
 
 	return JS_TRUE;
@@ -133,7 +134,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 			JSObject* jsUnit = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 			if(!jsUnit)
 			{
-				*rval = BOOLEAN_TO_JSVAL(FALSE);
+				*rval = JSVAL_FALSE;
 				return JS_TRUE;
 			}
 
