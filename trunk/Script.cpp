@@ -98,7 +98,7 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Couldn't create the meObject");
 
 		if(JS_AddRoot(context, &meObject) == JS_FALSE)
-			throw std::exception("Couldn't add root");
+			throw std::exception("Couldn't add root for meObject");
 
 		if(JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
 			throw std::exception("Couldn't define property \"me\"");
