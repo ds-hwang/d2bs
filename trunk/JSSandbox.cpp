@@ -60,7 +60,8 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		JSBool found;
-		JS_HasProperty(cxptr, ptr, name, &found);
+		if(JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
+			return JS_FALSE;
 		if(found)
 			return JS_TRUE;
 
@@ -70,7 +71,8 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		JSBool found;
-		JS_HasProperty(cxptr, ptr, name, &found);
+		if(JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
+			return JS_FALSE;
 		if(found)
 			return JS_TRUE;
 
@@ -92,14 +94,16 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
-			JS_DeleteProperty(box->context, box->innerObj, name);
+			if(JS_DeleteProperty(box->context, box->innerObj, name) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		if(box)
-			JS_DeleteProperty(box->context, box->innerObj, name);
+			if(JS_DeleteProperty(box->context, box->innerObj, name) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	return JS_FALSE;
