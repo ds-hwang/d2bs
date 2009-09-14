@@ -160,7 +160,7 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 		(*it)->ExecEventAsync("scriptmsg", argc, argv);
 	}
 }
-VOID ItemDropEvent(DWORD GID,CHAR* Code,WORD itemX,WORD itemY,WORD Mode)
+VOID ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
 {
 	ScriptList scripts;
 	ScriptEngine::GetScripts(scripts);

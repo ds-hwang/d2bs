@@ -39,8 +39,8 @@ JSAPI_FUNC(script_getNext)
 {
 	CDebug cDbg("script getNext");
 
-	JSContext** iterp = (JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
-	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), iterp))
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
 		return JS_FALSE;
 	JS_SetPrivate(cx, obj, iterp);
 	*rval = JSVAL_TRUE;
@@ -97,8 +97,8 @@ JSAPI_FUNC(my_getScript)
 {
 	CDebug cDbg("getScript");
 
-	JSContext** iterp = NULL;
-	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), iterp))
+	JSContext* iterp = NULL;
+	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
 		return JS_FALSE;
 
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
