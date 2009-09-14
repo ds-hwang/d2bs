@@ -123,9 +123,11 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		_itoa_s(i, name, 32, 10);
 		*vp = JSVAL_VOID;
 		if(box)
-			JS_LookupProperty(box->context, box->innerObj, name, vp);
+			if(JS_LookupProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		if(JSVAL_IS_VOID(*vp))
-			JS_LookupProperty(cx, obj, name, vp);
+			if(JS_LookupProperty(cx, obj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
@@ -133,9 +135,11 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		*vp = JSVAL_VOID;
 		if(box)
-			JS_LookupProperty(box->context, box->innerObj, name, vp);
+			if(JS_LookupProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		if(JSVAL_IS_VOID(*vp))
-			JS_LookupProperty(cx, obj, name, vp);
+			if(JS_LookupProperty(cx, obj, name, vp) == JS_FALSE)
+				return JS_FALSE;
 		return JS_TRUE;
 	}
 	return JS_FALSE;
