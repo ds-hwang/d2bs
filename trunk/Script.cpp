@@ -25,7 +25,7 @@ AutoRoot::~AutoRoot()
 		DebugBreak();
 		exit(3);
 	}
-	JS_RemoveRootRT(ScriptEngine::GetRuntime, &var);
+	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &var);
 }
 void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
 void AutoRoot::Release()
