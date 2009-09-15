@@ -219,7 +219,6 @@ void Say(const char *szMessage, ...)
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
 		memcpy((wchar_t*)p_D2CLIENT_ChatTextBuffer, wBuffer, wcslen(wBuffer)*2+1);
 
-		MSG aMsg = {D2WIN_GetHwnd(), WM_CHAR, VK_RETURN, 0x11C0001, 0, {0x79, 0x1}};		
 		MSG* aMsg = new MSG;
 		aMsg->hwnd = D2WIN_GetHwnd();
 		aMsg->message = WM_CHAR;
