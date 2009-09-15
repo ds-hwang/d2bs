@@ -9,7 +9,8 @@ JSAPI_PROP(script_getProperty)
 {
 	CDebug cDbg("script getProperty");
 
-	Script* script = (Script*)JS_GetContextPrivate(*(JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL));
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	if(!script)
 		return JS_TRUE;
@@ -55,7 +56,8 @@ JSAPI_FUNC(script_stop)
 {
 	CDebug cDbg("script stop");
 
-	Script* script = (Script*)JS_GetContextPrivate(*(JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL));
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Stop();
 
 	return JS_TRUE;
@@ -65,7 +67,8 @@ JSAPI_FUNC(script_pause)
 {
 	CDebug cDbg("script pause");
 
-	Script* script = (Script*)JS_GetContextPrivate(*(JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL));
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Pause();
 
 	return JS_TRUE;
@@ -75,7 +78,8 @@ JSAPI_FUNC(script_resume)
 {
 	CDebug cDbg("script resume");
 
-	Script* script = (Script*)JS_GetContextPrivate(*(JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL));
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Resume();
 
 	return JS_TRUE;	
@@ -85,7 +89,8 @@ JSAPI_FUNC(script_send)
 {
 	CDebug cDbg("script send");
 
-	Script* script = (Script*)JS_GetContextPrivate(*(JSContext**)JS_GetInstancePrivate(cx, obj, &script_class, NULL));
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	AutoRoot** args = new AutoRoot*[1];
 	args[0] = new AutoRoot(cx, argv[0]);

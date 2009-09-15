@@ -81,6 +81,9 @@ void Console::AddKey(unsigned int key)
 void Console::ExecuteCommand(void)
 {
 	const char* cmd = text->GetText();
+	if(strlen(cmd) < 1)
+		return;
+
 	char* buf = _strdup(cmd);
 	char* argv = strtok(buf, " ");
 
@@ -148,6 +151,7 @@ void Console::ExecuteCommand(void)
 			AddLine("ÿc2D2BSÿc0 :: Flushing the script cache...");
 			ScriptEngine::FlushCache();
 		}
+		Sleep(1000); // wait for things to catch up
 
 		AddLine("ÿc2D2BSÿc0 :: Starting default.dbj...");
 		char file[_MAX_PATH+_MAX_FNAME];
