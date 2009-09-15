@@ -512,7 +512,7 @@ DWORD WINAPI FuncThread(void* data)
 	JS_SetContextThread(evt->context);
 	JS_BeginRequest(evt->context);
 
-	if(evt->owner->IsRunning() || !(evt->owner->GetState() == InGame && !GameReady()))
+	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
 	{
 		jsval dummy = JSVAL_VOID;
 
