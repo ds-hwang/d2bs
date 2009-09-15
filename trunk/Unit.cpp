@@ -15,6 +15,8 @@ UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	if(player && player->pPath && player->pPath->pRoom1 &&
 		player->pPath->pRoom1->pRoom2 && player->pPath->pRoom1->pRoom2->pLevel)
 			ptRoomOther = player->pPath->pRoom1->pRoom2->pLevel->pRoom2First;
+	else
+		return NULL;
 
 	for(;ptRoomOther; ptRoomOther = ptRoomOther->pRoom2Next)
 	{
