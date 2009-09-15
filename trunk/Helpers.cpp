@@ -3,20 +3,6 @@
 
 #include "debugnew/debug_new.h"
 
-INT StringTokenize(CHAR * input, CHAR separator, CHAR ** tokenbuf, INT maxtokens)
-{
-	CHAR * p = _strdup(input), * j = p;
-	INT i = 0;
-	do {
-		tokenbuf[i] = (input + (p - j));
-		p = strchr(p, separator);
-		if(p)
-			*(p++) = 0;
-	} while (p && ++i < maxtokens);
-	free(j); 
-	return ++i;
-}
-
 wchar_t* AnsiToUnicode(const char* str)
 {
 	wchar_t* buf = NULL;
