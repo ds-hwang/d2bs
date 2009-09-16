@@ -863,10 +863,10 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	jsint low;
 
 	if(JS_ValueToInt32(cx, argv[0], &low) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert high value");
+		THROW_ERROR(cx, obj, "Could not convert low value");
 
 	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert low value");
+		THROW_ERROR(cx, obj, "Could not convert high value");
 
 	if(high > low+1)
 	{
