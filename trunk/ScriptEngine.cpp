@@ -358,12 +358,17 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
-	const char* filename = (report->filename ? report->filename + strlen(Vars.szScriptPath)+1 : "<unknown>");
-	Log("[%s%s] Code (%d) %s/line %d: %s\nLine: %s", strict, type, report->errorNumber, 
-				filename, report->lineno, message, report->linebuf);
+	char* filename = NULL;
+	filename = (report->filename ? _strdup(report->filename) : _strdup("<unknown>"));
 
-	Print("[ÿc%d%s%sÿc0 (%d)] %s/line %d: %s", (warn ? 9 : 1), strict, type, report->errorNumber,
-					filename, report->lineno, message);
+	Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", 
+			strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
+
+	Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", 
+			(warn ? 9 : 1), strict, type, report->errorNumber, filename, report->lineno, message);
+
+	if(filename)
+		free(filename);
 
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
