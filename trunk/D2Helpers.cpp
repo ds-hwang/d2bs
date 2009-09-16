@@ -15,7 +15,7 @@ void Log(char* szFormat, ...)
 	va_start(vaArgs, szFormat);
 	int len = _vscprintf(szFormat, vaArgs);
 	char* szString = new char[len+1];
-	vsprintf_s(szString, ,len+1, szFormat, vaArgs);
+	vsprintf_s(szString, len+1, szFormat, vaArgs);
 	va_end(vaArgs);
 
 	time_t tTime;
