@@ -153,7 +153,7 @@ JSAPI_FUNC(file_open)
 
 	// check for attempts to break the sandbox and for invalid file name characters
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	if(!(file && file[0] && IsValidPath(file)))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file name");
 
 	int32 mode;
