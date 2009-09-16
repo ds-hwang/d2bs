@@ -23,20 +23,20 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	if(JS_InitStandardClasses(box->context, box->innerObj) == JS_FALSE)
-		return JS_FALSE;
+		return JS_TRUE;
 
 	// TODO: add a default include function for sandboxed scripts
 	// how do I do that individually though? :/
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
 	if(JS_AddRoot(cx, &res) == JS_FALSE)
-		return JS_FALSE;
+		return JS_TRUE;
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
 		JS_RemoveRoot(box->context, &box->innerObj);
 		JS_DestroyContext(box->context);
 		delete box;
-		return JS_FALSE;
+		return JS_TRUE;
 	}
 	JS_SetPrivate(cx, res, box);
 	JS_RemoveRoot(cx, &res);
@@ -56,12 +56,12 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	{
 		int32 i;
 		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
-			return JS_FALSE;;
+			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		JSBool found;
 		if(JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
-			return JS_FALSE;
+			return JS_TRUE;
 		if(found)
 			return JS_TRUE;
 
@@ -72,7 +72,7 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		JSBool found;
 		if(JS_HasProperty(cxptr, ptr, name, &found) == JS_FALSE)
-			return JS_FALSE;
+			return JS_TRUE;
 		if(found)
 			return JS_TRUE;
 
@@ -90,21 +90,17 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	{
 		int32 i;
 		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
-			return JS_FALSE;
+			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
-		if(box)
-			if(JS_DeleteProperty(box->context, box->innerObj, name) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+		if(box && JS_DeleteProperty(box->context, box->innerObj, name))
+			return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
-		if(box)
-			if(JS_DeleteProperty(box->context, box->innerObj, name) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+		if(box && JS_DeleteProperty(box->context, box->innerObj, name))
+			return JS_TRUE;
 	}
 	return JS_FALSE;
 }
@@ -118,29 +114,23 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	{
 		int32 i;
 		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
-			return JS_FALSE;
+			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		*vp = JSVAL_VOID;
-		if(box)
-			if(JS_LookupProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		if(JSVAL_IS_VOID(*vp))
-			if(JS_LookupProperty(cx, obj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+		if(box && JS_LookupProperty(box->context, box->innerObj, name, vp))
+			return JS_TRUE;
+		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
+			return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		*vp = JSVAL_VOID;
-		if(box)
-			if(JS_LookupProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		if(JSVAL_IS_VOID(*vp))
-			if(JS_LookupProperty(cx, obj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+		if(box && (JS_LookupProperty(box->context, box->innerObj, name, vp)))
+			return JS_TRUE;
+		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
+			return JS_TRUE;
 	}
 	return JS_FALSE;
 }
@@ -154,21 +144,19 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	{
 		int32 i;
 		if(JS_ValueToInt32(cx, id, &i) == JS_FALSE)
-			return JS_FALSE;
+			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		if(box)
-			if(JS_SetProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+			if(JS_SetProperty(box->context, box->innerObj, name, vp))
+				return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		if(box)
-			if(JS_SetProperty(box->context, box->innerObj, name, vp) == JS_FALSE)
-				return JS_FALSE;
-		return JS_TRUE;
+			if(JS_SetProperty(box->context, box->innerObj, name, vp))
+				return JS_TRUE;
 	}
 	return JS_FALSE;
 }
@@ -225,8 +213,6 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 					}
 					JS_DestroyScript(cx, tmp);
 				}
-				else
-					return JS_FALSE;
 			}
 		}
 	}

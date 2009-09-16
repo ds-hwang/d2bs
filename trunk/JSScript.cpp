@@ -107,7 +107,7 @@ JSAPI_FUNC(my_getScript)
 
 	JSContext* iterp = NULL;
 	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
-		return JS_FALSE;
+		return JS_TRUE;
 
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
 

@@ -39,8 +39,8 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
-			if(!lpszText)
-				return JS_FALSE;
+			if(!(lpszText && lpszText[0]))
+				THROW_ERROR(cx, obj, "Could not convert string");
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
 				*c = (char)0xFE;
@@ -82,7 +82,10 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			state = (GameReady() ? InGame : OutOfGame);
 
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(lpszFileName && strlen(lpszFileName) < _MAX_PATH)
+		if(!(lpszFileName && lpszFileName[0]))
+			THROW_ERROR(cx, obj, "Could not convert or empty string");
+
+		if(strlen(lpszFileName) < _MAX_PATH)
 		{
 			CHAR lpszBuf[_MAX_FNAME];
 			sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, lpszFileName);
@@ -100,7 +103,8 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			}
 		}
 		else
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "File name exceeds _MAX_PATH characters");
+
 	}
 
 	return JS_TRUE;
@@ -141,7 +145,7 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	CDebug cDbg("stop");
 
 	if(argc > 0 && (JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1) ||
-				(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
+			(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 
@@ -404,7 +408,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	g_collisionMap.AbsToRelative(ptEnd);
 
 	WordMatrix matrix;
-	if (!g_collisionMap.CopyMapData(matrix))
+	if(!g_collisionMap.CopyMapData(matrix))
 		return JS_TRUE;
 
 	g_collisionMap.MakeBlank(matrix, ptStart);
@@ -425,9 +429,11 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius, !!Reduction);
 	}
+
 	if(dwCount > 1)
 		bFix = TRUE;
-	if(dwCount) {
+	if(dwCount)
+	{
 		JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 		for (DWORD i = 0; i < dwCount; i++)
 			g_collisionMap.RelativeToAbs(lpBuffer[i]);
@@ -487,8 +493,6 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	if(Vars.cCollisionMap.IsValidAbsLocation(nX, nY))
 		*rval = INT_TO_JSVAL(Vars.cCollisionMap.GetMapData(nX,nY, TRUE));
 
-	
-
 	return JS_TRUE;
 }
 
@@ -504,28 +508,29 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	UnitAny* pUnit = NULL;
 
 	//INT ScreenSize = D2GFX_GetScreenSize();
-	
-		POINT Belt[] = {
-			{0,0}, // 0
-			{1,0}, // 1
-			{2,0}, // 2
-			{3,0}, // 3
 
-			{0,1}, // 4
-			{1,1}, // 5
-			{2,1}, // 6
-			{3,1}, // 7
+	POINT Belt[] =
+	{
+		{0,0}, // 0
+		{1,0}, // 1
+		{2,0}, // 2
+		{3,0}, // 3
 
-			{0,2}, // 8
-			{1,2}, // 9
-			{2,2}, // 10
-			{3,2}, // 11
+		{0,1}, // 4
+		{1,1}, // 5
+		{2,1}, // 6
+		{3,1}, // 7
 
-			{0,3}, // 12
-			{1,3}, // 13
-			{2,3}, // 14
-			{3,3}, // 15
-		};
+		{0,2}, // 8
+		{1,2}, // 9
+		{2,2}, // 10
+		{3,2}, // 11
+
+		{0,3}, // 12
+		{1,3}, // 13
+		{2,3}, // 14
+		{3,3}, // 15
+	};
 	
 
 	if(argc == 1 && JSVAL_IS_OBJECT(argv[0]))
@@ -858,11 +863,12 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	jsint low;
 
 	if(JS_ValueToInt32(cx, argv[0], &low) == JS_FALSE)
-		return JS_FALSE;
-	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert high value");
 
-	if (high > low+1)
+	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
+		THROW_ERROR(cx, obj, "Could not convert low value");
+
+	if(high > low+1)
 	{
 		int i = seed%((high-1)-low) + low+1;
 		*rval = INT_TO_JSVAL(i);
@@ -1064,8 +1070,8 @@ INT my_getSkillByName(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		return JS_TRUE;
 
 	CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!lpszText)
-		return JS_FALSE;
+	if(!(lpszText && lpszText[0]))
+		THROW_ERROR(cx, obj, "Could not convert string");
 
 	for(INT i = 0; i < ArraySize(Game_Skills); i++)
 	{
@@ -1144,9 +1150,9 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 		// return an object with a height/width rather than an array
 		pObj = BuildObject(cx, NULL);
 		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, pObj, "Could not set width property");
 		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
-			return JS_FALSE;;
+			THROW_ERROR(cx, pObj, "Could not set height property");
 	}
 	else
 	{
@@ -1247,8 +1253,8 @@ INT my_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	}
 
 	CHAR* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!szFile)
-		return JS_FALSE;
+	if(!(szFile && szFile[0]))
+		THROW_ERROR(cx, obj, "Could not convert string");
 
 	Script* js = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(js->IsIncluded(szFile));
@@ -1320,7 +1326,7 @@ JSAPI_FUNC(my_debugLog)
 	{
 		char* msg = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 		if(!msg)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert string");
 		// this encodes %'s
 		sprintf(msg, "%s", msg);
 		Log(msg);
@@ -1360,7 +1366,7 @@ INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		{
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			if(!lpszText)
-				return JS_FALSE;
+				THROW_ERROR(cx, obj, "Could not convert string");
 			Say(lpszText);
 		}
 	}
@@ -1386,27 +1392,27 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	{
 		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!windowClassName)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert string");
 	}
 	
 	if(JSVAL_IS_STRING(argv[1]))
 	{
 		windowName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 		if(!windowName)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert string");
 	}
 	
 	if(JSVAL_IS_INT(argv[2]))
 	{
 		if(JS_ValueToInt32(cx, argv[2], &nModeId) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert value");
 	}
 	
 	if(JSVAL_IS_STRING(argv[3]))
 	{
 		data = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 		if(!data)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert string");
 	}
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
@@ -1435,7 +1441,7 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	jsint mode;
 	if(JS_ValueToInt32(cx, argv[0], &mode) == JS_FALSE)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert value");
 	char *pszDDEServer = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!strlen(pszDDEServer))
 		pszDDEServer = "\"\"";
@@ -1858,8 +1864,8 @@ JSAPI_FUNC(my_getPresetUnit)
 {
 	CDebug cDbg("getPresetUnit");
 
-	if(!GameReady()) return JS_TRUE;
-
+	if(!GameReady())
+		return JS_TRUE;
 
 	if(argc < 1)
 	{
@@ -2129,7 +2135,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	jsint nParameter = NULL;
 	if(argc > 0)
 		if(JS_ValueToInt32(cx, argv[0], &nParameter) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not convert value");;
 	
 	if(nParameter == NULL)
 	{
@@ -2144,7 +2150,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 			}
 		}
 		else
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not switch weapon");
 
 		BYTE aPacket[1];
 		aPacket[0] = 0x60;
@@ -2213,7 +2219,7 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pFileName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
@@ -2221,13 +2227,13 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 	if(!pKeyName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char* pDefault = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(!pDefault)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 
 	GetPrivateProfileString(pSectionName, pKeyName, pDefault, szBuffer, 65535, lpszBuf);
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
@@ -2246,19 +2252,19 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pFileName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 	if(!pKeyName)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 	char* pValue = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(!pValue)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 
 	if(WritePrivateProfileString(pSectionName, pKeyName, pValue, lpszBuf))
 		WritePrivateProfileString(NULL, NULL, NULL, lpszBuf);	// Flush
@@ -2469,9 +2475,9 @@ JSAPI_FUNC(my_getMouseCoords)
 	{
 		pObj = BuildObject(cx, NULL);
 		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not set x property");
 		if(JS_SetProperty(cx, pObj, "y", &jsY) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, obj, "Could not set y property");
 	}
 	else
 	{
@@ -2481,7 +2487,6 @@ JSAPI_FUNC(my_getMouseCoords)
 	}
 
 	*rval = OBJECT_TO_JSVAL(pObj);
-
 	return JS_TRUE;
 }
 
@@ -2503,7 +2508,7 @@ JSAPI_FUNC(my_submitItem)
 JSAPI_FUNC(my_getInteractedNPC)
 {
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
-	if (!pNPC)
+	if(!pNPC)
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;

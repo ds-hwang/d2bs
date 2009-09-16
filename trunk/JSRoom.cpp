@@ -15,7 +15,7 @@ JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 	Room2 *pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
-	if (!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
+	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id))
@@ -74,9 +74,8 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	if(!pRoom2)
 	{
 		JS_ClearScope(cx, obj);
-		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			return JS_FALSE;
-		*rval = JSVAL_FALSE;
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
+			*rval = JSVAL_FALSE;
 	}
 	else
 	{

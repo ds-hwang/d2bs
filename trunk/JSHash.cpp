@@ -9,9 +9,8 @@ JSAPI_FUNC(my_md5)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* result = md5(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-	if(!result)
-		return JS_FALSE;
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -22,9 +21,8 @@ JSAPI_FUNC(my_sha1)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* result = sha1(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-	if(!result)
-		return JS_FALSE;
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -35,9 +33,8 @@ JSAPI_FUNC(my_sha256)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* result = sha256(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-	if(!result)
-		return JS_FALSE;
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -48,9 +45,8 @@ JSAPI_FUNC(my_sha384)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* result = sha384(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-	if(!result)
-		return JS_FALSE;
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -61,9 +57,8 @@ JSAPI_FUNC(my_sha512)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* result = sha512(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
-	if(!result)
-		return JS_FALSE;
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -74,16 +69,15 @@ JSAPI_FUNC(my_md5_file)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* file = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!file)
-		return JS_FALSE;
-	if(!isValidPath(file))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = md5_file(path);
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -94,16 +88,15 @@ JSAPI_FUNC(my_sha1_file)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* file = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!file)
-		return JS_FALSE;
-	if(!isValidPath(file))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha1_file(path);
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -114,16 +107,15 @@ JSAPI_FUNC(my_sha256_file)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* file = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!file)
-		return JS_FALSE;
-	if(!isValidPath(file))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha256_file(path);
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -134,16 +126,15 @@ JSAPI_FUNC(my_sha384_file)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* file = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!file)
-		return JS_FALSE;
-	if(!isValidPath(file))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha384_file(path);
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 	delete result;
 	return JS_TRUE;
 }
@@ -154,16 +145,15 @@ JSAPI_FUNC(my_sha512_file)
 		THROW_ERROR(cx, obj, "Invalid arguments");
 
 	char* file = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!file)
-		return JS_FALSE;
-	if(!isValidPath(file))
+	if(!(file && file[0] && isValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha512_file(path);
-	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
+	if(result && result[0])
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 	delete result;
 	return JS_TRUE;
 }

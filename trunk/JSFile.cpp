@@ -151,17 +151,15 @@ JSAPI_FUNC(file_open)
 	if(!JSVAL_IS_INT(argv[1]))
 		THROW_ERROR(cx, obj, "Parameter 2 not a mode");
 
-	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	if(!file)
-		return JS_FALSE;
-
 	// check for attempts to break the sandbox and for invalid file name characters
-	if(!isValidPath(file))
+	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	if(!(file && file[0] && IsValidPath(file)))
 		THROW_ERROR(cx, obj, "Invalid file name");
 
 	int32 mode;
 	if(JS_ValueToInt32(cx, argv[1], &mode) == JS_FALSE)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert parameter 2");
+
 	// this could be simplified to: mode > FILE_APPEND || mode < FILE_READ
 	// but then it takes a hit for readability
 	if(!(mode == FILE_READ || mode == FILE_WRITE || mode == FILE_APPEND))
@@ -216,13 +214,18 @@ JSAPI_FUNC(file_close)
 
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
-		if(fdata->fptr) {
+	{
+		if(fdata->fptr)
+		{
 			if(fdata->locked)
 				_unlock_file(fdata->fptr);
 			if(!!fclose(fdata->fptr))
 				THROW_ERROR(cx, obj, _strerror("Close failed"));
 			fdata->fptr = NULL;
-		} else THROW_ERROR(cx, obj, "File is not open");
+		}
+		else
+			THROW_ERROR(cx, obj, "File is not open");
+	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
 }
@@ -252,9 +255,9 @@ JSAPI_FUNC(file_read)
 	{
 		clearerr(fdata->fptr);
 		int32 count = 1;
-		if(argc > 0 && JSVAL_TO_INT(argv[0]) > 0)
-			if(JS_ValueToInt32(cx, argv[0], &count) == JS_FALSE)
-				return JS_FALSE;
+		if(!(argc > 0 && JSVAL_TO_INT(argv[0]) > 0 && JS_ValueToInt32(cx, argv[0], &count)))
+			THROW_ERROR(cx, obj, "Invalid arguments");
+
 		if(fdata->mode > 2)
 		{
 			// binary mode
@@ -374,7 +377,7 @@ JSAPI_FUNC(file_seek)
 			int32 bytes;
 			bool isLines = false, fromStart = false;
 			if(JS_ValueToInt32(cx, argv[0], &bytes) == JS_FALSE)
-				return JS_FALSE;
+				THROW_ERROR(cx, obj, "Could not convert parameter 1");
 			if(argc > 1 && JSVAL_IS_BOOLEAN(argv[1]))
 				isLines = !!JSVAL_TO_BOOLEAN(argv[1]);
 			if(argc > 2 && JSVAL_IS_BOOLEAN(argv[2]))

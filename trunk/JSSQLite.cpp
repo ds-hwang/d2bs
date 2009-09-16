@@ -354,7 +354,7 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 	}
 	stmtobj->current_row = obj2;
 	if(JS_AddRoot(cx, &stmtobj->current_row) == JS_FALSE)
-		return JS_FALSE;
+		return JS_TRUE;
 	*rval = OBJECT_TO_JSVAL(obj2);
 	return JS_TRUE;
 }
@@ -551,7 +551,7 @@ JSAPI_FUNC(sqlite_stmt_close)
 	*rval = JSVAL_TRUE;
 	JS_ClearScope(cx, obj);
 	if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-		return JS_FALSE;
+		return JS_TRUE;
 
 	return JS_TRUE;
 }

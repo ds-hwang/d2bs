@@ -77,9 +77,8 @@ JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	else
 	{
 		JS_ClearScope(cx, obj);
-		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			return JS_FALSE;
-		*rval = INT_TO_JSVAL(0);
+		if(JS_ValueToObject(cx, JSVAL_NULL, &obj))
+			*rval = INT_TO_JSVAL(0);
 	}
 	
 	return JS_TRUE;

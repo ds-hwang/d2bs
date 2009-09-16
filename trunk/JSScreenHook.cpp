@@ -31,8 +31,8 @@ JSAPI_FUNC(hook_remove) {
 
 	JS_SetPrivate(cx, obj, NULL);
 	JS_ClearScope(cx, obj);
-	if(JS_ValueToObject(cx, JSVAL_VOID, &obj) == JS_FALSE)
-		return JS_FALSE;
+	JS_ValueToObject(cx, JSVAL_VOID, &obj);
+
 	return JS_TRUE;
 }
 
@@ -469,7 +469,7 @@ JSAPI_FUNC(text_ctor) {
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		szText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!szText)
-			return JS_FALSE;
+			return JS_TRUE;
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
@@ -575,7 +575,7 @@ JSAPI_PROP(text_setProperty) {
 			{
 				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				if(!pText)
-					return JS_FALSE;
+					return JS_TRUE;
 				pTextHook->SetText(pText);
 			}
 			break;
@@ -621,7 +621,7 @@ JSAPI_FUNC(image_ctor) {
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		szText	= JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!szText)
-			return JS_FALSE;
+			return JS_TRUE;
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
@@ -715,7 +715,7 @@ JSAPI_PROP(image_setProperty) {
 			{
 				char* pimage = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				if(!pimage)
-					return JS_FALSE;
+					return JS_TRUE;
 				pImageHook->SetImage(pimage);
 			}
 			break;
