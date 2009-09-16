@@ -1138,7 +1138,7 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 
 	CHAR* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pString)
-		return JS_FALSE;
+		THROW_ERROR(cx, obj, "Could not convert string");
 
 	POINT r = CalculateTextLen(pString, JSVAL_TO_INT(argv[1]));
 	jsval x = INT_TO_JSVAL(r.x);
