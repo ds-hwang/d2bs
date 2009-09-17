@@ -121,8 +121,8 @@ public:
 // Disabled until decision is made to deorbit.
 //
 	JSBool ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval);
-	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 #endif
+	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 
 };
 

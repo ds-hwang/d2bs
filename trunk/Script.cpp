@@ -457,6 +457,7 @@ JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval
 
 	return JS_TRUE;
 }
+#endif
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
@@ -492,7 +493,6 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 
 	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
-#endif
 
 DWORD WINAPI ScriptThread(void* data)
 {
