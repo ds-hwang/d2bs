@@ -1149,6 +1149,8 @@ INT my_getTextWidthHeight(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	{
 		// return an object with a height/width rather than an array
 		pObj = BuildObject(cx, NULL);
+		if(!pObj)
+			THROW_ERROR(cx, NULL, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
 			THROW_ERROR(cx, pObj, "Could not set width property");
 		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
@@ -2150,7 +2152,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 			}
 		}
 		else
-			THROW_ERROR(cx, obj, "Could not switch weapon");
+			THROW_ERROR(cx, obj, "Could not acquire BnData");
 
 		BYTE aPacket[1];
 		aPacket[0] = 0x60;
@@ -2158,9 +2160,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		*rval = JSVAL_TRUE;
 	}
 	else
-	{
 		*rval = INT_TO_JSVAL((*p_D2CLIENT_bWeapSwitch));
-	}
 
 	return JS_TRUE;
 }
@@ -2455,9 +2455,6 @@ JSAPI_FUNC(my_getMouseCoords)
 
 	JSObject* pObj = NULL;
 
-	if(!pObj)
-		return JS_TRUE;
-
 	POINT Coords = {*p_D2CLIENT_MouseX, *p_D2CLIENT_MouseY};
 
 	if(nFlag)
@@ -2474,6 +2471,8 @@ JSAPI_FUNC(my_getMouseCoords)
 	if(nReturn)
 	{
 		pObj = BuildObject(cx, NULL);
+		if(!pObj)
+			THROW_ERROR(cx, NULL, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
 			THROW_ERROR(cx, obj, "Could not set x property");
 		if(JS_SetProperty(cx, pObj, "y", &jsY) == JS_FALSE)
