@@ -52,8 +52,10 @@ public:
 	static void StopAll(bool forceStop = false);
 	static void PauseAll(void);
 	static void ResumeAll(void);
-
+#if 0
+// Disabled until decision is made to deorbit.
 	static void ExecEvent(char* evtName, AutoRoot** argv, uintN argc);
+#endif
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
 };
 

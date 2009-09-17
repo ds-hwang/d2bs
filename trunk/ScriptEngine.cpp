@@ -250,6 +250,8 @@ void ScriptEngine::GetScripts(ScriptList& list)
 	LeaveCriticalSection(&lock);
 }
 
+#if 0
+// Disabled until decision is made to deorbit.
 void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)
 {
 	if(GetState() != Running)
@@ -262,6 +264,7 @@ void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)
 		if(!(*it)->IsAborted())
 			(*it)->ExecEvent(evtName, argc, argv, &dummy);
 }
+#endif
 
 void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 {
