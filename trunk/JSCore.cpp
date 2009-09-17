@@ -2136,7 +2136,6 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	if(!GameReady())
 		return JS_TRUE;
 
-
 	jsint nParameter = NULL;
 	if(argc > 0)
 		if(JS_ValueToInt32(cx, argv[0], &nParameter) == JS_FALSE)
@@ -2147,8 +2146,10 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		// don't perform a weapon switch if current gametype is classic
 		BnetData* pData = (*p_D2LAUNCH_BnData);
 		if(pData)
+		{
 			if(!(pData->nCharFlags & PLAYER_TYPE_EXPAC))
 				return JS_TRUE;
+		}
 		else
 			THROW_ERROR(cx, obj, "Could not acquire BnData");
 
