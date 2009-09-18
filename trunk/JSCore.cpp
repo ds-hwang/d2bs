@@ -2144,7 +2144,7 @@ INT my_weaponSwitch(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	jsint nParameter = NULL;
 	if(argc > 0)
 		if(JS_ValueToInt32(cx, argv[0], &nParameter) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not convert value");;
+			THROW_ERROR(cx, obj, "Could not convert value");
 	
 	if(nParameter == NULL)
 	{
@@ -2488,6 +2488,9 @@ JSAPI_FUNC(my_getMouseCoords)
 		JS_SetElement(cx, pObj, 0, &jsX);
 		JS_SetElement(cx, pObj, 1, &jsY);
 	}
+
+	if(!pObj)
+		return JS_TRUE;
 
 	*rval = OBJECT_TO_JSVAL(pObj);
 	return JS_TRUE;
