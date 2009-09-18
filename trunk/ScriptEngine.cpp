@@ -111,7 +111,10 @@ BOOL ScriptEngine::Startup(void)
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
 		if(!runtime)
+		{
+			LeaveCriticalSection(&lock);
 			return FALSE;
+		}
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
@@ -376,3 +379,4 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
 }
+

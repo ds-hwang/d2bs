@@ -53,18 +53,23 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 INT my_delay(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	CDebug cDbg("delay");
+
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
-		int nDelay = JSVAL_TO_INT(argv[0]);
-		for(int i = nDelay/50; i > 0; i--)
+		if(script)
 		{
-			// sleep in 50ms intervals, to give the branch callback a chance to run while waiting
-			Sleep(50);
-			branchCallback(cx, NULL);
+			int nDelay = JSVAL_TO_INT(argv[0]);
+			for(int i = nDelay/50; i > 0; i--)
+			{
+				// sleep in 50ms intervals, to give the branch callback a chance to run while waiting
+				Sleep(50);
+				branchCallback(cx, NULL);
+			}
+			// sleep the remainder of the delay away
+			Sleep(nDelay%50);
 		}
-		// sleep the remainder of the delay away
-		Sleep(nDelay%50);
 	}
 
 	return JS_TRUE;
