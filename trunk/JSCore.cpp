@@ -2381,7 +2381,7 @@ JSAPI_FUNC(my_login)
 
 			case OOG_MAIN_MENU_CONNECTING: case OOG_CHARACTER_SELECT_PLEASE_WAIT:
 			case OOG_PLEASE_WAIT: case OOG_GATEWAY:
-			case OOG_CHARACTER_SELECT_NO_CHARS: case 0:
+			case OOG_CHARACTER_SELECT_NO_CHARS: case OOG_NONE:
 				timeout++;
 				break;
 			case OOG_LOBBY: case OOG_INLINE: case OOG_CHAT: case OOG_CREATE:
@@ -2407,7 +2407,7 @@ JSAPI_FUNC(my_login)
 		}
 		if (errorMsg != ""){
 			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
-			THROW_ERROR(cx, obj, errorMsg);			
+			THROW_ERROR(cx, obj, errorMsg);						
 			break;
 		}
 		if (timeout*100 > loginTime){

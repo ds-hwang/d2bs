@@ -103,16 +103,12 @@ bool clickControl(Control* pControl, int x, int y)
 }
 
 BOOL OOG_SelectCharacter(char * szCharacter)
-{
-	
-	Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
-
+{	
 	// Select the first control on the character selection screen.
-	//Control* pControl = findControl(4, NULL, -1, 237, 178, 72, 93);
-	 pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
+	Control* pControl = findControl(4,NULL,-1,237,178,72,93);
 	ControlText* cText;
 
-	for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
+	while (pControl != NULL)
 	{
 		if(pControl->dwType == 4 && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
 			cText = pControl->pFirstText->pNext;
@@ -148,7 +144,7 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 			}
 			delete[] szLine;
 		}
-		
+		pControl = pControl->pNext;
 	}
 	return FALSE;
 }
@@ -286,7 +282,7 @@ int OOG_GetLocation(){
 					return OOG_CHAR_SELECT;					//12 char select
 				else{
 					pControl = findControl(2, NULL, -1, 37, 178, 272, 93);					
-					for(int a = 0; a <100 ; a++){
+					for(int a = 1; a <100 ; a++){
 						if (pControl->wText2[a] != 0){							
 							wchar_t *test = &pControl->wText2[a];
 							if (wcsstr(test,L"restricted") != 0)
