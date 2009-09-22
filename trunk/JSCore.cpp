@@ -2283,8 +2283,7 @@ JSAPI_FUNC(my_login)
 	char file[_MAX_FNAME+MAX_PATH], *profile,
 		 mode[15], username[48], password[256], gateway[256], charname[24],
 		 difficulty[10], maxLoginTime[10], maxCharTime[10];
-
-	Control* pControl = NULL;
+	
 	bool handledCase = false;
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
 
@@ -2292,158 +2291,142 @@ JSAPI_FUNC(my_login)
 		THROW_ERROR(cx, obj, "Invalid profile specified!");
 
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(difficulty), file);
-
+	GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
+	GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
+	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);		
+	GetPrivateProfileString("settings", "MaxLoginTime", "5000", maxLoginTime, sizeof(maxLoginTime), file);
+	GetPrivateProfileString("settings", "MaxCharSelectTime", "5000", maxCharTime, sizeof(maxCharTime), file);
+	char* errorMsg ="";
+	loginTime = atoi(maxLoginTime);
+	charTime = atoi(maxCharTime);
 	SPdifficulty = atoi(difficulty);
-
-	// Look for the version string, otherwise return.
-	if(!findControl(4, NULL, -1, 0, 599, 200, 40))
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
+	Control* pControl = NULL;
+	int loc = 0;
+	int timeout =0;
+	bool loginComplete = FALSE,	skippedToBnet=TRUE;
 	Vars.bBlockKeys = Vars.bBlockMouse = 1;
 
-	switch(tolower(mode[0]))
-	{
-		case 't':
-			// TCP/IP login - Not implemented.
-			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
-			GetPrivateProfileString("settings", "MaxLoginTime", "-1", maxLoginTime, sizeof(maxLoginTime), file);
-			GetPrivateProfileString("settings", "MaxCharSelectTime", "-1", maxCharTime, sizeof(maxCharTime), file);
-
-			loginTime = atoi(maxLoginTime);
-			charTime = atoi(maxCharTime);
-
-			*rval = JSVAL_FALSE;
-			Vars.bBlockKeys = Vars.bBlockMouse = 0;
-			return JS_TRUE;
-		case 's':
-			// Single player button
-			if(!clickControl(findControl(6, NULL, -1, 264, 324, 272, 35)))
-				THROW_ERROR(cx, obj, "Failed to click the 'single player' button?");
-			break;
-		case 'b':
-			// Battle.net login
-			GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
-			GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-			GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
-
-			// check to make sure the gateway is correct, before clicking the bnet button
-			OOG_SelectGateway(gateway);
-
-			//Vars.bBlockKeys = Vars.bBlockMouse = 0;// REMOVE AFTER TESTING
-			//return JS_TRUE;// REMOVE AFTER TESTING -- TechnoHunter
-
-			if(!clickControl(findControl(6, NULL, -1, 264, 366, 272, 35)))
-				THROW_ERROR(cx, obj, "Failed to click the 'Battle.net' button?");
-			handledCase = true;
-			
-		case 'o':
-			// Open Battle.net login
-			if(!handledCase)
-			{
-				GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
-				GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-				GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
-			}
-			GetPrivateProfileString("settings", "MaxLoginTime", "-1", maxLoginTime, sizeof(maxLoginTime), file);
-			GetPrivateProfileString("settings", "MaxCharSelectTime", "-1", maxCharTime, sizeof(maxCharTime), file);
-
-			loginTime = atoi(maxLoginTime);
-			charTime = atoi(maxCharTime);
-
-			// handle above fall-through case because open and closed use the same method, just a different button set
-			if(!handledCase)
-			{
-				// Other Multiplayer
-				if(!clickControl(findControl(6, NULL, -1, 264, 433, 272, 35)))
-					THROW_ERROR(cx, obj, "Failed to click the 'Other Multiplayer' button?");
-				// Open Battle.net
-				if(!clickControl(findControl(6, NULL, -1, 264, 310, 272, 35)))
-					THROW_ERROR(cx, obj, "Failed to click the 'Open Battle.net' button?");
-			}
-
-			// Connecting
-			for(int i = 0; findControl(4, NULL, -1, 222, 360, 340, 70); i++)
-			{
-				Sleep(500);
-				if(i*500 > loginTime)
-					THROW_ERROR(cx, obj, "Exceeded max login time");
-			}
-
-			// TODO :: handle case where cd key is banned, etc.
-
-			//Username text-edit box
-			if(pControl = findControl(1, NULL, -1, 322, 342, 162, 19))
-				SetControlText(pControl, username);
-			else
-				THROW_ERROR(cx, obj, "Failed to set the 'Username' text-edit box.");
-
-			// Password text-edit box
-			if(pControl = findControl(1, NULL, -1, 322, 396, 162, 19))
-				SetControlText(pControl, password);
-			else
-				THROW_ERROR(cx, obj, "Failed to set the 'Password' text-edit box.");
-
-			// Log-in
-			if(pControl = findControl(6, NULL, -1, 264, 484, 272, 35))
-				if(!clickControl(pControl))
-					THROW_ERROR(cx, obj, "Failed to click the 'Log in' button?");
-
-			// TODO - handle bad password here -TechnoHunter
-
-			// Connecting
-			for(int i = 0; findControl(6, NULL, -1, 351, 337, 96, 32); i++)
-			{
-				Sleep(500);
-				if(i*500 > charTime)
-					THROW_ERROR(cx, obj, "Exceeded max character select time");
-			}
-
-			break;
-		default:
-			THROW_ERROR(cx, obj, "Invalid login mode specified!");
-			break;
-	}
-
-	*rval = BOOLEAN_TO_JSVAL(OOG_SelectCharacter(charname));
-
-	if(tolower(mode[0]) == 's')
-	{
-		switch(SPdifficulty)
-		{
-			case 0:
-				// normal button
-				if(!clickControl(findControl(6, NULL, -1, 264, 297, 272, 35)))
-					THROW_ERROR(cx, obj, "Failed to click the 'Normal Difficulty' button?");
+	while(!loginComplete){
+		loc=OOG_GetLocation();
+		switch (loc){
+			case OOG_CHAR_SELECT:
+				if (!OOG_SelectCharacter(charname))
+					 errorMsg = "invalid charactor name";
 				break;
-			case 1:
-				// nightmare button
-				if(!clickControl(findControl(6, NULL, -1, 264, 340, 272, 35)))
-					THROW_ERROR(cx, obj, "Failed to click the 'Nightmare Difficulty' button?");
+			case OOG_MAIN_MENU:
+				if (tolower(mode[0])== 's')
+					if(!clickControl(findControl(6, NULL, -1, 264,324,272,35)))	
+						 errorMsg = "Failed to click the Single button?";
+				if (tolower(mode[0])== 'b'){
+					OOG_SelectGateway(gateway);
+					if(!clickControl(findControl(6, NULL, -1, 264, 366, 272, 35)))
+						 errorMsg = "Failed to click the 'Battle.net' button?";
+				}
+				if (tolower(mode[0])== 'o'){
+					if(!clickControl(findControl(6, NULL, -1, 264, 433, 272, 35)))
+						errorMsg =  "Failed to click the 'Other Multiplayer' button?";
+					else
+						skippedToBnet = FALSE;
+						// Open Battle.net
+					if(!clickControl(findControl(6, NULL, -1, 264, 310, 272, 35)))
+						errorMsg = "Failed to click the 'Open Battle.net' button?";
+				}
 				break;
-			case 2:
-				// hell button/
-				if(!clickControl(findControl(6, NULL, -1, 264, 383, 272, 35)))
-					THROW_ERROR(cx, obj, "Failed to click the 'Hell Difficulty' button?");
+			case OOG_LOGIN:
+				if ((tolower(mode[0])== 's')||((tolower(mode[0])== 'o')&& skippedToBnet)){
+					if(!clickControl(findControl(6, "EXIT", -1,33,572,128,35)))
+						errorMsg =  "Failed to click the exit button?";
+					break;
+				}
+				if(pControl = findControl(1, NULL, -1, 322, 342, 162, 19))
+					SetControlText(pControl, username);
+				else
+					errorMsg = "Failed to set the 'Username' text-edit box.";
+				// Password text-edit box
+				if(pControl = findControl(1, NULL, -1, 322, 396, 162, 19))
+					SetControlText(pControl, password);
+				else
+					errorMsg = "Failed to set the 'Password' text-edit box.";
+				
+				if(pControl = findControl(6, NULL, -1, 264, 484, 272, 35))
+					if(!clickControl(pControl))
+						errorMsg ="Failed to click the 'Log in' button?";
+				break;
+			case OOG_DIFFICULTY:
+				switch(SPdifficulty)
+				{
+				case 0:
+					// normal button
+					if(!clickControl(findControl(6, NULL, -1, 264, 297, 272, 35)))
+						errorMsg ="Failed to click the 'Normal Difficulty' button?";
+					break;
+				case 1:
+					// nightmare button
+					if(!clickControl(findControl(6, NULL, -1, 264, 340, 272, 35)))
+						errorMsg =  "Failed to click the 'Nightmare Difficulty' button?";
+					break;
+				case 2:
+					// hell button/
+					if(!clickControl(findControl(6, NULL, -1, 264, 383, 272, 35)))
+						errorMsg =  "Failed to click the 'Hell Difficulty' button?";
+					break;
+				default:
+					errorMsg =  "Invalid single player difficulty level specified!";
+					break;
+				}
+
+			case OOG_MAIN_MENU_CONNECTING: case OOG_CHARACTER_SELECT_PLEASE_WAIT:
+			case OOG_PLEASE_WAIT: case OOG_GATEWAY:
+			case OOG_CHARACTER_SELECT_NO_CHARS: case 0:
+				timeout++;
+				break;
+			case OOG_LOBBY: case OOG_INLINE: case OOG_CHAT: case OOG_CREATE:
+			case OOG_JOIN: case OOG_LADDER: case OOG_CHANNEL: 
+			case OOG_GAME_EXIST: case OOG_GAME_DOES_NOT_EXIST:	
+				loginComplete=TRUE;
+				break;
+			case OOG_UNABLE_TO_CONNECT:
+				errorMsg = "un able to connect";
+				break;
+			case OOG_CDKEY_IN_USE:
+				errorMsg = "CD-Key in use";
+				break;
+			case OOG_LOGIN_ERROR:
+				errorMsg = "bad account or password";
+				break;
+			case OOG_REALM_DOWN:
+				errorMsg = "Realm Down";
 				break;
 			default:
-				THROW_ERROR(cx, obj, "Invalid single player difficulty level specified!");
-				break;
+				errorMsg = "unhandled login location";
+				break;				
 		}
+		if (errorMsg != ""){
+			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
+			THROW_ERROR(cx, obj, errorMsg);			
+			break;
+		}
+		if (timeout*100 > loginTime){
+			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
+			THROW_ERROR(cx, obj, "login time out");
+			break;
+		}
+		if (GetClientState() == ClientStateReady)
+			loginComplete= TRUE;
+		
+	Sleep(100);
 	}
-
-	// wait until the game is loading, to prevent misclicks
-	Sleep(1000);
-	Vars.bBlockKeys = Vars.bBlockMouse = 0;
+	Vars.bBlockKeys =0; Vars.bBlockMouse = 0;
 
 	return JS_TRUE;
+}
+JSAPI_FUNC(my_getLocation){
+*rval = INT_TO_JSVAL(OOG_GetLocation());
+return JS_TRUE;
 }
 
 JSAPI_FUNC(my_getMouseCoords)

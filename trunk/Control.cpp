@@ -2,7 +2,7 @@
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
 #include "Helpers.h"
-
+#include "Constants.h"
 #include "debugnew/debug_new.h"
 
 Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
@@ -104,32 +104,17 @@ bool clickControl(Control* pControl, int x, int y)
 
 BOOL OOG_SelectCharacter(char * szCharacter)
 {
-	// delay for first char box and char info to fill in
-	// should prevent trying to select char on realm down. bobite
-	bool found = false;
-	int timeout = 0;
+	
 	Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
 
-	while(!found)
-	{
-		Sleep(500);
-		pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
-		if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
-		{
-			found = true;
-		}
-		timeout++;
-		if (timeout > 30)
-			return FALSE;
-	}
 	// Select the first control on the character selection screen.
 	//Control* pControl = findControl(4, NULL, -1, 237, 178, 72, 93);
 	 pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
 	ControlText* cText;
 
-	while(pControl != NULL)
+	for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
 	{
-		if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+		if(pControl->dwType == 4 && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
 			cText = pControl->pFirstText->pNext;
 		else
 			cText = NULL;
@@ -163,7 +148,7 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 			}
 			delete[] szLine;
 		}
-		pControl = pControl->pNext;
+		
 	}
 	return FALSE;
 }
@@ -253,5 +238,127 @@ BOOL OOG_SelectGateway(char * szGateway)
 		}
 	}
 	return FALSE;
+}
+int OOG_GetLocation(){
+	if (findControl(6, "CANCEL", -1, 330,416,128,35))
+		return OOG_MAIN_MENU_CONNECTING;					//21 Connecting to Battle.net	
+	else if (findControl(6, "OK", -1, 335,412,128,35))
+		return OOG_LOGIN_ERROR;								//10 Login Error	
+	else if (findControl(6, "CANCEL", -1, 433,433,96,32)){
+		if (findControl(4, NULL, -1, 427,234,300,100))
+			return OOG_INLINE;								//2 waiting in line	
+		else if (findControl(6, "CREATE GAME", -1, 594,433,172,32))
+			return OOG_CREATE;								//4 Create game
+		else if (findControl(6, "JOIN GAME", -1, 594,433,172,32))
+			return OOG_JOIN;								// 5 Join Game
+		else if (findControl(6, "OK", -1, 671,433,96,32))
+			return OOG_CHANNEL;								//7 "Channel List"
+		else
+			return OOG_LADDER;								//6 "Ladder"		
+	}
+	else if (findControl(6, "CANCEL", -1, 351,337,96,32)){
+		if (findControl(4, NULL, -1, 268,300,264,100))
+			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
+		if (findControl(4, NULL, -1, 268,320,264,120))
+			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
+	}
+	else if (findControl(6, "OK", -1, 351,337,96,32)){ //14 17 30
+		Control* pControl = findControl(4, NULL, -1, 268,320,264,120);
+		if (pControl != NULL && pControl->pFirstText->wText != NULL){
+			if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"Lost Connection to") != 0)
+				return OOG_LOST_CONNECTION;					//17 lost connection			
+			else if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"A character named") != 0)
+				return OOG_CHARACTER_CREATE_ALREADY_EXISTS;	//30 Character Create - Dupe Name				
+			else 
+				return OOG_DISCONNECTED;					//14  Disconnected
+		}
+	}
+	else if (findControl(6, "EXIT", -1, 33,572,128,35)){
+		if (findControl(6, NULL, -1, 264,484,272,35))
+			return OOG_LOGIN;								//9 Login
+		if (findControl(6, "OK", -1, 495,438,96,32))
+			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
+		if (findControl(6, "OK", -1, 627,572,128,35) && findControl(6, "CREATE NEW", -1, 33,528,168,60)){
+			if (findControl(6, "NORMAL", -1, 264,297,272,35))
+				return OOG_DIFFICULTY;						//20 single char Difficulty
+			Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
+				if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+					return OOG_CHAR_SELECT;					//12 char select
+				else{
+					pControl = findControl(2, NULL, -1, 37, 178, 272, 93);					
+					for(int a = 0; a <100 ; a++){
+						if (pControl->wText2[a] != 0){							
+							wchar_t *test = &pControl->wText2[a];
+							if (wcsstr(test,L"restricted") != 0)
+								return OOG_REALM_DOWN;		// 13 realm down need another key
+							break;
+						}
+					}					
+					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 					
+				}
+		}
+		if (findControl(6, "EXIT", -1, 33,572,128,35)){
+			if (findControl(6, "OK", 0, 627,572,128,35))
+				return OOG_GATEWAY;							//27 char create screen with char selected
+			else{
+				if (findControl(4,NULL,-1,321,448,300,32))
+					return OOG_NEW_ACCOUNT;					//32 create new bnet account
+				else
+					return OOG_NEW_CHARACTER;				//15 char create screen no char selected
+			}
+		}
+	}
+	else if (findControl(6, "OK", -1, 335,450,128,35)){
+		if (findControl(4, NULL, -1, 162,270,477,50))
+			 return OOG_CDKEY_IN_USE;						//19 CD-KEY in use
+		else if (findControl(4, NULL, -1, 162,420,477,100)){
+			Control* pControl = findControl(4, NULL, -1, 162,420,477,100);
+			if (pControl != NULL && pControl->pFirstText->wText != NULL){
+				if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"If using a modem") != 0)
+					return OOG_UNABLE_TO_CONNECT;			//11 unable to connect
+				else		
+					return OOG_INVALID_CDKEY;				//22 invalid CD-KEY 
+			}
+		}
+	}	
+	Control* pControl = findControl(4, NULL, -1, 438, 300, 326, 150);
+	if (pControl != NULL && pControl->pFirstText->wText != NULL){
+		if (strcmp(UnicodeToAnsi(pControl->pFirstText->wText),"Game does not exist.") == 0)
+			return OOG_GAME_DOES_NOT_EXIST;					//28 game dosent exist
+		else if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"Full")!=0)
+			return OOG_GAME_IS_FULL;						//38 Game is full
+		else if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"Already")!=0)
+			return OOG_GAME_EXIST;							//26 Game already exists
+		else if (strstr(UnicodeToAnsi(pControl->pFirstText->wText),"erver")!=0) 
+			return OOG_SERVER_DOWN;							//24 server down
+	}
+	else if (findControl(6, "SINGLE PLAYER", -1, 264,324,272,35))
+		return OOG_MAIN_MENU;								//8 Main Menu
+	else if (findControl(6, "ENTER CHAT", -1, 27,480,120,20))
+		return OOG_LOBBY;									//1 base bnet 
+	else if (findControl(6, "HELP", -1, 187,470,80,20))
+		return OOG_CHAT;									//3 chat bnet 
+	else if (findControl(4, NULL, -1, 100,580,600,80))
+		return OOG_D2SPLASH;								//18 Spash	
+	else if (findControl(6, "OK", -1, 281,538,96,32))
+		return OOG_GATEWAY;									//27 select gateway
+	else if (findControl(6, "AGREE", -1, 525,513,128,35))
+		return OOG_AGREE_TO_TERMS;							//31 agree to terms
+	else if (findControl(6, "OK", -1, 525,513,128,35))
+		return OOG_PLEASE_READ;								//33 please read
+	else if (findControl(6, "REGISTER", -1, 265,527,272,35))
+		return OOG_REGISTER_EMAIL;							//34 register email
+	else if (findControl(6, "EXIT", -1, 33,578,128,35))
+		return OOG_CREDITS;									//35 Credits
+	else if (findControl(6, "CANCEL", -1, 334,488,128,35))
+		return OOG_CINEMATICS;								//36 Cinematics
+	else if (findControl(6, "TCP/IP GAME", -1, 264,350,272,35))
+		return	OOG_OTHER_MULTIPLAYER;						//39 other multi player
+	else if (findControl(6, "CANCEL", -1,281,337,96,32))
+		return OOG_ENTER_IP_ADDRESS;						//41 enter ip	
+	else if (findControl(6, "HOST GAME", -1,265,206,272,35))
+		return	OOG_TCP_IP;									//40 tcp-ip
+	
+return 0;
 }
 

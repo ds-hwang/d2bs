@@ -66,6 +66,7 @@ JSAPI_FUNC(my_scriptBroadcast);
 JSAPI_FUNC(my_iniread);
 JSAPI_FUNC(my_iniwrite);
 JSAPI_FUNC(my_login);
+JSAPI_FUNC(my_getLocation);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_submitItem);
 JSAPI_FUNC(my_getInteractedNPC);

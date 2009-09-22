@@ -39,6 +39,54 @@
 #define UI_MERC					0x24
 #define UI_SCROLL				0x25
 
+///////////////////////////////////////////////////
+// Out of Game Locations (From ControlInfo.dbl)
+///////////////////////////////////////////////////
+enum OOG_Locations {  OOG_NONE = 0,	
+ OOG_LOBBY,							
+ OOG_INLINE,							
+ OOG_CHAT,							
+ OOG_CREATE,							
+ OOG_JOIN,							
+ OOG_LADDER,
+ OOG_CHANNEL,							
+ OOG_MAIN_MENU,						
+ OOG_LOGIN,						
+ OOG_LOGIN_ERROR,
+ OOG_UNABLE_TO_CONNECT,
+ OOG_CHAR_SELECT,				
+ OOG_REALM_DOWN,					
+ OOG_DISCONNECTED,					
+ OOG_NEW_CHARACTER,					
+ OOG_CHARACTER_SELECT_PLEASE_WAIT,
+ OOG_LOST_CONNECTION,		
+ OOG_D2SPLASH,				
+ OOG_CDKEY_IN_USE,
+ OOG_DIFFICULTY,					
+ OOG_MAIN_MENU_CONNECTING,
+ OOG_INVALID_CDKEY,			
+ OOG_CONNECTING,					
+ OOG_SERVER_DOWN,						
+ OOG_PLEASE_WAIT,						
+ OOG_GAME_EXIST,						
+ OOG_GATEWAY,							
+ OOG_GAME_DOES_NOT_EXIST,
+ OOG_CHARACTER_CREATE,			
+ OOG_CHARACTER_CREATE_ALREADY_EXISTS,
+ OOG_AGREE_TO_TERMS,
+ OOG_NEW_ACCOUNT,					
+ OOG_PLEASE_READ,						
+ OOG_REGISTER_EMAIL,
+ OOG_CREDITS,					
+ OOG_CINEMATICS,
+ OOG_CHARACTOR_CHANGE_REALM,
+ OOG_GAME_IS_FULL,
+ OOG_OTHER_MULTIPLAYER,
+ OOG_TCP_IP,
+ OOG_ENTER_IP_ADDRESS,
+ OOG_CHARACTER_SELECT_NO_CHARS,
+ OOG_CHARACTER_SELECT_CHANGE_REALM,
+};
 //////////////////////////////////////////////////////////////////////
 // PVP Flags
 //////////////////////////////////////////////////////////////////////
