@@ -71,9 +71,13 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 			if(strcmp(UnicodeToAnsi(pControl->wText2), Text) == 0)
 				bFound = TRUE;
 			else if (WORD locStr=atoi(Text))
-			{
+			{				
 				if (wcsstr(pControl->wText2,D2LANG_GetLocaleText((WORD)locStr))!=0)
 					bFound = TRUE;
+				else{
+					bFound = FALSE;
+					continue;
+				}
 			}
 			else {
 				bFound = FALSE;
@@ -85,6 +89,10 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 			{
 				if (wcsstr(D2LANG_GetLocaleText((WORD)locStr),pControl->pFirstText->wText)!=0)
 					bFound = TRUE;
+				else{
+					bFound = FALSE;
+					continue;
+				}
 			}
 			else {
 				bFound = FALSE;
@@ -266,34 +274,35 @@ int OOG_GetLocation(){
 		else
 			return OOG_LADDER;								//6 "Ladder"		
 	}	
-	else if (findControl(6, "5103", -1, 351,337,96,32)){
+	else if (findControl(6, "5103", -1, 351,337,96,32)){				//5103 = CANCEL
 		if (findControl(4, NULL, -1, 268,300,264,100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(4, NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
 	}
 	
-	else if (findControl(6, "5102", -1, 351,337,96,32)){ //5102 =OK
-		if (findControl(4, "5131", -1, 268,320,264,120))
-			return OOG_LOST_CONNECTION;					//17 lost connection	
+	else if (findControl(6, "5102", -1, 351,337,96,32)){				//5102 =OK
+		if (findControl(4, "5131", -1, 268,320,264,120))	
+			return OOG_LOST_CONNECTION;						//17 lost connection	
 		else if (findControl(4, "5347", -1, 268,320,264,120))
-			return OOG_DISCONNECTED;					//14  Disconnected
+			return OOG_DISCONNECTED;						//14  Disconnected
 		else
-			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;	//30 Character Create - Dupe Name									
+			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
 	}
 	else if (findControl(6, "5101", -1, 33,572,128,35)){			//5101 = EXIT
 		if (findControl(6, NULL, -1, 264,484,272,35))
 			return OOG_LOGIN;								//9 Login
 		if (findControl(6, "5102", -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
-		if (findControl(6, "5102", -1, 627,572,128,35) && findControl(6, "10832", -1, 33,528,168,60)){
+		if (findControl(6, "5102", -1, 627,572,128,35) && findControl(6, "10832", -1, 33,528,168,60)){//10832=create new
 			if (findControl(6, "5156", -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
-			if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+			if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)//first char loaded
 				return OOG_CHAR_SELECT;						//12 char select
 			else{
-				pControl = findControl(2, NULL, -1, 37, 178, 272, 93);									
+				pControl = findControl(2, NULL, -1, 37, 178, 272, 93);	
+				//pControl = findControl(4, NULL, -1, 37,178,547,35);	
 				for(int a = 1; a <100 ; a++){
 					if (pControl->wText2[a] != 0){							
 						wchar_t *test = &pControl->wText2[a];							
