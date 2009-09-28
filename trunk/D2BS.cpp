@@ -102,11 +102,11 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 
-	Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, GetCurrentThreadId());
+	Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, GetModuleHandle(NULL), 0);
 	if(Vars.hMouseHook == NULL)
 		Log("SetWindowsHookEx returned error 0x%x when attempting to set a mouse hook", GetLastError());
 
-	Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, GetCurrentThreadId());
+	Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, GetModuleHandle(NULL), 0);
 	if(Vars.hKeybHook == NULL)
 		Log("SetWindowsHookEx returned error 0x%x when attempting to set a keyboard hook", GetLastError());
 
