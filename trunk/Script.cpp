@@ -2,9 +2,7 @@
 #include <algorithm>
 
 #include "Script.h"
-#include "JSGlobalFuncs.h"
 #include "Core.h"
-#include "JSUnit.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
@@ -59,88 +57,16 @@ Script::Script(const char* file, ScriptState state) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
-		myUnit* lpUnit = new myUnit; // leaked
-		memset(lpUnit, NULL, sizeof(myUnit));
-
-		UnitAny* player = D2CLIENT_GetPlayerUnit();
-		lpUnit->dwMode = -1;
-		lpUnit->dwClassId = -1;
-		lpUnit->dwType = UNIT_PLAYER;
-		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
-		lpUnit->_dwPrivateType = PRIVATE_UNIT;
-
 		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
-		globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
-		if(!globalObject)
-			throw std::exception("Couldn't create the global object");
+		globalObject = JS_GetGlobalObject(context);
+		// HACK: recovering 'me' from the context callback
+		jsval meval;
+		JS_GetProperty(context, globalObject, "me", &meval);
+		meObject = JSVAL_TO_OBJECT(meval);
 
-		if(JS_InitStandardClasses(context, globalObject) == JS_FALSE)
-			throw std::exception("Couldn't init standard classes");
-		if(JS_DefineFunctions(context, globalObject, global_funcs) == JS_FALSE)
-			throw std::exception("Couldn't define functions");
-
-		InitClass(&file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
-		InitClass(&filetools_class, NULL, NULL, filetools_s_methods, NULL);
-		InitClass(&sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
-		InitClass(&sandbox_class, sandbox_methods, NULL, NULL, NULL);
-		InitClass(&frame_class, frame_methods, frame_props, NULL, NULL);
-		InitClass(&box_class, box_methods, box_props, NULL, NULL);
-		InitClass(&line_class, line_methods, line_props, NULL, NULL);
-		InitClass(&text_class, text_methods, text_props, NULL, NULL);
-		InitClass(&image_class, image_methods, image_props, NULL, NULL);
-		InitClass(&unit_class, unit_methods, unit_props, NULL, NULL);
-
-		meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
-		if(!meObject)
-			throw std::exception("Couldn't create the meObject");
-
-		if(JS_AddRoot(context, &meObject) == JS_FALSE)
-			throw std::exception("Couldn't add root for meObject");
-
-		if(JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
-			throw std::exception("Couldn't define property \"me\"");
-
-#define DEFCONST(vp) DefineConstant(#vp, vp)
-#define DEFEVENT(vp) DEFCONST(EVENT_##vp)
-		DEFCONST(FILE_READ);
-		DEFCONST(FILE_WRITE);
-		DEFCONST(FILE_APPEND);
-
-		DEFEVENT(AREACHANGE);
-		DEFEVENT(CHATMSG);
-		DEFEVENT(COPYDATA);
-		DEFEVENT(GAMEMSG);
-		DEFEVENT(HOSTILEMSG);
-		DEFEVENT(INPUTLINE);
-		DEFEVENT(ITEMSTAT);
-		DEFEVENT(KEYDOWN);
-		DEFEVENT(KEYUP);
-		DEFEVENT(MELIFE);
-		DEFEVENT(MISSILEMOVE);
-		DEFEVENT(MISSILESTATE);
-		DEFEVENT(MOUSEDOWN);
-		DEFEVENT(MOUSEUP);
-		DEFEVENT(NEWITEM);
-		DEFEVENT(NEWNPC);
-		DEFEVENT(NPCLIFE);
-		DEFEVENT(NPCMOVE);
-		DEFEVENT(NPCSTAT);
-		DEFEVENT(NPCSTATE);
-		DEFEVENT(PARTYMSG);
-		DEFEVENT(PLAYERMOVE);
-		DEFEVENT(PLAYERSTAT);
-		DEFEVENT(PLAYERSTATE);
-		DEFEVENT(QUEST);
-		DEFEVENT(SCRIPTMSG);
-		DEFEVENT(UNITMOVE);
-		DEFEVENT(WINDOWFOCUS);
-		DEFEVENT(CHATCMD);
-		DEFEVENT(PLAYERASSIGN);
-#undef DEFEVENT
-#undef DEFCONST
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
@@ -152,8 +78,6 @@ Script::Script(const char* file, ScriptState state) :
 		if(!scriptObject)
 			throw std::exception("Couldn't create the script object");
 
-		if(JS_AddNamedRoot(context, &meObject, "me object") == JS_FALSE)
-			throw std::exception("Couldn't add named root for meObject");
 		if(JS_AddNamedRoot(context, &scriptObject, "script object") == JS_FALSE)
 			throw std::exception("Couldn't add named root for scriptObject");
 
@@ -182,6 +106,7 @@ Script::~Script(void)
 	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
+	// these calls can, and probably should, be moved to the context callback on cleanup
 	// use the RT version of RemoveRoot to prevent crashes
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &meObject);
@@ -197,20 +122,6 @@ Script::~Script(void)
 	includes.clear();
 	if(threadHandle)
 		CloseHandle(threadHandle);
-}
-
-void Script::InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
-					   JSFunctionSpec* s_methods, JSPropertySpec* s_props)
-{
-	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0,
-		props, methods, s_props, s_methods))
-		throw std::exception("Couldn't initialize the class");
-}
-
-void Script::DefineConstant(const char* name, int value)
-{
-	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_CONSTANT))
-		throw std::exception("Couldn't initialize the constant");
 }
 
 int Script::GetExecutionCount(void)

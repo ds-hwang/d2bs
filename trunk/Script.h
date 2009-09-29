@@ -74,10 +74,6 @@ private:
 	DWORD threadId, lockThreadId;
 	CRITICAL_SECTION lock;
 
-	void InitClass(JSClass* classp, JSFunctionSpec* methods, JSPropertySpec* props,
-					JSFunctionSpec* s_methods, JSPropertySpec* s_props);
-	void DefineConstant(const char* name, int value);
-
 	Script(const char* file, ScriptState state);
 	Script(const Script&);
 	Script& operator=(const Script&);

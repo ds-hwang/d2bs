@@ -57,9 +57,13 @@ public:
 	static void ExecEvent(char* evtName, AutoRoot** argv, uintN argc);
 #endif
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
+	static void InitClass(JSContext* context, JSObject* globalObject, 
+			JSClass* classp, JSFunctionSpec* methods, 
+			JSPropertySpec* props, JSFunctionSpec* s_methods, 
+			JSPropertySpec* s_props);
+	static void DefineConstant(JSContext* context, JSObject* globalObject,
+			const char* name, int value);
 };
-
-#endif
 
 JSBool watchHandler(JSContext* cx, JSObject* obj, jsval id, jsval old, jsval* newval, void* closure);
 JSTrapStatus debuggerCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
@@ -69,3 +73,6 @@ JSBool branchCallback(JSContext* cx, JSScript* script);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
+
+#endif
+

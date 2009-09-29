@@ -1,6 +1,9 @@
 #include "ScriptEngine.h"
 #include "D2BS.h"
 #include "Core.h"
+#include "JSGlobalFuncs.h"
+#include "JSUnit.h"
+#include "Constants.h"
 
 #include <algorithm>
 
@@ -281,6 +284,22 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 			(*it)->ExecEventAsync(evtName, argc, argv);
 }
 
+void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
+		JSFunctionSpec* methods, JSPropertySpec* props, 
+		JSFunctionSpec* s_methods, JSPropertySpec* s_props)
+{
+	if(!JS_InitClass(context, globalObject, NULL, classp, 
+			classp->construct, 0, props, methods, 
+			s_props, s_methods))
+		throw std::exception("Couldn't initialize the class");
+}
+
+void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value)
+{
+	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_CONSTANT))
+		throw std::exception("Couldn't initialize the constant");
+}
+
 JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
 {
 	return JSTRAP_CONTINUE;
@@ -337,6 +356,88 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		JS_SetBranchCallback(cx, branchCallback);
 		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
 		JS_SetVersion(cx, JSVERSION_1_7);
+
+		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
+		if(!globalObject)
+			return JS_FALSE;
+
+		if(JS_InitStandardClasses(cx, globalObject) == JS_FALSE)
+			return JS_FALSE;
+		if(JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)
+			return JS_FALSE;
+
+		// MOVED from Script::ctor
+		myUnit* lpUnit = new myUnit;
+		memset(lpUnit, NULL, sizeof(myUnit));
+
+		UnitAny* player = D2CLIENT_GetPlayerUnit();
+		lpUnit->dwMode = -1;
+		lpUnit->dwClassId = -1;
+		lpUnit->dwType = UNIT_PLAYER;
+		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
+		lpUnit->_dwPrivateType = PRIVATE_UNIT;
+
+		// TODO: turn this into a loop or something
+		ScriptEngine::InitClass(cx, globalObject, &file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &filetools_class, NULL, NULL, filetools_s_methods, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &sandbox_class, sandbox_methods, NULL, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &frame_class, frame_methods, frame_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &box_class, box_methods, box_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &line_class, line_methods, line_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &text_class, text_methods, text_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &image_class, image_methods, image_props, NULL, NULL);
+		ScriptEngine::InitClass(cx, globalObject, &unit_class, unit_methods, unit_props, NULL, NULL);
+
+		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
+		if(!meObject)
+			return JS_FALSE;
+
+		if(JS_AddNamedRoot(cx, &meObject, "me object") == JS_FALSE)
+			return JS_FALSE;
+		
+		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
+			return JS_FALSE;
+		
+#define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
+#define DEFEVENT(vp) DEFCONST(EVENT_##vp)
+		DEFCONST(FILE_READ);
+		DEFCONST(FILE_WRITE);
+		DEFCONST(FILE_APPEND);
+		
+		DEFEVENT(AREACHANGE);
+		DEFEVENT(CHATMSG);
+		DEFEVENT(COPYDATA);
+		DEFEVENT(GAMEMSG);
+		DEFEVENT(HOSTILEMSG);
+		DEFEVENT(INPUTLINE);
+		DEFEVENT(ITEMSTAT);
+		DEFEVENT(KEYDOWN);
+		DEFEVENT(KEYUP);
+		DEFEVENT(MELIFE);
+		DEFEVENT(MISSILEMOVE);
+		DEFEVENT(MISSILESTATE);
+		DEFEVENT(MOUSEDOWN);
+		DEFEVENT(MOUSEUP);
+		DEFEVENT(NEWITEM);
+		DEFEVENT(NEWNPC);
+		DEFEVENT(NPCLIFE);
+		DEFEVENT(NPCMOVE);
+		DEFEVENT(NPCSTAT);
+		DEFEVENT(NPCSTATE);
+		DEFEVENT(PARTYMSG);
+		DEFEVENT(PLAYERMOVE);
+		DEFEVENT(PLAYERSTAT);
+		DEFEVENT(PLAYERSTATE);
+		DEFEVENT(QUEST);
+		DEFEVENT(SCRIPTMSG);
+		DEFEVENT(UNITMOVE);
+		DEFEVENT(WINDOWFOCUS);
+		DEFEVENT(CHATCMD);
+		DEFEVENT(PLAYERASSIGN);
+#undef DEFEVENT
+#undef DEFCONST
+
 	}
 	return JS_TRUE;
 }
