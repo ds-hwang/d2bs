@@ -270,7 +270,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp)));
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 					delete[] tmp;
 				}
 			}
