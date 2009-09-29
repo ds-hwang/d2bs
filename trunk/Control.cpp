@@ -295,7 +295,7 @@ int OOG_GetLocation(){
 		if (findControl(6, "5102", -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
 		if (findControl(6, "5102", -1, 627,572,128,35) && findControl(6, "10832", -1, 33,528,168,60)){//10832=create new
-			if (findControl(6, "5156", -1, 264,297,272,35)) //NORMAL
+			if (findControl(6, "10018", -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
 			if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)//first char loaded
