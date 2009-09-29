@@ -37,8 +37,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	{
 		if(!Vars.oldWNDPROC && D2WIN_GetHwnd()){
 			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);			
-			Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, GetModuleHandle(NULL), 0);
-			Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, GetModuleHandle(NULL), 0);
+			DWORD mainThread=GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+			Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
+			Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
 		}
 		switch(GetClientState())
 		{
