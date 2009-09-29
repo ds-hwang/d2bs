@@ -35,9 +35,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 	while(Vars.bActive)
 	{
-		if(!Vars.oldWNDPROC && D2WIN_GetHwnd())
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
-
+		if(!Vars.oldWNDPROC && D2WIN_GetHwnd()){
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);			
+			Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, GetModuleHandle(NULL), 0);
+			Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, GetModuleHandle(NULL), 0);
+		}
 		switch(GetClientState())
 		{
 			case ClientStateReady:
@@ -346,6 +348,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
+//MessageBox(0, "HOOKer Works!","D2BS", 0);
 	if(code < 0)
 		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 
