@@ -219,7 +219,7 @@ JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		switch(JSVAL_TO_INT(id))
 		{
 			case DIR_NAME:
-				*vp=STRING_TO_JSVAL(STRING_TO_JSVAL(JS_InternString(cx, d->name)));
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, d->name));
 				break;
 		}
 	return JS_TRUE;
