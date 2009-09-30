@@ -7,6 +7,8 @@
 
 #include <algorithm>
 
+#include "debugnew/debug_new.h"
+
 using namespace std;
 
 JSRuntime* ScriptEngine::runtime = NULL;
