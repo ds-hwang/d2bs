@@ -302,7 +302,6 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 
 void Script::ClearEvent(const char* evtName)
 {
-	EnterCriticalSection(&lock);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		AutoRoot* func = *it;
@@ -310,7 +309,6 @@ void Script::ClearEvent(const char* evtName)
 		delete func;
 	}
 	functions[evtName].clear();
-	LeaveCriticalSection(&lock);
 }
 
 void Script::ClearAllEvents(void)
