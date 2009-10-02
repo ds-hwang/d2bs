@@ -22,7 +22,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 	if(GetState() != Running)
 		return NULL;
 	char* fileName = _strdup(file);
-	_strlwr_s(fileName, strlen(file));
+	_strlwr_s(fileName, strlen(file)+1);
 	try {
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
@@ -54,7 +54,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 	if(GetState() != Running)
 		return NULL;
 	char* file = _strdup(command);
-	_strlwr_s(file, strlen(file));
+	_strlwr_s(file, strlen(file)+1);
 	try {
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
