@@ -2,6 +2,7 @@
 #include "D2BS.h"
 #include "Core.h"
 #include "JSGlobalFuncs.h"
+#include "JSGlobalClasses.h"
 #include "JSUnit.h"
 #include "Constants.h"
 
@@ -287,11 +288,10 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
-							 JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props)
 {
-	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0,
-		props, methods, s_props, s_methods))
+	if(!JS_InitClass(context, globalObject, NULL, classp, ctor, 0, props, methods, s_props, s_methods))
 		throw std::exception("Couldn't initialize the class");
 }
 
@@ -378,17 +378,10 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
-		// TODO: turn this into a loop or something
-		ScriptEngine::InitClass(cx, globalObject, &file_class_ex.base, file_methods, file_props, file_s_methods, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &filetools_class, NULL, NULL, filetools_s_methods, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &sqlite_db_ex.base, sqlite_methods, sqlite_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &sandbox_class, sandbox_methods, NULL, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &frame_class, frame_methods, frame_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &box_class, box_methods, box_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &line_class, line_methods, line_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &text_class, text_methods, text_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &image_class, image_methods, image_props, NULL, NULL);
-		ScriptEngine::InitClass(cx, globalObject, &unit_class, unit_methods, unit_props, NULL, NULL);
+		int i = 0;
+		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
+			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.class_ctor,
+							entry.funcs, entry.props, entry.static_funcs, entry.static_props);
 
 		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
 		if(!meObject)

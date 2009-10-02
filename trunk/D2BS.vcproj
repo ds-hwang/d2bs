@@ -618,15 +618,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSArea.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSControl.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSControl.h"
 						>
 					</File>
 					<File
@@ -634,15 +626,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSCore.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSDirectory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSDirectory.h"
 						>
 					</File>
 					<File
@@ -650,15 +634,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSExits.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSFile.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSFile.h"
 						>
 					</File>
 					<File
@@ -666,19 +642,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSFileTools.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSGlobalFuncs.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSHash.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSHash.h"
 						>
 					</File>
 					<File
@@ -686,15 +650,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSParty.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSPresetUnit.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSPresetUnit.h"
 						>
 					</File>
 					<File
@@ -702,15 +658,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSRoom.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSSandbox.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSSandbox.h"
 						>
 					</File>
 					<File
@@ -718,15 +666,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSScreenHook.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSScript.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSScript.h"
 						>
 					</File>
 					<File
@@ -734,11 +674,79 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSSQLite.h"
+						RelativePath=".\JSUnit.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="API"
+					>
+					<File
+						RelativePath=".\JSArea.h"
 						>
 					</File>
 					<File
-						RelativePath=".\JSUnit.cpp"
+						RelativePath=".\JSControl.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSCore.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSDirectory.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSExits.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSFile.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSFileTools.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSGlobalClasses.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSGlobalFuncs.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSHash.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSParty.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSPresetUnit.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSRoom.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSSandbox.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSScreenHook.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSScript.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSSQLite.h"
 						>
 					</File>
 					<File
