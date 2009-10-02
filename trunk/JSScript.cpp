@@ -93,7 +93,7 @@ JSAPI_FUNC(script_send)
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
 	AutoRoot** args = new AutoRoot*[1];
-	args[0] = new AutoRoot(cx, argv[0]);
+	args[0] = new AutoRoot(argv[0]);
 
 	// this event has to occur as such because it's not a broadcasted event, just a local one
 	script->ExecEventAsync("scriptmsg", 1, args);

@@ -13,8 +13,8 @@ VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
-		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("chatmsg", 2, argv);
 	}
 }
@@ -29,8 +29,8 @@ VOID WhisperEvent(CHAR* lpszNick, CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
-		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("whispermsg", 2, argv);
 	}
 }
@@ -45,8 +45,8 @@ VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwLife));
-		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(dwMana));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(dwMana));
 		(*it)->ExecEventAsync("melife", 2, argv);
 	}
 }
@@ -61,8 +61,8 @@ VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwMode));
-		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(dwMode));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("copydata", 2, argv);
 	}
 }
@@ -77,7 +77,7 @@ VOID GameMsgEvent(CHAR* lpszMsg)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
 		(*it)->ExecEventAsync("gamemsg", 1, argv);
 	}
 }
@@ -92,7 +92,7 @@ VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(key));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(key));
 		(*it)->ExecEventAsync((bUp ? "keyup" : "keydown"), 1, argv);
 	}
 }
@@ -107,7 +107,7 @@ VOID PlayerAssignEvent(DWORD dwUnitId)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(dwUnitId));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(dwUnitId));
 		(*it)->ExecEventAsync("playerassign", 1, argv);
 	}
 }
@@ -122,9 +122,9 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[3];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(button));
-		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
-		argv[2] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.x));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(pt.y));
 		(*it)->ExecEventAsync((bUp ? "mouseup" : "mousedown"), 3, argv);
 	}
 }
@@ -139,8 +139,8 @@ VOID MouseMoveEvent(POINT pt)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(pt.x));
-		argv[1] = new AutoRoot(cx, INT_TO_JSVAL(pt.y));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(pt.x));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.y));
 		(*it)->ExecEventAsync("mousemove", 2, argv);
 	}
 }
@@ -156,7 +156,7 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[argc];
 		for(uintN i = 0; i < argc; i++)
-			argv[i] = new AutoRoot(cx, args[i]);
+			argv[i] = new AutoRoot(args[i]);
 		(*it)->ExecEventAsync("scriptmsg", argc, argv);
 	}
 }
@@ -170,11 +170,11 @@ VOID ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
 			continue;
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[5];
-		argv[0] = new AutoRoot(cx, INT_TO_JSVAL(GID));
-		argv[1] = new AutoRoot(cx, STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Code)));
-		argv[2] = new AutoRoot(cx, INT_TO_JSVAL(itemX));
-		argv[3] = new AutoRoot(cx, INT_TO_JSVAL(itemY));
-		argv[4] = new AutoRoot(cx, INT_TO_JSVAL(Mode));
+		argv[0] = new AutoRoot(INT_TO_JSVAL(GID));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Code)));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(itemX));
+		argv[3] = new AutoRoot(INT_TO_JSVAL(itemY));
+		argv[4] = new AutoRoot(INT_TO_JSVAL(Mode));
 		(*it)->ExecEventAsync("itemdrop", 5, argv);
 	}
 }
