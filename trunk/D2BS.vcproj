@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32/js32d.lib shlwapi.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib js32/js32d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -175,7 +175,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="js32/js32.lib shlwapi.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib js32/js32d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).bin"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
