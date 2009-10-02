@@ -24,7 +24,6 @@ class Script;
 class AutoRoot
 {
 private:
-	JSContext* context;
 	jsval var;
 	uint count;
 
@@ -32,11 +31,12 @@ private:
 	AutoRoot& operator=(const AutoRoot&);
 public:
 	AutoRoot() {}
-	AutoRoot(JSContext* cx, jsval var);
-	AutoRoot::~AutoRoot();
-	void AutoRoot::Take();
-	void AutoRoot::Release();
-	jsval AutoRoot::value();
+	AutoRoot(jsval var);
+	~AutoRoot();
+	void Take();
+	void Release();
+	jsval value();
+	jsval operator* ();
 	bool operator==(AutoRoot& other);
 };
 
@@ -113,11 +113,6 @@ public:
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
 
-#if 0
-// Disabled until decision is made to deorbit.
-//
-	JSBool ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval);
-#endif
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
 
 };

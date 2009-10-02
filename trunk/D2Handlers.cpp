@@ -355,9 +355,6 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	if(Vars.bBlockKeys)
 		return 1;
 
-	if(wParam == 0xFF)
-		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
-
 	WORD repeatCount = LOWORD(lParam);
 	bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
 	bool previousState = !!(HIWORD(lParam) & KF_REPEAT);

@@ -14,7 +14,7 @@
 
 using namespace std;
 
-AutoRoot::AutoRoot(JSContext* cx, jsval nvar) :	context(cx), var(nvar), count(0) { Take(); }
+AutoRoot::AutoRoot(jsval nvar) : var(nvar), count(0) { Take(); }
 AutoRoot::~AutoRoot()
 {
 	if(!(count--))
@@ -25,7 +25,11 @@ AutoRoot::~AutoRoot()
 	}
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &var);
 }
-void AutoRoot::Take() { count++; JS_AddRoot(context, &var); }
+void AutoRoot::Take() {
+	count++;
+	JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
+}
+
 void AutoRoot::Release()
 {
 	count--;
@@ -36,6 +40,7 @@ void AutoRoot::Release()
 		exit(3);
 	}
 }
+jsval AutoRoot::operator* () { return var; }
 jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
@@ -97,6 +102,7 @@ Script::Script(const char* file, ScriptState state) :
 
 Script::~Script(void)
 {
+	EnterCriticalSection(&lock);
 	Stop(true, true);
 
 	JS_SetContextThread(context);
@@ -117,6 +123,8 @@ Script::~Script(void)
 	includes.clear();
 	if(threadHandle)
 		CloseHandle(threadHandle);
+	LeaveCriticalSection(&lock);
+	DeleteCriticalSection(&lock);
 }
 
 int Script::GetExecutionCount(void)
@@ -168,14 +176,18 @@ void Script::Run(void)
 
 void Script::Pause(void)
 {
+	EnterCriticalSection(&lock);
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
+	LeaveCriticalSection(&lock);
 }
 
 void Script::Resume(void)
 {
+	EnterCriticalSection(&lock);
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
+	LeaveCriticalSection(&lock);
 }
 
 bool Script::IsPaused(void)
@@ -187,6 +199,7 @@ void Script::Stop(bool force, bool reallyForce)
 {	
 	// Clear the events/hooks before aborting the script
 	// otherwise we can't clean up all the events in the context
+	EnterCriticalSection(&lock);
 	ClearAllEvents();
 	Genhook::Clean(this);
 
@@ -206,7 +219,7 @@ void Script::Stop(bool force, bool reallyForce)
 	if(threadHandle)
 		CloseHandle(threadHandle);
 	threadHandle = NULL;
-
+	LeaveCriticalSection(&lock);
 }
 
 void Script::EnableSingleStep(void) { singleStep = true; }
@@ -222,6 +235,8 @@ bool Script::IsIncluded(const char* file)
 
 bool Script::Include(const char* file)
 {
+	// since includes will happen on the same thread, locking here is acceptable
+	EnterCriticalSection(&lock);
 	char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
@@ -251,6 +266,7 @@ bool Script::Include(const char* file)
 	// HACK: assume we have to reclaim ownership
 	JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
+	LeaveCriticalSection(&lock);
 	return rval;
 }
 
@@ -267,16 +283,22 @@ bool Script::IsAborted()
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
-	if(JSVAL_IS_FUNCTION(context, evtFunc))
+	EnterCriticalSection(&lock);
+	if(JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0)
 	{
-		AutoRoot* root = new AutoRoot(context, evtFunc);
+		AutoRoot* root = new AutoRoot(evtFunc);
 		root->Take();
 		functions[evtName].push_back(root);
 	}
+	LeaveCriticalSection(&lock);
 }
 
 bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 {
+	// nothing can be registered under an empty name
+	if(strlen(evtName) < 1)
+		return false;
+
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 		if((*it)->value() == evtFunc)
 			return true;
@@ -286,6 +308,10 @@ bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 
 void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 {
+	if(strlen(evtName) < 1)
+		return;
+
+	EnterCriticalSection(&lock);
 	AutoRoot* func = NULL;
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
@@ -298,10 +324,12 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 	functions[evtName].remove(func);
 	func->Release();
 	delete func;
+	LeaveCriticalSection(&lock);
 }
 
 void Script::ClearEvent(const char* evtName)
 {
+	EnterCriticalSection(&lock);
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		AutoRoot* func = *it;
@@ -309,12 +337,15 @@ void Script::ClearEvent(const char* evtName)
 		delete func;
 	}
 	functions[evtName].clear();
+	LeaveCriticalSection(&lock);
 }
 
 void Script::ClearAllEvents(void)
 {
+	EnterCriticalSection(&lock);
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
+	LeaveCriticalSection(&lock);
 }
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)

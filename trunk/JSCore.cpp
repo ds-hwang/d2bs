@@ -1530,8 +1530,14 @@ JSAPI_FUNC(my_addEventListener)
 	CDebug cDbg("addEventListener");
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
-		Script* self = (Script*)JS_GetContextPrivate(cx);
-		self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
+		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		if(strlen(evtName) > 0)
+		{
+			Script* self = (Script*)JS_GetContextPrivate(cx);
+			self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
+		}
+		else
+			THROW_ERROR(cx, obj, "Event name is invalid!");
 	}
 	return JS_TRUE;
 }
@@ -1541,8 +1547,14 @@ JSAPI_FUNC(my_removeEventListener)
 	CDebug cDbg("removeEventListener");
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
-		Script* self = (Script*)JS_GetContextPrivate(cx);
-		self->UnregisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
+		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		if(strlen(evtName) > 0)
+		{
+			Script* self = (Script*)JS_GetContextPrivate(cx);
+			self->UnregisterEvent(evtName, argv[1]);
+		}
+		else
+			THROW_ERROR(cx, obj, "Event name is invalid!");
 	}
 	return JS_TRUE;
 }
@@ -2425,8 +2437,11 @@ JSAPI_FUNC(my_login)
 	return JS_TRUE;
 }
 JSAPI_FUNC(my_getLocation){
-*rval = INT_TO_JSVAL(OOG_GetLocation());
-return JS_TRUE;
+	CDebug cDbg("getLocation");
+
+	*rval = INT_TO_JSVAL(OOG_GetLocation());
+
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_getMouseCoords)
