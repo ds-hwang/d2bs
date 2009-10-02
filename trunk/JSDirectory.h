@@ -51,7 +51,7 @@ public:
 	char name[_MAX_FNAME];
 	DirData(char* newname)
 	{
-		strcpy(name, newname);
+		strcpy_s(name, _MAX_FNAME, newname);
 	}
 };
 

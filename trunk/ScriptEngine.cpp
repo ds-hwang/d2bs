@@ -21,29 +21,30 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 {
 	if(GetState() != Running)
 		return NULL;
-	file = _strlwr(_strdup(file));
+	char* fileName = _strdup(file);
+	_strlwr_s(fileName, strlen(file));
 	try {
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
-			if(recompile && scripts.count(file) > 0) {
-				scripts[file]->Stop(true, true);
-				DisposeScript(scripts[file]);
-			} else if(scripts.count(file) > 0) {
-				Script* ret = scripts[file];
+			if(recompile && scripts.count(fileName) > 0) {
+				scripts[fileName]->Stop(true, true);
+				DisposeScript(scripts[fileName]);
+			} else if(scripts.count(fileName) > 0) {
+				Script* ret = scripts[fileName];
 				ret->Stop(true, true);
-				delete[] file;
+				delete[] fileName;
 				return ret;
 			}
 		}
-		Script* script = new Script(file, state);
-		scripts[file] = script;
+		Script* script = new Script(fileName, state);
+		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
-		delete[] file;
+		delete[] fileName;
 		return script;
 	} catch(std::exception e) {
 		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
-		delete[] file;
+		delete[] fileName;
 		return NULL;
 	}
 }
@@ -52,7 +53,8 @@ Script* ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
-	char* file = _strlwr(_strdup(command));
+	char* file = _strdup(command);
+	_strlwr_s(file, strlen(file));
 	try {
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache) {
