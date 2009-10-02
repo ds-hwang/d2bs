@@ -63,6 +63,7 @@ Script::Script(const char* file, ScriptState state) :
 
 		globalObject = JS_GetGlobalObject(context);
 		// HACK: recovering 'me' from the context callback
+		// TODO: do we even care?
 		jsval meval;
 		JS_GetProperty(context, globalObject, "me", &meval);
 		meObject = JSVAL_TO_OBJECT(meval);
@@ -109,7 +110,6 @@ Script::~Script(void)
 	// these calls can, and probably should, be moved to the context callback on cleanup
 	// use the RT version of RemoveRoot to prevent crashes
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
-	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &meObject);
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
 	JS_DestroyContext(context);

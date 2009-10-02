@@ -394,9 +394,6 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		if(!meObject)
 			return JS_FALSE;
 
-		if(JS_AddNamedRoot(cx, &meObject, "me object") == JS_FALSE)
-			return JS_FALSE;
-
 		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
 			return JS_FALSE;
 
