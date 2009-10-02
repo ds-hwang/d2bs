@@ -343,6 +343,8 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 {
 	if(contextOp == JSCONTEXT_NEW)
 	{
+		JS_BeginRequest(cx);
+
 		JS_SetErrorReporter(cx, reportError);
 		JS_SetBranchCallback(cx, branchCallback);
 		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
@@ -418,6 +420,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 #undef DEFEVENT
 #undef DEFCONST
 
+		JS_EndRequest(cx);
 	}
 	return JS_TRUE;
 }

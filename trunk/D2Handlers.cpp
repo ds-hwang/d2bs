@@ -349,7 +349,6 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-//MessageBox(0, "HOOKer Works!","D2BS", 0);
 	if(code < 0)
 		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
 
@@ -479,9 +478,9 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 			MouseClickEvent(2, pt, true);
 			break;
 		case WM_MOUSEMOVE:
-			MouseMoveEvent(pt);
-			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-				(*it)->Hover(&pt);
+//			MouseMoveEvent(pt);
+//			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+//				(*it)->Hover(&pt);
 			break;
 	}
 
