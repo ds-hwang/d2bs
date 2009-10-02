@@ -62,11 +62,6 @@ Script::Script(const char* file, ScriptState state) :
 		JS_BeginRequest(context);
 
 		globalObject = JS_GetGlobalObject(context);
-		// HACK: recovering 'me' from the context callback
-		// TODO: do we even care?
-		jsval meval;
-		JS_GetProperty(context, globalObject, "me", &meval);
-		meObject = JSVAL_TO_OBJECT(meval);
 
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
@@ -321,54 +316,6 @@ void Script::ClearAllEvents(void)
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
 }
-
-#if 0
-// Disabled until decision is made to deorbit.
-JSBool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv, jsval* rval)
-{
-	char msg[50];
-	sprintf(msg, "Script::ExecEvent(%s)", evtName);
-	CDebug cDbg(msg);
-
-	Pause();
-
-	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
-	if(!cx)
-		return JS_FALSE;
-
-	JS_BeginRequest(cx);
-
-	JS_SetContextPrivate(cx, this);
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();
-
-	if(JS_GetContextThread(context) != GetCurrentThreadId())
-		THROW_ERROR(context, globalObject, "Cross-thread attempt to execute an event");
-
-	FunctionList flist = functions[evtName];
-
-	jsval* args = new jsval[argc];
-	for(uintN i = 0; i < argc; i++)
-		args[i] = argv[i]->value();
-
-	for(FunctionList::iterator it = flist.begin(); it != flist.end(); it++)
-		JS_CallFunctionValue(cx, globalObject, (*it)->value(), argc, args, rval);
-
-	delete[] args;
-
-	JS_DestroyContext(cx);
-	cx = NULL;
-
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Release();
-
-	delete[] argv;
-
-	Resume();
-
-	return JS_TRUE;
-}
-#endif
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {

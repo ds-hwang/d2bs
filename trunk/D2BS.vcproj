@@ -756,7 +756,7 @@
 				</Filter>
 			</Filter>
 			<Filter
-				Name="Exec"
+				Name="Engine"
 				>
 				<File
 					RelativePath=".\Script.cpp"
@@ -766,10 +766,6 @@
 					RelativePath=".\Script.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="Engine"
-				>
 				<File
 					RelativePath=".\ScriptEngine.cpp"
 					>

@@ -259,22 +259,6 @@ void ScriptEngine::GetScripts(ScriptList& list)
 	LeaveCriticalSection(&lock);
 }
 
-#if 0
-// Disabled until decision is made to deorbit.
-void ScriptEngine::ExecEvent(char* evtName, AutoRoot** argv, uintN argc)
-{
-	if(GetState() != Running)
-		return;
-
-	jsval dummy;
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		if(!(*it)->IsAborted())
-			(*it)->ExecEvent(evtName, argc, argv, &dummy);
-}
-#endif
-
 void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 {
 	if(GetState() != Running)
@@ -349,6 +333,12 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
 
+JSBool eventBranchCallback(JSContext* cx, JSScript* script)
+{
+	// TODO: What do events need in terms of the branch callback?
+	return JS_TRUE;
+}
+
 JSBool contextCallback(JSContext* cx, uintN contextOp)
 {
 	if(contextOp == JSCONTEXT_NEW)
@@ -367,7 +357,6 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		if(JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)
 			return JS_FALSE;
 
-		// MOVED from Script::ctor
 		myUnit* lpUnit = new myUnit;
 		memset(lpUnit, NULL, sizeof(myUnit));
 

@@ -68,6 +68,7 @@ JSTrapStatus debuggerCallback(JSContext* cx, JSScript* script, jsbytecode* pc, j
 JSTrapStatus exceptionCallback(JSContext* cx, JSScript* script, jsbytecode* pc, jsval* rval, void* closure);
 void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure);
 JSBool branchCallback(JSContext* cx, JSScript* script);
+JSBool eventBranchCallback(JSContext* cx, JSScript* script);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

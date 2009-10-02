@@ -65,7 +65,7 @@ private:
 	JSContext* context;
 	JSScript* script;
 
-	JSObject *globalObject, *scriptObject, *meObject;
+	JSObject *globalObject, *scriptObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted, singleStep;
 
 	IncludeList includes, inProgress;
