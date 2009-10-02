@@ -57,12 +57,10 @@ public:
 	static void ExecEvent(char* evtName, AutoRoot** argv, uintN argc);
 #endif
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
-	static void InitClass(JSContext* context, JSObject* globalObject, 
-			JSClass* classp, JSFunctionSpec* methods, 
-			JSPropertySpec* props, JSFunctionSpec* s_methods, 
-			JSPropertySpec* s_props);
-	static void DefineConstant(JSContext* context, JSObject* globalObject,
-			const char* name, int value);
+	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
+							 JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
+	static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
 };
 
 JSBool watchHandler(JSContext* cx, JSObject* obj, jsval id, jsval old, jsval* newval, void* closure);

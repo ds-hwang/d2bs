@@ -287,12 +287,11 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
-		JSFunctionSpec* methods, JSPropertySpec* props, 
-		JSFunctionSpec* s_methods, JSPropertySpec* s_props)
+							 JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSFunctionSpec* s_methods, JSPropertySpec* s_props)
 {
-	if(!JS_InitClass(context, globalObject, NULL, classp, 
-			classp->construct, 0, props, methods, 
-			s_props, s_methods))
+	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0,
+		props, methods, s_props, s_methods))
 		throw std::exception("Couldn't initialize the class");
 }
 
@@ -397,16 +396,16 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 		if(JS_AddNamedRoot(cx, &meObject, "me object") == JS_FALSE)
 			return JS_FALSE;
-		
+
 		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
 			return JS_FALSE;
-		
+
 #define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
 #define DEFEVENT(vp) DEFCONST(EVENT_##vp)
 		DEFCONST(FILE_READ);
 		DEFCONST(FILE_WRITE);
 		DEFCONST(FILE_APPEND);
-		
+
 		DEFEVENT(AREACHANGE);
 		DEFEVENT(CHATMSG);
 		DEFEVENT(COPYDATA);
