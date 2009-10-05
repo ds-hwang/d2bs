@@ -264,7 +264,10 @@ JSAPI_FUNC(file_read)
 			int* result = new int[count+1];
 			memset(result, NULL, count+1);
 			if(fread(result, sizeof(int), count, fdata->fptr) != count && ferror(fdata->fptr))
+			{
+				delete[] result;
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
+			}
 			if(count == 1)
 				*rval = INT_TO_JSVAL(result[0]);
 			else
@@ -284,7 +287,10 @@ JSAPI_FUNC(file_read)
 			char* result = new char[count+1];
 			memset(result, NULL, count+1);
 			if(fread(result, sizeof(char), count, fdata->fptr) != count && ferror(fdata->fptr))
+			{
+				delete[] result;
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
+			}
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 			delete[] result;
 		}
@@ -341,7 +347,10 @@ JSAPI_FUNC(file_readAll)
 		fseek(fdata->fptr, 0, SEEK_SET);
 		char* contents = new char[size];
 		if(fread(contents, sizeof(char), size, fdata->fptr) != size && ferror(fdata->fptr))
+		{
+			delete[] contents;
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
+		}
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));
 		delete[] contents;
 	}
