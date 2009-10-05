@@ -118,7 +118,7 @@ void PatchBytes(DWORD dwAddr, DWORD dwValue, DWORD dwLen)
 
 	WriteBytes((LPVOID)dwAddr, bCode, dwLen);
 
-	delete bCode;
+	delete[] bCode;
 }
 
 PatchHook *RetrievePatchHooks(PINT pBuffer)
