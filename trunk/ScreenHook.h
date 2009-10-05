@@ -236,8 +236,3 @@ public:
 	uint GetXSize(void) const { return xsize; }
 	uint GetYSize(void) const { return ysize; }
 };
-
-class StatusWindow
-{
-
-};

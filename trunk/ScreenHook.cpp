@@ -24,8 +24,7 @@ bool zOrderSort(Genhook* first, Genhook* second)
 void Genhook::DrawAll(ScreenhookState type)
 {
 	HookList currentHooks = GetHooks();
-	// TODO: examine this, because I suspect there's a different problem as to why this crashes
-	// currentHooks.sort(zOrderSort);
+	currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
 			(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
@@ -120,6 +119,7 @@ bool Genhook::Click(int button, POINT* loc)
 	JS_RemoveRoot(owner->GetContext(), &args[0]);
 	JS_RemoveRoot(owner->GetContext(), &args[1]);
 	JS_RemoveRoot(owner->GetContext(), &args[2]);
+	JS_RemoveRoot(owner->GetContext(), &rval);
 
 	bool result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 	Unlock();
