@@ -25,7 +25,9 @@ AutoRoot::~AutoRoot()
 	}
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &var);
 }
-void AutoRoot::Take() {
+
+void AutoRoot::Take() 
+{ 
 	count++;
 	JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
 }

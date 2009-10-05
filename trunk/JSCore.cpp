@@ -2270,19 +2270,19 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pFileName)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pFileName)");
 	char lpszBuf[MAX_PATH];
 	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pSectionName)");
 	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 	if(!pKeyName)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pKeyName)");
 	char* pValue = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(!pValue)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pValue)");
 
 	if(WritePrivateProfileString(pSectionName, pKeyName, pValue, lpszBuf))
 		WritePrivateProfileString(NULL, NULL, NULL, lpszBuf);	// Flush
@@ -2305,6 +2305,9 @@ JSAPI_FUNC(my_login)
 		THROW_ERROR(cx, obj, "Invalid profile specified!");
 
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	if(!profile)
+		THROW_ERROR(cx, obj, "Could not convert string (profile)");
+	
 	sprintf(file, "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
@@ -2438,8 +2441,10 @@ JSAPI_FUNC(my_login)
 
 	return JS_TRUE;
 }
-JSAPI_FUNC(my_getLocation){
-	CDebug cDbg("getLocation");
+
+JSAPI_FUNC(my_getOOGLocation)
+{
+	CDebug cDbg("getOOGLocation");
 
 	*rval = INT_TO_JSVAL(OOG_GetLocation());
 

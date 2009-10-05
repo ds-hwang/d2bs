@@ -10,32 +10,46 @@
 #define ATTACKTYPE_RIGHT			0x46
 
 ///////////////////////////////////////////////////
-// Game UI Flags(From D2JSP)
+// Game UI Flags(From D2JSP, updated with info from TheUnknownSoldier)
 ///////////////////////////////////////////////////
+#define	UI_GAME					0x00
 #define UI_INVENTORY			0x01
 #define UI_CHARACTER			0x02
 #define UI_MINISKILL			0x03
-#define UI_SKILL				0x04
-#define UI_CHAT					0x05
+#define UI_SKILLTREE			0x04
+#define UI_CHAT_CONSOLE			0x05
+#define UI_UNK					0x06   //auto disabled
+#define UI_UNK_EX				0x07   //auto disabled
 #define UI_NPCMENU				0x08	
-#define UI_MAINMENU				0x09
-#define UI_AUTOMAP				0x0a
-#define UI_CONFIG				0x0b
-#define UI_NPCSHOP				0x0c
-#define UI_ALTDOWN				0x0d			
-#define UI_ANVIL				0x0e
-#define UI_QUEST				0x0f
-#define UI_QUESTLOG				0x11
-#define UI_STATUSAREA			0x12
-#define UI_WPMENU				0x14
+#define UI_DIALOG				0x08
+#define UI_ESCMENU_MAIN			0x09
+#define UI_AUTOMAP				0x0A
+#define UI_HOTKEY_CONFIG		0x0B
+#define UI_NPCSHOP				0x0C
+#define UI_ALTDOWN				0x0D
+#define UI_GROUND_ITEMS			0x0D
+#define UI_ANVIL				0x0E
+#define UI_QUEST				0x0F
+#define UI_BARKSCROLL			0x10
+#define UI_QUEST_LOG			0x11
+#define UI_STATUS_AREA			0x12
+#define UI_ESCMENU_EX			0x13
+#define UI_WPMENU				0x14 //Waypoints Menu
 #define UI_MINIPANEL			0x15
 #define UI_PARTY				0x16
 #define UI_TRADE				0x17
-#define UI_MSGS					0x18
+#define UI_MESSAGE_LOG			0x18
 #define UI_STASH				0x19
-#define UI_CUBE					0x1a
-#define UI_BELT					0x1f
-#define UI_HELP					0x21
+#define UI_CUBE					0x1A
+#define UI_UNUSED				0x1B
+#define UI_INVENTORY_EX			0x1C
+#define UI_INVENTORY_EXX		0x1D
+#define UI_UNUSED_EX			0x1E
+#define UI_BELT					0x1F
+#define UI_UNUSED_EXX			0x20
+#define UI_HELP_MENU			0x21
+#define UI_HELP_BUTTON			0x22
+#define UI_ESCMENU				0x23 //unused??
 #define UI_MERC					0x24
 #define UI_SCROLL				0x25
 
