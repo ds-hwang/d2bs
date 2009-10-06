@@ -143,8 +143,10 @@ void Console::ExecuteCommand(void)
 	else if(!_strcmpi(argv, "reload"))
 	{
 		if(ScriptEngine::GetCount() > 0)
+		{
 			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts...");
-		ScriptEngine::StopAll(true);
+			ScriptEngine::StopAll(true);
+		}
 
 		if(!Vars.bDisableCache)
 		{
@@ -179,7 +181,7 @@ void Console::RemoveLastKey(void)
 	{
 		newcmd[strlen(newcmd)-1] = '\0';
 		text->SetText(newcmd);
-		delete newcmd;
+		delete[] newcmd;
 	}
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
