@@ -196,7 +196,7 @@ BOOL OOG_SelectGateway(char * szGateway)
 		
 		if(strstr(szLine,szGateway))
 		{
-		// gateway is correct, do nothing and return true
+			// gateway is correct, do nothing and return true
 			delete[] szLine;
 			return TRUE;
 		}

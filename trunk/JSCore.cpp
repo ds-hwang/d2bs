@@ -92,8 +92,9 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 		if(strlen(lpszFileName) < _MAX_PATH)
 		{
-			CHAR lpszBuf[_MAX_FNAME];
-			sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, lpszFileName);
+			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
+			sprintf(lpszBuf, "%s\\%s", _strlwr(Vars.szScriptPath), _strlwr(lpszFileName));
+			StringReplace(lpszBuf, '/', '\\');
 			Script* script = ScriptEngine::CompileFile(lpszBuf, state);
 			if(script)
 			{
