@@ -157,7 +157,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case UNIT_NAME:
 			tmp = new char[8192];
-			GetUnitName(pUnit, tmp);
+			GetUnitName(pUnit, tmp, 8192);
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			delete[] tmp;
 			break;

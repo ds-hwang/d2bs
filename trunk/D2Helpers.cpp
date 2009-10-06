@@ -31,22 +31,22 @@ void Log(char* szFormat, ...)
 }
 
 // NOTE TO CALLERS: szTmp must be a PRE-INITIALIZED string.
-const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
+const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp, size_t bufSize)
 {
 	if(!pUnit)
 	{
-		strcpy_s(szTmp, sizeof(szTmp), "Unknown");
+		strcpy_s(szTmp, bufSize, "Unknown");
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_MONSTER) {
 		wchar_t* wName = D2CLIENT_GetUnitName(pUnit);
-		WideCharToMultiByte(CP_ACP, 0, wName, -1, szTmp, 8192, 0, 0);
+		WideCharToMultiByte(CP_ACP, 0, wName, -1, szTmp, bufSize, 0, 0);
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_PLAYER && pUnit->pPlayerData)
 	{
 		//	return pUnit->pPlayerData->szName;
-		strcpy_s(szTmp, sizeof(szTmp), pUnit->pPlayerData->szName);
+		strcpy_s(szTmp, bufSize, pUnit->pPlayerData->szName);
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_ITEM)
@@ -58,7 +58,7 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
             *strchr(szBuffer,'\n') = 0x00;
 		}
 
-		strcpy_s(szTmp, sizeof(szTmp), szBuffer);
+		strcpy_s(szTmp, bufSize, szBuffer);
 		delete[] szBuffer;
 		return szTmp;
 	}
@@ -66,11 +66,11 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
 	{
 		if(pUnit->pObjectData && pUnit->pObjectData->pTxt)
 		{
-			strcpy_s(szTmp, sizeof(szTmp), pUnit->pObjectData->pTxt->szName);
+			strcpy_s(szTmp, bufSize, pUnit->pObjectData->pTxt->szName);
 			return szTmp;
 		}
 	}
-	strcpy_s(szTmp, sizeof(szTmp), "Unknown");
+	strcpy_s(szTmp, bufSize, "Unknown");
 	return szTmp;
 }
 

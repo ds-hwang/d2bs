@@ -37,7 +37,7 @@ BOOL	SetSkill(WORD wSkillId, BOOL bLeft);
 CHAR*	GetSkillByID(WORD id);
 WORD	GetSkillByName(CHAR* szSkillName);
 
-const char* GetUnitName(UnitAny* pUnit, CHAR* szBuf);
+const char* GetUnitName(UnitAny* pUnit, CHAR* szBuf, size_t bufSize);
 
 InventoryLayout* GetLayoutFromTable(DWORD dwTable);
 UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType);

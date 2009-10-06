@@ -162,7 +162,7 @@ BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWOR
 				}
 			}
 			else
-				GetUnitName(pUnit, szBuf);
+				GetUnitName(pUnit, szBuf, 8192);
 
 		if(strstr(szBuf, szName))
 			return TRUE;
