@@ -1,7 +1,7 @@
 // Diablo II Botting System Core
 #include "D2BS.h"
 #include "dde.h"
-#include "shlwapi.h"
+#include <shlwapi.h>
 #include "Offset.h"
 #include "ScriptEngine.h"
 #include "Helpers.h"
@@ -9,8 +9,6 @@
 #include "Console.h"
 
 #include "debugnew/debug_new.h"
-
-#include <windows.h>
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {
@@ -48,49 +46,6 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 BOOL Startup(void)
 {
-	char path[_MAX_FNAME+MAX_PATH],
-		 fname[_MAX_FNAME+MAX_PATH],
-		 scriptPath[_MAX_FNAME+MAX_PATH],
-		 debug[6],
-		 blockMinimize[6],
-		 quitOnHostile[6],
-		 quitOnError[6],
-		 maxGameTime[6],
-		 startAtMenu[6],
-		 disableCache[6],
-		 memUsage[6];
-
-	sprintf(path, "%sd2bs.log", Vars.szPath);
-	sprintf(fname, "%sd2bs.ini", Vars.szPath);
-
-	FILE* stream = NULL;
-	if(freopen_s(&stream, path, "a+t", stderr) != 0)
-		MessageBox(0, "Failed to redirect output!", "D2BS", 0);
-
-	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
-	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
-	GetPrivateProfileString("settings", "Debug", "false", debug, 6, fname);
-	GetPrivateProfileString("settings", "BlockMinimize", "false", blockMinimize, 6, fname);
-	GetPrivateProfileString("settings", "QuitOnHostile", "false", quitOnHostile, 6, fname);
-	GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
-	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
-	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
-	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
-
-	sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
-	Vars.dwGameTime = 0;
-	Vars.dwMaxGameTime = atoi(maxGameTime);
-	Vars.bDebug = StringToBool(debug);
-	Vars.bBlockMinimize = StringToBool(blockMinimize);
-	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
-	Vars.bQuitOnError = StringToBool(quitOnError);
-	Vars.bStartAtMenu = StringToBool(startAtMenu);
-	Vars.bDisableCache = StringToBool(disableCache);
-	Vars.dwMemUsage = atoi(memUsage);
-	if(Vars.dwMemUsage < 1)
-		Vars.dwMemUsage = 50;
-	Vars.dwMemUsage *= 1024*1024;
-
 	InitializeCriticalSection(&Vars.cRoomSection);
 	InitializeCriticalSection(&Vars.cMiscSection);
 	InitializeCriticalSection(&Vars.cScreenhookSection);
@@ -103,28 +58,9 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 
-	//setting hooks in D2Handlers/d2thread 
-	//Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, GetModuleHandle(NULL), 0);
-	//if(Vars.hMouseHook == NULL)
-	//	Log("SetWindowsHookEx returned error 0x%x when attempting to set a mouse hook", GetLastError());
-
-	//Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, GetModuleHandle(NULL), 0);
-	//if(Vars.hKeybHook == NULL)
-	//	Log("SetWindowsHookEx returned error 0x%x when attempting to set a keyboard hook", GetLastError());
-
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
-	if(!ScriptEngine::Startup())
-		return FALSE;
-
-	Vars.bActive = TRUE;
-	Vars.oldWNDPROC = NULL;
-
-	char versionimg[_MAX_PATH+_MAX_FNAME];
-	sprintf(versionimg, "%sversion.bmp", Vars.szPath);
-	Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
-	Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
 
 	return TRUE;
 }
