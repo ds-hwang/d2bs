@@ -78,7 +78,7 @@ BOOL CTeleportPath::GetBestMove(POINT& pos, int nAdjust)
 
 	Block(pos, nAdjust);
 
-	POINT p, best;
+	POINT p, best = {0};
 	int value = RANGE_INVALID;
 
 	for (p.x = pos.x - TP_RANGE; p.x <= pos.x + TP_RANGE; p.x++)

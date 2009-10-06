@@ -99,11 +99,11 @@ void DrawPresets (Room2 *pRoom2)
 		if ((mCell > 0) && (mCell < 1258))
 		{
 			AutomapCell *pCell = D2CLIENT_NewAutomapCell();
-			pCell->nCellNo = mCell;
+			pCell->nCellNo = (WORD)mCell;
 			int pX = (pUnit->dwPosX + (pRoom2->dwPosX * 5));
 			int pY = (pUnit->dwPosY + (pRoom2->dwPosY * 5));
-			pCell->xPixel = (((pX - pY) * 16) / 10) + 1;
-			pCell->yPixel = (((pY + pX) * 8) / 10) - 3;
+			pCell->xPixel = (WORD)((((pX - pY) * 16) / 10) + 1);
+			pCell->yPixel = (WORD)((((pY + pX) * 8) / 10) - 3);
 
 			D2CLIENT_AddAutomapCell(pCell, &((*p_D2CLIENT_AutomapLayer)->pObjects));
 		}

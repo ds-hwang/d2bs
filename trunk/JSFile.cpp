@@ -59,7 +59,7 @@ JSAPI_PROP(file_getProperty)
 	CDebug cDbg("file getProperty");
 
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	struct _stat filestat;
+	struct _stat filestat = {0};
 	if(fdata->fptr)
 		_fstat(_fileno(fdata->fptr), &filestat);
 	if(fdata)
@@ -263,7 +263,7 @@ JSAPI_FUNC(file_read)
 			// binary mode
 			int* result = new int[count+1];
 			memset(result, NULL, count+1);
-			if(fread(result, sizeof(int), count, fdata->fptr) != count && ferror(fdata->fptr))
+			if(fread(result, sizeof(int), count, fdata->fptr) != (uint32)count && ferror(fdata->fptr))
 			{
 				delete[] result;
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
@@ -286,7 +286,7 @@ JSAPI_FUNC(file_read)
 			fflush(fdata->fptr);
 			char* result = new char[count+1];
 			memset(result, NULL, count+1);
-			if(fread(result, sizeof(char), count, fdata->fptr) != count && ferror(fdata->fptr))
+			if(fread(result, sizeof(char), count, fdata->fptr) != (uint32)count && ferror(fdata->fptr))
 			{
 				delete[] result;
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
@@ -343,7 +343,7 @@ JSAPI_FUNC(file_readAll)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		fseek(fdata->fptr, 0, SEEK_END);
-		int size = ftell(fdata->fptr);
+		uint size = ftell(fdata->fptr);
 		fseek(fdata->fptr, 0, SEEK_SET);
 		char* contents = new char[size];
 		if(fread(contents, sizeof(char), size, fdata->fptr) != size && ferror(fdata->fptr))

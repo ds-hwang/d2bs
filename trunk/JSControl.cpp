@@ -303,11 +303,11 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		for(pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
 		{
-			if((nType != -1 && pControl->dwType == nType) &&
-					(nX != -1 && pControl->dwPosX == nX) &&
-					(nY != -1 && pControl->dwPosY == nY) &&
-					(nXSize != -1 && pControl->dwSizeX == nXSize) &&
-					(nYSize != -1 && pControl->dwSizeY == nYSize))
+			if((nType != -1 && pControl->dwType == (DWORD)nType) &&
+					(nX != -1 && pControl->dwPosX == (DWORD)nX) &&
+					(nY != -1 && pControl->dwPosY == (DWORD)nY) &&
+					(nXSize != -1 && pControl->dwSizeX == (DWORD)nXSize) &&
+					(nYSize != -1 && pControl->dwSizeY == (DWORD)nYSize))
 				break;
 		}
 	}

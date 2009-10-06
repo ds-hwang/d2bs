@@ -1067,12 +1067,12 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	//Selling an Item 
 	if (dwMode == 1) {
 		//Check if we own the item!
-		if (!pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == D2CLIENT_GetPlayerUnit()->dwUnitId)
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == (*p_D2CLIENT_PlayerUnit)->dwUnitId)
 			return JS_TRUE;
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
 	} else {
 		//Make sure the item is owned by the NPC interacted with.
-		if (!pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == pNPC->dwUnitId)
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId == pNPC->dwUnitId)
 			return JS_TRUE;
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
@@ -1263,7 +1263,7 @@ INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
-	WORD nSkillId = -1;
+	WORD nSkillId = (WORD)-1;
 	BOOL nHand = FALSE;
 	*rval = JSVAL_FALSE;
 

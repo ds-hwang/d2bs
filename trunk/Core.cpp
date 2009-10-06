@@ -48,7 +48,7 @@ void Print(const char * szFormat, ...)
 {
 	using namespace std;
 
-	const char REPLACE_CHAR = (const char)0xFE;
+	const char REPLACE_CHAR = (unsigned char)0xFE;
 
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);

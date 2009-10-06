@@ -230,7 +230,7 @@ WORD GetSkillByName(CHAR* skillname)
 	for(int i = 0; i < 216; i++)
 		if(_stricmp(Game_Skills[i].name, skillname) == 0)
 			return Game_Skills[i].skillID;
-	return -1;
+	return (WORD)-1;
 }
 
 CHAR* GetSkillByID(WORD id)
@@ -679,7 +679,7 @@ VOID myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col)
 	if (!coltab[0][1]) for (int k = 0; k < 255; k++) coltab[0][k] = coltab[1][k] = (BYTE)k;
 	cellfile->mylastcol = coltab[cellfile->mytabno ^= (col != cellfile->mylastcol)][255] = col;
 
-	D2GFX_DrawAutomapCell2(&ct, xpos, ypos, -1, 5, coltab[cellfile->mytabno]);
+	D2GFX_DrawAutomapCell2(&ct, xpos, ypos, (DWORD)-1, 5, coltab[cellfile->mytabno]);
 }
 
 DWORD ReadFile(HANDLE hFile, void *buf, DWORD len)
@@ -719,13 +719,13 @@ CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height)
 		while (src < limit) {
 			BYTE *start = src, *limit2 = min(limit, src+0x7f), trans = !*src;
 			do src++; while ((trans == (BYTE)!*src) && (src < limit2));
-			if (!trans || (src < limit)) *dest++ = (trans?0x80:0)+(src-start);
+			if (!trans || (src < limit)) *dest++ = (BYTE)((trans?0x80:0)+(src-start));
 			if (!trans) while (start < src) *dest++ = *start++;
 		}
 		*dest++ = 0x80;
 	}
 
-	static DWORD dc6head[] = {6, 1, 0, 0xeeeeeeee, 1, 1, 0x1c,  0, -1, -1, 0, 0, 0, -1, -1};
+	static DWORD dc6head[] = {6, 1, 0, 0xeeeeeeee, 1, 1, 0x1c,  0, (DWORD)-1, (DWORD)-1, 0, 0, 0, (DWORD)-1, (DWORD)-1};
 	dc6head[8] = width;
 	dc6head[9] = height;
 	BYTE *ret = new BYTE[dc6head[13] = sizeof(dc6head)+(dc6head[14] = dest-buf2)+3];
@@ -753,7 +753,7 @@ CellFile *LoadBmpCellFile(char *filename)
 CellFile *myInitCellFile(CellFile *cf)
 {
 	if(cf)
-		D2CMP_InitCellFile(cf, &cf, "?", 0, -1, "?");
+		D2CMP_InitCellFile(cf, &cf, "?", 0, (DWORD)-1, "?");
 	return cf;
 }
 
@@ -1121,13 +1121,13 @@ __declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWOR
 
 DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 {
-	DWORD dist = -1;
+	DWORD dist = 0;
 	switch(type)
 	{
 		case Euclidean: dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2));
 		case Chebyshev: dist = (DWORD)max(abs((long)(x2-x1)), abs((long)(y2-y1)));
 		case Manhattan: dist = (DWORD)(abs((long)(x2-x1))+abs((long)(y2-y1)));
+		default: dist = (DWORD)-1;
 	}
  	return dist;
 }
-

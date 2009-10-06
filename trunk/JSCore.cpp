@@ -43,7 +43,7 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 				THROW_ERROR(cx, obj, "Could not convert string");
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
-				*c = (char)0xFE;
+				*c = (unsigned char)0xFE;
 			Print(lpszText);
 		}
 		else Print("undefined");
@@ -165,8 +165,6 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		ScriptEngine::StopAll();
 		return JS_FALSE;
 	}
-
-	return JS_TRUE;
 }
 
 INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -313,9 +311,6 @@ INT my_acceptTrade(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	}
 
 	THROW_ERROR(cx, obj, "Invalid parameter passed to acceptTrade!");
-
-	*rval = JSVAL_FALSE;
-	return JS_TRUE;
 }
 
 INT my_blockMinimize(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -336,11 +331,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_TRUE;
 
 	if(argc < 5)
-	{
 		THROW_ERROR(cx, obj, "Not enough parameters were passed to getPath!");
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
@@ -483,7 +474,7 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	jsint nLevelId = JSVAL_TO_INT(argv[0]);
+	DWORD nLevelId = JSVAL_TO_INT(argv[0]);
 	jsint nX = JSVAL_TO_INT(argv[1]);
 	jsint nY = JSVAL_TO_INT(argv[2]);
 	if (Vars.cCollisionMap.dwLevelId && Vars.cCollisionMap.dwLevelId != nLevelId)
@@ -787,13 +778,13 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			else if(nLoc == 5) // Belt
 			{
 
-				UINT z = -1;
+				int z = -1;
 
 				for(UINT i = 0; i < ArraySize(Belt); i++)
 				{
 					if(Belt[i].x == nX && Belt[i].y == nY)
 					{
-						z = i;
+						z = (int)i;
 						break;
 					}
 				}
@@ -1272,7 +1263,7 @@ INT my_quitGame(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(D2CLIENT_GetPlayerUnit())
 		D2CLIENT_ExitGame();
 
-	TerminateProcess(GetCurrentProcess(), -1);
+	TerminateProcess(GetCurrentProcess(), 0);
 
 	return JS_TRUE;
 }
@@ -1803,8 +1794,8 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	if(!pLevel)
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
 
-	jsint nClassId = NULL;
-	jsint nType = NULL;
+	uint nClassId = NULL;
+	uint nType = NULL;
 
 	if(argc >= 2)
 	{
@@ -1890,14 +1881,10 @@ JSAPI_FUNC(my_getPresetUnit)
 	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
 
 	if(!pLevel)
-	{
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
 
-	jsint nClassId = NULL;
-	jsint nType = NULL;
+	DWORD nClassId = NULL;
+	DWORD nType = NULL;
 
 	if(argc >= 2)
 	{
@@ -2293,7 +2280,6 @@ JSAPI_FUNC(my_login)
 		 mode[15], username[48], password[256], gateway[256], charname[24],
 		 difficulty[10], maxLoginTime[10], maxCharTime[10];
 	
-	bool handledCase = false;
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
 
 	if(!JSVAL_IS_STRING(argv[0]))
@@ -2304,14 +2290,17 @@ JSAPI_FUNC(my_login)
 		THROW_ERROR(cx, obj, "Could not convert string (profile)");
 	
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
-	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(difficulty), file);
+	GetPrivateProfileString(profile, "spdifficulty", "0", difficulty, sizeof(difficulty), file);
 	GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 	GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
 	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);		
+
 	GetPrivateProfileString("settings", "MaxLoginTime", "5000", maxLoginTime, sizeof(maxLoginTime), file);
 	GetPrivateProfileString("settings", "MaxCharSelectTime", "5000", maxCharTime, sizeof(maxCharTime), file);
+
 	char* errorMsg ="";
 	loginTime = atoi(maxLoginTime);
 	charTime = atoi(maxCharTime);
@@ -2357,17 +2346,20 @@ JSAPI_FUNC(my_login)
 						errorMsg =  "Failed to click the exit button?";
 					break;
 				}
-				if(pControl = findControl(1, NULL, -1, 322, 342, 162, 19))
+				pControl = findControl(1, NULL, -1, 322, 342, 162, 19);
+				if(pControl)
 					SetControlText(pControl, username);
 				else
 					errorMsg = "Failed to set the 'Username' text-edit box.";
 				// Password text-edit box
-				if(pControl = findControl(1, NULL, -1, 322, 396, 162, 19))
+				pControl = findControl(1, NULL, -1, 322, 396, 162, 19);
+				if(pControl)
 					SetControlText(pControl, password);
 				else
 					errorMsg = "Failed to set the 'Password' text-edit box.";
-				
-				if(pControl = findControl(6, NULL, -1, 264, 484, 272, 35))
+
+				pControl = findControl(6, NULL, -1, 264, 484, 272, 35);
+				if(pControl)
 					if(!clickControl(pControl))
 						errorMsg ="Failed to click the 'Log in' button?";
 				break;
@@ -2420,7 +2412,7 @@ JSAPI_FUNC(my_login)
 				errorMsg = "unhandled login location";
 				break;				
 		}
-		if (errorMsg != ""){
+		if (_strcmpi(errorMsg, "")){
 			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
 			THROW_ERROR(cx, obj, errorMsg);						
 			break;

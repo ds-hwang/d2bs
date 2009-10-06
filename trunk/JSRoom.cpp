@@ -95,8 +95,8 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
-	jsint nType = NULL;
-	jsint nClass = NULL;
+	DWORD nType = NULL;
+	DWORD nClass = NULL;
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nType = JSVAL_TO_INT(argv[0]);

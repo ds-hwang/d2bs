@@ -176,7 +176,8 @@ JSAPI_FUNC(box_ctor) {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
-	uint x = 0, y = 0, x2 = 0, y2 = 0, color = 0, opacity = 0;
+	uint x = 0, y = 0, x2 = 0, y2 = 0;
+	ushort color = 0, opacity = 0;
 	Align align = Left;
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
@@ -190,9 +191,9 @@ JSAPI_FUNC(box_ctor) {
 	if(argc > 3 && JSVAL_IS_INT(argv[3]))
 		y2 = JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		color = JSVAL_TO_INT(argv[4]);
+		color = (ushort)JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_INT(argv[5]))
-		opacity = JSVAL_TO_INT(argv[5]);
+		opacity = (ushort)JSVAL_TO_INT(argv[5]);
 	if(argc > 6 && JSVAL_IS_INT(argv[6]))
 		align = (Align)JSVAL_TO_INT(argv[6]);
 	if(argc > 7 && JSVAL_IS_BOOLEAN(argv[7]))
@@ -326,7 +327,8 @@ JSAPI_FUNC(line_ctor) {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
-	int x = 0, y = 0, x2 = 0, y2 = 0, color = 0;
+	int x = 0, y = 0, x2 = 0, y2 = 0;
+	ushort color = 0;
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
 
@@ -339,7 +341,7 @@ JSAPI_FUNC(line_ctor) {
 	if(argc > 3 && JSVAL_IS_INT(argv[3]))
 		y2 = JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		color = JSVAL_TO_INT(argv[4]);
+		color = (ushort)JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))
 		automap = !!JSVAL_TO_BOOLEAN(argv[5]);
 	if(argc > 6 && JSVAL_IS_FUNCTION(cx, argv[6]))
@@ -460,7 +462,8 @@ JSAPI_FUNC(text_ctor) {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
-	uint x = 0, y = 0, color = 0, font = 0;
+	uint x = 0, y = 0;
+	ushort color = 0, font = 0;
 	Align align = Left;
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
@@ -475,9 +478,9 @@ JSAPI_FUNC(text_ctor) {
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
 		y = JSVAL_TO_INT(argv[2]);
 	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		color = JSVAL_TO_INT(argv[3]);
+		color = (ushort)JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
-		font = JSVAL_TO_INT(argv[4]);
+		font = (ushort)JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_INT(argv[5]))
 		align = (Align)JSVAL_TO_INT(argv[5]);
 	if(argc > 6 && JSVAL_IS_BOOLEAN(argv[6]))
@@ -611,7 +614,8 @@ JSAPI_FUNC(image_ctor) {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
-	uint x = 0, y = 0, color = 0;
+	uint x = 0, y = 0;
+	ushort color = 0;
 	Align align = Left;
 	bool automap = false;
 	jsval click = JSVAL_VOID, hover = JSVAL_VOID;
@@ -627,7 +631,7 @@ JSAPI_FUNC(image_ctor) {
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
 		y = JSVAL_TO_INT(argv[2]);
 	if(argc > 3 && JSVAL_IS_INT(argv[3]))
-		color = JSVAL_TO_INT(argv[3]);
+		color = (ushort)JSVAL_TO_INT(argv[3]);
 	if(argc > 4 && JSVAL_IS_INT(argv[4]))
 		align = (Align)JSVAL_TO_INT(argv[4]);
 	if(argc > 5 && JSVAL_IS_BOOLEAN(argv[5]))

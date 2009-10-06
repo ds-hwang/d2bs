@@ -5,6 +5,14 @@
 #include "Constants.h"
 #include "debugnew/debug_new.h"
 
+Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
+{
+	char* localeStr = UnicodeToAnsi(D2LANG_GetLocaleText((WORD)LocaleID));
+	Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
+	delete[] localeStr;
+	return res;
+}
+
 Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
 {
 	BOOL bFound = FALSE;
@@ -70,15 +78,6 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 		{
 			if(strcmp(UnicodeToAnsi(pControl->wText2), Text) == 0)
 				bFound = TRUE;
-			else if (WORD locStr=atoi(Text))
-			{				
-				if (wcsstr(pControl->wText2,D2LANG_GetLocaleText((WORD)locStr))!=0)
-					bFound = TRUE;
-				else{
-					bFound = FALSE;
-					continue;
-				}
-			}
 			else {
 				bFound = FALSE;
 				continue;
@@ -146,7 +145,8 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 					return FALSE;
 
 				// OK Button
-				if(pControl = findControl(6, NULL, -1, 627, 572, 128, 35))
+				pControl = findControl(6, NULL, -1, 627, 572, 128, 35);
+				if(pControl)
 				{
 					if(!clickControl(pControl))
 					{
@@ -238,7 +238,8 @@ BOOL OOG_SelectGateway(char * szGateway)
 			}
 
 			// OK Button, gateway select screen
-			if(pControl = findControl(6, NULL, -1, 281, 538, 96, 32))
+			pControl = findControl(6, NULL, -1, 281, 538, 96, 32);
+			if(pControl)
 			{
 				if(!clickControl(pControl))
 				{
@@ -274,28 +275,28 @@ int OOG_GetLocation(){
 		else
 			return OOG_LADDER;								//6 "Ladder"		
 	}	
-	else if (findControl(6, "5103", -1, 351,337,96,32)){				//5103 = CANCEL
+	else if (findControl(6, 5103, -1, 351,337,96,32)){				//5103 = CANCEL
 		if (findControl(4, NULL, -1, 268,300,264,100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(4, NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
 	}
 	
-	else if (findControl(6, "5102", -1, 351,337,96,32)){				//5102 =OK
-		if (findControl(4, "5131", -1, 268,320,264,120))	
+	else if (findControl(6, 5102, -1, 351,337,96,32)){				//5102 =OK
+		if (findControl(4, 5131, -1, 268,320,264,120))	
 			return OOG_LOST_CONNECTION;						//17 lost connection	
-		else if (findControl(4, "5347", -1, 268,320,264,120))
+		else if (findControl(4, 5347, -1, 268,320,264,120))
 			return OOG_DISCONNECTED;						//14  Disconnected
 		else
 			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
 	}
-	else if (findControl(6, "5101", -1, 33,572,128,35)){			//5101 = EXIT
+	else if (findControl(6, 5101, -1, 33,572,128,35)){			//5101 = EXIT
 		if (findControl(6, NULL, -1, 264,484,272,35))
 			return OOG_LOGIN;								//9 Login
-		if (findControl(6, "5102", -1, 495,438,96,32))
+		if (findControl(6, 5102, -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
-		if (findControl(6, "5102", -1, 627,572,128,35) && findControl(6, "10832", -1, 33,528,168,60)){//10832=create new
-			if (findControl(6, "10018", -1, 264,297,272,35)) //NORMAL
+		if (findControl(6, 5102, -1, 627,572,128,35) && findControl(6, 10832, -1, 33,528,168,60)){//10832=create new
+			if (findControl(6, 10018, -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
 			if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)//first char loaded
@@ -316,8 +317,8 @@ int OOG_GetLocation(){
 					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 					
 				}
 		}
-		if (findControl(6, "5101", -1, 33,572,128,35)){				//5101=Exit
-			if (findControl(6, "5102", 0, 627,572,128,35))			//5102=ok
+		if (findControl(6, 5101, -1, 33,572,128,35)){				//5101=Exit
+			if (findControl(6, 5102, 0, 627,572,128,35))			//5102=ok
 				return OOG_GATEWAY;							//27 char create screen with char selected
 			else{
 				if (findControl(4,NULL,-1,321,448,300,32))
@@ -327,49 +328,49 @@ int OOG_GetLocation(){
 			}
 		}
 	}
-	if (findControl(6, "5102", -1, 335,450,128,35)){
+	if (findControl(6, 5102, -1, 335,450,128,35)){
 		if (findControl(4, NULL, -1, 162,270,477,50))
 			return OOG_CDKEY_IN_USE;						//19 CD-KEY in use
-		else if (findControl(4,"5190", -1, 162,420,477,100))		 //5190="If using a modem"
+		else if (findControl(4, 5190, -1, 162,420,477,100))		 //5190="If using a modem"
 			return OOG_UNABLE_TO_CONNECT;					//11 unable to connect
 		else		
 			return OOG_INVALID_CDKEY;						//22 invalid CD-KEY 		
 	}	
-	else if (findControl(4, "5159", -1, 438, 300, 326, 150)) 
+	else if (findControl(4, 5159, -1, 438, 300, 326, 150)) 
 		return OOG_GAME_DOES_NOT_EXIST;						//28 game dosent exist
-	else if (findControl(4, "5161", -1, 438, 300, 326, 150)) 
+	else if (findControl(4, 5161, -1, 438, 300, 326, 150)) 
 		return OOG_GAME_IS_FULL;							//38 Game is full
-	else if (findControl(4, "5138", -1, 438, 300, 326, 150)) 
+	else if (findControl(4, 5138, -1, 438, 300, 326, 150)) 
 		return OOG_GAME_EXIST;								//26 Game already exists
-	else if (findControl(4, "5139", -1, 438, 300, 326, 150)) 
+	else if (findControl(4, 5139, -1, 438, 300, 326, 150)) 
 		return OOG_SERVER_DOWN;								//24 server down	
-	else if (findControl(6, "5106", -1, 264,324,272,35))				//5106="SINGLE PLAYER"
+	else if (findControl(6, 5106, -1, 264,324,272,35))				//5106="SINGLE PLAYER"
 		return OOG_MAIN_MENU;								//8 Main Menu
-	else if (findControl(6,"11126", -1, 27,480,120,20))					//11126=ENTER CHAT
+	else if (findControl(6, 11126, -1, 27,480,120,20))					//11126=ENTER CHAT
 		return OOG_LOBBY;									//1 base bnet 
-	else if (findControl(6, "5308", -1, 187,470,80,20))					//5308="HELP"
+	else if (findControl(6, 5308, -1, 187,470,80,20))					//5308="HELP"
 		return OOG_CHAT;									//3 chat bnet 
 	else if (findControl(4, NULL, -1, 100,580,600,80))
 		return OOG_D2SPLASH;								//18 Spash	
-	else if (findControl(6, "5102", -1, 281,538,96,32))
+	else if (findControl(6, 5102, -1, 281,538,96,32))
 		return OOG_GATEWAY;									//27 select gateway
-	else if (findControl(6, "5181", -1, 525,513,128,35))
+	else if (findControl(6, 5181, -1, 525,513,128,35))
 		return OOG_AGREE_TO_TERMS;							//31 agree to terms
-	else if (findControl(6, "5102", -1, 525,513,128,35))
+	else if (findControl(6, 5102, -1, 525,513,128,35))
 		return OOG_PLEASE_READ;								//33 please read
-	else if (findControl(6, "11097", -1, 265,527,272,35))
+	else if (findControl(6, 11097, -1, 265,527,272,35))
 		return OOG_REGISTER_EMAIL;							//34 register email
-	else if (findControl(6, "5101", -1, 33,578,128,35))
+	else if (findControl(6, 5101, -1, 33,578,128,35))
 		return OOG_CREDITS;									//35 Credits
-	else if (findControl(6, "5103", -1, 334,488,128,35))
+	else if (findControl(6, 5103, -1, 334,488,128,35))
 		return OOG_CINEMATICS;								//36 Cinematics
-	else if (findControl(6, "5116", -1, 264,350,272,35))
+	else if (findControl(6, 5116, -1, 264,350,272,35))
 		return	OOG_OTHER_MULTIPLAYER;						//39 other multi player
-	else if (findControl(6, "5103", -1,281,337,96,32))
+	else if (findControl(6, 5103, -1,281,337,96,32))
 		return OOG_ENTER_IP_ADDRESS;						//41 enter ip	
-	else if (findControl(6, "5118", -1,265,206,272,35))
+	else if (findControl(6, 5118, -1,265,206,272,35))
 		return	OOG_TCP_IP;									//40 tcp-ip
 	
-return 0;
+	return OOG_NONE;
 }
 

@@ -18,7 +18,7 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	vsprintf_s(msg, 2048, format, args);
 	va_end(args);
 
-	if(JS_GetContextThread(cx) != GetCurrentThreadId()) {
+	if(JS_GetContextThread(cx) != (jsword)GetCurrentThreadId()) {
 		JS_ReportError(cx, msg);
 		return JS_FALSE;
 	}

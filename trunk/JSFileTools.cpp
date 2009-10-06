@@ -139,8 +139,6 @@ JSAPI_FUNC(filetools_copy)
 		fclose(fptr1);
 		remove(pnewName); // delete the partial file so it doesnt look like we succeeded
 		THROW_ERROR(cx, obj, _strerror("File copy failed"));
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
 	}
 
 	fflush(fptr2);
@@ -184,7 +182,7 @@ JSAPI_FUNC(filetools_readText)
 
 	FILE* fptr = fopen(porig, "r");
 	fseek(fptr, 0, SEEK_END);
-	int size = ftell(fptr);
+	uint size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
 	char* contents = new char[size];
 	memset(contents, 0, size);

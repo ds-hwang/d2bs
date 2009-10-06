@@ -105,7 +105,7 @@ void ScriptEngine::DisposeScript(Script* script)
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
 	if(GetState() != Running)
-		return -1;
+		return 0;
 
 	EnterCriticalSection(&lock);
 	ScriptList list;
@@ -369,8 +369,8 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		memset(lpUnit, NULL, sizeof(myUnit));
 
 		UnitAny* player = D2CLIENT_GetPlayerUnit();
-		lpUnit->dwMode = -1;
-		lpUnit->dwClassId = -1;
+		lpUnit->dwMode = (DWORD)-1;
+		lpUnit->dwClassId = (DWORD)-1;
 		lpUnit->dwType = UNIT_PLAYER;
 		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;

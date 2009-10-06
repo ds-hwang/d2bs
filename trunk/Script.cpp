@@ -49,7 +49,7 @@ bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 			isAborted(false), isPaused(false), isReallyPaused(false), singleStep(false),
-			scriptState(state), threadHandle(NULL), threadId(0), lockThreadId(-1)
+			scriptState(state), threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	if(scriptState != Command && _access(file, 0) != 0)
 		throw std::exception("File not found");

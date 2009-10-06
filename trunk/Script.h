@@ -71,7 +71,7 @@ private:
 	IncludeList includes, inProgress;
 	FunctionMap functions;
 	HANDLE threadHandle;
-	DWORD threadId, lockThreadId;
+	DWORD threadId;
 	CRITICAL_SECTION lock;
 
 	Script(const char* file, ScriptState state);

@@ -43,7 +43,6 @@ VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(dwMana));
@@ -90,7 +89,6 @@ VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(key));
 		(*it)->ExecEventAsync((bUp ? "keyup" : "keydown"), 1, argv);
@@ -105,7 +103,6 @@ VOID PlayerAssignEvent(DWORD dwUnitId)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwUnitId));
 		(*it)->ExecEventAsync("playerassign", 1, argv);
@@ -120,7 +117,6 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[3];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.x));
@@ -137,7 +133,6 @@ VOID MouseMoveEvent(POINT pt)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(pt.x));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.y));
@@ -153,7 +148,6 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 	{
 		if(!(*it)->IsRunning())
 			continue;
-		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[argc];
 		for(uintN i = 0; i < argc; i++)
 			argv[i] = new AutoRoot(args[i]);

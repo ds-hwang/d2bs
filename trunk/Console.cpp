@@ -338,7 +338,7 @@ void Console::Draw(void)
 
 		// TODO: make this respect wrapping
 		char* t = const_cast<char*>(text->GetText());
-		int width = GetScreenSize().x;
+		uint width = GetScreenSize().x;
 		POINT textlen = CalculateTextLen(t, 0);
 		int newsize = textlen.x + text->GetX();
 		cursor->SetX(newsize);

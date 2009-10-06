@@ -93,7 +93,6 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 
 		DWORD dwBuffer = 0;
 		WORD wBuffer = 0;
-		BYTE bBuffer = 0;
 		CHAR* szBuffer = NULL;
 		
 		DWORD dwHelperSize = pTable[nStatNumber + 1].dwFieldOffset - pTable[nStatNumber].dwFieldOffset;

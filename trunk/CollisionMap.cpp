@@ -91,7 +91,7 @@ BOOL CCollisionMap::IsValidAbsLocation(long x, long y) const
 WORD CCollisionMap::GetMapData(long x, long y, BOOL bAbs) const
 {
 	if (!m_map.IsCreated())
-		return MAP_DATA_INVALID;
+		return (WORD)MAP_DATA_INVALID;
 	
 	if (bAbs)
 	{
@@ -100,7 +100,7 @@ WORD CCollisionMap::GetMapData(long x, long y, BOOL bAbs) const
 	}
 
 	//m_map.Lock();
-	WORD wVal = MAP_DATA_INVALID;
+	WORD wVal = (WORD)MAP_DATA_INVALID;
 
 	if (m_map.IsValidIndex(x, y))
 		wVal = m_map[x][y];
@@ -149,7 +149,7 @@ BOOL CCollisionMap::BuildMapData(DWORD AreaIds[], int nSize)
 		dwYSize += pLevel->dwSizeY * 5;
 	}
 
-	if (!m_map.Create(dwXSize, dwYSize, MAP_DATA_INVALID))
+	if (!m_map.Create(dwXSize, dwYSize, (WORD)MAP_DATA_INVALID))
 		return FALSE;
 
 	DwordArray aSkip;
@@ -696,8 +696,8 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 
 						for(INT i = 0; i < nCurrentExit; i++)
 							{
-								if((lpLevel[i]->ptPos.x == (pRoom->dwPosX * 5) + pUnit->dwPosX) && 
-									(lpLevel[i]->ptPos.y == (pRoom->dwPosY * 5) + pUnit->dwPosY))
+								if(((DWORD)lpLevel[i]->ptPos.x == (pRoom->dwPosX * 5) + pUnit->dwPosX) && 
+									((DWORD)lpLevel[i]->ptPos.y == (pRoom->dwPosY * 5) + pUnit->dwPosY))
 									bExists = TRUE;
 							}
 

@@ -60,10 +60,11 @@
 				AssemblerListingLocation="$(ConfigurationName)/"
 				ObjectFile="$(ConfigurationName)/"
 				ProgramDataBaseFileName="$(ConfigurationName)/"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
 				CallingConvention="0"
+				DisableSpecificWarnings="4100"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -158,7 +159,7 @@
 				AssemblerListingLocation=".$(ConfigurationName)/"
 				ObjectFile=".\Release/"
 				ProgramDataBaseFileName="$(ConfigurationName)/"
-				WarningLevel="3"
+				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
 			/>
@@ -408,6 +409,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						WarningLevel="3"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -439,6 +441,7 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							WarningLevel="3"
 						/>
 					</FileConfiguration>
 				</File>
@@ -463,6 +466,7 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							WarningLevel="3"
 						/>
 					</FileConfiguration>
 				</File>
@@ -487,6 +491,7 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							WarningLevel="3"
 						/>
 					</FileConfiguration>
 				</File>
@@ -519,6 +524,7 @@
 						<Tool
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							WarningLevel="3"
 						/>
 					</FileConfiguration>
 				</File>

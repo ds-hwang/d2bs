@@ -80,7 +80,7 @@ char* HashFile(char* file, ALG_ID algo)
 
 	// read it to end, adding it to the hash stream
 	fseek(fp, 0, SEEK_END);
-	int size = ftell(fp);
+	unsigned int size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 
 	char* contents = new char[size];

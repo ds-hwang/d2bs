@@ -33,7 +33,7 @@ const char* readLine(FILE* fptr)
 	char c = 0;
 	// grab all the characters in this line
 	do {
-		c = fgetc(fptr);
+		c = (char)fgetc(fptr);
 		// append the new character unless it's a carriage return
 		if(c != '\r' && c != '\n' && !feof(fptr))
 			buffer.append(1, c);

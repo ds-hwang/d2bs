@@ -1,5 +1,8 @@
 #include "D2Structs.h"
 
+#pragma warning ( push )
+#pragma warning ( disable: 4245 )
+
 #ifdef _DEFINE_VARS
 
 enum {DLLNO_D2CLIENT, DLLNO_D2COMMON, DLLNO_D2GFX, DLLNO_D2LANG, DLLNO_D2WIN, DLLNO_D2NET, DLLNO_D2GAME, DLLNO_D2LAUNCH, DLLNO_FOG, DLLNO_BNCLIENT, DLLNO_STORM, DLLNO_D2CMP, DLLNO_D2MULTI};
@@ -269,3 +272,5 @@ VARPTR(D2WIN, FocusedControl, Control*, 0x5C718+0x10) // Updated
 #define D2CLIENT_PickItem(Unit)				(D2CLIENT_PickItem_ASM((DWORD)Unit))
 #define D2WIN_GetHwnd						D2GFX_GetHwnd
 #define D2GFX_DrawFrame(Rect)				DrawRectFrame_STUB(Rect)
+
+#pragma warning ( pop )

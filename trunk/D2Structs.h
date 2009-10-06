@@ -3,6 +3,9 @@
 
 #include <windows.h>
 
+#pragma warning ( push )
+#pragma warning ( disable: 4201 )
+
 struct UnitAny;
 struct Room1;
 struct Room2;
@@ -876,6 +879,6 @@ Layout of sgptDataTables
 +d08 :  num records in cubemain.bin
 */
 
-
+#pragma warning ( pop )
 
 #endif
