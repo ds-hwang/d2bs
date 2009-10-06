@@ -402,6 +402,22 @@
 			<File
 				RelativePath=".\sqlite3.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\sqlite3.h"
@@ -417,6 +433,14 @@
 				<File
 					RelativePath=".\debugnew\bool_array.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\debugnew\bool_array.h"
@@ -433,6 +457,14 @@
 				<File
 					RelativePath=".\debugnew\debug_new.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\debugnew\debug_new.h"
@@ -449,6 +481,14 @@
 				<File
 					RelativePath=".\debugnew\mem_pool_base.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\debugnew\mem_pool_base.h"
@@ -473,6 +513,14 @@
 				<File
 					RelativePath=".\debugnew\static_mem_pool.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\debugnew\static_mem_pool.h"

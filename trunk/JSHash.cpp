@@ -73,7 +73,7 @@ JSAPI_FUNC(my_md5_file)
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = md5_file(path);
 	if(result && result[0])
@@ -92,7 +92,7 @@ JSAPI_FUNC(my_sha1_file)
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha1_file(path);
 	if(result && result[0])
@@ -111,7 +111,7 @@ JSAPI_FUNC(my_sha256_file)
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha256_file(path);
 	if(result && result[0])
@@ -130,7 +130,7 @@ JSAPI_FUNC(my_sha384_file)
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha384_file(path);
 	if(result && result[0])
@@ -149,7 +149,7 @@ JSAPI_FUNC(my_sha512_file)
 		THROW_ERROR(cx, obj, "Invalid file path!");
 
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, file);
 
 	char* result = sha512_file(path);
 	if(result && result[0])
