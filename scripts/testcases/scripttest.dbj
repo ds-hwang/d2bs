@@ -1,0 +1,9 @@
+js_strict(true);
+
+function main()
+{
+	var script = getScript();
+	do {
+		print(script.name);// + "(" + script.type ? "oog" : "ig" + ") is " + (script.running ? "running" : "not running"));
+	} while(script && !script.getNext());
+}
