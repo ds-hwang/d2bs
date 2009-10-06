@@ -19,6 +19,8 @@
 #define NAME(line, v) (__FILE__ "@" NUM(line) ": " #v)
 #define JS_AddRoot(cx, vp) JS_AddNamedRootRT(ScriptEngine::GetRuntime(), (vp), NAME(__LINE__, vp))
 
+#define DEPRECATED JS_ReportWarning(cx, "This function has been deprecated, and will be removed from future releases.")
+
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)

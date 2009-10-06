@@ -1347,6 +1347,7 @@ JSAPI_FUNC(my_debugLog)
 // TODO: eventually ditch this, it's useless
 INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	DEPRECATED;
 	CDebug cDbg("runGC");
 	CriticalRoom cRoom;
 	CriticalMisc cMisc;
@@ -2233,6 +2234,7 @@ INT my_scriptBroadcast(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 ///////////////////////////////////////////////////////////////////////////////
 int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	DEPRECATED;
 	CDebug cDbg("IniRead");
 
 	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
@@ -2266,6 +2268,7 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 ///////////////////////////////////////////////////////////////////////////////
 int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	DEPRECATED;
 	CDebug cDbg("IniWrite");
 
 	char* pFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));

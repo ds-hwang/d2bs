@@ -63,9 +63,9 @@ static JSFunctionSpec sqlite_methods[] = {
 };
 
 static JSPropertySpec sqlite_props[] = {
-	{"path",		SQLITE_PATH,	JSPROP_PERMANENT_VAR},
-	{"statements",	SQLITE_STMTS,	JSPROP_PERMANENT_VAR},
-	{"isOpen",		SQLITE_OPEN,	JSPROP_PERMANENT_VAR},
+	{"path",		SQLITE_PATH,		JSPROP_PERMANENT_VAR},
+	{"statements",	SQLITE_STMTS,		JSPROP_PERMANENT_VAR},
+	{"isOpen",		SQLITE_OPEN,		JSPROP_PERMANENT_VAR},
 	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR},
 	{0}
 };
