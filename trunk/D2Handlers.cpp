@@ -36,14 +36,14 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	while(Vars.bActive)
 	{
 		if(!Vars.oldWNDPROC && D2WIN_GetHwnd()){
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);			
-			DWORD mainThread=GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
 			Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
 			Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
 		}
-		switch(GetClientState())
+		switch(ClientState())
 		{
-			case ClientStateReady:
+			case ClientStateInGame:
 			{
 				if(GameReady())
 				{
@@ -78,8 +78,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				}
 				break;
 			}
-			//case ClientStateBusy:
-			case ClientStateOOG:
+			case ClientStateBusy:
+				Vars.image->SetX(D2GetScreenSizeX()/2);
+				Vars.text->SetX(D2GetScreenSizeX()/2);
+				break;
+			case ClientStateMenu:
 			{
 				if(bInGame)
 				{
@@ -487,7 +490,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 VOID GameDraw(VOID)
 {
 	Console::Draw();
-	if(GetClientState() != ClientStateOOG)
+	if(ClientState() != ClientStateMenu)
 		Genhook::DrawAll(IG);
 }
 
@@ -495,7 +498,7 @@ VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
 	Console::Draw();
-	if(GetClientState() == ClientStateOOG)
+	if(ClientState() == ClientStateMenu)
 		Genhook::DrawAll(OOG);
 }
 

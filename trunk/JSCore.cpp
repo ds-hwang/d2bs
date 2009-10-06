@@ -82,9 +82,9 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
 		Script* execScript = (Script*)JS_GetContextPrivate(cx);
-		ScriptState state = execScript->GetState();
-		if(state == Command)
-			state = (GameReady() ? InGame : OutOfGame);
+		ScriptState scriptState = execScript->GetState();
+		if(scriptState == Command)
+			scriptState = (GameReady() ? InGame : OutOfGame);
 
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!(lpszFileName && lpszFileName[0]))
@@ -95,7 +95,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
 			sprintf(lpszBuf, "%s\\%s", _strlwr(Vars.szScriptPath), _strlwr(lpszFileName));
 			StringReplace(lpszBuf, '/', '\\');
-			Script* script = ScriptEngine::CompileFile(lpszBuf, state);
+			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
 			if(script)
 			{
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -335,7 +335,6 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(!GameReady())
 		return JS_TRUE;
 
-
 	if(argc < 5)
 	{
 		THROW_ERROR(cx, obj, "Not enough parameters were passed to getPath!");
@@ -479,10 +478,7 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
-	{
 		THROW_ERROR(cx, obj, "Invalid parameters were passed to getCollision!");
-		return JS_TRUE;
-	}
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
@@ -538,7 +534,6 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		{3,3}, // 15
 	};
 	
-
 	if(argc == 1 && JSVAL_IS_OBJECT(argv[0]))
 	{
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
@@ -2435,8 +2430,8 @@ JSAPI_FUNC(my_login)
 			THROW_ERROR(cx, obj, "login time out");
 			break;
 		}
-		if (GetClientState() == ClientStateReady)
-			loginComplete= TRUE;
+		if (ClientState() == ClientStateInGame)
+			loginComplete = TRUE;
 		
 	Sleep(100);
 	}

@@ -99,7 +99,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_Ping);
 			break;
 		case OOG_INGAME:
-			*vp = BOOLEAN_TO_JSVAL(D2CLIENT_GetPlayerUnit() ? TRUE : FALSE);
+			*vp = BOOLEAN_TO_JSVAL(GameReady() ? TRUE : FALSE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);

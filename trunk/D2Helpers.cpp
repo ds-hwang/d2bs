@@ -113,19 +113,19 @@ VOID SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 	*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
 }
 
-ClientState GetClientState(VOID)
+ClientGameState ClientState(VOID)
 {
 	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
-		return ClientStateReady;
+		return ClientStateInGame;
 	else if(!(*p_D2CLIENT_PlayerUnit) && *p_D2WIN_FirstControl)
-		return ClientStateOOG;
+		return ClientStateMenu;
 	else
 		return ClientStateBusy;
 }
 
 BOOL GameReady(VOID)
 {
-	return !!(GetClientState() == ClientStateReady &&
+	return !!(ClientState() == ClientStateInGame &&
 			*p_D2CLIENT_PlayerUnit &&
 			(*p_D2CLIENT_PlayerUnit)->pInventory &&
 			(*p_D2CLIENT_PlayerUnit)->pPath &&
