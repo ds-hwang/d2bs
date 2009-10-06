@@ -63,7 +63,8 @@ BOOL Startup(void)
 	sprintf(path, "%sd2bs.log", Vars.szPath);
 	sprintf(fname, "%sd2bs.ini", Vars.szPath);
 
-	if(freopen(path, "a+t", stderr) == NULL)
+	FILE* stream = NULL;
+	if(freopen_s(&stream, path, "a+t", stderr) == NULL)
 		MessageBox(0, "Failed to redirect output!", "D2BS", 0);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
