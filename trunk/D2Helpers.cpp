@@ -1119,9 +1119,9 @@ __declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWOR
 	}
 }
 
-DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
+double GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 {
-	DWORD dist = 0;
+	double dist = 0;
 	switch(type)
 	{
 		case Euclidean: dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2)); break;

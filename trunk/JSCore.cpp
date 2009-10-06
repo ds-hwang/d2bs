@@ -956,9 +956,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		}
 	}
 
-	INT nDistance = GetDistance(nX1, nY1, nX2, nY2);
-
-	*rval = INT_TO_JSVAL(nDistance);
+	JS_NewNumberValue(cx, GetDistance(nX1, nY1, nX2, nY2), rval);
 
 	return JS_TRUE;
 }
