@@ -1335,11 +1335,7 @@ JSAPI_FUNC(my_debugLog)
 		char* msg = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 		if(!msg)
 			THROW_ERROR(cx, obj, "Could not convert string");
-		char* c = 0;
-		while((c = strchr(msg, '%')) != 0)
-			*c = (char)0xFE;
-		sprintf(msg, "%s", msg);
-		Log(msg);
+		Log("%s", msg);
 	}
 
 	return JS_TRUE;
