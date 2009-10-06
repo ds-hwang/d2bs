@@ -23,16 +23,22 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 		return NULL;
 	char* fileName = _strdup(file);
 	_strlwr_s(fileName, strlen(file)+1);
-	try {
+	try
+	{
 		EnterCriticalSection(&lock);
-		if(!Vars.bDisableCache) {
-			if(recompile && scripts.count(fileName) > 0) {
+		if(!Vars.bDisableCache)
+		{
+			if(recompile && scripts.count(fileName) > 0)
+			{
 				scripts[fileName]->Stop(true, true);
 				DisposeScript(scripts[fileName]);
-			} else if(scripts.count(fileName) > 0) {
+			}
+			else if(scripts.count(fileName) > 0)
+			{
 				Script* ret = scripts[fileName];
 				ret->Stop(true, true);
 				delete[] fileName;
+				LeaveCriticalSection(&lock);
 				return ret;
 			}
 		}
@@ -41,7 +47,9 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
 		return script;
-	} catch(std::exception e) {
+	}
+	catch(std::exception e)
+	{
 		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
 		delete[] fileName;
@@ -55,12 +63,16 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		return NULL;
 	char* file = _strdup(command);
 	_strlwr_s(file, strlen(file)+1);
-	try {
+	try
+	{
 		EnterCriticalSection(&lock);
-		if(!Vars.bDisableCache) {
-			if(scripts.count(file) > 0) {
+		if(!Vars.bDisableCache)
+		{
+			if(scripts.count(file) > 0)
+			{
 				Script* ret = scripts[file];
 				delete[] file;
+				LeaveCriticalSection(&lock);
 				return ret;
 			}
 		}
@@ -69,7 +81,9 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		LeaveCriticalSection(&lock);
 		delete[] file;
 		return script;
-	} catch(std::exception e) {
+	}
+	catch(std::exception e)
+	{
 		LeaveCriticalSection(&lock);
 		delete[] file;
 		Print(const_cast<char*>(e.what()));
@@ -177,9 +191,7 @@ void ScriptEngine::StopAll(bool forceStop)
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-	{
 		(*it)->Stop(forceStop, (ScriptEngine::GetState() == Stopping));
-	}
 
 	LeaveCriticalSection(&lock);
 }
@@ -190,14 +202,12 @@ void ScriptEngine::PauseAll(void)
 		return;
 
 	EnterCriticalSection(&lock);
-
+	
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-	{
 		(*it)->Pause();
-	}
-
+	
 	LeaveCriticalSection(&lock);
 }
 
@@ -207,14 +217,12 @@ void ScriptEngine::ResumeAll(void)
 		return;
 
 	EnterCriticalSection(&lock);
-
+	
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-	{
 		(*it)->Resume();
-	}
-
+	
 	LeaveCriticalSection(&lock);
 }
 
@@ -237,12 +245,8 @@ void ScriptEngine::FlushCache(void)
 	ScriptList list;
 	GetScripts(list);
 	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-	{
 		if(!(*it)->IsRunning())
-		{
 			DisposeScript(*it);
-		}
-	}
 
 	isFlushing = false;
 
@@ -432,4 +436,3 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
 }
-
