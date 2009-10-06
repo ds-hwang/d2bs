@@ -3,6 +3,8 @@
 #include "Hash.h"
 #include "File.h"
 
+#include "debugnew/debug_new.h"
+
 JSAPI_FUNC(my_md5)
 {
 	if(argc != 1)
