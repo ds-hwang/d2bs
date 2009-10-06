@@ -76,22 +76,28 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 
 		if(Text && pControl->dwType == 6) //moved this to the bottom dosent check unless x/y checks out
 		{
-			if(strcmp(UnicodeToAnsi(pControl->wText2), Text) == 0)
+			char* text2 = UnicodeToAnsi(pControl->wText2);
+			if(strcmp(text2, Text) == 0)
 				bFound = TRUE;
 			else {
 				bFound = FALSE;
+				delete[] text2;
 				continue;
 			}
+			delete[] text2;
 		}
 		if(Text && pControl->dwType == 4){
-			if (WORD locStr=atoi(Text) && pControl->pFirstText->wText != NULL)
+			if (pControl->pFirstText->wText != NULL)
 			{
-				if (wcsstr(D2LANG_GetLocaleText((WORD)locStr),pControl->pFirstText->wText)!=0)
+				char* text2 = UnicodeToAnsi(pControl->pFirstText->wText);
+				if (strcmp(text2, Text) == 0)
 					bFound = TRUE;
 				else{
 					bFound = FALSE;
+					delete[] text2;
 					continue;
 				}
+				delete[] text2;
 			}
 			else {
 				bFound = FALSE;
