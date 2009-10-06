@@ -72,7 +72,7 @@ void Console::AddKey(unsigned int key)
 	const char* cmd = text->GetText();
 	int len = strlen(cmd);
 	char* newcmd = new char[len+2];
-	sprintf(newcmd, "%s%c", cmd, (char)key);
+	sprintf_s(newcmd, sizeof(newcmd), "%s%c", cmd, (char)key);
 	text->SetText(newcmd);
 	delete[] newcmd;
 	LeaveCriticalSection(&Vars.cConsoleSection);
@@ -93,7 +93,7 @@ void Console::ExecuteCommand(void)
 	if(!_strcmpi(argv, "start"))
 	{
 		char file[_MAX_PATH+_MAX_FNAME];
-		sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
 		Script* script = ScriptEngine::CompileFile(file, InGame);
 		if(script)
 		{
@@ -124,18 +124,18 @@ void Console::ExecuteCommand(void)
 		if(strlen(arg) > 0)
 		{
 			char msg[256];
-			sprintf(msg, "ÿc2D2BSÿc0 :: Loading %s", arg);
+			sprintf_s(msg, sizeof(msg), "ÿc2D2BSÿc0 :: Loading %s", arg);
 			AddLine(msg);
 
 			CHAR szPath[8192] = "";
-			sprintf(szPath, "%s\\%s", Vars.szScriptPath, arg);
+			sprintf_s(szPath, sizeof(szPath), "%s\\%s", Vars.szScriptPath, arg);
 
 			Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
 			{
-				sprintf(msg, "ÿc2D2BSÿc0 :: Failed to load %s!", arg);
+				sprintf_s(msg, sizeof(msg), "ÿc2D2BSÿc0 :: Failed to load %s!", arg);
 				AddLine(msg);
 			}
 		}
@@ -157,7 +157,7 @@ void Console::ExecuteCommand(void)
 
 		AddLine("ÿc2D2BSÿc0 :: Starting default.dbj...");
 		char file[_MAX_PATH+_MAX_FNAME];
-		sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
 		Script* script = ScriptEngine::CompileFile(file, InGame);
 		if(script)
 			CreateThread(0, 0, ScriptThread, script, 0, 0);

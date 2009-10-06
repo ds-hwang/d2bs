@@ -44,7 +44,7 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!isValidPath(name))
 		return JS_TRUE;
 
-	sprintf(path, "%s\\%s", Vars.szScriptPath, name);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, name);
 
 	if((_mkdir(path) == -1) && (errno == ENOENT))
 	{
@@ -84,7 +84,7 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 	long hFile;
 	char path[_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, d->name);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, d->name);
 	char oldpath[_MAX_PATH];
 	_getcwd(oldpath, _MAX_PATH);
 	_chdir(path);
@@ -131,7 +131,7 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 
 	long hFile;
 	char path[_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, d->name);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, d->name);
 	char oldpath[_MAX_PATH];
 	_getcwd(oldpath, _MAX_PATH);
 	_chdir(path);
@@ -171,11 +171,11 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!isValidPath(name))
 		return JS_TRUE;
 
-	sprintf(path, "%s\\%s\\%s", Vars.szScriptPath, d->name, name);
+	sprintf_s(path, sizeof(path), "%s\\%s\\%s", Vars.szScriptPath, d->name, name);
 	if(_mkdir(path) == -1 && (errno == ENOENT))
 	{
 		char msg[1024];
-		sprintf(msg, "Couldn't create directory %s, path %s not found", JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), path);
+		sprintf_s(msg, sizeof(msg), "Couldn't create directory %s, path %s not found", JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), path);
 		THROW_ERROR(cx, obj, msg);
 	}
 	else
@@ -194,7 +194,7 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
 	char path[_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, d->name);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, d->name);
 
 	if(_rmdir(path) == -1)
 	{

@@ -177,7 +177,7 @@ JSAPI_FUNC(file_open)
 		mode += 3;
 	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 	FILE* fptr = fopen(path, modes[mode]);
 	if(!fptr)
 		return ThrowJSError(cx, obj, "Couldn't open file %s: %s", file, _strerror(NULL));

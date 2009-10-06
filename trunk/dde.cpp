@@ -34,12 +34,12 @@ DWORD CreateDdeServer() {
 	if(ret != DMLERR_NO_ERROR)
 		return 0;
 	char handle[25];
-	sprintf(handle, "d2bs-%d", GetProcessId(GetCurrentProcess()));
+	sprintf_s(handle, sizeof(handle), "d2bs-%d", GetProcessId(GetCurrentProcess()));
 	hszD2BSns = DdeCreateStringHandle(DdeSrvInst, handle, CP_WINANSI);
 	if(!hszD2BSns)
 		return 0;
 	if(!DdeNameService(DdeSrvInst, hszD2BSns, 0L, DNS_REGISTER | DNS_FILTERON)) {
-		sprintf(buf, "DdeServer DdeNameService Error: %X", DdeGetLastError(DdeSrvInst));
+		sprintf_s(buf, sizeof(buf), "DdeServer DdeNameService Error: %X", DdeGetLastError(DdeSrvInst));
 		OutputDebugString(buf);
 		return 0;
 	}

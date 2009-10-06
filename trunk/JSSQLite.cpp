@@ -85,7 +85,7 @@ JSAPI_FUNC(sqlite_ctor)
 			THROW_ERROR(cx, obj, "Invalid characters in database name");
 
 		char* tmp = new char[_MAX_PATH+_MAX_FNAME];
-		sprintf(tmp, "%s\\%s", Vars.szScriptPath, path);
+		sprintf_s(tmp, sizeof(_MAX_PATH+_MAX_FNAME), "%s\\%s", Vars.szScriptPath, path);
 		path = _strdup(tmp);
 		delete[] tmp;
 	}
@@ -98,7 +98,7 @@ JSAPI_FUNC(sqlite_ctor)
 	if(autoOpen) {
 		if(SQLITE_OK != sqlite3_open(path, &db)) {
 			char msg[1024];
-			sprintf(msg, "Could not open database: %s", sqlite3_errmsg(db));
+			sprintf_s(msg, sizeof(msg), "Could not open database: %s", sqlite3_errmsg(db));
 			THROW_ERROR(cx, obj, msg);
 		}
 	}
@@ -183,7 +183,7 @@ JSAPI_FUNC(sqlite_query)
 			default:
 				sqlite3_finalize(stmt);
 				char msg[1024];
-				sprintf(msg, "Invalid bound parameter %i", i);
+				sprintf_s(msg, sizeof(msg), "Invalid bound parameter %i", i);
 				THROW_ERROR(cx, obj, msg);
 				break;
 		}
@@ -214,7 +214,7 @@ JSAPI_FUNC(sqlite_close)
 	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db_ex.base, NULL);
 	if(!clean_sqlite_db(dbobj)) {
 		char msg[1024];
-		sprintf(msg, "Could not close database: %s", sqlite3_errmsg(dbobj->db));
+		sprintf_s(msg, sizeof(msg), "Could not close database: %s", sqlite3_errmsg(dbobj->db));
 		THROW_ERROR(cx, obj, msg);
 	}
 	*rval = JSVAL_TRUE;
@@ -228,7 +228,7 @@ JSAPI_FUNC(sqlite_open)
 	if(!dbobj->open) {
 		if(SQLITE_OK != sqlite3_open(dbobj->path, &dbobj->db)) {
 			char msg[1024];
-			sprintf(msg, "Could not open database: %s", sqlite3_errmsg(dbobj->db));
+			sprintf_s(msg, sizeof(msg), "Could not open database: %s", sqlite3_errmsg(dbobj->db));
 			THROW_ERROR(cx, obj, msg);
 		}
 	}

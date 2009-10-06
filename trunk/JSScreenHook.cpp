@@ -640,7 +640,7 @@ JSAPI_FUNC(image_ctor) {
 	if(!isValidPath(path))
 		THROW_ERROR(cx, obj, "Invalid image file path");
 
-	sprintf(path, "%s\\%s", Vars.szScriptPath, szText);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, szText);
 	ImageHook* pImageHook = new ImageHook(script, path, x, y, color, automap, align, state);
 
 	if(!pImageHook)

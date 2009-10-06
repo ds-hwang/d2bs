@@ -34,8 +34,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		 disableCache[6],
 		 memUsage[6];
 
-	sprintf(path, "%sd2bs.log", Vars.szPath);
-	sprintf(fname, "%sd2bs.ini", Vars.szPath);
+	sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
+	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
 	FILE* stream = NULL;
 	if(freopen_s(&stream, path, "a+t", stderr) != 0)
@@ -51,7 +51,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 
-	sprintf(Vars.szScriptPath, "%s%s", Vars.szPath, scriptPath);
+	sprintf_s(Vars.szScriptPath, sizeof(Vars.szScriptPath), "%s%s", Vars.szPath, scriptPath);
 
 	BOOL bInGame = FALSE;
 	BOOL bStarterScript = FALSE;
@@ -72,15 +72,15 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	Vars.oldWNDPROC = NULL;
 
 	char versionimg[_MAX_PATH+_MAX_FNAME];
-	sprintf(versionimg, "%sversion.bmp", Vars.szPath);
+	sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
 	Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
 	Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
 
 	// calculate the path to starter/default.dbj only once
 	char defaultdbj[_MAX_PATH+_MAX_FNAME];
-	sprintf(defaultdbj, "%s\\default.dbj", Vars.szScriptPath);
+	sprintf_s(defaultdbj, sizeof(defaultdbj), "%s\\default.dbj", Vars.szScriptPath);
 	char starterdbj[_MAX_PATH+_MAX_FNAME];
-	sprintf(starterdbj, "%s\\starter.dbj", Vars.szScriptPath);
+	sprintf_s(starterdbj, sizeof(starterdbj), "%s\\starter.dbj", Vars.szScriptPath);
 
 	if(!ScriptEngine::Startup())
 		return FALSE;
@@ -189,7 +189,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		if(!_strcmpi(cmd, "start"))
 		{
 			char file[_MAX_PATH+_MAX_FNAME];
-			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 			{
@@ -222,7 +222,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 			Print("ÿc2D2BSÿc0 :: Starting default.dbj...");
 			char file[_MAX_PATH+_MAX_FNAME];
-			sprintf(file, "%s\\default.dbj", Vars.szScriptPath);
+			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
 			Script* script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -259,7 +259,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				Print("ÿc2D2BSÿc0 :: Loading %s", arg);
 
 				CHAR szPath[8192] = "";
-				sprintf(szPath, "%s\\%s", Vars.szScriptPath, arg);
+				sprintf_s(szPath, sizeof(szPath), "%s\\%s", Vars.szScriptPath, arg);
 
 				Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
 				if(script)
@@ -361,7 +361,8 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
 		if (pPacket[1] == 0x11){ //stones
 			DWORD soj = *(DWORD*)&pPacket[3];
-			char mess[256]; sprintf(mess, "%u Stones of Jordan Sold to Merchants", soj);				
+			char mess[256]; 
+			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
 			GameMsgEvent(mess);
 		}
 		if (pPacket[1] == 0x12){ //diablo walks

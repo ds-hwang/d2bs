@@ -364,7 +364,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	}
 
 	char msg[50];
-	sprintf(msg, "Script::ExecEventAsync(%s)", evtName);
+	sprintf_s(msg, sizeof(msg), "Script::ExecEventAsync(%s)", evtName);
 	CDebug cDbg(msg);
 
 	for(uintN i = 0; i < argc; i++)

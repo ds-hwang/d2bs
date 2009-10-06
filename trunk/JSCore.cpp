@@ -93,7 +93,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		if(strlen(lpszFileName) < _MAX_PATH)
 		{
 			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
-			sprintf(lpszBuf, "%s\\%s", _strlwr(Vars.szScriptPath), _strlwr(lpszFileName));
+			sprintf_s(lpszBuf, sizeof(lpszBuf),	"%s\\%s", _strlwr_s(Vars.szScriptPath, sizeof(Vars.szScriptPath)), _strlwr_s(lpszFileName, sizeof(lpszFileName)));
 			StringReplace(lpszBuf, '/', '\\');
 			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
 			if(script)
@@ -130,7 +130,7 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
 			{
 				CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
-				sprintf(lpszBuf, "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
+				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
 				if(_access(lpszBuf, 0) == 0)
 					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
 				else
@@ -1467,7 +1467,7 @@ INT my_sendDDE(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	int ret = DdeInitialize(&pidInst, (PFNCALLBACK) DdeCallback, APPCMD_CLIENTONLY, 0);
 	if(ret != DMLERR_NO_ERROR)
 	{
-		sprintf(buf, "DdeInitialize Error: %X", ret);
+		sprintf_s(buf, sizeof(buf), "DdeInitialize Error: %X", ret);
 		OutputDebugString(buf);
 		return JS_TRUE;
 	}
@@ -2233,19 +2233,19 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(!pFileName)
 		THROW_ERROR(cx, obj, "Could not convert string");
 	char lpszBuf[MAX_PATH];
-	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
+	sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, pFileName);
 
     	char szBuffer[65535];        // Max ini line length is 65535 under 95
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pSectionName)");
 	char* pKeyName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 	if(!pKeyName)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pKeyName)");
 	char* pDefault = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
 	if(!pDefault)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, obj, "Could not convert string (pDefault)");
 
 	GetPrivateProfileString(pSectionName, pKeyName, pDefault, szBuffer, 65535, lpszBuf);
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
@@ -2267,7 +2267,7 @@ int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!pFileName)
 		THROW_ERROR(cx, obj, "Could not convert string (pFileName)");
 	char lpszBuf[MAX_PATH];
-	sprintf(lpszBuf, "%s\\%s", Vars.szScriptPath, pFileName);
+	sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, pFileName);
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
@@ -2303,7 +2303,7 @@ JSAPI_FUNC(my_login)
 	if(!profile)
 		THROW_ERROR(cx, obj, "Could not convert string (profile)");
 	
-	sprintf(file, "%sd2bs.ini", Vars.szPath);
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
 	GetPrivateProfileString(profile, "SinglePlayerDifficulty", "0", difficulty, sizeof(difficulty), file);
@@ -2534,7 +2534,7 @@ JSAPI_FUNC(my_getInteractedNPC)
 	pmyUnit->dwMode = pNPC->dwMode;
 	pmyUnit->dwType = pNPC->dwType;
 	pmyUnit->dwUnitId = pNPC->dwUnitId;
-	strcpy(pmyUnit->szName, szName);
+	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
 	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 

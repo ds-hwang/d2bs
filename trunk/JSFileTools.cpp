@@ -42,7 +42,7 @@ JSAPI_FUNC(filetools_remove)
 	if(!isValidPath(file))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
 	remove(path);
 
@@ -59,7 +59,7 @@ JSAPI_FUNC(filetools_rename)
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, obj, "You must supply a new file name");
@@ -67,7 +67,7 @@ JSAPI_FUNC(filetools_rename)
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
-	sprintf(pnewName, "%s\\%s", Vars.szScriptPath, newName);
+	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
 	rename(porig, pnewName);
 
@@ -84,7 +84,7 @@ JSAPI_FUNC(filetools_copy)
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
 		THROW_ERROR(cx, obj, "You must supply a new file name");
@@ -92,7 +92,7 @@ JSAPI_FUNC(filetools_copy)
 	if(!isValidPath(newName))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
-	sprintf(pnewName, "%s\\%s", Vars.szScriptPath, newName);
+	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
 	bool overwrite = false;
 	if(argc > 2 && JSVAL_IS_BOOLEAN(argv[2]))
@@ -160,7 +160,7 @@ JSAPI_FUNC(filetools_exists)
 	if(!isValidPath(file))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
-	sprintf(path, "%s\\%s", Vars.szScriptPath, file);
+	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
 	*rval = BOOLEAN_TO_JSVAL(!(_access(path, 0) != 0 && errno == ENOENT));
 
@@ -177,7 +177,7 @@ JSAPI_FUNC(filetools_readText)
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if((_access(porig, 0) != 0 && errno == ENOENT))
 		THROW_ERROR(cx, obj, "File not found");
@@ -207,7 +207,7 @@ JSAPI_FUNC(filetools_writeText)
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	bool result = true;
 	FILE* fptr = fopen(porig, "w");
@@ -231,7 +231,7 @@ JSAPI_FUNC(filetools_appendText)
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
-	sprintf(porig, "%s\\%s", Vars.szScriptPath, orig);
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	bool result = true;
 	FILE* fptr = fopen(porig, "a+");

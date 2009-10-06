@@ -200,7 +200,7 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		if(file && strlen(file) <= _MAX_FNAME && box)
 		{
 			char buf[_MAX_PATH+_MAX_FNAME];
-			sprintf(buf, "%s\\libs\\%s", Vars.szScriptPath, file);
+			sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
 			if(box->list.count(std::string(file)) == -1)
 			{
 				JSScript* tmp = JS_CompileFile(box->context, box->innerObj, buf);
@@ -231,7 +231,7 @@ JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	{
 		char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		char buf[_MAX_PATH+_MAX_FNAME];
-		sprintf(buf, "%s\\libs\\%s", Vars.szScriptPath, file);
+		sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
 		*rval = BOOLEAN_TO_JSVAL(!!box->list.count(std::string(buf)));
 	} else THROW_ERROR(cx, obj, "Invalid parameter, file expected");
 	return JS_TRUE;
