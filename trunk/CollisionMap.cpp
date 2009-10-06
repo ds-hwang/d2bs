@@ -493,7 +493,12 @@ BOOL CCollisionMap::ReportCollisionType(POINT ptOrigin, long lRadius) const
 
 	char sz[256] = "";
 	for (int n = 0; n < aList.GetSize(); n++)
-		sprintf(sz, "%s%d, ", sz, aList[n]);
+	{
+		char buf[32] = "";
+		itoa(aList[n], buf, 10);
+		strcat(sz, buf);
+		strcat(sz, ", ");
+	}
 
 	
 	return aList.GetSize();
