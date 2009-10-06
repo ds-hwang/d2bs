@@ -433,8 +433,8 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 	}
 	else if(Console::IsVisible())
 	{
-		BYTE layout[256];
-		WORD out[2];
+		BYTE layout[256] = {0};
+		WORD out[2] = {0};
 		switch(wParam)
 		{
 			case VK_TAB:
