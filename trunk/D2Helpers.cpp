@@ -1124,10 +1124,10 @@ DWORD GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
 	DWORD dist = 0;
 	switch(type)
 	{
-		case Euclidean: dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2));
-		case Chebyshev: dist = (DWORD)max(abs((long)(x2-x1)), abs((long)(y2-y1)));
-		case Manhattan: dist = (DWORD)(abs((long)(x2-x1))+abs((long)(y2-y1)));
-		default: dist = (DWORD)-1;
+		case Euclidean: dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2)); break;
+		case Chebyshev: dist = (DWORD)max(abs((long)(x2-x1)), abs((long)(y2-y1))); break;
+		case Manhattan: dist = (DWORD)(abs((long)(x2-x1))+abs((long)(y2-y1))); break;
+		default: dist = (DWORD)-1; break;
 	}
  	return dist;
 }
