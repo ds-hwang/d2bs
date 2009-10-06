@@ -2334,6 +2334,9 @@ JSAPI_FUNC(my_login)
 	while(!loginComplete){
 		loc=OOG_GetLocation();
 		switch (loc){
+			case OOG_D2SPLASH:
+				clickControl(*p_D2WIN_FirstControl);
+				break;
 			case OOG_CHAR_SELECT:
 				if (!OOG_SelectCharacter(charname))
 					 errorMsg = "invalid charactor name";
@@ -2399,7 +2402,7 @@ JSAPI_FUNC(my_login)
 					errorMsg =  "Invalid single player difficulty level specified!";
 					break;
 				}
-
+			
 			case OOG_MAIN_MENU_CONNECTING: case OOG_CHARACTER_SELECT_PLEASE_WAIT:
 			case OOG_PLEASE_WAIT: case OOG_GATEWAY:
 			case OOG_CHARACTER_SELECT_NO_CHARS: case OOG_NONE:
