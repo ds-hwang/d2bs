@@ -156,13 +156,11 @@ void Script::Run(void)
 
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
 	{
-		JS_SetContextThread(GetContext());
 		JS_EndRequest(GetContext());
 		return;
 	}
 	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
-		JS_SetContextThread(GetContext());
 		JS_EndRequest(GetContext());
 		return;
 	}
@@ -178,18 +176,18 @@ void Script::Run(void)
 
 void Script::Pause(void)
 {
-	EnterCriticalSection(&lock);
+	//EnterCriticalSection(&lock);
 	if(!IsAborted() && !IsPaused())
 		isPaused = true;
-	LeaveCriticalSection(&lock);
+	//LeaveCriticalSection(&lock);
 }
 
 void Script::Resume(void)
 {
-	EnterCriticalSection(&lock);
+	//EnterCriticalSection(&lock);
 	if(!IsAborted() && IsPaused())
 		isPaused = false;
-	LeaveCriticalSection(&lock);
+	//LeaveCriticalSection(&lock);
 }
 
 bool Script::IsPaused(void)
@@ -243,7 +241,10 @@ bool Script::Include(const char* file)
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
+	{
+		LeaveCriticalSection(&lock);
 		return true;
+	}
 	bool rval = false;
 	JS_BeginRequest(GetContext());
 
@@ -262,6 +263,7 @@ bool Script::Include(const char* file)
 	{
 		JS_SetContextThread(GetContext());
 		JS_EndRequest(GetContext());
+		LeaveCriticalSection(&lock);
 		return false;
 	}
 

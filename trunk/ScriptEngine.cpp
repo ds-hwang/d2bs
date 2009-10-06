@@ -254,6 +254,8 @@ void ScriptEngine::GetScripts(ScriptList& list)
 {
 	EnterCriticalSection(&lock);
 
+	if(scripts.empty())
+		return;
 	list.clear();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 		list.push_back(it->second);
@@ -295,7 +297,6 @@ JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, 
 void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
 	if(!script)
 		return NULL;
 
@@ -307,7 +308,6 @@ void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool*
 JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
 	if(!script)
 		return JSTRAP_CONTINUE;
 
