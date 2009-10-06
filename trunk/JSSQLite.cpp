@@ -137,7 +137,7 @@ JSAPI_FUNC(sqlite_execute)
 	char* sql = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), *err = NULL;
 	if(SQLITE_OK != sqlite3_exec(dbobj->db, sql, NULL, NULL, &err)) {
 		char msg[2048];
-		strcpy(msg, err);
+		strcpy_s(msg, sizeof(msg), err);
 		sqlite3_free(err);
 		THROW_ERROR(cx, obj, msg);
 	}

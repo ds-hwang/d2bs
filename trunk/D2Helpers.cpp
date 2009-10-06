@@ -20,10 +20,12 @@ void Log(char* szFormat, ...)
 
 	time_t tTime;
 	time(&tTime);
-	CHAR szTime[128] = "";
-	strftime(szTime, sizeof(szTime), "[%b/%d/%Y - %H:%M:%S]",localtime(&tTime));
+	char szTime[128] = "";
+	struct tm time;
+	localtime_s(&time, &tTime);
+	strftime(szTime, sizeof(szTime), "%x %X", &time);
 
-	fprintf(stderr, "%s %s\n", szTime, szString);
+	fprintf(stderr, "[%s] %s\r\n", szTime, szString);
 	fflush(stderr);
 	delete[] szString;
 }
@@ -33,7 +35,7 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
 {
 	if(!pUnit)
 	{
-		strcpy(szTmp, "Unknown");
+		strcpy_s(szTmp, sizeof(szTmp), "Unknown");
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_MONSTER) {
@@ -44,7 +46,7 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
 	if(pUnit->dwType == UNIT_PLAYER && pUnit->pPlayerData)
 	{
 		//	return pUnit->pPlayerData->szName;
-		strcpy(szTmp, pUnit->pPlayerData->szName);
+		strcpy_s(szTmp, sizeof(szTmp), pUnit->pPlayerData->szName);
 		return szTmp;
 	}
 	if(pUnit->dwType == UNIT_ITEM)
@@ -56,7 +58,7 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
             *strchr(szBuffer,'\n') = 0x00;
 		}
 
-		strcpy(szTmp, szBuffer);
+		strcpy_s(szTmp, sizeof(szTmp), szBuffer);
 		delete[] szBuffer;
 		return szTmp;
 	}
@@ -64,11 +66,11 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp)
 	{
 		if(pUnit->pObjectData && pUnit->pObjectData->pTxt)
 		{
-			strcpy(szTmp, pUnit->pObjectData->pTxt->szName);
+			strcpy_s(szTmp, sizeof(szTmp), pUnit->pObjectData->pTxt->szName);
 			return szTmp;
 		}
 	}
-	strcpy(szTmp, "Unknown");
+	strcpy_s(szTmp, sizeof(szTmp), "Unknown");
 	return szTmp;
 }
 
@@ -635,7 +637,7 @@ int RemoveColorSpecs(wchar_t *lpwsz)
 			p[nIndex++] = lpwsz[i];
 	}
 
-	wcscpy(lpwsz, p);
+	wcscpy_s(lpwsz, sizeof(lpwsz), p);
 	return (int)wcslen(lpwsz);
 }
 

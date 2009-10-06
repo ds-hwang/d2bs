@@ -427,7 +427,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	else return JS_TRUE;
 
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
-		strcpy(szName, JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
+		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		nClassId = JSVAL_TO_INT(argv[1]);
@@ -464,7 +464,7 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	pmyUnit->dwMode = nMode;
 	pmyUnit->dwType = pUnit->dwType;
 	pmyUnit->dwUnitId = pUnit->dwUnitId;
-	strcpy(pmyUnit->szName, szName);
+	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
 	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
 
@@ -491,7 +491,7 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-		strcpy(lpUnit->szName, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+		strcpy_s(lpUnit->szName, sizeof(lpUnit->szName), JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		lpUnit->dwClassId = JSVAL_TO_INT(argv[0]);
@@ -1135,7 +1135,7 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		if(pUnit->pObjectData)
 		{
 			CHAR szBuffer[128] = "";
-			strcpy(szBuffer, pUnit->pObjectData->szOwner);
+			strcpy_s(szBuffer, sizeof(szBuffer), pUnit->pObjectData->szOwner);
 
 			*rval = STRING_TO_JSVAL(JS_InternString(cx, szBuffer));
 		}

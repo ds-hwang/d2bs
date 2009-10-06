@@ -210,7 +210,7 @@ void Say(const char *szMessage, ...)
 	CHAR szBuffer[8192] = {0};
 	va_list vaArgs;
 	va_start(vaArgs, szMessage);
-	vsprintf(szBuffer, szMessage, vaArgs);
+	vsprintf_s(szBuffer, sizeof(szBuffer), szMessage, vaArgs);
 	va_end(vaArgs);
 
 
