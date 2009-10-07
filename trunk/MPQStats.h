@@ -252,7 +252,7 @@ static BinField itemTable[] = {
 	{"HellUpgrade",			FIELDTYPE_DATA_RAW,			0x0,	0x1a0},
 	{"PermStoreItem",		FIELDTYPE_DATA_BYTE,		0x0,	0x1a4},
 	{"multibuy",			FIELDTYPE_DATA_BYTE,		0x0,	0x1a5},
-	{"end",					-1,							0x0,	0x1a8},
+	{"end",					FIELDTYPE_END,				0x0,	0x1a8},
 };
 static BinField monstatsTable[] = {
 	{"Id",					FIELDTYPE_NAME_TO_INDEX,	0x0, 0x0},
@@ -500,7 +500,7 @@ static BinField monstatsTable[] = {
 	{"SplGetModeChart",		FIELDTYPE_DATA_BYTE,		0x0, 0x1a5},
 	{"SplEndGeneric",		FIELDTYPE_DATA_BYTE,		0x0, 0x1a6},
 	{"SplClientEnd",		FIELDTYPE_DATA_BYTE,		0x0, 0x1a7},
-	{"end",					NULL,						0x0, 0x1a8},
+	{"end",					FIELDTYPE_END,				0x0, 0x1a8},
 };
 static BinField skilldescTable[] = {
 	{"skilldesc",		FIELDTYPE_NAME_TO_INDEX,	0x0, 0x0},
@@ -616,7 +616,7 @@ static BinField skilldescTable[] = {
 	{"dsc3calcb5",		FIELDTYPE_CALC_TO_DWORD,	0x0, 0x114},
 	{"dsc3calcb6",		FIELDTYPE_CALC_TO_DWORD,	0x0, 0x118},
 	{"dsc3calcb7",		FIELDTYPE_CALC_TO_DWORD,	0x0, 0x11c},
-	{"end",				NULL,						0x0, 0x120},
+	{"end",				FIELDTYPE_END,				0x0, 0x120},
 };
 static BinField skillsTable[] = {
 	{"skill",				FIELDTYPE_NAME_TO_INDEX,	0x0, 0x0},
@@ -857,7 +857,7 @@ static BinField skillsTable[] = {
 	{"aibonus",				FIELDTYPE_DATA_WORD,		0x0, 0x232},
 	{"cost mult",			FIELDTYPE_DATA_DWORD,		0x0, 0x234},
 	{"cost add",			FIELDTYPE_DATA_DWORD,		0x0, 0x238},
-	{"end",					NULL,						0x0, 0x23c},
+	{"end",					FIELDTYPE_END,				0x0, 0x23c},
 };
 static BinField objectsTable[] = {
 	{"Name", FIELDTYPE_DATA_ASCII, 0x3f, 0x0},
@@ -1017,7 +1017,7 @@ static BinField objectsTable[] = {
 	{"DrawUnder", FIELDTYPE_DATA_BYTE, 0x0, 0x1b7},
 	{"OpenWarp", FIELDTYPE_DATA_BYTE, 0x0, 0x1b8},
 	{"AutoMap", FIELDTYPE_DATA_DWORD, 0x0, 0x1bc},
-	{"end", NULL, 0x0, 0x1c0},
+	{"end", FIELDTYPE_END, 0x0, 0x1c0},
 };
 static BinField missilesTable[] = {
 	{"Missile", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},
@@ -1166,7 +1166,7 @@ static BinField missilesTable[] = {
 	{"NumDirections", FIELDTYPE_DATA_BYTE, 0x0, 0x1a0},
 	{"AnimSpeed", FIELDTYPE_DATA_BYTE, 0x0, 0x1a1},
 	{"LocalBlood", FIELDTYPE_DATA_BYTE, 0x0, 0x1a2},
-	{"end", NULL, 0x0, 0x1a4},
+	{"end", FIELDTYPE_END, 0x0, 0x1a4},
 };
 static BinField monstats2Table[] = {
 	{"Id", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},
@@ -1278,7 +1278,7 @@ static BinField monstats2Table[] = {
 	{"Heart", FIELDTYPE_DATA_RAW, 0x0, 0x128},
 	{"BodyPart", FIELDTYPE_DATA_RAW, 0x0, 0x12c},
 	{"restore", FIELDTYPE_DATA_BYTE, 0x0, 0x130},
-	{"end", NULL, 0x0, 0x134},
+	{"end", FIELDTYPE_END, 0x0, 0x134},
 };
 static BinField itemstatcostTable[] = {
 	{"stat", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},
@@ -1332,7 +1332,7 @@ static BinField itemstatcostTable[] = {
 	{"op stat2", FIELDTYPE_NAME_TO_WORD, 0x0, 0x5a},
 	{"op stat3", FIELDTYPE_NAME_TO_WORD, 0x0, 0x5c},
 	{"stuff", FIELDTYPE_DATA_DWORD, 0x0, 0x140},
-	{"end", NULL, 0x0, 0x144},
+	{"end", FIELDTYPE_END, 0x0, 0x144},
 };
 static BinField levelsTable[] = {
 	{"Id", FIELDTYPE_DATA_BYTE, 0x0, 0x0},
@@ -1476,7 +1476,7 @@ static BinField levelsTable[] = {
 	{"FloorFilter", FIELDTYPE_DATA_DWORD, 0x0, 0x214},
 	{"BlankScreen", FIELDTYPE_DATA_DWORD, 0x0, 0x218},
 	{"SoundEnv", FIELDTYPE_DATA_BYTE, 0x0, 0x21c},
-	{"end", NULL, 0x0, 0x220},
+	{"end", FIELDTYPE_END, 0x0, 0x220},
 };
 static BinField leveldefsTable[] = {
 	{"QuestFlag",		FIELDTYPE_DATA_DWORD_2,	0x0, 0x0},
@@ -1521,7 +1521,7 @@ static BinField leveldefsTable[] = {
 	{"Position",		FIELDTYPE_DATA_DWORD_2,	0x0, 0x90},
 	{"SaveMonsters",	FIELDTYPE_DATA_DWORD_2,	0x0, 0x94},
 	{"LOSDraw",			FIELDTYPE_DATA_DWORD_2,	0x0, 0x98},
-	{"end",				NULL,					0x0, 0x9c},
+	{"end",				FIELDTYPE_END,			0x0, 0x9c},
 };
 static BinField lvlmazeTable[] = {
 	{"Level",		FIELDTYPE_DATA_DWORD,	0x0, 0x0},
@@ -1531,7 +1531,7 @@ static BinField lvlmazeTable[] = {
 	{"SizeX",		FIELDTYPE_DATA_DWORD,	0x0, 0x10},
 	{"SizeY",		FIELDTYPE_DATA_DWORD,	0x0, 0x14},
 	{"Merge",		FIELDTYPE_DATA_DWORD,	0x0, 0x18},
-	{"end",			NULL,					0x0, 0x1c},
+	{"end",			FIELDTYPE_END,			0x0, 0x1c},
 };
 static BinField lvlsubTable[] = {
 	{"Type",		FIELDTYPE_DATA_DWORD,	0x0, 0x0},
@@ -1556,7 +1556,7 @@ static BinField lvlsubTable[] = {
 	{"Max3",		FIELDTYPE_DATA_DWORD,	0x0, 0x150},
 	{"Max4",		FIELDTYPE_DATA_DWORD,	0x0, 0x154},
 	{"Expansion",	FIELDTYPE_DATA_DWORD,	0x0, 0x158},
-	{"end",			NULL,					0x0, 0x15c},
+	{"end",			FIELDTYPE_END,			0x0, 0x15c},
 };
 static BinField lvlwarpTable[] = {
 	{"Id",			FIELDTYPE_DATA_DWORD_2,	0x0, 0x0},
@@ -1571,7 +1571,7 @@ static BinField lvlwarpTable[] = {
 	{"LitVersion",	FIELDTYPE_DATA_DWORD_2,	0x0, 0x24},
 	{"Tiles",		FIELDTYPE_DATA_DWORD_2,	0x0, 0x28},
 	{"Direction",	FIELDTYPE_DATA_ASCII,	0x1, 0x2c},
-	{"end",			NULL,					0x0, 0x30},
+	{"end",			FIELDTYPE_END,			0x0, 0x30},
 };
 static BinField lvlprestTable[] = {
 	{"Def",			FIELDTYPE_DATA_DWORD,	0x0, 0x0},
@@ -1597,44 +1597,44 @@ static BinField lvlprestTable[] = {
 	{"File5",		FIELDTYPE_DATA_ASCII,	0x3b, 0x134},
 	{"File6",		FIELDTYPE_DATA_ASCII,	0x3b, 0x170},
 	{"Dt1Mask",		FIELDTYPE_DATA_DWORD_2,	0x0, 0x1ac},
-	{"end",			NULL,					0x0, 0x1b0},
+	{"end",			FIELDTYPE_END,			0x0, 0x1b0},
 };
 static BinField lvltypesTable[] = {
-	{"File 1",		FIELDTYPE_DATA_ASCII,	0x3b, 0x0},
-	{"File 2",		FIELDTYPE_DATA_ASCII,	0x3b, 0x3c},
-	{"File 3",		FIELDTYPE_DATA_ASCII,	0x3b, 0x78},
-	{"File 4",		FIELDTYPE_DATA_ASCII,	0x3b, 0xb4},
-	{"File 5",		FIELDTYPE_DATA_ASCII,	0x3b, 0xf0},
-	{"File 6",		FIELDTYPE_DATA_ASCII,	0x3b, 0x12c},
-	{"File 7",		FIELDTYPE_DATA_ASCII,	0x3b, 0x168},
-	{"File 8",		FIELDTYPE_DATA_ASCII,	0x3b, 0x1a4},
-	{"File 9",		FIELDTYPE_DATA_ASCII,	0x3b, 0x1e0},
-	{"File 10",		FIELDTYPE_DATA_ASCII,	0x3b, 0x21c},
-	{"File 11",		FIELDTYPE_DATA_ASCII,	0x3b, 0x258},
-	{"File 12",		FIELDTYPE_DATA_ASCII,	0x3b, 0x294},
-	{"File 13",		FIELDTYPE_DATA_ASCII,	0x3b, 0x2d0},
-	{"File 14",		FIELDTYPE_DATA_ASCII,	0x3b, 0x30c},
-	{"File 15",		FIELDTYPE_DATA_ASCII,	0x3b, 0x348},
-	{"File 16",		FIELDTYPE_DATA_ASCII,	0x3b, 0x384},
-	{"File 17",		FIELDTYPE_DATA_ASCII,	0x3b, 0x3c0},
-	{"File 18",		FIELDTYPE_DATA_ASCII,	0x3b, 0x3fc},
-	{"File 19",		FIELDTYPE_DATA_ASCII,	0x3b, 0x438},
-	{"File 20",		FIELDTYPE_DATA_ASCII,	0x3b, 0x474},
-	{"File 21",		FIELDTYPE_DATA_ASCII,	0x3b, 0x4b0},
-	{"File 22",		FIELDTYPE_DATA_ASCII,	0x3b, 0x4ec},
-	{"File 23",		FIELDTYPE_DATA_ASCII,	0x3b, 0x528},
-	{"File 24",		FIELDTYPE_DATA_ASCII,	0x3b, 0x564},
-	{"File 25",		FIELDTYPE_DATA_ASCII,	0x3b, 0x5a0},
-	{"File 26",		FIELDTYPE_DATA_ASCII,	0x3b, 0x5dc},
-	{"File 27",		FIELDTYPE_DATA_ASCII,	0x3b, 0x618},
-	{"File 28",		FIELDTYPE_DATA_ASCII,	0x3b, 0x654},
-	{"File 29",		FIELDTYPE_DATA_ASCII,	0x3b, 0x690},
-	{"File 30",		FIELDTYPE_DATA_ASCII,	0x3b, 0x6cc},
-	{"File 31",		FIELDTYPE_DATA_ASCII,	0x3b, 0x708},
-	{"File 32",		FIELDTYPE_DATA_ASCII,	0x3b, 0x744},
-	{"Act",			FIELDTYPE_DATA_BYTE,	0x0,  0x780},
-	{"Expansion",	FIELDTYPE_DATA_DWORD,	0x0,  0x784},
-	{"end",			NULL, 0x0, 0x788},
+	{"File 1",		FIELDTYPE_DATA_ASCII,	0x3b,	0x0},
+	{"File 2",		FIELDTYPE_DATA_ASCII,	0x3b,	0x3c},
+	{"File 3",		FIELDTYPE_DATA_ASCII,	0x3b,	0x78},
+	{"File 4",		FIELDTYPE_DATA_ASCII,	0x3b,	0xb4},
+	{"File 5",		FIELDTYPE_DATA_ASCII,	0x3b,	0xf0},
+	{"File 6",		FIELDTYPE_DATA_ASCII,	0x3b,	0x12c},
+	{"File 7",		FIELDTYPE_DATA_ASCII,	0x3b,	0x168},
+	{"File 8",		FIELDTYPE_DATA_ASCII,	0x3b,	0x1a4},
+	{"File 9",		FIELDTYPE_DATA_ASCII,	0x3b,	0x1e0},
+	{"File 10",		FIELDTYPE_DATA_ASCII,	0x3b,	0x21c},
+	{"File 11",		FIELDTYPE_DATA_ASCII,	0x3b,	0x258},
+	{"File 12",		FIELDTYPE_DATA_ASCII,	0x3b,	0x294},
+	{"File 13",		FIELDTYPE_DATA_ASCII,	0x3b,	0x2d0},
+	{"File 14",		FIELDTYPE_DATA_ASCII,	0x3b,	0x30c},
+	{"File 15",		FIELDTYPE_DATA_ASCII,	0x3b,	0x348},
+	{"File 16",		FIELDTYPE_DATA_ASCII,	0x3b,	0x384},
+	{"File 17",		FIELDTYPE_DATA_ASCII,	0x3b,	0x3c0},
+	{"File 18",		FIELDTYPE_DATA_ASCII,	0x3b,	0x3fc},
+	{"File 19",		FIELDTYPE_DATA_ASCII,	0x3b,	0x438},
+	{"File 20",		FIELDTYPE_DATA_ASCII,	0x3b,	0x474},
+	{"File 21",		FIELDTYPE_DATA_ASCII,	0x3b,	0x4b0},
+	{"File 22",		FIELDTYPE_DATA_ASCII,	0x3b,	0x4ec},
+	{"File 23",		FIELDTYPE_DATA_ASCII,	0x3b,	0x528},
+	{"File 24",		FIELDTYPE_DATA_ASCII,	0x3b,	0x564},
+	{"File 25",		FIELDTYPE_DATA_ASCII,	0x3b,	0x5a0},
+	{"File 26",		FIELDTYPE_DATA_ASCII,	0x3b,	0x5dc},
+	{"File 27",		FIELDTYPE_DATA_ASCII,	0x3b,	0x618},
+	{"File 28",		FIELDTYPE_DATA_ASCII,	0x3b,	0x654},
+	{"File 29",		FIELDTYPE_DATA_ASCII,	0x3b,	0x690},
+	{"File 30",		FIELDTYPE_DATA_ASCII,	0x3b,	0x6cc},
+	{"File 31",		FIELDTYPE_DATA_ASCII,	0x3b,	0x708},
+	{"File 32",		FIELDTYPE_DATA_ASCII,	0x3b,	0x744},
+	{"Act",			FIELDTYPE_DATA_BYTE,	0x0,	0x780},
+	{"Expansion",	FIELDTYPE_DATA_DWORD,	0x0,	0x784},
+	{"end",			FIELDTYPE_END,			0x0,	0x788},
 };
 static BinField charstatsTable[] = {
 	{"wclass", FIELDTYPE_DATA_ASCII, 0x20, 0x00},
@@ -1709,7 +1709,7 @@ static BinField charstatsTable[] = {
 	{"Skill 8", FIELDTYPE_NAME_TO_WORD, 0x0, 0xbc},
 	{"Skill 9", FIELDTYPE_NAME_TO_WORD, 0x0, 0xbe},
 	{"Skill 10", FIELDTYPE_NAME_TO_WORD, 0x0, 0xc0},
-	{"end", NULL, 0x0, 0xc4},
+	{"end", FIELDTYPE_END, 0x0, 0xc4},
 };
 static BinField setitemsTable[] = {
 	{"index", FIELDTYPE_CODE_TO_WORD, 3, 0},
@@ -1807,7 +1807,7 @@ static BinField setitemsTable[] = {
 	{"apar5b", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x1ac},
 	{"amin5b", FIELDTYPE_DATA_DWORD_2, 0x0, 0x1b0},
 	{"amax5b", FIELDTYPE_DATA_DWORD_2, 0x0, 0x1b4},
-	{"end", NULL, 0x0, 0x1b8},
+	{"end", FIELDTYPE_END, 0x0, 0x1b8},
 };
 static BinField uniqueitemsTable[] = {
 	{"index", FIELDTYPE_DATA_WORD, 0, 0x0},
@@ -1879,7 +1879,7 @@ static BinField uniqueitemsTable[] = {
 	{"par12", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x140},
 	{"min12", FIELDTYPE_DATA_DWORD_2, 0x0, 0x144},
 	{"max12", FIELDTYPE_DATA_DWORD_2, 0x0, 0x148},
-	{"end", NULL, 0x0, 0x14c},
+	{"end", FIELDTYPE_END, 0x0, 0x14c},
 };
 static BinField setsTable[] = {
 	{"index", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},
@@ -1949,7 +1949,7 @@ static BinField setsTable[] = {
 	{"fparam8", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x104},
 	{"fmin8", FIELDTYPE_DATA_DWORD, 0x0, 0x108},
 	{"fmax8", FIELDTYPE_DATA_DWORD, 0x0, 0x10c},
-	{"end", NULL, 0x0, 0x128},
+	{"end", FIELDTYPE_END, 0x0, 0x128},
 };
 static BinField itemtypesTable[] = {
 	{"code", FIELDTYPE_ASCII_TO_CODE, 0x0, 0x0},
@@ -1987,7 +1987,7 @@ static BinField itemtypesTable[] = {
 	{"invgfx4", FIELDTYPE_DATA_ASCII, 0x1f, 0x84},
 	{"invgfx5", FIELDTYPE_DATA_ASCII, 0x1f, 0xa4},
 	{"invgfx6", FIELDTYPE_DATA_ASCII, 0x1f, 0xc4},
-	{"end", NULL, 0x0, 0xe4},
+	{"end", FIELDTYPE_END, 0x0, 0xe4},
 };
 static BinField runesTable[] = {
 	{"name", FIELDTYPE_DATA_ASCII, 0x3f, 0x0},
@@ -2037,7 +2037,7 @@ static BinField runesTable[] = {
 	{"t1param7", FIELDTYPE_CALC_TO_DWORD, 0x0, 0x114},
 	{"t1min7", FIELDTYPE_DATA_DWORD_2, 0x0, 0x118},
 	{"t1max7", FIELDTYPE_DATA_DWORD_2, 0x0, 0x11c},
-	{"end", NULL, 0x0, 0x120},
+	{"end", FIELDTYPE_END, 0x0, 0x120},
 };
 static BinField cubemainTable[] = {
 	{"enabled", FIELDTYPE_DATA_BYTE, 0x0, 0x0},
@@ -2235,7 +2235,7 @@ static BinField cubemainTable[] = {
 	{"c mod 5 min", FIELDTYPE_DATA_WORD, 0x0, 0x142},
 	{"c mod 5 max", FIELDTYPE_DATA_WORD, 0x0, 0x144},
 	{"c mod 5 chance", FIELDTYPE_DATA_BYTE, 0x0, 0x146},
-	{"end", NULL, 0x0, 0x148},
+	{"end", FIELDTYPE_END, 0x0, 0x148},
 };
 static BinField gemsTable[] = {
 	{"name",			FIELDTYPE_DATA_ASCII,		0x1f, 0x0},
@@ -2279,7 +2279,7 @@ static BinField gemsTable[] = {
 	{"shieldmod3param",	FIELDTYPE_CALC_TO_DWORD,	0x0, 0xb4},
 	{"shieldmod3min",	FIELDTYPE_DATA_DWORD_2,		0x0, 0xb8},
 	{"shieldmod3max",	FIELDTYPE_DATA_DWORD_2,		0x0, 0xbc},
-	{"end",				NULL,						0x0, 0xc0},
+	{"end",				FIELDTYPE_END,				0x0, 0xc0},
 };
 static BinField experienceTable[] = {
 	{"Amazon",		FIELDTYPE_DATA_DWORD, 0x0, 0x0},
@@ -2289,7 +2289,7 @@ static BinField experienceTable[] = {
 	{"Barbarian",	FIELDTYPE_DATA_DWORD, 0x0, 0x10},
 	{"Druid",		FIELDTYPE_DATA_DWORD, 0x0, 0x14},
 	{"Assassin",	FIELDTYPE_DATA_DWORD, 0x0, 0x18},
-	{"end",			NULL, 0x0, 0x20},
+	{"end",			FIELDTYPE_END, 0x0, 0x20},
 };
 static BinField pettypeTable[] = {
 	{"pet type", FIELDTYPE_NAME_TO_INDEX_2, 0x0, 0x0},
@@ -2312,7 +2312,7 @@ static BinField pettypeTable[] = {
 	{"mclass2", FIELDTYPE_DATA_WORD, 0x0, 0xb4},
 	{"mclass3", FIELDTYPE_DATA_WORD, 0x0, 0xb6},
 	{"mclass4", FIELDTYPE_DATA_WORD, 0x0, 0xb8},
-	{"end", NULL, 0x0, 0xe0},
+	{"end", FIELDTYPE_END, 0x0, 0xe0},
 };
 static BinField superuniquesTable[] = {
 	{"Superunique", FIELDTYPE_NAME_TO_INDEX, 0x0, 0x0},
@@ -2335,5 +2335,5 @@ static BinField superuniquesTable[] = {
 	{"TC", FIELDTYPE_NAME_TO_WORD, 0x0, 0x2c},
 	{"TC(N)", FIELDTYPE_NAME_TO_WORD, 0x0, 0x2e},
 	{"TC(H)", FIELDTYPE_NAME_TO_WORD, 0x0, 0x30},
-	{"end", NULL, 0x0, 0x34},
+	{"end", FIELDTYPE_END, 0x0, 0x34},
 };
