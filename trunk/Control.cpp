@@ -90,10 +90,10 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 			delete[] text2;
 		}
 		if(Text && pControl->dwType == 4){
-			if (pControl->pFirstText->wText != NULL)
+			if (pControl->pFirstText != NULL && pControl->pFirstText->wText != NULL)
 			{
 				char* text2 = UnicodeToAnsi(pControl->pFirstText->wText);
-				if (strcmp(text2, Text) == 0)
+				if (strstr(Text, text2) != 0)
 					bFound = TRUE;
 				else{
 					bFound = FALSE;
@@ -321,9 +321,9 @@ int OOG_GetLocation(){
 						if (wcsstr(D2LANG_GetLocaleText((WORD)11066),test) != 0)
 							return OOG_REALM_DOWN;		// 13 realm down need another key
 						break; //only test first non null							
-						}
 					}
-					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 					
+				}
+				return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 					
 				}
 		}
 		if (findControl(6, 5101, -1, 33,572,128,35)){				//5101=Exit
