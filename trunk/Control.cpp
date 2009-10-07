@@ -312,19 +312,11 @@ int OOG_GetLocation(){
 				return OOG_CHAR_SELECT;						//12 char select
 			else{
 				pControl = findControl(2, NULL, -1, 37, 178, 272, 93);	
-				//pControl = findControl(4, NULL, -1, 37,178,547,35);	
-				for(int a = 1; a <100 ; a++){
-					if (pControl->wText2[a] != 0){							
-						wchar_t *test = &pControl->wText2[a];							
-						if (wcsstr(D2LANG_GetLocaleText((WORD)11162),test) != 0)
-							return OOG_REALM_DOWN;		// 13 realm down need another key
-						if (wcsstr(D2LANG_GetLocaleText((WORD)11066),test) != 0)
-							return OOG_REALM_DOWN;		// 13 realm down need another key
-						break; //only test first non null							
-					}
-				}
-				return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 					
-				}
+				if (findControl(4, 11162, -1,45,318,531,140) || findControl(4, 11066, -1,45,318,531,140))	
+					return OOG_REALM_DOWN;
+				else				
+				return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 
+			}
 		}
 		if (findControl(6, 5101, -1, 33,572,128,35)){				//5101=Exit
 			if (findControl(6, 5102, 0, 627,572,128,35))			//5102=ok
