@@ -728,7 +728,9 @@ CellFile *LoadBmpCellFile(BYTE *buf1, int width, int height)
 	static DWORD dc6head[] = {6, 1, 0, 0xeeeeeeee, 1, 1, 0x1c,  0, (DWORD)-1, (DWORD)-1, 0, 0, 0, (DWORD)-1, (DWORD)-1};
 	dc6head[8] = width;
 	dc6head[9] = height;
-	BYTE *ret = new BYTE[dc6head[13] = sizeof(dc6head)+(dc6head[14] = dest-buf2)+3];
+	dc6head[14] = dest - buf2;
+	dc6head[13] = sizeof(dc6head)+(d6chead[14])+3
+	BYTE *ret = new BYTE[dc6head[13];
 	memset(memcpy2(memcpy2(ret, dc6head, sizeof(dc6head)), buf2, dc6head[14]), 0xee, 3);
 	delete[] buf2;
 	

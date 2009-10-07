@@ -12,7 +12,7 @@ class CDebug
 	public:
 	CDebug(char* pString)
 	{
-		strcpy_s(szString, sizeof(szString), pString);
+		strcpy_s(szString, 64, pString);
 		if(Vars.bDebug)
 			Log("DEBUG: Entering function '%s'", szString);
 	}

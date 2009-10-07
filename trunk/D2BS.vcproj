@@ -272,11 +272,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ArrayEx.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CollisionMap.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\CollisionMap.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Matrix.h"
+					>
+				</File>
+				<File
+					RelativePath=".\SyncObj.h"
 					>
 				</File>
 				<File
@@ -324,10 +336,6 @@
 		<Filter
 			Name="Misc"
 			>
-			<File
-				RelativePath=".\ArrayEx.h"
-				>
-			</File>
 			<File
 				RelativePath=".\CDebug.h"
 				>
@@ -389,10 +397,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Matrix.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Offset.cpp"
 				>
 			</File>
@@ -423,10 +427,6 @@
 			</File>
 			<File
 				RelativePath=".\sqlite3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SyncObj.h"
 				>
 			</File>
 			<Filter

@@ -85,7 +85,7 @@ JSAPI_FUNC(sqlite_ctor)
 			THROW_ERROR(cx, obj, "Invalid characters in database name");
 
 		char* tmp = new char[_MAX_PATH+_MAX_FNAME];
-		sprintf_s(tmp, sizeof(_MAX_PATH+_MAX_FNAME), "%s\\%s", Vars.szScriptPath, path);
+		sprintf_s(tmp, _MAX_PATH+_MAX_FNAME, "%s\\%s", Vars.szScriptPath, path);
 		path = _strdup(tmp);
 		delete[] tmp;
 	}

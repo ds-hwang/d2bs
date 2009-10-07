@@ -51,7 +51,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 
-	sprintf_s(Vars.szScriptPath, sizeof(Vars.szScriptPath), "%s%s", Vars.szPath, scriptPath);
+	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
 	BOOL bInGame = FALSE;
 	BOOL bStarterScript = FALSE;

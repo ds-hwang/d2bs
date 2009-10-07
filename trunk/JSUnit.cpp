@@ -265,8 +265,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case ITEM_FNAME:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-				wchar_t wszfname[256];
-				memset(wszfname, NULL, sizeof(wszfname));
+				wchar_t wszfname[256] = L"";
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
@@ -312,8 +311,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
 
-			wchar_t wBuffer[8192];
-			memset(wBuffer, NULL, sizeof(wBuffer));
+			wchar_t wBuffer[8192] = L"";
 			D2CLIENT_GetItemDesc(pUnit, wBuffer);
 			tmp = UnicodeToAnsi(wBuffer);
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
@@ -491,7 +489,7 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-		strcpy_s(lpUnit->szName, sizeof(lpUnit->szName), JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+		strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		lpUnit->dwClassId = JSVAL_TO_INT(argv[0]);
