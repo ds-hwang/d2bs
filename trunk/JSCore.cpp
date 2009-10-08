@@ -1,4 +1,8 @@
 // Spidermonkey implementation of Core.cpp
+#include <io.h>
+#include <windows.h>
+#include <cmath>
+
 #include "js32.h"
 #include "Script.h"
 #include "JSCore.h"
@@ -12,7 +16,6 @@
 #include "Core.h"
 #include "D2Ptrs.h"
 #include "CriticalSections.h"
-#include <io.h>
 #include "CollisionMap.h"
 #include "TeleportPath.h"
 #include "WalkPath.h"
@@ -21,7 +24,6 @@
 #include "Events.h"
 #include "D2Skills.h"
 #include "Helpers.h"
-#include <windows.h>
 #include "dde.h"
 #include "mpqstats.h"
 #include "D2BS.h"
@@ -956,7 +958,8 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		}
 	}
 
-	JS_NewNumberValue(cx, GetDistance(nX1, nY1, nX2, nY2), rval);
+	jsdouble jsdist = (jsdouble)abs(GetDistance(nX1, nY1, nX2, nY2));
+	JS_NewNumberValue(cx, jsdist, rval);
 
 	return JS_TRUE;
 }

@@ -1121,22 +1121,40 @@ __declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWOR
 	}
 }
 
-double GetDistance(DWORD x1, DWORD y1, DWORD x2, DWORD y2, DistanceType type)
+double GetDistance(long x1, long y1, long x2, long y2, DistanceType type)
 {
 	double dist = 0;
 	switch(type)
 	{
-		case Euclidean: 
-			dist = (DWORD)sqrt(pow((double)(x2-x1), 2) + pow((double)(y2-y1), 2)); 
+		case Euclidean:
+			{
+				double dx = (double)(x2 - x1);
+				double dy = (double)(y2 - y1);
+				dx = pow(dx, 2);
+				dy = pow(dy, 2);
+				dist = sqrt(dx + dy); 
+			}
 			break;
-		case Chebyshev: 
-			dist = (DWORD)max(abs((long)(x2-x1)), abs((long)(y2-y1))); 
+		case Chebyshev:
+			{
+				long dx = (x2 - x1);
+				long dy = (y2 - y1);
+				dx = abs(dx);
+				dy = abs(dy);
+				dist = max(dx, dy); 
+			}
 			break;
-		case Manhattan: 
-			dist = (DWORD)(abs((long)(x2-x1))+abs((long)(y2-y1))); 
+		case Manhattan:
+			{
+				long dx = (x2 - x1);
+				long dy = (y2 - y1);
+				dx = abs(dx);
+				dy = abs(dy);
+				dist = (dx + dy);
+			}
 			break;
 		default: 
-			dist = (DWORD)-1; 
+			dist = -1; 
 			break;
 	}
  	return dist;
