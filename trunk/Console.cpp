@@ -72,9 +72,9 @@ void Console::AddKey(unsigned int key)
 {
 	EnterCriticalSection(&Vars.cConsoleSection);
 	const char* cmd = text->GetText();
-	int len = strlen(cmd);
-	char* newcmd = new char[len+4];
-	sprintf_s(newcmd, len+4, "%s%c", cmd, (char)key);
+	int newlen = strlen(cmd)+2;
+	char* newcmd = new char[newlen];
+	sprintf_s(newcmd, newlen, "%s%c", cmd, (char)key);
 	text->SetText(newcmd);
 	delete[] newcmd;
 	LeaveCriticalSection(&Vars.cConsoleSection);
