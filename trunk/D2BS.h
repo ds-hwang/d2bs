@@ -62,8 +62,7 @@ struct Variables
 	DWORD	dwGameTime;
 	BOOL	bDontCatchNextMsg;
 	BOOL	bClickAction;
-
-	CCollisionMap cCollisionMap;
+	BOOL	bNeedShutdown;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bDebug;
@@ -87,6 +86,8 @@ struct Variables
 
 	ImageHook *image;
 	TextHook  *text;
+
+	CCollisionMap cCollisionMap;
 
 	// Critical Sections
 	CRITICAL_SECTION	cRoomSection;

@@ -10,9 +10,10 @@
 
 #include "debugnew/debug_new.h"
 
+static HANDLE hD2Thread = NULL;
+
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-	static HANDLE hD2ThreadHandle = NULL;
 	if(dwReason == DLL_PROCESS_ATTACH)
 	{
 #ifndef _MSVC_DEBUG
@@ -31,14 +32,13 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 		if(!Startup())
 			return FALSE;
-
-		hD2ThreadHandle = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL);
 	}
 	else if(dwReason == DLL_PROCESS_DETACH)
 	{
-		Shutdown();
+		if(Vars.bNeedShutdown)
+			Shutdown();
 
-		WaitForSingleObject(hD2ThreadHandle, 1000);
+		WaitForSingleObject(hD2Thread, 1000);
 	}
 
 	return TRUE;
@@ -62,19 +62,23 @@ BOOL Startup(void)
 	InstallPatches();
 	CreateDdeServer();
 
-	return TRUE;
+	Vars.bNeedShutdown = TRUE;
+	if(hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL))
+		return TRUE;
+
+	return FALSE;
 }
 
 void Shutdown(void)
 {
+	if(!Vars.bNeedShutdown)
+		return;
+
 	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
-	ScriptEngine::Shutdown();
 	RemovePatches();
 	Console::Destroy();
 	ShutdownDdeServer();
-
-	Vars.bActive = FALSE;
 
 	delete Vars.image;
 	delete Vars.text;
@@ -93,4 +97,9 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cTextHookSection);
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
+
+#ifdef _MSVC_DEBUG
+	check_leaks();
+#endif
+	Log("D2BS Shutdown complete.");
 }

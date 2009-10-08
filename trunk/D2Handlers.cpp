@@ -68,7 +68,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;
-	Vars.bActive = TRUE;
 	Vars.oldWNDPROC = NULL;
 
 	char versionimg[_MAX_PATH+_MAX_FNAME];
@@ -82,17 +81,42 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	char starterdbj[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(starterdbj, sizeof(starterdbj), "%s\\starter.dbj", Vars.szScriptPath);
 
+	int i = 0;
+	while(!Vars.oldWNDPROC)
+	{
+		if(i >= 300)
+		{
+			MessageBox(0, "Failed to set hooks, exiting!", "D2BS", 0);
+			exit(0);
+		}
+
+		if(D2WIN_GetHwnd())
+		{
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			if(Vars.oldWNDPROC)
+			{
+				DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+				if(mainThread)
+				{
+					Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
+					Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
+				}
+				if(Vars.oldWNDPROC && Vars.hKeybHook && Vars.hMouseHook)
+					break;
+			}
+		}
+		Sleep(100);
+		i++;
+	}
+
 	if(!ScriptEngine::Startup())
 		return FALSE;
+	Vars.bActive = TRUE;
+
+	Log("D2BS Startup complete.");
 
 	while(Vars.bActive)
 	{
-		if(!Vars.oldWNDPROC && D2WIN_GetHwnd()){
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
-			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
-			Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
-			Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
-		}
 		switch(ClientState())
 		{
 			case ClientStateInGame:
@@ -131,8 +155,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				break;
 			}
 			case ClientStateBusy:
-				Vars.image->SetX(D2GetScreenSizeX()/2);
-				Vars.text->SetX(D2GetScreenSizeX()/2);
 				break;
 			case ClientStateMenu:
 			{
@@ -169,6 +191,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		}
 		Sleep(100);
 	}
+
+	ScriptEngine::Shutdown();
 
 	return NULL;
 }
@@ -392,6 +416,11 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(!wParam && Vars.bBlockMinimize)
 				return NULL;
 			break;
+		case WM_DESTROY:
+			{
+				Vars.bActive = FALSE;
+				return NULL;
+			}
 	}
 
 	return (LONG)CallWindowProcA(Vars.oldWNDPROC, hWnd, uMsg, wParam, lParam);

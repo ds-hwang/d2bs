@@ -64,6 +64,8 @@ void Console::Destroy(void)
 	delete prompt;
 	delete text;
 	delete cursor;
+	for(unsigned int i = 0; i < lineCount; i++)
+		delete lineBuffers[i];
 	initialized = false;
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
