@@ -311,11 +311,13 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
 
-			wchar_t wBuffer[8192] = L"";
-			D2CLIENT_GetItemDesc(pUnit, wBuffer);
-			tmp = UnicodeToAnsi(wBuffer);
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
-			delete[] tmp;
+			{
+				wchar_t wBuffer[8192] = L"";
+				D2CLIENT_GetItemDesc(pUnit, wBuffer);
+				tmp = UnicodeToAnsi(wBuffer);
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+				delete[] tmp;
+			}
 			break;
 		case UNIT_ITEMCOUNT:
 			if(pUnit->pInventory)
@@ -358,7 +360,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 					else
 						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
 				}
-		break;
+			break;
 		case ME_WSWITCH:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
 			break;
