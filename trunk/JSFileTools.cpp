@@ -101,8 +101,10 @@ JSAPI_FUNC(filetools_copy)
 	if(overwrite && _access(pnewName, 0) == 0)
 		return JS_TRUE;
 
-	FILE* fptr1 = fopen(porig, "r");
-	FILE* fptr2 = fopen(pnewName, "w");
+	FILE* fptr1 = NULL;
+	fopen_s(&fptr1, porig, "r");
+	FILE* fptr2 = NULL;
+	fopen_s(&fptr2, pnewName, "w");
 
 	//Sanity check to make sure the file opened for reading!
 	if(!fptr1)
@@ -180,7 +182,8 @@ JSAPI_FUNC(filetools_readText)
 	if((_access(porig, 0) != 0 && errno == ENOENT))
 		THROW_ERROR(cx, obj, "File not found");
 
-	FILE* fptr = fopen(porig, "r");
+	FILE* fptr = NULL;
+	fopen_s(&fptr, porig, "r");
 	fseek(fptr, 0, SEEK_END);
 	uint size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
@@ -208,7 +211,8 @@ JSAPI_FUNC(filetools_writeText)
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	bool result = true;
-	FILE* fptr = fopen(porig, "w");
+	FILE* fptr = NULL;
+	fopen_s(&fptr, porig, "w");
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i]))
 			result = false;
@@ -232,7 +236,8 @@ JSAPI_FUNC(filetools_appendText)
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	bool result = true;
-	FILE* fptr = fopen(porig, "a+");
+	FILE* fptr = NULL;
+	fopen_s(&fptr, porig, "a+");
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i]))
 			result = false;

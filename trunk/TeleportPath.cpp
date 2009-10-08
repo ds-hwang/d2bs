@@ -204,7 +204,8 @@ BOOL CTeleportPath::DumpDistanceTable(LPCSTR lpszFilePath) const
 	if (lpszFilePath == NULL || m_ppTable == NULL)
 		return FALSE;
 
-	FILE *fp = fopen(lpszFilePath, "w+");
+	FILE *fp = NULL;
+	fopen_s(&fp, lpszFilePath, "w+");
 	if(fp == NULL )
 		return FALSE;
 

@@ -12,7 +12,8 @@ Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, i
 		localeStr = UnicodeToAnsi(D2LANG_GetLocaleText((WORD)LocaleID));
 	
 	Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
-	delete[] localeStr;	
+	if(localeStr != NULL)
+		delete[] localeStr;	
 	return res;
 }
 

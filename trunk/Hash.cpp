@@ -76,7 +76,8 @@ char* HashFile(char* file, ALG_ID algo)
 
 	// now we have a working crypto environment, let's encrypt
 	// open the file
-	FILE* fp = fopen(file, "r");
+	FILE* fp = NULL;
+	fopen_s(&fp, file, "r");
 	if(!fp)
 		return NULL;
 

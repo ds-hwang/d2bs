@@ -99,7 +99,7 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 					if(JS_ValueToInt32(cx, value, &ival) == JS_FALSE)
 						return false;
 					str = new char[16];
-					_itoa(ival, str, 10);
+					_itoa_s(ival, str, 16, 10);
 					len = strlen(str);
 					result = fwrite(str, sizeof(char), len, fptr);
 					delete[] str;

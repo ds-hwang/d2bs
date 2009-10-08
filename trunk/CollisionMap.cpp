@@ -235,7 +235,8 @@ BOOL CCollisionMap::DumpMap(LPCSTR lpszFilePath, const LPPOINT lpPath, DWORD dwC
 	if (lpszFilePath == NULL)
 		return FALSE;
 
-	FILE *fp = fopen(lpszFilePath, "w+");
+	FILE *fp = NULL;
+	fopen_s(&fp, lpszFilePath, "w+");
 	if(fp == NULL )
 		return FALSE;	
 	
@@ -495,7 +496,7 @@ BOOL CCollisionMap::ReportCollisionType(POINT ptOrigin, long lRadius) const
 	for (int n = 0; n < aList.GetSize(); n++)
 	{
 		char buf[32] = "";
-		_itoa(aList[n], buf, 10);
+		_itoa_s(aList[n], buf, sizeof(buf), 10);
 		strcat_s(sz, sizeof(sz), buf);
 		strcat_s(sz, sizeof(sz), ", ");
 	}

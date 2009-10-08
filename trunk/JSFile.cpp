@@ -178,7 +178,8 @@ JSAPI_FUNC(file_open)
 	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
-	FILE* fptr = fopen(path, modes[mode]);
+	FILE* fptr = NULL;
+	fopen_s(&fptr, path, modes[mode]);
 	if(!fptr)
 		return ThrowJSError(cx, obj, "Couldn't open file %s: %s", file, _strerror(NULL));
 
@@ -238,7 +239,8 @@ JSAPI_FUNC(file_reopen)
 	if(fdata)
 		if(!fdata->fptr) {
 			static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-			fdata->fptr = fopen(fdata->path, modes[fdata->mode]);
+			fdata->fptr = NULL;
+			fopen_s(&fdata->fptr, fdata->path, modes[fdata->mode]);
 			if(!fdata->fptr)
 				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
 		} else THROW_ERROR(cx, obj, "File is not closed");

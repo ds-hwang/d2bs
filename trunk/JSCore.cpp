@@ -2385,18 +2385,27 @@ JSAPI_FUNC(my_login)
 					break;
 				}
 			
-			case OOG_MAIN_MENU_CONNECTING: case OOG_CHARACTER_SELECT_PLEASE_WAIT:
-			case OOG_PLEASE_WAIT: case OOG_GATEWAY:
-			case OOG_CHARACTER_SELECT_NO_CHARS: case OOG_NONE:
+			case OOG_MAIN_MENU_CONNECTING: 
+			case OOG_CHARACTER_SELECT_PLEASE_WAIT:
+			case OOG_PLEASE_WAIT: 
+			case OOG_GATEWAY:
+			case OOG_CHARACTER_SELECT_NO_CHARS: 
+			case OOG_NONE:
 				timeout++;
 				break;
-			case OOG_LOBBY: case OOG_INLINE: case OOG_CHAT: case OOG_CREATE:
-			case OOG_JOIN: case OOG_LADDER: case OOG_CHANNEL: 
-			case OOG_GAME_EXIST: case OOG_GAME_DOES_NOT_EXIST:	
+			case OOG_LOBBY: 
+			case OOG_INLINE: 
+			case OOG_CHAT: 
+			case OOG_CREATE:
+			case OOG_JOIN: 
+			case OOG_LADDER: 
+			case OOG_CHANNEL: 
+			case OOG_GAME_EXIST: 
+			case OOG_GAME_DOES_NOT_EXIST:	
 				loginComplete=TRUE;
 				break;
 			case OOG_UNABLE_TO_CONNECT:
-				errorMsg = "un able to connect";
+				errorMsg = "un-able to connect";
 				break;
 			case OOG_CDKEY_IN_USE:
 				errorMsg = "CD-Key in use";
