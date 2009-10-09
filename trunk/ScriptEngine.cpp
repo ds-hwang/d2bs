@@ -256,10 +256,11 @@ void ScriptEngine::FlushCache(void)
 
 void ScriptEngine::GetScripts(ScriptList& list)
 {
-	EnterCriticalSection(&lock);
-
 	if(scripts.empty())
 		return;
+
+	EnterCriticalSection(&lock);
+
 	list.clear();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 		list.push_back(it->second);
