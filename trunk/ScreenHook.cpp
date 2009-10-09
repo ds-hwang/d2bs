@@ -242,9 +242,9 @@ void ImageHook::Draw(void)
 {
 	if(GetX() != -1 && GetY() != -1 && GetImage() != NULL)
 	{
-		Lock();
 		if (IsBadReadPtr(image, sizeof(CellFile)))
 			return;
+		Lock();
 		uint x = GetX(), y = GetY(), w = image->cells[0]->width;
 		x += (alignment != Left ? (alignment != Right ? 0 : -1*(w/2)) : w/2);
 		POINT loc = {x, y};

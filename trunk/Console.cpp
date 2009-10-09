@@ -192,10 +192,10 @@ void Console::RemoveLastKey(void)
 
 void Console::PrevCommand(void)
 {
-	EnterCriticalSection(&Vars.cConsoleSection);
 	if(commandPos < 1)
 		return;
 
+	EnterCriticalSection(&Vars.cConsoleSection);
 	commandPos--;
 	text->SetText(commands[commandPos].c_str());
 	LeaveCriticalSection(&Vars.cConsoleSection);
@@ -203,10 +203,10 @@ void Console::PrevCommand(void)
 
 void Console::NextCommand(void)
 {
-	EnterCriticalSection(&Vars.cConsoleSection);
 	if(commandPos > commands.size())
 		return;
 
+	EnterCriticalSection(&Vars.cConsoleSection);
 	commandPos++;
 	text->SetText(commands[commandPos].c_str());
 	LeaveCriticalSection(&Vars.cConsoleSection);
