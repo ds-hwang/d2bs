@@ -10,35 +10,37 @@
 
 #include "debugnew/debug_new.h"
 
-static HANDLE hD2Thread = NULL;
+static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-	if(dwReason == DLL_PROCESS_ATTACH)
+	switch(dwReason)
 	{
+		case DLL_PROCESS_ATTACH:
+		{
+			DisableThreadLibraryCalls(hDll);
 #ifndef _MSVC_DEBUG
-		Vars.pModule = (Module*)lpReserved;
+			Vars.pModule = (Module*)lpReserved;
 
-		if(!Vars.pModule)
-			return FALSE;
+			if(!Vars.pModule)
+				return FALSE;
 
-		strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
+			strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
 #else 	
-		new_verbose_flag = false;
-		GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
-		PathRemoveFileSpec(Vars.szPath);
-		strcat_s(Vars.szPath, MAX_PATH, "\\");
+			new_verbose_flag = false;
+			GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
+			PathRemoveFileSpec(Vars.szPath);
+			strcat_s(Vars.szPath, MAX_PATH, "\\");
 #endif
 
-		if(!Startup())
-			return FALSE;
-	}
-	else if(dwReason == DLL_PROCESS_DETACH)
-	{
-		if(Vars.bNeedShutdown)
-			Shutdown();
-
-		WaitForSingleObject(hD2Thread, 1000);
+			if(!Startup())
+				return FALSE;
+		}
+		break;
+		case DLL_PROCESS_DETACH:
+			if(Vars.bNeedShutdown)
+				Shutdown();
+		break;
 	}
 
 	return TRUE;
@@ -63,10 +65,10 @@ BOOL Startup(void)
 	CreateDdeServer();
 
 	Vars.bNeedShutdown = TRUE;
-	if(hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL))
-		return TRUE;
+	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == INVALID_HANDLE_VALUE)
+		return FALSE;
 
-	return FALSE;
+	return TRUE;
 }
 
 void Shutdown(void)
