@@ -7,18 +7,28 @@
 
 Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
 {
+	if(ClientState() != ClientStateMenu)
+		return NULL;
+
 	char* localeStr = NULL; 
-	if (LocaleID !=0)
+	if(LocaleID >= 0)
+	{
 		localeStr = UnicodeToAnsi(D2LANG_GetLocaleText((WORD)LocaleID));
-	
-	Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
-	if(localeStr != NULL)
-		delete[] localeStr;	
-	return res;
+		if(!localeStr)
+			return NULL;
+		Control* res = findControl(Type, localeStr, Disabled, PosX, PosY, SizeX, SizeY);
+		delete[] localeStr;
+		return res;
+	}
+
+	return NULL;
 }
 
 Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int SizeX, int SizeY)
 {
+	if(ClientState() != ClientStateMenu)
+		return NULL;
+
 	BOOL bFound = FALSE;
 
 	for(Control* pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
@@ -81,29 +91,42 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 		if(Text && pControl->dwType == 6) //moved this to the bottom dosent check unless x/y checks out
 		{
 			char* text2 = UnicodeToAnsi(pControl->wText2);
+			if(!text2)
+				return NULL;
 			if(strcmp(text2, Text) == 0)
+			{
 				bFound = TRUE;
-			else {
+				delete[] text2;
+			}
+			else
+			{
 				bFound = FALSE;
 				delete[] text2;
 				continue;
 			}
-			delete[] text2;
 		}
-		if(Text && pControl->dwType == 4){
-			if (pControl->pFirstText != NULL && pControl->pFirstText->wText != NULL)
+
+		if(Text && pControl->dwType == 4)
+		{
+			if(pControl->pFirstText != NULL && pControl->pFirstText->wText != NULL)
 			{
 				char* text2 = UnicodeToAnsi(pControl->pFirstText->wText);
-				if (strstr(Text, text2) != 0)
+				if(!text2)
+					return NULL;
+				if(strstr(Text, text2) != 0)
+				{
 					bFound = TRUE;
-				else{
+					delete[] text2;
+				}
+				else
+				{
 					bFound = FALSE;
 					delete[] text2;
 					continue;
 				}
-				delete[] text2;
 			}
-			else {
+			else
+			{
 				bFound = FALSE;
 				continue;
 			}
@@ -117,6 +140,9 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 
 bool clickControl(Control* pControl, int x, int y)
 {
+	if(ClientState() != ClientStateMenu)
+		return NULL;
+
 	if(pControl)
 	{
 		if(x == -1)
@@ -124,9 +150,11 @@ bool clickControl(Control* pControl, int x, int y)
 		if(y == -1)
 			y = pControl->dwPosY - (pControl->dwSizeY / 2);
 		
+		Sleep(100);
 		SendMouseClick(x, y, 0);
-		Sleep(150);
+		Sleep(100);
 		SendMouseClick(x, y, 1);
+		Sleep(100);
 		
 		return true;
 	}
@@ -134,9 +162,12 @@ bool clickControl(Control* pControl, int x, int y)
 }
 
 BOOL OOG_SelectCharacter(char * szCharacter)
-{	
+{
+	if(ClientState() != ClientStateMenu)
+		return NULL;
+
 	// Select the first control on the character selection screen.
-	Control* pControl = findControl(4,NULL,-1,237,178,72,93);
+	Control* pControl = findControl(4, (char *)NULL, -1, 237, 178, 72, 93);
 	ControlText* cText;
 
 	while (pControl != NULL)
@@ -149,32 +180,29 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 		if(cText != NULL)
 		{
 			char * szLine = UnicodeToAnsi(cText->wText);
-			if (strlen(szLine) == strlen(szCharacter) && strstr(szLine,szCharacter) != NULL)
+			if(!szLine)
+				return FALSE;
+			if(strlen(szLine) == strlen(szCharacter) && strstr(szLine,szCharacter) != NULL)
 			{
+				delete[] szLine;
 				if(!clickControl(pControl))
 					return FALSE;
 
 				// OK Button
-				pControl = findControl(6, NULL, -1, 627, 572, 128, 35);
+				pControl = findControl(6, (char *)NULL, -1, 627, 572, 128, 35);
 				if(pControl)
 				{
 					if(!clickControl(pControl))
-					{
-						delete[] szLine;
 						return FALSE;
-					}
-				
-					delete[] szLine;
+
 					return TRUE;
 				}
 				else
-				{
-					delete[] szLine;
 					return FALSE;
-				}
 
 			}
-			delete[] szLine;
+			else
+				delete[] szLine;
 		}
 		pControl = pControl->pNext;
 	}
@@ -183,9 +211,14 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 
 void SetControlText(Control* pControl, char* Text)
 {
+	if(ClientState() != ClientStateMenu)
+		return;
+
 	if(pControl && Text)
 	{
 		wchar_t* szwText = AnsiToUnicode(Text);
+		if(!szwText)
+			return;
 		D2WIN_SetControlText(pControl, szwText);
 		delete[] szwText;
 	}
@@ -193,18 +226,23 @@ void SetControlText(Control* pControl, char* Text)
 
 BOOL OOG_SelectGateway(char * szGateway)
 {
+	if(ClientState() != ClientStateMenu)
+		return FALSE;
+
 	if(strstr(szGateway,"ERROR"))
 		return FALSE;
 	// Select the gateway control.
-	Control* pControl = findControl(6, NULL, -1, 264, 391, 272, 25);
+	Control* pControl = findControl(6, (char *)NULL, -1, 264, 391, 272, 25);
 
 	// if the control exists and has the text label, check if it matches the selected gateway
 	if(pControl && pControl->wText2)
 	{
 		char * szLine = _strlwr(UnicodeToAnsi(pControl->wText2));
+		if(!szLine)
+			return FALSE;
+
 		szGateway = _strlwr(szGateway);
-		
-		if(strstr(szLine,szGateway))
+		if(strstr(szLine, szGateway))
 		{
 			// gateway is correct, do nothing and return true
 			delete[] szLine;
@@ -212,6 +250,7 @@ BOOL OOG_SelectGateway(char * szGateway)
 		}
 		else
 		{
+			delete[] szLine;
 			// gateway is NOT correct, change gateway to selected gateway if it exists
 			// open the gateway select screen
 			if(!clickControl(pControl))
@@ -221,16 +260,20 @@ BOOL OOG_SelectGateway(char * szGateway)
 			bool gatefound = false;
 
 			// loop here till we find the right gateway if we can
-			pControl = findControl(4, NULL, -1, 257, 500, 292, 160);
+			pControl = findControl(4, (char *)NULL, -1, 257, 500, 292, 160);
 			ControlText* cText;
 			if(pControl && pControl->pFirstText)
 			{
 				cText = pControl->pFirstText;
 				while(cText)
 				{
-					char * szGatelist = _strlwr(UnicodeToAnsi(cText->wText));
-					if(strstr(szGatelist,szGateway))
-					{// chosen gateway IS in the list and matches, cleanup and break the loop
+					char * szGatelist = UnicodeToAnsi(cText->wText);
+					if(!szGatelist)
+						return FALSE;
+					szGatelist = _strlwr(szGatelist);
+					if(strstr(szGatelist, szGateway))
+					{
+						// chosen gateway IS in the list and matches, cleanup and break the loop
 						gatefound = true;
 						delete[] szGatelist;
 						break;
@@ -242,53 +285,51 @@ BOOL OOG_SelectGateway(char * szGateway)
 				if(gatefound)
 				{
 				// click the correct gateway using the control plus a default x and a y based on (index*24)+12
-					if(!clickControl(pControl, -1, 344 + ((index*24)+12)))
+					if(!clickControl(pControl, -1, 344+((index*24)+12)))
 						return FALSE;
 				}
 			}
 
 			// OK Button, gateway select screen
-			pControl = findControl(6, NULL, -1, 281, 538, 96, 32);
+			pControl = findControl(6, (char *)NULL, -1, 281, 538, 96, 32);
 			if(pControl)
 			{
 				if(!clickControl(pControl))
-				{
-					delete[] szLine;
 					return FALSE;
-				}
 			}
 			else
-			{
-				delete[] szLine;
 				return FALSE;
-			}
-			delete[] szLine;
+
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
-int OOG_GetLocation(){	
-	if (findControl(6, NULL, -1, 330,416,128,35))
+int OOG_GetLocation()
+{
+	if(ClientState() != ClientStateMenu)
+		return OOG_NONE;
+
+	if (findControl(6, (char *)NULL, -1, 330,416,128,35))
 		return OOG_MAIN_MENU_CONNECTING;					//21 Connecting to Battle.net	
-	else if (findControl(6, NULL, -1, 335,412,128,35))
+	else if (findControl(6, (char *)NULL, -1, 335,412,128,35))
 		return OOG_LOGIN_ERROR;								//10 Login Error	
-	else if (findControl(6, NULL, -1, 433,433,96,32)){ 
-		if (findControl(4, NULL, -1, 427,234,300,100))
+	else if (findControl(6, (char *)NULL, -1, 433,433,96,32)){ 
+		if (findControl(4, (char *)NULL, -1, 427,234,300,100))
 			return OOG_INLINE;								//2 waiting in line	
-		else if (findControl(4, NULL, -1, 459,380,150,12))
+		else if (findControl(4, (char *)NULL, -1, 459,380,150,12))
 			return OOG_CREATE;								//4 Create game
-		else if (findControl(6, NULL, -1, 594,433,172,32))
+		else if (findControl(6, (char *)NULL, -1, 594,433,172,32))
 			return OOG_JOIN;								// 5 Join Game
-		else if (findControl(6, NULL, -1, 671,433,96,32))
+		else if (findControl(6, (char *)NULL, -1, 671,433,96,32))
 			return OOG_CHANNEL;								//7 "Channel List"
 		else
 			return OOG_LADDER;								//6 "Ladder"		
 	}	
 	else if (findControl(6, 5103, -1, 351,337,96,32)){				//5103 = CANCEL
-		if (findControl(4, NULL, -1, 268,300,264,100))
+		if (findControl(4, (char *)NULL, -1, 268,300,264,100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
-		if (findControl(4, NULL, -1, 268,320,264,120))
+		if (findControl(4, (char *)NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
 	}
 	
@@ -301,29 +342,31 @@ int OOG_GetLocation(){
 			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
 	}
 	else if (findControl(6, 5101, -1, 33,572,128,35)){			//5101 = EXIT
-		if (findControl(6, NULL, -1, 264,484,272,35))
+		if (findControl(6, (char *)NULL, -1, 264,484,272,35))
 			return OOG_LOGIN;								//9 Login
 		if (findControl(6, 5102, -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
 		if (findControl(6, 5102, -1, 627,572,128,35) && findControl(6, 10832, -1, 33,528,168,60)){//10832=create new
 			if (findControl(6, 10018, -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
-			Control* pControl = findControl(4, NULL, -1, 37, 178, 200, 92);
-			if(pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)//first char loaded
+			Control* pControl = findControl(4, (char *)NULL, -1, 37, 178, 200, 92);
+			if(pControl && pControl->pFirstText && pControl->pFirstText->pNext)
+				//first char loaded
 				return OOG_CHAR_SELECT;						//12 char select
-			else{
-				pControl = findControl(2, NULL, -1, 37, 178, 272, 93);	
+			else
+			{
+				pControl = findControl(2, (char *)NULL, -1, 37, 178, 272, 93);	
 				if (findControl(4, 11162, -1,45,318,531,140) || findControl(4, 11066, -1,45,318,531,140))	
 					return OOG_REALM_DOWN;
 				else				
-				return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 
+					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 
 			}
 		}
 		if (findControl(6, 5101, -1, 33,572,128,35)){				//5101=Exit
 			if (findControl(6, 5102, 0, 627,572,128,35))			//5102=ok
 				return OOG_GATEWAY;							//27 char create screen with char selected
 			else{
-				if (findControl(4,NULL,-1,321,448,300,32))
+				if (findControl(4,(char *)NULL,-1,321,448,300,32))
 					return OOG_NEW_ACCOUNT;					//32 create new bnet account
 				else
 					return OOG_NEW_CHARACTER;				//15 char create screen no char selected
@@ -331,7 +374,7 @@ int OOG_GetLocation(){
 		}
 	}
 	if (findControl(6, 5102, -1, 335,450,128,35)){
-		if (findControl(4, NULL, -1, 162,270,477,50))
+		if (findControl(4, (char *)NULL, -1, 162,270,477,50))
 			return OOG_CDKEY_IN_USE;						//19 CD-KEY in use
 		else if (findControl(4, 5190, -1, 162,420,477,100))		 //5190="If using a modem"
 			return OOG_UNABLE_TO_CONNECT;					//11 unable to connect
@@ -352,7 +395,7 @@ int OOG_GetLocation(){
 		return OOG_LOBBY;									//1 base bnet 
 	else if (findControl(6, 5308, -1, 187,470,80,20))					//5308="HELP"
 		return OOG_CHAT;									//3 chat bnet 
-	else if (findControl(4, NULL, -1, 100,580,600,80))
+	else if (findControl(4, (char *)NULL, -1, 100,580,600,80))
 		return OOG_D2SPLASH;								//18 Spash	
 	else if (findControl(6, 5102, -1, 281,538,96,32))
 		return OOG_GATEWAY;									//27 select gateway
@@ -375,4 +418,3 @@ int OOG_GetLocation(){
 	
 	return OOG_NONE;
 }
-

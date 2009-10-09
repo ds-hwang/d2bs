@@ -170,11 +170,13 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				if(!bClicked)
 				{
 					if(Vars.bStartAtMenu)
+					{
 						clickControl(*p_D2WIN_FirstControl);
-					bClicked = TRUE;
+						bClicked = TRUE;
+					}
 				}
 
-				if(!bStarterScript && Vars.oldWNDPROC) // Vars.oldWNDPROC makes this debug mode friendly 
+				if(!bStarterScript)
 				{
 					Sleep(500);
 

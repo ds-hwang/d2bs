@@ -21,13 +21,14 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	CDebug cDbg("control getProperty");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 		return JS_TRUE;
 
@@ -88,13 +89,14 @@ JSAPI_PROP(control_setProperty)
 {
 	CDebug cDbg("control setProperty");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 		return JS_TRUE;
 
@@ -145,12 +147,14 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("control getNext");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(pControl && pControl->pNext)
 		pControl = pControl->pNext;
 	else
@@ -188,13 +192,14 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 {
 	CDebug cDbg("Control click");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		*rval = INT_TO_JSVAL(0);
@@ -218,13 +223,14 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("Control setText");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		*rval = INT_TO_JSVAL(0);
@@ -249,13 +255,14 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 {
 	CDebug cDbg("Control getText");
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
+	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
 		return JS_TRUE;
 
-	Control* pControl = findControl(pData->dwType, NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-
+	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		*rval = INT_TO_JSVAL(0);
@@ -278,7 +285,7 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		delete[] tmp;
 		JS_SetElement(cx, pReturnArray, nArrayCount, &aString); 
 
-		nArrayCount++;				
+		nArrayCount++;
 	}
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
@@ -290,6 +297,9 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("getControl");
+
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
 	Control* pControl = *p_D2WIN_FirstControl;
 	int nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
@@ -330,4 +340,3 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	return JS_TRUE;
 }
-

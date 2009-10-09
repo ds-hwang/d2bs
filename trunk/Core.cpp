@@ -102,7 +102,7 @@ void Print(const char * szFormat, ...)
 			delete [] output;
 		}
 	}
-	else if(findControl(4, NULL, -1, 28, 410, 354, 298))
+	else if(findControl(4, (char *)NULL, -1, 28, 410, 354, 298))
 	{
 			// TODO: Double check this function, make sure it is working as intended.
 			// D2MULTI_PrintChannelText(szString, NULL);
@@ -172,7 +172,7 @@ void Print(const char * szFormat, ...)
 //		D2CLIENT_PrintGameString(wOutput, 0);
 //		delete[] wOutput;
 //	}
-//	else if(findControl(4, NULL, -1, 28, 410, 354, 298))
+//	else if(findControl(4, (char *)NULL, -1, 28, 410, 354, 298))
 //	{
 //		// TODO: Double check this function, make sure it is working as intended.
 //		// D2MULTI_PrintChannelText(szString, NULL);

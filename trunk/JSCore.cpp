@@ -1262,8 +1262,12 @@ INT my_quitGame(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 {
 	CDebug cDbg("quitGame");
 
-	if(D2CLIENT_GetPlayerUnit())
+	if(GameReady())
+	{
 		D2CLIENT_ExitGame();
+		while(ClientState() == ClientStateInGame)
+			Sleep(10);
+	}
 
 	TerminateProcess(GetCurrentProcess(), 0);
 
@@ -1274,8 +1278,12 @@ INT my_quit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("quit");
 
-	if(D2CLIENT_GetPlayerUnit())
-		D2CLIENT_ExitGame();
+	if(!GameReady())
+		return JS_TRUE;
+
+	D2CLIENT_ExitGame();
+	while(ClientState() == ClientStateInGame)
+		Sleep(10);
 
 	return JS_TRUE;
 }
@@ -2308,14 +2316,16 @@ JSAPI_FUNC(my_login)
 	charTime = atoi(maxCharTime);
 	SPdifficulty = atoi(difficulty);
 	Control* pControl = NULL;
-	int loc = 0;
+	int location = 0;
 	int timeout =0;
 	bool loginComplete = FALSE,	skippedToBnet=TRUE;
 	Vars.bBlockKeys = Vars.bBlockMouse = 1;
 
-	while(!loginComplete){
-		loc=OOG_GetLocation();
-		switch (loc){
+	while(!loginComplete)
+	{
+		location = OOG_GetLocation();
+		switch(location)
+		{
 			case OOG_D2SPLASH:
 				clickControl(*p_D2WIN_FirstControl);
 				break;
@@ -2325,20 +2335,20 @@ JSAPI_FUNC(my_login)
 				break;
 			case OOG_MAIN_MENU:
 				if (tolower(mode[0])== 's')
-					if(!clickControl(findControl(6, NULL, -1, 264,324,272,35)))	
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264,324,272,35)))	
 						 errorMsg = "Failed to click the Single button?";
 				if (tolower(mode[0])== 'b'){
 					OOG_SelectGateway(gateway);
-					if(!clickControl(findControl(6, NULL, -1, 264, 366, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 366, 272, 35)))
 						 errorMsg = "Failed to click the 'Battle.net' button?";
 				}
 				if (tolower(mode[0])== 'o'){
-					if(!clickControl(findControl(6, NULL, -1, 264, 433, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 433, 272, 35)))
 						errorMsg =  "Failed to click the 'Other Multiplayer' button?";
 					else
 						skippedToBnet = FALSE;
 						// Open Battle.net
-					if(!clickControl(findControl(6, NULL, -1, 264, 310, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 310, 272, 35)))
 						errorMsg = "Failed to click the 'Open Battle.net' button?";
 				}
 				break;
@@ -2348,19 +2358,19 @@ JSAPI_FUNC(my_login)
 						errorMsg =  "Failed to click the exit button?";
 					break;
 				}
-				pControl = findControl(1, NULL, -1, 322, 342, 162, 19);
+				pControl = findControl(1, (char *)NULL, -1, 322, 342, 162, 19);
 				if(pControl)
 					SetControlText(pControl, username);
 				else
 					errorMsg = "Failed to set the 'Username' text-edit box.";
 				// Password text-edit box
-				pControl = findControl(1, NULL, -1, 322, 396, 162, 19);
+				pControl = findControl(1, (char *)NULL, -1, 322, 396, 162, 19);
 				if(pControl)
 					SetControlText(pControl, password);
 				else
 					errorMsg = "Failed to set the 'Password' text-edit box.";
 
-				pControl = findControl(6, NULL, -1, 264, 484, 272, 35);
+				pControl = findControl(6, (char *)NULL, -1, 264, 484, 272, 35);
 				if(pControl)
 					if(!clickControl(pControl))
 						errorMsg ="Failed to click the 'Log in' button?";
@@ -2370,17 +2380,17 @@ JSAPI_FUNC(my_login)
 				{
 				case 0:
 					// normal button
-					if(!clickControl(findControl(6, NULL, -1, 264, 297, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 297, 272, 35)))
 						errorMsg ="Failed to click the 'Normal Difficulty' button?";
 					break;
 				case 1:
 					// nightmare button
-					if(!clickControl(findControl(6, NULL, -1, 264, 340, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 340, 272, 35)))
 						errorMsg =  "Failed to click the 'Nightmare Difficulty' button?";
 					break;
 				case 2:
 					// hell button/
-					if(!clickControl(findControl(6, NULL, -1, 264, 383, 272, 35)))
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 383, 272, 35)))
 						errorMsg =  "Failed to click the 'Hell Difficulty' button?";
 					break;
 				default:
@@ -2433,12 +2443,13 @@ JSAPI_FUNC(my_login)
 			THROW_ERROR(cx, obj, "login time out");
 			break;
 		}
-		if (ClientState() == ClientStateInGame)
+
+		if(GameReady())
 			loginComplete = TRUE;
 		
-	Sleep(100);
+		Sleep(100);
 	}
-	Vars.bBlockKeys =0; Vars.bBlockMouse = 0;
+	Vars.bBlockKeys = 0; Vars.bBlockMouse = 0;
 
 	return JS_TRUE;
 }
@@ -2446,6 +2457,9 @@ JSAPI_FUNC(my_login)
 JSAPI_FUNC(my_getOOGLocation)
 {
 	CDebug cDbg("getOOGLocation");
+
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
 
 	*rval = INT_TO_JSVAL(OOG_GetLocation());
 
@@ -2547,4 +2561,3 @@ JSAPI_FUNC(my_getInteractedNPC)
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
-
