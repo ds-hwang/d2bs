@@ -2278,6 +2278,9 @@ JSAPI_FUNC(my_login)
 {
 	CDebug cDbg("login");
 
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
 	char file[_MAX_FNAME+MAX_PATH], *profile,
 		 mode[15], username[48], password[256], gateway[256], charname[24],
 		 difficulty[10], maxLoginTime[10], maxCharTime[10];
