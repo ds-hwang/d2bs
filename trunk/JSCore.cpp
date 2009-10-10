@@ -1788,8 +1788,8 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 {
 	CDebug cDbg("getPresetUnits");
 
-	if(!GameReady()) return JS_TRUE;
-
+	if(!GameReady())
+		return JS_TRUE;
 
 	if(argc < 1)
 	{
@@ -1808,13 +1808,9 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	uint nType = NULL;
 
 	if(argc >= 2)
-	{
 		nType = JSVAL_TO_INT(argv[1]);
-	}
 	if(argc >= 3)
-	{
 		nClassId = JSVAL_TO_INT(argv[2]);
-	}
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -1822,8 +1818,8 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	bool bAddedRoom = FALSE;
 	DWORD dwArrayCount = NULL;
 
-	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
-		
+	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
+	{
 		bAddedRoom = FALSE;
 
 		if(!pRoom->pPreset)
@@ -1897,13 +1893,9 @@ JSAPI_FUNC(my_getPresetUnit)
 	DWORD nType = NULL;
 
 	if(argc >= 2)
-	{
 		nType = JSVAL_TO_INT(argv[1]);
-	}
 	if(argc >= 3)
-	{
 		nClassId = JSVAL_TO_INT(argv[2]);
-	}
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -2337,12 +2329,14 @@ JSAPI_FUNC(my_login)
 				if (tolower(mode[0])== 's')
 					if(!clickControl(findControl(6, (char *)NULL, -1, 264,324,272,35)))	
 						 errorMsg = "Failed to click the Single button?";
-				if (tolower(mode[0])== 'b'){
-					OOG_SelectGateway(gateway);
+				if(tolower(mode[0])== 'b')
+				{
+					OOG_SelectGateway(gateway, 256);
 					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 366, 272, 35)))
 						 errorMsg = "Failed to click the 'Battle.net' button?";
 				}
-				if (tolower(mode[0])== 'o'){
+				if(tolower(mode[0])== 'o')
+				{
 					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 433, 272, 35)))
 						errorMsg =  "Failed to click the 'Other Multiplayer' button?";
 					else
@@ -2353,7 +2347,8 @@ JSAPI_FUNC(my_login)
 				}
 				break;
 			case OOG_LOGIN:
-				if ((tolower(mode[0])== 's')||((tolower(mode[0])== 'o')&& skippedToBnet)){
+				if((tolower(mode[0])== 's') || ((tolower(mode[0]) ==  'o') && skippedToBnet))
+				{
 					if(!clickControl(findControl(6, "EXIT", -1,33,572,128,35)))
 						errorMsg =  "Failed to click the exit button?";
 					break;
@@ -2433,12 +2428,16 @@ JSAPI_FUNC(my_login)
 				errorMsg = "unhandled login location";
 				break;				
 		}
-		if (_strcmpi(errorMsg, "")){
+
+		if(_strcmpi(errorMsg, ""))
+		{
 			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
 			THROW_ERROR(cx, obj, errorMsg);						
 			break;
 		}
-		if (timeout*100 > loginTime){
+
+		if((timeout*100) > loginTime)
+		{
 			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
 			THROW_ERROR(cx, obj, "login time out");
 			break;
@@ -2533,6 +2532,11 @@ JSAPI_FUNC(my_submitItem)
 
 JSAPI_FUNC(my_getInteractedNPC)
 {
+	CDebug cDbg("getInteractedNPC");
+
+	if(!GameReady())
+		return JS_TRUE;
+
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	if(!pNPC)
 	{

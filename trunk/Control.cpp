@@ -88,7 +88,7 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 			continue;
 		}
 
-		if(Text && pControl->dwType == 6) //moved this to the bottom dosent check unless x/y checks out
+		if(Text && pControl->dwType == 6)
 		{
 			char* text2 = UnicodeToAnsi(pControl->wText2);
 			if(!text2)
@@ -224,7 +224,7 @@ void SetControlText(Control* pControl, char* Text)
 	}
 }
 
-BOOL OOG_SelectGateway(char * szGateway)
+BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 {
 	if(ClientState() != ClientStateMenu)
 		return FALSE;
@@ -237,11 +237,12 @@ BOOL OOG_SelectGateway(char * szGateway)
 	// if the control exists and has the text label, check if it matches the selected gateway
 	if(pControl && pControl->wText2)
 	{
-		char * szLine = _strlwr(UnicodeToAnsi(pControl->wText2));
+		char* szLine = UnicodeToAnsi(pControl->wText2);
 		if(!szLine)
 			return FALSE;
 
-		szGateway = _strlwr(szGateway);
+		szLine = _strlwr(szLine);
+		_strlwr_s(szGateway, strSize);
 		if(strstr(szLine, szGateway))
 		{
 			// gateway is correct, do nothing and return true
@@ -326,14 +327,15 @@ int OOG_GetLocation()
 		else
 			return OOG_LADDER;								//6 "Ladder"		
 	}	
-	else if (findControl(6, 5103, -1, 351,337,96,32)){				//5103 = CANCEL
+	else if(findControl(6, 5103, -1, 351,337,96,32))		//5103 = CANCEL
+	{
 		if (findControl(4, (char *)NULL, -1, 268,300,264,100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(4, (char *)NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
 	}
-	
-	else if (findControl(6, 5102, -1, 351,337,96,32)){				//5102 =OK
+		else if (findControl(6, 5102, -1, 351,337,96,32))	//5102 =OK
+	{
 		if (findControl(4, 5131, -1, 268,320,264,120))	
 			return OOG_LOST_CONNECTION;						//17 lost connection	
 		else if (findControl(4, 5347, -1, 268,320,264,120))
@@ -341,12 +343,14 @@ int OOG_GetLocation()
 		else
 			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
 	}
-	else if (findControl(6, 5101, -1, 33,572,128,35)){			//5101 = EXIT
+	else if(findControl(6, 5101, -1, 33,572,128,35))		//5101 = EXIT
+	{
 		if (findControl(6, (char *)NULL, -1, 264,484,272,35))
 			return OOG_LOGIN;								//9 Login
 		if (findControl(6, 5102, -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
-		if (findControl(6, 5102, -1, 627,572,128,35) && findControl(6, 10832, -1, 33,528,168,60)){//10832=create new
+		if(findControl(6, 5102, -1, 627,572,128,35) && findControl(6, 10832, -1, 33,528,168,60)) //10832=create new
+		{
 			if (findControl(6, 10018, -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = findControl(4, (char *)NULL, -1, 37, 178, 200, 92);
@@ -362,10 +366,12 @@ int OOG_GetLocation()
 					return OOG_CHARACTER_SELECT_NO_CHARS;	//42 char info not loaded 
 			}
 		}
-		if (findControl(6, 5101, -1, 33,572,128,35)){				//5101=Exit
+		if(findControl(6, 5101, -1, 33, 572, 128, 35))		//5101=Exit
+		{
 			if (findControl(6, 5102, 0, 627,572,128,35))			//5102=ok
 				return OOG_GATEWAY;							//27 char create screen with char selected
-			else{
+			else
+			{
 				if (findControl(4,(char *)NULL,-1,321,448,300,32))
 					return OOG_NEW_ACCOUNT;					//32 create new bnet account
 				else
@@ -373,7 +379,8 @@ int OOG_GetLocation()
 			}
 		}
 	}
-	if (findControl(6, 5102, -1, 335,450,128,35)){
+	if(findControl(6, 5102, -1, 335, 450, 128, 35))
+	{
 		if (findControl(4, (char *)NULL, -1, 162,270,477,50))
 			return OOG_CDKEY_IN_USE;						//19 CD-KEY in use
 		else if (findControl(4, 5190, -1, 162,420,477,100))		 //5190="If using a modem"

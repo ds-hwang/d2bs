@@ -45,9 +45,7 @@ JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 		case ROOM_CORRECTTOMB:
 			if(pRoom2->pLevel && pRoom2->pLevel->pMisc && pRoom2->pLevel->pMisc->dwStaffTombLevel)
-			{
 				*vp = INT_TO_JSVAL(pRoom2->pLevel->pMisc->dwStaffTombLevel);
-			}
 			break;
 
 		default:
@@ -62,7 +60,6 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	CDebug cDbg("room getNext");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 	{
 		*rval = JSVAL_FALSE;
@@ -91,7 +88,6 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 	CDebug cDbg("room getPresetUnits");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
@@ -157,7 +153,6 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 	CDebug cDbg("room getCollision");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
@@ -250,7 +245,6 @@ JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	CDebug cDbg("room getNearby");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
@@ -279,13 +273,12 @@ JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	return JS_TRUE;
 }
 
-// Don't know wether it works
+// Don't know whether it works or not
 JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("room getStat");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 
@@ -306,79 +299,42 @@ JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	if(!pRoom2->pRoom1)
-	{
 		return JS_TRUE;
-	}
 
 	if(nStat == 0) // xStart
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwXStart);
-	}
 	else if(nStat == 1)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYStart);
-	}
 	else if(nStat == 2)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwXSize);
-	}
 	else if(nStat == 3)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYSize);
-	}
 	else if(nStat == 4)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->dwPosX);
-	}
 	else if(nStat == 5)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->dwPosY);
-	}
-
 	else if(nStat == 6)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->dwSizeX);
-	}
 	else if(nStat == 7)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->dwSizeY);
-	}
-	else if(nStat == 8)
-	{
+//	else if(nStat == 8)
 //		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYStart); // God knows??!!??!?!?!?!
-	}
 	else if(nStat == 9)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameX);
-	}
 	else if(nStat == 10)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameY);
-	}
 	else if(nStat == 11)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeGameX);
-	}
 	else if(nStat == 12)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeGameY);
-	}
 	else if(nStat == 13)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosRoomX);
-	}
 	else if(nStat == 14)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameY);
-	}
 	else if(nStat == 15)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomX);
-	}
 	else if(nStat == 15)
-	{
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomY);
-	}
 
 	if(bAdded)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
@@ -391,7 +347,6 @@ JSBool room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	CDebug cDbg("room getFirst");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || !pRoom2->pLevel || !pRoom2->pLevel->pRoom2First )
 		return JS_TRUE;
 
@@ -409,7 +364,6 @@ JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	CDebug cDbg("room unitInRoom");
 
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)) || argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
 		return JS_TRUE;
 
@@ -435,8 +389,9 @@ JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
+	CDebug cDbg("room reveal");
 
+	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2 || IsBadReadPtr(pRoom2, sizeof(Room2)))
 		return JS_TRUE;
 

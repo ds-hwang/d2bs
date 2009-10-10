@@ -308,10 +308,10 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			}
 			break;
 		case ITEM_DESC:
+			{
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
 
-			{
 				wchar_t wBuffer[8192] = L"";
 				D2CLIENT_GetItemDesc(pUnit, wBuffer);
 				tmp = UnicodeToAnsi(wBuffer);
@@ -424,7 +424,8 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nType = JSVAL_TO_INT(argv[0]);
-	else return JS_TRUE;
+	else
+		return JS_TRUE;
 
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
@@ -653,7 +654,8 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
 	{
 		// Accept Trade
-	}  else
+	}
+	else
 	{
 		*rval = JSVAL_TRUE;
 		ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
@@ -689,9 +691,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		nSubIndex = JSVAL_TO_INT(argv[1]);
 	
 	if(nStat >= 6 && nStat <= 11)
-	{
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8);
-	}
 	else if(nStat == 13)
 	{
 		JS_NewNumberValue(cx, D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
@@ -701,9 +701,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szExp)); */
 	}
 	else if(nStat == 92)
-	{
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
-	}
 	else if(nStat == -1)
 	{
 		Stat aStatList[256] = { NULL };
@@ -869,9 +867,7 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			NPCID = pNpc->dwTxtFileNo;
 		}
 		else if(JSVAL_IS_INT(argv[0]))
-		{
 			NPCID = JSVAL_TO_INT(argv[0]);
-		}
 	}
 	if(argc>1)
 		buysell = JSVAL_TO_INT(argv[1]);
@@ -1065,12 +1061,15 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	//	return JS_TRUE;
 
 	//Selling an Item 
-	if (dwMode == 1) {
+	if (dwMode == 1)
+	{
 		//Check if we own the item!
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
 			return JS_TRUE;
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
-	} else {
+	}
+	else
+	{
 		//Make sure the item is owned by the NPC interacted with.
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			return JS_TRUE;
@@ -1131,7 +1130,9 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 				}
 			}
 		}
-	} else if(pUnit->dwType == UNIT_OBJECT) {
+	}
+	else if(pUnit->dwType == UNIT_OBJECT)
+	{
 		if(pUnit->pObjectData)
 		{
 			CHAR szBuffer[128] = "";
@@ -1139,10 +1140,10 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 			*rval = STRING_TO_JSVAL(JS_InternString(cx, szBuffer));
 		}
-	} else if(pUnit->dwType == UNIT_ITEM) {
-		if(pUnit->pItemData &&
-			pUnit->pItemData->pOwnerInventory &&
-			pUnit->pItemData->pOwnerInventory->pOwner)
+	}
+	else if(pUnit->dwType == UNIT_ITEM)
+	{
+		if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner)
 		{
 			myUnit* pmyUnit = new myUnit;
 
@@ -1346,9 +1347,11 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	INT nLoc = JSVAL_TO_INT(argv[0]);
 
 	if(nLoc)
+	{
 		for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
 		{
 			if(pItem->pItemData)
+			{
 				if(pItem->pItemData->BodyLocation == nLoc)
 				{
 					pmyUnit = new myUnit;
@@ -1371,8 +1374,9 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 					return JS_TRUE;
 				}
+			}
 		}
-
+	}
 	return JS_TRUE;
 }
 
