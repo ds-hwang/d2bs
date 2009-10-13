@@ -69,11 +69,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;
 	Vars.oldWNDPROC = NULL;
-
-	char versionimg[_MAX_PATH+_MAX_FNAME];
-	sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
-	Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
-	Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
+	Vars.image = NULL;
+	Vars.text = NULL;
 
 	// calculate the path to starter/default.dbj only once
 	char defaultdbj[_MAX_PATH+_MAX_FNAME];
@@ -82,38 +79,53 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	sprintf_s(starterdbj, sizeof(starterdbj), "%s\\starter.dbj", Vars.szScriptPath);
 
 	int i = 0;
-	while(!Vars.oldWNDPROC)
+	while(!Vars.bActive)
 	{
 		if(i >= 300)
 		{
 			MessageBox(0, "Failed to set hooks, exiting!", "D2BS", 0);
-			exit(0);
+			return 0;
 		}
 
-		if(D2WIN_GetHwnd())
+		if(D2WIN_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
 		{
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			if(!Vars.oldWNDPROC)
+				Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 			if(Vars.oldWNDPROC)
 			{
 				DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
 				if(mainThread)
 				{
-					Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
-					Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
+					if(!Vars.hKeybHook)
+						Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
+					if(!Vars.hMouseHook)
+						Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
 				}
-				if(Vars.oldWNDPROC && Vars.hKeybHook && Vars.hMouseHook)
-					break;
 			}
 		}
+
+		if(Vars.oldWNDPROC && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
+		{
+			char versionimg[_MAX_PATH+_MAX_FNAME];
+			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
+			if(!Vars.image)
+				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
+			if(!Vars.text)
+				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
+		}
+
+		if(Vars.oldWNDPROC && Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
+		{
+			if(!ScriptEngine::Startup())
+				return FALSE;
+
+			Vars.bActive = TRUE;
+			Log("D2BS Startup complete.");
+		}
+
 		Sleep(100);
 		i++;
 	}
-
-	if(!ScriptEngine::Startup())
-		return FALSE;
-	Vars.bActive = TRUE;
-
-	Log("D2BS Startup complete.");
 
 	while(Vars.bActive)
 	{
@@ -142,8 +154,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 						D2CLIENT_InitInventory();
 
 						Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-						Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
 
+						Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
 						if(script)
 							CreateThread(0, 0, ScriptThread, script, 0, 0);
 						else
@@ -413,16 +425,15 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
 			return TRUE;
-			break;
 		case WM_ACTIVATEAPP:
 			if(!wParam && Vars.bBlockMinimize)
 				return NULL;
 			break;
-		case WM_DESTROY:
-			{
-				Vars.bActive = FALSE;
-				return NULL;
-			}
+		//case WM_NCDESTROY:
+		//	{
+		//		//Vars.bActive = FALSE;
+		//		return TRUE;
+		//	}
 	}
 
 	return (LONG)CallWindowProcA(Vars.oldWNDPROC, hWnd, uMsg, wParam, lParam);
