@@ -311,25 +311,26 @@ int OOG_GetLocation()
 	if(ClientState() != ClientStateMenu)
 		return OOG_NONE;
 
-	if (findControl(6, (char *)NULL, -1, 330,416,128,35))
+	if(findControl(6, 5103, -1, 330, 416, 128, 35))
 		return OOG_MAIN_MENU_CONNECTING;					//21 Connecting to Battle.net	
-	else if (findControl(6, (char *)NULL, -1, 335,412,128,35))
+	else if(findControl(6, 5102, -1, 335, 412, 128, 35))
 		return OOG_LOGIN_ERROR;								//10 Login Error	
-	else if (findControl(6, (char *)NULL, -1, 433,433,96,32)){ 
+	else if(findControl(6, 5103, -1, 433, 433, 96, 32))
+	{ 
 		if (findControl(4, (char *)NULL, -1, 427,234,300,100))
 			return OOG_INLINE;								//2 waiting in line	
-		else if (findControl(4, (char *)NULL, -1, 459,380,150,12))
+		else if(findControl(4, 10018, -1, 459, 380, 150, 12))
 			return OOG_CREATE;								//4 Create game
-		else if (findControl(6, (char *)NULL, -1, 594,433,172,32))
+		else if(findControl(6, 5119, -1, 594, 433, 172, 32))
 			return OOG_JOIN;								// 5 Join Game
-		else if (findControl(6, (char *)NULL, -1, 671,433,96,32))
+		else if(findControl(6, 5102, -1, 671, 433, 96, 32))
 			return OOG_CHANNEL;								//7 "Channel List"
 		else
 			return OOG_LADDER;								//6 "Ladder"		
 	}	
 	else if(findControl(6, 5103, -1, 351,337,96,32))		//5103 = CANCEL
 	{
-		if (findControl(4, (char *)NULL, -1, 268,300,264,100))
+		if(findControl(4, 5243, -1, 268, 300, 264, 100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(4, (char *)NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
@@ -345,7 +346,7 @@ int OOG_GetLocation()
 	}
 	else if(findControl(6, 5101, -1, 33,572,128,35))		//5101 = EXIT
 	{
-		if (findControl(6, (char *)NULL, -1, 264,484,272,35))
+		if(findControl(6, 5288, -1, 264, 484, 272, 35))
 			return OOG_LOGIN;								//9 Login
 		if (findControl(6, 5102, -1, 495,438,96,32))
 			return OOG_CHARACTER_SELECT_CHANGE_REALM;		//43 char select change realm						
@@ -355,11 +356,9 @@ int OOG_GetLocation()
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = findControl(4, (char *)NULL, -1, 37, 178, 200, 92);
 			if(pControl && pControl->pFirstText && pControl->pFirstText->pNext)
-				//first char loaded
 				return OOG_CHAR_SELECT;						//12 char select
 			else
 			{
-				pControl = findControl(2, (char *)NULL, -1, 37, 178, 272, 93);	
 				if (findControl(4, 11162, -1,45,318,531,140) || findControl(4, 11066, -1,45,318,531,140))	
 					return OOG_REALM_DOWN;
 				else				
@@ -372,7 +371,7 @@ int OOG_GetLocation()
 				return OOG_GATEWAY;							//27 char create screen with char selected
 			else
 			{
-				if (findControl(4,(char *)NULL,-1,321,448,300,32))
+				if(findControl(4, 5226, -1, 321, 448, 300, 32))
 					return OOG_NEW_ACCOUNT;					//32 create new bnet account
 				else
 					return OOG_NEW_CHARACTER;				//15 char create screen no char selected
@@ -381,7 +380,7 @@ int OOG_GetLocation()
 	}
 	if(findControl(6, 5102, -1, 335, 450, 128, 35))
 	{
-		if (findControl(4, (char *)NULL, -1, 162,270,477,50))
+		if(findControl(4, 5200, -1, 162, 270, 477, 50))
 			return OOG_CDKEY_IN_USE;						//19 CD-KEY in use
 		else if (findControl(4, 5190, -1, 162,420,477,100))		 //5190="If using a modem"
 			return OOG_UNABLE_TO_CONNECT;					//11 unable to connect
@@ -402,7 +401,7 @@ int OOG_GetLocation()
 		return OOG_LOBBY;									//1 base bnet 
 	else if (findControl(6, 5308, -1, 187,470,80,20))					//5308="HELP"
 		return OOG_CHAT;									//3 chat bnet 
-	else if (findControl(4, (char *)NULL, -1, 100,580,600,80))
+	else if(findControl(4, 21882, -1, 100, 580, 600, 80))
 		return OOG_D2SPLASH;								//18 Spash	
 	else if (findControl(6, 5102, -1, 281,538,96,32))
 		return OOG_GATEWAY;									//27 select gateway
