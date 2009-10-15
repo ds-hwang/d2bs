@@ -7,12 +7,15 @@
 using namespace std;
 
 HookList Genhook::hooks = HookList();
+CRITICAL_SECTION Genhook::globalSection = {0};
 
 HookList Genhook::GetHooks(void)
 {
+	EnterCriticalSection(&globalSection);
 	HookList currentHooks;
 	for(HookIterator it = hooks.begin(); it != hooks.end(); it++)
 		currentHooks.push_back(*it);
+	LeaveCriticalSection(&globalSection);
 	return currentHooks;
 }
 
@@ -23,6 +26,7 @@ bool zOrderSort(Genhook* first, Genhook* second)
 
 void Genhook::DrawAll(ScreenhookState type)
 {
+	EnterCriticalSection(&globalSection);
 	HookList currentHooks = GetHooks();
 	currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
@@ -31,6 +35,7 @@ void Genhook::DrawAll(ScreenhookState type)
 		{
 			(*it)->Draw();
 		}
+	LeaveCriticalSection(&globalSection);
 }
 
 HookIterator Genhook::GetFirstHook()
@@ -45,6 +50,7 @@ HookIterator Genhook::GetLastHook()
 
 void Genhook::Clean(Script* owner)
 {
+	EnterCriticalSection(&globalSection);
 	HookList currentHooks = GetHooks();
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 	{
@@ -53,6 +59,7 @@ void Genhook::Clean(Script* owner)
 			(*it)->SetIsVisible(false);
 		}
 	}
+	LeaveCriticalSection(&globalSection);
 }
 
 Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :

@@ -60,6 +60,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 
+	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
@@ -80,6 +81,7 @@ void Shutdown(void)
 
 	RemovePatches();
 	Console::Destroy();
+	Genhook::Destroy();
 	ShutdownDdeServer();
 
 	delete Vars.image;

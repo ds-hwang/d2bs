@@ -25,6 +25,7 @@ class Genhook
 {
 private:
 	static HookList hooks;
+	static CRITICAL_SECTION globalSection;
 
 protected:
 	Script* owner;
@@ -54,6 +55,9 @@ protected:
 	virtual void Draw(void) = 0;
 
 public:
+	static void Initialize(void) { InitializeCriticalSection(&globalSection); }
+	static void Destroy(void) { DeleteCriticalSection(&globalSection); }
+
 	bool Click(int button, POINT* loc);
 	void Hover(POINT* loc);
 
