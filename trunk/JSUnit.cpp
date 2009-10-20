@@ -526,13 +526,7 @@ INT unit_cancel(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!GameReady())
 		return JS_TRUE;
 
-	if(D2CLIENT_GetCursorItem())
-	{
-		// Diablo drops an Item by using the Walk function.
-		// Just perform a clickMap "click" and we drop it
-		D2CLIENT_clickMap(1, 10, 10, 8);
-	}
-	else if(argc == 1 && JSVAL_IS_INT(argv[0]))
+	if(argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
 		jsint nType = JSVAL_TO_INT(argv[0]);
 
@@ -540,6 +534,12 @@ INT unit_cancel(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 			D2CLIENT_CloseInteract();
 		else if(nType == 1)
 			D2CLIENT_CloseNPCInteract();
+	}
+	else if(D2CLIENT_GetCursorItem())
+	{
+		// Diablo drops an Item by using the Walk function.
+		// Just perform a clickMap "click" and we drop it
+		D2CLIENT_clickMap(0, 10, 10, 0x08);
 	}
 
 	return JS_TRUE;
