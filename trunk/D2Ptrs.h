@@ -79,7 +79,7 @@ VARPTR(D2CLIENT, MouseOffsetY, int, 0x1121CC) // Updated
 VARPTR(D2CLIENT, MouseOffsetX, int, 0x1121D0) // Updated
 VARPTR(D2CLIENT, Divisor, int, 0xF3B98) // Updated
 VARPTR(D2CLIENT, yShake, int, 0xFD114) // Updated
-VARPTR(D2CLIENT, GameInfo, GameStructInfo *, 0x11B908); // Updated
+VARPTR(D2CLIENT, GameInfo, GameStructInfo *, 0x11B908) // Updated
 VARPTR(D2CLIENT, Ping, DWORD, 0x1032BC) // Updated
 VARPTR(D2CLIENT, FPS, DWORD, 0x11C388) // Updated
 VARPTR(D2CLIENT, WaypointTab, DWORD, 0x11B956) // Updated
@@ -222,7 +222,7 @@ FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext *context, DWORD xp
 FUNCPTR(D2GFX, DrawRectangle, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwTrans), 0x7D10) // Updated
 FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwUnk), 0x7CA0) // Updated
 FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (), -10043)  // Updated
-VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ACC); // Updated
+VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ACC) // Updated
 
 FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (CHAR *szText, DWORD dwColor),  0xF8C0) // Updated - Okaygo found new offset
 FUNCPTR(D2MULTI, DoChat, VOID __fastcall, (VOID), 0xC650) // Updated
