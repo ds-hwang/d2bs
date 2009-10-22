@@ -22,13 +22,22 @@ private:
 
 	void* pData;
 	std::string filename;
+	CRITICAL_SECTION lock;
 
 public:
+	// create a new execution path and run the current script inside it
 	void Run(void);
+	// stop the current script gracefully
+	void Stop(void);
+	// stop the current script forcefully
+	void End(void);
 
 	std::string GetFilename(void) { return filename; }
-	void* GetPrivateData(void);
-	void SetPrivateData(void*);
+	void* GetPrivateData(void) { return pData; }
+	void SetPrivateData(void* data) { Lock(); pData = data; Unlock(); }
+
+	void Lock(void) { EnterCriticalSection(&lock); }
+	void Unlock(void) { LeaveCriticalSection(&lock); }
 
 	// hack to allow ScriptEngine to directly meddle with the ctor/dtor
 	friend class ScriptEngine;

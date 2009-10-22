@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <shlwapi.h>
 #include <io.h>
 #include <errno.h>
 #include <string>
@@ -13,7 +14,11 @@ using namespace botsys;
 
 int main(int argc, char** argv)
 {
-	ScriptEngine::Startup();
+	char path[MAX_PATH];
+	GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
+	PathRemoveFileSpec(path);
+
+	ScriptEngine::Startup(path, 0x1000000);
 
 	for(int i = 0; i < argc; i++)
 	{

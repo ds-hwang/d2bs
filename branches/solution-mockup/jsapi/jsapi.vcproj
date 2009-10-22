@@ -153,10 +153,34 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\GlobalFuncs.h"
+		<Filter
+			Name="spidermonkey"
 			>
-		</File>
+			<Filter
+				Name="headers"
+				>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="v8"
+			>
+			<Filter
+				Name="headers"
+				>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="api"
+			>
+			<Filter
+				Name="headers"
+				>
+				<File
+					RelativePath=".\GlobalFuncs.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>

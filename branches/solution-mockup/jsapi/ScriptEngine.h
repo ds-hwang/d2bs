@@ -36,6 +36,8 @@ private:
 	static CRITICAL_SECTION lock;
 	static EngineState state;
 	static ScriptMap scripts;
+	static std::string scriptPath;
+	static void* pData;
 
 	// disable the default ctor, the copy ctor, and the assignment op
 	ScriptEngine();
@@ -44,25 +46,29 @@ private:
 	ScriptEngine& operator=(const ScriptEngine&);
 
 public:
-	static Script* Compile(std::string filename);
+	static Script* Compile(std::string filename, bool recompile = false);
 	static Script* Find(std::string filename)
 	{
 		return scripts.count(filename) ? scripts[filename] : NULL;
 	}
-	static Script* FindOrCompile(std::string filename)
+	static Script* FindOrCompile(std::string filename, bool recompile = false)
 	{
 		Script* result = Find(filename);
 		if(!result)
-			result = Compile(filename);
+			result = Compile(filename, recompile);
 		return result;
 	}
-	static void ReleaseScript(Script* script)
+	static void Release(Script* script)
 	{
+		script->End();
 		scripts.erase(script->GetFilename());
 		delete script;
 	}
 
-	static void Startup(void);
+	static void* GetPrivateData(void) { return pData; }
+	static void SetPrivateData(void* data) { EnterCriticalSection(&lock); pData = data; LeaveCriticalSection(&lock); }
+
+	static void Startup(std::string path, unsigned long maxBytes);
 	static void Shutdown(void);
 };
 

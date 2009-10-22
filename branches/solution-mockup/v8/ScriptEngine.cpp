@@ -7,12 +7,12 @@ CRITICAL_SECTION ScriptEngine::lock = {0};
 EngineState ScriptEngine::state = NotRunning;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 
-Script* ScriptEngine::Compile(std::string filename)
+Script* ScriptEngine::Compile(std::string filename, bool recompile)
 {
 	return NULL;
 }
 
-void ScriptEngine::Startup(void)
+void ScriptEngine::Startup(std::string path, unsigned long maxBytes)
 {
 }
 
