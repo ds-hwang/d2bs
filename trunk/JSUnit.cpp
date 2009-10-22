@@ -1104,32 +1104,29 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(pUnit->dwType == UNIT_MONSTER)
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
+		UnitAny* pMonster = NULL;	
+		pMonster = GetUnit(NULL, -1, UNIT_PLAYER, -1, dwOwnerId);
+		if (!pMonster)
+			pMonster = GetUnit(NULL, -1, UNIT_MONSTER, -1, dwOwnerId);
+		if (!pMonster)
+			return JS_TRUE;
 
-		if(D2CLIENT_GetPlayerUnit()->pAct) {
-			for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext) {
-				for(UnitAny* pMonster = pRoom->pUnitFirst; pMonster; pMonster = pMonster->pListNext) {
-					if((pMonster->dwType == UNIT_MONSTER || pMonster->dwType == UNIT_PLAYER) && dwOwnerId == pMonster->dwUnitId)
-					{
-						myUnit* pmyUnit = new myUnit;
+		myUnit* pmyUnit = new myUnit;
+			if(!pmyUnit)
+				return JS_TRUE;	
 
-						if(!pmyUnit)
-							return JS_TRUE;
-
-						pmyUnit->_dwPrivateType = PRIVATE_UNIT;
-						pmyUnit->dwUnitId = pMonster->dwUnitId;
-						pmyUnit->dwClassId = pMonster->dwTxtFileNo;
-						pmyUnit->dwMode = pMonster->dwMode;
-						pmyUnit->dwType = pMonster->dwType;
-						pmyUnit->szName[0] = NULL;
-
-						JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-						if (!jsunit)
-							return JS_TRUE;
-						*rval = OBJECT_TO_JSVAL(jsunit);
-					}
-				}
-			}
-		}
+		pmyUnit->_dwPrivateType = PRIVATE_UNIT;
+		pmyUnit->dwUnitId = pMonster->dwUnitId;
+		pmyUnit->dwClassId = pMonster->dwTxtFileNo;
+		pmyUnit->dwMode = pMonster->dwMode;
+		pmyUnit->dwType = pMonster->dwType;
+		pmyUnit->szName[0] = NULL;
+						
+		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+			if (!jsunit)
+				return JS_TRUE;
+		*rval = OBJECT_TO_JSVAL(jsunit);			
+			return JS_TRUE;
 	}
 	else if(pUnit->dwType == UNIT_OBJECT)
 	{
