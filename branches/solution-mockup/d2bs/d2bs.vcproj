@@ -52,6 +52,7 @@
 				WarningLevel="4"
 				WarnAsError="true"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4100"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -68,8 +69,8 @@
 				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				OptimizeReferences="2"
-				OptimizeForWindows98="1"
+				OptimizeReferences="0"
+				OptimizeForWindows98="0"
 				DataExecutionPrevention="1"
 				SupportUnloadOfDelayLoadedDLL="true"
 				TargetMachine="1"
@@ -151,7 +152,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
+				OptimizeForWindows98="0"
 				DataExecutionPrevention="1"
 				SupportUnloadOfDelayLoadedDLL="true"
 				TargetMachine="1"

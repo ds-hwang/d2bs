@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\jsapi"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)jsapi\&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				MinimalRebuild="true"
@@ -52,6 +52,7 @@
 				WarningLevel="4"
 				WarnAsError="true"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4100"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -109,7 +110,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\jsapi"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)jsapi\&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -153,7 +154,11 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\Engine.cpp"
+			RelativePath=".\Script.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\ScriptEngine.cpp"
 			>
 		</File>
 	</Files>
