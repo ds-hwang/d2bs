@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Script.h"
+#include "yasper.h"
 
 #if defined(__USE_SPIDERMONKEY__)
 #pragma comment(lib, "spidermonkey.lib")
@@ -19,7 +20,7 @@
 namespace botsys
 {
 
-typedef std::map<std::string, Script*> ScriptMap;
+typedef std::map<std::string, yasper::ptr<Script> > ScriptMap;
 
 enum EngineState
 {
@@ -46,25 +47,25 @@ private:
 	ScriptEngine& operator=(const ScriptEngine&);
 
 public:
-	static Script* Compile(std::string filename, bool recompile = false);
-	static Script* Find(std::string filename)
+	static yasper::ptr<Script> Compile(std::string filename, bool recompile = false);
+	static yasper::ptr<Script> Find(std::string filename)
 	{
 		return scripts.count(filename) ? scripts[filename] : NULL;
 	}
-	static Script* FindOrCompile(std::string filename, bool recompile = false)
+	static yasper::ptr<Script> FindOrCompile(std::string filename, bool recompile = false)
 	{
 		Script* result = Find(filename);
 		if(!result)
 			result = Compile(filename, recompile);
 		return result;
 	}
-	static void Release(Script* script)
+	static void Release(yasper::ptr<Script> script)
 	{
 		script->End();
 		scripts.erase(script->GetFilename());
-		delete script;
 	}
 
+	// intentionally leaving this as a ptr
 	static void* GetPrivateData(void) { return pData; }
 	static void SetPrivateData(void* data) { EnterCriticalSection(&lock); pData = data; LeaveCriticalSection(&lock); }
 

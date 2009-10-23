@@ -3,6 +3,14 @@
 namespace botsys
 {
 
+Script::Script(std::string filename)
+{
+}
+
+Script::~Script(void)
+{
+}
+
 void Script::Run(void)
 {
 }

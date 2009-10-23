@@ -193,6 +193,10 @@
 			RelativePath=".\ScriptEngine.h"
 			>
 		</File>
+		<File
+			RelativePath=".\yasper.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
