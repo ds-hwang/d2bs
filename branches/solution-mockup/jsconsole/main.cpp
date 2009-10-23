@@ -11,7 +11,6 @@
 
 using namespace std;
 using namespace botsys;
-using namespace yasper;
 
 int main(int argc, char** argv)
 {
@@ -26,7 +25,7 @@ int main(int argc, char** argv)
 		// check if this file exists
 		if(!(_access(argv[i], 0) != 0 && errno == ENOENT))
 		{
-			ptr<Script> script = ScriptEngine::FindOrCompile(string(argv[i]));
+			ScriptPtr script = ScriptEngine::FindOrCompile(string(argv[i]));
 			if(script)
 				script->Run();
 		}

@@ -13,7 +13,7 @@ ScriptMap ScriptEngine::scripts = ScriptMap();
 std::string ScriptEngine::scriptPath = std::string("");
 void* ScriptEngine::pData = NULL;
 
-yasper::ptr<Script> ScriptEngine::Compile(std::string filename, bool recompile)
+ScriptPtr ScriptEngine::Compile(std::string filename, bool recompile)
 {
 	if(recompile && scripts.count(filename))
 		Release(scripts[filename]);

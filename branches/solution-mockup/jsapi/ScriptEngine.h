@@ -20,7 +20,7 @@
 namespace botsys
 {
 
-typedef std::map<std::string, yasper::ptr<Script> > ScriptMap;
+typedef std::map<std::string, ScriptPtr> ScriptMap;
 
 enum EngineState
 {
@@ -47,19 +47,19 @@ private:
 	ScriptEngine& operator=(const ScriptEngine&);
 
 public:
-	static yasper::ptr<Script> Compile(std::string filename, bool recompile = false);
-	static yasper::ptr<Script> Find(std::string filename)
+	static ScriptPtr Compile(std::string filename, bool recompile = false);
+	static ScriptPtr Find(std::string filename)
 	{
 		return scripts.count(filename) ? scripts[filename] : NULL;
 	}
-	static yasper::ptr<Script> FindOrCompile(std::string filename, bool recompile = false)
+	static ScriptPtr FindOrCompile(std::string filename, bool recompile = false)
 	{
 		Script* result = Find(filename);
 		if(!result)
 			result = Compile(filename, recompile);
 		return result;
 	}
-	static void Release(yasper::ptr<Script> script)
+	static void Release(ScriptPtr script)
 	{
 		script->End();
 		scripts.erase(script->GetFilename());

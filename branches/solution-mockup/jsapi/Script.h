@@ -48,6 +48,8 @@ public:
 	friend class yasper::ptr<Script>;
 };
 
+typedef yasper::ptr<Script> ScriptPtr;
+
 }
 
 #endif
