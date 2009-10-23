@@ -1,13 +1,3 @@
-#pragma once
-
-#include <windows.h>
-#include <map>
-#include <list>
-#include <string>
-
-#include "Script.h"
-#include "yasper.h"
-
 #if defined(__USE_SPIDERMONKEY__)
 #pragma comment(lib, "spidermonkey.lib")
 #elif defined(__USE_V8__)
@@ -17,10 +7,19 @@
 #ifndef __SCRIPTENGINE_H__
 #define __SCRIPTENGINE_H__
 
+#include <windows.h>
+#include <map>
+#include <list>
+#include <string>
+
+#include "Script.h"
+#include "yasper.h"
+
 namespace botsys
 {
 
 typedef std::map<std::string, ScriptPtr> ScriptMap;
+typedef std::list<ScriptPtr> ScriptList;
 
 enum EngineState
 {
@@ -47,7 +46,9 @@ private:
 	ScriptEngine& operator=(const ScriptEngine&);
 
 public:
+	// Compile needs to ensure that it adds the script to the list
 	static ScriptPtr Compile(std::string filename, bool recompile = false);
+
 	static ScriptPtr Find(std::string filename)
 	{
 		return scripts.count(filename) ? scripts[filename] : NULL;
@@ -62,7 +63,25 @@ public:
 	static void Release(ScriptPtr script)
 	{
 		script->End();
+
+		// make sure we have exclusive access to the list while we fiddle with it
+		EnterCriticalSection(&lock);
 		scripts.erase(script->GetFilename());
+		LeaveCriticalSection(&lock);
+	}
+
+	static void GetScripts(ScriptList& list)
+	{
+		// clear the (possibly tainted) list
+		list.clear();
+
+		// make sure we have exclusive access to the list while we copy it
+		EnterCriticalSection(&lock);
+
+		for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
+			list.push_back(it->second);
+
+		LeaveCriticalSection(&lock);
 	}
 
 	// intentionally leaving this as a ptr

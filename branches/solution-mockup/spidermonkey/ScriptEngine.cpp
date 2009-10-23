@@ -19,6 +19,7 @@ ScriptPtr ScriptEngine::Compile(std::string filename, bool recompile)
 		Release(scripts[filename]);
 	// TODO: build the Script object, run JS_CompileFile on the filename,
 	// then assign the result of that to the private data of the Script
+	// and add the new Script to the list
 	return NULL;
 }
 
