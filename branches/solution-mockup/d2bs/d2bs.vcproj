@@ -65,6 +65,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalDependencies="shlwapi.lib &quot;$(OutDir)\jsapi.lib&quot;"
 				LinkIncremental="2"
 				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
@@ -146,6 +148,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
+				AdditionalDependencies="shlwapi.lib &quot;$(OutDir)\jsapi.lib&quot;"
 				LinkIncremental="1"
 				UACExecutionLevel="2"
 				GenerateDebugInformation="true"
