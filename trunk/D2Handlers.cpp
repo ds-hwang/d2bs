@@ -34,12 +34,11 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		 disableCache[6],
 		 memUsage[6];
 
-	sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
+	sprintf_s(path, sizeof(path), "%sd2bs-%d.log", Vars.szPath, GetProcessId(GetCurrentProcess()));
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
 	FILE* stream = NULL;
-	if(freopen_s(&stream, path, "a+t", stderr) != 0)
-		MessageBox(0, "Failed to redirect output!", "D2BS", 0);
+	freopen_s(&stream, path, "a+t", stderr);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
