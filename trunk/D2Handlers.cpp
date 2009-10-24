@@ -441,10 +441,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-	if(Vars.bBlockKeys)
-		return 1;
-
-	if(code >= 0) // removes chance of duplicate event firings - TechnoHunter
+	if(code >= HC_ACTION) // removes chance of duplicate event firings - TechnoHunter
 	{
 		WORD repeatCount = LOWORD(lParam);
 		bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
@@ -458,22 +455,25 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
 		bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
 
+		if (altState && wParam == VK_F4)
+			return CallNextHookEx(NULL, code, wParam, lParam);
+
+		if(Vars.bBlockKeys && code >= HC_ACTION)
+			return 1;
+		
 		if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 		{
-			if(!altState && isUp)
+			if(!altState && isUp && code == 0)
 			{
 				Console::ToggleBuffer();
-				return 1;
+				return CallNextHookEx(NULL, code, wParam, lParam);
 			}
-		}
-		else if(wParam == VK_OEM_3 && !(chatBoxOpen || escMenuOpen))
-		{
-			if(altState && isUp)
+			if (altState && isUp && code == 0)
 			{
 				Console::TogglePrompt();
-				return 1;
+				return CallNextHookEx(NULL, code, wParam, lParam);
 			}
-		}
+		}			
 		else if(wParam == VK_ESCAPE && Console::IsVisible())
 		{
 			if(isUp)
@@ -520,13 +520,12 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 						}
 					}
 					break;
-			}
+			}			
 			return 1;
 		}
 		else if(!(chatBoxOpen || escMenuOpen) && !isRepeat && code == HC_ACTION)
 			KeyDownUpEvent(wParam, isUp);
 	}
-
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
