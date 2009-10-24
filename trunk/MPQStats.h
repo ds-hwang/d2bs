@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include "js32.h"
 
 // Information taken from

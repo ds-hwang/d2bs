@@ -1,12 +1,13 @@
 // Diablo II Botting System Core
-#include "D2BS.h"
-#include "dde.h"
 #include <shlwapi.h>
+
+#include "dde.h"
 #include "Offset.h"
 #include "ScriptEngine.h"
 #include "Helpers.h"
 #include "D2Handlers.h"
 #include "Console.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -79,13 +80,13 @@ void Shutdown(void)
 
 	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
+	delete Vars.image;
+	delete Vars.text;
+
 	RemovePatches();
 	Console::Destroy();
 	Genhook::Destroy();
 	ShutdownDdeServer();
-
-	delete Vars.image;
-	delete Vars.text;
 
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);
@@ -106,4 +107,5 @@ void Shutdown(void)
 	check_leaks();
 #endif
 	Log("D2BS Shutdown complete.");
+	Vars.bNeedShutdown = false;
 }

@@ -2,12 +2,12 @@
 #ifndef __SCRIPTENGINE_H__
 #define __SCRIPTENGINE_H__
 
-#include "js32.h"
-#include "Script.h"
-
 #include <list>
 #include <map>
 #include <string>
+
+#include "js32.h"
+#include "Script.h"
 
 typedef std::map<std::string, Script*> ScriptMap;
 

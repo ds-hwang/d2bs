@@ -93,7 +93,7 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 
 		DWORD dwBuffer = 0;
 		WORD wBuffer = 0;
-		CHAR* szBuffer = NULL;
+		char* szBuffer = NULL;
 		
 		DWORD dwHelperSize = pTable[nStatNumber + 1].dwFieldOffset - pTable[nStatNumber].dwFieldOffset;
 
@@ -103,11 +103,11 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 		switch(pTable[nStatNumber].eFieldType)
 		{
 			case FIELDTYPE_DATA_ASCII:
-				szBuffer = (CHAR*)malloc(pTable[nStatNumber].dwFieldLength + 1);
+				szBuffer = new char[(pTable[nStatNumber].dwFieldLength + 1)];
 				memset(szBuffer, NULL, pTable[nStatNumber].dwFieldLength + 1);
 				memcpy_s(szBuffer, pTable[nStatNumber].dwFieldLength + 1, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength + 1);
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
-				free(szBuffer);
+				delete[] szBuffer;
 				return TRUE;
 
 			case FIELDTYPE_DATA_DWORD:
@@ -160,11 +160,11 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 
 			case FIELDTYPE_ASCII_TO_CODE:
 			case FIELDTYPE_DATA_RAW:
-				szBuffer = (CHAR*)malloc(5);
+				szBuffer = new char[5];
 				memset(szBuffer, NULL, 5);
 				memcpy(szBuffer, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));
-				free(szBuffer);
+				delete[] szBuffer;
 				return TRUE;
 
 			case FIELDTYPE_MONSTER_COMPS:

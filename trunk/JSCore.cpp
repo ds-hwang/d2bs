@@ -1,6 +1,7 @@
 // Spidermonkey implementation of Core.cpp
 #include <io.h>
 #include <windows.h>
+#include <ddeml.h>
 #include <cmath>
 
 #include "js32.h"
@@ -26,9 +27,9 @@
 #include "Helpers.h"
 #include "dde.h"
 #include "mpqstats.h"
-#include "D2BS.h"
 #include "AreaLinker.h"
 #include "ScriptEngine.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -342,7 +343,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	*rval = JSVAL_FALSE;
 	DWORD dwCount = NULL;
 	POINT lpBuffer[255] = {0};
-	DWORD *AreaIds;
+	DWORD *AreaIds = NULL;
 	jsuint dwLength = 0;
 	DWORD Area;
 
@@ -1269,6 +1270,8 @@ INT my_quitGame(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 			Sleep(10);
 	}
 
+	// give the core a chance to shut down
+	Shutdown();
 	TerminateProcess(GetCurrentProcess(), 0);
 
 	return JS_TRUE;

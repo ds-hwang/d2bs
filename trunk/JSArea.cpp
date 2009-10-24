@@ -1,4 +1,3 @@
-//#include "D2BS.h"
 #include "JSArea.h"
 #include "D2Ptrs.h"
 #include "CDebug.h"

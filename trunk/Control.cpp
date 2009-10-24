@@ -3,6 +3,7 @@
 #include "D2Helpers.h"
 #include "Helpers.h"
 #include "Constants.h"
+
 #include "debugnew/debug_new.h"
 
 Control* findControl(int Type, int LocaleID, int Disabled, int PosX, int PosY, int SizeX, int SizeY)

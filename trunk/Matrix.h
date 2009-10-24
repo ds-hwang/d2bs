@@ -19,7 +19,6 @@
 // Necessary Definitions for Non-MFC applications
 //////////////////////////////////////////////////////////////////////
 #ifndef __AFXWIN_H__ // If non-MFC ...
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <search.h>
 #include <assert.h>

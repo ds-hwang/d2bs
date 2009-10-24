@@ -4,8 +4,9 @@
 // Abin (abinn32@yahoo.com)
 //////////////////////////////////////////////////////////////////////
 
-#include "ArrayEx.h"
 #include <windows.h>
+
+#include "ArrayEx.h"
 #include "Matrix.h"
 #include "D2Structs.h"
 

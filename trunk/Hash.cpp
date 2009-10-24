@@ -1,5 +1,6 @@
-#include "Hash.h"
 #include <cstdio>
+
+#include "Hash.h"
 
 #include "debugnew/debug_new.h"
 

@@ -693,12 +693,6 @@ struct AttackStruct
 	DWORD _2;					//0x18
 };
 
-struct Skill_t {
-	CHAR			name[64];
-	WORD			skillID;
-};
-
-
 /*
 Akara NPCEntry
 

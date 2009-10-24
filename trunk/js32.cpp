@@ -1,7 +1,8 @@
-#include "js32.h"
 #include <cstring>
 #include <cstdio>
 #include <cstdarg>
+
+#include "js32.h"
 #include "windows.h"
 #include "Script.h"
 #include "ScriptEngine.h"

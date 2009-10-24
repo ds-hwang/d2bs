@@ -2,11 +2,12 @@
 #ifndef __CONSOLE_H__
 #define __CONSOLE_H__
 
-#include "Screenhook.h"
-#include "D2BS.h"
 #include <deque>
 #include <string>
 #include <windows.h>
+
+#include "Screenhook.h"
+#include "D2BS.h"
 
 class Console
 {

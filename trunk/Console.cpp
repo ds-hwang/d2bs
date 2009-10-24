@@ -1,9 +1,9 @@
+#include <sstream>
+#include <string>
+
 #include "Console.h"
 #include "ScriptEngine.h"
 #include "Helpers.h"
-
-#include <sstream>
-#include <string>
 
 #include "debugnew/debug_new.h"
 
@@ -89,10 +89,17 @@ void Console::ExecuteCommand(void)
 		return;
 
 	char* buf = _strdup(cmd);
-	char* argv = strtok(buf, " ");
+	char* next_token1;
+	char* argv = strtok_s(buf, " ", &next_token1);
 
 	commands.push_back(std::string(cmd));
 	commandPos = commands.size();
+
+	if(argv == NULL)
+	{
+		text->SetText("");
+		return;
+	}
 
 	if(!_strcmpi(argv, "start"))
 	{
@@ -276,6 +283,7 @@ void Console::HidePrompt(void)
 	enabled = false;
 	prompt->SetIsVisible(false);
 	cursor->SetIsVisible(false);
+	text->SetIsVisible(false);
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
@@ -286,7 +294,6 @@ void Console::HideBuffer(void)
 	if(IsEnabled())
 		HidePrompt();
 	box->SetIsVisible(false);
-	text->SetIsVisible(false);
 	for(unsigned int i = 0; i < lineCount; i++)
 		lineBuffers[i]->SetIsVisible(false);
 
@@ -311,6 +318,7 @@ void Console::ShowPrompt(void)
 		ShowBuffer();
 	prompt->SetIsVisible(true);
 	cursor->SetIsVisible(true);
+	text->SetIsVisible(true);
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
@@ -319,7 +327,6 @@ void Console::ShowBuffer(void)
 	EnterCriticalSection(&Vars.cConsoleSection);
 	visible = true;
 	box->SetIsVisible(true);
-	text->SetIsVisible(true);
 	for(unsigned int i = 0; i < lineCount; i++)
 		lineBuffers[i]->SetIsVisible(true);
 

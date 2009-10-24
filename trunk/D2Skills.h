@@ -1,6 +1,12 @@
 #ifndef D2SKILLS_H
 #define D2SKILLS_H
 // Added by lord2800 - English skill names all in a nice and complete struct.
+// TODO: Deprecate this and look it up via the MPQ tables
+
+struct Skill_t {
+	char name[64];
+	unsigned short skillID;
+};
 
 static Skill_t Game_Skills[] = 
 {

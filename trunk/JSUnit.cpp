@@ -99,7 +99,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_Ping);
 			break;
 		case OOG_INGAME:
-			*vp = BOOLEAN_TO_JSVAL(GameReady() ? TRUE : FALSE);
+			*vp = BOOLEAN_TO_JSVAL(ClientState() == ClientStateMenu ? FALSE : TRUE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
@@ -1104,10 +1104,9 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(pUnit->dwType == UNIT_MONSTER)
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
-		UnitAny* pMonster = NULL;	
-		pMonster = GetUnit(NULL, -1, UNIT_PLAYER, -1, dwOwnerId);
+		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, UNIT_PLAYER, (DWORD)-1, dwOwnerId);
 		if (!pMonster)
-			pMonster = GetUnit(NULL, -1, UNIT_MONSTER, -1, dwOwnerId);
+			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
 		if (!pMonster)
 			return JS_TRUE;
 

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <list>
+#include <windows.h>
+
 #include "D2Ptrs.h"
 #include "Script.h"
 #include "ScriptEngine.h"
 #include "D2Helpers.h"
-#include <list>
-#include <windows.h>
 
 typedef unsigned short ushort;
 
@@ -46,17 +47,19 @@ public:
 	~Genhook(void);
 
 	static void DrawAll(ScreenhookState type);
+	// TODO: refactor these away, make GetHooks take a HookList& and return nothing
+	// and use that instead (a la ScriptEngine)
 	static HookList GetHooks(void);
 	static HookIterator GetFirstHook(void);
 	static HookIterator GetLastHook(void);
 	static void Clean(Script* owner);
+	static void Initialize(void) { InitializeCriticalSection(&globalSection); }
+	static void Destroy(void) { DeleteCriticalSection(&globalSection); }
 
 protected:
 	virtual void Draw(void) = 0;
 
 public:
-	static void Initialize(void) { InitializeCriticalSection(&globalSection); }
-	static void Destroy(void) { DeleteCriticalSection(&globalSection); }
 
 	bool Click(int button, POINT* loc);
 	void Hover(POINT* loc);
@@ -139,9 +142,9 @@ private:
 	ImageHook& operator=(const ImageHook&);
 public:
 	ImageHook(Script* owner, const char* nloc, uint x, uint y, ushort ncolor,
-			bool automap = false, Align align = Left, ScreenhookState state = Perm) :
+			bool automap = false, Align align = Left, ScreenhookState state = Perm, bool fromFile = true) :
 		Genhook(owner, x, y, 0, automap, align, state), color(ncolor), image(NULL), location(NULL)
-	{ location = _strdup(nloc); image = LoadCellFile(location); }
+	{ location = _strdup(nloc); image = LoadCellFile(location, fromFile); }
 	~ImageHook(void) { free(location); delete[] image; }
 
 protected:

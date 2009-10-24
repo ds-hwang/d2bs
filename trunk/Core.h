@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include "D2Structs.h"
 
 void	Print(const char * szFormat, ...);

@@ -1,5 +1,3 @@
-//#include "D2BS.h"
-
 #define _DEFINE_VARS
 #include "D2Ptrs.h"
 #include "Patch.h"

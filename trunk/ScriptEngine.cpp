@@ -1,12 +1,12 @@
+#include <algorithm>
+
 #include "ScriptEngine.h"
-#include "D2BS.h"
 #include "Core.h"
 #include "JSGlobalFuncs.h"
 #include "JSGlobalClasses.h"
 #include "JSUnit.h"
 #include "Constants.h"
-
-#include <algorithm>
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -115,7 +115,7 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 	{
 		if(!active && (*it)->IsRunning() && !(*it)->IsAborted())
 			count--;
-		if(!unexecuted && (*it)->GetExecutionCount() == 0)
+		if(!unexecuted && (*it)->GetExecutionCount() == 0 && !(*it)->IsRunning())
 			count--;
 	}
 	assert(count >= 0);

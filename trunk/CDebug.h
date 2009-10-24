@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+
 #include "D2Helpers.h"
 #include "D2BS.h"
 

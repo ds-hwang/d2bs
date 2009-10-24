@@ -1,6 +1,7 @@
 #pragma once
 
 #include <windows.h>
+
 #include "D2Structs.h"
 
 DWORD WINAPI D2Thread(LPVOID lpParam);

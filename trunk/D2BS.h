@@ -3,9 +3,6 @@
 
 #pragma once
 
-#define WIN32_MEAN_AND_LEAN
-#define WIN32_EXTRA_LEAN
-
 #define XP_WIN
 #define JS_THREADSAFE
 
@@ -34,6 +31,7 @@
 #define D2BS_VERSION "1.1"
 
 #include <windows.h>
+
 #include "CollisionMap.h"
 #include "ScreenHook.h"
 

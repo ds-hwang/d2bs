@@ -1,10 +1,11 @@
 #pragma once
 
 #include <windows.h>
-#include "js32.h"
 #include <string>
 #include <map>
 #include <list>
+
+#include "js32.h"
 
 enum ScriptState {
 	InGame,

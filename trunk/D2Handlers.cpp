@@ -1,7 +1,6 @@
 #include <vector>
 
 #include "D2Handlers.h"
-#include "D2BS.h"
 #include "Script.h"
 #include "ScreenHook.h"
 #include "Unit.h"
@@ -13,6 +12,7 @@
 #include "CollisionMap.h"
 #include "ScriptEngine.h"
 #include "Console.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -109,7 +109,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			char versionimg[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
 			if(!Vars.image)
-				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm);
+				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm, false);
 			if(!Vars.text)
 				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
 		}
@@ -217,12 +217,13 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		return NULL;
 
 	char* szBuffer = UnicodeToAnsi(wMsg);
+	char* next_token1;
 	int result = 0;
 
 	if(szBuffer[0] == '.')
 	{
 		char* buf = _strdup(szBuffer);
-		char* cmd = strtok(buf+1, " ");
+		char* cmd = strtok_s(buf+1, " ", &next_token1);
 
 		if(!_strcmpi(cmd, "start"))
 		{
@@ -441,139 +442,144 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-	if(code < 0)
-		return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
-
 	if(Vars.bBlockKeys)
-		return 1;
+		return CallNextHookEx(NULL, code, 0xFF, lParam);
 
-	WORD repeatCount = LOWORD(lParam);
-	bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
-	bool previousState = !!(HIWORD(lParam) & KF_REPEAT);
-	bool transitionState = !!(HIWORD(lParam) & KF_UP);
-	bool isRepeat = !transitionState && repeatCount != 1;
-	bool isDown = !(previousState && transitionState);
-	bool isUp = previousState && transitionState;
-
-	bool gameState = !!GameReady();
-	bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
-	bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
-
-	if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
+	if(code == HC_ACTION) // removes chance of duplicate event firings - TechnoHunter
 	{
-		if(!altState && isUp)
+		WORD repeatCount = LOWORD(lParam);
+		bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
+		bool previousState = !!(HIWORD(lParam) & KF_REPEAT);
+		bool transitionState = !!(HIWORD(lParam) & KF_UP);
+		bool isRepeat = !transitionState && repeatCount != 1;
+		bool isDown = !(previousState && transitionState);
+		bool isUp = previousState && transitionState;
+
+		bool gameState = !!GameReady();
+		bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
+		bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
+
+		if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 		{
-			Console::ToggleBuffer();
+			if(!altState && isUp)
+			{
+				Console::ToggleBuffer();
+			}
+			return 1;
 		}
-		return 1;
-	}
-	else if(wParam == VK_OEM_3 && !(chatBoxOpen || escMenuOpen))
-	{
-		if(altState && isUp)
-			Console::TogglePrompt();
-		return 1;
-	}
-	else if(Console::IsVisible())
-	{
-		BYTE layout[256] = {0};
-		WORD out[2] = {0};
-		switch(wParam)
+		else if(wParam == VK_OEM_3 && !(chatBoxOpen || escMenuOpen))
 		{
-			case VK_TAB:
-				if(isUp && Console::IsEnabled())
-					for(int i = 0; i < 5; i++)
-						Console::AddKey(' ');
-				break;
-			case VK_ESCAPE:
-				if(isUp)
-					Console::Hide();
-				break;
-			case VK_RETURN:
-				if(isUp && !isRepeat && !escMenuOpen && Console::IsEnabled())
-					Console::ExecuteCommand();
-				break;
-			case VK_BACK:
-				if(isDown && Console::IsEnabled())
-					Console::RemoveLastKey();
-				break;
-			case VK_UP:
-				if(isUp && !isRepeat && Console::IsEnabled())
-					Console::PrevCommand();
-				break;
-			case VK_DOWN:
-				if(isUp && !isRepeat && Console::IsEnabled())
-					Console::NextCommand();
-				break;
-			default:
-				if(isDown && Console::IsEnabled())
-				{
-					GetKeyboardState(layout);
-					if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
+			if(altState && isUp)
+				Console::TogglePrompt();
+			return 1;
+		}
+		else if(wParam == VK_ESCAPE)
+		{
+			if(isUp)
+				Console::Hide();
+			return 1;
+		}
+		else if(Console::IsEnabled())
+		{
+			BYTE layout[256] = {0};
+			WORD out[2] = {0};
+			switch(wParam)
+			{
+				case VK_TAB:
+					if(isUp)
+						for(int i = 0; i < 5; i++)
+							Console::AddKey(' ');
+					break;
+				case VK_RETURN:
+					if(isUp && !isRepeat && !escMenuOpen)
+						Console::ExecuteCommand();
+					break;
+				case VK_BACK:
+					if(isDown)
+						Console::RemoveLastKey();
+					break;
+				case VK_UP:
+					if(isUp && !isRepeat)
+						Console::PrevCommand();
+					break;
+				case VK_DOWN:
+					if(isUp && !isRepeat)
+						Console::NextCommand();
+					break;
+				default:
+					if(isDown)
 					{
-						for(int i = 0; i < repeatCount; i++)
-							Console::AddKey(out[0]);
+						GetKeyboardState(layout);
+						if(ToAscii(wParam, (lParam & 0xFF0000), layout, out, 0) != 0)
+						{
+							for(int i = 0; i < repeatCount; i++)
+								Console::AddKey(out[0]);
+						}
 					}
-				}
-				break;
+					break;
+			}
+			return 1;
 		}
-		return 1;
+		else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
+			KeyDownUpEvent(wParam, isUp);
 	}
-	else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
-		KeyDownUpEvent(wParam, transitionState);
-	
-	return CallNextHookEx(Vars.hKeybHook, code, wParam, lParam);
+
+	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
-	if(code < 0)
-		return CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
-
 	if(Vars.bBlockMouse)
 		return 1;
 
-	MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
-	POINT pt = mouse->pt;
-	ScreenToClient(mouse->hwnd, &pt);
-	bool clicked = false;
-
-	switch(wParam)
+	if(code == HC_ACTION)
 	{
-		case WM_LBUTTONDOWN:
-			MouseClickEvent(0, pt, false);
-			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-				if((*it)->Click(0, &pt))
-					clicked = true;
-			break;
-		case WM_LBUTTONUP:
-			MouseClickEvent(0, pt, true);
-			break;
-		case WM_RBUTTONDOWN:
-			MouseClickEvent(1, pt, false);
-			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-				if((*it)->Click(1, &pt))
-					clicked = true;
-			break;
-		case WM_RBUTTONUP:
-			MouseClickEvent(1, pt, true);
-			break;
-		case WM_MBUTTONDOWN:
-			MouseClickEvent(2, pt, false);
-			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-				if((*it)->Click(2, &pt))
-					clicked = true;
-			break;
-		case WM_MBUTTONUP:
-			MouseClickEvent(2, pt, true);
-			break;
-		case WM_MOUSEMOVE:
-//			MouseMoveEvent(pt);
-//			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-//				(*it)->Hover(&pt);
-			break;
+		MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
+		POINT pt = mouse->pt;
+		ScreenToClient(mouse->hwnd, &pt);
+		bool clicked = false;
+
+		switch(wParam)
+		{
+			case WM_LBUTTONDOWN:
+				MouseClickEvent(0, pt, false);
+				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+					if((*it)->Click(0, &pt))
+						clicked = true;
+				break;
+			case WM_LBUTTONUP:
+				MouseClickEvent(0, pt, true);
+				break;
+			case WM_RBUTTONDOWN:
+				MouseClickEvent(1, pt, false);
+				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+					if((*it)->Click(1, &pt))
+						clicked = true;
+				break;
+			case WM_RBUTTONUP:
+				MouseClickEvent(1, pt, true);
+				break;
+			case WM_MBUTTONDOWN:
+				MouseClickEvent(2, pt, false);
+				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+					if((*it)->Click(2, &pt))
+						clicked = true;
+				break;
+			case WM_MBUTTONUP:
+				MouseClickEvent(2, pt, true);
+				break;
+			case WM_MOUSEMOVE:
+	//			MouseMoveEvent(pt);
+	//			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
+	//				(*it)->Hover(&pt);
+				break;
+		}
+
+		return clicked ? 1 : CallNextHookEx(NULL, code, wParam, lParam);
 	}
 
-	return clicked ? 1 : CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
+	//return clicked ? 1 : CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
+	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
 VOID GameDraw(VOID)

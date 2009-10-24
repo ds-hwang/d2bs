@@ -1,4 +1,5 @@
 #include <windows.h>
+
 #include "Constants.h"
 #include "D2Structs.h"
 #include "D2Helpers.h"
@@ -6,6 +7,7 @@
 #include "Core.h"
 #include "AreaLinker.h"
 
+#include "debugnew/debug_new.h"
 
 AreaNode* GetAreaNode(INT nAreaId)
 {

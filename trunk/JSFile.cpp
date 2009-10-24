@@ -16,11 +16,12 @@
 
 #define _USE_32BIT_TIME_T
 
-#include "JSFile.h"
-#include "File.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <io.h>
+
+#include "JSFile.h"
+#include "File.h"
 #include "CDebug.h"
 
 #include "debugnew/debug_new.h"
@@ -178,6 +179,7 @@ JSAPI_FUNC(file_open)
 	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
+
 	FILE* fptr = NULL;
 	fopen_s(&fptr, path, modes[mode]);
 	if(!fptr)

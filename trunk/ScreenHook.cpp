@@ -57,6 +57,7 @@ void Genhook::Clean(Script* owner)
 		if((*it)->owner == owner)
 		{
 			(*it)->SetIsVisible(false);
+			(*it)->owner = NULL;
 		}
 	}
 	LeaveCriticalSection(&globalSection);
@@ -75,16 +76,18 @@ Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutoma
 Genhook::~Genhook(void) {
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(owner->GetContext(), &clicked);
+		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &clicked);
 	if(!JSVAL_IS_VOID(hovered))
-		JS_RemoveRoot(owner->GetContext(), &hovered);
+		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &hovered);
 
+	EnterCriticalSection(&globalSection);
 	hooks.remove(this);
-	Unlock();
-	DeleteCriticalSection(&hookSection);
+	LeaveCriticalSection(&globalSection);
 	owner = NULL;
 	location.x = -1;
 	location.y = -1;
+	Unlock();
+	DeleteCriticalSection(&hookSection);
 }
 
 // TODO: make this properly manage the context thread...
@@ -207,7 +210,7 @@ void Genhook::SetHoverHandler(jsval handler)
 
 void TextHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), w = CalculateTextLen(text, font).x;
@@ -247,7 +250,7 @@ void TextHook::SetText(const char* ntext)
 
 void ImageHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1 && GetImage() != NULL)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL)
 	{
 		if (IsBadReadPtr(image, sizeof(CellFile)))
 			return;
@@ -270,7 +273,7 @@ void ImageHook::Draw(void)
 
 bool ImageHook::IsInRange(int dx, int dy)
 {
-	if (image)
+	if(image)
 	{
 		int x = GetX();
 		int y = GetY();
@@ -300,7 +303,7 @@ void ImageHook::SetImage(const char* nimage)
 
 void LineHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
@@ -324,7 +327,7 @@ void LineHook::Draw(void)
 
 void BoxHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
@@ -362,7 +365,7 @@ bool BoxHook::IsInRange(int dx, int dy)
 
 void FrameHook::Draw(void)
 {
-	if(GetX() != -1 && GetY() != -1)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
 		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();

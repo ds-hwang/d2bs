@@ -5,10 +5,10 @@
 #include "Core.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
-#include "D2BS.h"
 #include "CDebug.h"
 #include "Helpers.h"
 #include "ScriptEngine.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -150,17 +150,20 @@ void Script::Run(void)
 	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
+	JS_AddRoot(GetContext(), &main);
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
 	{
+		JS_RemoveRoot(GetContext(), &main);
 		JS_EndRequest(GetContext());
 		return;
 	}
 	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
+		JS_RemoveRoot(GetContext(), &main);
 		JS_EndRequest(GetContext());
 		return;
 	}
@@ -168,6 +171,7 @@ void Script::Run(void)
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
 	JS_SetContextThread(GetContext());
+	JS_RemoveRoot(GetContext(), &main);
 	JS_EndRequest(GetContext());	
 
 	execCount++;

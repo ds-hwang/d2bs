@@ -1,15 +1,17 @@
 #ifndef D2INTERCEPTS_H
 #define D2INTERCEPTS_H
 
-VOID GameDraw_STUB();;
-VOID GameInput_Interception();
-VOID GameMinimize_Interception();
-VOID GamePacketReceived_STUB();
+#include "D2Structs.h"
+
+void GameDraw_STUB();;
+void GameInput_Interception();
+void GameMinimize_Interception();
+void GamePacketReceived_STUB();
 UnitAny* myGetSelectedUnit(VOID);
-VOID Whisper_Intercept();
-VOID GameAttack_STUB();
-VOID PlayerAssignment_STUB();
-VOID GameCrashFix_STUB();
-VOID GameDraw_Interception(VOID);
+void Whisper_Intercept();
+void GameAttack_STUB();
+void PlayerAssignment_STUB();
+void GameCrashFix_STUB();
+void GameDraw_Interception(VOID);
 
 #endif

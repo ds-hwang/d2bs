@@ -1,4 +1,3 @@
-//#include "D2BS.h"
 #include "ScriptEngine.h"
 
 #include "debugnew/debug_new.h"

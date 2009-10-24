@@ -7,9 +7,10 @@
 //////////////////////////////////////////////////////////
 
 #include <windows.h>
-#include "Common.h"
 #include <math.h>
 #include <stdlib.h>
+
+#include "Common.h"
 
 #include "debugnew/debug_new.h"
 

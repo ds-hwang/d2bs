@@ -14,9 +14,10 @@
   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#include <set>
+
 #include "JSSQLite.h"
 #include "File.h"
-#include <set>
 #include "CDebug.h"
 
 #include "debugnew/debug_new.h"
@@ -117,7 +118,7 @@ JSAPI_FUNC(sqlite_ctor)
 	if(!jsdb) {
 		sqlite3_close(db);
 		free(dbobj->path);
-		free(dbobj);
+		delete dbobj;
 		THROW_ERROR(cx, obj, "Could not create the sqlite object");
 	}
 	*rval = OBJECT_TO_JSVAL(jsdb);

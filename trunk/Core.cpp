@@ -1,3 +1,8 @@
+#include <string>
+#include <sstream>
+#include <algorithm>
+#include <list>
+
 #include "Core.h"
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
@@ -5,11 +10,6 @@
 #include "Control.h"
 #include "CriticalSections.h"
 #include "Console.h"
-
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <list>
 
 #include "debugnew/debug_new.h"
 
@@ -87,7 +87,7 @@ void Print(const char * szFormat, ...)
 
 	EnterCriticalSection(&Vars.cPrintSection);
 #ifndef _USE_CONSOLE_ONLY
-	if(D2CLIENT_GetPlayerUnit() && GameReady())
+	if(GameReady())
 	{
 		// Convert and send every line.
 		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -97,10 +97,11 @@ void Print(const char * szFormat, ...)
 			delete [] output;
 		}
 	}
-	else if(findControl(4, (char *)NULL, -1, 28, 410, 354, 298))
+ 	else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
 	{
-			// TODO: Double check this function, make sure it is working as intended.
-			// D2MULTI_PrintChannelText(szString, NULL);
+		// TODO: Double check this function, make sure it is working as intended.
+		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+			D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
 	}
 	else
 	{

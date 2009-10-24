@@ -1,10 +1,13 @@
-#include "D2BS.h"
+#include <io.h>
+#include <errno.h>
 #include <ctime>
 #include <cmath>
+
 #include "Constants.h"
 #include "Helpers.h"
 #include "D2Skills.h"
 #include "D2Intercepts.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
@@ -613,7 +616,9 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 	}
 	else if(bMPQ == FALSE)
 	{
-		return myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+		// see if the file exists first
+		if(!(_access(lpszPath, 0) != 0 && errno == ENOENT))
+			return myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
 	}
 
 	return NULL;
