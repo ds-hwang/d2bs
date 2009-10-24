@@ -86,7 +86,7 @@ void Print(const char * szFormat, ...)
 	}
 
 	EnterCriticalSection(&Vars.cPrintSection);
-#ifndef _USE_CONSOLE_ONLY
+#ifdef _DONT_USE_CONSOLE_
 	if(GameReady())
 	{
 		// Convert and send every line.

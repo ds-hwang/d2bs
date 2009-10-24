@@ -442,9 +442,9 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
 	if(Vars.bBlockKeys)
-		return CallNextHookEx(NULL, code, 0xFF, lParam);
+		return 1;
 
-	if(code == HC_ACTION) // removes chance of duplicate event firings - TechnoHunter
+	if(code >= 0) // removes chance of duplicate event firings - TechnoHunter
 	{
 		WORD repeatCount = LOWORD(lParam);
 		bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
@@ -519,7 +519,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 			}
 			return 1;
 		}
-		else if(!(chatBoxOpen || escMenuOpen) && !isRepeat)
+		else if(!(chatBoxOpen || escMenuOpen) && !isRepeat && code == HC_ACTION)
 			KeyDownUpEvent(wParam, isUp);
 	}
 
