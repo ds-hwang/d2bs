@@ -477,8 +477,10 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		else if(wParam == VK_ESCAPE && Console::IsVisible())
 		{
 			if(isUp)
+			{
 				Console::Hide();
-			return 1;
+				return 1;
+			}
 		}
 		else if(Console::IsEnabled())
 		{
