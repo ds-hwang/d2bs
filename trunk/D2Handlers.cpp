@@ -463,14 +463,13 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		
 		if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 		{
-			if(!altState && isUp && code == 0)
+			if(isUp && code == 0)
 			{
-				Console::ToggleBuffer();
-				return CallNextHookEx(NULL, code, wParam, lParam);
-			}
-			if (altState && isUp && code == 0)
-			{
-				Console::TogglePrompt();
+				if(!altState)
+					Console::ToggleBuffer();
+				else
+					Console::TogglePrompt();
+
 				return CallNextHookEx(NULL, code, wParam, lParam);
 			}
 		}			
