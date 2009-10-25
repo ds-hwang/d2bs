@@ -199,7 +199,7 @@ void Console::RemoveLastKey(void)
 
 void Console::PrevCommand(void)
 {
-	if(commandPos < 1)
+	if(commandPos < 1 || commandPos > commands.size())
 		return;
 
 	EnterCriticalSection(&Vars.cConsoleSection);
@@ -210,7 +210,7 @@ void Console::PrevCommand(void)
 
 void Console::NextCommand(void)
 {
-	if(commandPos > commands.size())
+	if(commandPos >= commands.size())
 		return;
 
 	EnterCriticalSection(&Vars.cConsoleSection);

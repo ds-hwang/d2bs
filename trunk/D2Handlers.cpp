@@ -463,7 +463,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		
 		if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 		{
-			if(isUp && code == 0)
+			if(isDown && !isRepeat && code == 0)
 			{
 				if(!altState)
 					Console::ToggleBuffer();
