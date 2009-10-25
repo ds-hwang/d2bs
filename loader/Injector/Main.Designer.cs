@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			this.button1 = new System.Windows.Forms.Button();
 			this.listBox1 = new System.Windows.Forms.ListBox();
 			this.label1 = new System.Windows.Forms.Label();
@@ -127,9 +128,9 @@
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.listBox1);
 			this.Controls.Add(this.button1);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.Name = "Main";
-			this.ShowIcon = false;
 			this.Text = "Injector";
 			this.ResumeLayout(false);
 			this.PerformLayout();

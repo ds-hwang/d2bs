@@ -422,6 +422,7 @@ namespace PInvoke {
 		}
 		public static IntPtr FindModuleHandle(Process p, string module)
 		{
+			p.WaitForInputIdle();
 			p.Refresh();
 			foreach(ProcessModule m in p.Modules)
 			{
