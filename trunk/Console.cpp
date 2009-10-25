@@ -93,7 +93,7 @@ void Console::ExecuteCommand(void)
 	char* argv = strtok_s(buf, " ", &next_token1);
 
 	commands.push_back(std::string(cmd));
-	commandPos = commands.size();
+	commandPos = commands.size() - 1;
 
 	if(argv == NULL)
 	{
@@ -199,12 +199,19 @@ void Console::RemoveLastKey(void)
 
 void Console::PrevCommand(void)
 {
-	if(commandPos < 1 || commandPos > commands.size())
-		return;
-
 	EnterCriticalSection(&Vars.cConsoleSection);
-	commandPos--;
-	text->SetText(commands[commandPos].c_str());
+
+	if(commandPos < 1 || commandPos > commands.size())
+	{
+		text->SetText("");
+	}
+	else
+	{
+		if(commandPos >= 1)
+			commandPos--;
+		text->SetText(commands[commandPos].c_str());
+	}
+
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
@@ -214,8 +221,12 @@ void Console::NextCommand(void)
 		return;
 
 	EnterCriticalSection(&Vars.cConsoleSection);
-	commandPos++;
+
 	text->SetText(commands[commandPos].c_str());
+
+	if (commandPos < commands.size() - 1)
+		commandPos++;
+
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
