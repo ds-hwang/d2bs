@@ -37,24 +37,14 @@ namespace Injector
 			// forcibly use game.exe in case the user set it to diablo ii.exe
 			if(!String.IsNullOrEmpty(D2Exe) &&
 				Path.GetFileName(D2Exe).ToLowerInvariant() == "diablo ii.exe" &&
-				File.Exists(Path.GetDirectoryName(D2Exe) + Path.DirectorySeparatorChar + "Game.exe"))
+				File.Exists(D2Path + "Game.exe"))
 			{
-				D2Exe = Path.GetDirectoryName(D2Exe) + Path.DirectorySeparatorChar + "Game.exe";
+				D2Exe = D2Path + "Game.exe";
 				SaveSettings();
 			}
 
 			if(!File.Exists(D2Exe))
 				MessageBox.Show("Failed to find the Diablo II Executable! Please click Options and make sure everything is correct.", "D2BS");
-
-			FileInfo js32local = new FileInfo("js32.dll");
-			FileInfo nsprlocal = new FileInfo("libnspr4.dll");
-			FileInfo js32remote = new FileInfo(Path.GetDirectoryName(D2Exe) + Path.DirectorySeparatorChar + "js32.dll");
-			FileInfo nsprremote = new FileInfo(Path.GetDirectoryName(D2Exe) + Path.DirectorySeparatorChar + "libnspr4.dll");
-
-			if(!js32remote.Exists || js32local.Length != js32remote.Length)
-				File.Copy("js32.dll", D2Path + Path.DirectorySeparatorChar + "js32.dll");
-			if(!nsprremote.Exists || nsprlocal.Length != nsprremote.Length)
-				File.Copy("libnspr4.dll", D2Path + Path.DirectorySeparatorChar + "libnspr4.dll");
 
 			Process.EnterDebugMode();
 
@@ -188,9 +178,13 @@ namespace Injector
 
 		private bool Attach(Process p)
 		{
-			if(!File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + "cGuard.dll"))
+			string path = Application.StartupPath + Path.DirectorySeparatorChar;
+			if(!File.Exists(path + "cGuard.dll") ||
+			   !File.Exists(path + "js32.dll") ||
+			   !File.Exists(path + "libnspr4.dll"))
 				return false;
-			return PInvoke.Kernel32.LoadRemoteLibrary(p, Application.StartupPath + Path.DirectorySeparatorChar + "cGuard.dll");
+			return PInvoke.Kernel32.LoadRemoteLibrary(p, path + "js32.dll") &&
+				   PInvoke.Kernel32.LoadRemoteLibrary(p, path + "cGuard.dll");
 		}
 
 		private void Start()
@@ -199,9 +193,10 @@ namespace Injector
 				return;
 
 			ProcessStartInfo psi = new ProcessStartInfo(D2Exe, D2Args);
-			psi.EnvironmentVariables["path"] = Application.StartupPath + Path.DirectorySeparatorChar + ";" + psi.EnvironmentVariables["path"];
+			// no longer necessary to set the path
+			//psi.EnvironmentVariables["path"] = Application.StartupPath + Path.DirectorySeparatorChar + ";" + psi.EnvironmentVariables["path"];
 			psi.UseShellExecute = false;
-			psi.WorkingDirectory = Path.GetDirectoryName(D2Exe);
+			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
 			p.WaitForInputIdle();
 			ProcessWrapper pw = new ProcessWrapper(p);
