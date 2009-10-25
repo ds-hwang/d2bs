@@ -441,7 +441,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 {
-	if(code >= HC_ACTION) // removes chance of duplicate event firings - TechnoHunter
+	if(code >= HC_ACTION)
 	{
 		WORD repeatCount = LOWORD(lParam);
 		bool altState = !!(HIWORD(lParam) & KF_ALTDOWN);
@@ -458,12 +458,12 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		if (altState && wParam == VK_F4)
 			return CallNextHookEx(NULL, code, wParam, lParam);
 
-		if(Vars.bBlockKeys && code >= HC_ACTION)
+		if(Vars.bBlockKeys)
 			return 1;
 		
 		if(wParam == VK_HOME && !(chatBoxOpen || escMenuOpen))
 		{
-			if(isDown && !isRepeat && code == 0)
+			if(isDown && !isRepeat && code == HC_ACTION)
 			{
 				if(!altState)
 					Console::ToggleBuffer();
@@ -475,11 +475,12 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		}			
 		else if(wParam == VK_ESCAPE && Console::IsVisible())
 		{
-			if(isUp)
+			if(isDown && !isRepeat && code == HC_ACTION )
 			{
 				Console::Hide();
 				return 1;
 			}
+			return CallNextHookEx(NULL, code, wParam, lParam);
 		}
 		else if(Console::IsEnabled())
 		{
@@ -522,7 +523,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 			}			
 			return 1;
 		}
-		else if(!(chatBoxOpen || escMenuOpen) && !isRepeat && code == HC_ACTION)
+		else if(code == HC_ACTION && !isRepeat && !(chatBoxOpen || escMenuOpen))
 			KeyDownUpEvent(wParam, isUp);
 	}
 	return CallNextHookEx(NULL, code, wParam, lParam);
@@ -579,7 +580,6 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 		return clicked ? 1 : CallNextHookEx(NULL, code, wParam, lParam);
 	}
 
-	//return clicked ? 1 : CallNextHookEx(Vars.hMouseHook, code, wParam, lParam);
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
