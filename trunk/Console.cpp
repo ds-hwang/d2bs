@@ -93,7 +93,7 @@ void Console::ExecuteCommand(void)
 	char* argv = strtok_s(buf, " ", &next_token1);
 
 	commands.push_back(std::string(cmd));
-	commandPos = commands.size() - 1;
+	commandPos = commands.size();
 
 	if(argv == NULL)
 	{
