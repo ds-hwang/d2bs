@@ -131,7 +131,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
 			this.Name = "Main";
-			this.Text = "Injector";
+			this.Text = "D2BS Loader";
 			this.ResumeLayout(false);
 			this.PerformLayout();
 

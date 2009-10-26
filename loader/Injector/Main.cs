@@ -194,15 +194,14 @@ namespace Injector
 				return;
 
 			ProcessStartInfo psi = new ProcessStartInfo(D2Exe, D2Args);
-			// no longer necessary to set the path
-			//psi.EnvironmentVariables["path"] = Application.StartupPath + Path.DirectorySeparatorChar + ";" + psi.EnvironmentVariables["path"];
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
 			p.WaitForInputIdle();
 			ProcessWrapper pw = new ProcessWrapper(p);
 			procs.Add(pw);
-			Attach(pw);
+			if(checkBox1.Checked)
+				Attach(pw);
 		}
 
 		private void SaveSettings()
