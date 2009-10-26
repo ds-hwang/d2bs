@@ -1264,11 +1264,7 @@ INT my_quitGame(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	CDebug cDbg("quitGame");
 
 	if(GameReady())
-	{
 		D2CLIENT_ExitGame();
-		while(ClientState() == ClientStateInGame)
-			Sleep(10);
-	}
 
 	// give the core a chance to shut down
 	Shutdown();
@@ -1281,12 +1277,8 @@ INT my_quit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("quit");
 
-	if(!GameReady())
-		return JS_TRUE;
-
-	D2CLIENT_ExitGame();
-	while(ClientState() == ClientStateInGame)
-		Sleep(10);
+	if(GameReady())
+		D2CLIENT_ExitGame();
 
 	return JS_TRUE;
 }
