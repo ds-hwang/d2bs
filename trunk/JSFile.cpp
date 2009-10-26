@@ -185,7 +185,7 @@ JSAPI_FUNC(file_open)
 	if(!fptr)
 		return ThrowJSError(cx, obj, "Couldn't open file %s: %s", file, _strerror(NULL));
 
-	FileData* fdata = new FileData; // leaked?
+	FileData* fdata = new FileData;
 	if(!fdata)
 	{
 		fclose(fptr);
