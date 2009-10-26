@@ -200,31 +200,24 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 
 	D2NET_SendPacket(9, 1, aPacket);
 
-	UnitAny* Me = D2CLIENT_GetPlayerUnit();
+	UnitAny* Me = *p_D2CLIENT_PlayerUnit;
 
-	if(!bLeft) {
-		if(!GameReady())
-			return FALSE;
-		while(Me->pInfo->pRightSkill->pSkillInfo->wSkillId != wSkillId)
+	int timeout = 0;
+	Skill* hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
+	while(GameReady())
+	{
+		if(hand->pSkillInfo->wSkillId != wSkillId)
 		{
-			Sleep(100);
-			if(!GameReady())
+			if(timeout > 10)
 				return FALSE;
+			timeout++;
 		}
+		else
+			return TRUE;
+		Sleep(100);
 	}
-	else {	
-		if(!GameReady())
-			return FALSE;
-		
-		while(Me->pInfo->pLeftSkill->pSkillInfo->wSkillId != wSkillId)
-		{
-			Sleep(100);
-			if(!GameReady())
-				return FALSE;
-		}
-	}
-
-	return TRUE;
+	
+	return FALSE;
 }
 
 // Compare the skillname to the Game_Skills struct to find the right skill ID to return
