@@ -345,7 +345,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	POINT lpBuffer[255] = {0};
 	DWORD *AreaIds = NULL;
 	jsuint dwLength = 0;
-	DWORD Area;
+	DWORD Area = 0;
 
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);

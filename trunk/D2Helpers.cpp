@@ -203,9 +203,10 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 	UnitAny* Me = *p_D2CLIENT_PlayerUnit;
 
 	int timeout = 0;
-	Skill* hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
+	Skill* hand = NULL;
 	while(GameReady())
 	{
+		hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
 		if(hand->pSkillInfo->wSkillId != wSkillId)
 		{
 			if(timeout > 10)
