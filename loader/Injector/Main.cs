@@ -386,13 +386,15 @@ namespace PInvoke {
 
 		public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param)
 		{
-			IntPtr moduleHandle = FindModuleHandle(p, module);
-			if(moduleHandle == IntPtr.Zero)
-				return false;
+			// removed because APPARENTLY d2 doesn't load kernel32.dll directly. *mutters*
+			//IntPtr moduleHandle = FindModuleHandle(p, module);
+			//if(moduleHandle == IntPtr.Zero)
+			//	return false;
 
-			IntPtr localHandle = LoadLibrary(module);
-			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + (GetProcAddress(localHandle, function).ToInt32() - localHandle.ToInt32()));
-			FreeLibrary(localHandle);
+			//IntPtr localHandle = LoadLibrary(module);
+			//IntPtr address = (IntPtr)(moduleHandle.ToInt32() + (GetProcAddress(localHandle, function).ToInt32() - localHandle.ToInt32()));
+			//FreeLibrary(localHandle);
+			IntPtr address = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 			if(address != IntPtr.Zero)
 			{
 				IntPtr result = CreateRemoteThread(p, address, param, CreateThreadFlags.RunImmediately);
