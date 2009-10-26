@@ -474,6 +474,7 @@ void file_finalize(JSContext *cx, JSObject *obj)
 			_unlock_file(fdata->fptr);
 		if(fdata->fptr)
 			fclose(fdata->fptr);
+		delete fdata;
 	}
 }
 
