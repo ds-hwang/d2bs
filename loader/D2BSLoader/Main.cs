@@ -196,12 +196,7 @@ namespace D2BSLoader
 			ProcessStartInfo psi = new ProcessStartInfo(D2Path + Path.DirectorySeparatorChar + D2Exe, D2Args);
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
-			Process p = Process.Start(psi);
-			p.WaitForInputIdle();
-			ProcessWrapper pw = new ProcessWrapper(p);
-			processes.Add(pw);
-			if(GetAutoload())
-				Attach(pw);
+			Process.Start(psi);
 		}
 
 		private void Load_Click(object sender, EventArgs e)
