@@ -46,7 +46,7 @@ namespace D2BSLoader
 					Options_Click(null, null);
 					ReloadSettings();
 				}
-				if(!File.Exists(D2Path + D2Exe))
+				if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe))
 				{
 					MessageBox.Show("Diablo II Executable not found! Please click 'Options' and ensure that everything is correct.", "D2BS");
 				}
@@ -85,10 +85,13 @@ namespace D2BSLoader
 					if(processes.Exists(x => p.Id == x.Process.Id))
 						continue;
 
-					string moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant();
+					string moduleName = "";
+					try {
+						moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant();
+					} catch { }
 					string classname = PInvoke.User32.GetClassNameFromProcess(p);
 					if(!String.IsNullOrEmpty(classname) && classname == "Diablo II" &&
-						(moduleName == "game.exe") || moduleName.Contains("d2loader"))
+						(moduleName == "game.exe" || moduleName.Contains("d2loader")))
 					{
 						ProcessWrapper pw = new ProcessWrapper(p);
 						processes.Add(pw);
@@ -106,22 +109,24 @@ namespace D2BSLoader
 			}
 		}
 
-		private void SaveSettings()
+		public static void SaveSettings(string path, string exe, string args)
 		{
 			Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+			config.AppSettings.Settings.Remove("D2Path");
 			config.AppSettings.Settings.Remove("D2Exe");
 			config.AppSettings.Settings.Remove("D2Args");
-			config.AppSettings.Settings.Add("D2Exe", D2Exe);
-			config.AppSettings.Settings.Add("D2Args", D2Args);
+			config.AppSettings.Settings.Add("D2Path", path);
+			config.AppSettings.Settings.Add("D2Exe", exe);
+			config.AppSettings.Settings.Add("D2Args", args);
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
 		private void ReloadSettings()
 		{
 			ConfigurationManager.RefreshSection("appSettings");
+			D2Path = ConfigurationManager.AppSettings["D2Path"];
 			D2Exe = ConfigurationManager.AppSettings["D2Exe"];
 			D2Args = ConfigurationManager.AppSettings["D2Args"];
-			D2Path = Path.GetDirectoryName(D2Exe);
 		}
 
 		private bool GetAutoload()
@@ -188,7 +193,7 @@ namespace D2BSLoader
 			if(String.IsNullOrEmpty(D2Exe))
 				return;
 
-			ProcessStartInfo psi = new ProcessStartInfo(D2Exe, D2Args);
+			ProcessStartInfo psi = new ProcessStartInfo(D2Path + Path.DirectorySeparatorChar + D2Exe, D2Args);
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
@@ -216,9 +221,9 @@ namespace D2BSLoader
 
 		private void Options_Click(object sender, EventArgs e)
 		{
-			/*Options o = new Options();
+			Options o = new Options();
 			o.ShowDialog();
-			ReloadSettings();*/
+			ReloadSettings();
 		}
 	}
 
