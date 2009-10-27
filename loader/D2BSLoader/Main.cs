@@ -24,9 +24,9 @@ namespace D2BSLoader
 		{
 			// process command line args
 			Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>();
-			actions.Add("inject", null);
-			actions.Add("kill", null);
-			actions.Add("start", null);
+			actions.Add("inject", Inject);
+			actions.Add("kill", Kill);
+			actions.Add("start", Start);
 			string action = "";
 			int pid = -1;
 			for(int i = 0; i < args.Length; i++)
