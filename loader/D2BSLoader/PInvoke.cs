@@ -122,7 +122,7 @@
 		public static bool LoadRemoteLibrary(Process p, string module)
 		{
 			IntPtr moduleName = WriteObject(p, module);
-			/*IntPtr address = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
+			IntPtr address = GetProcAddress(GetModuleHandle("kernel32.dll"), "LoadLibraryA");
 			if(address != IntPtr.Zero)
 			{
 				IntPtr result = CreateRemoteThread(p, address, moduleName, CreateThreadFlags.RunImmediately);
@@ -130,8 +130,8 @@
 					WaitForSingleObject(result, UInt32.MaxValue);
 				return result != IntPtr.Zero;
 			}
-			return false;*/
-			return CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+			return false;
+			//return CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
 		}
 		public static bool UnloadRemoteLibrary(Process p, string module)
 		{

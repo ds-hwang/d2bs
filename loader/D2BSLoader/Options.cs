@@ -12,9 +12,13 @@ namespace D2BSLoader
 {
 	public partial class Options : Form
 	{
-		public Options()
+		public Options(string path, string exe, string args)
 		{
 			InitializeComponent();
+
+			Path.Text = path;
+			Exe.Text = exe;
+			Args.Text = args;
 		}
 
 		private void OK_Click(object sender, EventArgs e)

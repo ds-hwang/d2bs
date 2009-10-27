@@ -221,7 +221,7 @@ namespace D2BSLoader
 
 		private void Options_Click(object sender, EventArgs e)
 		{
-			Options o = new Options();
+			Options o = new Options(D2Path, D2Exe, D2Args);
 			o.ShowDialog();
 			ReloadSettings();
 		}
