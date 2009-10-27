@@ -195,6 +195,26 @@
 				>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="d2"
+			>
+			<Filter
+				Name="headers"
+				>
+				<File
+					RelativePath=".\d2\headers\Macros.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\headers\Pointers.h"
+					>
+				</File>
+				<File
+					RelativePath=".\d2\headers\Structs.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
 		<File
 			RelativePath=".\main.cpp"
 			>
