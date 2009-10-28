@@ -446,7 +446,7 @@ DWORD WINAPI FuncThread(void* data)
 		}
 	}
 
-	JS_DestroyContext(evt->context);
+	JS_DestroyContextMaybeGC(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
 	{
