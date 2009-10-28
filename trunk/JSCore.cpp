@@ -615,32 +615,20 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 			return JS_TRUE;
 		}
-		else if(InventoryLocation == STORAGE_INVENTORY)
+		else if(InventoryLocation == STORAGE_INVENTORY || InventoryLocation == STORAGE_STASH || InventoryLocation == STORAGE_CUBE)
 		{
-			//D2CLIENT_RightClickItem(x,y,nLoc , D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-			pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
-
-			x = pLayout->Left + x * pLayout->SlotPixelWidth + 10; 
-			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
-
-			if(nClickType == NULL)
-				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
-			else D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-		}
-		else if(InventoryLocation == STORAGE_STASH)
-		{
-			pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
-
-			x = pLayout->Left + x * pLayout->SlotPixelWidth + 10; 
-			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
-
-			if(nClickType == NULL)
-				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
-			else D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-		}
-		else if(InventoryLocation == STORAGE_CUBE)
-		{
-			pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
+			switch(InventoryLocation)
+			{
+				case STORAGE_INVENTORY:
+					pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
+					break;
+				case STORAGE_STASH:
+					pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
+					break;
+				case STORAGE_CUBE:
+					pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
+					break;
+			}
 
 			x = pLayout->Left + x * pLayout->SlotPixelWidth + 10; 
 			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
