@@ -295,7 +295,7 @@ bool Script::IsListenerRegistered(const char* evtName)
 	if(strlen(evtName) < 1)
 		return false;
 
-	if(functions.count(EvtName) > 0)
+	if(functions.count(evtName) > 0)
 		return true;
 
 	return false;

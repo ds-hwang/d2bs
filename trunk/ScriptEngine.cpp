@@ -331,7 +331,10 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 		script->SetPauseState(true);
 	while(script->IsPaused())
+	{
 		Sleep(50);
+		JS_MaybeGC(cx);
+	}
 	if(pause)
 		script->SetPauseState(false);
 
