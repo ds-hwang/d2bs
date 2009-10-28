@@ -108,6 +108,7 @@ public:
 	bool IsIncluded(const char* file);
 	bool Include(const char* file);
 
+	bool IsListenerRegistered(const char* evtName);
 	void RegisterEvent(const char* evtName, jsval evtFunc);
 	bool IsRegisteredEvent(const char* evtName, jsval evtFunc);
 	void UnregisterEvent(const char* evtName, jsval evtFunc);

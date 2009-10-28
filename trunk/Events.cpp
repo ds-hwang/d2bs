@@ -8,8 +8,9 @@ VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("chatmsg"))
 			continue;
+
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
@@ -24,8 +25,9 @@ VOID WhisperEvent(CHAR* lpszNick, CHAR* lpszMsg)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("whispermsg"))
 			continue;
+
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszNick)));
@@ -40,8 +42,9 @@ VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("melife"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(dwMana));
@@ -55,8 +58,9 @@ VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("copydata"))
 			continue;
+
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwMode));
@@ -71,8 +75,9 @@ VOID GameMsgEvent(CHAR* lpszMsg)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("gamemsg"))
 			continue;
+
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, lpszMsg)));
@@ -86,8 +91,9 @@ VOID KeyDownUpEvent(WPARAM key, BYTE bUp)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered(bUp ? "keyup" : "keydown"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(key));
 		(*it)->ExecEventAsync((bUp ? "keyup" : "keydown"), 1, argv);
@@ -100,8 +106,9 @@ VOID PlayerAssignEvent(DWORD dwUnitId)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("playerassign"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwUnitId));
 		(*it)->ExecEventAsync("playerassign", 1, argv);
@@ -114,8 +121,9 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered(bUp ? "mouseup" : "mousedown"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[3];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.x));
@@ -130,8 +138,9 @@ VOID MouseMoveEvent(POINT pt)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("mousemove"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(pt.x));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(pt.y));
@@ -145,8 +154,9 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("scriptmsg"))
 			continue;
+
 		AutoRoot** argv = new AutoRoot*[argc];
 		for(uintN i = 0; i < argc; i++)
 			argv[i] = new AutoRoot(args[i]);
@@ -159,8 +169,9 @@ VOID ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
 	ScriptEngine::GetScripts(scripts);
 	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!(*it)->IsRunning())
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("itemdrop"))
 			continue;
+
 		JSContext* cx = (*it)->GetContext();
 		AutoRoot** argv = new AutoRoot*[5];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(GID));

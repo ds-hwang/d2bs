@@ -289,6 +289,18 @@ bool Script::IsAborted()
 	return IsBadReadPtr(this, sizeof(this)) ? true : isAborted;
 }
 
+bool Script::IsListenerRegistered(const char* evtName)
+{
+	// nothing can be registered under an empty name
+	if(strlen(evtName) < 1)
+		return false;
+
+	if(functions.count(EvtName) > 0)
+		return true;
+
+	return false;
+}
+
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
 	EnterCriticalSection(&lock);
