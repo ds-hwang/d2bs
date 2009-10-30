@@ -41,9 +41,11 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
+			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+				THROW_ERROR(cx, obj, "Converting to string failed");
 			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
-			if(!(lpszText && lpszText[0]))
-				THROW_ERROR(cx, obj, "Could not convert string");
+			if(lpszText == NULL)
+				THROW_ERROR(cx, obj, "Could not get string for value");
 			char* c = 0;
 			while((c = strchr(lpszText, '%')) != 0)
 				*c = (unsigned char)0xFE;
