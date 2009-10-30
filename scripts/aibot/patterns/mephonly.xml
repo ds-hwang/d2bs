@@ -1,0 +1,10 @@
+<pattern>
+	<!-- TODO: allow for inclusion of other patterns -->
+	<areas>
+		<area id="102"> <!-- TODO: make this read names -->
+			<monsters>
+				<monster id="242" typeflag="4" mode="kill" /> <!-- TODO: make this read names too -->
+			</monsters>
+		</area>
+	</areas>
+</pattern>

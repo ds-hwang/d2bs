@@ -1,0 +1,8 @@
+include('pattern.dbl');
+
+function main()
+{
+	// read the patterns this character wants to load
+	// for testing, we're going to hardcode meph.xml
+	var pattern = new Pattern('meph');
+}

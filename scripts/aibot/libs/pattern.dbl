@@ -1,0 +1,24 @@
+function Pattern(file)
+{
+	// read the file this pattern represents
+	// patterns are always located in the patterns folder and have a .xml extension
+	var filename = 'patterns/' + file + (!hasExt(file) ? '.xml' : '');
+	if(!FileTools.exists(filename))
+		throw new Error('Invalid pattern');
+
+	var content = FileTools.readText(filename);
+	// remove the xml declaration (bug 336551)
+	content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, "");
+	var pattern = new XML(content);
+
+	if(pattern.name() != 'pattern')
+		throw new Error('File is not a pattern (found ' + pattern.name() +', expected "pattern")');
+
+	// pattern is a valid pattern, split it into its constituent parts
+
+	function hasExt(file)
+	{
+		var lastDot = file.lastIndexOf('.');
+		return lastDot != -1 && file.substr(lastDot,  4) == '.xml';
+	}
+}
