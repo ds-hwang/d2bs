@@ -52,7 +52,7 @@ function DA_DoPrecasts(gotBOed) {
 		return true;
 	}
 	// Bone Armor
-	if ((me.getState(14)==0 || DC_InTown(me)) && DC_CheckSkill(68) >= 1) {
+	if ((!me.getState(14) || DC_InTown(me)) && DC_CheckSkill(68) >= 1) {
 		DC_DoCast(68,0);
 	}
 	var myGolem = DC_getNPC(291); // Check for Iron Golem first

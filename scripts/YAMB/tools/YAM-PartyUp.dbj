@@ -18,11 +18,12 @@ var InHandler = false;
 
 function main() {
 	// Needs to be right in front
-	registerEvent( EVENT_PARTYMSG, partymsgHandler);
+	addEventListener( EVENT_PARTYMSG, partymsgHandler);
 	var InParty = false;
 	var attempted = false;
 	var alone = true;
 	var meP = getParty();
+	var skip;
 	//print("loading Party Up!");
 	plist.push(me.name);
 	while(1) {
@@ -39,7 +40,7 @@ function main() {
 				}
 		 		if(meP.partyid == 65535 && meP.name != me.name && (InParty || !aPartyExists())) { // dude NOT in a party
 		 			skip=false;
-		 			for(i=0; i < plist.length; i++) {
+		 			for(var i=0; i < plist.length; i++) {
 		 				if(meP.name == plist[i])
 						skip = true;
 		 			}

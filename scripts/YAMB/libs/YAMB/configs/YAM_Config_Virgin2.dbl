@@ -68,7 +68,7 @@ YAMXXP.push("Meph");
 //YAMXXP.push("Ancients");  // Works, converted to rush bot format, added checks for PublicMode
 //YAMXXP.push("Diablo");    // Works
 //YAMXXP.push("Tunnels");   // WTF? need to look at script.. BADLY
-//YAMXXP.push("Baal");
+YAMXXP.push("Baal");
 // Leecher module.
 //YAMXXP.push("Parasite");
 // Follower, enchanter, bo script

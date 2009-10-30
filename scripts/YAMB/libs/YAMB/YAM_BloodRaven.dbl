@@ -45,10 +45,13 @@ function RXP_GoToRaven() {
 	// Do precasts after going into the portal
 	XP_Precasts();
 	if (me.area ==1 && !getWaypoint(1)){
+		commPather.GotoLevel(2, true);
+		commPather.GotoLevel(3, true);
 		commPather.GotoWaypoint(3);
-		GetWP();
+		GetWP(commPather.TargetID);
 	}
 	// Move to BloodRaven
+	commPather.GotoLevel(17, true);
 	commPather.GotoNPC(805,17);
 }
 

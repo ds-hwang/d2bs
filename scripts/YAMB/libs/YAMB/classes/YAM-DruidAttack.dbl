@@ -31,11 +31,11 @@ function DA_DoPrecasts() {
 	}
 
 	// Cyclone Armor
-	if (me.getState(139)==0 && me.getState(140)==0 && me.getState(151)==0 && DC_CheckSkill(235) >= 1) { DC_DoCast(235,0); }
+	if(!me.getState(139) && !me.getState(140) && !me.getState(151) && DC_CheckSkill(235) >= 1) { DC_DoCast(235,0); }
 
 	// Cast either WW or WB
-	if (XP_WereWolf && me.getState(139)==0 && DC_CheckSkill(223) >= 1 && me.mp > 30) { DC_DoCast(223,0); }
-	else if (XP_WereBear && me.getState(140)==0 && DC_CheckSkill(228) >= 1 && me.mp > 30) { DC_DoCast(228,0); }
+	if(XP_WereWolf && !me.getState(139) && DC_CheckSkill(223) >= 1 && me.mp > 30) { DC_DoCast(223,0); }
+	else if(XP_WereBear && !me.getState(140) && DC_CheckSkill(228) >= 1 && me.mp > 30) { DC_DoCast(228,0); }
 
 	// Cast Ravens
 	var RavenNum = ((DC_CheckSkill(221) > 5) ? 5 : DC_CheckSkill(221));
@@ -169,10 +169,10 @@ function DA_DoPrecasts() {
 
 	if (!DC_InTown(me)) {
 		// Hurricane
-		if (me.getState(139)==0 && me.getState(140)==0 && me.getState(144)==0 && DC_CheckSkill(250) >= 1 && me.mp > 30) { DC_DoCast(250,0); }
+		if (!me.getState(139) && !me.getState(140) && !me.getState(144) && DC_CheckSkill(250) >= 1 && me.mp > 30) { DC_DoCast(250,0); }
 
 		// Armageddon
-		if (me.getState(145)==0 && DC_CheckSkill(249) >= 1 && me.mp > 35) { DC_DoCast(249,0); }
+		if (!me.getState(145) && DC_CheckSkill(249) >= 1 && me.mp > 35) { DC_DoCast(249,0); }
 	}
 
 	return reBO;
@@ -490,7 +490,7 @@ function DA_GetSkillDamageType(skill) {
 
 function XP_PreAttack(x,y) {
 	// Tornado
-	if (me.getState(139)==0 && me.getState(140)==0 && DC_CheckSkill(245) >= 1) {
+	if (!me.getState(139) && !me.getState(140) && DC_CheckSkill(245) >= 1) {
 		for(var i=0; i < preAttackAmount; i+=1) {
 			DC_DoCast(245,2,x,y);
 			DC_DoDel(50);

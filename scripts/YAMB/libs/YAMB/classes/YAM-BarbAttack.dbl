@@ -30,7 +30,7 @@ function DA_DoPrecasts() {
 			if (DC_CheckSkill(155) >= 1) { _battlecommand=true; }
 
 			// Cast Battle Commands
-			if(_battlecommand && me.getState(51)==0 && me.mp > 30) {
+			if(_battlecommand && !me.getState(51) && me.mp > 30) {
 
 				DC_DoCast(155,0);
 			}
@@ -55,7 +55,7 @@ function DA_DoPrecasts() {
 			}
 
 			// Cast Shout
-			if(DC_CheckSkill(138) >= 1 && me.getState(26)==0 && me.mp > 10)	{
+			if(DC_CheckSkill(138) >= 1 && !me.getState(26) && me.mp > 10)	{
 
 				DC_DoCast(138,0);
 			}
@@ -207,7 +207,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 			else if (XP_UseBerserk) {
 				if (DA_GetRange(monster) < 6) {
  
-       					if (monster.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+       					if(!monster.getState(89) && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
 
 					DC_DoCast(152,0,monster);
 					if (monster.hp < hpprev) {
@@ -259,7 +259,7 @@ function XP_BossAttack(target) {
 			else if (XP_UseBerserk) {
 				if (DA_GetRange(target) < 6) {
  
-       					if (target.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+       					if(!target.getState(89) && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
 
 					DC_DoCast(152,0,target);
 					XP_CheckAttacks();
@@ -289,7 +289,7 @@ function XP_BossAttack(target) {
 // ToDo : Mod it so we figure which axis to move (this can be changed on certain maps)
 function XP_WWAttack(enemy) {
 
-       	if (enemy.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+       	if(!enemy.getState(89) && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
 
 	// Attack back and forth
 	while (enemy.hp > 0) {
@@ -319,7 +319,7 @@ function XP_WW_Berserk(target) {
 		// Move to the target to attack it
 		if (!checkCollision(me,target,1)) DM_MoveTo(target.x,target.y);
 	} else {
-       		if (target.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+       		if(!target.getState(89) && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
 
 		// Cast berserk if the target is not dead
 		if (target.hp > 0) { DC_DoCast(152,0,target); }
@@ -337,7 +337,7 @@ function getBodyTarget(range) {
 
 	body_target=false;
 	if(BodyTarget) do {
-		if (BodyTarget.getStat(172) == 2 || BodyTarget.getState(105)==0) { continue; }
+		if (BodyTarget.getStat(172) == 2 || !BodyTarget.getState(105)) { continue; }
 
 		if (BodyTarget.getState(99) || BodyTarget.getState(104) || BodyTarget.getState(118)) { continue; }
 
@@ -393,7 +393,7 @@ function XP_UseHork(target) {
 	// Display a msg
 	DC_DPrint("ÿc8Using Find Item skill on the body !!");
 
-	if (me.getState(51)==0 && DC_CheckSkill(155)) {
+	if(!me.getState(51) && DC_CheckSkill(155)) {
                DC_DoCast(155,0); //Cast Battle Command
 	}
 

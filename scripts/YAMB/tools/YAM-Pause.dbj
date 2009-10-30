@@ -18,7 +18,9 @@ function keyUpManager(keyup) {
 
 function main() {
 	// Register the key events watch
-	registerEvent(EVENT_KEYUP, keyUpManager);
-	while (_Paused) { delay (500); }
-	registerEvent(EVENT_KEYUP, 0);
+	addEventListener("keyup", keyUpManager);
+	while (_Paused) { 
+		delay (500); 
+	}
+	removeEventListener(keyUpManager);
 }

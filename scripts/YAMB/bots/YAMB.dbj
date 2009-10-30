@@ -163,7 +163,9 @@ function YAM_KeyUpManager(keyup) {
 					pscript = DC_FindScript(YAM_PausePath);
 				} while(pscript && pscript.running)
 			}
-			else { pscript.stop(); }
+			else { 
+				pscript.stop(); 
+			}
 			scriptBroadcast( "starter:pause" );
 			DC_Print("ÿc2Resuming Bot...");
 			addEventListener("keyup", YAM_KeyUpManager);*/
@@ -404,9 +406,9 @@ function YAM_CheckEvents(mode, eventmsg) {
 		case "SM_King":
 			SM_King = true;
 			break;
-		default:
-			DC_Print("Unknown Script Message received: " + eventmsg);
-			break;
+		//default:
+			//DC_Print("Unknown Script Message received: " + eventmsg);
+			//break;
 	}
 	return true;
 }
