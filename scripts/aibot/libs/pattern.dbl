@@ -17,13 +17,14 @@ function Pattern(file)
 		throw new Error('File is not a pattern (found root node <' + pattern.name() +'>, expected node <pattern>)');
 
 	// pattern is a valid pattern, split it into its constituent parts
-	// Patterns will have a set of <area>s nested inside an <areas> node.
+	// Patterns will have a set of <area>s nested inside an <areas> node
+	// and a set of <action>s nested inside of an <actions> node.
 	// Each <area> will have an id representing the id of the area or a
 	// name representing the game name of an area (ids are preferred).
 	// Each <area> will have a set of (each optional but at least one must
-	// be present) <object>s, <monster>s, and <action>s (tiles are considered
+	// be present) <object>s and <monster>s (tiles are considered
 	// objects for purposes of what goes where). They will be wrapped in
-	// <objects>, <monsters>, or <actions> as necessary.
+	// <objects> or <monsters> as necessary.
 
 	var areas = [], actions = [];
 
@@ -39,13 +40,19 @@ function Pattern(file)
 		for each(var monster in area.monsters.*)
 		{
 			// TODO: process this into something more reasonable
-			areaObj.monsters.push({'id': monster.@id, 'typeflag': monster.@typeflag, 'mode': monster.@mode});
+			var m = {};
+			for each(var attr in monster.@*)
+				m[attr.name()] = attr;
+			areaObj.monsters.push(m);
 		}
 
 		for each(var object in area.objects.*)
 		{
 			// TODO: process this into something more reasonable
-			areaObj.objects.push({'id': object.@id, 'mode': object.@mode});
+			var o = {};
+			for each(var attr in object.@*)
+				o[attr.name()] = attr;
+			areaObj.objects.push(o);
 		}
 	}
 

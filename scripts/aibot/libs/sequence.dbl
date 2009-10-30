@@ -1,0 +1,26 @@
+js_strict(true);
+
+// basic work unit
+function Action(priority, func)
+{
+	var f = func;
+	var pri = priority;
+	this.execute = function exec(seq, cb) { f(seq); if(typeof(cb) == 'function') cb(this); };
+	this.__defineGetter__("priority", function () { return pri; });
+	this.__defineGetter__("action", function () { return f; });
+}
+
+// sequences are series of actions
+function Sequence(actions)
+{
+	var queue = new Queue();
+	for each(var action in actions)
+		queue.push(action);
+
+	this.execute = function exec(cb) {
+		while(!queue.isEmpty) {
+			var action = queue.pop();
+			action.execute(this, cb);
+		}
+	};
+}

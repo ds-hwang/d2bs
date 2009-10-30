@@ -1,0 +1,279 @@
+// data structures
+// standard programming data structures that don't exist in javascript
+// last update: $Date: 2008-03-01 19:57:09 -0800 (Sat, 01 Mar 2008) $
+
+if(js_strict)
+	js_strict(true);
+
+function isPoint(pt) {
+	return (pt != undefined && pt.hasOwnProperty('x') &&
+			pt.hasOwnProperty('y') && typeof(pt.x) === 'number' &&
+			typeof(pt.y) === 'number');
+}
+function isSize(sz) {
+	return (sz != undefined && sz.hasOwnProperty('width') &&
+			sz.hasOwnProperty('height') && typeof(sz.width) === 'number'
+			&& typeof(sz.height) === 'number');
+}
+function isRect(rect) {
+	return (rect != undefined && rect.hasOwnProperty('location') &&
+			rect.hasOwnProperty('size') && (isPoint(rect.location) &&
+			isSize(rect.size)));
+}
+
+function Point(x, y) {
+	this.x = 0;
+	this.y = 0;
+	if(x !== undefined && y !== undefined &&
+	   typeof(x) == 'number' && typeof(y) == 'number') {
+		this.x = x;
+		this.y = y;
+	} else throw new Error("Invalid point arguments");
+}
+function Size(w, h) {
+	this.width = 0;
+	this.height = 0;
+	if(w !== undefined && h !== undefined &&
+	   typeof(w) == 'number' && typeof(h) == 'number') {
+		this.width = w;
+		this.height = h;
+	} else throw new Error("Invalid size arguments");
+}
+function Rectangle(x, y, w, h) {
+	var loc, sz;
+
+	this.__defineGetter__("location", function () { return loc; });
+	this.__defineSetter__("location", function (e) { if(isPoint(e)) loc = e; });
+	this.__defineGetter__("size", function () { return sz; });
+	this.__defineSetter__("size", function (e) { if(isSize(e)) sz = e; });
+	this.__defineGetter__("x", function () { return loc.x; });
+	this.__defineGetter__("y", function () { return loc.y; });
+	this.__defineGetter__("width", function () { return sz.width; });
+	this.__defineGetter__("height", function () { return sz.height; });
+
+	switch(arguments.length) {
+		case 4:	 // 4 numbers
+			this.location = new Point(x, y);
+			this.size = new Size(w, h);
+			break;
+		case 3: // point and 2 numbers
+			this.location = x;
+			this.size = new Size(y, w);
+			break;
+		case 2: // point and size
+			this.location = x;
+			this.size = y;
+			break;
+		default: throw new Error("Invalid number of arguments"); break;
+	}
+}
+
+function Node(data, next, previous) {
+	this.data = data;
+	this.next = next || null;
+	this.previous = previous || null;
+	if(this.next != null)
+		this.next.previous = this;
+	if(this.previous != null)
+		this.previous.next = this;
+}
+function TreeNode(data, parent, children) {
+	this.data = data;
+	this.parent = parent;
+	this.children = children;
+}
+
+function Queue() {
+	var queue = [];
+	this.push = function(item) { queue.push(item); };
+	this.pop = function () { return queue.shift(); };
+	this.next = function () { return queue[queue.length-1]; };
+	this.__defineGetter__("length", function () { return queue.length; });
+	this.__defineGetter__("isEmpty", function () { return this.length == 0; });
+}
+function Stack() {
+	var stack = [];
+	var count = 0;
+	this.push = function (item) { stack.push(); };
+	this.pop = function () { return stack.pop() };
+	this.next = function () { return stack[0]; };
+	this.__defineGetter__("length", function () { return stack.length; });
+	this.__defineGetter__("isEmpty", function () { return this.length == 0; });
+}
+function BinaryTree(comparator) {
+	if(typeof(comparator) != 'function')
+		throw new Error("You must provide an item comparison function");
+	var compare = comparator;
+	var root = null;
+
+	function inorder(node, visit) {
+		if(node.left != null) inorder(node.left, visit);
+		visit(node);
+		if(node.right != null) inorder(node.right, visit);
+	}
+	function preorder(node, visit) {
+		visit(node);
+		if(node.left != null) preorder(node.left, visit);
+		if(node.right != null) preorder(node.right, visit);
+	}
+	function postorder(node, visit) {
+		if(node.left != null) postorder(node.left, visit);
+		if(node.right != null) postorder(node.right, visit);
+		visit(node);
+	}
+
+	this.search = function (item) {
+		var node = root;
+		do {
+			if(node == null)
+				return null;
+			var cmp = compare(node.data, item);
+			if(cmp < 0) {
+				node = node.left;
+				continue;
+			} else if(cmp > 0) {
+				node = node.right;
+				continue;
+			} else {
+				return node;
+			}
+		} while(true);
+	};
+	this.add = function (item) {
+		if(this.search(item) != null)
+			return;
+		if(root == null) {
+			root = new TreeNode(item, null, {'left': null, 'right': null});
+		} else {
+			var node = root;
+			// find the correct node
+			do {
+				var cmp = compare(node.data, item);
+				if(cmp <= 0) {
+					if(node.left != null) {
+						node = node.left;
+						continue;
+					} else {
+						node.left = new TreeNode(item, node,
+							{'left': null, 'right': null});
+						return;
+					}
+				} else if(cmp > 0) {
+					if(node.right != null) {
+						node = node.right;
+						continue;
+					} else {
+						node.right = new TreeNode(item, node,
+							{'left': null, 'right': null});
+						return;
+					}
+				}
+			} while(true);
+		}
+	};
+	this.remove = function (item) {
+		var node = this.search(item);
+		if(node != null) {
+			if(node.left == null && node.right == null) {
+				// just delete it
+				if(node.parent.left == node)
+					node.parent.left = null;
+				else
+					node.parent.right = null;
+			} else if((node.left != null && node.right == null) ||
+						(node.right != null && node.left == null)) {
+				// figure out which node isn't null and replace it
+				if(node.left != null)
+					node.parent.left = node.left;
+				else
+					node.parent.right = node.right;
+			} else if(node.left != null && node.right != null) {
+				// find the inorder successor and predecessor and figure out
+				// how big the path to each is, then use the one with the larger
+				// path to replace the deleted node
+				var i = 0, j = 0, left = node.left, right = node.right;
+				for(; left.left != null; i++)
+					left = left.left;
+				for(; right.right != null; j++)
+					right = right.right;
+				if(i > j) {
+					// we use the left
+					left.parent.left = null;
+					node.data = left.data;
+				} else {
+					// we use the right
+					right.parent.right = null;
+					node.data = right.data;
+				}
+			}
+		}
+	};
+	this.inorderTraverse = function (visit) { inorder(root, visit); };
+	this.preorderTraverse = function (visit) { preorder(root, visit); };
+	this.postorderTraverse = function (visit) { postorder(root, visit); };
+}
+
+function Iterator() {
+	this.index = 0;
+	function current() {
+		if(this.last())
+			return null;
+		return this.index;
+	}
+	function next() {
+		if(!this.last())
+			this.index++;
+		return this.last();
+	}
+	function last() { return this.index == Number.MAX_VALUE; }
+	function reset() { this.index = 0; }
+	function advance(distance) {
+		if(typeof(distance) == 'number')
+			while(distance-- > 0)
+				this.next();
+	}
+
+	this.current = current;
+	this.next = next;
+	this.last = last;
+	this.reset = reset;
+	this.advance = advance;
+}
+
+function OpenClosedListSearch(listtype, start, nodeIsGoal, expand, key) {
+/*	1. Pull a node from the beginning of the list and examine it.
+		* If the searched element is found in this node, quit the search and return the result.
+		* Otherwise, push all the unexamined successors onto the list, if there are any
+	2. If the list is empty, every node has been examined -- quit and return null
+	3. Repeat from step 1 */
+
+	function examine() {
+		var node = open.pop();
+		closed.push(key(node));
+		if(nodeIsGoal(node) === true) { // we found the goal
+			path = node;
+			return true;
+		} else {
+			var j = expand(node);
+			for(var i = 0; i < j.length; i++)
+				if(closed.indexOf(key(j[i])) == -1) // examine each node only once
+					open.push(j[i]);
+			if(open.isEmpty) // we're at the end of the graph
+				return false;
+			return examine();
+		}
+		return false;
+	}
+
+	var	open = new listtype(),
+		path = null,
+		closed = [];
+	open.push(start);
+	var result = examine();
+	if(result === true) // we found a path
+		return path;
+	return false;
+}
+
+function BFS(s, g, e, k) { return OpenClosedListSearch(Queue, s, g, e, k); }
+function DFS(s, g, e, k) { return OpenClosedListSearch(Stack, s, g, e, k); }
