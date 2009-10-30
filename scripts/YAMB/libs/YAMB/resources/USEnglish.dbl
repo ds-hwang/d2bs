@@ -1,0 +1,11 @@
+const MsgStrings = new Array("SoJSold", "DiabloWalks", "From");
+
+MsgStrings["SoJSold"] = "Stones of Jordan Sold to Merchants";
+MsgStrings["DiabloWalks"] = "Diablo Walks the Earth";
+MsgStrings["From"] = "From";
+
+const IncludeError = "DC_LoadInclude() : Failed to load library : ";
+const AbortMessage = "Aborting game...";
+const HaltMessage = "Script halted...";
+const TownMessage = "TP to town...";
+const CheckMercMsg = "DT_CheckMerc() : Not enough gold to revive Mercenary!!!";

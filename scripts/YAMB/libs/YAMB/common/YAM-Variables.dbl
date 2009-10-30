@@ -1,0 +1,352 @@
+// This is NOT a configuration file! Edit YAM_Config.dbl and don't touch anything here !!
+
+// Constants
+const ATTACKING_MODE = (1<<29)|(1<<4)|(1<<5)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<14);
+const ALIVE_MODE     = (1<<29)|(1<<1)|(1<<2)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7)|(1<<8)|(1<<9)|(1<<10)|(1<<11)|(1<<13)|(1<<14)|(1<<15);
+const DEAD_MODE      = (1<<29)|(1<<12);
+
+// System vars
+var YAMXXP    = new Array();	// Load variable
+var Lang      = 0;				// Game Messages: 0 = English, 1 = French, 2 = German, 3 = Spanish
+var YAM_Debug = false;			// Debugging
+
+// Town variables
+var commTown  = null;
+var commTown2 = null;
+var commTown3 = null;
+var commTown4 = null;
+var commTown5 = null;
+
+// Delays variables
+var YAM_StartGameDelay = 0;
+var YAM_MinGameLength  = 180;
+var YAM_MaxGameLength  = 0;
+var YAM_GameCatchup    = 0;
+var YAM_MustIdle       = false; // Flag to force YAMB to idle
+
+// IP variables
+var YAM_MonitorDCloneMsg = true; //Monitors soj/walks msg in all modules (set Lang var properly)
+var YAM_DisplayIP        = true;
+var YAM_AlertOnHotIP     = "";
+var YAM_SayCmdOnHotIP    = "/f m";
+var _sojcount            = "no idea";
+
+var YAM_IsLeader       = false;
+var YAM_EnableCubing   = false;
+var YAM_UseBeltManager = true;
+var YAM_UseVigor       = false;
+var CountessSafeCheck  = true;
+var MephSafeCheck      = true;
+var AndySafeCheck      = true;
+var ShenkSafeCheck     = true;
+var PitSafeCheck       = true;
+
+// Shopping and gambling
+var YAM_ShopIt        = false;
+var YAM_GambleIt      = false;
+var YAM_AlwaysGamble  = false;
+var YAM_GambleMinGold = 250000;
+var YAM_ClearInv      = true;
+
+// NPC interactions
+var YAM_AlwaysGoToHealer = false;
+var YAM_AlwaysRepair     = false;
+var YAM_RandomNPC        = false;
+var YAM_AlwaysAkara      = false;
+var YAM_AlwaysCharsi     = false;
+var YAM_VisitGheed       = false;
+var YAM_AlwaysOrmus      = false;
+var YAM_AlwaysMalah      = false;
+var YAM_AlwaysLarzuk     = false;
+var YAM_VisitAnya        = false;
+var YAM_UseABM           = true;
+
+// Run variables
+var _XP_GetNumUnId   = 0;
+var YAM_AbortNoMerc  = true;
+var YAM_StopFullInv  = true;
+var YAM_StopNoRepair = true;
+var YAM_Automule     = false;
+var YAM_UseShrines   = false;
+var YAM_OpenChests   = false;
+var MaxLife          = 10000;
+var YAM_HealPoison   = false;
+var YAM_MinionStatic = 3;
+// Leader/Leecher variables
+var YAM_TPReady        = false; // Leader said "tp up"
+var WaitForPortal      = false;
+var YAM_UseFriendsList = true;
+var PublicMode         = 0;	// 0 - Private, 1 - Public, >1 - Supports Leeches
+var YAM_TPMsg          = "tp up";  // message to indicate to the leecher/team bot to enter the tp
+var YAM_StepPath       = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);
+
+// Path variables
+var YAM_ItemLogPath      = "output/" + me.name + "-YAMB-ItemLog.html";
+var YAM_RunLogPath       = "output/" + me.name + "-YAMB-RunLog.html";
+var YAM_RuneLogPath      = "output/" + me.name + "-YAMB-RunesLog.html";
+var YAM_LifeWatchPath    = "tools/YAM-LifeWatch.dbj";
+var YAM_MonsterWatchPath = "tools/YAM-MonsterWatch.dbj";
+var YAM_PartyUpPath      = "tools/YAM-PartyUp.dbj";
+var YAM_PausePath        = "tools/YAM-Pause.dbj";
+var YAM_CubeConfig       = "YAMB/common/YAM_CubeConfig.dbl"
+var DIM_TempSnagFile     = "holder";
+
+// PindleXP specific variables
+var PXP_EscapeThroughPortal = false;
+var PXP_SwitchHP   = 40;
+var PXP_StallKill  = false;
+var PXP_StallHP    = 0;
+var PXP_OffsetY    = 0;
+var PXP_OffsetX    = 0;
+var PXP_QuitImmune = true;
+
+// CountessXP specific variables
+var CXP_SwitchHP   = 40;
+var CXP_StallKill  = false;
+var CXP_StallHP    = 0;
+var CXP_ClearLevel = true;
+var CXP_QuitImmune = false;
+
+// AndyXP specific variables
+var AXP_SwitchHP   = 10;
+var AXP_StallKill  = false;
+var AXP_StallHP    = 0;
+var AXP_OffsetY    = 0;
+var AXP_OffsetX    = 0;
+var AXP_Kamikaze   = false;
+var AXP_QuitImmune = false;
+
+// MephXP specific variables
+var MXP_SwitchHP      = 10;
+var MXP_StallKill     = false;
+var MXP_StallHP       = 0;
+var MXP_DoMoat        = false;
+var MXP_AlwaysGoAct4  = true;
+var MXP_BridgeWait    = 1000;
+var MXP_OpenUberChest = false;
+var MXP_QuitImmune    = true;
+var MXP_WatchMon      = false;
+var MXP_MephDodge     = true;
+var MXP_TeleDodge     = true;
+var MXP_MinRange      = 10;
+var MXP_MaxRange      = 15;
+var MXP_OptRange      = 14;
+var MXP_ChestStand    = false;
+var MXP_KillCouncils  = false;
+
+// EldritchXP specific variables
+var EXP_SwitchHP   = 40;
+var EXP_StallKill  = false;
+var EXP_StallHP    = 0;
+var EXP_OffsetX    = 0;
+var EXP_OffsetY    = 0;
+var EXP_QuitImmune = true;
+
+// ShenkXP specific variables
+var SXP_SwitchHP   = 40;
+var SXP_StallKill  = false;
+var SXP_StallHP    = 0;
+var SXP_OffsetX    = 0;
+var SXP_OffsetY    = 0;
+var SXP_Kamikaze   = false;
+var SXP_QuitImmune = true;
+
+// Baal specific variables
+var BXP_SwitchHP      = 40;
+var BXP_StallKill     = false;
+var BXP_StallHP       = 5;
+var BXP_QuitImmune    = false;
+var BossSpawned       = false;
+var AvoidHydra        = false;
+var MinionOfDest      = false;
+var SkipBaal          = false;
+var CouncilMember     = false;
+var VenomLord         = false;
+var VenomLordCTA      = false;
+var Mage              = false;
+var preAttackAmount   = 5;
+var preMeteor         = false;
+var preBlizzard       = false;
+var AbortDoll         = false;
+var AbortSoul         = false;
+var MonsterSearch     = 3;
+var MonsterWait       = 10;
+var RemovePoison      = false;
+var BXP_ClearFirst    = true;
+var BXP_KillBaalMsges = new Array();
+var BXP_NextGameMsges = new Array();
+
+// Diablo specific variables
+var DXP_UsePather      = false; 
+var DXP_SafeCheck      = true; 
+var DXP_ChaosKamikaze  = true; 
+var DXP_SealKamikaze   = false; 
+var DXP_SwitchHP       = 0; 
+var DXP_StallHP        = 0; 
+var DXP_StallKill      = false; 
+var DXP_QuitIfNoDiablo = false;   // Quits Diablo run, if Diablo is not going to spawn
+var DXP_Retries        = 3;       // Number of times to retry opening a Seal if it fails the first time
+
+// Hephasto specific variables
+var HXP_SwitchHP   = 40;
+var HXP_StallKill  = false;
+var HXP_StallHP    = 0;
+var HXP_QuitImmune = false;
+var HXP_OffsetY    = 0;
+var HXP_OffsetX    = 0;
+
+// Summoner specific variables
+var SumXP_SwitchHP   = 40;
+var SumXP_StallKill  = false;
+var SumXP_StallHP    = 0;
+var SumXP_QuitImmune = false;
+var SumXP_GoAct4	 = true;
+
+// Duriel specific variables
+var DuXP_SwitchHP   = 40;
+var DuXP_StallKill  = false;
+var DuXP_StallHP    = 0;
+var DuXP_QuitImmune = false;
+
+// ThreshSocketXP specific variables 
+var TXP_SwitchHP   = 40; 
+var TXP_StallKill  = false;
+var TXP_StallHP    = 0; 
+var TXP_QuitImmune = true; 
+
+// TravXP specific variables
+var TrXP_SwitchHP   = 10;
+var TrXP_StallKill  = false;
+var TrXP_StallHP    = 0;
+var TrXP_OffsetY    = 0;
+var TrXP_OffsetX    = 0;
+var TrXP_QuitImmune = false;
+var TrXP_Kamikaze   = false;
+
+// Izual specific variables
+var IXP_SwitchHP   = 40;
+var IXP_StallKill  = false;
+var IXP_StallHP    = 0;
+var IXP_QuitImmune = false;
+var IXP_Kamikaze   = false;
+
+// BloodRaven specific variables
+var RXP_SwitchHP   = 40;
+var RXP_StallKill  = false;
+var RXP_StallHP    = 0;
+var RXP_QuitImmune = false;
+var RXP_Kamikaze   = false;
+
+// Cow variables
+var Cow_OpenOnly       = false;
+var Cow_NoKing         = true;
+var SM_King            = false;
+var Cow_PortalClearMsg = "1 ";
+
+// Movement variables
+var XP_StepDelay = 100;
+var XP_TeleDist  = 30;
+
+// Town variables
+var XP_SellBackItems = true;
+var XP_DropItems     = true;
+
+
+// Exceptions variables
+var YAM_ShowInnerExceptions = true;
+
+////////////////////////////////
+// Attack variables
+////////////////////////////////
+
+// Immunities / aura / enchantments
+var DA_Immunities         = new Array(null,false,false,false,false,false,false);
+var DA_ImmunitiesCombo    = new Array(null,new Array(4,5,false));
+var DA_Enchantments       = new Array(null,false,false,false,false,false,false,false,false,false,false,false,false);
+var DA_EnchantmentsCombos = new Array(null,new Array(6,12,false));
+var DA_Auras              = new Array(null,false,false,false,false,false,false,false);
+var DA_EnchantAuraCombos  = new Array(null,new Array(1,2,false));
+var DA_ImmunityAuraCombos = new Array(null,new Array(5,7,false));
+var DA_DisplayImmunities  = true;
+
+// Chickens
+var DA_LogChickens    = true;
+var DA_ChickenLogPath = "output/" + me.name + "YAM-ChickenLog.html";
+
+// Precasts section
+var DA_AutoPrecasts = true;
+var DA_Refresh      = false;
+var DA_UseCTA       = false;
+
+// Zombies variables
+var XP_AttackZombies=false;
+//var XP_ZombieSkill="temp";
+var XP_ZombieStand=false;
+
+// Minions variables
+var XP_KillMinions = false;
+var XP_MinionSkill = "";
+var XP_MinionStand = false;
+var XP_ImmuneQuit  = 4;
+
+// Attack variables
+var XP_MaxAttacks    = 30;
+var XP_QuitImmune    = true;
+var XP_BossLOS       = true;
+
+// MF variables
+var XP_SwitchOnKill  = true;
+var XP_SwitchHP      = 40;
+var XP_StallKill     = false;
+var XP_StallHP       = 40;
+var XP_StallSkipPhys = true;
+
+function XP_InitConfig() {
+	switch(me.classid){
+		case 0:	Amazonvariables();	break;
+		case 1:	Sorcvariables();	break;
+		case 2:	Necrovariables();	break;
+		case 3:	Paladinvariables();	break;
+		case 4:	Barbvariables();	break;
+		case 5:	Druidvariables();	break;
+		case 6:	Assassinvariables();break;
+		default:	DC_StopMessage("Character class is NOT supported !!");	break;
+	}
+}
+
+var pathMoveInit = new Object();
+pathMoveInit.UseTeleSorc    = true;
+pathMoveInit.UseTeleport    = true;
+//pathMoveInit.UseTeleport    = false;
+pathMoveInit.StepActionFreq = 1;
+pathMoveInit.StepActionflag = DP_INCUSERSTEP;
+pathMoveInit.StepDelay      = XP_StepDelay;
+pathMoveInit.InteractTile   = false;
+pathMoveInit.TeleDist       = XP_TeleDist;
+pathMoveInit.WalkDist       = 3;
+
+// Class variables to make use of OO libs
+var commPather = new pathMove(pathMoveInit);
+
+function XP_ResetVars() {
+	//////////////////////////////////////////////////////////////////////
+	// Private Variables from YAM-Attack
+	//////////////////////////////////////////////////////////////////////
+	var _XP_AttackCompleted = 0;
+	var _XP_GetNumUnId      = 0;
+	var _XP_Quadrant        = 1;
+	var _XP_CurrentTimed    = 0;
+	var _XP_CurrentUntimed  = 0;
+
+	if (ignoreKorpse.length > 0) { ignoreKorpse.splice(0,ignoreKorpse.length);}
+
+/*	// Reseting the Pather object
+	if (commPather) { 
+		delete commPather; 
+	}
+	delay(150);
+	runGC();
+	delay(500);
+	//commPather = new commonLib.Pathing({InitType:0,UseTeleport:true,UseTeleSorc:true,StepDelay:XP_StepDelay,TeleDist: XP_TeleDist});
+	commPather = new pathMove(pathMoveInit);*/
+}

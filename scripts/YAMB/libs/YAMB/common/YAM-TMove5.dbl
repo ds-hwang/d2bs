@@ -1,0 +1,99 @@
+// Re-written for new core pathing by TechnoHunter
+commonLib.PathAct5 = function() {
+	// Functions
+	this.GotoStash     = function(){ return commPather.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,109);}
+	this.GotoWP        = function(){ return commPather.GotoWaypoint(109);}
+	this.GotoMalah     = function(){ return commPather.GotoNPC(D2JSP_NPC_MALAH,109);}
+	this.GotoCain      = function(){ return commPather.GotoNPC(D2JSP_NPC_CAIN_ACT_5,109);}
+	this.GotoStart     = function(){ return commPather.GotoDest(5098,5018);}
+	this.GotoTP        = function(){ return commPather.GotoDest(5098,5018);}
+	this.GotoLarzuk    = function(){ return commPather.GotoDest(5141,5045);}
+	this.GotoQualKehk  = function(){ return commPather.GotoNPC(D2JSP_NPC_QUALKEHK,109);}
+	this.GotoAnya      = function(){ return commPather.GotoDest(5112,5112);}
+	this.GotoRedPortal = function(){ return commPather.GotoDest(5109,5115);}
+//	this.GotoAnya      = function(){ return commPather.GotoDest(5111,5122);}
+//	this.GotoRedPortal = function(){ return commPather.GotoDest(5130,5115);}
+}
+
+function YAM_Act5TownManager() {
+	if (_YAM_GoToHealer || YAM_AlwaysMalah || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+		commTown5.GotoMalah();
+		YAM_NPCinteract(DC_getNPC(513));
+		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
+	}
+	if (_YAM_GoToRepair || YAM_AlwaysLarzuk || NPCnum>=rnd(2,9)) {
+		commTown5.GotoLarzuk();
+		YAM_NPCinteract(DC_getNPC(511));
+	}
+	if (DT_CheckMerc()) {
+		DC_DPrint("Need to go revive the mercenary :-/");
+		commTown5.GotoQualKehk();
+		YAM_NPCinteract(DC_getNPC(515));
+	}
+	if ((YAM_AlwaysGamble && (DC_MyGold() > YAM_GambleMinGold)) || NPCnum>=rnd(2,9)) { 
+		commTown5.GotoAnya();
+		YAM_NPCinteract(DC_getNPC(512));
+	}
+	DT_CleanPotions(); // cleaning up potion in the inventry.
+	if (DT_CheckInventory() && ( YAM_EnableCubing || DT_CheckStash() ) ) {
+		DT_ClearInv();
+		commTown5.GotoStash();
+		YAM_NPCinteract(DC_getObject(267));
+		DSN_CheckGround(); // Check the ground to see if any nice item is dropped by accident
+	}
+}
+
+function YAM_NPCinteract5(npc) {
+	// Do stuff depending on which npc
+	switch (npc.classid) {
+		case 513:// Malah
+			if (_XP_GetNumUnId > 0 || YAM_UseBeltManager || _YAM_NeedTP || _YAM_NeedKeys){ 
+				DT_DoTrade(npc); 
+			}
+			if (_XP_GetNumUnId > 0) { 
+				XP_DoCheckItems(npc); 
+			}
+			if (YAM_UseBeltManager) { 
+				YAM_CheckBelt(npc); 
+			}
+			if (_YAM_NeedTP) { 
+				var _tptome = DT_GetTome(1);
+				if (_tptome) { 
+					if (!DT_FillTome(npc,1) && _tptome.getStat(70) < 1) {
+						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!"); 
+					}
+				}
+				else { 
+					if (!DT_BuyScrolls(npc,1,1)) {
+						DC_StopMessage("Failed to buy TP Scroll!"); 
+					}
+				}
+			}
+			if (_YAM_NeedKeys) {
+				DT_BuyKeys(npc);
+			}
+			break;
+		case 515:// Qual-Kehk
+			if (!DT_ReviveMerc(npc)) { 
+				DC_DPrint("Failed to revive the mercenary!");	
+			} 
+			break;
+		case 511:// Larzuk
+			DT_DoTrade(npc);
+			DT_RepairItems(npc);
+			if (DT_CheckAmmo()) { 
+				DT_BuyAmmo(npc); 
+			}
+			break;
+		case 512:// Anya
+			if (YAM_GambleIt) {
+				if (DC_MyGold() > YAM_GambleMinGold) {
+					DT_DoTrade(npc,1);
+					DT_GambleIt(npc);
+					DT_MenuCancel(npc,1);
+					DT_DoInteract(npc);
+				}
+			} 
+			break;
+	}
+}

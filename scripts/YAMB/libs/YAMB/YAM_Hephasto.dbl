@@ -1,0 +1,138 @@
+
+
+var HXP_Kamikaze = true;
+
+
+// Don't touch below this line
+//////////////////////////////////////////////////////////////////////////////////////////
+
+entryFunc = HephastoXP;
+
+var _HellX = 0;
+var _HellY = 0;
+
+function HXP_StepCallBack() {
+	if (!HXP_Kamikaze) {
+		var x = me.x;
+		var y = me.y;
+		var specType = 0xff;
+		if (YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+		 specType = YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+		 specType >>= 8; // shift 1 byte
+		}
+		XP_ClearPosition(26,false,ATTACKING_MODE,null,specType);
+		XP_ClearPosition(26,false,ALIVE_MODE,null,specType);
+		DSN_PickItems(YAM_SafeCheck);
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+		if (YAM_UseShrines) {
+		 DS_MaxDistance = 19;
+		 DS_CheckForShrines();
+		}
+		DM_CheckPosition(x,y,true);
+	}
+	return DP_STEPAHEAD;
+}
+
+function HXP_GotoHephasto() {
+	var _rm                 = DM_RandomMove;
+	var _teledist           = HXP_Kamikaze ? XP_TeleDist : 15;// If not Kamikaze, take steps less than your clearing range. Otherwise, use XP_TeleDist.
+	DM_RandomMove       = false;
+	commPather.InitType = 0;
+	commPather.GotoDest(_HellX,_HellY,_teledist,HXP_StepCallBack);
+	DM_MoveTo(_HellX+7,_HellY+7);
+	DM_RandomMove = _rm;
+}
+
+function HXP_AttackHephasto() {
+	// Detecting Hephasto with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(409,0x01);
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if (XP_KillMinions) {
+			// Wait a while until we kill some minions
+			var i = 0; // counter to make sure we dont go on an infinite loop!
+			do { 
+				DC_DoDel(50); 
+				i+=1; 
+			} while (!XP_ClearPosition(26,target) && i < 3);
+		}
+		DC_Print("Killing Hephasto...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		DC_Print("Hephasto killed !");
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(26,target,ATTACKING_MODE);
+			XP_ClearPosition(26,target);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	}
+	else {
+		if (HXP_Kamikaze) {
+			DC_Print("Hephasto not found!! Skip to next boss...");
+			return false;
+		}
+		else {
+			DC_Print("ÿc1Hephasto not found!!  He must be Dead!ÿc0");
+		}
+	}
+	return true;
+}
+
+function HephastoXP() {
+	if (me.classid == 1) {
+		(HXP_SorcSkill.length > 0) ? XP_SetSorcSkills(HXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static= HXP_Static;
+	}
+	XP_SwitchHP    = HXP_SwitchHP;
+	XP_StallHP     = HXP_StallHP;
+	XP_StallKill   = HXP_StallKill;
+	XP_QuitImmune  = HXP_QuitImmune;
+	XP_MinionStand = true;
+	if (me.classid == 3) { XP_KillMinions = false; }
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+	  BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Take River WP
+	DM_UsePortal("Waypoint",0x6b);
+	// Get Hellforge Location
+	var _Hellforge = false;
+	do {
+		_Hellforge = getPresetUnits(me.area, 2, 376, null);
+	}while (_Hellforge.length == 0);
+	_HellX = _Hellforge[0].roomx*5 + _Hellforge[0].x;
+	_HellY = _Hellforge[0].roomy*5 + _Hellforge[0].y;
+
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Goto the Hephasto
+	HXP_GotoHephasto();
+	// Kill Hephasto
+	if (HXP_AttackHephasto()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}
+

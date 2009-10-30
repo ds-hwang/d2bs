@@ -1,0 +1,509 @@
+// Does not fully support melee yet!
+
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var XP_Valkyrie=false;
+var XP_CastOnBoss=false;
+
+var XP_CastDecoy=true;
+var XP_DecoyPosition=0;
+var XP_SwitchPhys=false;
+var XP_SwitchLit=false;
+var XP_SwitchAdapt=false;
+var XP_LitAttPercent=50;
+var XP_AttacksCount=0;
+var XP_PickupShield=true;
+var XP_BowAttack=new Array();
+var XP_JavAttack=new Array();
+var XP_BowNumber=new Array();
+var XP_JavNumber=new Array();
+
+AXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
+SXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts() {
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() : Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+	//XP_PickupShield = true;
+	//XP_AmazonShield();
+
+	if (DC_CheckSkill(32) >= 1) {
+
+		var Valk = DC_getNPC(357);
+
+		// Valkyrie
+		if (!Valk||Valk.mode==0||!Valk.getParent()||Valk.getParent().name!=me.name) {
+			DC_DoCast(32,0);
+		}
+	}
+}
+
+
+function XP_Precasts() {
+	var BOed = false;
+
+	if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); BOed = true; }
+	if (DA_AutoPrecasts) {
+		DA_DoPrecasts();
+	}
+	else {
+		// Cast only if we want to refresh or if we are in town
+		if (DA_Refresh || DC_InTown(me) || BOed) {
+
+			//XP_PickupShield = true;
+			//XP_AmazonShield();
+
+			// Cast Valkyrie if it is set to true
+			if (XP_Valkyrie && !XP_CastOnBoss) { DC_DoCast(32,0); } // "Valkyrie"
+		}
+	}
+}
+
+function isPhysical(skill) {
+	return ((skill==12)||(skill==22)||(skill==19)||(skill==10)||(skill==30)||(skill==26));
+}
+
+function isLightning(skill) {
+	return ((skill==14)||(skill==20)||(skill==24)||(skill==34)||(skill==35));
+}
+
+function isPoison(skill) {
+	return ((skill==15)||(skill==25));
+}
+
+function isCold(skill) {
+	return ((skill==11)||(skill==21)||(skill==31));
+}
+
+function isFire(skill) {
+	return ((skill==7)||(skill==16)||(skill==27));
+}
+
+function isMagic(skill) {
+	return (skill==6)
+}
+
+function isMelee(skill) {
+	return ((skill==19)||(skill==10)||(skill==30)||(skill==14)||(skill==24)||(skill==34));
+}
+
+function DA_GetSkillDamageType(skill) {
+	if (isPhysical(skill)) return 1;
+	else if (isFire(skill)) return 3;
+	else if (isLightning(skill)) return 4;
+	else if (isCold(skill)) return 5;
+	else if (isPoison(skill)) return 6;
+	else if (isMagic(skill)) return 2;
+	else {
+		DC_DPrint("GetSkillDamageType() : " + skill + " is not a damage skill");
+		return 0;
+	}
+}
+
+function ManaCost(skill) {
+	switch(skill) {
+
+		case 12: // Multiple Shot
+			return (4 + (DC_CheckSkill(12) - 1));
+			break;
+
+		case 14: // Power Strike
+			return (2 + (DC_CheckSkill(14) - 1) * 0.25);
+			break;
+
+		case 15: // Poison Javelin
+			return (4 + (DC_CheckSkill(15) - 1) * 0.25);
+			break;
+
+		case 16: // Exploding Arrow
+			return (5 + (DC_CheckSkill(16) - 1) * 0.5);
+			break;
+
+		case 20: // Lightning Bolt
+			return (6 + (DC_CheckSkill(20) - 1) * 0.25);
+			break;
+
+		case 21: // Ice Arrow
+			return (4 + (DC_CheckSkill(21) - 1) * 0.25);
+			break;
+
+		case 24: // Charged Strike
+			return (4 + (DC_CheckSkill(24) - 1) * 0.25);
+			break;
+
+		case 25: // Plauge Javelin
+			return (7 + (DC_CheckSkill(25) - 1) * 0.5);
+			break;
+
+		case 26: // Strafe
+			return 11;
+			break;
+
+		case 27: // Immolation Arrow
+			return (6 + (DC_CheckSkill(27) - 1) * 0.5);
+			break;
+
+		case 31: // Freezing Arrow
+			return (9 + (DC_CheckSkill(31) - 1) * 0.5);
+			break;
+
+		case 34: // Lightning Strike
+			return 9;
+			break;
+
+		case 35: // Lightning Fury
+			return (10 + (DC_CheckSkill(35) - 1) * 0.5);
+			break;
+
+		default: // Insignificant
+			return 0;
+			break;
+	}
+}
+
+function CastDistract(target) {
+	// Cast Decoy on the boss if XP_DecoyPosition is at 0
+	if (XP_CastDecoy && XP_DecoyPosition == 0 && me.mp > (19 - (DC_CheckSkill(28)*0.75))) { DC_DoCast(28,0,target); } // "Dopplezon"
+
+	// Cast Valkyrie if it is set to true, from suggestion by Scavenger
+	if (!DA_AutoPrecasts && XP_Valkyrie && XP_CastOnBoss && me.mp > (25 + DC_CheckSkill(32))) { DC_DoCast(32,0,target); } // "Valkyrie"
+}
+
+function XP_BossAttack(target) {
+	var hand;
+	var attempted=false;
+
+	_XP_AttackCompleted=0; 
+
+	_XP_EndPosition = new XP_Coord(me.x,me.y);
+
+	//DC_Print("Zon script as completed by Swedish Power!");
+
+	if (target.hp > 0) {
+		if ((XP_SwitchPhys && target.getStat(36) > XP_PhysAttPercent) || (XP_SwitchLit && target.getStat(41) > XP_LitAttPercent)) {
+
+			DC_DoWeaponSwitch();
+			XP_AttacksCount=0;
+		}
+
+		CastDistract(target);
+	}
+
+	while (target.hp > 0) {
+
+		attempted = false;
+
+		var _weapon = DC_getItem();
+
+		if (_weapon) { do {
+
+			// If the weapon is in the first tab
+			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+
+				//Jav attacks
+				if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
+
+					for (var x = 0; x < XP_JavAttack.length; x+=1) {
+						hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
+
+						if (me.mp > ManaCost(XP_JavAttack[x]) &&
+						   !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_JavAttack[x])) &&
+						   (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
+						   (DA_GetRange(target) < 5 || !isMelee(XP_JavAttack[x]))) {
+							for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
+								attempted = true;
+								DC_DoCast(XP_JavAttack[x],hand,target);
+								XP_CheckAttacks();
+								if (XP_CheckUtil(target)) { XP_AmazonShield(); return; }
+							}
+						}
+					}
+				}
+
+				//Bow attacks
+				if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+
+					for (var y = 0; y < XP_BowAttack.length; y+=1) {
+						hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
+
+						if (me.mp > ManaCost(XP_BowAttack[y]) &&
+						   !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_BowAttack[y]))) {
+							for (var x = 1; x <= XP_BowNumber[y]; x+=1) {
+								attempted = true;
+								DC_DoCast(XP_BowAttack[y],hand,target);
+								XP_CheckAttacks();
+								if (XP_CheckUtil(target)) { XP_AmazonShield(); return; }
+							}
+						}
+					}
+				}
+			}
+
+
+		} while (_weapon.getNext()); }
+
+		if (!attempted && XP_SwitchAdapt) {
+			DC_DoWeaponSwitch();
+			XP_AttacksCount=0;
+		}
+
+		if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
+
+			DC_Print("Switch attacks!");
+			DC_DoWeaponSwitch();
+		}
+	}
+}
+
+function XP_AmazonShield() {
+
+	// If we want to switch to a shield for protection, check if we have a shield
+	if (XP_PickupShield) {
+
+		_weapon = DC_getItem();
+
+		if (_weapon) { do {
+
+			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode==1) {
+
+				if (_weapon.itemType == 2) {
+
+					XP_PickupShield=false;
+					break;
+				}
+			}
+
+		} while (_weapon.getNext()); }
+	}
+
+	// If we have a shield, switch
+	if (XP_PickupShield) {
+
+		print("Switching to your shield!");
+		DC_DoWeaponSwitch();
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var _area = me.area; // cache area property
+
+	if (arguments.length < 2)
+	{
+		skip = false;
+	}
+
+	if (arguments.length < 3) {
+		mode = ALIVE_MODE;
+	}
+
+   	if (arguments.length < 4) {
+		classid = null;
+   	}
+
+	if (arguments.length < 5) {
+		spectypeMask = 0xff;
+	}
+
+	_XP_AttackCompleted=0;
+
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (!me.getState(32) && me.hpmax <= MaxLife && (DA_UseCTA || DC_CheckSkill(149))) {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		}
+		else
+			DA_DoPrecasts();
+
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) Cow_KingCheck(monster);
+
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+					  if (monster.classid == 691 && AbortDoll) {DC_ThrowException("XP_ClearingPostition()","Bloody dolls!");}
+
+					  if (((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) && !checkCollision(_area,me.x,me.y,3,monster.x,monster.y,3,7)) {
+						if (monster.classid == 23 || monster.classid == 62) {
+							if (!BossSpawned) CastDistract(monster);
+							BossSpawned = true;
+						}
+						else if (monster.classid == 381 || monster.classid == 105) {
+							if (!Mage) CastDistract(monster);
+							Mage=true;
+						}
+						else if (monster.classid == 557) {
+							if (!CouncilMember) CastDistract(monster);
+							CouncilMember = true;
+						}
+						else if (monster.classid == 558) {
+							if (!VenomLord) CastDistract(monster);
+							VenomLord = true;
+						}
+						else if (monster.classid == 571) {
+							if (!MinionOfDest) CastDistract(monster);
+							MinionOfDest = true;
+						}						
+
+						result = XP_AttackMonster(monster,range,x,y);
+						if (!retval) { retval = result; }
+					}
+				      }
+				} while (monster.getNext(classid,mode));
+			}
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			print("Max Attack Reached!");
+		else
+			throw e;
+	}
+
+	return retval;
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	var hand;
+	var attempted = false;
+
+	if (!monster || monster.hp < 1) return false;
+
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+
+		attempted = false;
+
+		var _weapon = DC_getItem();
+
+		if (_weapon) { do {
+
+			// If the weapon is in the first tab
+			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+
+				//Jav attacks
+				if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
+
+					for (x = 0; x < XP_JavAttack.length; x+=1) {
+						hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
+
+						if (me.mp > ManaCost(XP_JavAttack[x]) &&
+						   ((isPhysical(XP_JavAttack[x]) && monster.getStat(36) < 100) ||
+						   (isLightning(XP_JavAttack[x]) && monster.getStat(41) < 100) ||
+						   (isPoison(XP_JavAttack[x]) && monster.getStat(45) < 100)) &&
+						   (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
+						   (DA_GetRange(monster) < 5 || !isMelee(XP_JavAttack[x]))) {
+							for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
+								attempted = true;
+								DC_DoCast(XP_JavAttack[x],hand,monster);
+								XP_CheckAttacks();
+								if (monster.hp < hpprev) {
+									hpprev = monster.hp;
+									attprev = _XP_AttackCompleted + 1;
+									if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+								}
+							}
+						}
+					}
+				}
+
+				//Bow attacks
+				if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+
+					for (y = 0; y < XP_BowAttack.length; y+=1) {
+						hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
+
+						if (me.mp > ManaCost(XP_BowAttack[y]) &&
+						   ((isPhysical(XP_BowAttack[y]) && monster.getStat(36) < 100) ||
+						   (isCold(XP_BowAttack[y]) && monster.getStat(43) < 100) ||
+						   (isFire(XP_BowAttack[y]) && monster.getStat(39) < 100) ||
+						   (isMagic(XP_BowAttack[y]) && monster.getStat(37) < 100))) {
+							for (x = 1; x <= XP_BowNumber[y]; x+=1) {
+								attempted = true;
+								DC_DoCast(XP_BowAttack[y],hand,monster);
+								XP_CheckAttacks();
+								if (monster.hp < hpprev) {
+									hpprev = monster.hp;
+									attprev = _XP_AttackCompleted + 1;
+									if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+								}
+							}
+						}
+					}
+				}
+			}
+
+
+		} while (_weapon.getNext()); }
+
+		if (!attempted && XP_SwitchAdapt) {
+			DC_DoWeaponSwitch();
+			XP_AttacksCount=0;
+		}
+		else if (!attempted) return false;
+
+		if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
+
+			DC_Print("Switch attacks!");
+			DC_DoWeaponSwitch();
+		}
+
+		//XP_CheckAttacks ();
+	}
+
+	//XP_AmazonShield();
+	//DSN_PickItems(YAM_SafeCheck);
+
+	return true;
+}
+
+function XP_PreAttack(x,y) {
+	// Cast Decoy on the boss if XP_DecoyPosition is at 0
+	//if (XP_CastDecoy && XP_DecoyPosition == 0 && me.mp > (19 - (DC_CheckSkill(28)*0.75))) { DC_DoCast(28,0,x,y); return true; } // "Dopplezon"
+	return false;
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : 0 if there is no delay or the amount of delay in ms
+/*function DC_GetCastDelay(skillid) {
+
+	if (typeof(skillid) != "number") {
+
+        	DC_DPrint("DC_GetCastDelay() : Skill entered is a name or undefined, cannot check");
+		return false;
+    	}
+
+	switch (skillid) {
+		// Amazon
+		case 15:	return( 500); // "Poison Javelin"
+		case 25: 	return(4000); // "Plague Javelin"
+		case 27: 	return(1000); // "Immolation Arrow"
+
+
+		// Nothing fit so return 0
+		default:	return 0;
+	}
+}*/

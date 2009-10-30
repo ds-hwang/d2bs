@@ -1,0 +1,95 @@
+// Function by darkspirit 
+// Re-written for new core pathing by TechnoHunter
+commonLib.PathAct2 = function() {
+	// Functions
+	this.GotoStash    = function(){ return commPather.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,40);}
+	this.GotoWP       = function(){ return commPather.GotoWaypoint(40);}
+	this.GotoFara     = function(){ return commPather.GotoNPC(D2JSP_NPC_FARA,40);}
+	this.GotoElzix    = function(){ return commPather.GotoNPC(D2JSP_NPC_ELZIX,40);}
+	this.GotoDrognan  = function(){ return commPather.GotoNPC(D2JSP_NPC_DROGNAN,40);}
+	this.GotoLysander = function(){ return commPather.GotoNPC(D2JSP_NPC_LYSANDER,40);}
+	this.GotoGreiz    = function(){ return commPather.GotoNPC(D2JSP_NPC_GREIZ,40);}
+	this.GotoAtma     = function(){ return commPather.GotoNPC(D2JSP_NPC_ATMA,40);}
+	this.GotoJerhyn   = function(){ return commPather.GotoNPC(D2JSP_NPC_JERHYN,40);}//not right yet (obj 121,obj 122
+	this.GotoCain     = function(){ return commPather.GotoNPC(D2JSP_NPC_CAIN_ACT_2,40);}
+	this.GotoMeshif   = function(){ return commPather.GotoNPC(D2JSP_NPC_MESHIF_ACT_2,40);}
+	this.GotoWarriv   = function(){ return commPather.GotoNPC(D2JSP_NPC_WARRIV_ACT_2,40);}
+	this.GotoTP       = function(){ return commPather.GotoDest(5175,5054);}
+}
+
+function YAM_Act2TownManager() { 
+	if (_YAM_GoToHealer || _YAM_GoToRepair || NPCnum>=rnd(2,9)) {
+		commTown2.GotoFara();
+		YAM_NPCinteract(DC_getNPC(178));
+	}
+	if (_YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt())) {
+		commTown2.GotoDrognan();
+		YAM_NPCinteract(DC_getNPC(177));
+		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
+	}
+	if (_YAM_NeedKeys) {
+		commTown2.GotoLysander();
+		YAM_NPCinteract(DC_getNPC(202));
+	}
+	if (DT_CheckMerc()) {
+		DC_Print("Need to go revive the mercenary :-/");
+		commTown2.GotoGreiz();
+		YAM_NPCinteract(DC_getNPC(198));
+	}
+	DT_CleanPotions(); // cleaning up potion in the inventry.
+	if (DT_CheckInventory() && ( YAM_EnableCubing || DT_CheckStash() ) ) {
+		DT_ClearInv();
+		commTown2.GotoStash();
+		YAM_NPCinteract(DC_getObject(267));
+		DSN_CheckGround(); // Check the ground to see if any nice item is dropped by accident
+	}
+}
+
+function YAM_NPCinteract2(npc) {
+	// Do stuff depending on which npc
+	switch (npc.classid) {
+		case 198:// Greiz
+			if (!DT_ReviveMerc(npc)) { 
+				DC_Print("Failed to revive the mercenary!");	
+			} 
+			break;
+		case 178:// Fara
+			DT_DoTrade(npc);
+			DT_RepairItems(npc);
+			if (DT_CheckAmmo()) { 
+				DT_BuyAmmo(npc); 
+			}
+			break;
+		case 202:// Lysander
+			if (_YAM_NeedKeys) {
+				DT_DoTrade(npc);
+				DT_BuyKeys(npc);
+			}
+			break;
+		case 177:// Drognan
+			if (_XP_GetNumUnId > 0 || YAM_UseBeltManager || _YAM_NeedTP) { 
+				DT_DoTrade(npc); 
+			}
+			if (_XP_GetNumUnId > 0) { 
+				XP_DoCheckItems(npc); 
+			}
+			// BUGBUG: Should check for return code of buying attempt and handle it!
+			if (_YAM_NeedTP) { 
+				var _tptome = DT_GetTome(1);
+				if (_tptome) { 
+					if (!DT_FillTome(npc,1) && _tptome.getStat(70) < 1){
+						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!");
+					}
+				}
+				else { 
+					if (!DT_BuyScrolls(npc,1,1)){
+						DC_StopMessage("Failed to buy TP Scroll!"); 
+					}
+				}
+			}
+			if (YAM_UseBeltManager) { 
+				YAM_CheckBelt(npc); 
+			}
+			break;
+	}
+}

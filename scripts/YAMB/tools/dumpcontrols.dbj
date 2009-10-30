@@ -1,0 +1,36 @@
+// njaguar's control dumper
+
+var debug_mode = false;
+//var debug_mode = true;
+
+function main() {
+	do {
+		var f=File.open("output/" + (debug_mode ? "dc/" : "") + "_controldump_" + getTickCount() + ".txt",FILE_WRITE);
+		//f.write("Text\tType\tX\tY\tXSize\tYSize\tmaxlength\tvisible\tdisabled\tExtended Text" + "\n");
+		f.write("Text\tType\tX\tY\tXSize\tYSize\tState\tPassword\tVisible\tCursorPos\tSelectStart\tSelectEnd\tExtended Text" + "\n");
+		var c=getControl();
+		if(c) do {
+			f.write(((c.text)?c.text:"null")+"\t"+c.type+"\t"+c.x+"\t"+c.y+"\t"+c.xsize+"\t"+c.ysize+"\t"+c.state+"\t"+c.password+"\t"+c.visible+"\t"+c.cursorpos+"\t"+c.selectstart+"\t"+c.selectend+"\t"+c.getText() + "\n");
+		} while(c.getNext());
+		f.close();
+
+		delay(10);
+	} while(debug_mode);
+}
+
+
+/*
+	{"text",		CONTROL_TEXT,			JSPROP_STATIC_VAR},
+	{"x",			CONTROL_X,				JSPROP_PERMANENT_VAR},
+	{"y",			CONTROL_Y,				JSPROP_PERMANENT_VAR},
+	{"xsize",		CONTROL_XSIZE,			JSPROP_PERMANENT_VAR},
+	{"ysize",		CONTROL_YSIZE,			JSPROP_PERMANENT_VAR},
+	{"state",		CONTROL_STATE,			JSPROP_STATIC_VAR},
+	{"password",	CONTROL_PASSWORD,		JSPROP_PERMANENT_VAR},
+	{"maxlength",	CONTROL_MAXLENGTH,		JSPROP_PERMANENT_VAR},
+	{"type",		CONTROL_TYPE,			JSPROP_PERMANENT_VAR},
+	{"visible",		CONTROL_VISIBLE,		JSPROP_PERMANENT_VAR},
+	{"cursorpos",	CONTROL_CURSORPOS,		JSPROP_STATIC_VAR},
+	{"selectstart",	CONTROL_SELECTSTART,	JSPROP_PERMANENT_VAR},
+	{"selectend",	CONTROL_SELECTEND,		JSPROP_PERMANENT_VAR},*/
+

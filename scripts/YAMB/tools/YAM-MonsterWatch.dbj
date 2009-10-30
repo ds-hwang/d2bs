@@ -1,0 +1,58 @@
+//////////////////////////////////////////////////////////////////////
+// 	     YAM-MonsterWatch by DarkSpirit
+//
+//
+// Legal stuff :
+// This program is free software; You can redistrubute freely as long as this
+// header and contents stays intact. Modifications for redistribution can only
+// be done by submitting to the core scripters team for approval. If you don't
+// want to submit the modifications and wanted to redistribute this script, you
+// must rename it by remplacing with your own name to avoid conflicts.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.
+//
+// NOTE : Currently watches only for Death Damage monsters and quits immediately
+//        if it shows up within a certain range.
+//
+//////////////////////////////////////////////////////////////////////
+include("YAMB/common/YAM-Common.dbl");
+include("YAMB/common/YAM-Attack.dbl");
+
+//////////////////////////////////////////////////////////////////////
+// Character lifewatch settings
+//====================================================================
+// MW_DDist = number			This is the minimum distance from the monster before it is taken into account.
+// MW_LoopDelay = number		This is the time your script will pause in between each monster check
+// 					Setting the LoopDelay very low consumes a lot of CPU power.
+//					If Diablo seems sluggish raise this value. 200 should be fine for most systems,
+//					though HC players on a fast system might want to do 100.
+//////////////////////////////////////////////////////////////////////
+
+const MW_DDDist = 25;
+const MW_LoopDelay = 200;
+
+function main() {
+	var monster;
+	var dist;
+	print ("ÿc2Monster Watch Activated!ÿc0");
+	while(1) {
+		if (!DC_InTown(me)) {
+			monster = getUnit(1);
+			if (DA_CheckMonster(monster)) {
+				do {
+					if (DA_CheckMonster(monster)) {
+						//dist = Math.floor(Math.sqrt((monster.x-me.x) * (monster.x-me.x) + (monster.y-me.y) * (monster.y-me.y)));
+						dist = getDistance(me, monster);
+						if (dist < MW_DDDist && getBaseStat(1,monster.classid,25)) {
+							DC_LogToautod2jsp("YAM-MonsterWatch: Death-Damage monster, "+monster.name+" detected!");
+							quit();
+						}
+					}
+				} while (monster.getNext());
+			}
+		}
+		delay(MW_LoopDelay);
+	}
+}

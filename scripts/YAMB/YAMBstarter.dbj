@@ -1,0 +1,613 @@
+/*
+	autostarter.d2j
+	Author:			njaguar
+	Date Created:	June 22nd, 2004
+	Last Update:	December 22nd, 2004
+	Version:		4.2(a) - changed to work with automule
+	Description:	Out of game controller, requires autod2jsp to function
+	Notes:			Compatable with core 0.43.xx+ only! w/ autod2jsp.exe
+	Updated by:		darkspirit, for compatibility with 0.44+ core and YAMB team botting support
+*/
+
+var unableToConnectRetry		= 5;		// time in minutes to retry connecting on connection fail (real value is +/- 1 min)
+var realmDownRetry				= 60;		// time in minutes to retry connecting on a realm down (default is 60 minutes.. no short realm downs, these days..)
+var disconnectedRetry			= 5;		// time in minutes to retry on a disconnection (usually ip ban related)
+var cdkeyInUseRetry				= 5;		// time in minutes to retry on a cdkey in use error message (set to 0 to stop)
+var connectingToBnetTimeout		= 20000;	// time in milliseconds to wait for a login to time out and click cancel and retry
+var characterScreenTimeout		= 10000;	// time in milliseconds to wait for character screen to appear
+var pleaseWaitTimeout			= 10000;	// time in milliseconds to wait for a please wait popup
+var createGameThreshold			= 20000;	// time in milliseconds to wait between making games
+var createGameThresholdRandom	= 5000;		// time in milliseconds to randomly add +/- to the game create time 5000
+var createGameTimeout			= 15000;	// time in milliseconds to register a failed to create game
+var waitInLineTimeout			= 60000;	// time in milliseconds to wait in lines for a create game (60 second default)
+var characterSelectDelay		= 1000;		// time in milliseconds to wait before selecting a character on the char screen
+var loginDelay					= 1000;		// time in milliseconds to wait before submitting login information
+var clickDelay					= 1000;		// wait X milliseconds before next action after a click event
+var textDelay					= 1000;		// wait X milliseconds before next action after inserting text into a textbox
+var clickDelayRandom			= 500;		// random amount of time to add to a click
+var textDelayRandom				= 500;		// random amount of time to add to a text set
+var minimumGameNameChars		= 6;		// minimum number of characters in a random game name
+var maximumGameNameChars		= 10;		// maximum number of characters in a random game name
+var minimumGamePassChars		= 4;		// minimum number of characters in a random game password
+var maximumGamePassChars		= 10;		// maximum number of characters in a random game password
+var gameLengthThreshold			= 100000;	// amount of time each game + wait should take minimum, 100 seconds default (3 games/5 minutes)
+var beepOnRealmDown				= true;		// beep on realm down?
+var logGameLength				= true;		// log each games length
+var logRealmDown				= true;		// log realm downs
+var gamesToPauseMin				= 10;
+var gamesToPauseMax				= 15;
+var timeToPauseMin				= 0;//100000;	// time to wait min when the games to Pause is reached. set to 0 to turn off 5*60*1000;
+var timeToPauseMax				= 0;//150000;	// time to wait max when the games to Pause is reached. set to 0 to turn off 10*60*1000;
+var gameDoesNotExistDelayMin	= 600000;	// how long to wait when a Game Does Not Exist occurs - minimum - default 10 minutes
+var gameDoesNotExistDelayMax	= 900000;	// how long to wait when a Game Does Not Exist occurs - maximum - default 15 minutes
+var gameDoesNotExistTimeout		= 30000;	// how long to wait for the dialog to disappear (default 30 seconds, don't change this)
+
+var myGame    = false;
+var myPass    = "";
+var gameSet   = false;
+var joinCount = 0;
+
+/********************************************************************
+***************DONT EDIT ANYTHING BELOW THIS*************************
+********************************************************************/
+
+// system vars, dont touch em
+var lastGameMade    = getTickCount();
+var lastGameStatus  = 0;
+var nextGameMake    = 0;
+var inGameAt        = 0;
+var nextPauseAt     = 0;
+var scriptLocation  = "NoneYet";
+
+include( "starterGameInfo.dbl" );
+include( "controlInfo.dbl" );
+
+var gameData    = new gameInfo();
+var controlData = new controlInfo();
+
+include("YAMB/common/YAM-CommonStarter.dbl");
+include("YAMB/configs/YAM_TeamBotting.dbl");
+
+function main() {
+	controlData.clickDelay       = clickDelay;
+	controlData.textDelay        = textDelay;
+	controlData.clickDelayRandom = clickDelayRandom;
+	controlData.textDelayRandom  = textDelayRandom;
+
+	resetNextPauseAt();
+
+	addEventListener( "chatmsg",   chatmsgHandler );
+	addEventListener( "scriptmsg", scriptmsgEvent );
+	if(coreHasCopyData) addEventListener( "copydata",  copydataEvent  );
+
+	while( gameData.isRunning ) {
+		if( gameData.needsData ) {
+			gameData.requestSettings( );
+		}
+		else {
+			if(me.ingame) {
+				if(!inGameAt) 
+					inGameAt = getTickCount();
+				(scriptLocation == "NoneYet") ? gameData.setLocation( "In Game" ) : gameData.setLocation(scriptLocation);
+				lastGameStatus = 2; // in game successful
+				if (!gameSet) {
+					myGame = false;
+					joinCount = 0;
+				}
+				trueDelay(500);
+			} 
+			else {
+				location = controlData.getLocation();
+				if(location) {
+					gameData.setLocation( location.name );
+				}
+				else{
+					gameData.setLocation( "Loading Game" );
+				}
+				locationAction( location );
+			}
+		}
+		trueDelay(100);
+		while( gameData.isPaused ) {
+			gameData.location = "Paused";
+			gameData.updateStatus(); // manually do it, so we don't ping out
+			trueDelay(500);
+		}
+	}
+}
+
+function setNextGameMake() {
+	lastGameMade = getTickCount();
+	nextGameMake = getTickCount() + createGameThreshold + rnd( 0-createGameThresholdRandom, createGameThresholdRandom) + inGameAt;
+	inGameAt = 0;
+}
+
+function resetNextPauseAt() {
+	nextPauseAt = gameData.totalGames + rnd( gamesToPauseMin, gamesToPauseMax );
+}
+
+function pickRandomLocaleKey() {
+	var s = "";
+	while(s=="") 
+		s = String( getLocaleString( rnd(0,1) ? rnd(0, 5390) : rnd(10000, 11134) )).replace(/\n/g, " ").replace(/\r/g, "").replace(/\//g, ".");
+	if(s.length>254) 
+		s.length=254;
+	return s;
+}
+
+function outputGameLength() {
+	if(inGameAt) {
+		var duration = getTickCount() - inGameAt;
+		if(!lastGameFailed && logGameLength) 
+			gameData.debugOutput( "Game Ended. Game lasted: " + (duration/1000) + " seconds" );
+		inGameAt = (duration < gameLengthThreshold ? gameLengthThreshold - duration : 0);
+		if( parseInt(10/3) != 3 ) {
+			gameData.debugOutput( "Math engine is fubared. We need a game restart. Terminating." );
+			restartGame();
+		}
+	}
+}
+
+function locationAction( location ) {
+	switch( location.id ) {
+		case 1:	// Lobby
+			if(getTickCount() > nextGameMake || YAM_WaitInChat ) {
+				lastGameFailed = false;
+				scriptLocation = "NoneYet";
+				switch(lastGameStatus) {
+					case 0:
+						if (!gameSet && YAM_WaitInChat){
+							trueDelay(500);
+							controlData.click( controlData.controls.lobby.button.enterChat );
+						}
+						else if (!myGame || joinCount >= 3) {
+							gameSet = false;
+							controlData.click( controlData.controls.lobby.button.create );
+						}
+						else {
+							joinCount += 1;
+							controlData.click( controlData.controls.lobby.button.join );
+						}
+						nextGameMake = getTickCount() + createGameTimeout; // set our timeout
+						gameData.updateGameStatus();
+						break;
+					case 1: // game failed, rollover to reset timer
+						gameData.failedGames++;
+						inGameAt = getTickCount(); // reset inGameAt, to wait how long we should have waited..
+						lastGameFailed = true;
+					case 2:
+						if(inGameAt) {
+							var duration = getTickCount() - inGameAt;
+							if(!lastGameFailed && logGameLength) 
+								gameData.debugOutput( "Game Ended. Game lasted: " + (duration/1000) + " seconds");//,false );
+							inGameAt = (duration < gameLengthThreshold ? gameLengthThreshold - duration : 0);
+							if( parseInt(10/3,10) != 3 ) {
+								gameData.debugOutput( "Math engine is fubared. We need a game restart. Terminating." );
+								restartGame();
+							}
+						}
+						if(gameData.totalGames > nextPauseAt) {
+							inGameAt += rnd( timeToPauseMin, timeToPauseMax );
+							resetNextPauseAt();
+						}
+						lastGameStatus=0;
+						setNextGameMake();
+						gameData.updateGameStatus();
+						break;
+					//Reset everything if fail to rejoin game for automule
+					case 3: 
+						lastGameStatus = 0;
+						lastGameMade   = getTickCount();
+						sendMsgToStarter("transfer done");
+						break;
+				}
+			} 
+			else {
+			locationTimeout( nextGameMake-getTickCount(), 1 );
+			}
+			break;
+		case 2: // Waiting In Line
+			if(getTickCount() - lastGameMade > waitInLineTimeout) {
+				// click cancel, and let lobby catch tally a failed game
+				controlData.click( controlData.controls.lobby.inLine.button.cancel );
+			}
+			break;
+		case 3: // Lobby Chat
+			break;
+		case 4: // Create Game
+			var name = (!gameData.gameName || gameData.useRandomGameName ? getRandomString(rnd(minimumGameNameChars,maximumGameNameChars)) : gameData.gameName + gameData.totalGames);
+			var pass = (gameData.useRandomGamePass ? getRandomString(rnd(minimumGamePassChars,maximumGamePassChars)) : gameData.gamePass);
+			if(transferring) {
+				gameData.gameDifficulty=0; 
+				pass = (!gameData.gamePass || gameData.useRandomGameName ? getRandomString(rnd(4,6)) : gameData.gamePass);
+			}
+			if( controlData.setText( controlData.controls.lobby.create.editBox.gameName, name ) &&
+				controlData.setText( controlData.controls.lobby.create.editBox.password, pass ) && 
+				controlData.click( controlData.gameDifficulties[ gameData.gameDifficulty ] ) ) {
+				lastGameMade = getTickCount();
+				lastGameStatus = 1; // pending creation
+				gameData.totalGames++;
+				gameData.updateGameStatus();
+				// run garbage collector between each game
+				runGC();
+				trueDelay(500);
+				controlData.click( controlData.controls.lobby.create.button.createGame );
+			}
+			break;
+		case 5: // Join Game
+			if (gameSet == true){
+				print("Attempting to join game...");
+				controlData.setText( controlData.controls.lobby.join.editBox.gameName, myGame );
+				controlData.setText( controlData.controls.lobby.join.editBox.password, myPass );
+				controlData.click( controlData.controls.lobby.join.button.joinGame );
+				lastGameMade = getTickCount();
+				gameData.totalGames++;
+				gameData.updateGameStatus();
+				runGC();
+				trueDelay(500);
+				gameSet = false;
+				lastGameStatus = 3; // pending join
+			}
+			break;
+		case 6: // Ladder
+			break;
+		case 7: // Channel List
+			break;
+		case 8: // Main Menu
+			if(controlData.getCurrentRealmIndex() != gameData.realmId ){
+				controlData.click( controlData.controls.mainMenu.button.gateway );
+			} 
+			else {
+				if(grabbing && !charnotfound) {
+					stats=ReadFree();
+				}
+				if( parseInt(10/3,10) != 3 ) {
+					gameData.debugOutput( "Math engine is fubared. We need a game restart. Terminating." );
+					restartGame();
+				}
+				controlData.click( controlData.gameTypes[ gameData.gameType ] );
+			}
+			break;
+		case 9: // Login
+			if(grabbing){ 
+				gameData.accountName=stats[1];
+				gameData.accountPass=mulePass;
+			}
+			if(resetSettings) {
+				resetSettings=false;
+				gameData.requestSettings( );
+			}
+			if(origChar) {
+				origChar=false;
+				gameData.requestSettings( );
+				me.gamefilename="tools/grab.d2j";
+			}
+			controlData.setText( controlData.controls.login.editBox.accountName, gameData.accountName );
+			controlData.setText( controlData.controls.login.editBox.password, gameData.accountPass );
+			trueDelay( loginDelay );
+			controlData.click( controlData.controls.login.button.logIn );
+			break;
+		case 10: // Login Error (this is a fatal error, so stop)
+			//unless transferring items with automule
+			trueDelay(2000);
+			controlData.click(controlData.controls.login.loginError.button.ok);
+			//dont forget to mark unavailable
+			if(transferring) {
+				sendMsgToStarter("char not found!"); 
+				controlData.click(controlData.controls.login.loginError.button.ok);
+				break;
+			}
+			else{
+				gameData.debugOutput( "Login Error. Aborting." );
+				stop();
+				break;
+			}
+		case 11: // Unable To Connect
+			timeoutDelay( unableToConnectRetry, location.name, true );
+			controlData.click( controlData.controls.login.unableToConnect.button.ok );
+			break;
+		case 12: // Character Select
+			if(transferring){
+				LogOntoChar(stats[0]);
+			}
+			else{
+				time = characterScreenTimeout;
+				while( time>0 ) {
+					var control = controlData.get( controlData.controls.characterSelect.textBox.characterInfo[ gameData.charLocation ] );
+					if( control && control.getText() != undefined ) 
+						break;
+					gameData.setLocation( location.name + " (" + parseInt(time/1000,10) + "s)");
+					time-=50;
+					delay(50);
+				}
+				if( time<=0 ) {
+					if( !(control = controlData.get( controlData.controls.characterSelect.textBox.characterInfo[ gameData.charLocation ] )) || control.getText() == undefined ) {
+					// selected an invalid character location or char screen timed out, fatal error
+					gameData.debugOutput( "Invalid character selection, or character screen timed out. Aborting." );
+					stop();
+					}
+				}
+				trueDelay( characterSelectDelay );
+				// click both, just in case (sometimes doesnt work, very odd) also need to axe the delay, needs to be right after each other
+				controlData.click( controlData.controls.characterSelect.textBox.characters[ gameData.charLocation ], 0,0,1 );
+				controlData.click( controlData.controls.characterSelect.textBox.characterInfo[ gameData.charLocation ], 0,0,1 );
+				// reset last game made, so it doesnt make a game immediately
+				inGameAt = 0;
+				setNextGameMake();
+				// if single player, increment the game counter
+				if(gameData.gameType==0) {
+					gameData.totalGames++;
+					gameData.updateGameStatus();
+					// run garbage collector between each game
+					runGC();
+				}
+			}
+			break;
+		case 13: // Character Select - Realm Down
+			sendMsgToStarter("char not found!");
+			if(logRealmDown) 
+				gameData.debugOutput( "Realm Down" );
+			if(beepOnRealmDown) 
+				beepFunc();
+			controlData.click( controlData.controls.characterSelect.button.exit );
+			timeoutDelay( realmDownRetry*60*1000, "Realm Down Waiting" );
+			break;
+		case 14: // Character Select - Disconnected
+			timeoutDelay( disconnectedRetry*60*1000, location.name );
+			controlData.click( controlData.controls.characterSelect.disconnected.button.ok );
+			break;
+		case 15: // New Character
+			break;	
+		case 16: // Character Select - Please Wait popup
+			if( !locationTimeout( pleaseWaitTimeout, 16 ) ) {
+				controlData.click( controlData.controls.characterSelect.pleaseWait.button.cancel );
+			}
+			break;
+		case 17: // Lobby - Lost Connection - just click okay, since we're toast anyway
+			controlData.click( controlData.controls.lobby.lostConnection.button.ok );
+			break;
+		case 18: // D2 Splash
+			controlData.click( controlData.controls.d2Splash.textBox.copyright );
+			break;
+		case 19: // Login - Cdkey In Use
+			if(cdkeyInUseRetry==0) {
+				gameData.debugOutput( "Cdkey is in use. Aborting." );
+				stop(); // fatal error, stop
+			}
+			timeoutDelay( cdkeyInUseRetry*60*1000, location.name );
+			controlData.click( controlData.controls.login.cdkeyInUse.button.ok );
+			break;
+		case 20: // Single Player - Select Difficulty
+			controlData.click( controlData.singlePlayerDifficulties[ gameData.gameDifficulty ] );
+			break;
+		case 21: // Main Menu - Connecting
+			if( !locationTimeout( connectingToBnetTimeout, 21 ) ) {
+				controlData.click( controlData.controls.mainMenu.connecting.button.cancel );
+			}
+			break;
+		case 22: // Login - Invalid Cdkey (classic or xpac)
+			gameData.debugOutput( "Invalid cdkey. Aborting." );
+			stop(); // fatal error, stop
+			break;	
+		case 23: // Character Select - Connecting
+			if( !locationTimeout( characterScreenTimeout, 23 ) ) {
+				controlData.click( controlData.controls.characterSelect.button.exit );
+			}
+			break;
+		case 24: // Server Down - not much to do but wait..
+			break;
+		case 25: // Lobby - Please Wait
+			if( !locationTimeout( pleaseWaitTimeout, 17 ) ) {
+				controlData.click( controlData.controls.lobby.pleaseWait.button.cancel );
+			}
+			break;
+		case 26: // Lobby - Game Name Exists
+			controlData.click( controlData.controls.lobby.gameExists.button.cancel );
+			break;
+		case 27: // Gateway Select
+			controlData.clickRealmEntry( gameData.realmId );
+			controlData.click( controlData.controls.gateway.button.ok );
+			break;
+		case 28: // Lobby - Game Does Not Exist
+			gameData.debugOutput( "Game Does Not Exist. Waiting to prevent Realm Down..." );
+			inGameAt = rnd( gameDoesNotExistDelayMin, gameDoesNotExistDelayMax );
+			lastGameStatus = 0;
+			gameData.failedGames++;
+			setNextGameMake();
+			gameData.updateGameStatus();
+			locationTimeout( gameDoesNotExistTimeout, 28 )
+			break;
+	}
+}
+
+function locationTimeout( time, locationId ) {
+		endtime = getTickCount() + time;
+		while( controlData.getLocation().id == locationId && (endtime > getTickCount()) && (parseInt((endtime-getTickCount())/1000,10) > 0) ) {
+			gameData.setLocation( location.name + " (" + parseInt((endtime-getTickCount())/1000,10) + "s)" );
+			delay(50);
+		}
+		return (controlData.getLocation().id != locationId);
+}
+
+function timeoutDelay( time, location, noRandom ) {
+	if(!noRandom) 
+		time += rnd( -60, 60 ) * 1000;
+	endtime = getTickCount() + time;
+	while(endtime > getTickCount()) {
+		gameData.setLocation( location + " (" + parseInt((endtime-getTickCount())/1000,10) + "s)" );
+		trueDelay(1000);
+	}
+}
+
+//include("automule.d2l");
+var transferring;
+var grabbing;
+var loggingOff;
+var resetSettings;
+var rejoin;
+var charnotfound;
+var origChar;
+var stats;
+
+function scriptmsgEvent( msg ) {
+//	gameData.debugOutput( "Received script msg = " + msg );
+// Commands sent by autod2jsp.exe (to use in game, preface send message with "starter:")
+	if(msg.search(/^starter:/)!=-1) { 
+		command = msg.substring(8,msg.length);
+		switch(command) {
+			case "pause":
+				gameData.isPaused = !gameData.isPaused;
+				gameData.setGameSettings();
+				break;
+			case "update":
+				gameData.needsData = true;
+				break;
+			default:
+				commands = command.split(" ");
+				if(commands && commands[0]=="reqLeader") { // in the form of: reqLeader SCRIPTNAME.d2j
+					sendMsgToScript(commands[1], "leaderName " + gameData.followLeaderName);
+				}
+				break;
+		}
+	}
+	if(msg.search(/^running:/)!=-1) { 
+		scriptLocation = "In Game (Now Running " + msg.substring(8,msg.length) + ")";
+		gameData.setLocation( scriptLocation );
+	}
+	Firstword = msg.substring(0,msg.indexOf(" "));
+	if (Firstword.toLowerCase() == "join") {
+		msg1 = msg.substr(msg.indexOf(" ")+1);
+		myGame = msg1.substring(0,msg1.indexOf("/"));
+		myPass = msg1.substr(msg1.indexOf("/")+1);
+		YAM_UpdateGameCounter(myGame);
+		gameSet = true;
+	}
+	if (msg=="setwait"){
+		YAM_WaitInChat=true;
+	}
+	//used with sicojola's auto-mule
+	if (msg=="gcupdate") {
+		gameData.totalGames++;
+	}
+	if (msg=="idle"){
+		charnotfound=false;
+		transferring=true;
+		me.gamefilename="tools/idle.d2j";
+	}
+	if (msg=="unload inventory"){
+		rejoin=true;
+		transferring=true;
+		ReadGameInfo();
+		trueDelay(5000);
+		me.gamefilename="tools/drop.d2j";
+	}
+	if (msg=="grab inventory"){
+		rejoin=false;
+		grabbing=true;
+		loggingOff=true;
+		me.gamefilename="tools/grab.d2j";
+	}
+	if (msg=="transfer done"){
+		charnotfound=false;
+		loggingOff=true;
+		transferring=false;
+		grabbing=false;
+		resetSettings=true;
+		numJoins=0;
+	}
+	if (msg=="char not found!"){
+		charnotfound=true;
+		MarkUnavailable(stats[0]);
+		origChar=true;
+		grabbing=true;
+		transferring=false;
+	}
+}
+
+function copydataEvent( msg ) {
+//	gameData.debugOutput( "Received script msg = " + msg );
+// Commands sent by autod2jsp.exe (to use in game preface send message with "starter:"
+	if(msg.search(/^starter:/)!=-1) {
+		command = msg.substring(8,msg.length);
+		gameData.setProperties( command );
+	}
+}
+
+function beepFunc() {
+	for(i=0;i<3;i++) {
+		beep(3);
+		trueDelay(100);
+	}
+}
+
+
+function stripD2ColorCodes( str ) {
+	return str.replace(/ÿc./g,"");
+}
+
+function trim( str ) {
+	return str.replace(/^\s+/,"").replace(/\s+$/,"");
+}
+
+// based on TheDesertWind's Random Name Generator
+function getRandomString( _length ) {
+	_retString = "";
+	_charSet = "0123456789abcdefghijklmnopqrstuvwxyz";
+	while( _length-- ) {
+		_retString += _charSet.charAt( rnd( 0, _charSet.length-1 ) );
+	}
+	return _retString;
+}
+
+function YAM_UpdateGameCounter(myGame) {
+	if (!gameData.useRandomGameName) {
+		for (i = 0; i < myGame.length; i++) {
+			if (myGame.charCodeAt(i) >= 48 && myGame.charCodeAt(i) <= 57) 
+				break;
+		}
+		if (i < myGame.length) {
+			num = parseInt(myGame.substr(i),10);
+			if (!isNaN(num)) { 
+				gameData.totalGames = num; 
+				gameData.totalGames++; 
+			}
+		}
+	}
+}
+
+// Will only fire out-of-game!
+function chatmsgHandler(msg,c) {
+	//if (c !=3)
+		gameData.debugOutput( "color=" + c + " msg=" + msg );
+	parsed = YAM_parseGameMsg(msg, c);
+	if (c == 2 && YAM_isMyLeader(parsed[0])) {
+		if (parsed[1].toLowerCase() == "join" && !gameSet) {
+			parsed[2] = parsed[2].replace("join ", "");
+			myGame = parsed[2].substring(0,parsed[2].indexOf("/"));
+			myPass = parsed[2].substr(parsed[2].indexOf("/")+1);
+			YAM_UpdateGameCounter(myGame);
+			gameSet = true;
+			controlData.click( controlData.controls.lobby.button.join );
+		}
+	}
+}
+
+function chatMsg(m, c) {
+	m = trim(stripD2ColorCodes(m));
+	if(m.substr(m.indexOf(" ")+1,gameData.followLeaderName.length).toLowerCase()==gameData.followLeaderName || m.substr(0,gameData.followLeaderName.length).toLowerCase()==gameData.followLeaderName ) {
+		cmd = m.substring(m.indexOf(": ")+2,m.length);
+		if(cmd.substr(0,joinGameCommand.length).toLowerCase()==joinGameCommand) {
+			cmd = trim(cmd.substr(joinGameCommand.length,cmd.length));
+			cmdz = cmd.split("/");
+			joinGameName = trim(cmdz[0]);
+			joinGamePass = cmdz.length==1 ? "" : trim(cmdz[1]);
+			controlData.click(controlData.controls.lobby.button.join);
+		}
+	}
+}
+
+function trueDelay(milliseconds){
+	start = getTickCount();
+	while((getTickCount() - start) < milliseconds)
+		delay(20);
+}

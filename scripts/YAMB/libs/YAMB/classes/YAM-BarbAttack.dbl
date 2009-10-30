@@ -1,0 +1,417 @@
+//Module by darkspirit with help from UberHunter
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var XP_BattleCommand=true;
+var XP_BattleOrders=true;
+var XP_Shout=true;
+var _DA_BOTimer=0;
+var XP_BarbAttack=151;
+var XP_WWDistance=5;
+var XP_UseBerserk=true;
+var XP_UseFindItem=false;
+var XP_ChangeWpnHork=false;
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts() {
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() : Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+		if (!DC_InTown(me)) {
+
+			var _battlecommand=false;
+
+			DA_BOSwitch("bo");
+
+			if (DC_CheckSkill(155) >= 1) { _battlecommand=true; }
+
+			// Cast Battle Commands
+			if(_battlecommand && me.getState(51)==0 && me.mp > 30) {
+
+				DC_DoCast(155,0);
+			}
+			else _battlecommand=false;
+
+			// Cast Battle Orders
+			if(!me.getState(32) && DC_CheckSkill(149) >= 1 && me.mp > 30) {
+
+				// Funtion to set time of BO cast and renew 2 seconds before expiration
+				_bolevel = DC_CheckSkill(149);
+
+				if(((new Date().getTime()-_DA_BOTimer)/1000) >= ((_bolevel*6)+28)) {
+
+					// If we have Battle Command, cast it at the same time
+					if (_battlecommand) { DC_DoCast(155,0); }
+
+					DC_DoCast(149,0);
+
+					// Reset the timer
+					_DA_BOTimer=new Date().getTime();
+				}
+			}
+
+			// Cast Shout
+			if(DC_CheckSkill(138) >= 1 && me.getState(26)==0 && me.mp > 10)	{
+
+				DC_DoCast(138,0);
+			}
+
+			// Cast Battle Commands
+			if(_battlecommand && me.mp > 30) {
+
+				DC_DoCast(155,0);
+			}
+
+			DA_BOSwitch("attack");
+		}
+}
+
+function XP_Precasts() {
+	//if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); }
+	if (DA_AutoPrecasts) {
+		DA_DoPrecasts();
+	}
+	else {
+		DA_BOSwitch("bo");
+
+		// Cast Battle Commands
+		if (XP_BattleCommand && !DC_InTown(me) && me.mp > 30) { DC_DoCast(155,0); }
+
+		// Cast Battle Orders
+		if (XP_BattleOrders && !DC_InTown(me) &&  me.mp > 30) { DC_DoCast(149,0); }
+
+		// Cast Shout
+		if (XP_Shout && !DC_InTown(me) && me.mp > 10) { DC_DoCast(138,0); }
+
+		// Cast Battle Commands
+		if (XP_BattleCommand && !DC_InTown(me) && me.mp > 30) { DC_DoCast(155,0); }
+
+		DA_BOSwitch("attack");
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var _area = me.area; // cache area property
+
+	if (arguments.length < 2)
+	{
+		skip = false;
+	}
+
+	if (arguments.length < 3) {
+		mode = ALIVE_MODE;
+	}
+
+   	if (arguments.length < 4) {
+		classid = null;
+   	}
+
+	if (arguments.length < 5) {
+		spectypeMask = 0xff;
+	}
+
+	_XP_AttackCompleted=0;
+
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (!me.getState(32) && me.hpmax <= MaxLife && (DA_UseCTA || DC_CheckSkill(149))) {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		}
+		else
+			DA_DoPrecasts();
+
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) Cow_KingCheck(monster);
+
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+						if (monster.classid == 691 && AbortDoll) { DC_ThrowException("XP_ClearingPostition()","Bloody dolls!"); }
+
+						if (((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) && !checkCollision(_area,me.x,me.y,3,monster.x,monster.y,3,3)) {
+							if (monster.classid == 23 || monster.classid == 62) {
+								BossSpawned = true;
+							}
+							else if (monster.classid == 381 || monster.classid == 105) {
+								Mage=true;
+							}
+							else if (monster.classid == 557) {
+								CouncilMember = true;
+							}
+							else if (monster.classid == 558) {
+								VenomLord = true;
+							}
+							else if (monster.classid == 571) {
+								MinionOfDest = true;
+							}
+
+							result = XP_AttackMonster(monster,range,x,y);
+							if (!retval) { retval = result; }
+						}
+					}
+				} while (monster.getNext(classid,mode));
+			}
+		}
+
+		// After the target death, use Find Item if we want
+		if (XP_UseFindItem && DC_CheckSkill(142)) {
+			var body = getBodyTarget(range);
+			while (body && me.mp > 7) {
+				XP_UseHork(body);
+				DSN_PickItems(YAM_SafeCheck);
+				body = getBodyTarget(range);
+			}
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			print("Max Attack Reached!");
+		else
+			throw e;
+	}
+
+	return retval;
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+
+	if (!monster || monster.hp < 1) return false;
+
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+
+		// If the char is PI, use WW and Berserk if the WW skill is entered
+		// Otherwise, use Berserk only
+		if (monster.getStat(36) > 99 || me.getState(55)) {
+
+			if (XP_BarbAttack == 151 && XP_UseBerserk) { XP_WW_Berserk(monster); }
+			else if (XP_UseBerserk) {
+				if (DA_GetRange(monster) < 6) {
+ 
+       					if (monster.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+
+					DC_DoCast(152,0,monster);
+					if (monster.hp < hpprev) {
+						hpprev = monster.hp;
+						attprev = _XP_AttackCompleted + 1;
+						if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+					}
+					XP_CheckAttacks();
+				}
+				else if (!checkCollision(me,monster,1)) DM_MoveTo(monster.x, monster.y);
+			}
+		}
+
+		// Else, use a normal attack skill
+		else {
+
+			// If 155 is entered, use the special WW function, else use it normally
+			if (XP_BarbAttack == 151) { XP_WWAttack(monster); }
+			else {
+				DC_DoCast(XP_BarbAttack,0,monster);
+				if (monster.hp < hpprev) {
+					hpprev = monster.hp;
+					attprev = _XP_AttackCompleted + 1;
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+				}
+				XP_CheckAttacks();
+			}
+		}
+	}
+
+	//DSN_PickItems(YAM_SafeCheck);
+
+	return true;
+}
+
+function XP_BossAttack(target) {
+
+	_XP_AttackCompleted=0; 
+
+	_XP_EndPosition = new XP_Coord(me.x,me.y);
+
+	while (target.hp > 0) {
+
+		// If the char is PI, use WW and Berserk if the WW skill is entered
+		// Otherwise, use Berserk only
+		if (target.getStat(36) > 99 || me.getState(55)) {
+
+			if (XP_BarbAttack == 151 && XP_UseBerserk) { XP_WW_Berserk(target); }
+			else if (XP_UseBerserk) {
+				if (DA_GetRange(target) < 6) {
+ 
+       					if (target.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+
+					DC_DoCast(152,0,target);
+					XP_CheckAttacks();
+				}
+				else if (!checkCollision(me,target,1)) DM_MoveTo(target.x, target.y);
+			}
+		}
+
+		// Else, use a normal attack skill
+		else {
+
+			// If 155 is entered, use the special WW function, else use it normally
+			if (XP_BarbAttack == 151) { XP_WWAttack(target); }
+			else {
+				DC_DoCast(XP_BarbAttack,0,target);
+				XP_CheckAttacks();
+			}
+		}
+
+		if (XP_CheckUtil(target)) { break; }
+	}
+
+	// After the target death, use Find Item if we want
+	if (XP_UseFindItem && DC_CheckSkill(142)) { XP_UseHork(target); }
+}
+
+// ToDo : Mod it so we figure which axis to move (this can be changed on certain maps)
+function XP_WWAttack(enemy) {
+
+       	if (enemy.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+
+	// Attack back and forth
+	while (enemy.hp > 0) {
+
+		DC_DoCast(151,0,enemy.x,enemy.y + XP_WWDistance);
+		XP_CheckAttacks();
+		if (XP_CheckUtil(enemy)) { return; }
+		delay(100);
+
+		if(enemy.hp <= 0) { break; }
+
+		DC_DoCast(151,0,enemy.x,enemy.y - XP_WWDistance);
+		XP_CheckAttacks();
+		if (XP_CheckUtil(enemy)) { return; }
+		delay(100);
+	}
+}
+
+function XP_WW_Berserk(target) {
+
+	if (!me.getState(55)) {
+		// Kill the surrounding monsters with WW before killing boss
+		XP_ClearPosition(15,target,ATTACKING_MODE);
+	}
+
+	if (DA_GetRange(target) > 6) {
+		// Move to the target to attack it
+		if (!checkCollision(me,target,1)) DM_MoveTo(target.x,target.y);
+	} else {
+       		if (target.getState(89)==0 && DC_CheckSkill(146)) DC_DoCast(146,0); //Battle Cry
+
+		// Cast berserk if the target is not dead
+		if (target.hp > 0) { DC_DoCast(152,0,target); }
+		XP_CheckAttacks();
+		if (XP_CheckUtil(target)) { return; }
+	}
+}
+
+// Function from Darien
+function getBodyTarget(range) {
+	if(arguments.length < 1) 
+		range = 25;
+	var BodyTarget = getUnit(1, null, DEAD_MODE);
+	//var closestdist=range;
+
+	body_target=false;
+	if(BodyTarget) do {
+		if (BodyTarget.getStat(172) == 2 || BodyTarget.getState(105)==0) { continue; }
+
+		if (BodyTarget.getState(99) || BodyTarget.getState(104) || BodyTarget.getState(118)) { continue; }
+
+		// Use NeverCount base monstat for traps, hydra, etc.
+		if (getBaseStat(1,BodyTarget.classid,23)) { continue; }
+
+		var targetRange=DA_GetRange(BodyTarget);
+		if(targetRange < range && !BodyTarget.getParent() &&
+			BodyTarget.classid != 371 &&
+			BodyTarget.classid != 289 &&
+			BodyTarget.classid != 290 &&
+			BodyTarget.classid != 291 &&
+			BodyTarget.classid != 292 &&
+			BodyTarget.classid != 271 &&
+			BodyTarget.classid != 338 &&
+			BodyTarget.classid != 351 &&
+			BodyTarget.classid != 352 &&
+			BodyTarget.classid != 353 &&
+			BodyTarget.classid != 359 &&
+			BodyTarget.classid != 543 &&
+			BodyTarget.classid != 561 &&
+			BodyTarget.classid != 363 &&
+			BodyTarget.classid != 364 &&
+			getBaseStat(6, BodyTarget.classid, 8) && 
+			(((me.area == 132 || me.area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
+			!checkCollision(me.area,me.x,me.y,3,BodyTarget.x,BodyTarget.y,3,3))) {
+
+			skipTarget=false;
+			for(var tk = 0; tk<ignoreKorpse.length; tk++) {
+				if(ignoreKorpse[tk] == BodyTarget.gid) { skipTarget=true; break; }
+			}
+			if(!skipTarget) {
+				//if(targetRange < closestdist) {
+					//var closestdist = targetRange;
+					//body_target = copyUnit(BodyTarget);
+				ignoreKorpse.push(BodyTarget.gid); return BodyTarget;
+				//}
+			}
+
+		}
+	}while(BodyTarget.getNext(null,DEAD_MODE));
+
+	//if(body_target) { ignoreKorpse.push(body_target.gid); return body_target; }
+
+	return false;
+}
+
+function XP_UseHork(target) {
+
+	// Wait 1/2 second to be sure the target is fully dead
+	DC_DoDel(500);
+
+	// Display a msg
+	DC_DPrint("ÿc8Using Find Item skill on the body !!");
+
+	if (me.getState(51)==0 && DC_CheckSkill(155)) {
+               DC_DoCast(155,0); //Cast Battle Command
+	}
+
+        if (DC_CheckSkill(130)) {
+               DC_DoCast(130,0); //Cast Howl
+               DC_DoCast(130,0); //Recast
+        }
+
+	delay(500);
+
+	if (XP_ChangeWpnHork) { DC_SelectTab(0); }
+
+	DC_DoCast(142,0,target);
+
+	if (XP_ChangeWpnHork) { DC_SelectTab(1); }
+}
+
+function XP_PreAttack() {
+	return false;
+}
+

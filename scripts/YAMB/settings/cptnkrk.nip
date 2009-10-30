@@ -1,0 +1,440 @@
+; ÀÄÁÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÁÄÙ
+; ³ ³ ³
+; ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+;
+
+
+
+
+Name = Rejuvenation Potion
+Name = Full Rejuvenation Potion
+
+Name = smallcharm : Quality = magic : maxdamage = 3
+Name = smallcharm : Quality = magic : maxhp = 20
+Name = smallcharm : Quality = magic : itemmagicbonus > 5
+Name = smallcharm : Quality = magic : poisonmaxdam > 99
+Name = smallcharm : Quality = magic : fireresist >= 4 : lightresist >= 4 : coldresist >= 4 : poisonresist >= 4
+
+Type = Small Charm : Quality = Unique
+
+Name = Grand Charm : Quality = Unique : itemmagicbonus = 39
+
+Name = Grand Charm : Quality = Magic : passiveandmagicskilltab = 1
+Name = Grand Charm : Quality = Magic : javelinandspearskilltab = 1
+Name = Grand Charm : Quality = Magic : fireskilltab = 1
+Name = Grand Charm : Quality = Magic : lightningskilltab = 1
+Name = Grand Charm : Quality = Magic : coldskilltab = 1
+Name = Grand Charm : Quality = Magic : cursesskilltab = 1
+Name = Grand Charm : Quality = Magic : poisonandboneskilltab = 1
+Name = Grand Charm : Quality = Magic : necromancersummoningskilltab = 1
+Name = Grand Charm : Quality = Magic : palicombatskilltab = 1
+Name = Grand Charm : Quality = Magic : offensiveaurasskilltab = 1
+Name = Grand Charm : Quality = Magic : defensiveaurasskilltab = 1
+Name = Grand Charm : Quality = Magic : barbcombatskilltab = 1
+Name = Grand Charm : Quality = Magic : masteriesskilltab = 1
+Name = Grand Charm : Quality = Magic : warcriesskilltab = 1
+Name = Grand Charm : Quality = Magic : druidsummoningskilltab = 1
+Name = Grand Charm : Quality = Magic : shapeshiftingskilltab = 1
+Name = Grand Charm : Quality = Magic : elementalskilltab = 1
+Name = Grand Charm : Quality = Magic : trapsskilltab = 1
+Name = Grand Charm : Quality = Magic : shadowdisciplinesskilltab = 1
+Name = Grand Charm : Quality = Magic : martialartsskilltab = 1
+
+Name = Large Charm : Quality = Magic : poisonmaxdam >= 175
+
+Type = Ring : Quality = Magic : lifeleech > 4 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Ring : Quality = Magic : manaleech > 4 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Ring : Quality = Magic : fcr > 9 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+
+Type = Ring : Quality = Rare : lifeleech > 4 : manaleech > 4 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Ring : Quality = rare : lifeleech > 4 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Ring : Quality = rare : manaleech > 4 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Ring : Quality = rare : fcr > 9 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+
+Type = Ring : Quality = Unique : itemmagicbonus = 30
+Type = Ring : Quality = Unique : manaleech >= 6
+Type = Ring : Quality = Unique : itemmaxmanapercent = 25
+Type = Ring : Quality = Unique : dexterity >= 19
+Type = Ring : Quality = Unique : lifeleech >= 3 : maxstamina = 50
+Type = Ring : Quality = Unique : lifeleech > 7
+Type = Ring : Quality = Unique : itemabsorblightpercent >= 10
+
+Type = Amulet : Quality = Magic : itemmagicbonus > 44
+
+Type = Amulet : Quality = Rare : Assassin skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Sorceress skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Druid skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Necromancer skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Paladin skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Amazon Skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+Type = Amulet : Quality = Rare : Barbarian Skills = 2 : fireresist > 9 : lightresist > 9 : coldresist > 9 : poisonresist > 9
+
+Type = amulet : Quality = Unique : hpregen = 10
+Type = amulet : Quality = Unique : fireresist > 19 : lightresist > 19 : coldresist > 19 : poisonresist > 19 : strength = 5
+Type = amulet : Quality = Unique : defensiveaurasskilltab >= 1
+Type = amulet : Quality = Unique : tohit > 299
+
+Name = jewel : Quality = Unique : passivefiremastery = 5 : passivefirepierce = -5
+Name = jewel : Quality = Unique : passivecoldmastery = 5 : passivecoldpierce = -5
+Name = jewel : Quality = Unique : passiveltngmastery = 5 : passiveltngpierce = -5
+Name = jewel : Quality = Unique : passivepoismastery = 5 : passivepoispierce = -5
+
+
+Name = Jewel : Quality = Rare : enhanceddamage >= 30
+Name = Jewel : Quality = Rare : fireresist > 8 : lightresist > 8 : coldresist > 8 : poisonresist > 8
+Name = jewel : Quality = rare : Max Damage > 11 : IAS = 15
+
+
+Name = Jewel : Quality = magic : enhanceddamage > 30
+Name = Jewel : Quality = magic : fireresist > 12 : lightresist > 12 : coldresist > 12 : poisonresist > 12
+Name = jewel : Quality = magic : Max Damage > 11 : IAS = 15
+
+
+Name = Dol Rune
+Name = Hel Rune
+Name = Io Rune
+Name = Lum Rune
+Name = Ko Rune
+Name = Fal Rune
+Name = Lem Rune
+Name = Pul Rune
+Name = Um Rune
+Name = Mal Rune
+Name = Ist Rune
+Name = Gul Rune
+Name = Vex Rune
+Name = Ohm Rune
+Name = Lo Rune
+Name = Sur Rune
+Name = Ber Rune
+Name = Jah Rune
+Name = Cham Rune
+Name = Zod Rune
+
+
+Name = Shadow Plate : Quality = set
+
+Name = Colossus Blade : Quality = set
+Name = Mythical Sword : Quality = set
+
+Name = Corona : Quality = set
+Name = Caduceus : Quality = set
+Name = Vortex Shield : Quality = set
+
+Name = Ward : Quality = set
+
+Name = Sacred Armor : Quality = set
+
+Name = Diadem : Quality = set
+Name = Grand Matron Bow : Quality = set
+
+Name = Scissors Suwayyah : Quality = set
+
+Name = Cryptic Sword : Quality = set
+Name = Balrog Skin : Quality = Set : itemmagicbonus = 15
+
+Name = Swirling Crystal : Quality = set : itemaddlightningskilltab = 2 : itemaddfireskilltab =2 : itemaddcoldskilltab =2
+Name = Lacquered Plate : Quality = set
+Type = Amulet : Quality = set : Sorceress Skills = 2
+Name = Mesh Belt : Quality = set : itemmagicbonus = 15
+
+Name = Bone Visage : Quality = set
+Name = Troll Belt : Quality = set
+
+Name = Chain Gloves : Quality = Unique : itemmagicbonus > 38
+Name = Vambraces : Quality = Unique
+Name = Ogre Gauntlets : Quality = Unique
+Name = Vampirebone Gloves : Quality = Unique
+Name = Gauntlets : Quality = Unique
+
+Name = Demonhide Sash : Quality = Unique : damagepercent = 15
+Name = Battle Belt : Quality = Unique
+Name = War Belt : Quality = Unique
+Name = Spiderweb Sash : Quality = Unique
+Name = Vampirefang Belt : Quality = Unique
+Name = Mithril Coil : Quality = Unique
+
+Name = Sharkskin Boots : Quality = Unique
+Name = Mesh Boots : Quality = Unique
+Name = Battle Boots : Quality = Unique
+Name = War Boots : Quality = Unique
+Name = Scarabshell Boots : Quality = Unique
+Name = Boneweave Boots : Quality = Unique
+Name = Myrmidon Greaves : Quality = Unique
+
+Name = Shako : Quality = Unique
+Name = Grim Helm : Quality = Unique
+Name = Spired Helm : Quality = Unique
+Name = Demonhead : Quality = Unique
+Name = Bone Visage : Quality = Unique
+Name = Tiara : Quality = Unique
+Name = Diadem : Quality = Unique
+Name = Corona : Quality = Unique
+
+Name = Dusk Shroud : Quality = Unique
+Name = Balrog Skin : Quality = Unique
+Name = Wire Fleece : Quality = Unique : Flag = Eth
+Name = Kraken Shell : Quality = Unique
+Name = Shadow Plate : Quality = Unique
+Name = Sacred Armor : Quality = Unique
+Name = Mesh Armor : Quality = Unique
+Name = Russet Armor : Quality = Unique
+;Name = Templar Coat : Quality = Unique
+Name = Serpentskin Armor: Quality = Unique : fireresist > 34 : lightresist > 34 : coldresist > 34 : poisonresist > 34
+
+
+Name = Grand Crown : Quality = Unique : Flag = Eth
+
+
+
+Name = Grim Shield : Quality = Unique
+Name = Troll Nest : Quality = Unique
+Name = Monarch : Quality = Unique
+
+Name = Tulwar : Quality = Unique
+Name = Colossus Blade : Quality = Unique
+Name = Phase Blade : Quality = Unique
+
+Name = Ettin Axe : Quality = Unique
+Name = Berserker Axe : Quality = Unique
+Name = Glorious Axe : Quality = Unique
+
+Name = Crusader Bow : Quality = Unique
+Name = Hydra Bow : Quality = Unique
+Name = Ballista : Quality = Unique : enhanceddamage = 200
+
+Name = Dagger : Quality = Unique
+Name = Bone Knife : Quality = Unique
+
+
+
+Name = Ogre axe : Quality = Unique
+Name = Thresher : Quality = Unique
+Name = Cryptic Axe : Quality = Unique
+Name = Giant Thresher : Quality = Unique
+
+
+
+Name = Divine Scepter : Quality = Unique
+Name = Mighty Scepter : Quality = Unique
+Name = Caduceus : Quality = Unique
+
+Name = Elder Staff : Quality = Unique
+Name = Archon Staff : Quality = Unique
+
+Name = Winged Knife : Quality = Unique
+Name = Flying Axe : Quality = Unique
+Name = Winged Axe : Quality = Unique
+
+Name = Lich Wand : Quality = Unique
+Name = Unearthed Wand : Quality = Unique
+Name = Petrified Wand : Quality = Unique
+
+
+
+Name = Ceremonial Javelin : Quality = Unique
+Name = Matriarchal Javelin : Quality = Unique
+Name = Balrog Spear : Quality = Unique
+Name = Winged Harpoon : Quality = Unique
+Name = Ghost Glaive : Quality = Unique
+
+Name = Battle Cestus : Quality = Unique
+Name = Greater Talons : Quality = Unique
+Name = Wrist Sword : Quality = Unique
+Name = Feral Claws : Quality = Unique
+
+Name = Hierophant Trophy : Quality = Unique
+Name = Bloodlord Skull : Quality = Unique
+Name = Succubus Skull : Quality = Unique
+
+Name = Fury Visor : Quality = Unique
+Name = Conqueror Crown : Quality = Unique
+Name = Destroyer Helm : Quality = Unique
+Name = Slayer Guard : Quality = Unique
+
+Name = Swirling Crystal : Quality = Unique
+Name = Eldritch Orb : Quality = Unique : sorceressskills =3
+Name = Dimensional Shard : Quality = Unique
+
+Name = Totemic Mask : Quality = Unique
+Name = Blood Spirit : Quality = Unique
+Name = Sky Spirit : Quality = Unique
+Name = Earth Spirit : Quality = Unique
+
+Name = Gilded Shield : Quality = Unique
+
+Name = Monarch : Quality <= Superior : Sockets = 4
+
+Name = Battle Dart : Quality = rare : enhanceddamage = 600
+Name = War Dart : Quality = rare : enhanceddamage = 600
+
+Name = Battle Dart : Quality = magic : enhanceddamage = 600
+Name = War Dart : Quality = magic : enhanceddamage = 600
+
+
+
+Type = Wand : Quality = rare : enhanceddamage = 600
+Type = Wand : Quality = magic : enhanceddamage = 600
+
+
+Name = Glowing Orb : Quality = magic : lightresist > 60
+Name = Crystalline Globe : Quality = magic : lightresist > 60
+Name = Cloudy Sphere : Quality = magic : lightresist > 60
+Name = Sparkling Ball : Quality = magic : lightresist > 60
+Name = Swirling Crystal : Quality = magic : lightresist > 60
+Name = Heavenly Stone : Quality = magic : lightresist > 60
+Name = Eldritch Orb : Quality = magic : lightresist > 60
+Name = Demon Heart : Quality = magic : lightresist > 60
+Name = Vortex Orb : Quality = magic : lightresist > 60
+Name = Dimensional Shard : Quality = magic : lightresist > 60
+Name = Eagle Orb : Quality = magic : lightresist > 60
+Name = Sacred Globe : Quality = magic : lightresist > 60
+Name = Smoked Sphere : Quality = magic : lightresist > 60
+Name = Clasped Orb : Quality = magic : lightresist > 60
+Name = Jared's Stone : Quality = magic : lightresist > 60
+
+
+Name = Glowing Orb : Quality = rare : lightresist > 60
+Name = Crystalline Globe : Quality = rare : lightresist > 60
+Name = Cloudy Sphere : Quality = rare : lightresist > 60
+Name = Sparkling Ball : Quality = rare : lightresist > 60
+Name = Swirling Crystal : Quality = rare : lightresist > 60
+Name = Heavenly Stone : Quality = rare : lightresist > 60
+Name = Eldritch Orb : Quality = rare : lightresist > 60
+Name = Demon Heart : Quality = rare : lightresist > 60
+Name = Vortex Orb : Quality = rare : lightresist > 60
+Name = Dimensional Shard : Quality = rare : lightresist > 60
+Name = Eagle Orb : Quality = rare : lightresist > 60
+Name = Sacred Globe : Quality = rare : lightresist > 60
+Name = Smoked Sphere : Quality = rare : lightresist > 60
+Name = Clasped Orb : Quality = rare : lightresist > 60
+Name = Jared's Stone : Quality = rare : lightresist > 60
+
+
+Name = Suwayyah : Quality = rare : enhanceddamage = 600
+Name = Wrist Sword : Quality = rare : enhanceddamage = 600
+Name = War Fist : Quality = rare : enhanceddamage = 600
+Name = Battle Cestus : Quality = rare : enhanceddamage = 600
+Name = Feral Claws : Quality = rare : enhanceddamage = 600
+Name = Runic Talons : Quality = rare : enhanceddamage = 600
+Name = Scissors Suwayyah : Quality = rare : enhanceddamage = 600
+
+
+Name = Suwayyah : Quality = magic : enhanceddamage = 600
+Name = Wrist Sword : Quality = magic : enhanceddamage = 600
+Name = War Fist : Quality = magic : enhanceddamage = 600
+Name = Battle Cestus : Quality = magic : enhanceddamage = 600
+Name = Feral Claws : Quality = magic : enhanceddamage = 600
+Name = Runic Talons : Quality = magic : enhanceddamage = 600
+Name = Scissors Suwayyah : Quality = magic : enhanceddamage = 600
+
+
+
+
+
+
+
+Name = Spiderweb Sash : Quality = rare : enhanceddamage = 600
+Name = Vampirefang Belt : Quality = rare : enhanceddamage = 600
+Name = Mithril Coil : Quality = rare : enhanceddamage = 600
+Name = Troll Belt : Quality = rare : enhanceddamage = 600
+Name = Colossus Girdle : Quality = rare : enhanceddamage = 600
+
+
+Name = Spiderweb Sash : Quality = magic : enhanceddamage = 600
+Name = Vampirefang Belt : Quality = magic : enhanceddamage = 600
+Name = Mithril Coil : Quality = magic : enhanceddamage = 600
+Name = Troll Belt : Quality = magic : enhanceddamage = 600
+Name = Colossus Girdle : Quality = magic : enhanceddamage = 600
+
+Name = Tomahawk : Quality = magic : enhanceddamage = 600
+Name = Tomahawk : Quality = rare : enhanceddamage = 600
+
+
+Name = Bramble Mitts : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Vampirebone Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Vambraces : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Crusader Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Ogre Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Demonhide Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Sharkskin Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Heavy Bracers : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Battle Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = War Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Leather Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Heavy Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Chain Gloves : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Light Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Gauntlets : Quality = rare : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+
+
+Name = Bramble Mitts : Quality = magic : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Vampirebone Gloves : Quality = magic : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Vambraces : Quality = magic : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Crusader Gauntlets : Quality = magic : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+Name = Ogre Gauntlets : Quality = magic : ias = 20 : lifeleech > 2 : manaleech > 2 : itemaddclassskills = 2
+
+
+Name = Demonhide Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Sharkskin Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Mesh Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Battle Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = War Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Wyrmhide Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Scarabshell Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Boneweave Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Mirrored Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Myrmidon Greaves : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Heavy Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Chain Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Light Plated Boots : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Greaves : Quality = rare : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+
+
+Name = Demonhide Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Sharkskin Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Mesh Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Battle Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = War Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Wyrmhide Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Scarabshell Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Boneweave Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Mirrored Boots : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+Name = Myrmidon Greaves : Quality = Magic : frw > 19 : fhr > 19 : strength > 14 : dexterity > 14
+
+
+
+
+
+
+Type = Sword : class = exceptional : Quality = magic : warcriesskilltab = 3
+Type = Sword : class = exceptional : Quality = Rare : warcriesskilltab = 3
+Type = Sword : class = Elite : Quality = magic : warcriesskilltab = 3
+Type = Sword : class = Elite : Quality = Rare : warcriesskilltab = 3
+
+
+
+Type = Javelin : class = exceptional : Quality = rare : warcriesskilltab = 3
+Type = Javelin : class = exceptional : Quality = magic : warcriesskilltab = 3
+Type = Javelin : class = Elite : Quality = rare : warcriesskilltab = 3
+Type = Javelin : class = Elite : Quality = magic : warcriesskilltab = 3
+
+Type = Armor : class = exceptional : Quality = magic : enhanceddamage = 600
+Type = Armor : class = exceptional : Quality = rare : enhanceddamage = 600
+
+Name = Archon Plate : Quality = Superior : Sockets = 0 : Flag = Eth
+Name = Archon Plate : Quality = Superior : Sockets = 3 : Flag = Eth
+
+Name = VortexShield : Quality = Superior : Sockets = 0 : 39 > 35 : 41 > 35 : 43 > 35 : 45 > 35 : Flag = Eth
+Name = VortexShield : Quality = Superior : Sockets = 4 : 39 > 35 : 41 > 35 : 43 > 35 : 45 > 35 : Flag = Eth
+Name = VortexShield : Quality = Superior : Sockets = 0 : Enhanced Damage > 50 : Flag = Eth
+Name = VortexShield : Quality = Superior : Sockets = 4 : Enhanced Damage > 50 : Flag = Eth
+Name = KurastShield : Quality = Superior : Sockets = 0 : 39 > 35 : 41 > 35 : 43 > 35 : 45 > 35 : Flag = Eth
+Name = KurastShield : Quality = Superior : Sockets = 4 : 39 > 35 : 41 > 35 : 43 > 35 : 45 > 35 : Flag = Eth
+
+
+
+
+
+

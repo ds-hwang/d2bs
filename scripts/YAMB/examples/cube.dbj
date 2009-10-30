@@ -1,0 +1,141 @@
+// cube.dbj
+// converted from python to javascript by njaguar
+// original code Written by Gustavo Niemeyer <niemeyer@conectiva.com>.
+
+var ORIGINX = 0;
+var ORIGINY = 0;
+
+var cube = [	[-50, 50, 50],	[ 50, 50, 50],
+				[ 50,-50, 50],	[-50,-50, 50],
+				[-50, 50,-50],	[ 50, 50,-50], 
+				[ 50,-50,-50],	[-50,-50,-50]];
+var cubelines	= new Array(12);
+var curline		=0;
+var colorcycle	=1;
+
+
+function draw_3dline(color, a, b) {
+	// Convert 3D coordinates to 2D and draw line.
+	var ax = a[0]+(a[2]*0.3)+ORIGINX;
+	var ay = a[1]+(a[2]*0.3)+ORIGINY;
+	var bx = b[0]+(b[2]*0.3)+ORIGINX;
+	var by = b[1]+(b[2]*0.3)+ORIGINY;
+	cubelines[curline].color = color;
+	cubelines[curline].x     = Math.floor(ax);
+	cubelines[curline].y     = Math.floor(ay);
+	cubelines[curline].x2    = Math.floor(bx);
+	cubelines[curline].y2    = Math.floor(by);
+	curline++; 
+	if(curline==12) 
+		curline=0;
+}
+
+function draw_cube(color, cube) {
+	// Draw 3D cube.
+	var a=cube[0], b=cube[1], c=cube[2], d=cube[3], e=cube[4], f=cube[5], g=cube[6], h=cube[7];
+	draw_3dline(color, a, b);
+	draw_3dline(color, b, c);
+	draw_3dline(color, c, d);
+	draw_3dline(color, d, a);
+	
+	draw_3dline(color, e, f);
+	draw_3dline(color, f, g);
+	draw_3dline(color, g, h);
+	draw_3dline(color, h, e);
+	
+	draw_3dline(color, a, e);
+	draw_3dline(color, b, f);
+	draw_3dline(color, c, g);
+	draw_3dline(color, d, h);
+}
+
+function rotate_3dpoint(p, angle, axis) {
+//	"""Rotate a 3D point around given axis."""
+	var ret = [0, 0, 0];
+	var cosang = Math.cos(angle);
+	var sinang = Math.sin(angle);
+	ret[0] += (cosang+(1-cosang)*axis[0]*axis[0])*p[0];
+	ret[0] += ((1-cosang)*axis[0]*axis[1]-axis[2]*sinang)*p[1];
+	ret[0] += ((1-cosang)*axis[0]*axis[2]+axis[1]*sinang)*p[2];
+	ret[1] += ((1-cosang)*axis[0]*axis[1]+axis[2]*sinang)*p[0];
+	ret[1] += (cosang+(1-cosang)*axis[1]*axis[1])*p[1];
+	ret[1] += ((1-cosang)*axis[1]*axis[2]-axis[0]*sinang)*p[2];
+	ret[2] += ((1-cosang)*axis[0]*axis[2]-axis[1]*sinang)*p[0];
+	ret[2] += ((1-cosang)*axis[1]*axis[2]+axis[0]*sinang)*p[1];
+	ret[2] += (cosang+(1-cosang)*axis[2]*axis[2])*p[2];
+	return ret;
+}
+
+function rotate_object(obj, angle, axis) {
+//	"""Rotate an object around given axis."""
+	for(var i=0; i<obj.length; i++) {
+		obj[i] = rotate_3dpoint(obj[i], angle, axis)
+	}
+}
+
+function main() {
+	addEventListener("keydown", keypressHandler);
+	//# Move origin to center of screen
+	var screensize = me.screensize;
+
+	ORIGINX = (screensize == 2 ? 800 : 640)/2;
+	ORIGINY = (screensize == 2 ? 600 : 480)/2;
+	//print("ORIGINX: "+ORIGINX+" ORIGINY: "+ORIGINY);
+
+	// added by njaguar
+	var credtxt = ["cube.dbj by njaguar", "original python code by Gustavo Niemeyer", "press 'K' to stop color cycling"];
+	var credloy = [120, 100, -100];
+	var credcol = [2, 8, 9];
+	var credits = [ new Text("cube.dbj by njaguar"), new Text("original python code by Gustavo Niemeyer"), new Text("press 'K' to stop color cycling") ];
+	for(var i=0;i<credtxt.length;i++) {
+		credits[i].text = credtxt[i];
+		credits[i].x = ORIGINX - Math.floor(credtxt[i].length*3.5);
+		credits[i].y = ORIGINY - credloy[i];
+		credits[i].color = credcol[i];
+	}
+
+	
+	for(var i=0;i<12;i++) {
+		cubelines[i] = new Line();
+		cubelines[i].x2=0;
+		cubelines[i].y2=0;
+	}
+
+	// color cycling added by njaguar
+	var color		= 0x10;
+	var coloroff	= 1;
+
+	while(1) {
+		if(!colorcycle)
+			color = 0xff;
+		draw_cube(color, cube);
+		if(color == 0xff) 
+			color = 0x1e;
+		color += coloroff; 
+		if(color==0x1f || color==0x10) 
+			coloroff *= -1;
+		
+		delay(30);
+		rotate_object(cube, 0.1,  [0,1,0]);
+		rotate_object(cube, 0.01, [0,0,1]);
+		rotate_object(cube, 0.01, [1,0,0]);
+	}
+}
+
+function keypressHandler(key) {
+	switch(key){
+		case 88: // "X" was pressed
+			print("X was pressed, stopping script");
+			delay(300);
+			stop();
+			break;
+		case 75: // "K" was pressed
+			colorcycle = !colorcycle;
+			print("colorcycle now " + colorcycle ? "on" : "off");
+		default:
+			//print(keypress);
+			break;
+
+	}
+}
+

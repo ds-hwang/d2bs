@@ -1,0 +1,18 @@
+/**
+ * @filename portalTest.dbj
+ * @author TechnoHunter
+ */
+
+
+function main(){
+
+	while(1) {
+		var unit = getUnit(101);
+		if (unit) {
+			print("unit found, interacting!");
+			unit.interact();
+		}
+		delay(20);
+	}
+}
+

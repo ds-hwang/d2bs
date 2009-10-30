@@ -1,0 +1,578 @@
+/****************************** Yet Another Multi Bot **********************************\
+
+** Current releaser: TechnoHunter
+
+** Main coders: sumo1, darkspirit, kougio, wurscht and 2KH
+   Main contributers: qzt, DBJ, theaxis, Oller, ziesta, fragyou, Boris, keksdosendieb, and UberHunter
+
+** This bot was originally created by darkspirit, derived from ChainXP, the common libs,
+   XP scripts, Xizeta, pwnage, X-Ice, darien's scripts and mattlant for path finding.
+
+** Thanks go to all the original scripts writers, to Snarg and njaguar for creating d2jsp.
+
+** For configuration, proper credits and legal info see libs/YAM_Config_BlizzardSorc.dbj
+
+******************************* Yet Another Multi Bot **********************************/
+
+js_strict(true); // Tells you when you fucked up coding
+
+var YAM_Version        = "0.9.7.0 Beta";
+var YAM_madeConfigs    = false;
+var YAM_CharConfigFile = "none";
+var YAM_Pause          = false;
+
+var YAM_ClassToNameList = new Array(7);
+YAM_ClassToNameList[0] = "YAM_Config_Amazon.dbl";
+YAM_ClassToNameList[1] = "YAM_Config_FireSorc.dbl";
+YAM_ClassToNameList[2] = "YAM_Config_Necro.dbl";
+YAM_ClassToNameList[3] = "YAM_Config_Paladin.dbl";
+YAM_ClassToNameList[4] = "YAM_Config_Barb.dbl";
+YAM_ClassToNameList[5] = "YAM_Config_Druid.dbl";
+YAM_ClassToNameList[6] = "YAM_Config_Assassin.dbl";
+
+//var file = File.open("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl", FILE_READ);
+sendCopyData(null, "OOG", 0,"FileTools.exists config " );
+if (FileTools.exists("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl")) {
+	YAM_CharConfigFile = "YAMB/configs/YAM_Config_" + me.name + ".dbl";
+	//file.close();
+}
+else {
+	try{
+		sendCopyData(null, "OOG", 0,"FileTools.try not found " );
+		print("Character config file not found! Creating default config based on class");
+		if (!FileTools.exists("libs/YAMB/Templates/" + YAM_ClassToNameList[me.classid]))
+			throw "TemplateFile Not Available to copy from :: Error in CharacterConfig file creation!";
+		//var newCharFile = File.open("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl", FILE_WRITE);
+		//if (!newCharFile)
+			//throw "Unable to create New Config File :: Error in CharacterConfig file creation!";
+		//newCharFile.close();
+		try{
+			FileTools.copy("libs/YAMB/Templates/" + YAM_ClassToNameList[me.classid], "libs/YAMB/configs/YAM_Config_" + me.name + ".dbl");
+		}
+		catch(ftException){
+			print(" ");
+			print(ftException);
+			throw "Unable to create New Config File :: Error in CharacterConfig file creation!";
+			//stop();
+		}
+		YAM_CharConfigFile = "YAMB/configs/YAM_Config_" + me.name + ".dbl";
+		print(" ");
+		print("Your char config file was created: ./scripts/libs/YAMB/configs/YAM_Config_"+me.name+".dbl");
+		print("Edit this file and setup your belt, inventory, skills to use and the bosses you wish to run");
+		YAM_madeConfigs = true;
+		}
+	catch(fileException){
+		print(" ");
+		print(fileException);
+		stop();
+	}
+	//print("Stopping script");
+	//stop();// added to test file creation - remove when working! 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+var entryFunc            = null;	// Entry point function pointer for Boss Modules
+var gameMsgExtendHandler = null;	// Function pointer for GAMEMSG extension handler
+
+// Private variables
+var YAM_UseNJIP              = true;
+var _YAM_Position            = "start";
+var _YAM_NeedTP              = false;
+var _YAM_NeedKeys            = false;
+var _YAM_GoToHealer          = false;
+var _YAM_GoToRepair          = false;
+var _YAM_MercDead            = false;
+var _YAM_OutOfPots           = false;
+var _YAM_Town                = false;
+var _IP                      = "";
+var _sh                      = null;
+var _tsh                     = null;
+var _lastPause				 = 0;
+
+function YAM_ShowCredits() {
+	sendCopyData(null, "OOG", 0,"show Credits" );
+	if (DL_Total > 0 && DC_Verbose) {
+		var _successpercent=String(((DL_Kills / YAMXXP.length) / DL_Total) * 100).substring(0,5);
+	 	DC_Print("ÿc8Total runs:  " + (DL_Total-1) + "  Total Deaths:  " + DL_Deaths + "  Total kills:  " + DL_Kills + "  With a " + _successpercent +"%% success rate!");
+		DC_Print("ÿc8Net exp. gained: " + (DL_TotalExp - DL_ExpLost) + "ÿc0");
+	}
+}
+
+function YAM_SetTitle() {	// Add the title screenhook -- Modded to accurately center text -TechnoHunter
+	sendCopyData(null, "OOG", 0,"yam set title " );
+	var _shstring = "-- Yet-Another-MultiBot " + YAM_Version + " --";
+	var _width = getTextWidthHeight(_shstring,8);
+	var _screenszX = me.screensize == 2 ? 800 : 640;
+	var _screenszY = me.screensize == 2 ? 640 : 480;
+	_sh = null;
+	_sh = new Text(_shstring,20,500,-1);
+	_sh.font = 8;
+	_sh.color = 4;
+	_sh.text = _shstring;
+	_sh.x = parseInt((_screenszX - _width[0])/2,10);
+	_sh.y = _screenszY - 95; //	_sh.y = 35;
+	sendCopyData(null, "OOG", 0,"yam set title returned safely " );
+}
+
+function YAM_RunTitle(file) {	// Add the title screenhook -- Modded to accurately center text -TechnoHunter
+	sendCopyData(null, "OOG", 0,"yam run title " +file);
+	var _shstring = "-- Now Running " + file + " --";
+	var _width = getTextWidthHeight(_shstring,8);
+	var _screenszX = me.screensize == 2 ? 800 : 640;
+	var _screenszY = me.screensize == 2 ? 640 : 480;
+	if(	_tsh == null)
+		_tsh = new Text(_shstring,20,500,-1);
+	_tsh.font = 8;
+	_tsh.color = 4;
+	_tsh.text = _shstring;
+	_tsh.x = parseInt((_screenszX - _width[0])/2,10);
+	_tsh.y = 35;
+	sendCopyData(null, "OOG", 0,"yam run title returned safley");
+}
+
+function YAM_KeyUpManager(keyup) {
+	sendCopyData(null, "OOG", 0,"yam keyupmanager "+keyup );
+	if(getUIFlag(0x05)==1 && keyup != 19)
+		return;
+	switch (keyup) {
+		// Stop main script, started tools (eg. YAM-LifeWatch) will continue
+		case 88: // "X" was pressed
+			DC_Print("ÿc;Key 'X' was pressed, stopping the main script.");
+			delay(500);
+			stop(1);
+			break;
+		// Stop all scripts (only if in town)
+		case 191: // "/" was pressed
+			if (DC_InTown(me)) {
+				DC_Print("ÿc;Key '/' was pressed, stopping all scripts.");
+				delay(500);
+				stop();
+			}
+			break;
+		// Pause main script
+		case 19: // "Pause" was pressed
+			/*registerEvent(0, EVENT_KEYUP);
+			DC_Print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
+			scriptBroadcast( "starter:pause" );
+			pscript = DC_FindScript(YAM_PausePath);
+			if (!pscript) {
+				load(YAM_PausePath);
+				do {
+					delay (500);
+					pscript = DC_FindScript(YAM_PausePath);
+				} while(pscript && pscript.running)
+			}
+			else { pscript.stop(); }
+			scriptBroadcast( "starter:pause" );
+			DC_Print("ÿc2Resuming Bot...");
+			addEventListener("keyup", YAM_KeyUpManager);*/
+			YAM_Pause = !YAM_Pause;
+			if (YAM_Pause){
+				print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
+			} 
+			else{
+				print("ÿc2Resuming Bot...");
+			}		
+			break;
+		// Show Credits
+		case 187: // "=" was pressed
+			YAM_ShowCredits();
+			break;
+		// Show MF info
+		case 220: // "\" was pressed
+			DT_DisplayMF();
+			break;
+		case 222: // "'" was pressed
+			YAM_Debug = !YAM_Debug;
+			if (YAM_Debug)
+				DC_Print("ÿc2YAM Debugging Activated!");
+			else
+				DC_Print("ÿc3YAM Debugging Deactivated.");
+			break;
+		case 186: // ";" was pressed
+			dt = DC_FindScript("tools/DevTools.dbj");
+			if (!dt)
+				load("tools/DevTools.dbj");
+			else
+				dt.stop();
+			break;
+	}
+}
+
+// function needed for sojcount detection
+function YAM_gamemsgHandler(msg, c) {
+	sendCopyData(null, "OOG", 0,"yam gamemsghandler " );
+	// Ignore d2bs messages
+	if (c == 0 && (msg.indexOf("ÿc4") == -1 || msg.indexOf(":") == -1))
+		return;
+	if ( YAM_MonitorDCloneMsg){ //&& c == 4 colors not in message atm
+		if(GoldMsgHandler(msg))
+			YAM_MustIdle = true;
+	}
+	myGame=null;
+	myPass=null;
+	parsed = YAM_parseGameMsg(msg, c);
+	if (PublicMode) {
+		if(YAM_isMyLeader(parsed[0])==true) {
+			if (parsed[1] == "Join") {
+				myGame = parsed[2].substring(0,parsed[2].indexOf("/"));
+				myPass = parsed[2].substr(parsed[2].indexOf("/")+1);
+				if (me.gamename != myGame) {
+					if (!DC_SendMsgToScript("scripts\\YAMBstarter.dbj","join " + myGame + "/" + myPass)) {
+						DC_Print("ÿc1Failed sending msg to YAMBstarter.dbj!");
+					}
+					else if (!YAM_MustIdle) {
+						registerEvent(0, EVENT_GAMEMSG);
+						if (myPass == "")
+							say("please join new game: "+myGame+" .  Bye!");
+						else
+							say("please join new game: "+myGame+"/"+myPass+" .  Bye!");
+						delay(100);
+						quit();
+					}
+				}
+			}
+			else if (parsed[1] == "Add") {
+				say ("/w "+parsed[0]+" adding "+parsed[2]+" module!");
+				YAMXXP.push(parsed[2]);
+			}
+			else if (parsed[1] + " " + parsed[2] == YAM_TPMsg) {
+				YAM_TPReady = parsed[0];
+			}
+		}
+	}
+	if (gameMsgExtendHandler) {
+		try {
+			gameMsgExtendHandler(parsed[0], parsed[1], parsed[2], c);
+		}
+		catch (YAM_Exception) {
+			DL_AddError();
+			DC_LogError(file + " Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		}
+	}
+}
+
+function LoadModule(file) {
+	sendCopyData(null, "OOG", 0,"yam loadModule"+file );
+	YAM_RunTitle(file);
+	//me.overhead("Let's do a " + file + " run !");
+	sendCopyData(null, "OOG", 0,"calling dcloadinclude"+file );
+	DC_LoadInclude("YAMB/YAM_" + file + ".dbl");
+	sendCopyData(null, "OOG", 0,"yam loadModule dcload retun"+file );
+    if (!entryFunc) {
+		DC_Print("What's that you say? " + file + "? I don't know no " + file + "!");
+		return;
+	}
+	try { 
+		sendCopyData(null, "OOG", 0,"yam loadMod entryFun Try ");
+		entryFunc(); 
+	}
+	// Catch and log any exception thrown by the script
+	catch (YAM_Exception) {
+		sendCopyData(null, "OOG", 0,"yam loadMod entryFunc excption "+YAM_Exception.name);
+		// Got an exception : print it to screen and write the error in the file
+		DC_Print(file + " Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		if (YAM_Exception.name != "XP_AttackMonster()") {
+			DL_AddError();
+			DC_LogError(file + " Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		}
+		else{
+			DC_LogToautod2jsp(file + " Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		}
+		if (YAM_ShowInnerExceptions && YAM_Exception.inner) {
+			DC_LogError("    Inner Exceptions Attached - details below");
+			einner = YAM_Exception.inner;
+			while (einner) {
+				DC_LogError("    Name: " + einner.name);
+				DC_LogError("    Error Code: " + einner.number);
+				DC_LogError("    Message: " + einner.message);
+				DC_LogError("    LineNumber: " + einner.lineNumber);
+				DC_LogError("    FileName: " + einner.fileName);
+				var einstack = einner.stack;
+				if(!(einstack instanceof Array)) {
+					einstack = einstack.split("\n");
+					einstack.pop();
+					einstack.pop();
+					einstack.reverse();
+				}
+				for(var i = 0; i < einstack.length; i+=1) {
+					DC_LogError("    Stack Trace -> function[" + (i+1) + "]: " + einstack[i].replace("@:", " @ line# "));
+				}
+				einner = einner.inner;
+			}
+		}
+		if (MXP_WatchMon) {
+			var mw = DC_FindScript(YAM_MonsterWatchPath);
+			if (mw) { mw.stop(); DC_Print("Monster Watch Stopped!"); }
+		}
+		if (file=="Cow") {
+			if (Cow_NoKing) {
+				if (DC_StopScript("YAM-KingWatch.dbj"))
+					DC_Print("King Watch stopped");
+			}
+		}
+		// Cancel any open menu and pick any item on ground... safety
+		DT_MenuCancel();
+		DSN_CheckGround();
+    }
+}
+
+function YAM_LoadIncludes() {
+	// Load the YAM libs
+	sendCopyData(null, "OOG", 0,"yam load includes" );
+	if(!YAM_UseNJIP){
+		DC_LoadInclude("YAMB/common/YAM-IM.dbl");
+	}
+	DC_LoadInclude("YAMB/common/YAM-Snagit.dbl");
+	DC_LoadInclude("YAMB/common/YAM-TownLib.dbl");
+	DC_LoadInclude("YAMB/common/YAM-Move.dbl");
+	DC_LoadInclude("YAMB/common/YAM-PathMove.dbl");
+	DC_LoadInclude("YAMB/common/YAM-Variables.dbl");
+	DC_LoadInclude("YAMB/common/YAM-Town.dbl");
+	// Class specific attack routines
+	switch (me.classid) {
+		case 0: DC_LoadInclude("YAMB/classes/YAM-ZonAttack.dbl"); break;
+		case 1: DC_LoadInclude("YAMB/classes/YAM-SorcAttack.dbl"); break;
+		case 2: DC_LoadInclude("YAMB/classes/YAM-NecroAttack.dbl"); break;
+		case 3: DC_LoadInclude("YAMB/classes/YAM-PallyAttack.dbl"); break;
+		case 4: DC_LoadInclude("YAMB/classes/YAM-BarbAttack.dbl"); break;
+		case 5: DC_LoadInclude("YAMB/classes/YAM-DruidAttack.dbl"); break;
+		case 6: DC_LoadInclude("YAMB/classes/YAM-AsnAttack.dbl"); break;
+	}
+	DC_LoadInclude("YAMB/common/YAM-Logging.dbl");
+	DC_LoadInclude("YAMB/common/YAM-CommonStarter.dbl");
+	// Load the configuration file and init the class specific variables
+	DC_LoadInclude(YAM_CharConfigFile);
+	// Init log paths
+	DL_ItemLogPath = YAM_ItemLogPath;
+	DL_RunLogPath  = YAM_RunLogPath;
+	DL_RuneLogPath = YAM_RuneLogPath;
+	if (YAM_OpenChests){
+		YAM_StepPath = ((YAM_StepPath & DP_OPENCHESTS) ? (YAM_StepPath) : (YAM_StepPath|DP_OPENCHESTS))
+		DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
+	}
+	if (YAM_UseShrines){
+		YAM_StepPath = ((YAM_StepPath & DP_USESHRINES) ? (YAM_StepPath) : (YAM_StepPath|DP_USESHRINES))
+		DC_LoadInclude("YAMB/common/YAM-Shrines.dbl");
+	}
+	// Set the Pathing lib StepPath to the YAMB specific variable
+	DP_StepPath = YAM_StepPath;
+	if (YAM_MonitorDCloneMsg){
+		DC_LoadInclude("YAMB/common/YAM-MonitorGoldMsg.dbl");
+	}
+	XP_InitConfig();
+	/*if (YAM_UseNJIP){
+		XP_NIPFiles();// Initialize the NJIP files array if needed
+	}*/
+	if (DSN_LogRunes) {
+		DL_LoadRuneLog();
+	}
+	if (YAM_WaitInChat) {
+		if (!DC_SendMsgToScript("scripts\\YAMBstarter.dbj","setwait")) {
+			print("ÿc1Failed sending msg to YAMBstarter.dbj!ÿc0");
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////
+// Script events handling
+//////////////////////////////////////////////////////////////////////
+
+function YAM_CheckEvents(mode, eventmsg) {
+	sendCopyData(null, "OOG", 0,"yam checkEvents "+eventmsg );
+	switch(eventmsg) {
+		case "SM_MercDead":
+			if (!_YAM_MercDead && DT_CheckMerc()) {
+				_YAM_MercDead = true;
+			}
+			break;
+		case "SM_MercAlive":
+			_YAM_MercDead = false;
+			break;
+		case "SM_OutOfPots":
+			_YAM_OutOfPots = true;
+			break;
+		case "SM_OutOfPotsReset":
+			if (_YAM_OutOfPots && !DT_OutOfPots()) {
+				_YAM_OutOfPots = false;
+			}
+			break;
+		case "SM_Town":
+			_YAM_Town = true;
+			break;
+		case "SM_King":
+			SM_King = true;
+			break;
+		default:
+			DC_Print("Unknown Script Message received: " + eventmsg);
+			break;
+	}
+	return true;
+}
+
+function YAM() {
+	sendCopyData(null, "OOG", 0,"yam  " );
+	sendCopyData(null, "OOG", 0,"In Game");
+	// Load the includes, setup the log paths and start the run time chrono
+	YAM_LoadIncludes();
+	// Set the Title
+	YAM_SetTitle();
+	// Load Party up!
+	if (PublicMode) {
+		sendCopyData(null, "OOG", 0,"yam filetools teambotting " );
+		if (!FileTools.exists("libs/YAMB/configs/YAM_TeamBotting.dbl")) {
+			try{
+				var newTeamFile = File.open("libs/YAMB/configs/YAM_TeamBotting.dbl", FILE_WRITE);
+				if (!newTeamFile)
+					throw "Unable to create New YAM_TeamBotting File :: Error in YAM_TeamBotting file creation!";
+				newTeamFile.write("// Define all your leader char names here.  Make sure that they are spelled out" + "\n");
+				newTeamFile.write("// exactly and case sensitive.  For Leader/Leecher and Team botting purposes" + "\n");
+				(YAM_IsLeader == true) ? newTeamFile.write("Leaders.push(\"" + me.name + "\");" + "\n") : newTeamFile.write("//Leaders.push(\"FirstLeaderName\");" + "\n");
+				newTeamFile.write("//Leaders.push(\"SecondLeaderName\");" + "\n");
+				newTeamFile.write("\n");
+				(YAM_IsLeader == false) ? newTeamFile.write("Helpers.push(\"" + me.name + "\");" + "\n") : newTeamFile.write("//Helpers.push(\"FirstHelper\");" + "\n");
+				newTeamFile.write("//Helpers.push(\"SecondHelper\");" + "\n");
+				newTeamFile.close();
+				print("New YAM_TeamBotting file created!");
+				print("You MUST edit this first for team botting to work.");
+			}
+			catch(fileException){
+				print("-------------------------------------------------------------");
+				print(fileException);
+				sendCopyData(null, "OOG", 0,"yam filetools exception stopping " );
+				stop();
+			}
+		}
+		DC_Print("Including TeamBotting");
+		DC_LoadInclude("YAMB/configs/YAM_TeamBotting.dbl");
+		sendCopyData(null, "OOG", 0,"yam loading partyup " );
+		load(YAM_PartyUpPath);
+		DC_ResetLeader();
+	}
+	sendCopyData(null, "OOG", 0,"yam registerEvents " );
+	var YAM_RunTimer = new Date().getTime();
+	// Register the key events watch
+	addEventListener("keyup",     YAM_KeyUpManager  );
+	addEventListener("copydata",  YAM_CheckEvents   );
+	addEventListener("gamemsg",   YAM_gamemsgHandler);//regular chat "tp up"
+	addEventListener("chatcmd",   YAM_gamemsgHandler);//soj dclone
+	
+	sendCopyData(null, "OOG", 0,"yam registerEvents returned safe" );
+	// Load and setup the cubing support if user wants it before loading main snagit
+	if (YAM_EnableCubing) {
+		DC_LoadInclude("YAMB/common/YAM-Cubing.dbl");
+		DCU_CubingEnabled = true;
+		DCU_countrycode   = 1;
+		DCU_Snagfile      = DIM_TempSnagFile;
+		DC_LoadInclude(YAM_CubeConfig);  // Cube config must be loaded after d2jsp-cubing
+		// Prepare the temp snagit file before we load snagit.ini
+		DCU_UpdateCubeIniAtStartup();
+		if(YAM_UseNJIP)
+			njipOpenFile("settings/" + DCU_Snagfile);
+	}
+	// Load the snagit.ini file if not using NJIP, and load the .nip files in the njip array if we are using NJIP
+	(!YAM_UseNJIP) ? DIM_getINI("settings/" + DSN_SnagItINIFile, true) : DSN_LoadNIPFiles();
+
+	sendCopyData(null, "OOG", 0,"yam gameserverip" );
+	// Handle IP stuff before setting max game length
+	_IP = me.gameserverip.split(".")[3];
+	// if we wanna show the ip, do it now
+	if (YAM_DisplayIP) {
+		var IP_sh = new Text("*IP: ." + _IP, 700, 595, 2, 1);
+		//IP_sh.x = 700;
+		//IP_sh.y = 595;
+		//IP_sh.font = 1;
+		//IP_sh.color = 2;
+		//IP_sh.text = "*IP: ." + _IP;
+	}
+	// Check if we have a body then get it if yes
+	sendCopyData(null, "OOG", 0,"yam getcorpse " );
+	DT_getCorpses();
+	if (DT_HaveCorpse) {
+		DL_Deaths+=1;
+	}
+	// If inventory is full, retry to stash and stop before setting max game length if still full
+	if (YAM_StopFullInv && DT_CountFreeSpaces() == 0) {
+		DC_Print("Inventory is full, going to try to clear it first !");
+		YAM_TownManager();
+	}
+	if (YAM_StartGameDelay > 0) {
+		DC_Print("Waiting " + (parseInt(YAM_StartGameDelay / 1000,10)) + " seconds before game initialization...");
+		delay(YAM_StartGameDelay);
+	}
+	// With all that taken care of, set max game length
+	me.gamelength = YAM_MaxGameLength*1000;
+	// Load the life watch script
+	load(YAM_LifeWatchPath);
+	delay(500);
+	// Show MF info
+	if(DC_Verbose)
+		DT_DisplayMF();
+	// Check for all the bosses user wants to run and load them in the correct order
+	for (var xxp=0; xxp < YAMXXP.length; xxp++) {
+		sendCopyData(null, "OOG", 0,"yam script loop " );
+		if (YAM_madeConfigs == true){
+			print("Stopping bot to let you edit your new config files!");
+			break;
+		}
+		XP_ResetVars();
+		DL_LoadRun();
+		YAM_ShowCredits();
+		var _curBoss = (YAM_MustIdle) ? "HOTIP" : YAMXXP[xxp];
+		//DC_SendMsgToScript( "scripts\\YAMBstarter.dbj", "running:" + _curBoss );
+		scriptBroadcast( "running:" + _curBoss ); //TESTING
+		sendCopyData(null, me.windowtitle, 0,"running:" + _curBoss ); //bob
+		(YAM_MustIdle) ? LoadModule("HOTIP") : LoadModule(YAMXXP[xxp]);
+		gameMsgExtendHandler = null; // Reset it
+	}
+	if (YAM_MustIdle) {
+		XP_ResetVars();
+		DL_LoadRun();
+		YAM_ShowCredits();
+		//DC_SendMsgToScript( "scripts\\YAMBstarter.dbj", "running:HOTIP" );
+		//scriptBroadcast( "running:HOTIP" );
+		sendCopyData(null, me.windowtitle, 0,"running:HOTIP" ); //bob
+		LoadModule("HOTIP");
+	}
+	// Check if min run time is reached, do a town run and/or stall if not
+	var YAM_RunTime = new Date().getTime() - YAM_RunTimer;
+	if (YAM_RunTime < YAM_MinGameLength*1000) {
+		DC_Print("Run took "+ Math.round(YAM_RunTime/1000) +" seconds and was finished under minimum game length ("+YAM_MinGameLength+" seconds)");
+		var _merc = DC_GetMerc();
+		if ((YAM_MinGameLength - YAM_RunTime/1000) > 9 || (_merc && _merc.getState(2))) {
+			YAM_TownManager();
+			YAM_RunTime=new Date().getTime() - YAM_RunTimer;
+		}
+		if (YAM_RunTime < YAM_MinGameLength*1000) {
+			YAM_MakeTP();
+			DC_Print("Stalling for "+ Math.round(YAM_MinGameLength - YAM_RunTime/1000) +" seconds");
+			delay(YAM_MinGameLength*1000 - YAM_RunTime);
+		}
+	}
+	sendCopyData(null, "OOG", 0,"Quit:Full Run" );
+	quit();
+}
+
+function main() {
+	sendCopyData(null, "OOG", 0,"yam-main " );
+	// Include the base common lib and setup the debug and error log paths
+	include("YAMB/common/YAM-Common.dbl");
+	sendCopyData(null, "OOG", 0,"yam-main common included " );
+	DC_DebugLogPath = "output/" + me.name + "-YAM-DebugLog.html";
+	DC_ErrorLogPath = "output/" + me.name + "-YAM-ErrorLog.html";
+	// Stop everything on main function errors (safety for testing changes, shouldn't happen in releases)
+	try {
+		sendCopyData(null, "OOG", 0,"yam-main trying yam() " );
+		YAM();
+	}
+	catch (YAM_Exception) {
+		sendCopyData(null, "OOG", 0,"yam catchException " );
+		//DL_AddFailure();
+		// Got an exception : print it to screen and write the error in the file
+		DC_LogError("YAM_Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		DC_Print("YAM_Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
+		YAM_MakeTP();
+		(!DC_InTown(me)) ? quit() : stop();
+	}
+}

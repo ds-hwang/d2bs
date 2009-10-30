@@ -1,0 +1,852 @@
+////////////////////////// YAM by DarkSpirit //////////////////////////////////
+// Derived from ChainXP by ET aka cougio (irc) aka kougio (bh)
+// Collaborator: wurscht, sumo1
+//
+// Thanks to Snarg who started the whole thing with his MultiXP and by encouraging me to publish this.
+//
+// Thanks to Matt Lanteigne aka mattlant for his pathing work YAM uses.
+//
+// Original XP scripts authors : 2KH, Xizeta, DaBeerMan, LordOfMars, FruitBar, HPB_Forever
+// Collaborators : Ven0m, Muellsammler, Darien, Killkeeper, Damoon, HellNucleus,
+//                 Gill_105, Syadasti, Smoke, sicojola and others
+//
+// Am I forgetting someone? Oh yea, the core! Thanks to njaguar for creating it :-D
+//
+// Legal stuff :
+// This program is free software; You can redistribute freely as long as this
+// notice stays intact. If you don't want to submit your modifications and want
+// to redistribute this script, you must rename it by replacing with your own
+// name to avoid conflicts.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// Insight of the hammerdin:
+/////////////////////////////////////////////////////////////////////////////////////////
+// Every hammerdin player would probably would feel that sometime it can annoy the hell out
+// of you when the hammers keep missing the target. Since you are a player with enigma, you
+// would know that if you tele into the target then attack, you will hit the target. With
+// that in mind, this script will do auto position correction so that the hammer can hit the
+// target. Because of this technique, you will always find yourself in the middle of the mob
+// and it can be very deadly especially at Pindle, his minions can really kick your butt. So
+// as a WARNING (especially HC PLAYERS), make sure your char is at a high level(less chance
+// of getting hit), very high defense (upgrade all your equipments to elite version) and
+// use CTA.
+//
+// As a reference, my char is at level 91, 15K defense and 3k life with CTA. At pindle, the
+// max I lose life so far is down to 2k life.
+//
+// ATTENTION HC PLAYERS: YOU RUN THIS SCRIPT AT YOUR OWN RISK. LOSING A CHAR WITH ALL YOUR
+// GODLY ITEMS CAN BE VERY PAINFULL.
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////
+// This is the file you should be editing!!!
+//
+// General configs can be found at the top.
+// Class specific configuration can be found in the sections below.
+//
+// For skill codes, refer to "skills.txt" in the sdk folder or use the exact skill name.
+//
+// For potion drinking settings, edit the LifeWatchXP associated via YAM_LifeWatchPath
+//
+// To use a character specific configuration, see header of bots/YAMB.dbj
+////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////
+// Boss configuration
+//====================================================================
+// This is the list of currently available boss to run.
+// Reorder the lines to change the order in which they will be killed.
+// Comment out (put // before) a line to skip the boss.
+// Recommendation: Reorder the sequence in order of difficulty,
+//   to kill the toughest boss last and the easiest boss first.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//YAMXXP.push("HOTIP");
+//YAMXXP.push("Pindle");
+//YAMXXP.push("Nihlathak");
+//YAMXXP.push("Eldritch");
+//YAMXXP.push("Shenk");
+//YAMXXP.push("ThreshSocket");
+//YAMXXP.push("BloodRaven"); // HAS PROBLEMS
+YAMXXP.push("Countess");
+YAMXXP.push("Andy");
+//YAMXXP.push("Summoner");
+//YAMXXP.push("Duriel");
+//YAMXXP.push("Trav");
+//YAMXXP.push("Meph");
+//YAMXXP.push("Izual");
+//YAMXXP.push("Hephasto");
+//YAMXXP.push("Pit");
+//YAMXXP.push("Cow");
+//YAMXXP.push("Ancients");
+//YAMXXP.push("Diablo");
+//YAMXXP.push("Tunnels");   // WTF? need to look at script.. BADLY
+//YAMXXP.push("Baal");
+// Leecher module.
+//YAMXXP.push("Parasite");
+// Follower, enchanter, bo script
+//YAMXXP.push("Symbiote");
+
+//////////////////////////////////////////////////////////////////////
+// IP configuration
+//====================================================================
+// YAM_DisplayIP = true/false		Set to true to display server IP in game (in bottom right corner, only shows last part.)
+// YAM_AlertOnHotIP = value			Send an alert command upon finding an hot IP. Accepted values are :
+//									"mirc"  Send a message and beep command to your mirc client (must be running of course.)
+//									"bnet"  Send a message over battle.net, see next option.
+//									"both"  You can guess that one. Must be typed exactly as-is, no caps.
+//									Comment out or use "" to disable. Same applies to YAM_LoadOnHotIP.
+// YAM_SayCmdOnHotIP = cmd			Command used to send the bnet message. Either "/f m" or "/w charname" basically.
+// YAM_MonitorDCloneMsg=true/false	Set to true to monitor soj/walks msg in all modules (set Lang var properly)
+//									if the soj message or dclone walks show up,
+//									the bot will "force" load the HOTIP module and idle in the game.
+//--------------------------------------------------------------------
+
+YAM_DisplayIP        = true;
+YAM_AlertOnHotIP     = "both";
+YAM_SayCmdOnHotIP    = "/f m";
+YAM_MonitorDCloneMsg = true;
+
+//////////////////////////////////////////////////////////////////////
+// Team Botting configuration
+//====================================================================
+// PublicMode = 0/1/2	 			0 - Private, 1 - Public, >1 - Supports Leeches
+// YAM_TPMsg = value				define the boardcast msg to use to signal to the team bots to enter your tp
+// WaitForPortal = true/false;		Set to true to wait for a YAM_TPMsg before entering tp
+//									rather than teleporting to the boss itself.
+// YAM_UseFriendsList = true/false	Set to true to use the "/f m" command for your team bots
+//									to join your game rather than message them individually
+//									if true, you need to add the accounts of your team bots
+//									to your bnet friends list!
+// YAM_WaitInChat=true/false;		false to bot as normal and true to wait in chat for team botting.
+//--------------------------------------------------------------------
+PublicMode         = 0;
+YAM_TPMsg          = "tp up";
+WaitForPortal      = false;
+YAM_UseFriendsList = false;
+YAM_WaitInChat     = false;
+YAM_IsLeader       = true;
+
+//////////////////////////////////////////////////////////////////////
+// General configuration
+//====================================================================
+// YAM_StartGameDelay = rnd(min,max) Random delay in milliseconds before game initialization.
+// YAM_MinGameLength = number (sec)  Minimum game length under which bot will stall after runs, in seconds.
+// YAM_MaxGameLength = number (sec)  Maximum game length before aborting, in seconds. Use 0 for infinite length.
+// YAM_GameCatchup = number (msec)   Time delay to let d2jsp catchup after an area change
+// DC_Verbose = true/false		     Set to true to display various action messages.
+// YAM_AbortNoMerc = true/false	     Set to true to abort the game if the merc is dead and failed to be ressurected.
+// YAM_StopFullInv = true/false	     Set to true to stop the bot if the inventory and stash are full.
+// YAM_StopNoRepair=true/false	     Set to true to stop if we have no enough gold to repair and some items is in critical level
+// YAM_UseShrines = true/false	     Set to true to use shrines if they are found, during Meph or Shenk runs
+// XP_SellBackItems = true/false     Set to true to sell items your bmitems_XP.ini says not to keep to NPCs.
+// XP_DropItems = true/false	     If XP_SellBackItems is set to true but gold is full, drop items instead (faster).
+// XP_BossLOS = true/false	         Move closer to the boss if no LOS or too far
+// DA_LogChickens = true/false       Set to true to log chickens. This only applies to chickens from LifeWatch
+// DL_LogMode = 0/1/2			     Item logging level, 0 by default.
+//								     0 = minimum (snagged, kept, bought and gambled only).
+//								     1 = normal (added dropped, ignored and sold).
+//								     2 = full (added snagged for val. and full stats of identified items).
+// YAM_MustIdle=true/false		     Set to true to force YAMB to idle (uses HOTIP module idler) Usefull if you need to perm your mule.
+// YAM_LifeWatchPath = "path"	     Path to the life watcher tool to use.
+// YAM_MonsterWatchPath = "path"     Path to the monster watcher tool to use.
+// YAM_PartyUpPath ="path"		     Path to the party  up tool to use.
+// YAM_StepPath = value	     	     Controls step-action during path move.  Check YAM-Pathing.dbl for details.
+// YAM_OpenChests = true/false	     Set to true to allow pather to open chests if they are found.
+//                                   YAM_StepPath also needs to be set correctly for this.
+// YAM_HealPoison=true/false         Heal if you get poisoned.
+//--------------------------------------------------------------------
+YAM_StartGameDelay   = rnd(2000,4000); // Use 0 for no delay.
+YAM_MinGameLength    = rnd(180, 200);  // Randomized to avoid detection.
+YAM_MaxGameLength    = 690;            // Default is 11.5 min, don't set too low or you may not kill everyone!
+YAM_GameCatchup      = 1000;
+DC_Verbose           = false;
+YAM_AbortNoMerc      = false;
+YAM_StopFullInv      = true;
+YAM_StopNoRepair     = true;
+YAM_UseShrines       = true;
+XP_SellBackItems     = true;
+XP_DropItems         = false;
+XP_BossLOS           = true;
+DA_LogChickens       = true;
+DL_LogMode           = 1;
+YAM_MustIdle         = false;
+YAM_LifeWatchPath    = "tools/YAM-LifeWatch.dbj";
+YAM_MonsterWatchPath = "tools/YAM-MonsterWatch.dbj";
+YAM_PartyUpPath      = "tools/YAM-PartyUp.dbj";
+YAM_StepPath         = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// leave it alone unless you know what you are doing
+YAM_OpenChests       = false;
+YAM_HealPoison       = true; // Defaults to false per Darkspirit's suggestion (missed poison packets from the server)
+
+
+//////////////////////////////////////////////////////////////////////
+// Item Logging configuration
+//====================================================================
+// DSN_ReportMode     = true;				// Set to true to log what line in a nip file triggered the pickup
+// DSN_LogArea        = true;				// Set to true to log the areas where the item is seen
+// DSN_LogAct         = true;				// If you want to log in what act the item is seen, set it to true 
+// DSN_LogGold        = true;				// Set to true to log gold stacks pickup
+// DSN_LogRunes       = true;				// Set to true to log runes for the rune console
+// DSN_LogPotions     = false;				// Set to true to log potions pickup
+// DSN_LogNormalItems = [1,1,1];			// Log normal items (array = normal,exceptional,elite)
+// DSN_LogMagicItems  = [1,1,1];			// Log magical items (array = normal,exceptional,elite)
+// DSN_LogRareItems   = [1,1,2];			// Log rare items (array = normal,exceptional,elite)
+// DSN_LogSetItems    = [2,2,2];			// Log set items (array = normal,exceptional,elite)
+// DSN_LogUniqueItems = [2,2,2];			// Log unique items (array = normal,exceptional,elite)
+											// Note : 0 = no logging, 1 = only snagged items, 2 = snagged and ignored
+//--------------------------------------------------------------------
+DSN_ReportMode     = true;
+DSN_LogArea        = true;
+DSN_LogAct         = true;
+DSN_LogGold        = false;
+DSN_LogRunes       = true;
+DSN_LogPotions     = false;
+DSN_LogNormalItems = [1,1,1];
+DSN_LogMagicItems  = [1,1,1];
+DSN_LogRareItems   = [1,1,2];
+DSN_LogSetItems    = [2,2,2];
+DSN_LogUniqueItems = [2,2,2];
+
+
+//////////////////////////////////////////////////////////////////////
+// Boss specific configuration
+//====================================================================
+// CountessSafeCheck = true/false		Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// AndySafeCheck = true/false 			Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// MephSafeCheck= true/false	 		Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// ShenkSafeCheck = true/false			Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// PitSafeCheck = true/false			Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// MXP_DoMoat = true/false			Set to true to use Moat trick for Meph (get him to follow and attack from across bridge.)
+// MXP_AlwaysGoAct4 = true/false		Set to true to exit Meph's lair though red portal (false to use a TP.)
+// MXP_OpenUberChest = true/false		Set to true to try to open the Uber Chest after killing Meph (will silently fail and go on if it's locked and you don't have keys.)
+//						Do not set MXP_OpenUberChest unless you have
+//						selected to kill Meph at the Boss configuration.
+// DC_BuyKeys = true/false			If you want to buy keys, set to true (recommended for opening the Uber Chest if needed)
+// PXP_EscapeThroughPortal = true/false 	Set to true to escape through red portal after killing Pindle (false to use a TP.)
+// CXP_ClearLevel = true/false			Set to true to kill monsters around the entrance to each level
+// MXP_WatchMon = true/false			Set to true to watch for Death Damage Monsters in Durance level 3
+// [x]XP_QuitImmune = true/false		Set to true to quit if we are surrounded by monsters that are immune to all our defined attacks
+// Format is [x]XP_QuitImmune where [x] is the first letter of the boss: P=Pindle, C=Countess, A=Andy, E=Eldritch, S=Shenk, B=Baal.
+//--------------------------------------------------------------------
+
+CountessSafeCheck       = true;
+MephSafeCheck           = true;
+AndySafeCheck           = true;
+ShenkSafeCheck          = true;
+PitSafeCheck            = true;
+MXP_DoMoat              = false;
+MXP_AlwaysGoAct4        = true;
+MXP_OpenUberChest       = true;
+PXP_EscapeThroughPortal = false;
+DC_BuyKeys              = false;
+CXP_ClearLevel          = false;
+MXP_WatchMon            = false;
+PXP_QuitImmune          = false;
+CXP_QuitImmune          = false;
+AXP_QuitImmune          = false;
+EXP_QuitImmune          = false;
+SXP_QuitImmune          = false;
+BXP_QuitImmune          = false;
+TXP_QuitImmune          = false;
+IXP_QuitImmune          = false;
+HXP_QuitImmune          = false;
+DuXP_QuitImmune         = false;
+
+///////////////////////////////////////////////////////////////////
+// Item evaluation configuration
+///////////////////////////////////////////////////////////////////
+//================================================================
+// These are the .nip files for Njaguar's Item Parser the new replacement for
+//     the old and buggy snagit.ini/bmitems.ini combo
+// These are generic .nip files that we supply so your script will work
+// Feel free to edit this section as needed so they point to the files you wish to use
+//=================================================================
+// If you want to add your own .nip files, just copy any line and enter the
+// exact .nip file name.
+// DSN_NIPFilePath.push("myown.nip");
+// To disable a .nip file, just add "//" at the start of the line or delete the line.
+//
+// Finally, shopping and gambling will use the SAME FILES without problems.
+//=================================================================
+if(YAM_UseNJIP){
+	DSN_NIPFilePath.push("potions.nip");
+	if(PublicMode==0){ // Added on request to allow faster public baaling, if you want items.. do private runs! - TechnoHunter
+		DSN_NIPFilePath.push("runes.nip");
+		DSN_NIPFilePath.push("uniques.nip");
+		DSN_NIPFilePath.push("sets.nip");
+		DSN_NIPFilePath.push("whites.nip");
+		DSN_NIPFilePath.push("rares.nip");
+		DSN_NIPFilePath.push("magics.nip");
+		DSN_NIPFilePath.push("gems.nip");
+		DSN_NIPFilePath.push("charmsjewels.nip");
+		DSN_NIPFilePath.push("ringsamulets.nip");
+		DSN_NIPFilePath.push("moneymaker.nip");
+	}
+}
+// ------------------------------------------------------------------
+// These files listed below will be IGNORED unless YAM_UseNJIP = false(to let you use the oldstyle bmitems parsing)
+// ------------------------------------------------------------------
+// DSN_SnagItINIFile = "path"	Set this to the ini you want used for snagit
+// DT_BMitemsINIFile = "path"	Set this to the ini you want used for bmitems
+// DT_GamblItINIFile = "path"	Set this to the ini you want used for bmgambleit
+// DT_ShopItINIFile  = "path"	Set this to the ini you want used for bmshopit
+// ------------------------------------------------------------------
+// These are the .ini settings for items evaluation for YAMB (using oldstyle BmItems parsing)
+// ------------------------------------------------------------------
+DSN_SnagItINIFile  = "snagit_XP.ini";
+DT_BMitemsINIFile  = "bmitems_XP.ini";
+DT_GambleItINIFile = "bmGambleIt_XP.ini";
+DT_ShopItINIFile   = "bmShopIt_XP.ini";
+
+// ------------------------------------------------------------------
+// DSN_MinGoldStack = number	Minimum gold stack amount to pickup. Set to 0 to ignore all gold stacks, 1 to pick all.
+// DSN_PickPotions = true/false	Set to true to include potions in the pickup checking.
+// DSN_SnagType = number		Type of pickup: 0 = Best item first and 1 = Closest item first
+// DSN_UseTK = true/false		Set to true to use Telekinesis to pick certain items.
+// DSN_SnagRange = number		Radius to check for dropped items. 40 is a good number here.
+// DSN_GoldSnagRange = number	Radius to check for gold (usually smaller than item range.)
+// DSN_SnagDelay = number		This is the amount of time to wait before snagit picks up items.
+// DSN_ResetThreshold = 100;	Threshold for items array reset (amount is the number of elements in the array)
+// DSN_FillBelt       = true;	Set to true to stop picking pots if belt is full
+// ------------------------------------------------------------------
+DSN_MinGoldStack   = 2000;
+DSN_PickPotions    = true;
+DSN_SnagType       = 0;
+DSN_UseTK          = false;
+DSN_SnagRange      = 40;
+DSN_GoldSnagRange  = 25;
+DSN_SnagDelay      = 200;
+DSN_ResetThreshold = 100;
+DSN_FillBelt       = true;
+
+//---------------------------------------------------
+// NJIP gamble section
+// Edit the magics.nip file for items you want to gamble.
+// Edit the ringsamulets.nip for rings and amulet. A list of item codes can be found on www.d2jsp.org
+//---------------------------------------------------
+DT_GambleItem.push("rin");	// Rings
+DT_GambleItem.push("amu");	// Amulets
+DT_GambleItem.push("ci0");	// Circlet
+DT_GambleItem.push("ci1");	// Coronet
+
+//////////////////////////////////////////////////////////////////////
+// Cubing settings
+//====================================================================
+// YAM_EnableCubing = true/false	Set to true to enable cubing
+// YAM_TempSnagFile = "path"		Auto generated file to save items needed for cubing (gems etc.)
+// YAM_CubeConfig = "path"			File containing the recipies you want to use.
+//--------------------------------------------------------------------
+
+YAM_EnableCubing = true;
+DIM_TempSnagFile = (YAM_UseNJIP) ? "temp.nip" : "tmitems.ini";
+YAM_CubeConfig   = "YAMB/common/YAM_CubeConfig.dbl"
+
+//////////////////////////////////////////////////////////////////////
+// Stashing configuration
+//====================================================================
+// DT_FreeSpace = number		Minimum number of free columns: if less columns are free, go to stash.
+// DT_MinGoldToStash = number	Maximum gold amount carried before going to stash.
+// YAM_ClearInv = true/false	Set to true to clear inventory of junk before stashing and during npc interactions
+//--------------------------------------------------------------------
+
+DT_FreeSpace      = 3;
+DT_MinGoldToStash = 2000;//50000;
+YAM_ClearInv      = true;
+
+//--------------------------------------------------------------------
+// The numbers correspond to your inventory. Set 0 to keep whatever is there, 1 to stash it.
+// This allows you to keep charms in inventory. Note: If you have an empty spot set to 0
+// the item that appears there during a run will NEVER get stashed.
+// (Useful if you have lots of space and want to use the bonuses of freshly-ID'd charms.)
+// WARNING: Make sure that you have set this correctly otherwise you can lose
+// your existing items!
+//--------------------------------------------------------------------
+
+DT_Columns[0]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[1]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[2]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[3]=[1,1,1,0,0,0,0,0,0,0];
+
+
+///////////////////////////////////////////////////////////////////
+// Sicojola's Automule configuration
+//
+// AUTOMULE DISCLAIMER:
+// Automule is solely the work of Sicojola. Although the XP scripters have been nice enough
+// to include my script as an option in their bots, they are not responsible for Automule.
+// SEND ALL QUESTIONS, COMMENTS, OR COMPLAINTS REGARDING AUTOMULE TO SICOJOLA VIA THE D2JSP FORUMS OR PM.
+// Do not bother the XP scripters with Automule-related material if you choose to use this option.
+//
+// Furthermore, although I consider Automule safe for your items, I take no responsibility for any items
+// you lose due to this script. *** YOU USE THIS SCRIPT AT YOUR OWN RISK ***.
+//=================================================================
+// YAM_Automule = true/false 	Set to true to use Sicojola's Automule script (you have to download and configure it seperately.)
+//								YAM_StopFullInv MUST be true to use this feature
+// ------------------------------------------------------------------
+
+YAM_Automule = false;		// UNTESTED !
+
+
+//////////////////////////////////////////////////////////////////////
+// Belt configuration
+//====================================================================
+// YAM_UseBeltManager = true/false	Leave at true if you want the bot to buy potions.
+// YAM_UseABM = true/false			Set to true to use the Advanced Belt Manager (slower but gets full belt most of the time)
+//--------------------------------------------------------------------
+
+YAM_UseBeltManager = true;
+YAM_UseABM         = true;
+
+//--------------------------------------------------------------------
+// Type of potion used in each belt column
+// Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too (untested!).
+// Keep equal types at adjacent columns. First HP then MP and then HP again is a bad choice.
+// Keep HP and MP at the beginning of the belt (in case you want to use rejuv and other types).
+// Rejuvenations MUST, I REPEAT MUST be at the end of the belt (last x columns).
+// Recommendation: Since YAMB supports potion-swapping there is no point in reserving
+// a column for rejuvenations anymore.
+//--------------------------------------------------------------------
+
+DT_BeltColType[0] = "hp"; // Column 1 in belt
+DT_BeltColType[1] = "hp"; // Column 2
+DT_BeltColType[2] = "mp"; // Column 3
+DT_BeltColType[3] = "mp"; // Column 4
+
+//--------------------------------------------------------------------
+// Minimum amount of potions in each column before needing refilling.
+// If there's less potions then this number in the column we go and shop.
+// Set to 4 to go shopping as soon as there's a potion missing.
+// Leave columns set to "rv" at 0, since shops don't carry rejuvs.
+//--------------------------------------------------------------------
+
+DT_BeltColMin[0] = 3;
+DT_BeltColMin[1] = 3;
+DT_BeltColMin[2] = 3;
+DT_BeltColMin[3] = 3;
+
+//////////////////////////////////////////////////////////////////////
+// ShopIt! and GambleIt!
+//====================================================================
+// YAM_ShopIt = true/false		Set to true to shop every npc you talk to, false to skip this.
+// YAM_GambleIt = true/false		Set to true to gamble at Anya and Gheed each time you talk to them.
+// YAM_AlwaysGamble = true/false	If GambleItOn is set to true, always go to Anya and Gheed to gamble.
+// YAM_GambleMinGold = number		Set a minimum amount of gold before starting to gamble.
+// YAM_RandomNPC = true/false		Set to true to always visit a random NPC before a run.
+// YAM_AlwaysGoToHealer = true/false 	Set to true to always visit the local healer before a run.
+// YAM_AlwaysRepair = true/false 	Set to true to always visit the repair npc before a run.
+// YAM_AlwaysAkara = true/false		Set to true to always visit Akara when in act 1.
+// YAM_AlwaysCharsi = true/false	Set to true to always visit Charsi when in act 1.
+// YAM_VisitGheed = true/false		Set to true to always visit Gheed when in act 1.
+// YAM_AlwaysOrmus = true/false		Set to true to always visit Ormus when in act 3.
+// YAM_AlwaysMalah = true/false		Set to true to always visit Malah when in act 5.
+// YAM_AlwaysLarzuk = true/false	Set to true to always visit Larzuk when in act 5.
+// YAM_VisitAnya = true/false		Set to true to always visit Anya before killing Pindle if ShopIt is true.
+//										Will also shop after comming back if PXP_EscapeThroughPortal is true.
+//--------------------------------------------------------------------
+
+YAM_ShopIt           = false;
+YAM_GambleIt         = false;
+YAM_AlwaysGamble     = false;
+YAM_GambleMinGold    = 250000;
+YAM_RandomNPC        = false;
+YAM_AlwaysGoToHealer = false;
+YAM_AlwaysRepair     = false;
+YAM_AlwaysAkara      = false;
+YAM_AlwaysCharsi     = false;
+YAM_VisitGheed       = false;
+YAM_AlwaysOrmus      = false;
+YAM_AlwaysMalah      = false;
+YAM_AlwaysLarzuk     = false;
+YAM_VisitAnya        = false;
+
+
+//////////////////////////////////////////////////////////////////////
+// Randomisation configuration
+//====================================================================
+// DC_RandomDel = true/false		Set to true to randomise all delays to make the script harder to detect by blizz
+// DM_RandomMove = true/false		Set to true to make your movements random
+// DM_RandomMoveDel = true/false	Set to true to make movement delays random
+//--------------------------------------------------------------------
+
+DC_RandomDel     = false;
+DM_RandomMove    = false;
+DM_RandomMoveDel = false;
+
+
+//////////////////////////////////////////////////////////////////////
+// Debugging informations
+//====================================================================
+// DC_DebugLevel = 0/1/2/3				0 = none, 1 = print to file only, 2 = print to screen only, 3 = both
+// DC_DebugPrintDel = number			How long you want to have the script pause after a debug print.
+// DC_AbortPrintDel = number			How much time to display the error message before stopping or aborting the game.
+// DA_DisplayImmunities = true/false	Set to true to display boss' immunity, auras and enchantments on screen.
+//--------------------------------------------------------------------
+
+DC_DebugLevel        = 0;
+DC_DebugPrintDel     = 0;
+DC_AbortPrintDel     = 2000;
+DA_DisplayImmunities = true;
+
+
+//////////////////////////////////////////////////////////////////////
+// ADVANCED SETTINGS - Change the values only if you are experiencing problems running the script.
+//====================================================================
+// DT_NPCDelay = number			Amount of time after interaction or trade with npc to avoid missing menu or trade window.
+// DC_LagDelay = number			Lag delay for all interactions with items in milliseconds (increase if it misses items sometimes.)
+// DC_Timeout = number			Timeout delay for various loops, in SECONDS.
+// DC_SwitchTimeout = number	Timeout delay for weapon switch loops, in SECONDS.
+// DC_ClickDel = number			Delay used when using mouse clicks, in milliseconds (increase if you are missing clicks).
+// DM_WalkDel = number			This is the delay between steps.  Change this if you are having problems with black walls.
+// XP_TeleDist = number			Distence between steps with BotOS pathing. Script will limit you at 30.
+// XP_StepDelay = number		Delay between steps with BotOS pathing.
+// DM_ChangeAreaTimeout =number	Delay to wait until the area change (using wp or stairs). Increase this if you get too much "Failed to interact".
+// DC_UseCheckLoop = true		Set to true to use a loop to check up to 3 times (may slow the run a little.)
+//								This will be useful to solve the problem with the monster detection.
+// MXP_BridgeWait = number		Set the amount of ms to wait until the bridge is up when using red portal to act 4.
+// DSN_UsePathing = true/false	Set to true to use BotOS pathing to pickup items (setting this to false seems to fix an error and it shouldn't be needed.)
+//--------------------------------------------------------------------
+
+DT_NPCDelay          = 750;
+DC_LagDelay          = 50;
+DC_Timeout           = 3;
+DC_SwitchTimeout     = 3;
+DC_ClickDel          = 150;
+DM_WalkDel           = 250;
+XP_TeleDist          = 30;
+XP_StepDelay         = 100;
+DM_ChangeAreaTimeout = 10000;
+DC_UseCheckLoop      = true;
+MXP_BridgeWait       = 2500;
+DSN_UsePathing       = false;
+
+
+//////////////////////////////////////////////////////////////////////
+// End of general configuration section
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Hammerdin section
+//////////////////////////////////////////////////////////////////////
+function Paladinvariables() {
+
+
+//////////////////////////////////////////////////////////////////////
+// Precasting configuration
+//====================================================================
+// DA_UseCTA = true/false		Switch to and use your CTA weapon runeword when doing the precasts.
+// DA_AutoPrecasts = true/false	Set to true to ignore the config below and automatically detect which skills to use for precasts.
+// RedemMana = number 			Set this number to the LW_ManaThresh value if you changed your LifeWatch value.
+// RedemLife = number 			Set this number to the LW_LifeThresh value if you changed your LifeWatch value.
+// UseVigor= true/false			True to use vigor in town. If you find that you having problem with interact with merchant, set it to false.
+// DA_Refresh=true/false		Set to true to refresh your precasts by default, if DA_AutoPrecasts is false
+//--------------------------------------------------------------------
+
+DA_UseCTA       = true;
+DA_AutoPrecasts = true;
+RedemMana       = 150;			// set your LW_ManaThresh to this value in your life watch file.
+RedemLife       = 900;
+UseVigor        = true;
+DA_Refresh      = false;
+
+//////////////////////////////////////////////////////////////////////
+// Baal configuration
+//====================================================================
+// SkipBaal = true/false		Skip killing baal. Suggested for public run.
+// AvoidHydra = true/false		Set true to go back to town to avoid the councils' hydras.
+// VenomLordCTA = true/false	Set true to cast BO after Vemon Lord has been killed.
+// MonsterSearch = number		2-9: put higher number if you find that you fail to kill all the monster.
+// MonsterWait=number			How many SECOND you should wait in throne before start searching for monsters left over.
+// AbortDoll=true/false			Abort run if dolls around.
+// preAttackAmount=number		Number of attack before the boss spawn.
+// RemovePoison=true/false		Set to true if you want to go back to town to remove the poison from the unraverler.
+// BXP_KillBaalMsges			What you want to say before killing Baal (picked at random)
+// BXP_NextGameMsges			What you want to say for the next game (picked at random)
+// BXP_ClearFirst=true/false	Set to true to clear the area around the tp first before saying the YAM_TPMsg msg
+//--------------------------------------------------------------------
+SkipBaal        = true;
+AvoidHydra      = false;
+VenomLordCTA    = false;
+MonsterSearch   = 6;
+MonsterWait     = 20;
+AbortDoll       = false;
+preAttackAmount = 5;
+RemovePoison    = false;
+BXP_KillBaalMsges.push("lets kill baal");
+//BXP_KillBaalMsges.push("kill baal");
+//BXP_KillBaalMsges.push("baal");
+//BXP_KillBaalMsges.push("BAAL");
+//BXP_KillBaalMsges.push("go to baal");
+//BXP_KillBaalMsges.push("lets do baal");
+//BXP_KillBaalMsges.push("baal");
+//BXP_KillBaalMsges.push("do baal");
+
+BXP_NextGameMsges.push("ng");
+//BXP_NextGameMsges.push("next");
+//BXP_NextGameMsges.push("next game");
+//BXP_NextGameMsges.push("gogo next game");
+BXP_ClearFirst  = false;
+
+//////////////////////////////////////////////////////////////////////
+// Cow variables
+//====================================================================
+// Cow_OpenOnly=true/false		Set to true to only open the cow portal(doesnt enter it)
+// Cow_NoKing=true/false		Set to true to prevent killing cow king
+// Cow_PortalClearMsg=string	Portal clear message.  It is only 1 word long, end with a space!
+//--------------------------------------------------------------------
+Cow_OpenOnly       = false;
+Cow_NoKing         = true;
+Cow_PortalClearMsg = "1 ";
+
+//////////////////////////////////////////////////////////////////////
+// Diablo variables
+//====================================================================
+// DXP_UsePather=true/false      Use Pather from waypoint to Chaos Sanctuary
+// DXP_SafeCheck=true/false      Set to true to check for curses and hp/mp (go to town if needed before the fight.)
+// DXP_ChaosKamikaze=true/false  Set to false to kill monsters from waypoint to Chaos Entrance
+// DXP_SealKamikaze=true/false   Set to false to kill monsters from Chaos Entrance to Diablo Circle
+// DXP_QuitIfNoDiablo=true/false Set to true to quit the run, if Diablo is not going to spawn
+// DXP_Retries=x                 Set to the number of retries to return and open the seal, if failed
+//--------------------------------------------------------------------
+DXP_UsePather      = false;
+DXP_SafeCheck      = true;
+DXP_ChaosKamikaze  = true;
+DXP_SealKamikaze   = true;
+DXP_QuitIfNoDiablo = false;
+DXP_Retries        = 3;
+
+//////////////////////////////////////////////////////////////////////
+// Attack configuration
+//====================================================================
+///////////////////////////////////////////////////////////////////////////
+// Skill configuration
+//==========================================================================
+// XP_PallyAttack=number	// Attack skill number
+// XP_PallyAura=number		// Aura skill number. See /sdk/skills.txt for skill number.
+//----------------------------------------------------------------
+XP_PallyAttack = 112;	// Blessed hammer.
+XP_PallyAura   = 113;	// Concentration.
+
+// DON'T CHANGE THESE LINES BELOW.
+AXP_Kamikaze  = true;     // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
+SXP_Kamikaze  = true;     // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
+TrXP_Kamikaze = true;
+IXP_Kamikaze  = true;
+
+///////////////////////////////////////////////////////////////////////////////////////
+// Configurable variables for bosses.
+//--------------------------------------------------------------------
+// XP_MaxAttacks = number			This is the maximum number of attack sequences used to attack each boss and his minions.
+//									If he is still alive after this many attacks, the game will abort!
+// XP_SwitchOnKill = true			Set to true to switch to the weapon with the greatest magic find before killing boss.
+// XP_StallSkipPhys = true/false	Set to true to not stall if a boss is immune to physical attacks.
+// XP_KillMinions = true/false		Set to true to kill all minions before picking items.
+// [x]XP_SwitchHP = number			Amount of monster HP remaining out of 128 (e.g. 10/128 = 7.8%) before switching weapon.
+// [x]XP_StallKill = true/false		Set this to true to let your merc get the last hit.
+// [x]XP_StallHP = xx				This is the amount of hp of 128 that you will at stall for the merc to kill.
+// MXP_MephDodge=true/false			Set true to dodge meph cold ball.
+// MXP_ChestStand=true/false		Open the 2 chests and the weapon/armour stands.
+// MXP_KillCouncils=true/false		Kill all the other councils members. Becarefull, Bremm sometime spawn with conviction.
+//--------------------------------------------------------------------
+
+// General section
+XP_MaxAttacks    = 101;
+XP_SwitchOnKill  = false;
+XP_StallSkipPhys = true;
+XP_KillMinions   = false;
+
+// Pindle section
+PXP_SwitchHP  = 128;
+PXP_StallKill = false;
+PXP_StallHP   = 20;
+
+//Countess section
+CXP_SwitchHP  = 40;
+CXP_StallKill = false;
+CXP_StallHP   = 20;
+
+//Meph section
+MXP_SwitchHP     = 10;
+MXP_StallKill    = false;
+MXP_StallHP      = 10;
+MXP_MephDodge    = false;
+MXP_ChestStand   = false;
+MXP_KillCouncils = false;
+
+//Andy section
+AXP_SwitchHP  = 10;
+AXP_StallKill = false;
+AXP_StallHP   = 10;
+
+
+//Shenk section
+SXP_SwitchHP  = 10;
+SXP_StallKill = false;
+SXP_StallHP   = 10;
+
+//Baal section
+BXP_SwitchHP  = 10;
+BXP_StallKill = false;
+BXP_StallHP   = 5;
+
+//Eldritch section
+EXP_SwitchHP  = 10;
+EXP_StallKill = false;
+EXP_StallHP   = 10;
+
+// Hephasto section
+HXP_SwitchHP  = 10;
+HXP_StallKill = false;
+HXP_StallHP   = 10;
+
+//ThreshSocket section
+TXP_SwitchHP  = 10;
+TXP_StallKill = false;
+TXP_StallHP   = 0;
+
+// Travincal section
+TrXP_SwitchHP  = 10;
+TrXP_StallKill = false;
+TrXP_StallHP   = 10;
+
+// Duriel section
+DuXP_SwitchHP   = 40;
+DuXP_StallKill  = false;
+DuXP_StallHP    = 0;
+
+//Izual section
+IXP_SwitchHP   = 10;
+IXP_StallKill  = false;
+IXP_StallHP    = 0;
+
+//////////////////////////////////////////////////////////////////////
+// Mercenary configuration
+//====================================================================
+// DT_UseMerc = true/false	  Set to true to watch out for mercenary, revive him when he dies, etc.
+//--------------------------------------------------------------------
+
+DT_UseMerc     = true;
+
+
+//////////////////////////////////////////////////////////////////////
+// Other configurations
+//====================================================================
+// DT_RepairPercent = number (%)  Go repair if any of your items fall below this percent of durability.
+// DT_SkipHealLife = number (%)   If you have more than this percent of your life, you won't go to a Healer.  Also the percent of life at which Safe Check will go to heal before a boss.
+// DT_SkipHealMana = number (%)   If you have more than this percent of your mana, you won't go to a Healer.  Also the percent of mana at which Safe Check will go to heal before a boss.
+//--------------------------------------------------------------------
+
+DT_RepairPercent = 85;
+DT_SkipHealLife  = 75;
+DT_SkipHealMana  = 35;
+
+//////////////////////////////////////////////////////////////////////
+// Zombie attack! (Zombies in Pindles courtyard)
+//====================================================================
+// XP_AttackZombies = true	Attack the Zombies in the courtyard after killing Pindle.
+// XP_ZombieStand = true	Stand still to attack Zombies...
+//--------------------------------------------------------------------
+
+XP_AttackZombies = false;	// leave this on false.
+XP_ZombieStand   = true;
+
+
+//////////////////////////////////////////////////////////////////////
+// Immunities/Resistances/Enchantments to skip
+//====================================================================
+// Set each to true to chicken out if a monster is immune to that kind of damage.
+// Thanks to D32v1n for contributing to some of these settings
+//--------------------------------------------------------------------
+
+DA_Immunities[1] = false;	// Physical
+DA_Immunities[2] = false;	// Magic
+DA_Immunities[3] = false;	// Fire
+DA_Immunities[4] = false;	// Lightning
+DA_Immunities[5] = false;	// Cold
+DA_Immunities[6] = false;	// Poison
+
+//--------------------------------------------------------------------
+// Immunities Combinations
+// Method:  if set to true, will chicken with that immunities# / immunities# combination
+// DA_ImmunitiesCombo[next number] = new Array(immunities#,immunities#,true/false);
+//--------------------------------------------------------------------
+
+DA_ImmunitiesCombo[1] = new Array(1,5,false);	// Immune to Physical and Immune to Cold
+DA_ImmunitiesCombo[2] = new Array(3,5,false);	// Immune to Fire and Immune to Cold
+DA_ImmunitiesCombo[2] = new Array(4,5,false);	// Immune to Lightning and Immune to Cold
+
+//--------------------------------------------------------------------
+// Set each to true to chicken out if a monster has that enchantment.
+//--------------------------------------------------------------------
+
+DA_Enchantments[1]  = false;	//Extra Strong
+DA_Enchantments[2]  = false;	//Extra Fast
+DA_Enchantments[3]  = false;	//Cursed
+DA_Enchantments[4]  = false;	//Magic Resistant
+DA_Enchantments[5]  = false;	//Fire Enchanted
+DA_Enchantments[6]  = false;	//Lightning Enchanted
+DA_Enchantments[7]  = false;	//Cold Enchanted
+DA_Enchantments[8]  = false;	//Mana Burn
+DA_Enchantments[9]  = false;	//Teleportation
+DA_Enchantments[10] = false;	//Spectral Hit
+DA_Enchantments[11] = false;	//Stone Skin
+DA_Enchantments[12] = false;	//Multiple Shot
+
+//--------------------------------------------------------------------
+// Enchantment Combinations
+// Method:  if set to true, will chicken with that enchantment# / enchantment# combination
+// DA_EnchantmentsCombos[next number] = new Array(enchantment#,enchantment#,true/false);
+//--------------------------------------------------------------------
+
+DA_EnchantmentsCombos[1] = new Array(6,12,true);	// Multiple Shot LE
+DA_EnchantmentsCombos[2] = new Array(1,3,false);	// Extra Strong Cursed
+DA_EnchantmentsCombos[3] = new Array(2,8,false);	// Extra Fast Mana Burn
+
+//--------------------------------------------------------------------
+// Set each to true to chicken out if a monster has that aura.
+//--------------------------------------------------------------------
+
+DA_Auras[1] = false;	//Conviction
+DA_Auras[2] = false;	//Might
+DA_Auras[3] = false;	//Holy Fire
+DA_Auras[4] = false;	//Blessed Aim
+DA_Auras[5] = false;	//Holy Freeze
+DA_Auras[6] = false;	//Holy Shock
+DA_Auras[7] = false;	//Fanaticism
+
+//--------------------------------------------------------------------
+// Enchantment / Aura Combinations
+// Method:  if set to true, will chicken with that enchantment# / aura# combination
+// DA_EnchantAuraCombos[next number] = new Array(enchantment#,aura#,true/false);
+//--------------------------------------------------------------------
+
+DA_EnchantAuraCombos[1] = new Array(1,2,false);	// Extra Strong Might
+DA_EnchantAuraCombos[2] = new Array(1,7,true );	// Extra Strong Fanaticism
+DA_EnchantAuraCombos[3] = new Array(2,2,true );	// Extra Fast Might
+DA_EnchantAuraCombos[4] = new Array(2,7,true );	// Extra Fast Fanaticism
+DA_EnchantAuraCombos[5] = new Array(2,5,false);	// Extra Fast Holy Freeze
+DA_EnchantAuraCombos[6] = new Array(6,1,true );	// LE Conviction
+
+//--------------------------------------------------------------------
+// Immunity / Aura Combinations
+// Method:  if set to true, will chicken with that immunity# / aura# combination
+// DA_ImmunityAuraCombos[next number] = new Array(immunity#,aura#,true/false);
+//--------------------------------------------------------------------
+
+DA_ImmunityAuraCombos[1] = new Array(5,7,false);	// Immune to Cold and Fanaticism
+DA_ImmunityAuraCombos[2] = new Array(3,2,false);	// Immune to Fire and Might
+DA_ImmunityAuraCombos[3] = new Array(5,2,false);	// Immune to Cold and Might
+
+}
+/////////////////////////////////////////////////////////////////////
+// End of Hammerdin section
+//////////////////////////////////////////////////////////////////////

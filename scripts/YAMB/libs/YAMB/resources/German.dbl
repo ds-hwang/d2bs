@@ -1,0 +1,11 @@
+const MsgStrings = new Array("SoJSold", "DiabloWalks", "From");
+
+MsgStrings["SoJSold"] = "Steine von Jordan an Händler verkauft"; 
+MsgStrings["DiabloWalks"] = "Diablo wandelt auf der Erde";  
+MsgStrings["From"] = "Von"; 
+
+const IncludeError = "DC_LoadInclude() : Laden der Bibliothek fehlgeschlagen : ";
+const AbortMessage = "Spiel wird abgebrochen...";
+const HaltMessage = "Skript angehalten...";
+const TownMessage = "TP zur Stadt...";
+const CheckMercMsg = "DT_CheckMerc() : Nicht genüg Gold um den Merc wieder zu beleben!!!";

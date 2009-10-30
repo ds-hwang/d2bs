@@ -1,0 +1,365 @@
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+// Hammerdin config
+var RedemMana = 100;
+var RedemLife = 700;
+var UseVigor=true;
+var UseRedemption  = true;
+
+var XP_PallyAttack=112;
+var XP_PallyAura=113;
+
+XP_KillMinions = false;
+AXP_Kamikaze = true;
+SXP_Kamikaze = true;
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts(gotBOed) {
+	if (arguments.length < 1){
+		gotBOed = false;
+	}
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() -> Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+	// Holy Shield
+	if((me.getState(101) == 0 && me.mp > 30) || gotBOed ) {
+		DC_DoCast(117,0);
+	}
+	return true;
+}
+
+function XP_Precasts() {
+	var origSkill = me.getSkill(2);
+	var BOed = false;
+	if (DA_UseCTA && (me.hpmax < MaxLife || DA_Refresh || me.getState(32) == 0)) {
+		if(me.hpmax < MaxLife)
+			DC_DPrint("XP_Precasts() -> me.hpmax:" + me.hpmax + " < MaxLife:" + MaxLife);
+		if(DA_Refresh)
+			DC_DPrint("XP_Precasts() -> DA_Refresh = true");
+		if(me.getState(32) == 0)
+			DC_DPrint("XP_Precasts() -> me.getState(32) == 0");
+		DA_UseCTASkills();
+		BOed = true;
+	}
+	if (DA_AutoPrecasts) {
+		DA_DoPrecasts(BOed);
+	}
+	else {
+		if (DA_Refresh || DC_InTown(me) || BOed) {// Cast only if we want to refresh or if we are in town
+			// Holy Shield
+			if(me.mp > 30) {
+				DC_DoCast(117,0);
+			}
+		}
+	}
+	DC_PutSkill(origSkill,0);
+}
+
+function XP_BossAttack(target) {
+	var i=0;
+	var prvHP = target.hp;
+
+	_XP_AttackCompleted=0;
+
+	// move to get close to the target
+	if (XP_PallyAttack != 101 || XP_PallyAttack != 121){
+		DM_MoveTo(target.x,target.y);
+	}
+	_XP_EndPosition = new XP_Coord(me.x,me.y);
+	// Set aura on the right hand
+	DC_PutSkill(XP_PallyAura,0);
+	while (target.hp > 0) {
+		if (XP_PallyAttack == 101){ // holy bolt attack
+			if (getBaseStat(1,target.classid,16) || getBaseStat(1,target.classid,17)){ // only attack if target is undead.
+			 	DC_DoCast(XP_PallyAttack,2,target);
+			}
+			else {// heal player/merc instead.
+				XP_Healing();
+			}
+		}
+		else {
+			DC_DoCast(XP_PallyAttack,2,target);
+		}
+		i +=1;
+		if (i >2 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)) {
+			if (target.hp > (prvHP-2000)){ // still missing target.
+				DM_MoveTo(target.x, target.y);
+				// Set the aura on the right hand
+				DC_PutSkill(XP_PallyAura,0);
+			}
+			i = 0;
+		}
+		else {
+			DM_CheckPosition(target.x, target.y);
+		}
+		if (target.hp < prvHP) { prvHP = target.hp; }  // target hit.
+
+		XP_CheckAttacks();
+
+		if (XP_CheckUtil(target))
+			break;
+	}
+}
+
+// checking monster ID and set the flag for it.
+function ThroneMonsterChecking(monster){
+	switch (monster.classid) {
+		case 23:	BossSpawned   = true;	break;
+		case 62:	BossSpawned   = true;	break;
+		case 381:	Mage          = true;	break;
+		case 105:	Mage          = true;	break;
+		case 557: 	CouncilMember = true;	break;
+		case 558: 	VenomLord     = true;	break;
+		case 571: 	MinionOfDest  = true;	break;
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var _area = me.area; // cache area property
+	if (arguments.length < 2){
+		skip = false;
+	}
+	if (arguments.length < 3) {
+		mode = ALIVE_MODE;
+	}
+	if (arguments.length < 4) {
+		classid = null;
+	}
+	if (arguments.length < 5) {
+		spectypeMask = 0xff;
+	}
+	_XP_AttackCompleted=0;
+	try	{
+		// BO every once in a while if we run out - darkspirit
+		if (DA_UseCTA){
+			if (me.getState(32) == 0 && me.hpmax <= MaxLife && DC_CheckSkill(149)) {
+				_temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+			}
+		}
+		else {
+			DA_DoPrecasts();
+		}
+		XP_HammerdinAuraIdle();
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) {
+						Cow_KingCheck(monster);
+					}
+					// If we are in Travincal, skip Water Watchers because we cannot move on top
+					if (_area == 83) { 
+						if (monster.classid == 258 || monster.classid == 261) { 
+							continue; 
+						} 
+					}
+					if (DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+						if (monster.classid == 691 && AbortDoll) {
+							DC_ThrowException("XP_ClearPosition()","Bloody dolls found and AbortDoll = True!");
+						}
+						if (monster.classid == 641 && AbortSoul) { 
+							DC_ThrowException("XP_ClearPosition()","Damn Souls found and AbortSoul = True!"); 
+						}
+						// check monster ID if in throne room
+						if (_area == 131){
+							ThroneMonsterChecking(monster);
+						}
+						if (((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) && !checkCollision(me,monster,3)) {
+							if (XP_PallyAttack != 101 || XP_PallyAttack != 121){
+								if (monster.classid == 691){
+									DM_MoveTo(monster.x+2, monster.y-2);
+								}
+								else {
+									DM_MoveTo(monster.x, monster.y);
+								}
+							}
+							else {
+								DM_CheckPosition(monster.x, monster.y);
+							}
+							result = XP_AttackMonster(monster,range,x,y);
+							if (!retval) {
+								retval = result;
+							}
+							if (result){
+								XP_Redemption();
+							}
+						}
+					}
+				} while (monster.getNext(classid,mode));
+			}
+			XP_HammerdinAuraIdle();
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)	{
+		if (e.name == "XP_CheckAttacks()")
+			DC_DPrint("Max Attack Reached!");
+		else
+			throw e;
+	}
+
+	return retval;
+}
+
+///////////////////////////////////// Class functions ////////////////////////////////////////
+
+function DA_RedeemOK() {
+	if (!UseRedemption || !DC_CheckSkill(124) || (me.hp == me.hpmax && me.mp == me.mpmax)) {
+		return false;
+	}
+	var found   = false;
+	var monster = getUnit(1,null,DEAD_MODE);
+	if (monster) {
+		do {
+			//check the alignment via Stat(172), State(105), or if its Baal on his throne (classid=543)
+			if (monster.getStat(172) == 2 || monster.getState(105) == 0 || monster.classid==543) {
+				continue;
+			}
+			// 99: Redeemed, 104: Corpse_NoDraw, 146: Invis, 154: Recycled
+			if (monster.getState(99) || monster.getState(104) || monster.getState(146) || monster.getState(154)) {
+				continue;
+			}
+			// Use NeverCount base monstat for traps, hydra, etc.
+			if (getBaseStat(1,monster.classid,23)) {
+				continue;
+			}
+			if (DA_GetRange(monster) > 15) {
+				continue;
+			}
+			var skipTarget = false;
+			for(var tk = 0; tk < ignoreKorpse.length; tk++) {
+				if(ignoreKorpse[tk] == monster.gid)
+					skipTarget=true;
+			}
+			if(!skipTarget) {
+				found = true;
+				ignoreKorpse.push(monster.gid);
+			}
+		} while(monster.getNext(null,DEAD_MODE));
+	}
+	return ((monster && found) ? true : false);
+}
+
+function XP_Redemption() {
+	DC_DPrint("XP_Redemption");
+	if (DA_RedeemOK()) {
+		if(DC_CheckSkill(124) && (me.mp < (RedemMana + 35)) || (me.hp < (RedemLife + 40))) {
+			// Set redemption on the right hand
+			DC_DPrint("XP_Redemption putskill");
+			DC_PutSkill(124,0);
+			delay(2050);
+			return true;
+		}
+	}
+	return false;
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	if (!monster || monster.hp < 1)
+		return false;
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+	// Set aura on the right hand
+	DC_PutSkill(XP_PallyAura,0);
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) &&	DA_GetRange(monster) < range){
+		if (XP_PallyAttack == 101){ // holy bolt attack
+			if (getBaseStat(1,monster.classid,16) || getBaseStat(1,monster.classid,17)){ // only attack if target is undead.
+			 	DC_DoCast(XP_PallyAttack,2,monster);
+			}
+			else {
+				XP_Healing(); // heal player/merc instead.
+				return false;
+			}
+		}
+		else {
+			if (DC_DoCast(XP_PallyAttack,2,monster)){
+				if (monster.hp < hpprev){
+					hpprev = monster.hp;
+					attprev = _XP_AttackCompleted + 1;
+				}
+				XP_CheckAttacks ();
+			}
+			else {
+				return false;
+			}
+		}
+		if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)
+			YAM_SafeCheck();
+	}
+	return true;
+}
+
+function XP_HammerdinAuraIdle() {
+	DC_DPrint("XP_HammerdinAuraIdle ");
+	if (DC_CheckSkill(124) && DA_RedeemOK() && (me.mp < (RedemMana + 35) || me.hp < (RedemLife + 40))) {
+		// put redemption aura on if its not already on.
+		DC_DPrint("XP_HammerdinAuraIdle() using redemption ");
+		if(me.getSkill(2) != 124){
+			DC_PutSkill(124,0);
+		}
+		delay(2050);
+		return true;
+	}
+	else if (DC_CheckSkill(109) && YAM_CheckIfCursed()) {
+		// put cleansing aura on if not already on.
+		DC_DPrint("XP_HammerdinAuraIdle() using cleansing ");
+		if(me.getSkill(2) != 109){
+ 			DC_PutSkill(109,0);	
+		}
+		return true;
+	}
+	else {
+		DC_PutSkill(XP_PallyAura,0);
+	}
+	return false;
+}
+
+function XP_PreAttack() {
+	if (!XP_HammerdinAuraIdle() && DC_CheckSkill(112)) {
+		DC_PutSkill(XP_PallyAura,0);
+		for(var i=0; i < preAttackAmount; i+=1){
+			DC_DoCast (XP_PallyAttack, 2, me.x,me.y);
+			DC_DoDel(50);
+		}
+		return true;
+	}
+	return false;
+}
+
+// This function is for cleric. Heal players and mercs
+function XP_Healing(){
+	_player= getUnit(0);
+	if (_player) {
+		do {
+	 		if ((me.name != _player.name) && (_player.hp < _player.hpmax-10)&& DC_InMyParty(_player.name)) {
+  	   			if (DA_GetRange(_player) > 25) {
+  	   				DM_MoveTo(_player.x,_player.y);
+				}
+ 	     		DC_DoCast(XP_PallyAttack,0,_player);
+  			}
+			delay(100);
+		} while(_player.getNext());
+	}
+	_merc = DC_GetMerc();
+	if (_merc) {
+		do {
+ 	   		if (DA_GetRange(_merc) > 25) {
+ 	   			DM_MoveTo(_merc.x,_merc.y);
+			}
+     		DC_DoCast(XP_PallyAttack,0,_merc);
+			delay(100);
+		} while(_merc.getNext());
+	}
+}

@@ -1,0 +1,703 @@
+
+// Diablo module by qzt modified by Kougio, 2KH, and darkspirit
+
+// Don't touch below this line //
+
+//Internal module vars (don't touch these)
+var DXP_NoDiablo = false; //this gets set to true if a seal won't open or one of the seal bosses is not killed
+
+entryFunc = DiabloXP;
+gameMsgExtendHandler=DiabloGameMsgHandler;
+
+var myLeader = Leaders[0]; // Take the first one by default
+
+var _DXP_Seal1;
+var _DXP_Seal2;
+var _DXP_Seal3;
+
+var _DXP_BossQuit=false;
+
+/* Diablo Modes
+   =========
+7 = Diablo Attacking with his pink lightning
+8 = Diablo Attacking with his weak fire ring
+10 = Diablo Attacking with his wake-of-inferno
+*/
+
+function DiabloGameMsgHandler(sender, cmd, params, c) {
+   if (YAM_isMyLeader(sender)) {
+      if (cmd == "bo" && (DA_UseCTA || DC_CheckSkill(149)) && !DC_InTown(me)) {
+         var leader = getUnit(0, sender);
+         if (leader) {
+            var x = me.x; var y = me.y;
+            DM_MoveTo(leader.x, leader.y);
+            var _temp = DA_Refresh;
+            DA_Refresh = true;
+            XP_Precasts();
+            DA_Refresh = _temp;
+            DM_MoveTo(x, y);
+         }
+      }
+   }
+}
+
+function DXP_Precasts() {
+
+   var _r = DA_Refresh;
+   DA_Refresh = true;
+   XP_Precasts();
+   DA_Refresh = _r;
+
+}
+
+function DM_MoveToAttack(x,y,nowalk,noattack) {
+
+   if (arguments.length < 4) {noattack = true;}
+
+   DM_MoveTo(x,y,nowalk,true); //use true tele
+
+   if (!noattack) {
+      var specType = 0xff;
+
+      if (YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+         //To obtain the needed specType is easy.
+         specType = YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+         specType >>= 8; // shift 1 byte
+      }
+
+      XP_ClearPosition(26,false,ATTACKING_MODE,null,specType);
+      XP_ClearPosition(26,false,ALIVE_MODE,null,specType);
+      var _DXP_Merc = DC_GetMerc();
+      if (_DXP_Merc) {
+         if (_DXP_Merc.getState(55) && (_DXP_Merc.classid==338||_DXP_Merc.classid==561)) { YAM_SafeCheck(); }
+      }
+      DSN_PickItems(YAM_SafeCheck);
+      if (YAM_OpenChests) {
+      YC_MaxDistance = 19;
+      YC_CheckForChests();
+      }
+
+      if (YAM_UseShrines) {
+      // if we find a shrine, use it before proceeding for an added bonus
+      DS_MaxDistance = 15;
+      DS_CheckForShrines();
+      }
+      DM_CheckPosition(x,y,nowalk);
+   }
+}
+
+function DXP_OpenSeal(classid,x,y,thefinal) {
+
+   DM_CheckPosition(x,y,true); //Note: this doesn't support dontwalk and truetele
+
+   // Get the seal
+   var Seal=null;
+   do { Seal = getUnit(2,classid); } while (!Seal);
+
+   // Check if the seal is already open
+   if (Seal.mode != 0) return true;
+
+   // Try to open the portal, trying up to 10 times after initial attempt
+   DC_DoClick(0,0,Seal);
+   delay(200);
+   for (var x1=0; x1 < 10 && Seal.mode == 0; x1++) {
+      // Move to alternate spot and try again
+      DM_MoveTo(Seal.x,Seal.y,true);
+      delay(300);
+      DC_DoClick(0,0,Seal);
+      delay(200);
+   }
+
+   //If the seal didn't open
+   if (Seal.mode == 0) {
+     print("ÿc1Failed to open Seal!ÿc0");
+        if (thefinal) { DXP_NoDiablo = true; }
+      return false;
+   } else { return true; }
+}
+
+function DXP_KillSuperUnique(classid,x,y,thefinal) {
+   var SuperUnique=false;
+
+   for (var _timer = DC_Timeout*1000; _timer > 0; _timer-=50) {
+      SuperUnique = DC_FindMonster(classid,0x01);
+      if (SuperUnique) { break; }
+      delay(50);
+   }
+   if (SuperUnique) {
+      if (DA_CheckImmunities(SuperUnique)) {
+         DL_AddChicken();
+        _DXP_BossQuit = true;
+         DXP_NoDiablo = true;
+         return false;
+      }
+
+      if (XP_KillMinions) {
+         XP_ClearPosition(25,false,ATTACKING_MODE);
+         XP_ClearPosition(25,false);
+      }
+
+      print("Killing " + SuperUnique.name + "...");
+      XP_BossAttack(SuperUnique,x,y);
+
+      // If we switched weapons on kill, switch back to the attack tab
+      if (XP_SwitchOnKill) { DC_SelectTab(1); }
+
+      print(SuperUnique.name + " killed !");
+
+      // If we want to attack the monsters around, do it now
+      if (XP_KillMinions) {
+        XP_ClearPosition(25,false,ATTACKING_MODE);
+        XP_ClearPosition(25,false);
+      }
+
+      // Move to where he died to check for items
+      if (classid != 306) { //Vizier can move off screen
+         DM_MoveTo(SuperUnique.x,SuperUnique.y);
+      }
+      SuperUnique = false;
+
+      DSN_PickItems(YAM_SafeCheck);
+   } else {
+      print("ÿc1SuperUnique not found!!  He must be Dead!ÿc0");
+   }
+   return true;
+}
+
+function DXP_GoToCS() {
+
+   if (DXP_UsePather) {
+      commPather.InitType = 0;
+      var _temp = commPather.StepActionflag;
+      commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS;
+
+      // Ability to control the types of the monster you want to kill
+      if (DXP_ChaosKamikaze) {
+         commPather.StepActionflag &= ~(DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
+      }
+      else { commPather.StepActionflag |= DP_INCUSERSTEP; }
+
+      commPather.GotoLevel(108,false,false);
+      commPather.StepActionflag = _temp;
+
+      // Note: You may need to put DM_MoveToAttack here.  I never
+      //       tried the pather so I don't know exactly where
+      //       it stops.  I assume it will stop at the arch.
+      //       If DXP_SealKamikaze is false (ie. stop and attack)
+      //       stopping at the arch to attack is probably not
+      //       a good thing to do.  You will probably want to
+      //       step back and clear, move up and clear the arch,
+      //       and then continue on clearing your way to the
+      //       Diablo circle and Seals.
+   }
+   else {
+
+//      var _rm = DM_RandomMove; //DM_MoveToAttack() now uses true tele
+//      DM_RandomMove = false;
+
+      // River WP to Chaos Entrance
+      DM_MoveToAttack(7799,5893,true,true);
+      DM_MoveToAttack(7795,5869,true,true); //Hadriel
+      DM_MoveToAttack(7797,5845,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7797,5821,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7798,5805,true,DXP_ChaosKamikaze); //y=5808 (5805=moved closer to Chaos)
+      DM_MoveToAttack(7797,5771,true,DXP_ChaosKamikaze); //y=5782 (5771=take a shorter jump)
+      DM_MoveToAttack(7797,5760,true,DXP_ChaosKamikaze); //y=5757 is bad
+      DM_MoveToAttack(7797,5732,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7797,5707,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7798,5685,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7797,5650,true,DXP_ChaosKamikaze);
+      DM_MoveToAttack(7797,5621,true,DXP_ChaosKamikaze); //y=5626 is bad
+
+      // Always clear this area because if DXP_SealKamikaze is
+      // false (ie. stop and attack) you will want a clear spot
+      // to make your attacks.
+      DM_MoveToAttack(7797,5601,true,DXP_SealKamikaze); //before arch
+      DM_MoveToAttack(7792,5574,true,DXP_SealKamikaze); //at arch
+
+//      DM_RandomMove = _rm;
+   }
+
+   // Chaos Entrance to Diablo Circle
+   DM_MoveToAttack(7790,5548,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7792,5525,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7793,5513,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7793,5501,true,DXP_SealKamikaze); //end of entry hall
+   DM_MoveToAttack(7773,5495,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7768,5480,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7767,5458,true,DXP_SealKamikaze);
+
+   DM_MoveToAttack(7770,5438,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7774,5417,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7767,5391,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7768,5369,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7769,5345,true,DXP_SealKamikaze);
+   DM_MoveToAttack(7770,5320,true,DXP_SealKamikaze); //corner before Vizier
+   DM_MoveToAttack(7780,5308,true,DXP_SealKamikaze); //tip of circle
+
+
+   if (PublicMode) {
+      if (BXP_ClearFirst) {
+         DM_MoveToAttack(7791,5294,true,false); //middle circle
+      } else {
+   DM_MoveToAttack(7791,5294,true,true); //middle circle
+      }
+      for (var i=0; i < Leaders.length; i++) {
+      if (DC_PartyPlayer(Leaders[i])) break;
+      }
+      XP_OpenTP();
+      say(YAM_TPMsg);
+
+      DM_MoveTo(7784,5303,true); //tip of circle
+   }
+}
+
+function DXP_OpenVizierSeal(thefinal) {
+   var ret;
+
+   // VIZIER OF CHAOS SEALS (1)
+   if (_DXP_Seal1==1){
+      DM_MoveToAttack(7735,5299,true,false);
+      DM_MoveToAttack(7721,5295,true,false);
+      DM_MoveToAttack(7708,5291,true,false);
+      DM_MoveToAttack(7696,5290,true,false); //new - moving 24 x-coords is dangerous
+      DM_MoveToAttack(7684,5289,true,false);
+
+      DM_MoveToAttack(7676,5306,true,false);
+      DM_MoveToAttack(7654,5310,true,false);
+      ret = DXP_OpenSeal(395,7654,5310,thefinal); //no spawn lower left
+
+      DM_MoveToAttack(7670,5300,true,false);
+      DM_MoveToAttack(7659,5277,true,false);
+      DXP_Precasts();
+      if (ret) ret = DXP_OpenSeal(396,7659,5277,thefinal); //spawn top right
+      DM_MoveToAttack(7665,5277,true,false);
+      if (ret) ret = DXP_KillSuperUnique(306,7670,5300,thefinal);
+
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7681,5293,true);
+      DM_MoveTo(7707,5295,true);
+      DM_MoveTo(7732,5295,true);
+      DM_MoveTo(7753,5292,true);
+   }
+
+   // VIZIER OF CHAOS SEALS (2) (7655,5315)
+   else {
+
+      DM_MoveToAttack(7738,5308,true,false);
+      DM_MoveToAttack(7716,5312,true,false);
+      DM_MoveToAttack(7705,5314,true,false);
+      DM_MoveToAttack(7694,5315,true,false);
+      DM_MoveToAttack(7681,5315,true,false); //new - moving 26 x-coords is dangerous
+
+      DM_MoveToAttack(7668,5314,true,false);
+      DM_MoveToAttack(7651,5310,true,false);
+      DM_MoveToAttack(7653,5294,true,false);
+      DM_MoveToAttack(7650,5276,true,false);
+      ret = DXP_OpenSeal(395,7650,5276,thefinal); //no spawn top right
+
+      DM_MoveToAttack(7653,5298,true,true);
+      DM_MoveToAttack(7651,5310,true,true);
+      DXP_Precasts();
+      if (ret) ret = DXP_OpenSeal(396,7651,5310,thefinal); //spawn lower left
+      if (ret) ret = DXP_KillSuperUnique(306,7662,5312,thefinal);
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7675,5314,true);
+      DM_MoveTo(7700,5314,true);
+      DM_MoveTo(7724,5313,true);
+      DM_MoveTo(7745,5309,true);
+      DM_MoveTo(7764,5303,true);
+
+   }
+
+   return ret;
+}
+
+function DXP_OpenDeSeisSeal(thefinal) {
+   var ret;
+
+   // LORD DE SEIS SEAL (1) (7773,5155)
+   if (_DXP_Seal2==1) {
+
+   DM_MoveToAttack(7792,5278,true,false);
+   DM_MoveToAttack(7792,5266,true,false);
+   DM_MoveToAttack(7777,5259,true,false);
+   DM_MoveToAttack(7777,5246,true,false);
+
+   DM_MoveToAttack(7770,5219,true,false);
+   DM_MoveToAttack(7773,5196,true,false);
+
+   DM_MoveToAttack(7797,5194,true,false);
+   DM_MoveToAttack(7814,5187,true,false);
+   DM_MoveToAttack(7817,5175,true,false);
+   DM_MoveToAttack(7809,5157,true,false);
+
+   DM_MoveToAttack(7789,5157,true,false);
+   DM_MoveToAttack(7769,5158,true,false);
+      ret = DXP_OpenSeal(394,7769,5158,thefinal); //the seal that doesn't like to open
+   if (DXP_SafeCheck) {YAM_SafeCheck();}
+   DXP_Precasts();
+      DM_MoveToAttack(7792,5157,true,true);
+      DM_MoveToAttack(7811,5171,true,true);
+      DM_MoveToAttack(7802,5189,true,false);
+      DM_MoveToAttack(7777,5189,true,false);
+      DM_MoveToAttack(7771,5196,true,false);
+      if (ret) ret = DXP_KillSuperUnique(312,0,0,thefinal);
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7770,5219,true);
+      DM_MoveTo(7777,5246,true);
+      DM_MoveTo(7792,5266,true);
+      DM_MoveTo(7793,5292,true);
+   }
+
+   // LORD DE SEIS SEAL (2)
+   else {
+
+   DM_MoveToAttack(7792,5278,true,false);
+   DM_MoveToAttack(7792,5266,true,false);
+   DM_MoveToAttack(7797,5249,true,false);
+
+   DM_MoveToAttack(7806,5232,true,false);
+   DM_MoveToAttack(7808,5209,true,false);
+   DM_MoveToAttack(7806,5193,true,false);
+
+   DM_MoveToAttack(7783,5199,true,false);
+   DM_MoveToAttack(7768,5179,true,false);
+
+   DM_MoveToAttack(7776,5161,true,false);
+   DM_MoveToAttack(7793,5153,true,false);
+   DM_MoveToAttack(7810,5156,true,false);
+      ret = DXP_OpenSeal(394,7810,5156,thefinal);
+   if (DXP_SafeCheck) {YAM_SafeCheck();}
+   DXP_Precasts();
+      DM_MoveToAttack(7798,5155,true,false);
+      DM_MoveToAttack(7788,5155,true,false);
+      DM_MoveToAttack(7772,5152,true,false);
+      DM_MoveToAttack(7770,5169,true,false);
+      if (ret) ret = DXP_KillSuperUnique(312,0,0,thefinal);
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7782,5190,true);
+      DM_MoveTo(7806,5199,true);
+      DM_MoveTo(7806,5224,true);
+      DM_MoveTo(7800,5243,true);
+      DM_MoveTo(7796,5264,true);
+      DM_MoveTo(7792,5283,true);
+   }
+
+   return ret;
+}
+
+function DXP_OpenVenomSeal(thefinal) {
+   var ret;
+
+   // VENOM LORD SEALS (1)
+   if (_DXP_Seal3==1) {
+
+      DM_MoveToAttack(7818,5288,true,false);
+      DM_MoveToAttack(7839,5285,true,false);
+
+      DM_MoveToAttack(7865,5290,true,false);
+      DM_MoveToAttack(7886,5302,true,false);
+
+      DM_MoveToAttack(7896,5295,true,false); //new - open no spawn first
+      DM_MoveToAttack(7910,5290,true,false);
+      DM_MoveToAttack(7915,5280,true,false);
+      ret = DXP_OpenSeal(393,7915,5280,thefinal); //no spawn
+      DM_MoveToAttack(7911,5289,true,true);
+      DM_MoveToAttack(7898,5298,true,true);
+
+      DM_MoveToAttack(7895,5318,true,false);
+      DXP_Precasts();
+      if (ret) ret = DXP_OpenSeal(392,7895,5318,thefinal); //spawn
+      DM_MoveToAttack(7878,5298,true,true);
+      DM_MoveToAttack(7867,5295,true,false);
+      DM_MoveToAttack(7878,5296,true,false);
+      DM_MoveToAttack(7892,5298,true,false);
+      if (ret) ret = DXP_KillSuperUnique(362,0,0,thefinal);
+
+      if (me.x > 7907) {
+         DM_MoveToAttack(7907,5289,true,true);
+      }
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7901,5292,true);
+      DM_MoveTo(7875,5291,true);
+      DM_MoveTo(7852,5293,true);
+      DM_MoveTo(7833,5299,true);
+      DM_MoveTo(7815,5305,true);
+      DM_MoveTo(7796,5297,true);
+
+   }
+
+   // VENOM LORD SEALS (2) (7915,5315)
+   else {
+
+   DM_MoveToAttack(7815,5288,true,false);
+   DM_MoveToAttack(7823,5277,true,false);
+   DM_MoveToAttack(7834,5282,true,false);
+
+   DM_MoveToAttack(7856,5279,true,false);
+   DM_MoveToAttack(7878,5276,true,false);
+   DM_MoveToAttack(7905,5277,true,false);
+      ret = DXP_OpenSeal(393,7905,5277,thefinal); //no spawn
+
+      DM_MoveToAttack(7926,5271,true,false);
+      DM_MoveToAttack(7930,5285,true,false);
+      DM_MoveToAttack(7937,5305,true,false);
+
+      DM_MoveToAttack(7916,5310,true,false);
+      DXP_Precasts();
+      if (ret) ret = DXP_OpenSeal(392,7916,5310,thefinal); //spawn
+      DM_MoveToAttack(7937,5305,true,false);
+      if (ret) ret = DXP_KillSuperUnique(362,0,0,thefinal);
+
+      // Go back to Diablo Circle
+      DM_MoveTo(7930,5285,true);
+      DM_MoveTo(7905,5277,true);
+      DM_MoveTo(7878,5276,true);
+      DM_MoveTo(7856,5279,true);
+      DM_MoveTo(7834,5282,true);
+      DM_MoveTo(7815,5288,true);
+      DM_MoveTo(7796,5297,true);
+   }
+
+   return ret;
+}
+
+function DXP_OpenSeals() {
+   var ret;
+
+   // Two possible positions for each seal:
+   // 1=1 : 7655, 5275      1=2 : 7655, 5315 (Vizier)
+   // 2=1 : 7773, 5155      2=2 : 7815, 5155 (De Seis)
+   // 3=1 : 7893, 5313      3=2 : 7915, 5315 (Infector)
+   _DXP_Seal1 = getPresetUnits(me.area, 2, 396, null)[0];
+   _DXP_Seal2 = getPresetUnits(me.area, 2, 394, null)[0];
+   _DXP_Seal3 = getPresetUnits(me.area, 2, 392, null)[0];
+
+   if ((_DXP_Seal1.roomy*5 + _DXP_Seal1.y) == 5275) _DXP_Seal1=1;
+   else _DXP_Seal1=2;
+
+   if ((_DXP_Seal2.roomx*5 + _DXP_Seal2.x)  == 7773) _DXP_Seal2=1;
+   else _DXP_Seal2=2;
+
+   if ((_DXP_Seal3.roomx*5 + _DXP_Seal3.x)  == 7893) _DXP_Seal3=1;
+   else _DXP_Seal3=2;
+
+   print("1="+_DXP_Seal1 + ", 2="+_DXP_Seal2 + ", 3="+_DXP_Seal3);
+
+   // Vizier Common
+   DM_MoveToAttack(7773,5311,true,false);
+   DM_MoveToAttack(7763,5307,true,false);
+   DM_MoveToAttack(7766,5300,true,false);
+   DM_MoveToAttack(7755,5307,true,false);
+
+   // Vizier Seal
+
+   _DXP_BossQuit = false;
+   ret = DXP_OpenVizierSeal(false);
+
+   var i = 1;
+   while (!ret && !_DXP_BossQuit && i < DXP_Retries) {
+      print ("Error in previous run, retrying...");
+      DM_MoveToAttack(7765,5288,true,false);
+      DM_MoveToAttack(7763,5307,true,false);
+      _DXP_BossQuit = false;
+      ret = DXP_OpenVizierSeal(false);
+      i++;
+   }
+
+   if (!ret && !_DXP_BossQuit) {
+      print ("Error in previous run, retrying...");
+      DM_MoveToAttack(7765,5288,true,false);
+      DM_MoveToAttack(7763,5307,true,false);
+      _DXP_BossQuit = false;
+      ret = DXP_OpenVizierSeal(true);
+   }
+
+   if (DXP_NoDiablo && DXP_QuitIfNoDiablo) return;
+
+   // Go back to Diablo Circle (common)
+   DM_MoveTo(7765,5288,true);
+   DM_MoveTo(7793,5292,true);
+
+   // De Seis Seal
+
+   _DXP_BossQuit = false;
+   ret = DXP_OpenDeSeisSeal(false);
+
+   var i = 1;
+   while (!ret && !_DXP_BossQuit && i < DXP_Retries) {
+   print ("Error in previous run, retrying...");
+        _DXP_BossQuit = false;
+   ret = DXP_OpenDeSeisSeal(false);
+   i++;
+   }
+
+   if (!ret && !_DXP_BossQuit) {
+   print ("Error in previous run, retrying...");
+        _DXP_BossQuit = false;
+   ret = DXP_OpenDeSeisSeal(true);
+   }
+
+   if (DXP_NoDiablo && DXP_QuitIfNoDiablo) return;
+
+   // Venom Seal
+
+   _DXP_BossQuit = false;
+   ret = DXP_OpenVenomSeal(false);
+
+   var i = 1;
+   while (!ret && !_DXP_BossQuit && i < DXP_Retries) {
+   print ("Error in previous run, retrying...");
+        _DXP_BossQuit = false;
+   ret = DXP_OpenVenomSeal(false);
+   i++;
+   }
+
+   if (!ret && !_DXP_BossQuit) {
+   print ("Error in previous run, retrying...");
+        _DXP_BossQuit = false;
+   ret = DXP_OpenVenomSeal(true);
+   }
+
+   if (DXP_NoDiablo && DXP_QuitIfNoDiablo) return;
+}
+
+function DXP_AttackDiablo() {
+
+   if (DXP_NoDiablo) {
+      print("SuperUnique not killed or Seal not opened!! Skip to next boss...");
+      return false;
+   }
+
+   // Detecting Diablo every 50ms with a timeout of 14 seconds
+   var _Diablo = false;
+   for (var _timer = 14000; _timer > 0; _timer-=50) {
+      XP_PreAttack(7791,5294);
+      _Diablo = DC_FindMonster(243);
+      if (_Diablo) { break; }
+      delay(50);
+   }
+
+   if (_Diablo) {
+
+      XP_BossAttack(_Diablo);
+
+      // If we switched weapons on kill, switch back to the attack tab
+      if (XP_SwitchOnKill) { DC_SelectTab(1); }
+
+      print("Diablo killed !");
+
+      // Move to where Diablo died to check for items
+      DM_CheckPosition(_Diablo.x,_Diablo.y);
+      DSN_PickItems(YAM_SafeCheck);
+      _Diablo=false;
+   }
+   else {
+      print("Diablo not found!! Skip to next boss...");
+      return false;
+   }
+   return true;
+}
+
+function DiabloXP() {
+
+   if (me.classid == 1) {
+      XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+      XP_Static=DXP_Static;
+   }
+
+   XP_SwitchHP = DXP_SwitchHP;
+   XP_StallHP = DXP_StallHP;
+   XP_StallKill = DXP_StallKill;
+   XP_MinionStand=true;
+
+   if (me.classid == 3) { XP_KillMinions = false; }
+
+   if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+   BuildSkeleArmy();
+   }
+
+   // Do town stuff in the act we are in
+   YAM_TownManager();
+
+   if ((DM_CheckTeleport() || DXP_UsePather) && !WaitForPortal) {
+
+      YAM_PathToWayPoint();
+
+      // Do precasts before going into the portal
+      XP_Precasts();
+
+      // Take River WP
+      DM_UsePortal("Waypoint",0x6b);
+
+      // Do precasts after going into the portal
+      XP_Precasts();
+
+   XP_ClearPosition(10);
+
+      // Go to chaos sanctuary
+      DXP_GoToCS();
+   } else {
+   // Use the WP to Act 4 if need be
+   if (me.area != 103) { YAM_PathToWayPoint(); DM_UsePortal("Waypoint",103); YAM_InitCommTown(); }
+
+   commTown4.GotoStart();
+
+   print ("Waiting for tp...");
+
+   while (me.area != 108) {
+      // Wait for 4 mins
+      var i = 0;
+      XP_Precasts();
+      while (!YAM_TPReady && i < 240 && me.area != 108) {
+         delay (1000);
+         i++;
+      }
+
+      // Do precasts after going into the portal
+      XP_Precasts();
+
+      // The one who yells "tp up" becomes my true leader
+      if (YAM_TPReady) myLeader = YAM_TPReady;
+
+      // Make sure to party the leader
+      if (!DC_PartyPlayer(myLeader)) {
+
+         // If failed to party, choose another leader
+         for (var i=0; i < Leaders.length; i++) {
+            if (DC_PartyPlayer(Leaders[i])) { myLeader=Leaders[i]; break; }
+         }
+      }
+
+      try {
+         // When we have chosen a leader, go into his tp
+         DM_UsePortal ("BluePortal", 108, myLeader);
+         }
+      catch (e) { print("e : name = " + e.name + ", message = " + e.message); }
+   }
+
+   YAM_TPReady = false;
+   XP_Precasts();
+
+	if (me.getState(32) == 0) { say("/w "+myLeader+" bo "); delay(2000); }
+
+   XP_ClearPosition(25);
+   }
+
+   // Open the seals killing monsters in CS if wanted
+   DXP_Precasts();
+
+   DXP_OpenSeals();
+
+   // Go kill Diablo ending the run: add kill
+   if (DXP_AttackDiablo()) {
+      DL_AddKill();
+   }
+   if (DSN_LogRunes) { DL_SaveRuneLog(); }
+}

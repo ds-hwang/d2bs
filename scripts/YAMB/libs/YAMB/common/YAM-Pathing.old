@@ -1,0 +1,802 @@
+//////////////////////////////////////////////////////////////////////
+// Public constants & variables
+//////////////////////////////////////////////////////////////////////
+const DP_THROWWHENSTUCK	= 0x0001;	// Will throw an exception if it is stuck for more than 5 tries.(value 1)
+const DP_CLEARWHENSTUCK	= 0x0002;	// Will check for monsters to kill if it is stuck for more than 1 try.(value 2)
+const DP_PICKDROPS			= 0x0004;	// Will activate snagit along the way.(value 4)
+const DP_USESHRINES		= 0x0008;	// Will use 1 shrine/step (YAM_UseShrines has to be set to true)(value 8)
+const DP_OPENCHESTS		= 0x0010;	// Will open 1 chest/step (YAM_OpenChests has to be set to true)(value 16)
+const DP_SAFECHECK			= 0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
+const DP_USEVIGOR			= 0x0040;	// Will enable vigor aura (Paladins only).(value 64)
+// IMPORTANT: Do not redefine monster bits without updating walkcalls function below!!!
+const DP_KILLSUPERUS		= 0x0100;	// Will kill SuperUniques.(value 256)
+const DP_KILLCHAMPS		= 0x0200;	// Will kill Champions.(value 512)
+const DP_KILLBOSSES		= 0x0400;	// Will kill Bosses.(value 1024)
+const DP_KILLMINIONS		= 0x0800;	// Will kill Minions.(value 2048)
+const DP_CLEARMONSTERS		= 0x1000;	// Will kill normal monsters along the way(value 4096)
+
+const DP_INCUSERSTEP		= 0x8000;	// Will include (bitwise OR) YAM_StepPath user config variable with the walkcallflag(value 32768)
+
+var YAM_StepPath			= (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
+
+var DP_version = "4.3";
+DC_LoadInclude("BotOS/Pathing/BotOS.Pathing.dbl");
+
+//StepActions return values
+var DP_CONTINUE        = 1;
+var DP_STOP            = 2;
+var DP_STEPAHEAD       = 100;
+var DP_STEPBACK        = 200;
+var DP_STEPFAILED      = -1;
+
+// Warps
+var DP_WARPNONE                    = 99;
+var DP_WARPNEXT                    = 0;
+var DP_WARPPREVIOUS                = 1;
+var DP_WARPWAYPOINT                = 2;
+var DP_WARPOTHER1                  = 3;
+var DP_WARPOTHER2                  = 4;
+var DP_WARPOTHER3                  = 5;
+var DP_WARPOTHER4                  = 6;
+var DP_WARPOTHER5                  = 7;
+var DP_WARPOTHER6                  = 8;
+var DP_WARPOTHER7                  = 9;
+var DP_WARPOTHER8                  = 10;
+var DP_WARPUNDERGROUNDPASSAGE      = 0;
+var DP_WARPUNDERGROUNDPASSAGEOTHER = 3;
+var DP_WARPUGPASSAGE               = 0;
+var DP_WARPUGPASSAGEOTHER          = 3;
+var DP_WARPDEN                     = 3;
+var DP_WARPHOLE                    = 3;
+var DP_WARPCAVE                    = 3;
+var DP_WARPPIT                     = 3;
+var DP_WARPCRYPT                   = 3;
+var DP_WARPMAUSOLEUM               = 4;
+var DP_WARPTOWER                   = 4;
+var DP_WARPTOWNTOSEWERTRAP         = 3;
+var DP_WARPTOWNTOSEWERDOCK         = 4;
+var DP_WARPSEWERTOTOWNDOCK         = 3;
+var DP_WARPTOWNTOHAREM             = 5;
+var DP_WARPHAREMTOTOWN             = 3;
+var DP_WARPTOMB                    = 3;
+var DP_WARPVIPER                   = 3;
+var DP_WARPTALTOMB1                = 3;
+var DP_WARPTALTOMB2                = 4;
+var DP_WARPTALTOMB3                = 5;
+var DP_WARPTALTOMB4                = 6;
+var DP_WARPTALTOMB5                = 7;
+var DP_WARPTALTOMB6                = 8;
+var DP_WARPTALTOMB7                = 9;
+var DP_WARPMAGGOT                  = 3;
+var DP_WARPDESSERTSEWERTRAP        = 4;
+var DP_WARPSPIDER                  = 3;
+var DP_WARPDUNGEONFORT             = 4;
+var DP_WARPDUNGEONHOLE             = 5;
+var DP_WARPKURASTTOSEWER           = 3;
+var DP_WARPKURASTTOTEMPLE          = 4;
+var DP_WARPTRAVINCALTOMEPH         = 5;
+var DP_WARPCITYTORIVER             = 0;
+var DP_WARPRIVERTOCITY             = 1;
+var DP_WARPBARRICADEDOWN           = 3;
+var DP_WARPBARRICADEDOWNWALL       = 4;
+var DP_WARPICECAVEDOWNFLOOR        = 3;
+var DP_WARPTEMPLETONIHL            = 3;
+var DP_WARPMOUNTAINTOICE           = 3;
+var DP_WARPMOUNTAINTOBAAL          = 4;
+
+//////////////////////////////////////////////////////////////////////
+// Private variables
+//////////////////////////////////////////////////////////////////////
+
+var cMapping        = null;
+var _DP_lastX       = 0;
+var _DP_lastY       = 0;
+var _DP_lastPoint   = -1;
+var _DP_failedMoves = 0;
+var _DP_MovedBack   = false;
+var _DP_Room        = null;
+var _DP_Level       = null;
+//////////////////////////////////////////////////////////////////////
+// Public class/functions
+//////////////////////////////////////////////////////////////////////
+// The walkcall behavior is governed by the walkcallflag.
+// 1) The module can set the Walkcallflag property of the commonLib.Pathing object so that it would use the Walkcallflag
+//    set by the module rather than the user-defined value in the YAM_StepPath variable.
+//    The bit positions and their behavior is described in the "Public constants" section above.
+//    Just make sure that the bit defined by DP_INCUSERSTEP is clear when you pass your custom Walkcallflag,
+//    otherwise the value held by YAM_StepPath user config variable would be combined (ORed) with the Walkcallflag instead.
+//    For example,
+//        var commPather = new commonLib.Pathing();
+//        commPather.Walkcallflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES); // Combined default behavior with using shrines
+//        commPather.InitType = 1;                      // For high detail pathing
+//        commPather.GotoLevel(destArea, false, false); // Move to destination area, looking for shrines along the way
+//
+// 2) The module can also choose to take over the walk callbacks by passing their own callback function.
+//    The user config variable, YAM_StepPath, and the Walkcallflag would be ignored in this case,
+//    since the module has chosen to take over the step pathing callback.
+//    For example,
+//        var commPather = new commonLib.Pathing();
+//        commPather.InitType = 1;
+//        commPather.GotoLevel(destArea, false, myOwnCallback);
+//
+//        function myOwnCallback { // Define my private callback function here
+//            // Do stuff
+//            return mlSTEPAHEAD;
+//        }
+//
+// 3) If the module chooses not to set the Walkcallflag or use their own private callback function, the user-defined variable,
+//    YAM_StepPath would be used as the Walkcallflag instead.  This is the default behavior.
+//////////////////////////////////////////////////////////////////////
+
+
+// Parameters :
+// -x	Path to the log file to write
+// -y	Path to the log file to write
+// -message	Message to be printed in the log file
+// Return value : This function must return one of the following constants:
+//					mlSTEPAHEAD - move to next point
+//					mlSTEPBACK  - move to prior point
+//					mlSTOP      - stop here
+function walkcalls(x, y, currentpoint, walkcallflag) {
+	if (typeof(walkcallflag) == "function") {
+		return walkcallflag();
+	}
+	else if (typeof(walkcallflag) == "number") {
+	// Some other type was passed as the databack param. Performing default action...
+	var ctrlFlag = (walkcallflag & DP_INCUSERSTEP)  ? (YAM_StepPath|walkcallflag) :  walkcallflag;
+	if ((ctrlFlag&~DP_INCUSERSTEP) == 0)
+		return mlSTEPAHEAD;
+	var i = 0;
+	while ((me.mode == 3 || me.mode == 2) && i<20) {
+		i++;
+		delay(100);
+	}
+	var _x = me.x;
+	var _y = me.y;
+	_DP_failedMoves = ((Math.abs(me.x - _DP_lastX) < 6) && (Math.abs(me.y - _DP_lastY) < 6) && (_DP_lastPoint == currentpoint)) ? (_DP_failedMoves + 1) : 0;
+	// Check for stuck situations
+	if (_DP_failedMoves > 5 && (ctrlFlag & DP_THROWWHENSTUCK)) {
+		_DP_failedMoves = 0;
+		throw new BotOS.MoverException("Mover.Move -> We seem to be stuck! Current XY = " + me.x + " " + me.y + ".", 1, "YAM-Pathing.dbl");
+	}
+	else if (_DP_failedMoves > 1 && (ctrlFlag & DP_CLEARWHENSTUCK)) {
+		DC_Print ("Mover.Move -> We seem to be stuck!  Attempting clear position...")
+		if (XP_ClearPosition(20)) {
+			DSN_PickItems(YAM_SafeCheck);
+		}
+	}
+	// Call SafeCheck
+	if (_DP_MovedBack && (currentpoint < _DP_lastPoint|| _DP_lastPoint < 2)) {
+		_DP_MovedBack = false;
+		if (YAM_SafeCheck())
+			XP_Precasts();
+	}
+	// Clear current position of monsters
+	if (ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+		//To obtain the needed specType is easy.
+		var specType = ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+		specType >>= 8; // shift 1 byte
+		// Clear our location and pick up any items
+		XP_ClearPosition(20,null,ATTACKING_MODE,null,specType);
+		if (!_DP_MovedBack && (DT_CheckHeal()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)) {
+			DC_Print("Temporarily retreating...");
+			_DP_MovedBack = true;
+			// Remember current coords
+			_DP_lastX     = me.x;
+			_DP_lastY     = me.y;
+			_DP_lastPoint = currentpoint;
+			return (mlSTEPBACK+2);
+		}
+		else if (_DP_MovedBack)
+			return mlSTEPAHEAD; // Let him do the actual teleport
+		XP_ClearPosition(20,null,ALIVE_MODE,null,specType);
+		if (YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+			if (YAM_SafeCheck())
+				XP_Precasts();
+		}
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	// Call SafeCheck
+	if (ctrlFlag & DP_SAFECHECK) {
+		if (YAM_SafeCheck())
+			XP_Precasts();
+	}
+	if ((ctrlFlag & DP_OPENCHESTS) && YAM_OpenChests) {
+		YC_MaxDistance = 19;
+		YC_CheckForChests();
+	}
+	// Use Shrines
+	if ((ctrlFlag & DP_USESHRINES) && YAM_UseShrines) {
+		// if we find a shrine, use it before proceeding for an added bonus
+		DS_MaxDistance = 20;
+		DS_CheckForShrines();
+	}
+	// Pickup drops
+	if (ctrlFlag & DP_PICKDROPS)
+		DSN_PickItems(YAM_SafeCheck);
+	// Restore our coords so the pather can continue
+	DM_CheckPosition(_x,_y);
+	g = 0;
+	while ((me.mode == 3 || me.mode == 2) && g<20) {
+		g++;
+		delay(50);
+	}
+	// Enable Vigor
+	if ((ctrlFlag & DP_USEVIGOR) && me.classid==3) {
+		DC_PutSkill(115,0);
+	}
+	// Remember current coords
+	_DP_lastX = me.x;
+	_DP_lastY = me.y;
+	_DP_lastPoint = currentpoint;
+	return mlSTEPAHEAD;
+	}
+}
+
+commonLib.Pathing = function(_info) {
+	if (_info) {
+		this.InitType     = _info.InitType;
+		this.UseTeleSorc  = _info.UseTeleSorc;
+		this.UseTeleport  = _info.UseTeleport;
+		this.InteractTile = _info.InteractTile;
+		this.TeleFH       = _info.TeleFH;
+		this.WalkFH       = _info.WalkFH;
+		this.TeleDist     = _info.TeleDist;
+		this.WalkDist     = _info.WalkDist;
+		this.TeleSquare   = _info.TeleSquare;
+		this.WalkSquare   = _info.WalkSquare;
+		this.WalkcallFreq = _info.WalkcallFreq;
+		this.Walkcallflag = _info.Walkcallflag;
+		this.DoorHandler  = _info.DoorHandler; /*<--Darien*/
+		this.NeedDump     = _info.NeedDump;
+		this.DumpType     = _info.DumpType;
+		this.StepDelay    = _info.StepDelay;
+		this.PresetUnits  = null;  /*<--Darien*/
+	}
+	if (typeof(this.UseTeleSorc) == "undefined") { this.UseTeleSorc = true; }
+	this.UseTele = (me.classid == 1) ? this.UseTeleSorc : this.UseTeleport;
+	if (isNaN(this.TeleFH)) { this.TeleFH = mlFHDIAGSHORTCUT; }
+	if (isNaN(this.WalkFH)) { this.WalkFH = mlFHDIAGSHORTCUT; }
+	if (!this.TeleDist) { this.TeleDist = 20; }
+	if (!this.WalkDist) { this.WalkDist = 8; }
+	if (!this.TeleSquare) { this.TeleSquare = 2; }
+	if (!this.WalkSquare) { this.WalkSquare = 1.5; }
+	if (isNaN(this.WalkcallFreq)) { this.WalkcallFreq = 1; }
+	if (isNaN(this.InitType)) { this.InitType = 0; }
+	if (isNaN(this.DumpType) || this.DumpType > 2  || this.DumpType < 0) { this.DumpType = 2; }
+	if (isNaN(this.StepDelay)) { this.StepDelay = 0; }
+	if (!this.Walkcallflag) { this.Walkcallflag = DP_INCUSERSTEP; } // Set default Walkcallflag
+	this.Version             = DP_version;
+	this.Map                 = null;
+	this.InitMap             = _DP_InitMap;
+	this.GotoRoom            = DP_GotoRoom;
+	this.GotoLevel           = DP_GotoLevel;
+	this.GotoDest            = DP_GotoDest;
+	this.GotoWarp            = DP_GotoWarp;
+	this.ExploreLevel        = DP_ExploreLevel;
+	this.ExploreLevelOld     = DP_ExploreLevelOld;
+	this.DumpMap             = DP_DumpMap;
+	this.IsWalkable          = DP_IsWalkable;			//Darien
+	this.FindClosestWalkable = DP_FindClosestWalkable;	//Darien
+	this.LOS                 = DP_LOS;					//Darien
+	this.GetSafeOffScreenXY  = DP_GetSafeOffScreenXY;	//Darien
+
+	function DP_GotoRoom(lo,hi,teledist,databack, _door) {
+		if (!databack && this.Walkcallflag) { databack = this.Walkcallflag; }
+		if (!_door    && this.DoorHandler)  {   _door  = this.DoorHandler;  }/*<--Darien*/
+		this.UseTele = (me.classid==1) ? this.UseTeleSorc : this.UseTeleport ;
+		if ( (me.classid==1 || (me.classid != 1 && _DP_CheckTeleport())) && this.UseTele  ) {
+			if (!teledist) { teledist = this.TeleDist; }
+			if (teledist>30)  { teledist=30; }
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true});
+			trooms = getRoom();
+			if (trooms) {
+				do {
+					if (trooms.number>=lo && trooms.number<=hi) {
+						_DP_Room = cPather.Pathable.FindClosestWalkable(trooms.x*5+20,trooms.y*5+20);
+						reval = this.GotoDest(_DP_Room.x, _DP_Room.y, teledist, databack, _door);
+						if (reval!=0) {
+							return true;
+						}
+					}
+				} while (trooms && trooms.getNext());
+			}
+		}
+		else {
+			if (!teledist) { teledist=this.WalkDist; }
+			if (teledist>12) { teledist=12; }
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true});
+			trooms = getRoom();
+			if (trooms) {
+				do {
+					if (trooms.number>=lo && trooms.number<=hi) {
+						_DP_Room = cPather.Pathable.FindClosestWalkable(trooms.x*5+20,trooms.y*5+20);
+						reval = this.GotoDest(_DP_Room.x, _DP_Room.y, teledist, databack, _door);
+						if (reval != 0) {
+							return true;
+						}
+					}
+				} while (trooms && trooms.getNext());
+			}
+		}
+		return false;
+	}
+
+	function DP_GotoLevel( destlevel, teledist, databack, _door) {
+		if (!databack && this.Walkcallflag) { databack = this.Walkcallflag; }
+		if (!_door    && this.DoorHandler)  {   _door  = this.DoorHandler;  }/*<--*Darien*/
+		this.UseTele = (me.classid == 1) ? this.UseTeleSorc : this.UseTeleport;
+		if ( (me.classid==1 || (me.classid != 1 && _DP_CheckTeleport())) && this.UseTele ) {
+			if (!teledist) { teledist=this.TeleDist; }
+			if (teledist>30) { teledist=30; }
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true, InteractTile:this.InteractTile});
+			if(!cPather.FindPathToArea(destlevel, me.x, me.y, teledist, mlREDUCESORC, mlASTAR, this.TeleFH, this.TeleSquare, this.TeleSquare)) return false;
+			delay(this.StepDelay);
+			_DP_Level = cPather.Path[cPather.Path.length-1];
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler:_door});
+       		if(!cMover.PathMove()) return false;
+		}
+		else {
+			if (!teledist) { teledist=this.WalkDist; }
+			if (teledist>12) { teledist=12; }
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true, InteractTile:this.InteractTile});
+			if(!cPather.FindPathToArea(destlevel, me.x, me.y, teledist, mlREDUCEWALK, mlASTAR, this.WalkFH, this.WalkSquare, this.WalkSquare)) return false;
+			delay(this.StepDelay);
+			_DP_Level = cPather.Path[cPather.Path.length-1];
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler: _door});
+       		if(!cMover.PathMove()) return false;
+		}
+		return true;
+	}
+
+	function DP_GotoDest( destx, desty, teledist, databack, _door) {
+		if (!databack && this.Walkcallflag) { databack = this.Walkcallflag; }
+		if (!_door    && this.DoorHandler)  {   _door  = this.DoorHandler;  }/*<--*Darien*/
+		this.UseTele = (me.classid == 1) ? this.UseTeleSorc : this.UseTeleport ;
+		if ( ( me.classid==1 || ( me.classid!=1 && _DP_CheckTeleport() ) ) && this.UseTele ) {
+			if (!teledist) { teledist = this.TeleDist;}
+			if (teledist>30) { teledist = 30;}
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true});
+			if(!cPather.FindPath(me.x, me.y, destx, desty, teledist, mlREDUCESORC, mlASTAR, this.TeleFH, this.TeleSquare, this.TeleSquare)) return false;
+			delay(this.StepDelay);
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler: _door});
+       		if(!cMover.PathMove()) return false;
+		}
+		else {
+			if (!teledist) { teledist=this.WalkDist;}
+			if (teledist>12) { teledist=12;}
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true});
+			if(!cPather.FindPath(me.x, me.y, destx, desty, teledist, mlREDUCEWALK, mlASTAR, this.WalkFH, this.WalkSquare, this.TeleSquare)) return false;
+			delay(this.StepDelay);
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler: _door});
+       		if(!cMover.PathMove()) return false;
+		}
+		return true;
+	}
+
+	function DP_GotoWarp(warptype, teledist, databack, _door) {
+		if (!databack && this.Walkcallflag) { databack = this.Walkcallflag;}
+		if (!_door    && this.DoorHandler)  {   _door  = this.DoorHandler;  }/*<--*Darien*/
+		this.UseTele = (me.classid == 1) ? this.UseTeleSorc : this.UseTeleport ;
+		if ( (me.classid == 1 || (me.classid != 1 && _DP_CheckTeleport())) && this.UseTele ) {
+			if (!teledist) { teledist=this.TeleDist;}
+			if (teledist>20) { teledist=20;}
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true, InteractTile:this.InteractTile});
+			if(!cPather.FindPathToWarp(warptype, me.x, me.y, teledist, mlREDUCESORC, mlASTAR, this.TeleFH, this.TeleSquare, this.TeleSquare)) return false;
+			delay(this.StepDelay);
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler: _door});
+			if(!cMover.PathMove()) return false;
+		}
+		else {
+			if (!teledist) { teledist=this.WalkDist;}
+			if (teledist>12) { teledist=12;}
+			this.InitMap();
+			cPather = new BotOS.Pathing.Pather({Pathable:cMapping, PathToMap:true, InteractTile:this.InteractTile});
+			if(!cPather.FindPathToWarp(warptype, me.x, me.y, teledist, mlREDUCEWALK, mlASTAR, this.WalkFH, this.WalkSquare, this.TeleSquare)) return false;
+			delay(this.StepDelay);
+			cMover = new BotOS.Linear.Mover({Pather:cPather, Callback:databack, WalkcallFreq:this.WalkcallFreq, StepDelay:this.StepDelay, DoorHandler: _door});
+			if(!cMover.PathMove()) return false;
+		}
+		return true;
+	}
+
+	// New function written by Vebev to replace the old and buggy function
+	function DP_ExploreLevel(teledist, databack, callback_perroom, _door) {
+		if (!teledist) {
+			teledist = (!this.UseTele) ? this.WalkDist : this.TeleDist;
+		}
+		if (!databack && this.Walkcallflag) {
+			databack = this.Walkcallflag;
+		}
+		if (!_door && this.DoorHandler)  {   /*<--*Darien*/
+			_door  = this.DoorHandler;
+		}
+		rooms = new Array();
+		troom = getRoom();
+		do {
+			rooms.push([troom.x * 5, troom.y * 5, troom.getStat(11), troom.getStat(12),troom.number]);
+		} while (troom && troom.getNext());
+		// Visit each room, closest first.  We recalculate which room is closest after
+		// every visit.  Some of the rooms are inaccessable, so we skip those.
+		while (rooms.length) {
+			rooms.sort(_DP_SortRoom);
+			rm = rooms.shift();
+			// Calculate center of the room.  I'd like to use FindClosestWalkable here,
+			// but I don't have a pather object.
+			rmx = rm[0] + rm[2] / 2;
+			rmy = rm[1] + rm[3] / 2;
+			keepgoing = true;
+			try {
+				keepgoing = this.GotoDest(rmx, rmy, teledist, databack, _door);
+				//print("NowInRoom : " + rm[4] + ", RoomsLeft : " + rooms.length);
+				if (typeof(callback_perroom)=="function") {
+					callback_perroom();
+				}
+			}
+			catch (bomb) {
+				//DC_Print("Can't go there.");
+			}
+			if (!keepgoing) {
+				return;
+			}
+		}
+	}
+
+	function DP_ExploreLevelOld(teledist, databack, callback_perroom, _door) {
+		var roomlist=new Array();
+		var troom=getRoom();
+		do {
+			var found=false;
+			for(var i=0;i<roomlist.length;i+=1) {
+				if (roomlist[i][0]==troom.number) {
+					found=true;
+					break;
+				}
+			}
+			if (!found) { roomlist.push([troom.number,troom.x*5,troom.y*5]); }
+		} while (troom && troom.getNext());
+		if (!this.UseTele && !teledist) { teledist=this.WalkDist; }
+		if (this.UseTele && !teledist) { teledist=this.TeleDist; }
+		if (!databack && this.Walkcallflag) { databack = this.Walkcallflag; }
+		if (!_door    && this.DoorHandler)  {   _door  = this.DoorHandler;  }/*<--*Darien*/
+		if (roomlist) {
+			do {
+				roomlist.sort(_DP_SortRoom);
+				DP_GotoRoom(roomlist[0][0],roomlist[0][0],teledist,databack, _door);
+				if (typeof(callback_perroom)=="function") { callback_perroom(); }
+				roomlist.shift(); //remove the lastest room which has been explored.
+			} while (roomlist && roomlist.length);
+		}
+	}
+
+	function DP_DumpMap(dumptype,bit) {
+		if (!dumptype) {
+			dumptype = this.DumpType;
+		}
+		this.InitMap();
+		cMapping.Dump(dumptype,bit);
+	}
+
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@		Next 4 functions added by Darien 1-19-05
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+	function DP_LOS(Ax, Ay, Bx, By, _cutoff, _coll) {
+		//var _bit = 4; //check for doors
+		if(!_coll) _bit = 1;
+		_cutoff = (_cutoff > 45) ? 45 : _cutoff;
+		if(_cutoff && BotOS.Pathing.Pather.DiagShortcut(Ax, Ay, Bx, By) > _cutoff) return false;
+		//print("calling check collision");
+		return 	!checkCollision(me.area, Ax, Ay, 3, Bx, By, 3, _bit);
+	}
+
+	function DP_FindClosestWalkable(x, y) {
+		if ( BotOS.Pathing.IsWalkable(x,y) ) {
+			//print("Original points are walkable");
+			return {x:x, y:y};
+		}
+		var dist = 0;
+		while ( 1 ) {
+			for ( var vy = -1-dist; vy < 2+dist; vy++ ) {
+				for ( var vx = -1-dist; vx < 2+dist; vx++ ) {
+					if ( BotOS.Pathing.IsWalkable(x+vx, y+vy) ) {
+						//print("Found It!");
+						//print("Closest Walkable: " + (x+vx) + ", " + (y+vy));
+						return {x:x+vx, y:y+vy};
+					}
+				}
+			}
+			dist++;
+		}
+	}
+
+	function DP_IsWalkable(_x, _y) {
+		return !(checkCollision(me.area, _x, _y, 1));
+	}
+
+	function DP_GetSafeOffScreenXY(Ax, Ay, Bx, By, _cutoff, _closestwalkable, _multi) {
+			//if(this.euclidian(me.x, me.y, Ax, Ay) < 60 && this.euclidian(me.x, me.y, Bx, By) < 60) {
+			if(!_cutoff) _cutoff = 20;
+			if(!_multi) _multi = 1;
+			var Ox = Ax, Oy = Ay;
+			var dX = Math.abs(Bx-Ax)*_multi;
+			var dY = Math.abs(By-Ay)*_multi;
+			var Xincr, Yincr;
+			if (Ax > Bx) { Xincr=-1; } else { Xincr=1; }
+			if (Ay > By) { Yincr=-1; } else { Yincr=1; }
+			if (dX >= dY){
+				var dPr 	= dY<<1;
+				var dPru 	= dPr - (dX<<1);
+				var P 		= dPr - dX;
+				for (; dX>=0; dX--)	{
+					if (BotOS.Pathing.Pather.Euclidian(Ox, Oy, Ax, Ay) > _cutoff) {
+						if(_closestwalkable) return BotOS.Pathing.FindClosestWalkable(Ax, Ay);
+						else return {x:Ax, y:Ay};
+					}
+					if (P > 0){
+						Ax += Xincr;
+						Ay += Yincr;
+						P  += dPru;
+					}
+					else{
+						Ax+=Xincr;
+						P+=dPr;
+					}
+				}
+			}
+			else{
+				var dPr 	= dX<<1;
+				var dPru 	= dPr - (dY<<1);
+				var P 		= dPr - dY;
+				for (; dY>=0; dY--)	{
+					if (BotOS.Pathing.Pather.Euclidian(Ox, Oy, Ax, Ay) > _cutoff) {
+						if(_closestwalkable) return BotOS.Pathing.FindClosestWalkable(Ax, Ay);
+						else return {x:Ax, y:Ay};
+					}
+					if (P > 0){
+						Ax+=Xincr;
+						Ay+=Yincr;
+						P+=dPru;
+					}
+					else{
+						Ay+=Yincr;
+						P+=dPr;
+					}
+				}
+			}
+			return {x:Bx, y:By};
+	}
+
+
+	//////////////////////////////////////////////////////////////////////
+	// Private functions
+	//////////////////////////////////////////////////////////////////////
+	function _DP_InitMap(area,override) {
+        //Setting override to true will force Map to Initialize
+        if(arguments.length < 2) {
+			override = 0;
+		}
+		if (arguments.length < 1) {
+			area = me.area;
+		}
+		//Map Initialization Fix by Darien
+		if (cMapping && cMapping.IsInitialized && !override) {
+			_init_map = true;
+			for(var i = 0; i < cMapping.AreaNumbers.length; i++) {
+				if(cMapping.AreaNumbers[i] == area) {
+					_init_map = false;
+					break;
+				}
+			}
+			if(!_init_map) {
+                //Reset the BotOS Area Linkage functions with the new area we are in.
+                cMapping.AreaLinks = BotOS.Pathing.AreaLinker.Areas[area].Links;
+				//print("Map already Initilized.");
+				return true;
+			}
+		}
+		//if(override) {
+			//print("Forced Initilization!");
+		//}
+		//print("Initilizing Map for area: " + area);
+		if (this.InitType==1) {
+			if (!cMapping || cMapping.Number != area || !cMapping.IsInitialized) {
+				cMapping = new BotOS.Pathing.Map({Area:area, Name:"Area-" + area});
+				cMapping.Initialize();
+				//barricaded tower fix by Darien
+				if(area == 111 || area == 112 || area == 117) {
+					delay(500);
+					if(area != 117) {
+						barricadedTowerFix(111,1);
+						barricadedTowerFix(112,1);
+					}
+					else {
+						barricadedTowerFix(area,1);
+					}
+				}
+				//border fix by Darien
+				if(AreaNeedBorders(area)) {
+					markBorders(area);
+				}
+				if (this.NeedDump) {
+					cMapping.Dump(this.DumpType);
+				}
+			}
+		}
+		else {
+			if (!cMapping || cMapping.Number != area || !cMapping.IsInitialized) {
+				cMapping = new BotOS.Pathing.MapLow2({Area:area, Name:"Area-" + area});
+				cMapping.Initialize();
+				//barricaded tower fix by Darien
+				if(area == 111 || area == 112 || area == 117) {
+					delay(500);
+					if(area != 117) {
+						barricadedTowerFix(111,0);
+						barricadedTowerFix(112,0);
+					}
+					else {
+						barricadedTowerFix(area,0);
+					}
+				}
+				//border fix by Darien
+				if(AreaNeedBorders(area)) {
+					markBorders(area);
+				}
+				if (this.NeedDump) {
+					cMapping.Dump(this.DumpType);
+				}
+			}
+		}
+		this.PresetUnits = cMapping.PresetUnits; /*<--Darien*/
+		this.Map = cMapping;
+		return true;
+	}
+
+	function _DP_SortRoom(a,b) {
+		if (!a || !b) {
+			return 1;
+		}
+		//if (_DP_Dist(me.x,me.y,a[0],a[1]) >= _DP_Dist(me.x,me.y,b[0],b[1])) {
+		if (_DP_Dist(me.x,me.y,a[1],a[2]) >= _DP_Dist(me.x,me.y,b[1],b[2])) {
+			return 1;
+		}
+		return -1;
+	}
+
+	function _DP_Dist(x1, y1, x2, y2) {
+		return Math.floor((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
+
+	function _DP_CheckTeleport() {
+		_haveteleport = me.getSkill(54,0);
+		DC_DPrint("_DP_CheckTeleport() : Teleport skill level is " + _haveteleport);
+		return (!_haveteleport) ? 0 : _haveteleport;
+	}
+}
+
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@		functions added by Darien 1-30-05 and 3-2-05
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+////////////////////////////////////////////////////////////////////////
+//	This Function is Fix to the Barricaded Tower Pathing bug which
+//	which has been around since the dawn of pathing...this a D2 bug
+//
+//	Note: getPresetUnits() is grabbing most but not all of the Towers
+//	      that are classid 435, skips some of the classid 435 towers
+
+
+function barricadedTowerFix(area,init) {
+	//print("Marking Barricaded Towers onto Map for area " + area);
+	//check preset units for barricaded towers
+	var units = getPresetUnits(area,null,435,null);
+	//make an array to place the towers into
+	var bTowers = new Array;
+	/* DeBugging Functions
+	if(units) print("preset unit length " + units.length);
+	print("D2 Max X " + cMapping.MaxX);
+	print("D2 Max Y " + cMapping.MaxY);
+	print("Map Min x " + cMapping.x);
+	print("Map Min y " + cMapping.y);
+	print("Map width " + cMapping.Width);
+	print("Map height " + cMapping.Height);
+	//puts you in a box -- pathing will fail
+	//markMapAt(coord_Adjuster(me.x,0,init),coord_Adjuster(me.y,1,init));
+	*/
+	//scroll through preset unit array looking for barricaded towers
+	for (var p = 0; p < units.length; p++) {
+		if(units[p].id == 435) {  //unnecessary, just in case
+			var newTower=1;
+			/* Sadly, if we use this check we miss about 15% of the towers
+				and the pathing will sometimes fail.  Somehow the blatant
+				redundancy when bypassing this check helps get all towers
+			//Check to make sure we don't get duplicate Towers
+			for(var _t=0; _t < bTowers.length; _t++) {
+				if(units[p].x == bTowers[_t].x &&
+					units[p].y == bTowers[_t].y) newTower=0;
+			}
+			*/
+			//If Tower isn't a duplicate add it to array and find real co-ords
+			if(newTower) {
+				bTowers.push(units[p]);
+				//find D2 Game Co ords
+				var X=((units[p].roomx * 5) + units[p].x);
+				var Y=((units[p].roomy * 5) + units[p].y);
+				   //print(barricaded tower at x: " + X + " and y: " + Y);
+				//Convert D2 Game Co-ords to Map Array Co-ords and mark on Map
+				markMapAt(coord_Adjuster(X,0,init), coord_Adjuster(Y,1,init));
+			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//	This functions takes D2 Game Co ords and returns Collsion Map Co ords
+//	  coord is the x or y you want converted
+//	  z=0; means it's and x coord
+//	  z=1; for a y coord
+function coord_Adjuster(coord,z,initType) {
+	if(!z)  var base = cMapping.x;
+	else	var base = cMapping.y;
+	var new_coord = coord - base;
+	if(!initType) return Math.round(new_coord / 2);
+	return new_coord;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//	This function will make a Box around the selected Collsion Map Co-ords
+function markMapAt(x,y) {
+	//print("Marking a Tower on the Map at: " + x + ", " + y);
+	var yy = y-2;
+	for(var ty=0; ty < 5; ty++) {
+		var xx = x-2;
+		for(var tx=0; tx < 5; tx++) {
+			if(ty == 0 || ty == 4) cMapping.CollisionData[yy][xx] = entry(ty);
+			else cMapping.CollisionData[yy][xx] = entry(tx);
+			xx++;
+		}
+		yy++;
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//	This function decides wether to mark an "X" or a "." to the Map
+function entry(n) {
+	if(n == 0 || n == 4) {
+		return 1;
+	}
+	return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////
+//	This function marks borders around the map
+function markBorders(area) {
+	//print("Marking Borders for area: " + area);
+	var Height= cMapping.CollisionData.length - 1;
+	var Width = cMapping.CollisionData[0].length - 1;
+	//Mark Bottom Border of Map
+	for(var u=0; u < Width; u++) {
+		cMapping.CollisionData[Height][u]=1;
+	}
+	for(var v=0; v < Height; v++) {
+		cMapping.CollisionData[v][Width]=1;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////
+//	This function checks the list of areas that need a border
+function AreaNeedBorders(area) {
+	//rather than check every indoor area to see which ones don't work
+	//	simply put a border on every indoor area
+	return (mlAREASOUTDOORFLAG[area]) ? false : true;
+}

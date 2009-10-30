@@ -1,0 +1,176 @@
+//Nihlathak module by darkspirit
+
+//Nihlathak is a dangerous boss to kill due to his corpse explosion skill.
+//Wearing a "Slain Monsters rest in peace" equipment (e.g. Nature's peace)
+//would help.
+
+//This module would continue on from the Pindle module if set immediately after it
+//if you still have the red portal.  If you did not get the halls of Pain wp, you
+//can still make use of the red portal to kill Pindle, then proceed down to kill Nihlathak.
+
+// e.g.
+//YAMXXP.push("Pindle");
+//YAMXXP.push("Nihlathak");  // if you named it YAM_Nihlathak.dbl
+
+//Otherwise, this module would make use of the halls of Pain wp.
+// I coded it to get preset unit 462 rather than use the ugly isWalkable tests that
+// all the d2jsp Nihlathak bots, that I have seen, use to detect his location.
+
+entryFunc = YAM_Nihlathak;
+
+var Nihx;
+var Nihy;
+
+// Adapted from Darien's libs
+function SafeNihlathak(target) {
+	var pi=Math.PI;
+	var _angle=(Math.atan((target.y-me.y)/(target.x-me.x))*180/pi)-45;
+	if (_angle<0) _angle+=360;
+	_angle+=45;
+	//var _dist=DM_Dist(me.x,me.y,target.x,target.y);
+	var _dist=getDistance(me, target);
+	_dx=Math.round(_dist*Math.sin((225-_angle)*pi/180))+target.x;
+	_dy=Math.round(_dist*Math.cos((225-_angle)*pi/180))+target.y;
+	//var pos=BotOS.Pathing.GetSafeOffScreenXY(target.x,target.y,_dx,_dy,15);
+	var pos=commPather.GetSafeOffScreenXY(target.x,target.y,_dx,_dy,15);
+	Nihx = pos.x; Nihy = pos.y;
+	return true;
+}
+
+function YAM_AttackNihlathak() {
+	// Do precasts after going into the portal
+	XP_Precasts();
+	XP_ClearPosition(20);
+	DSN_PickItems(YAM_SafeCheck);
+	commPather.InitType = 1;
+	//Goto Halls of Vault
+	commPather.GotoWarp(DP_WARPPREVIOUS, false, false);
+	if (YAM_SafeCheck()) XP_Precasts();
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(77,77);
+	XP_ClearPosition(20);
+	DSN_PickItems(YAM_SafeCheck);
+	if (YAM_SafeCheck()) XP_Precasts();
+	var Stand = getPresetUnits(me.area, 2, 462, null);
+	if (Stand.length == 0) {
+		print("Nihlathak not found!! Skip to next boss...");
+		return false;
+	}
+	Nihx = Stand[0].roomx*5+Stand[0].x;
+	Nihy = Stand[0].roomy*5+Stand[0].y;
+	if (Nihx + 30 < me.x) { // west
+		print("West");
+		Nihx = 12553; Nihy = 5210;
+	} else if (me.x + 30 < Nihx) { // east
+		print("East");
+		Nihx = 12868; Nihy = 5205;
+	} else if (Nihy + 30 < me.y) { // north
+		print("North");
+		Nihx = 12710; Nihy = 5051;
+	} else { // south
+		print ("South");
+		Nihx = 12709; Nihy = 5369;
+	}
+	commPather.GotoDest(Nihx,Nihy);
+	// Detecting Nihlathak with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(526,0x04);
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if (me.classid == 1 && safeNih) {
+			if (XP_SelectAttack(target, _XP_TimedSpells, 0) < 0) {
+				print("ÿc1Nihlathak is immune to your boss timed spell!ÿc0");
+				return false;
+			}
+			SafeNihlathak(target);
+			DM_MoveTo(Nihx,Nihy);
+		}
+
+		var temp;
+		var temp1;
+		if (me.classid == 1 && safeNih) {
+			temp = XP_BossLOS;
+			XP_BossLOS = false;
+			temp1 = XP_UntimedRepeat;
+			XP_UntimedRepeat = NihXP_UntimedRepeat;
+		}
+		print("Killing Nihlathak...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+		print("Nihlathak killed !");
+		if (me.classid == 1 && safeNih) { XP_BossLOS = temp; XP_UntimedRepeat = temp1; }
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(30,null,ATTACKING_MODE);
+			XP_ClearPosition(30,null,ALIVE_MODE);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	} else {
+		print("Nihlathak not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function YAM_Nihlathak() {
+   if (me.classid == 1) {
+	(NihXP_SorcSkill.length > 0) ? XP_SetSorcSkills(NihXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+	XP_Static = NihXP_Static;
+	}
+	XP_SwitchHP = 0;
+	XP_StallHP = 0;
+	if (me.classid == 3) { XP_KillMinions = false; }
+	XP_MinionStand = true;
+	XP_QuitImmune = false;
+	XP_StallKill=false;
+	var fromtown = true;
+	if (me.area == 121){
+		var pindle = DC_FindMonster(440,0x01);
+		if (!pindle || pindle.mode == 12 || pindle.mode == 0) {
+			// Make sure that Pindle is dead before proceeding
+			XP_ClearPosition(20);
+			DSN_PickItems(YAM_SafeCheck);
+			if (YAM_SafeCheck()) XP_Precasts();
+			//Goto Halls of Anguish
+			commPather.InitType = 1;
+			commPather.GotoWarp(DP_WARPTEMPLETONIHL, false, false);
+			DC_DoDel(DC_LagDelay);
+			DM_TakeStairs(76,76);
+			fromtown = false;
+			XP_ClearPosition(20);
+			DSN_PickItems(YAM_SafeCheck);
+			//Goto Halls of Pain
+			commPather.GotoWarp(DP_WARPPREVIOUS, false, false);
+			DC_DoDel(DC_LagDelay);
+			DM_TakeStairs(77,77);
+			XP_ClearPosition(20);
+			DSN_PickItems(YAM_SafeCheck);
+		}
+	}
+	if (fromtown) {
+		if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+			BuildSkeleArmy();
+		}
+		// Do town stuff in the act we are in
+		YAM_TownManager();
+		YAM_PathToWayPoint();
+		// Do precasts before going into the portal
+		XP_Precasts();
+		// Take WP to Halls Of Pain (Area 123)
+		DM_UsePortal("Waypoint",123);
+	}
+	// Go Kill Pindleskin
+	if (YAM_AttackNihlathak()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) { DL_SaveRuneLog(); }
+}

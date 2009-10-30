@@ -1,0 +1,24 @@
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Pause Script
+// by DarkSpirit
+//
+// This script is loaded when your script is paused.
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
+var _Paused=true;
+
+function keyUpManager(keyup) {
+	switch (keyup) {
+		case 19: // "Pause" was pressed
+			_Paused = false; // Unpause
+			break;
+	}
+}
+
+function main() {
+	// Register the key events watch
+	registerEvent(EVENT_KEYUP, keyUpManager);
+	while (_Paused) { delay (500); }
+	registerEvent(EVENT_KEYUP, 0);
+}

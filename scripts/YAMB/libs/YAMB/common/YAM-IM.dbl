@@ -1,0 +1,1655 @@
+var DIM_Version=1.00;
+
+//////////////////////////////////////////////////////////////////////
+// Public global variables
+//////////////////////////////////////////////////////////////////////
+var DIM_TempSnagFile = "tempitems.ini";	// file which temporarely adds needed items to snagit.ini
+var DIM_NumbersINIFile="bmNumbers.ini";	// Numbers INI file path
+var DIM_DebugIM=false;						// Set to true to display debug messages on IM
+var DIM_NoParsing=0;						// Set to true to avoid parsing the ini file on loading, for improving speed
+var DIM_CharLevel=99;						// Character level to calculate certain stats
+var DIM_IgnoreItem=false;					// Return value only : True if the item should be ignored
+var DIM_LogItem=true;						// Return value only : True if the item should be logged
+var DIM_Validate=false;					// Return value only : True if the item need to be identified and validated
+var DIM_GodlyItem=false;					// Return value only : True if the item is marked as godly
+var DIM_HasNumber=false;					// Return value only : True if the item has a number
+var DIM_ItemString=false;					// Return value only : String entered by the user in the ini file
+var DIM_LogLevel=2;						// Return value only : Return the logging type
+var DIM_LogArea=false;						// Return value only : True if we want to log the area where the item is found
+var DIM_LogAct=false;						// Return value only : True if we want to log in which act the item is found
+var DIM_ItemLogPath="output/" + me.name + "ItemLog.html";	// Return value only : Path of the item log
+var DIM_PickRadius=0;						// Return value only : Maximum radius to check items
+var DIM_PickGold=0;						// Return value only : If it is set to 1, allow to pick gold
+var DIM_MinGoldStack=1000;					// Return value only : Minimum gold stack size to pick
+var DIM_UseTelekinesis=true;				// Return value only : True if we want to use Telekinesis to pick items
+var DIM_MaxTKRange=20;						// Return value only : Maximum range for using TK
+var DIM_MinTKRange=5;						// Return value only : Minimum range for using TK
+var DIM_DefaultNumber=1;					// Default Number to reset to for bmNumbers.ini
+
+
+//////////////////////////////////////////////////////////////////////
+// Private global variables and arrays
+//////////////////////////////////////////////////////////////////////
+
+const IM_Areas=[
+   "none",
+   // ACT 1:
+   "Rogue Encampment","Blood Moor","Cold Plains","Stony Field","Dark Wood","Black Marsh","Tamoe Highland","Den of Evil","Cave 1",
+   "Underground Passage 1","Hole 1","Pit 1","Cave 2","Underground Passage 2","Hole 2","Pit 2","Burial Grounds","Crypt","Mausoleum",
+   "Forgotten Tower","Tower Cellar 1","Tower Cellar 2","Tower Cellar 3","Tower Cellar 4","Tower Cellar 5","Monastery Gate","Outer Cloister","Barracks",
+   "Jail 1","Jail 2","Jail 3","Inner Cloister","Cathedral","Catacombs 1","Catacombs 2","Catacombs 3","Catacombs 4","Tristram","Moo Moo Farm",
+   // ACT2:
+   "Lut Gholein","Rocky Waste","Dry Hills","Far Oasis","Lost City","Valley of Snakes","Canyon of the Magi","Sewers 1","Sewers 2","Sewers 3",
+   "Harem 1","Harem 2","Palace Cellar 1","Palace Cellar 2","Palace Cellar 3","Stony Tomb 1","Halls of the Dead 1","Halls of the Dead 2",
+   "Claw Viper Temple 1","Stony Tomb 2","Halls of the Dead 3","Claw Viper Temple 2","Maggot Lair 1","Maggot Lair 2","Maggot Lair 3",
+   "Ancient Tunnels","Tal Rasha's Tomb 1","Tal Rasha's Tomb 2","Tal Rasha's Tomb 3","Tal Rasha's Tomb 4","Tal Rasha's Tomb 5","Tal Rasha's Tomb 6",
+   "Tal Rasha's Tomb 7","Duriel's Lair","Arcane Sanctuary",
+   // ACT3:
+   "Kurast Docktown","Spider Forest","Great Marsh","Flayer Jungle","Lower Kurast","Kurast Bazaar","Upper Kurast","Kurast Causeway","Travincal",
+   "Spider Cave","Spider Cavern","Swampy Pit 1","Swampy Pit 2","Flayer Dungeon 1","Flayer Dungeon 2","Swampy Pit 3","Flayer Dungeon 3","Sewers 1",
+   "Sewers 2","Ruined Temple","Disused Fane","Forgotten Reliquary","Forgotten Temple","Ruined Fane","Disguised Reliquary","Durance of Hate 1",
+   "Durance of Hate 2","Durance of Hate 3",
+   // ACT 4:
+   "The Pandemonium Fortress","Outer Steppes","Plains of Despair", "City of the Damned","River of Flame","Chaos Sanctum",
+   // ACT 5:
+   "Harrogath","Bloody Foothills","Frigid Highlands","Arreat Plateau","Crystal Cavern 1","Cellar of Pity","Crystal Cavern 2","Echo Chamber",
+   "Tundra Wastelands","Glacial Caves 1","Glacial Caves 2","Rocky Summit","Nihlathak's Temple","Halls of Anguish","Halls of Pain",
+   "Halls of Vaught","Halls 1","Halls 2","Halls 3","Worldstone Keep 1","Worldstone Keep 2","Worldstone Keep 3","Throne of Destruction",
+   "The Worldstone Chamber"];
+
+
+// Variables
+var _DIM_INI = new Array();
+var _DIM_CachedINI = new Array();
+var _DIM_INIFilePath="temp";
+var _DIM_NumbersINI = new Array();
+var _DIM_ItemNumber=false;
+
+// Arrays
+
+var _DIM_KeyTypes=["code","item","type","qual","level","classlevel","dmg%","def%","description","show","pickup","iditem","log","mod","isethereal","hassockets",
+			"identified","needprefix","needsuffix","weight","ilvl","eval-pu","eval-id",
+			"maxdmg","mindmg","dmg","damage","avgdmg","onehmax","onehmin","onehdmg","onehavg","throwmin","throwmax","throwdmg","throwavg",
+			"plusmax","plusmin","plusdmg","hand","speed","def","defense","plusdef","skillattack","skillhit","skillgethit","skillcharges","skill","skills","skilltree","poison","lvlreq","strreq","dexreq",
+			"prefix","suffix","number","range","godly","clickmin","clickmax","amount",
+			"loglevel","logareas","logacts","logfile","debuglog","logsnagident","skip","fillbelt","pickupradius","mingoldpickup","useteleitem","logerrors","minteledist","maxteledist"];
+
+var _DIM_Stats=[
+	"strength",
+	"energy",
+	"dexterity",
+	"vitality",
+	"STATPTS",
+	"NEWSKILLS",
+	"HITPOINTS",
+	"life",
+	"MAXMANA",
+	"mana",
+	"STAMINA",
+	"stamina",
+	"LEVEL",
+	"EXPERIENCE",
+	"GOLD",
+	"GOLDBANK",
+	"%enhanced defense",
+	"ITEM_MAXDAMAGE_PERCENT",
+	"%enhanced damage",
+	"attack rating",
+	"%to block",
+	"one-handed min damage",
+	"one-handed max damage",
+	"two-handed min damage",
+	"two-handed max damage",
+	"DAMAGEPERCENT",
+	"MANARECOVERY",
+	"%mana regeneration",
+	"%stamina recovery",
+	"LASTEXP",
+	"NEXTEXP",
+	"base armor class",
+	"missile defense",
+	"melee defense",
+	"reduced damage",
+	"magic damage reduction",
+	"%damage reduction",
+	"magic resistance",
+	"max magic resistance",
+	"fire resistance",
+	"max fire resistance",
+	"lightning resistance",
+	"max lightning resistance",
+	"cold resistance",
+	"max cold resistance",
+	"poison resistance",
+	"max poison resistance",
+	"DAMAGEAURA",
+	"min fire damage",
+	"max fire damage",
+	"min lightning damage",
+	"max lightning damage",
+	"min magic damage",
+	"max magic damage",
+	"min cold damage",
+	"max cold damage",
+	"cold duration",
+	"min poison damage",
+	"max poison damage",
+	"poison duration",
+	"life leech",
+	"LIFEDRAINMAXDAM",
+	"mana leech",
+	"MANADRAINMAXDAM",
+	"STAMDRAINMINDAM",
+	"STAMDRAINMAXDAM",
+	"STUNLENGTH",
+	"speed reduction",
+	"base attack rate",
+	"OTHER_ANIMRATE",
+	"quantity",
+	"VALUE",
+	"durability",
+	"max durabilty",
+	"replenish life",
+	"%enhanced durability",
+	"%max life",
+	"%max mana",
+	"attacker takes damage",
+	"%gold find",
+	"%magic find",
+	"knockback",
+	"ITEM_TIMEDURATION",
+	"+skills",
+	"--84--",
+	"--85--",
+	"--86--",
+	"--87--",
+	"ITEM_DOUBLEHERBDURATION",
+	"light radius",
+	"ITEM_LIGHTCOLOR",
+	"minus requirements",
+	"ITEM_FASTATTACKRATE",
+	"increased attack speed",
+	"ITEM_FASTESTATTACKRATE",
+	"ITEM_FASTMOVEVELOCITY",
+	"increased run/walk speed",
+	"ITEM_FASTESTMOVEVELOCITY",
+	"ITEM_FASTGETHITRATE",
+	"faster hit recovery",
+	"ITEM_FASTESTGETHITRATE",
+	"ITEM_FASTBLOCKRATE",
+	"increased block speed",
+	"ITEM_FASTESTBLOCKRATE",
+	"ITEM_FASTCASTRATE",
+	"faster cast rate",
+	"ITEM_FASTESTCASTRATE",
+	"increase single skill",
+	"increase single skill",
+	"increase single skill",
+	"reduce poison length",
+	"ITEM_NORMALDAMAGE",
+	"hit causes monster to flee",
+	"hit blinds target",
+	"%damage goes to mana",
+	"ignores target defense",
+	"%defense reduction",
+	"prevent monster heal",
+	"half freeze duration",
+	"%attack rating",
+	"ITEM_DAMAGETARGETAC",
+	"enhanced damage to demons",
+	"enhanced damage to undead",
+	"attack rating to demons",
+	"attack rating to undead",
+	"ITEM_THROWABLE",
+	"increase fire skills",
+	"ITEM_ALLSKILLS",
+	"attacker takes lightning damage",
+	"IRONMAIDEN_LEVEL",
+	"LIFETAP_LEVEL",
+	"THORNS_LEVEL",
+	"BONEARMOR",
+	"BONEARMORMAX",
+	"freezes target",
+	"open wounds",
+	"crushing blow",
+	"ITEM_KICKDAMAGE",
+	"mana after kill",
+	"ITEM_HEALAFTERDEMONKILL",
+	"ITEM_EXTRABLOOD",
+	"deadly strike",
+	"%fire absorb",
+	"fire absorb",
+	"%lightning absorb",
+	"lightning absorb",
+	"%magic absorb",
+	"magic absorb",
+	"%cold absorb",
+	"cold absorb",
+	"slows target",
+	"ITEM_BLESSEDAIM",
+	"ITEM_DEFIANCE",
+	"cannot be frozen",
+	"decreased stamina drain",
+	"ITEM_REANIMATE",
+	"pierce",
+	"fires magic arrows",
+	"fires explosive arrows",
+	"base min throw damage",
+	"base max throw damage",
+	"SKILL_HANDOFATHENA",
+	"SKILL_STAMINAPERCENT",
+	"SKILL_PASSIVE_STAMINAPERCENT",
+	"SKILL_CONCENTRATION",
+	"SKILL_ENCHANT",
+	"SKILL_PIERCE",
+	"SKILL_CONVICTION",
+	"SKILL_CHILLINGARMOR",
+	"SKILL_FRENZY",
+	"SKILL_DECREPIFY",
+	"SKILL_ARMOR_PERCENT",
+	"ALIGNMENT",
+	"TARGET0",
+	"TARGET1",
+	"GOLDLOST",
+	"CONVERSION_LEVEL",
+	"CONVERSION_MAXHP",
+	"UNIT_DOOVERLAY",
+	"druid skills",
+	"assassin skills",
+	"ITEM_ADDSKILL_SINGLE4",
+	"ITEM_ADDSKILL_SINGLE5",
+	"ITEM_ADDSKILL_SINGLE6",
+	"ITEM_ADDSKILL_SINGLE7",
+	"ITEM_ADDSKILL_SINGLE8",
+	"ITEM_ADDSKILL_SINGLE9",
+	"ITEM_ADDSKILL_SINGLE10",
+	"plus skill tree",
+	"plus skill tree",
+	"plus skill tree",
+	"plus skill tree",
+	"plus skill tree",
+	"plus skill tree",
+	"sockets",
+	"cast on attack",
+	"cast on attack",
+	"cast on attack",
+	"cast on striking",
+	"cast on striking",
+	"cast on striking",
+	"cast on being hit",
+	"cast on being hit",
+	"cast on being hit",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"skill charges",
+	"increased armor class per level",
+	"%increased armor class per level",
+	"increased life per level",
+	"increased mana per level",
+	"increased max damage per level",
+	"%increased max damage per level",
+	"increased strength per level",
+	"increased dexterity per level",
+	"increased energy per level",
+	"increased vitality per level",
+	"increased attack rating per level",
+	"%increased attack rating per level",
+	"increased cold max damage per level",
+	"increased fire max damage per level",
+	"increased lightning max damage per level",
+	"increased poison max damage per level",
+	"increased cold resistances per level",
+	"increased fire resistances per level",
+	"increased lightning resistances per level",
+	"increased poison resistances per level",
+	"cold absorb per level",
+	"fire absorb per level",
+	"lightning absorb per level",
+	"poison absorb per level",
+	"increase attacker takes damage per level",
+	"increase gold find per level",
+	"increase magic find per level",
+	"increase stamina recovery per level",
+	"increase stamina per level",
+	"damage to demons per level",
+	"damage to undead per level",
+	"attack rating vs. demons per level",
+	"attack rating vs. undead per level",
+	"increased crushing blow per level",
+	"increased open wounds per level",
+	"increased kick damage per level",
+	"increased deadly strike per level",
+	"ITEM_FIND_GEMS_PERLEVEL",
+	"replenish durability",
+	"replenish quanity",
+	"increased stack size",
+	"ITEM_FIND_ITEM",
+	"ITEM_SLASH_DAMAGE",
+	"ITEM_SLASH_DAMAGE_PERCENT",
+	"ITEM_CRUSH_DAMAGE",
+	"ITEM_CRUSH_DAMAGE_PERCENT",
+	"ITEM_THRUST_DAMAGE",
+	"ITEM_THRUST_DAMAGE_PERCENT",
+	"ITEM_ABSORB_SLASH",
+	"ITEM_ABSORB_CRUSH",
+	"ITEM_ABSORB_THRUST",
+	"ITEM_ABSORB_SLASH_PERCENT",
+	"ITEM_ABSORB_CRUSH_PERCENT",
+	"ITEM_ABSORB_THRUST_PERCENT",
+	"ITEM_ARMOR_BYTIME",
+	"ITEM_ARMORPERCENT_BYTIME",
+	"ITEM_HP_BYTIME",
+	"ITEM_MANA_BYTIME",
+	"ITEM_MAXDAMAGE_BYTIME",
+	"ITEM_MAXDAMAGE_PERCENT_BYTIME",
+	"ITEM_STRENGTH_BYTIME",
+	"ITEM_DEXTERITY_BYTIME",
+	"ITEM_ENERGY_BYTIME",
+	"ITEM_VITALITY_BYTIME",
+	"ITEM_TOHIT_BYTIME",
+	"ITEM_TOHITPERCENT_BYTIME",
+	"ITEM_COLD_DAMAGEMAX_BYTIME",
+	"ITEM_FIRE_DAMAGEMAX_BYTIME",
+	"ITEM_LTNG_DAMAGEMAX_BYTIME",
+	"ITEM_POIS_DAMAGEMAX_BYTIME",
+	"ITEM_RESIST_COLD_BYTIME",
+	"ITEM_RESIST_FIRE_BYTIME",
+	"ITEM_RESIST_LTNG_BYTIME",
+	"ITEM_RESIST_POIS_BYTIME",
+	"ITEM_ABSORB_COLD_BYTIME",
+	"ITEM_ABSORB_FIRE_BYTIME",
+	"ITEM_ABSORB_LTNG_BYTIME",
+	"ITEM_ABSORB_POIS_BYTIME",
+	"ITEM_FIND_GOLD_BYTIME",
+	"ITEM_FIND_MAGIC_BYTIME",
+	"ITEM_REGENSTAMINA_BYTIME",
+	"ITEM_STAMINA_BYTIME",
+	"ITEM_DAMAGE_DEMON_BYTIME",
+	"ITEM_DAMAGE_UNDEAD_BYTIME",
+	"ITEM_TOHIT_DEMON_BYTIME",
+	"ITEM_TOHIT_UNDEAD_BYTIME",
+	"ITEM_CRUSHINGBLOW_BYTIME",
+	"ITEM_OPENWOUNDS_BYTIME",
+	"ITEM_KICK_DAMAGE_BYTIME",
+	"ITEM_DEADLYSTRIKE_BYTIME",
+	"ITEM_FIND_GEMS_BYTIME",
+	"ITEM_PIERCE_COLD",
+	"ITEM_PIERCE_FIRE",
+	"ITEM_PIERCE_LTNG",
+	"ITEM_PIERCE_POIS",
+	"ITEM_DAMAGE_VS_MONSTER",
+	"ITEM_DAMAGE_PERCENT_VS_MONSTER",
+	"ITEM_TOHIT_VS_MONSTER",
+	"ITEM_TOHIT_PERCENT_VS_MONSTER",
+	"ITEM_AC_VS_MONSTER",
+	"ITEM_AC_PERCENT_VS_MONSTER",
+	"FIRELENGTH",
+	"BURNINGMIN",
+	"BURNINGMAX",
+	"PROGRESSIVE_DAMAGE",
+	"PROGRESSIVE_STEAL",
+	"PROGRESSIVE_OTHER",
+	"PROGRESSIVE_FIRE",
+	"PROGRESSIVE_COLD",
+	"PROGRESSIVE_LIGHTNING",
+	"extra charges",
+	"PROGRESSIVE_TOHIT"];
+
+var _DIM_ItemTypes=[
+	"none",
+	"none",
+	"shield",
+	"armor",
+	"gold",
+	"bow quiver",
+	"crossbow quiver",
+	"player body part",
+	"herb",
+	"potion",
+	"ring",
+	"elixir",
+	"amulet",
+	"charm",
+	"Not Used",
+	"boots",
+	"gloves",
+	"Not Used",
+	"book",
+	"belt",
+	"gem",
+	"torch",
+	"scroll",
+	"Not Used",
+	"scepter",
+	"wand",
+	"staff",
+	"bow",
+	"axe",
+	"club",
+	"sword",
+	"hammer",
+	"knife",
+	"spear",
+	"polearm",
+	"crossbow",
+	"mace",
+	"helm",
+	"missile potion",
+	"quest",
+	"body part",
+	"key",
+	"throwing knife",
+	"throwing axe",
+	"javelin",
+	"weapon",
+	"melee weapon","missile weapon","thrown weapon","combo weapon",
+	"any armor","any shield",
+	"miscellaneous",
+	"socket filler",
+	"second hand",
+	"staves and rods",
+	"missile",
+	"blunt",
+	"jewel",
+	"class specific",
+	"amazon item","barbarian item","necromancer item","paladin item","sorceress item","assassin item","druid item",
+	"hand to hand",
+	"orb",
+	"voodoo heads",
+	"auric shields",
+	"primal helm",
+	"pelt",
+	"cloak",
+	"rune",
+	"circlet",
+	"healing potion","mana potion","rejuv potion","stamina potion","antidote potion","thawing potion",
+	"small charm","medium charm","large charm",
+	"amazon bow","amazon spear","amazon javelin",
+	"hand to hand 2",
+	"magic bow quiv","magic xbow quiv",
+	"chipped gem","flawed gem","standard gem","flawless gem","perfect gem",
+	"amethyst","diamond","emerald","ruby","sapphire","topaz","skull"];
+
+var _DIM_ItemQuality=["none","lowquality","normal","superior","magic","set","rare","unique","craft"];
+
+var _DIM_Skills=[
+	"none","none","none","none","none","none",
+	"magic arrow","fire arrow","inner sight","critical strike","jab","cold arrow","multiple shot","dodge","power strike","poison javelin",
+	"exploding arrow","slow missiles","avoid","impale","lightning bolt","ice arrow","guided arrow","penetrate","charged strike","plague javelin",
+	"strafe","immolation arrow","decoy","evade","fend","freezing arrow","valkyrie","pierce","lightning strike","lightning fury",
+
+	"fire bolt","warmth","charged bolt","ice bolt","frozen armor","inferno","static field","telekinesis","frost nova","ice blast","blaze","fire ball",
+	"nova","lightning","shiver armor","fire wall","enchant","chain lightning","teleport","glacial spike","meteor","thunderstorm","energy shield",
+	"blizzard","chilling armor","fire mastery","hydra","lightning mastery","frozen orb","cold mastery",
+
+	"amplify damage","teeth","bone armor","skeleton mastery","raise skeleton","dim vison","weaken","poison dagger","corpse explosion","clay golem",
+	"iron maiden","terror","bone wall","golem mastery","skeletal mage","confuse","life tap","poisonE explosion","bone spear","blood golem","attract",
+	"decrepify","bone prison","summon resist","iron golem","lower resist","poison nova","bone spirit","fire golem","revive",
+
+	"sacrifice","smite","might","prayer","resist fire","holy bolt","holy fire","thorns","defiance","resist cold","zeal","charge","blessed aim",
+	"Cleansing","resist lightning","vengeance","blessed hammer","concentration","holy freeze","vigor","conversion","holy shield","holy shock",
+	"sanctuary","meditation","fist of the heavens","fanaticism","conviction","redemption","salvation",
+
+	"bash","sword mastery","axe mastery","mace mastery","howl","find potion","leap","double swing","polearm mastery","throwing mastery","spear mastery",
+	"taunt","shout","stun","double throw","increased stamina","find item","leap attack","concentrate","iron skin","battle cry","frenzy",
+	"increased speed","battle orders","grim ward","whirlwind","berserk","natural resistance","war cry",
+	"battle command",			// <--155
+
+	"werewolf",	// <--223
+	"lycanthropy","firestorm","oak sage","summon spirit wolf","werebear","molten boulder","arctic blast","carrion vine","feral rage","maul","fissure",
+	"cyclone armor","heart of wolverine","summon dire wolf","rabies","fire claws","twister","solar creeper","hunger","shock wave","volcano","tornado",
+	"spirit of barbs","summon grizzly","fury","armageddon","hurricane",
+
+	"fire blast","claw mastery","psychic hammer","tiger strike","dragon talon","shock web","blade stinel","burst of speed","fists of fire",
+	"dragon claw","charged bolt sentry","wake of fire","weapon block","cloak of shadows","cobra strike","blade fury","fade","shadow warrior",
+	"claws of thunder",	"dragon tail","lightning sentry","wake of inferno","mind blast","blades of ice","dragon flight","death sentry","blade shield",
+	"venom","shadow master"];
+
+var _DIM_SkillTrees=[
+	"bow and crossbow skills","passive and magic skills","javelin and spear skills",
+	"fire spells","lightning spells","cold spells",
+	"curses","poison and bone spells","summoning spells",
+	"pally combat skills","offensive auras","defensive auras",
+	"combat skills","combat masteries","warcries",
+	"summoning skills","shape shifting skills","elemental skills",
+	"traps","shadow disciplines","martial arts"];
+
+var _DIM_CharClasses=["amazon","sorceress","necromancer","paladin","barbarian","druid","assassin"];
+
+
+//////////////////////////////////////////////////////////////////////
+// Public functions
+//////////////////////////////////////////////////////////////////////
+
+function DIM_getINI(inifile,refresh) {
+	if(arguments.length < 2) refresh = false;
+	// If there is a cached ini file, just load it instead of rereading the ini file
+	if(!refresh && _DIM_CachedINI[inifile] && _DIM_INIFilePath != inifile) {
+		_DIM_INIFilePath=inifile;
+		_DIM_INI = _DIM_CachedINI[inifile];
+		//_DIM_InitConfig();
+		return 0;
+	}
+	// Initialize the INI array
+	_DIM_INI = new Array();
+	// Load the ini file in the INI array
+	DIM_LoadFile(inifile,refresh);
+	// Add the temp snagit file to the snagit array if it is available
+	if(inifile=="settings/" + DSN_SnagItINIFile) {
+		if(typeof(DCU_CubingEnabled) != "undefined" && DCU_CubingEnabled == true) {
+			DIM_LoadFile("settings/" + DIM_TempSnagFile);
+		}
+    }
+	// If the array is filled with contents, use this
+	if(_DIM_INI && (_DIM_INI.length)) {
+        _DIM_CachedINI[inifile] = _DIM_INI;
+		_DIM_INIFilePath=inifile;
+		//_DIM_InitConfig();
+		return 0;
+	}
+	// There are errors loading the ini file
+	else {
+		DC_Print("DIM_getINI() : Error loading _DIM_INI");
+		return 1;
+	}
+}
+
+function CheckItem(item, inifile, snagqual) {
+	// If the ini loaded in memory is not the same as the one to check, load the correct one
+	if(_DIM_INIFilePath!=inifile) { DIM_getINI(inifile); }
+	// Parse the ini file to find any matching entry
+	lloop :
+	for(var i = 1; i < _DIM_INI.length; i=i+1) {
+		var _numkeys=_DIM_INI[i].length;
+		var _orskip=new Array();
+		_DIM_ItemNumber=-1;
+		//DIM_LogIgnored=false;
+		DIM_IgnoreItem=false;
+		DIM_Validate=false;
+		DIM_HasNumber=false;
+		DIM_ItemString=false;
+		DIM_LogItem=true;
+		DIM_GodlyItem=false;
+		for(var j = 2; j < _numkeys; j=j+1) {
+			var _type=_DIM_INI[i][j][0];
+			var _key=_DIM_INI[i][j][1];
+			var _val=_DIM_INI[i][j][2];
+			// If | is used, it is a line with many keys and vars
+			try {
+				if(_type=="|") {
+					if(!_DIM_OrCase(_val,item,_orskip)) {
+						if(_DIM_INI[i][1]) { i=_DIM_INI[i][1]-1; }
+						continue lloop;
+					}
+				}
+				// If not, it is a single key and var
+				else {
+					if(!_DIM_KeyCase(_type,_key,_val,item)) {
+						if(_DIM_INI[i][1]) { i=_DIM_INI[i][1]-1; }
+						continue lloop;
+					}
+				}
+			}
+			catch (e) {
+				if(e.name == "CompareCase()") {
+					var errStr = "INI File : WARNING: " + e.message + " in your "+_DIM_INIFilePath+", section="+_DIM_INI[i][0];
+					DC_LogError (errStr);
+					DC_Print ("ÿc1" + errStr + "ÿc0");
+					if(_DIM_INI[i][1]) { i=_DIM_INI[i][1]-1; }
+					if(DIM_HasNumber) return false; // we actually found it but it ran out
+					continue lloop;
+				}
+				else {
+					e.message += " in your "+_DIM_INIFilePath+", section="+_DIM_INI[i][0];
+					throw e;
+				}
+			}
+		}
+		if(DIM_HasNumber && _DIM_ItemNumber == -1) return false; // we actually found it but it ran out
+		// Display a debug information
+		if(DIM_DebugIM) { DC_DPrint("!!Keeping an item from section: " +_DIM_INI[i][0],0); }
+		// If the item has a number associated, decrease it
+		if(_DIM_ItemNumber!=-1 && !DIM_IgnoreItem) { decreaseItemNumber(); }
+		// If it doesn't have a key, return the type else continue the loop
+	    	if(!_DIM_INI[i][1]) { return _DIM_INI[i][0]; }
+		else { continue; }
+	}
+	// No entry found so return false
+	return false;
+}
+
+function CheckItems(filename, mode) {
+	// Get the first item
+	var _invitem = DC_getItem(null,mode);
+	// If there is a item, loop until all the stashed and inventory items are checked
+	if(_invitem) { do {
+		if(_invitem.mode < 2 && DC_CheckOwner(_invitem)) {
+			var temp = _DIM_INIFilePath;
+			_DIM_INIFilePath = filename;
+			CheckItem(_invitem, filename);
+			_DIM_INIFilePath = temp;
+		}
+	} while (_invitem.getNext(null,mode)); }
+}
+
+function SetNumbers(filename) {
+	CheckItems(filename, 0);
+}
+
+//////////////////////////////////////////////////////////////////////
+// Private functions
+//////////////////////////////////////////////////////////////////////
+
+// Get the configuration variables from the ini files
+// function cleaned
+function _DIM_InitConfig() {
+	// Names array
+	var _loglevel=["none","useful","all","full"];
+	var _logarea=["none","code","name"];
+	var _logact=["none","num","full"];
+
+	for(var i=0; i < _DIM_INI.length; i=i+1) {
+		keyloop : for(var j=0;j<_DIM_INI[i].length;j=j+1) {
+			_key=_DIM_INI[i][j][1];
+			_val=_DIM_INI[i][j][2];
+			switch(_key) {
+				case "loglevel":
+					DIM_LogLevel=_DIM_GetPosition(_val.toLowerCase(),_loglevel);
+					continue keyloop;
+				case "logareas":
+					DIM_LogArea=_DIM_GetPosition(_val.toLowerCase(),_logarea);
+					continue keyloop;
+				case "logacts":
+					DIM_LogAct=_DIM_GetPosition(_val.toLowerCase(),_logact);
+					continue keyloop;
+				case "logfile":
+					DIM_ItemLogPath="output/"+me.name+_val;
+					continue keyloop;
+				case "goldenabled":
+					if(_val==1) { DIM_PickGold=true; }
+					continue keyloop;
+				case "mingoldpickup":
+					DIM_MinGoldStack=parseInt(_val,10);
+					continue keyloop;
+				case "pickupradius":
+					DIM_PickRadius=parseInt(_val,10);
+					continue keyloop;
+				// ToDo : Check if we need it
+				//case "fillbelt":
+					//if(_val==0) bitcheck|=16;
+					//continue keyloop;
+				case "noparsing":
+					if(_val==1) { DIM_NoParsing=true; }
+					continue keyloop;
+				case "useteleitem":
+					DIM_UseTelekinesis=parseInt(_val,10);
+					continue keyloop;
+				case "minteledist":
+					DIM_MinTKRange=parseInt(_val,10);
+					continue keyloop;
+				case "maxteledist":
+					DIM_MaxTKRange=parseInt(_val,10);
+					continue keyloop;
+				case "debuglog":
+					if(_val==1) { DIM_DebugIM=true; }
+					continue keyloop;
+				case "charlvl":
+					if(_val=="me") { DIM_CharLevel=me.getStat(12); }
+					else { DIM_CharLevel=parseInt(_val,10); }
+					continue keyloop;
+				default:
+					DC_ThrowException("INI File","_DIM_InitConfig() unknown key!");
+			}
+		}
+	}
+}
+
+// Function cleaned
+function _DIM_OrCase(string,item,orskip) {
+	var _lastone = true;
+	var _divider = string.indexOf("|");
+	var _cursub;
+	lastloop : while(_lastone) {
+		// Display the check string to debug
+		if(DIM_DebugIM) { DC_DPrint("_DIM_OrCase() : " + string); }
+		// If the divider is not found, it is not the last one
+		if(_divider==-1) { _lastone=false; }
+		if(_lastone) {
+			_cursub=string.substring(0,_divider);
+			string=string.substring(_divider+1);
+		}
+		else { _cursub=string; }
+		// Build a table of types
+		var _typetable=["=",">","<","!"];
+		// Find the right type then cut the string in 2 parts
+		for(var oi = 0; oi < _typetable.length; oi=oi+1) {
+			var _endkey = _cursub.indexOf(_typetable[oi]);
+			if(_endkey!=-1) {
+				var _keyname=_cursub.substring(0,_endkey);
+				var _keyvalue=DC_StripQuotes(_cursub.substring(_endkey+1));
+				var _typeval=oi;
+				break;
+			}
+		}
+		// display the extracted informations from the initial string
+		if(DIM_DebugIM) { DC_DPrint("_DIM_OrCase() : Argument: " + _typetable[_typeval] + " -- Entering keyname: " + _keyname + " -- and KeyValue: " + _keyvalue); }
+		// Do the actual check of the item then update the skip list to avoid checking twice for the same key
+		if(_DIM_KeyCase(_typetable[_typeval],_keyname,_keyvalue,item)) {
+			for(oi = 0; oi < orskip.length; oi=oi+1) {
+				// Skip if the key is already in the skip list
+				if(orskip[oi][0]==_typetable[_typeval] && orskip[oi][1]==_keyname && orskip[oi][2]==_keyvalue) { continue lastloop; }
+			}
+			// If the key is not in the list, add it then return true
+			orskip.push(_typetable[_typeval],_keyname,_keyvalue);
+			return true;
+		}
+		_divider=string.indexOf("|");
+	}
+	return false;
+}
+
+// function cleaned
+function _DIM_KeyCase(type,key,val,item) {
+	switch(key) {
+		// Printed value for snagit
+		case "description":
+			DIM_ItemString=val;
+			return true;
+		// Place holder, in case someone uses the old command
+		case "show":
+			DIM_ItemString=val;
+			return true;
+		// If set to 0, it will log it but not pick it up
+		case "pickup":
+			if(val==0) {
+				DIM_IgnoreItem=true;
+				DIM_LogItem=true;
+			}
+			return true;
+		// If set to 1, will id and validate the item if it is in your inventory
+		case "iditem":
+			if(val==1) { DIM_Validate=true; }
+			return true;
+		// If set to 0, it will not log the item even if it is picked
+		case "log":
+			if(val==0) { DIM_LogItem=false; }
+			return true;
+		// Item type, item code, or an items name
+		case "code":
+			return CodeCase(type,val,item);
+		// Item type, item code, or an items name (old and deprecated, use "code" instead)
+		case "type":
+			return CodeCase(type,val,item);
+		// Specific mod names, like cruel
+		case "mod":
+			if(!item.getFlag(0x10)) { return false; }
+			if(item.fname.toLowerCase().indexOf(val) == -1) { return false; }
+			return true;
+		// Ethereal check
+		case "isethereal":
+			if(val==1 && item.getFlag(0x400000) == 0) { return false; }
+			if(val==0 && item.getFlag(0x400000)) { return false; }
+			return true;
+		// Socket check
+		case "hassockets":
+			if(val==1 && !item.getFlag(0x800)) { return false; }
+			if(val==0 && item.getFlag(0x800)) { return false; }
+			return true;
+		// Identified check
+		case "identified":
+			if(val==0 && item.getFlag(0x10)) { return false; }
+			if(val==1 && item.getFlag(0x10) == 0) { return false; }
+			return true;
+		// Item type, item code, or an items name
+		case "item":
+			return CodeCase(type,val,item);
+		// Defense percent
+		case "def%":
+			return CompareCase(type,item.getStat(16,0),val);
+		// Enhanced damage percent
+		case "dmg%":
+			return CompareCase(type,item.getStat(18,0),val);
+		// Check for a specific item prefix with val
+		case "needprefix":
+			if(val==1 && !item.prefix) { return false; }
+			return true;
+		// check for a specific item suffix with val
+		case "needsuffix":
+			if(val==1 && !item.suffix) { return false; }
+			return true;
+		// Check for a specific item prefix
+		case "prefix":
+			if(val!=item.prefix.toLowerCase()) { return false; }
+			return true;
+		// check for a specific item suffix
+		case "suffix":
+			if(val!=item.suffix.toLowerCase()) { return false; }
+			return true;
+		// Item quality, Such as magic or unique.  Number or name accepted.
+		case "qual":
+			return QualCase(type,val,item);
+		// Item quality, Such as magic or unique.  Number or name accepted.
+		case "level":
+			return QualCase(type,val,item);
+		// Item class (normal, elite, or exceptional).  Number or name accepted.
+		case "classlevel":
+			return ClassCase(type,val,item);
+		// Item weight (light, medium, or heavy).  Number or name accepted.
+		case "weight":
+			return WeightCase(type,val,item);
+		// The items ilvl.
+		case "ilvl":
+			return CompareCase(type,item.ilvl,parseInt(val,10));
+		case "eval-pu":
+			return eval(val);
+		case "eval-id":
+			if(item.getFlag(0x10) == 0) { return false; } // not ID'd
+			return eval(val);
+		case "eval-pro":
+			return eval(val);
+		// Maximum damage
+		case "maxdmg":
+			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,val);
+		// Minimum damage
+		case "mindmg":
+			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(23)?item.getStat(23):item.getStat(21)),val);
+		// Damage
+		case "dmg":
+		case "damage":
+		case "avgdmg":
+			return CompareCase(type,((getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*item.getStat(18,0)+(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*item.getStat(17))*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(23)+item.getStat(24):item.getStat(21)+item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,2*val);
+		// Damage max one-hand
+		case "onehmax":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)*itemgetStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,val);
+		// Damage min one-hand
+		case "onehmin":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM)*itemgetStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21),val);
+		// Damage one-hand
+		case "onehdmg":
+		case "onehavg":
+			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)*item.getStat(18,0))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,2*val);
+		// Throw damage max
+		case "throwmax":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXMISDAM)*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(160),val);
+		// Throw damage min
+		case "throwmin":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINMISDAM)*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159),val);
+		// Throw damage
+		case "throwdmg":
+		case "throwavg":
+			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINMISDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXMISDAM)*(item.getStat(18)+item.getStat(219)/8*DIM_CharLevel))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159)+item.getStat(160)+item.getStat(218)/8*DIM_CharLevel,2*val);
+		// Enhanced damage max
+		case "plusmax":
+			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1),val);
+		// Enhanced damage min
+		case "plusmin":
+			return CompareCase(type,(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,itemclassid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
+		// Enhanced damage
+		case "plusdmg":
+			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1)+(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
+		// Defense
+		case "def":
+		case "defense":
+			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)+1)*item.getStat(16,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(31)+item.getStat(214)/8*DIM_CharLevel,val);
+		// Enhanced defense
+		case "plusdef":
+			return CompareCase(type,item.getStat(31)+item.getStat(214)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)+1:0)*(item.getFlag(0x400000)?1.5:1),val);
+		// Various hand damage depending on val
+		case "hand":
+			if(val==0 && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)) { return true; }
+			if(val==1 && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM) && !getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)) { return true; }
+			if(val==2 && !getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM) && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)) { return true; }
+			return false;
+		// Speed
+		case "speed":
+			return CompareCase(type,item.getStat(68),val);
+		// Skill cast on attack
+		case "skillattack":
+			return ItemSkillCase(val,"attack",item);
+		// Skill cast on hit
+		case "skillhit":
+			return ItemSkillCase(val,"hit",item);
+		// Skill cast on being hit
+		case "skillgethit":
+			return ItemSkillCase(val,"gethit",item);
+		// Charged skill
+		case "skillcharges":
+			return ItemSkillCase(val,"charges",item);
+		// Skills
+		case "skills":
+			return ItemPlusSkill(val,type,"skills",item);
+		// Skill
+		case "skill":
+			return ItemPlusSkill(val,type,"skill",item);
+		// Skill tree
+		case "skilltree":
+			return ItemPlusSkill(val,type,"skilltree",item);
+		// Poison damage
+		case "poison":
+			return CompareCase(type,Math.round(item.getStat(57)*item.getStat(59)/256),val);
+		// Strength requirement
+		case "strreq":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
+		// Dexterity requirement
+		case "dexreq":
+			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
+		// Level requirement
+		case "lvlreq":
+			return CompareCase(type,item.lvlreq,val);
+		// Number of items
+		case "number":
+			itemNumberCheck(val,0);
+			return (DIM_HasNumber ? true : false);
+		// Range
+		case "range":
+			return CompareCase(type,getDistance(me,item),val);
+		// Godly
+		case "godly":
+			if(val==1) { DIM_GodlyItem=true; }
+			return true;
+		// Amount
+		case "amount": //only used with temporarily snag items, dummy atm
+			return true;
+		// Specific mod values, in numeric form.
+		// Fixed number orcase bug - darkspirit
+		default:
+			return CompareCase(type,item.getStat(Number(key)),val);
+	}
+
+	return false;
+}
+
+// function cleaned
+function CompareCase(type,val1,val2) {
+	if(val1==null) {
+		DC_ThrowException("CompareCase()","val1 undefined! type=\"" + type + "\" val1=" + val1 + " val2=" + val2);
+	}
+	switch(type) {
+		case "=":
+			if(val1!=val2) { return false; }
+			return true;
+		case ">":
+			if(val1<val2) { return false; }
+			return true;
+		case "<":
+			if(val1>val2) { return false; }
+			return true;
+		case "!":
+			if(val1==val2) { return false; }
+			return true;
+		default:
+			DC_ThrowException("INI File","CompareCase(): unknown type!");
+	}
+	return false;
+}
+
+// function cleaned
+function CodeCase(type,val,item) {
+	switch(type) {
+		case "=":
+			if(val!=item.code && val!=getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE) && val!=item.name.toLowerCase() ) { return false; }
+			return true;
+		case ">":
+			if(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)<val) { return false; }
+			return true;
+		case "<":
+			if(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)>val) { return false; }
+			return true;
+		case "!":
+			if(val==item.code || val==getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE) || val==item.name.toLowerCase() ) { return false; }
+			return true;
+		default:
+			DC_ThrowException("INI File","CodeCase(): unknown type!");
+	}
+
+	return false;
+}
+
+// function cleaned
+function QualCase(type,val,item) {
+	QualPOS=_DIM_GetPosition(val,_DIM_ItemQuality);
+	switch(type) {
+		case "=":
+			if(item.quality!=QualPOS) { return false; }
+			return true;
+		case ">":
+			if(item.quality<QualPOS) { return false; }
+			return true;
+		case "<":
+			if(item.quality>QualPOS || QualPOS==-1) { return false; }
+			return true;
+		case "!":
+			if(item.quality==QualPOS) { return false; }
+			return true;
+		default:
+			DC_ThrowException("INI File","QualCase(): unknown type!");
+	}
+	return false;
+}
+
+// function cleaned
+function ClassCase(type,val,item) {
+	var _itemclass=["normal","exceptional","elite"];
+	var _itemcodes=[getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_NORMCODE),
+			getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_UBERCODE),
+			getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_ULTRACODE)];
+	var _classpos=_DIM_GetPosition(val,_itemclass);
+	var _codepos=_DIM_GetPosition(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_CODE),_itemcodes);
+	switch(type) {
+		case "=":
+			if(_codepos != _classpos) { return false; }
+			return true;
+		case ">":
+			if(_codepos < _classpos) { return false; }
+			return true;
+		case "<":
+			if(_codepos > _classpos || _classpos == -1) { return false; }
+			return true;
+		case "!":
+			if(_codepos == _classpos) { return false; }
+			return true;
+		default:
+			DC_ThrowException("INI File","ClassCase() unknown type!");
+	}
+	return false;
+}
+
+function WeightCase(type,val,item)
+{
+	var itemWeights=["light","medium","heavy"];
+	var WeightPOS=_DIM_GetPosition(val,itemWeights);
+	var itemWeight;
+	switch(item.getStat(67))
+	{
+		case 0:
+			itemWeight=0; break;
+		case -5:
+			itemWeight=1; break;
+		case -10:
+			itemWeight=2; break;
+	}
+	switch(type)
+	{
+		case "=":
+			if(itemWeight!=WeightPOS) return false;
+			return true;
+		case ">":
+			if(itemWeight<WeightPOS) return false;
+			return true;
+		case "<":
+			if(itemWeight>WeightPOS || WeightPOS==-1) return false;
+			return true;
+		case "!":
+			if(itemWeight==WeightPOS) return false;
+			return true;
+		default:
+			DC_ThrowException("INI File","WeightCase() unknown type!");
+	}
+	return false;
+}
+
+function ItemSkillCase(val,type,item)
+{
+	var value=0;
+	var skill=0;
+	var level=0;
+	var percent=0;
+	var itemskill=0;
+	var itemlevel=0;
+	var itempercent=0;
+	var minStat=0;
+	var maxStat=0;
+	var i;
+	i=val.indexOf(",");
+	value=i+1+val.substring(i+1,val.length).indexOf(",");
+	skill=parseInt(val.substring(0,i),10);
+	level=parseInt(val.substring(i+1,value),10);
+	percent=parseInt(val.substring(value+1,val.length),10);
+	switch(type)
+	{
+		case "attack":
+			minStat=195;
+			maxStat=197;
+			break;
+		case "hit":
+			minStat=198;
+			maxStat=200;
+			break;
+		case "gethit":
+			minStat=201;
+			maxStat=203;
+			break;
+		case "charges":
+			minStat=204;
+			maxStat=213;
+			break;
+		default:
+			DC_ThrowException("INI File","ItemSkillCase() unknown type!");
+	}
+	for(var i=minStat;i<=maxStat;i++)
+	{
+		if(!item.getStat(i))return false;
+		value=item.getStat(i);
+		if(type=="charges")
+		{
+			itempercent=Math.floor(value / 4194304);
+			value-=itempercent*4194304;
+			value%=16384;
+		}
+		else
+		{
+			itempercent=Math.floor(value / 16384);
+			value-=itempercent*16384;
+		}
+		itemlevel=Math.floor(value / 512);
+		itemskill=value-itemlevel*512;
+		if(itemskill==skill && itemlevel>=level && itempercent >= percent) return true;
+	}
+	return false;
+}
+
+function ItemPlusSkill(val,type,mode,item)
+{
+	var value=0;
+	var skill=0;
+	var level=0;
+	var stat=0;
+	var skills=0;
+	var i,j;
+	i=val.indexOf(",");
+	skill=val.substring(0,i);
+	if(skill==parseInt(skill,10))
+		skill=parseInt(skill,10);
+	level=parseInt(val.substring(i+1,val.length),10);
+	switch(mode)
+	{
+		case "skills":
+			stat=83;
+			skills=7;
+			break;
+		case "skill":
+			stat=107;
+			skills=357;
+			break;
+		case "skilltree":
+			stat=188;
+			break;
+		default:
+			DC_ThrowException("INI File","ItemPlusSkill() unknown mode!");
+	}
+	if(skill=="all")
+		return CompareCase(type,item.getStat(127),level);
+	if(skill!="any")
+		return CompareCase(type,item.getStat(stat,skill),level);
+	if(mode=="skilltree")
+	{
+		value=0;
+		for(i=0;i<7;i++)
+			for(j=0;j<3;j++)
+				value=Math.max(value,item.getStat(stat,i*8+j));
+	}
+	else
+	{
+		value=0;
+		for(i=0;i<skills;i++)
+			value=Math.max(value,item.getStat(stat,i));
+	}
+	return CompareCase(type,value,level);
+}
+
+function itemNumberCheck(val,number)
+{
+	var k;
+	if(!_DIM_NumbersINI.length)
+	{
+		var line;
+		var a;
+		file= File.open("settings/" + DIM_NumbersINIFile,FILE_READ);
+		if(!file)
+		{
+			DC_DPrint("ÿc1Couldn't open item numbers file to read.");
+			return false;
+		}
+		while(!file.eof)
+		{
+			line = file.readLine();
+			a = line.split("=");
+			if(a.length == 2)
+				_DIM_NumbersINI.push([a[0], parseInt(a[1],10)]);
+		}
+		file.close();
+	}
+	for(k=0; k<_DIM_NumbersINI.length; k++)
+		if(val==_DIM_NumbersINI[k][0])break;
+	if(k>=_DIM_NumbersINI.length)
+		return false;
+	DIM_HasNumber = true;  // set flag
+	if(_DIM_NumbersINI[k][1]>number)
+	{
+		_DIM_ItemNumber=k;
+		return true;
+	}
+	return false;
+}
+
+function decreaseItemNumber()
+{
+	_DIM_NumbersINI[_DIM_ItemNumber][1]-=1;
+	var k;
+	file= File.open("settings/" + DIM_NumbersINIFile,FILE_WRITE);
+	if(!file)
+	{
+		DC_Print("ÿc1Couldn't open item numbers file to write.");
+		return;
+	}
+	for(k=0;k<_DIM_NumbersINI.length;k++)
+		file.write(_DIM_NumbersINI[k][0]+"="+_DIM_NumbersINI[k][1] + "\n");
+	file.close();
+}
+
+
+function _DIM_GetPosition(value,table) {
+	for(var k=0; k<table.length; k++) {
+		if(value==table[k])return k;
+		if(value==String(k)) return k;
+	}
+	return -1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// INI parsing section
+//
+// Ini library v0.2 - by blue mind
+// 0.3 modification - Ven0m
+// -----------------------------------------------------------------------------
+// History :
+//
+// 0.3 : support for names, modified "eval"
+// s.2 : accepts > and <, not only =
+//       returns a slightly different structure
+// 0.2 : bug corrections, now it works ;)
+// 0.1 : first draft, should get the job done at least. it only returns one big
+//       array containing all the info
+
+// The actual parsed content of the INI
+// this contains one array per section nItem in the ini
+// each section array is formed like this :
+// _DIM_INI[0]=["Section Name",[TYPE,"First key name","First key value"],...]
+
+////////////////////////////////////////////////////////////////////////////////
+// DIM_LoadFile(strFileName)                                                  //
+////////////////////////////////////////////////////////////////////////////////
+// Loads the ini and fills _DIM_INI with it                                   //
+// Will consider ; or // on the beginning of lines as a comment               //
+////////////////////////////////////////////////////////////////////////////////
+var _DIM_INIFileName; // Private var for holding the ini file name for error display purpose
+var DIM_DebugINI=false; // Set to true to show debugging info about ini parsing (should be kept from the public eyes)
+
+function DIM_LoadFile(filename, resetNumbers) {
+	var _numlines=0;
+    var _stringarray=new Array();
+	if(arguments.length < 2) resetNumbers = false;
+	// Open the INI file for reading
+	var _inifile=File.open(filename, FILE_READ);
+	// If we cannot open the file, display a error and return false
+	if(!_inifile) {
+		DC_ThrowException("INI File","DIM_LoadFile() : Failed to open " + filename + " for reading");
+		//DC_DPrint("DIM_LoadFile() : Failed to open " + filename + " for reading");
+		//DC_LogError("DIM_LoadFile() : Failed to open " + filename + " for reading");
+		return false;
+	}
+	// The file is opened so parse the file until the end
+	FileLoop : while (!_inifile.eof) {
+		// Get the current line with extra spaces stripped
+		var _currentline = DC_StripSpaces(_inifile.readLine());
+		// Increase the line counter
+		_numlines=_numlines+1;
+		// Display a debug info about the current line
+		if(DIM_DebugINI) { DC_DPrint("DIM_LoadFile() : Line " + _numlines + " " + _currentline); }
+		// Check to see if this line is actually a comment, or is empty
+		if((_currentline == "") || (_currentline[0] == ";") || (_currentline.indexOf("//") == 0)) {
+			if(DIM_DebugINI) { DC_DPrint("DIM_LoadFile() : Skipping useless line, line #" + _numlines); }
+			continue;
+		}
+		// Check to see if it's a new section
+		if(_currentline[0]=="[") {
+			// check if section name is actually valid
+			var _endsection = _currentline.lastIndexOf("]");
+			// invalid section name, skip to next line and warn user
+			if(_endsection < 2) {
+				DC_ThrowException("INI File","DIM_LoadFile() : Error at line " + _numlines + " in " + filename + " : invalid section name");
+				continue;
+			}
+			// Get the ini's curent array length and create a sub-array
+			var _inilength=_DIM_INI.length;
+			if(DIM_DebugINI) { DC_DPrint("DIM_LoadFile() : Starting section " + _inilength + " at line " + _numlines); }
+			_DIM_INI[_inilength] = new Array();
+			_DIM_INI[_inilength].push(_currentline.substring(1,_endsection));
+			_DIM_INI[_inilength].push(0);
+			continue;
+		}
+	    	if(_currentline[0]=="{") {
+			_stringarray.push(_DIM_INI.length-1);
+			continue;
+		}
+		if(_currentline[0]=="}") {
+			_DIM_INI[_stringarray.pop()][1]=_DIM_INI.length;
+			continue;
+		}
+		// to add extra eval functions
+		_DIM_INIFileName = filename;
+		_currentline=ParseLine(_currentline,_numlines,resetNumbers);
+		if(_currentline.substring(0,4)!="eval" && _currentline.indexOf("|")!=-1) {
+			_inilength=_DIM_INI.length;
+			if(DIM_DebugINI) { DC_DPrint("DIM_LoadFile() : Entering new or block: (" + _currentline + ") at line " + _numlines + ", inserting in section " + _DIM_INI[_inilength-1][0]); }
+			_DIM_INI[_inilength-1].push(["|","orblock",_currentline]);
+			continue;
+		}
+		// Then it must be a key (Four types of keys : =, >, <, and !)
+		var _typetable=["=",">","<","!"];
+		for(var oi=0; oi<_typetable.length; oi=oi+1) {
+			_endofkey = _currentline.indexOf(_typetable[oi]);
+			if(_endofkey!=-1) {
+				// If it is a valid key, fill the _DIM_INI array
+				_DIM_FillINI(_endofkey,_currentline,_numlines,_typetable[oi]);
+				// Go to the next line
+				continue FileLoop;
+			}
+		}
+		// If we got there without finding the right usage for the line, there is a weird error
+		DC_ThrowException("YAM-IM","DIM_LoadFile() : Some parsing error occurred at line " + _numlines + " in " + filename + " : unknown case");
+	}
+	// Close the INI file
+	_inifile.close();
+	if(resetNumbers) SetNumbers(filename);
+}
+
+function _DIM_FillINI(endofkey,string,numline,keyval) {
+	// Get the lenfth of the ini array
+	var _inilength=_DIM_INI.length;
+	// Get the key name
+	var _keyname=string.substring(0,endofkey);
+	// If the key name is valid, get a value
+	if(!isNaN(_keyname)) { _keyname=parseInt(_keyname,10); }
+	// Get the key value
+	var _keyvalue=string.substring(endofkey+1);
+	// If the value is valid, get a value
+	if(!isNaN(_keyvalue)) { _keyvalue=parseInt(_keyvalue,10); }
+	// Display the info on screen if debugmode is enabled
+	if(DIM_DebugINI) { DC_DPrint("ÿc\"Entering new key (" + _keyname + " " + keyval + " " + _keyvalue + ") at line " + numline + ", inserting in section " + _DIM_INI[_inilength-1][0]); }
+	// Add the key to the ini file
+	_DIM_INI[_inilength-1].push([keyval,_keyname,_keyvalue]);
+}
+
+function ParseLine(cString,nLines,resetNumbers)
+{
+	var keyNameVal=0;
+	var strKeyName;
+	var keyval;
+	var skillName;
+	var i=0;
+	var l,r;
+	var newline="";
+	var section="";
+	var nEndOfKey;
+	var _typetable=["=",">","<","!"];
+	while(cString.length) {
+		l = cString.indexOf("|");
+		if(cString.substring(0,4) == "eval") 
+			l = -1;
+		if(l != -1) {
+			r=l;
+			while(cString.charAt(l-1)==' ')
+				l--;
+			section = cString.substring(0,l);
+			while(cString.charAt(r+1)==' ')
+				r = r+1;
+			cString = cString.substring(r+1);
+		}
+		else {
+			section = cString;
+			cString = "";
+		}
+		for(i=0; i < _typetable.length; i = i+1) {
+			nEndOfKey = section.indexOf(_typetable[i]);
+			if(nEndOfKey!=-1)
+				break;
+		}
+		if(nEndOfKey!=-1)
+			keyval=_typetable[i];
+		else {
+			DC_ThrowException("YAM-IM","ParseLine() : Some parsing error occurred at line " + nLines + " in " + _DIM_INIFileName + " : unknown case");
+			stop();
+		}
+		strKeyName=section.substring(0,nEndOfKey).toLowerCase();
+		if(strKeyName!="description" && strKeyName!="number" && strKeyName.substring(0,4) != "eval") {
+			section=section.toLowerCase();
+			strKeyValue=DC_StripQuotes(section.substring(nEndOfKey+1),nLines);
+			if(!DIM_NoParsing && (strKeyName.charAt(0)<"0" || strKeyName.charAt(0)>"9"))
+				if(_DIM_GetPosition(strKeyName,_DIM_KeyTypes)==-1)
+				{
+					switch(strKeyName)						// fast search for common values
+						{
+						case "%enhanced damage":
+							keyNameVal=18; break;
+						case "%magic find":
+							keyNameVal=80; break;
+						case "increased run/walk speed":
+							keyNameVal=96; break;
+						case "faster hit recovery":
+							keyNameVal=99; break;
+						case "sockets":
+							keyNameVal=194; break;
+						default:							// comprehensive search for rest
+							keyNameVal=_DIM_GetPosition(strKeyName,_DIM_Stats);
+						}
+					if(keyNameVal==-1) DC_ThrowException("YAM-IM","ParseLine() : Error in " + _DIM_INIFileName + " file, unknown stat: " + section + ", line: " + nLines);
+					strKeyName=keyNameVal.toString();
+				}
+				else
+					switch(strKeyName)
+					{
+						case "code":
+						case "item":
+						case "type":
+							if(strKeyValue.length>3 || strKeyValue=="bow" || strKeyValue=="axe" || strKeyValue=="orb" || strKeyValue=="gem" || strKeyValue=="key")
+							{
+								keyNameVal=_DIM_GetPosition(strKeyValue,_DIM_ItemTypes);
+								if(keyNameVal==-1) DC_ThrowException("YAM-IM","ParseLine() : Error in "+_DIM_INIFileName+" file, unknown item type: "+strKeyValue);
+								strKeyValue=keyNameVal.toString();
+							}
+							break;
+						case "skills":
+							i=strKeyValue.indexOf(",");
+							skillName=strKeyValue.substring(0,i);
+							if(skillName==parseInt(skillName,10) || skillName=="any" || skillName=="all")
+								break;
+								//keyNameVal=skillName;
+							else
+							{
+								keyNameVal=_DIM_GetPosition(skillName,_DIM_CharClasses);
+								if(keyNameVal==-1) DC_ThrowException("YAM-IM","ParseLine() : Error in "+_DIM_INIFileName+" file, unknown skill: "+strKeyValue.substring(0,i));
+							}
+							strKeyValue=keyNameVal.toString()+strKeyValue.substring(i,strKeyValue.length);
+							break;
+						case "skill":
+						case "skillattack":
+						case "skillhit":
+						case "skillgethit":
+						case "skillcharges":
+							i=strKeyValue.indexOf(",");
+							skillName=strKeyValue.substring(0,i);
+							if(skillName==parseInt(skillName,10) || skillName=="any")
+								break;
+								//keyNameVal=skillName;
+							else
+							{
+								keyNameVal=_DIM_GetPosition(skillName,_DIM_Skills);
+								if(keyNameVal==-1) DC_ThrowException("YAM-IM","ParseLine() : Error in "+_DIM_INIFileName+" file, unknown skill: "+strKeyValue.substring(0,i));
+								if(keyNameVal>155)keyNameVal=keyNameVal+67;
+							}
+							strKeyValue=keyNameVal.toString()+strKeyValue.substring(i,strKeyValue.length);
+							break;
+						case "skilltree":
+							i=strKeyValue.indexOf(",");
+							skillName=strKeyValue.substring(0,i);
+							if(skillName==parseInt(skillName,10) || skillName=="any")
+								break;
+								//keyNameVal=skillName;
+							else
+							{
+								keyNameVal=_DIM_GetPosition(skillName,_DIM_SkillTrees);
+								if(keyNameVal==-1) DC_ThrowException("YAM-IM", "ParseLine() : Error in "+_DIM_INIFileName+" file, unknown skill tree: "+strKeyValue.substring(0,i));
+								keyNameVal=Math.floor(keyNameVal/3)*8+(keyNameVal%3);
+							}
+							strKeyValue=keyNameVal.toString()+strKeyValue.substring(i,strKeyValue.length);
+							break;
+					}
+			switch(strKeyName)
+			{
+				case "7":
+				case "9":
+				case "11":
+				case "216":
+				case "217":
+					strKeyValue=(parseInt(strKeyValue,10)*256).toString();
+					break;
+				case "16":
+					strKeyName="def%";
+					break;
+				case "18":
+					strKeyName="dmg%";
+					break;
+			}
+		}
+		else
+		{
+			strKeyValue=section.substring(nEndOfKey+1).toLowerCase();
+			if(strKeyName!="description" && strKeyName!="number" && strKeyName.substring(6,9) != "pro")strKeyValue = PreparseEvalString(strKeyValue);
+			// darkspirit - number init
+			if(resetNumbers && strKeyName == "number") {
+				_DIM_ItemNumber = -1;
+				itemNumberCheck (strKeyValue,-1);
+			    if(_DIM_ItemNumber!=-1) {
+					_DIM_NumbersINI[_DIM_ItemNumber][1] = DIM_DefaultNumber + 1;
+					decreaseItemNumber();
+			    }
+			    else {
+					_DIM_NumbersINI.push([strKeyValue, parseInt(DIM_DefaultNumber + 1,10)]);
+					_DIM_ItemNumber = _DIM_NumbersINI.length - 1;
+					decreaseItemNumber();
+				}
+			}
+		}
+		newline=newline+strKeyName+keyval+strKeyValue;
+		if(l!=-1)newline=newline+"|";
+	}
+	return newline;
+}
+
+var BMcheckParenthesis=true;
+function PreparseEvalString(val)
+{
+	//val = val.toLowerCase();
+	var n,op=0,cl=0,badEval=0;
+	var prev=0;
+	var pChar="";
+	var nChar="";
+	var varS=0;
+	var varE=0;
+	var Poutput="";
+	if(BMcheckParenthesis)
+	{
+		for(n=0;n<val.length;n=n+1)
+		{
+			if(val.charAt(n)=="(")op=op+1;
+			else if(val.charAt(n)==")")cl=cl+1;
+		}
+		if(op>cl)
+			DC_ThrowException("YAM-IM", "PreparseEvalString() : Invalid parenthesis in eval - more opening than closing",val);
+		if(op<cl)
+			DC_ThrowException("YAM-IM", "PreparseEvalString() : Invalid parenthesis in eval - more closing than opening",val);
+		if(op!=cl)
+			badEval=1;
+	}
+	while((varS=findWordS(val,prev))!=-1)
+	{
+		varE=findWordE(val,varS);
+		Poutput=Poutput+val.substring(prev,varS);
+		pChar=val.charAt(varS-1);
+		nChar=val.charAt(varE);
+		//DC_Print(varS+"-"+varE);
+		if(pChar!="=" && pChar!=">" && pChar!="<" && (pChar!="(" || nChar!=")"))Poutput=Poutput+PreparseEvalVar(val.substring(varS,varE));
+		else Poutput=Poutput+val.substring(varS,varE);
+		prev=varE;
+	}
+	Poutput=Poutput+val.substring(varE);
+	if(BMcheckParenthesis && !badEval)
+	{
+		op=0;
+		cl=0;
+		for(n=0;n<Poutput.length;n=n+1)
+		{
+			if(Poutput.charAt(n)=="(")op=op+1;
+			else if(Poutput.charAt(n)==")")cl=cl+1;
+		}
+		if(op>cl)
+			DC_ThrowException("YAM-IM","PreparseEvalString() : Invalid parenthesis in eval after parsing - more opening than closing, please report this error",val);
+		if(op<cl)
+			DC_ThrowException("YAM-IM","PreparseEvalString() : Invalid parenthesis in eval after parsing - more closing than opening, please report this error",val);
+	}
+	return Poutput;
+}
+
+function PreparseEvalVar(val)
+{
+	switch(val)
+	{
+		case "ethereal":
+			return "item.getFlag(0x400000)";
+		case "identified":
+			return "item.getFlag(0x10)";
+		case "strreq":
+			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
+		case "dexreq":
+			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
+		case "range":
+			return "getDistance(me,item)";
+		case "type":
+			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)";
+		case "itemclass":
+			return "_DIM_GetPosition(item.code,[getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_NORMCODE),getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_UBERCODE),getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_ULTRACODE)])";
+		case "16":
+		case "18":
+			return "item.getStat("+val+",0)";
+		case "7":
+		case "9":
+		case "11":
+		case "216":
+		case "217":
+			return "item.getStat("+val+")/256";
+	}
+	if(val.charAt(0)>="0" && val.charAt(0)<="9") return "item.getStat("+val+")";
+	return "item."+val;
+}
+function findWordS(str,n)
+{
+	for(;n<str.length;n=n+1)
+		if((str.charAt(n)>="0" && str.charAt(n)<="9")||(str.charAt(n)>="a" && str.charAt(n)<="z")||(str.charAt(n)>="A" && str.charAt(n)<="Z")|| str.charAt(n)=="\"" || str.charAt(n)=="," || str.charAt(n)=="." || (str.charAt(n)=="-" && (str.charAt(n-1)=="=" || str.charAt(n-1)=="<" || str.charAt(n-1)==">"))) return n;
+	return -1;
+}
+
+function findWordE(str,n)
+{
+	for(;n<str.length;n=n+1)
+		if((str.charAt(n)<"0" || str.charAt(n)>"9")&&(str.charAt(n)<"a" || str.charAt(n)>"z")&&(str.charAt(n)<"A" || str.charAt(n)>"Z")&& str.charAt(n)!="\"" && str.charAt(n)!="," && str.charAt(n)!="." && str.charAt(n)!="-") return n;
+	return -1;
+}
+

@@ -1,0 +1,1698 @@
+var DC_Version = "2.0";
+DC_LoadInclude("baseStats/base_skills.dbl");
+
+
+//////////////////////////////////////////////////////////////////////
+// Public global variables
+//////////////////////////////////////////////////////////////////////
+var DC_DebugLevel     = 0; 	// 0 = no debug messages, 1 = file only, 2= screen only, 3 = on screen and on file
+var DC_DebugPrintDel  = 0;
+var DC_AbortPrintDel  = 2000;
+var DC_Verbose        = true;
+var DC_Language       = 0; 	// 0 = english, 1 = german, 2 = french
+var DC_Timeout        = 3;
+var DC_SwitchTimeout  = 3;
+var DC_RandomDel      = true;
+var DC_LagDelay       = 10;
+var DC_ClickDel       = 150;
+var DC_UseCheckLoop   = false;
+var DC_BuyKeys        = false;
+var DC_BuyKeysPercent = 50;
+var DC_UseTKOnChests  = false;
+var DC_ErrorLogPath   = "output/" + me.name + "ErrorLog.html";
+var DC_DebugLogPath   = "output/" + me.name + "DebugLog.html";
+var DC_Console        = null; // Console object to be used for printing. Leave to null to use normal print calls
+
+
+//////////////////////////////////////////////////////////////////////
+// Public D2JSP constants (Thanks to njaguar, TDW and Scavenger)
+//////////////////////////////////////////////////////////////////////
+var D2JSP_CHAR_CLASS_AMAZON      = 0;
+var D2JSP_CHAR_CLASS_SORCERESS   = 1;
+var D2JSP_CHAR_CLASS_NECROMANCER = 2;
+var D2JSP_CHAR_CLASS_PALADIN     = 3;
+var D2JSP_CHAR_CLASS_BARBARIAN   = 4;
+var D2JSP_CHAR_CLASS_DRUID       = 5;
+var D2JSP_CHAR_CLASS_ASSASSIN    = 6;
+// Act 1 NPCs
+var D2JSP_NPC_AKARA         = 148;
+var D2JSP_NPC_WARRIV_ACT_1  = 155;
+var D2JSP_NPC_CHARSI        = 154;
+var D2JSP_NPC_GHEED         = 147;
+var D2JSP_NPC_KASHYA        = 150;
+var D2JSP_NPC_CAIN_TRISTRAM = 146;
+var D2JSP_NPC_CAIN_ACT_1    = 244;
+// Act 2
+var D2JSP_NPC_FARA         = 178;
+var D2JSP_NPC_LYSANDER     = 202;
+var D2JSP_NPC_GREIZ        = 198;
+var D2JSP_NPC_ELZIX        = 199;
+var D2JSP_NPC_MESHIF_ACT_2 = 210;
+var D2JSP_NPC_DROGNAN      = 177;
+var D2JSP_NPC_ATMA         = 176;
+var D2JSP_NPC_WARRIV_ACT_2 = 175; 
+var D2JSP_NPC_CAIN_ACT_2   = 245;
+var D2JSP_NPC_JERHYN       = 201;
+var D2JSP_NPC_TYRAEL_ACT_2 = 251;
+// Act 3
+var D2JSP_NPC_MESHIF_ACT_3 = 264;
+var D2JSP_NPC_CAIN_ACT_3   = 246;
+var D2JSP_NPC_ALKOR        = 254;
+var D2JSP_NPC_ASHEARA      = 252;
+var D2JSP_NPC_ORMUS        = 255;
+var D2JSP_NPC_HRATLI       = 253;
+// Act 4
+var D2JSP_NPC_CAIN_ACT_4   = 265;
+var D2JSP_NPC_HALBU        = 257;
+var D2JSP_NPC_TYRAEL_ACT_4 = 367;
+var D2JSP_NPC_JAMELLA      = 405;
+// Act 5
+var D2JSP_NPC_CAIN_ACT_5                = 520;
+var D2JSP_NPC_TYRAEL_ACT_5              = 521;
+var D2JSP_NPC_LARZUK                    = 511;
+var D2JSP_NPC_ANYA_FROZEN_RIVER         = 527;
+var D2JSP_NPC_ANYA_TOWN                 = 512;
+var D2JSP_NPC_MALAH                     = 513;
+var D2JSP_NPC_QUALKEHK                  = 515;
+var D2JSP_NPC_NIHLATHAK_TOWN            = 514;
+var D2JSP_NPC_NIHLATHAK_HALLS_OF_VAUGHT = 526;
+
+// UNIT types
+var D2JSP_UNIT_PLAYER  = 0;
+var D2JSP_UNIT_NPC     = 1;
+var D2JSP_UNIT_MERC    = D2JSP_UNIT_NPC;
+var D2JSP_UNIT_MONSTER = D2JSP_UNIT_NPC;
+var D2JSP_UNIT_OBJECT  = 2;
+var D2JSP_UNIT_MISSILE = 3;
+var D2JSP_UNIT_ITEM    = 4;
+var D2JSP_UNIT_TILE    = 5;
+var D2JSP_UNIT_STASH   = 267; // Global classID for chest in town
+
+var D2JSP_UTIL_COLOR_BASE_WHITE  = 0;
+var D2JSP_UTIL_COLOR_BASE_RED    = 1;
+var D2JSP_UTIL_COLOR_BASE_GREEN  = 2;
+var D2JSP_UTIL_COLOR_BASE_BLUE   = 3;
+var D2JSP_UTIL_COLOR_BASE_GOLD   = 4;
+var D2JSP_UTIL_COLOR_BASE_GRAY   = 5;
+var D2JSP_UTIL_COLOR_BASE_BLACK  = 6;
+var D2JSP_UTIL_COLOR_BASE_GOLD2  = 7;
+var D2JSP_UTIL_COLOR_BASE_ORANGE = 8;
+var D2JSP_UTIL_COLOR_BASE_YELLOW = 9;
+
+var D2JSP_UTIL_COLOR_WHITE  = "ÿc" + D2JSP_UTIL_COLOR_BASE_WHITE;
+var D2JSP_UTIL_COLOR_RED    = "ÿc" + D2JSP_UTIL_COLOR_BASE_RED;
+var D2JSP_UTIL_COLOR_GREEN  = "ÿc" + D2JSP_UTIL_COLOR_BASE_GREEN;
+var D2JSP_UTIL_COLOR_BLUE   = "ÿc" + D2JSP_UTIL_COLOR_BASE_BLUE;
+var D2JSP_UTIL_COLOR_GOLD   = "ÿc" + D2JSP_UTIL_COLOR_BASE_GOLD;
+var D2JSP_UTIL_COLOR_GRAY   = "ÿc" + D2JSP_UTIL_COLOR_BASE_GRAY;
+var D2JSP_UTIL_COLOR_BLACK  = "ÿc" + D2JSP_UTIL_COLOR_BASE_BLACK;
+var D2JSP_UTIL_COLOR_GOLD2  = "ÿc" + D2JSP_UTIL_COLOR_BASE_GOLD2;
+var D2JSP_UTIL_COLOR_ORANGE = "ÿc" + D2JSP_UTIL_COLOR_BASE_ORANGE;
+var D2JSP_UTIL_COLOR_YELLOW = "ÿc" + D2JSP_UTIL_COLOR_BASE_YELLOW;
+
+var D2JSP_ITEM_COLOR_WHITE  = D2JSP_UTIL_COLOR_WHITE;
+var D2JSP_ITEM_COLOR_GREEN  = D2JSP_UTIL_COLOR_GREEN;
+var D2JSP_ITEM_COLOR_BLUE   = D2JSP_UTIL_COLOR_BLUE;
+var D2JSP_ITEM_COLOR_GOLD   = D2JSP_UTIL_COLOR_GOLD;
+var D2JSP_ITEM_COLOR_GOLD2  = D2JSP_UTIL_COLOR_GOLD2;
+var D2JSP_ITEM_COLOR_GRAY   = D2JSP_UTIL_COLOR_GRAY;
+var D2JSP_ITEM_COLOR_ORANGE = D2JSP_UTIL_COLOR_ORANGE;
+var D2JSP_ITEM_COLOR_YELLOW = D2JSP_UTIL_COLOR_YELLOW;
+
+const NTC_HAND_RIGHT = 0;
+const NTC_HAND_LEFT  = 1;
+
+const NTC_CLICK_LDOWN = 0;
+const NTC_CLICK_LHOLD = 1;
+const NTC_CLICK_LUP   = 2;
+const NTC_CLICK_RDOWN = 3;
+const NTC_CLICK_RHOLD = 4;
+const NTC_CLICK_RUP   = 5;
+
+const NTC_SHIFT_NONE = 0;
+const NTC_SHIFT_HOLD = 1;
+
+var D2JSP_ITEMFLAG_RUNEWORD			= 0X4000000;	// set if it is a runeword (note that 'ith' qualifies;)
+var D2JSP_ITEMFLAG_NAMED			= 0x1000000;	// has a custom name "Player's item"
+var D2JSP_ITEMFLAG_ANY				= 0x800000;		// was set for all items tested (tested in inv, stash, store)
+var D2JSP_ITEMFLAG_ETHEREAL			= 0x400000;		// 0 if not ethereal
+var D2JSP_ITEMFLAG_RUNE_OR_POT		= 0x200000;		// rune or potion, also set for mephisto's soulstone
+var D2JSP_ITEMFLAG_START_ITEM		= 0x20000;		// an item that a new character starts with (like javelin and buckler, and the minor healings at the start)
+var D2JSP_ITEMFLAG_EAR				= 0x10000;		// a player ear
+var D2JSP_ITEMFLAG_NOT_IN_SOCKET	= 0x4000;		// 0 if in socket, 0 if in belt, 0 if equipped or equipped by merc, 0 for gems/charms/..
+var D2JSP_ITEMFLAG_IN_STORE			= 0x2000;		// in trade or gamble screen
+var D2JSP_ITEMFLAG_SOCKETED			= 0x800;		// the item has sockets (they can be full or empty)
+var D2JSP_ITEMFLAG_REJUV			= 0x400;		// only seen set for full rejuvs for now
+var D2JSP_ITEMFLAG_BROKEN			= 0x100;		// just a bet, but i'm pretty sure it's correct
+var D2JSP_ITEMFLAG_SWITCH_OUT		= 0x80;			// a weapon switch command was performed, and this item is no longer being used
+var D2JSP_ITEMFLAG_SWITCH_IN		= 0x40;			// a weapon switch command was performed, and this item is now being used
+var D2JSP_ITEMFLAG_IDENTIFIED		= 0x10;			// 0 if unid
+var D2JSP_ITEMFLAG_IN_SOCKET		= 0x8;			// 8 if in socket, valid for rune and jewels, not gems
+var D2JSP_ITEMFLAG_EQUIPPED			= 0x1;			// player or merc is wearing the item (don't trust too much, especially when bit 9 is set)
+
+var D2JSP_ITEM_QUALITY_NONE        = 0;
+var D2JSP_ITEM_QUALITY_LOW_QUALITY = 1;
+var D2JSP_ITEM_QUALITY_NORMAL      = 2;
+var D2JSP_ITEM_QUALITY_SUPERIOR    = 3;
+var D2JSP_ITEM_QUALITY_MAGIC       = 4;
+var D2JSP_ITEM_QUALITY_SET         = 5;
+var D2JSP_ITEM_QUALITY_RARE        = 6;
+var D2JSP_ITEM_QUALITY_UNIQUE      = 7;
+var D2JSP_ITEM_QUALITY_CRAFTED     = 8;
+
+var D2JSP_ITEM_QUALITY_MINIMUM = D2JSP_ITEM_QUALITY_NONE;
+var D2JSP_ITEM_QUALITY_MAXIMUM = D2JSP_ITEM_QUALITY_CRAFTED;
+var D2JSP_ITEM_QUALITY_COUNT   = (D2JSP_ITEM_QUALITY_MAXIMUM + 1);
+
+var D2JSP_ITEM_QUALITY_QualityToNameList = new Array(D2JSP_ITEM_QUALITY_COUNT);
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_NONE]        = "none";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_LOW_QUALITY] = "low quality";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_NORMAL]      = "normal";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_SUPERIOR]    = "superior";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_MAGIC]       = "magic";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_SET]         = "set";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_RARE]        = "rare";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_UNIQUE]      = "unique";
+D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_CRAFTED]     = "crafted";
+
+
+var _DC_ItemQuality=["none","low quality","normal","superior","magic","set","rare","unique","crafted"];
+
+var SD_PING			= 1;
+var SD_LOCATION		= 2;
+var SD_LOG			= 3;
+var SD_GETSETTINGS	= 4;
+var SD_GAMEINFO		= 5;
+var SD_RESTARTGAME	= 6;
+var LoaderName		= "none";
+
+//////////////////////////////////////////////////////////////////////
+// Private global variables
+//////////////////////////////////////////////////////////////////////
+var _ChronoTimer         = 0;
+var _ChronoRunTimer      = 0;
+var _DC_SkillIsAvailable = false;
+var _DC_LogToLoader      = (parseFloat(version()) < 0.44) ? (sendDDE (1, "autod2jsp", "command", "", "") > 0) : ((sendCopyData( "autod2jsp", 0, SD_PING, "" ) == false) ? true : (sendCopyData( "TGameMaker", 0, SD_PING, "" ) == false) ? true : false);
+  
+var commonLib = function() {}
+
+//////////////////////////////////////////////////////////////////////
+// d2jsp core functions
+//////////////////////////////////////////////////////////////////////
+
+// trigger for all incoming normal messages
+//var gamemessage;
+//function gamemsgHandler(msg) { gamemessage = msg; }
+
+// trigger for all pressed keys
+//var keyPressed;
+//function keypressHandler(key) { keyPressed = key; }
+
+// trigger for all incoming party messages
+//var partymessage;
+//function partymsgHandler(pmsg) { partymessage = pmsg; }
+
+
+//////////////////////////////////////////////////////////////////////
+// Public Functions
+//////////////////////////////////////////////////////////////////////
+
+// Function by HolyCoitus
+// Modified by Xizeta
+// Parameter :
+// -filepath	Library file to load
+// Return value : None, Display the correct error message depending on what type of error.
+function DC_LoadInclude(filepath) {
+	var IncludeError = ["DC_LoadInclude() : Failed to load library : ","DC_LoadInclude() : Failed to load library : ","DC_LoadInclude() : Erreur lors du chargement du fichier librairie : "];
+	// If the loading of the lib failed, check the cause and report to the user
+	if(!include(filepath)) {
+		// Show a error to the user, if the log settings say to
+		if(DC_Verbose)
+			DC_Print(IncludeError[DC_Language] + filepath);
+		// If the file does not exist, tell them.
+		if(!FileTools.exists("libs/" + filepath))
+			DC_Print("ÿc1DC_LoadInclude() : Library is not available : libs/" + filepath + ". Please download this file!");
+		// If the file is there, there are errors in the file preventing the loading
+		else {
+			DC_Print("ÿc1DC_LoadInclude() : There are errors in libs/" + filepath + " !");
+		}
+		stop();
+	}
+}
+
+// Function from Pwnage Pindle
+// Modified by Xizeta
+// Parameters :
+// -skill	Skill ID or name to use
+// -usehand	Which hand to put the skill, 0 = right, 1 = left and 2 = left+shift (facultative)
+// -x, y	Coordinates where the skill is cast (facultative)
+// Return value : Success of the function
+function DC_DoCast(skill,usehand,x,y) {
+	DC_DPrint("DC_DoCast() skill:" + skill + " usehand: " + usehand + " x: " + x + " y: " + y);
+	// Abort if the function call is without parameters
+	if(arguments.length < 1) {
+		DC_DPrint("DC_DoCast() : Please enter at least a skill ID to cast!");
+		return false;
+	}
+	if(typeof(skill) == "undefined"){
+		DC_DPrint("DC_DoCast() : Invalid skill passed to function.");
+		return false;
+	}
+	// Check for skill availability
+	_DC_SkillIsAvailable = DC_CheckSkill(skill);
+	// We cannot cast if the char doesnt have the skill or cannot remove any item on cursor
+	if(!_DC_SkillIsAvailable || !DC_ClearCursor()) { 
+		return false; 
+	}
+	var _hand;
+	var _shift;
+	// We used the function without specifying a hand, set to 1 as default
+	if(arguments.length == 1) { 
+		_hand = 1;
+		_shift = 0;
+		usehand = 0;
+	}
+	// Adjust the hand and shift correctly
+	else {
+		if(usehand == 0) {
+			_hand = 1;
+			_shift = 1;
+		}
+		
+		else if(usehand == 1) {
+			_hand = 0;
+			_shift = 0;
+		}
+		else {
+			_hand = 0;
+			_shift = 1;
+			usehand = 1;
+		}
+	}
+	// Loop to make 5 attempts to cast the skill
+	for(var CastLoop=0; CastLoop<5; CastLoop= CastLoop + 1) {
+		// If we set usehand, display a message
+		if(arguments.length > 1) 
+			DC_DPrint("DC_DoCast() : Prepare to cast #" + skill + " on "+ (usehand == 1 ? "left" : "right") + " hand");
+		// place the skill on the right hand
+		if(DC_PutSkill(skill,usehand)) {
+			// Use the skill depending on arguments length
+			switch(arguments.length) {
+				// Use the skill on myself
+				case 1:
+				case 2: 
+					DC_DoClick(_hand,_shift);
+					break;
+				// Use the skill with the specified hand on a npc/object/item
+				case 3:
+					DC_DoClick(_hand,_shift,x);
+					DC_DisplayEnemyLife(x);
+					break;
+				// Use the skill with the specified hand on a set of coordinates
+				case 4: 
+					DC_DoClick(_hand,_shift,x,y);
+					break;
+			}
+			var _spellstatus=_DC_PreModeWait();
+			if(_spellstatus && me.mode == _spellstatus) {
+				do {
+					if(x && x.type != null && x.hp <= 0) {
+						break; 
+					}
+					delay(10);
+				} while (me.mode == _spellstatus);
+				DC_DPrint("DC_DoCast() : Cast reported succesful of " + skill + " on hand number " + usehand);
+				return true;
+			}
+			else {
+				DC_DPrint("DC_DoCast() : Cast has failed of " + skill + " on hand number " + usehand);
+			}
+		}
+		else {
+			DC_DPrint("DC_DoCast() : Cannot put skill " + skill + " on " + (_hand == 0 ? "left" : "right") + " hand!");
+		}
+	}
+	return false;
+}
+
+// Function originally from Darien, modified by Xizeta
+// Parameters :
+// -skillid	ID or name of the skill to set
+// -hand	Which hand to set the skill (1 for left and 0 for right)
+// Return value : Success of the function
+function DC_PutSkill(skillid,hand) {
+	// Return false if we are trying to set a passive skill
+	if(DC_IsPassiveSkill(skillid)) {
+		DC_DPrint("DC_PutSkill() : You are trying to set a passive skill!");
+		return false;
+	}
+	// Set _donthave to true if we don't have the skill
+	// If the global flag is false, recheck it because it is possible we
+	// Called DC_PutSkill() directly
+	var _donthave = false;
+	if(!_DC_SkillIsAvailable && (!DC_CheckSkill(skillid))) { 
+		_donthave = true; 
+	}
+	// If the skill is a ID, set to hand + 2 If the skill is a name, use the hand normally
+	var _sethand = (typeof(skillid) == "number") ? ((hand == 0) ? 2 : 3) : hand;
+	// If we don't have the skill, check if scroll or book is set in any hand
+	if(_donthave) {
+		if(me.getSkill(_sethand) >= 217  && me.getSkill(_sethand) <= 220) {
+			// Warn the scripter of this
+			DC_DPrint("DC_PutSkill() : Shutting off any skill related to book or scroll!");
+			// Set the skill to zero
+			me.setSkill(0,hand);
+		}
+		// As we don't have the skill, return false to the caller
+		return false;
+	}
+	// If the current skill is not set, switch to this skill
+	if(me.getSkill(_sethand) != skillid) {
+		// loop until the skill is set or timeout is reached
+		var _timer = DC_Timeout * 1000;
+		do {
+			// For each second, retry to switch weapons
+			if((_timer % 1000) == 0) {
+				// Set the skill on the selected hand
+				DC_DPrint("DC_PutSkill() : Switching to " + skillid + " on "+ (hand == 0 ? "left" : "right") + " hand");
+				me.setSkill(skillid,hand);
+			}
+			_timer -= 20;
+			delay(20);
+		} while(me.getSkill(_sethand) != skillid && _timer > 0);
+		// If the skill is still not set, return false
+		if(me.getSkill(_sethand) != skillid) {
+			DC_DPrint("DC_PutSkill() : Failed to set " + skillid + " on "+ (hand == 0 ? "left" : "right") + " hand");
+			return false;
+		}
+		else { 
+			return true; 
+		}
+	}
+	// The skill is already set on the specified hand so skip the skill setting loop
+	else { 
+		return true; 
+	}
+	return true;
+}
+
+// Function by Xizeta
+// Parameters :
+// -skillid	Skill ID or name to check for availability
+// Return value : False if the skill is unavailable or the skill level
+// NOTE : second param of getSkill determins type of return, 0 =  BASE SKILL ONLY, 1 = total skill level (base + bonuses) 
+function DC_CheckSkill(skillid) {
+	if(arguments.length < 1){
+		DC_DPrint("DC_CheckSkill() : nothing entered to check, returning false");
+		return false;
+	}
+	var inSkillID = (typeof(skillid) != "number") ? getSkillByName(skillid) : skillid;
+	var _skill = me.getSkill(inSkillID,1);
+	// If the skill is unavailable, return false
+	if(!_skill) { 
+		DC_DPrint("DC_CheckSkill() : Skill " + skillid + " is not available !!");
+		return false;
+	}
+	else {
+		DC_DPrint("DC_CheckSkill() : Skill " + skillid + " is currently level " + _skill);
+		return _skill;
+	}
+	return false;
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : True if the skill can be cast on the left hand
+// ToDo : Check the return values of getBaseStat() and use it if it is accurate and reliable
+function DC_IsLeftSkill(skillid) {
+	if(typeof(skillid) != "number") {
+       	DC_DPrint("DC_IsLeftSkill() : Skill entered is a name or undefined, cannot check");
+		return false;
+    	}
+	// Return the flag value from the getBaseStat (experimental)
+	//return getBaseStat(3,skillid,31);
+	// Abort if the skill is a passive skill because it cannot be set
+	if(DC_IsPassiveSkill(skillid)) { 
+		return false; 
+	}
+	var leftskilllist = [0,2,4,5,6,7,10,11,12,14,15,16,19,20,21,22,24,25,26,27,30,
+			 31,34,35,36,38,39,41,45,47,49,53,55,64,67,73,84,93,96,97,
+			 101,106,107,111,112,116,121,126,132,133,139,140,143,144,
+			 147,151,152,225,229,230,232,233,238,239,240,242,243,245,
+			 248,251,254,255,256,257,259,260,265,266,269,270,274,275,280];
+	return ((skillid in leftskilllist) ? true : false);
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : True if the skill is a passive skill
+// ToDo : Check the return values of getBaseStat() and use it if it is accurate and reliable
+var passiveskilllist = new Array();
+passiveskilllist[9]=1;
+passiveskilllist[13]=2;
+passiveskilllist[18]=3;
+passiveskilllist[23]=4;
+passiveskilllist[29]=5;
+passiveskilllist[33]=6;
+passiveskilllist[37]=7;
+passiveskilllist[61]=8;
+passiveskilllist[63]=9;
+passiveskilllist[65]=10;
+passiveskilllist[69]=11;
+passiveskilllist[79]=12;
+passiveskilllist[89]=13;
+passiveskilllist[127]=14;
+passiveskilllist[128]=15;
+passiveskilllist[129]=16;
+passiveskilllist[134]=17;
+passiveskilllist[135]=18;
+passiveskilllist[136]=19;
+passiveskilllist[141]=20;
+passiveskilllist[145]=21;
+passiveskilllist[148]=22;
+passiveskilllist[153]=23;
+passiveskilllist[224]=24;
+passiveskilllist[252]=25;
+passiveskilllist[263]=26;
+
+function DC_IsPassiveSkill(skillid) {
+	if(typeof(skillid) != "number") {
+       	DC_DPrint("DC_IsPassiveSkill() : Skill entered is a name or undefined, cannot check");
+		return false;
+   	}
+	return  getBaseStat(3, skillid, D2JSP_BASE_SKILLS_PASSIVE);
+	//return ((skillid in passiveskilllist) ? true : false);
+}
+
+
+var invalidEnemies = [];
+invalidEnemies[271]=1;
+invalidEnemies[338]=2;
+invalidEnemies[359]=3;
+invalidEnemies[561]=4;
+invalidEnemies[523]=5;
+// Function from Pwnage Pindle
+// Parameters :
+// -enemy	object of the monster to check
+// -showmsg	show a alternate msg to remplace "Life" (facultative).
+// Return value : None, display over the player head the remaining life of the current enemy
+function DC_DisplayEnemyLife(enemy,showmsg) {
+	// If it is a valid enemy (monster) object, is not of the merc class and is not called "Gold"
+	if(enemy && enemy.type == 1 && enemy.classid != 271 && enemy.classid != 338 && enemy.classid != 359 && enemy.classid != 561 && enemy.classid != 523) {
+	//if(enemy && enemy.type == 1 && !enemy.classid in invalidEnemies) {
+		if(arguments.length < 2 || showmsg == "") { showmsg = "Life"; }
+		if(enemy.hp > 0) { me.overhead(enemy.name + " " + showmsg + ": " + Math.round(enemy.hp / 1.28) + " %"); }
+		if(enemy.hp <= 0) { me.overhead(enemy.name + " " + showmsg + ":  0%"); }
+	}
+}
+
+// Function by Xizeta
+// Parameters :
+// -classid	The classid of the monster from monstats.txt
+// -type 	Type of monster (list below)
+// 0x00	Normal Monster
+// 0x01	Super Unique
+// 0x02	Champion
+// 0x04	Boss
+// 0x08	Minion
+// Return value : If the monster is found, return the object and false if not
+function DC_FindMonster(classid,type) {
+	if(arguments.length < 1) {
+		DC_DPrint("DC_FindMonster() : A classid is needed to use this function!");
+		return false;
+	}
+	// If the number of arguments is less than 2, put type to null
+	if(arguments.length < 2) {
+		type = false;
+	}
+	DC_DPrint("DC_FindMonster() : Detecting the monster " + classid + ((type) ? (" of type " + type) : " "));
+	// Get the first monster and abort if we cannot find after 3 attempts
+	var monster = false;
+	if(DC_UseCheckLoop) {
+		for(var i=0; i < 3; i= i + 1) {
+			monster = DC_getNPC(classid);
+			if(monster) { break; }
+		}
+	}
+	else {
+		monster = DC_getNPC(classid);
+	}
+	// Start the loop if a monster is found
+	if(monster) { do {
+		if(type) {
+			if(monster.spectype & type) {
+				DC_DPrint("DC_FindMonster() : Detected " + monster.name + " (" + monster.classid + ", " + monster.spectype + ")");
+				return monster;
+			}
+		}
+		else {
+			DC_DPrint("DC_FindMonster() : Detected " + monster.name + " (" + monster.classid + ")");
+			return monster;
+		}
+	} while(monster.getNext(classid)); }
+	// If we got there without detecting any monster, return false
+	DC_DPrint("DC_FindMonster() : Unable to find " + classid);
+	return false;
+}
+
+// Function by Xizeta
+// Parameters :
+// -switchto	Facultative parameter, Which tab to switch, 0 for first tab and 1 for second tab
+//		If no switchto is specified, it will switch to a different tab
+// Return value : Success of the function
+function DC_DoWeaponSwitch(switchto) {
+	// If no argument is entered, select the tab other than current for switching
+	if(arguments.length < 1)
+		switchto = (weaponSwitch(1)== 0) ? 1 : 0;
+	// If no parameter is entered, check if the weapon is already at the right tab
+	else { 
+		if(weaponSwitch(1) == switchto) {
+			return true; 
+		} 
+	}
+	DC_ChronoMe();
+	// Stall while the char is busy
+	while (( me.mode > 7 ) && ( me.mode != 17 )) { DC_DoDel(20); }
+	var _timer = DC_SwitchTimeout * 1000;
+	// Loop while weapon switch is not done
+	do {
+		// For each second, retry to switch weapons
+		if((_timer % 1000) == 0) { weaponSwitch(0); }
+		_timer -= 50;
+		delay(50);
+	} while(weaponSwitch(1) != switchto && _timer > 0);
+	var _switchtime = DC_ChronoMe();
+	if(weaponSwitch(1) != switchto) {
+		DC_DPrint("Weapon switch failed after approximately " + _switchtime + " ms");
+		return false;
+	}
+	else {
+		DC_DPrint ("weapon switch to " + weaponSwitch(1) + " took approximately " + _switchtime + " ms");
+		return true;
+	}
+	return true;
+}
+
+// Function from Pwnage Pindle
+// Modified by Xizeta (called MFSwitch()  before)
+// Parameter :
+// -type	Which type of switch (0 for MF tab, 1 for Attack tab)
+// Return value : True if we have switched weapons, false if the current tab is the mf tab too
+function DC_SelectTab(type) {
+
+	var _mainmf     = 0;
+	var _switchmf   = 0;
+	var _haveswitch = false;
+	var _weapontab  = DC_getItem();
+
+	// Get the info on the two weapon tabs
+	if(_weapontab) { do {
+		if(DC_CheckOwner(_weapontab)) {
+			// Calculating the mf total on the tab 1
+			if((_weapontab.bodylocation == 4 || _weapontab.bodylocation == 5) && _weapontab.mode == 1) {
+				_mainmf += _weapontab.getStat(80);
+				if(_weapontab.getStat(240) != 0) { _mainmf += me.getStat(12) * (_weapontab.getStat(240) / 8); }
+			}
+			// Calculating the mf total on the tab 2
+			if((_weapontab.bodylocation == 11 || _weapontab.bodylocation == 12) && _weapontab.mode == 1) {
+				_haveswitch = true;
+				_switchmf += _weapontab.getStat(80);
+				if(_weapontab.getStat(240) != 0) { _switchmf += me.getStat(12) * (_weapontab.getStat(240) / 8); }
+			}
+		}
+	} while (_weapontab.getNext()); }
+	// If we have items on the 2nd tab, show a message to the user and do a switch depending on the parameter
+	if(_haveswitch) {
+		DC_DPrint("Your main magic find is: (" + _mainmf + ")   Your weapon switch has: (" + _switchmf + ") magic find");
+		if((_mainmf > _switchmf && type==1) || (_mainmf < _switchmf && type==0)) { 
+			DC_DoWeaponSwitch(); 
+			return true; 
+		}
+		else if(_mainmf == _switchmf) 
+			return false;
+	}
+	return true;
+}
+
+// Function by Muellsammler, modified by Xizeta
+// Return value : True if a useful weapon tab is found, false if none is found
+function DC_CheckWeapons() {
+	// Variables
+	var _thisleft = 0;
+	var _thisright = 0;
+	var _otherleft = 0;
+	var _otherright = 0;
+	var _check = getUnit(4, null, 1);
+	// check all 4 weapon slots
+	if(_check) { do {
+		if(DC_CheckOwner(_check, me.name)) {
+			switch (_check.bodylocation) {
+				case 4: _thisleft = 1; break;
+				case 5: _thisright = 1; break;
+				case 11: _otherleft = 1; break;
+				case 12: _otherright = 1; break;
+			}
+		}
+	} while (_check.getNext(null,1)); }
+	// check for 2handed weapons in first tab
+	if(_thisleft + _thisright == 1) {
+		_check = getUnit(4, null, 1);
+		if(_check) { do {
+			if(DC_CheckOwner(_check, me.name) && (_check.bodylocation == 4 || _check.bodylocation == 5)) {
+				// 256=1h, 128=2h
+				if(getBaseStat(4, _check.classid, 25) == 128) {
+					_thisleft = 1;
+					_thisright = 1;
+				}
+			}
+		} while (_check.getNext(null,1)); }
+	}
+	// check for 2handed weapons in second tab
+	if(_otherleft + _otherright == 1) {
+		_check = getUnit(4, null, 1);
+		if(_check) { do {
+			if(DC_CheckOwner(_check, me.name) && (_check.bodylocation == 11 || _check.bodylocation == 12)) {
+				// 256=1h, 128=2h
+				if(getBaseStat(4, _check.classid, 25) == 128) {
+					_otherleft = 1;
+					_otherright = 1;
+				}
+			}
+		} while (_check.getNext(null,1)); }
+	}
+	// Throw a exception when no useful set is found
+	if(_thisleft + _thisright != 2 && _otherleft + _otherright != 2) {
+		DC_ThrowException("DC_CheckWeapons()","Haven't found any weapon set equipped !");
+	}
+	// If there is at least a useful weapon switch tab
+	if(_thisleft + _thisright == 2 || _otherleft + _otherright == 2) {
+		// Switch tabs to get the most useful tab
+		if(_otherleft + _otherright > _thisleft + _thisright) { doWeaponSwitch(); }
+		// return true to indicate a valid weapon tab
+		return true;
+	}
+	// No valid weapon tab found so return false
+	return false;
+}
+
+// Original Function by Xizeta
+// Rewritten by njaguar on Feb 18th 2005
+// Parameters :
+// -button	Which button to click (0 = left, 1 = right)
+// -shift	use the shift key while clicking (0 = no shift, 1 = shift)
+// -x, y	coordinates where to click (if only x is entered, it is a object to click)
+// Return value : Success of the function
+function DC_DoClick(button,shift,x,y) {
+	if( button != 0 ) {
+		button = 3;
+		}
+	switch( arguments.length ) {
+		case 0:
+			DC_DPrint("DC_DoClick() : There is no arguments entered!");
+			break;
+		case 1:
+			DC_DPrint("DC_DoClick() : shift parameter not entered!");
+			break;
+		case 2:// self
+			var xRnd = rnd(-2,2);
+			var yRnd = rnd(-2,2);
+			clickMap( button, shift, me.x+xRnd, me.y+yRnd );
+			delay(DC_ClickDel+rnd(10,30));
+			clickMap( button+2, shift, me.x+xRnd, me.y+yRnd );
+			return true;
+		case 3: // Object/Tile/Item
+			clickMap( button, shift, x );
+			delay(DC_ClickDel+rnd(10,30));
+			clickMap( button+2, shift, x );
+			return true;
+		case 4:// Target X/Y
+			clickMap( button, shift, x, y );
+			delay(DC_ClickDel+rnd(10,30));
+			clickMap( button+2, shift, x, y );
+			return true;
+		default:
+			DC_DPrint("DC_DoClick() : Too many arguments entered!");
+			break;
+	}
+	return false;
+}
+
+// Function from Pwnage Pindle, modified by Xizeta
+// parameters :
+// -object	Object to check for ownership
+// -ownername	name of the owner (facultative, if no name is entered, it will use me.name instead)
+// Return value : True if the object belong to who (me if who is not entered)
+function DC_CheckOwner(object,ownername) { 
+	if(!object) {
+		DC_DPrint("DC_CheckOwner() : No object to check for ownership!");
+		return false;
+	}
+	var _unit = null;
+	if(arguments.length < 2) {
+		if(object.getParent()) {
+			_unit = object.getParent();
+			if(_unit == me.name || _unit.name == me.name) { return true; }
+		}
+	}
+	else {
+		if(object.getParent()) {
+			_unit = object.getParent();
+			if(_unit == ownername || _unit.name == ownername) { return true; }
+		}
+	}
+	return false;
+}
+
+// Function from Pwnage Pindle, modified by Xizeta
+// Parameters :
+// -item	The item object to be put on the cursor
+// Return value : Success of the function
+function DC_ItemToCursor(item) {
+	// Check if the cursor is clean
+	if(me.itemoncursor) { return true; }
+	// Click on the item
+	clickItem(0,item);
+	// Init the timer
+	var _timer = DC_Timeout * 1000;
+	// Loop while the item is not put on cursor
+	do {
+		// For each 0.5 second, retry the click
+		if((_timer % 500) == 0) { clickItem(0,item); }
+		// Decrease the timer
+		_timer -= 25;
+		delay(25);
+	} while(!me.itemoncursor && _timer > 0);
+	return me.itemoncursor ? true : false;
+}
+
+// Function by bluemind, modified by Xizeta
+// Return value : Success of the function
+function DC_ClearCursor() {
+	// Quit if no item is on the cursor
+	if(!me.itemoncursor) { return true; }
+	// Get the item on cursor
+	var _cursoritem = DC_getItem(null,4);
+	// We found a item on cursor
+	if(_cursoritem)	{
+		// Init the timer
+		var _timer = DC_Timeout * 1000;
+		// Loop while the item is not dropped
+		do {
+			// For each 0.5 second, retry the cancel
+			if((_timer % 500) == 0) { 
+				_cursoritem.cancel(); 
+			}
+			// Decrease the timer
+			_timer -= 25;
+			delay(25);
+		} while(me.itemoncursor && _timer > 0);
+	}
+	// Check if the item is still on cursor
+	return (me.itemoncursor ? false : true);
+}
+
+// Function by Xizeta
+// Return value : Name of the mercenary if he is alive, false if he is not
+function DC_GetMercName() {
+	if(me.mercrevive) { return false; }
+	var _merc = DC_GetMerc();
+	return (_merc) ? _merc.name : false;
+}
+
+// Return value : If the mercenary is alive, return the object. False if he is not alive
+function DC_GetMerc() {
+	// If we get the price to ressurect the merc, he is dead so return false
+	if(me.mercrevive) { return false; }
+	var _merc = me.getMerc();
+	
+	return (_merc && _merc.hp > 0 && _merc.mode != 12) ? _merc : false;
+}
+
+// Function from Daemon, modified by Xizeta
+// Return value : Amount of keys to buy, 0 = false
+function DC_CheckKeys() {
+	// If we don't want to buy keys, return 0 immediatly
+	if(!DC_BuyKeys || me.classid == 6) { return 0; }
+	_keys=DC_GetKeys();
+	// If we don't have keys, return 12
+	if(!_keys) { return 12; }
+	// If we have a keys stack, get the quantity and return the number if it is below the percent threshold
+	if(_keys) {
+		var _quantity = _keys.getStat(70);
+		var _needkeys = 12 - _quantity;
+		if(Math.floor((_quantity * 100) / 12) <= DC_BuyKeysPercent) { return _needkeys; }
+	}
+	return 0;
+}
+
+// Function from Daemon, modified by Xizeta
+// Return value : Stack of keys if it is found, or null if not
+function DC_GetKeys() {
+	// get the first item
+	var item = DC_getItem("key", 100);
+	// If we have a item, start the loop
+	if(item) { do {
+		// If the key is in inventory and is mine
+		if(item.mode == 0 && item.bodylocation == 0 && DC_CheckOwner(item)) {
+			// Return the key stack found
+			return item;
+		}
+	} while (item.getNext()); }
+	// No item is found so return null
+	return null;
+}
+
+// Function from Daemon, modified by Xizeta
+// modified by darkspirit
+function DC_OpenChest(chest) {
+	// If we have no object entered, return false
+	if(!chest) { return false; }
+	// if the object is opened, return false
+	if(chest.mode) { return false; }
+	// If the chest is locked, check if we have a free key
+	if(chest.status!=0) {
+		// Get the key stack object for usage
+		var key = DC_GetKeys();
+		// If we don't have a key object or is the key stack empty, return false
+		if( !key || ( key.getStat(70) < 1) ) {
+			DC_DPrint("DC_OpenChest() : This chest is locked but i have no key !");
+			return false;
+		}
+	}
+	// Display the debug info
+	DC_DPrint("DC_OpenChest() : Trying to open " + chest.name + " (" + chest.classid + ")");
+	// Try to open the chest, for 3 retries
+	var retry = 0;
+	var wait = 0;
+	while ((chest.mode == 0) && (retry < 3)) {
+		retry = retry + 1;
+		// If i'm a sorc and we have telekinesis available
+		if(DC_UseTKOnChests && me.classid == 1 && DC_CheckSkill(43)) {
+			// Cast telekinesis on the chest object to open it
+			DC_DoCast(43,0,chest );
+		}
+		// Else, use mouse clicks as usual
+		else {
+			DC_DoClick(0,0,chest);
+		}
+		// Wait for a certain amount of time
+		wait = 0;
+		while ((chest.mode == 0 ) && (wait < 5)) { wait = wait + 1; DC_DoDel(10); }
+	}
+	// Return the status. If it is less than 3, we succeeded
+    return (retry < 3);
+}
+
+
+// Class by Xizeta
+// Parameters :
+// -name	Exception name
+// -message	Exception message
+// -inner	Inner Exception if there is one
+// Return value : None
+function DC_ExceptionClass(_name,_message,_inner) {
+	this.name    = _name;
+	this.message = _message;
+	this.inner   = _inner;
+	//Lets fake a way to get our inherited object a PROPER stack
+	try{
+		throw new Error();
+	}
+	catch(e) {
+		this.stack = e.stack;
+	}
+	this.stack = this.stack.split("\n").slice(3);
+	this.stack.pop();
+	this.stack.pop();
+	this.stack.reverse();
+}
+DC_ExceptionClass.prototype = new Error;
+
+// Function by Xizeta
+// Parameters :
+// -name	Exception name
+// -message	Exception message
+// Return value : None
+function DC_ThrowException(name,message) {
+	var _dcException = new DC_ExceptionClass(name,message);
+	throw _dcException;
+}
+
+// Function by Xizeta
+function DC_Print(message,console) {
+	if(arguments.length > 1) { console.System.AddMessage(message); }
+	else {
+		if(DC_Console) 
+			DC_Console.System.AddMessage(message);
+		else
+			print(message);
+	}
+}
+
+// Function from Pwnage Pindle
+// Parameters :
+// -message	message to be displayed on screen
+// Return value : None, quit the game after displaying the message and/or logging the error
+function DC_QuitMessage(message) {
+	var AbortMessage = ["Aborting game...","Aborting game...","Partie en train d'être avorté..."];
+	DC_Print(message);
+	if(DC_Verbose) { DC_Print(AbortMessage[DC_Language]); }
+	DC_DPrint("Abort game request sent! Message = " + message);
+	DC_LogError("Abort game request sent! Message = " + message);
+	DC_DoDel(DC_AbortPrintDel);
+	quit();
+}
+
+// Function from Pwnage Pindle
+// Parameters :
+// -message	message to be displayed on screen
+// Return value : None, stop d2jsp after displaying the message and/or logging the error
+function DC_StopMessage(message) {
+	var HaltMessage = ["Script halted...","Script halted...","Script stoppé..."];
+	DC_Print(message);
+	if(DC_Verbose) { DC_Print(HaltMessage[DC_Language]); }
+	DC_DPrint("Script halt request sent! Message = " + message);
+	DC_LogError("Script halt request sent! Message = " + message);
+	DC_DoDel(DC_AbortPrintDel);
+	stop();
+}
+
+// Function by Xizeta
+// Each function call work like a trigger. 1st call start it and 2nd call return the total time.
+// Return value : None for the 1st use, the chrono time in ms in the 2nd use
+function DC_ChronoMe() {
+	if(_ChronoTimer == 0) {
+		_ChronoTimer = new Date().getTime();
+	}
+	else {
+		var TotalChrono = new Date().getTime() - _ChronoTimer;
+		_ChronoTimer = 0;
+		return TotalChrono;
+	}
+	return false;
+}
+
+// Function by Xizeta
+// Each function call work like a trigger, 1st call start it and 2nd call return the total time
+// This is different from the DC_ChronoMe() because this one is used to time a run
+// Return value : None for the 1st use, the chrono time in ms in the 2nd use
+function DC_ChronoRun() {
+	if(_ChronoRunTimer == 0) {
+		_ChronoRunTimer=new Date().getTime();
+	}
+	else {
+		var TotalRun=new Date().getTime() - _ChronoRunTimer;
+		_ChronoRunTimer=0;
+		return TotalRun;
+	}
+	return false;
+}
+
+// Function from Pwnage Pindle
+// Parameters :
+// -amount 	Amount of time in ms to delay
+// Return value : None, just stall until the delay amount is reached
+function DC_DoDel(amount) {
+	if(DC_RandomDel) { 
+		delay(amount + rnd(0,amount)); 
+	}
+	else { 
+		delay(amount + rnd(0,10)); 
+	}
+}
+
+// Function by Muellsammler
+// Parameters :
+// -amount 	Amount of time in ms to delay
+// Return value : None, just stall until the delay amount with the ping value is reached
+function DC_PingDel(amount) {
+	var _currentping = me.ping;
+	if(_currentping > 100) { _currentping = _currentping - 100; }
+	else { _currentping = 0; }
+	return DC_DoDel(amount + _currentping);
+}
+
+// Function by TechnoHunter
+// Parameters :
+// Return value : None, just stall until the delay amount with the mode is changed, or it times out
+function DC_ModeDel(){
+ 	var i = 0;
+  	while ((me.mode == 3 || me.mode == 2) && i < 20) { 
+		i++; 
+		delay(100); 
+	}
+}
+
+// Written by Scavenger
+// Parameters :
+// -who		object to check the area (usually "me").
+// Return value : True if we are in town
+function DC_InTown(who) {
+	 // Stall while i'm going thru TP or WP (thx to Muellsammler)
+	while (who.area == 0) { delay(50); }
+	return (who.area == 1 || who.area == 40 || who.area == 75 || who.area == 103 || who.area == 109) ? true : false;
+}
+
+// Function by Xizeta
+// Parameters :
+// -filepath	Path to the log file to write
+// -message	Message to be printed in the log file
+// -timestamp	Timestamp to be printed in the log file
+// Return value : Success of the function
+function DC_WriteLogEntry(filepath,message,timestamp) {
+	if(!filepath) {
+		DC_Print("DC_WriteLogEntry() : Log file path is not valid");
+		DC_LogToautod2jsp("DC_WriteLogEntry() : Log file path is not valid");
+		return false;
+	}
+	if(arguments.length < 3) 
+		timestamp = DC_LeadDateAndTime();
+	var _file = File.open(filepath, FILE_APPEND); // 0 = Read, 1 = Write, 2 = Append
+	if(!_file) {
+		DC_Print("DC_WriteLogEntry() :  Couldn't open the log file (" + filepath + ").");
+		DC_LogToautod2jsp("DC_WriteLogEntry() :  Couldn't open the log file (" + filepath + ").");
+		return false;
+	}
+	else {
+		_file.write(timestamp + " " + message + "<br>" + "\n");
+		_file.close();
+	}
+	// As logging is successful, return true
+	return true;
+}
+
+// Function by Xizeta
+// Parameters :
+// -message	Message to be displayed on the autod2jsp log window
+// -timestamp	Timestamp to display on the window (facultative, will create his own if none is entered)
+// Return value : Success of the function
+function DC_LogToautod2jsp(message,timestamp) {
+	if(!_DC_LogToLoader) 
+		return false;
+	if(LoaderName == "none")
+		LoaderName = (sendCopyData( "autod2jsp", 0, SD_PING, "" ) == false) ? "autod2jsp" : (sendCopyData( "TGameMaker", 0, SD_PING, "" ) == false ? "TGameMaker" : "none");
+	if(arguments.length < 2) 
+		timestamp = DC_LeadDateAndTime();
+	var _messageCopy = (LoaderName == "autod2jsp") ? String(message).replace(/\xff+(c\d)/g, "") : getMyPID() + "@log@" + timestamp + "°" + String(message).replace(/\xff+(c\d)/g, "");
+	return ((parseFloat(version()) < 0.44) ? sendDDE(1,"autod2jsp","log","",getMyPID() + "," + timestamp + "," + String(message).replace(/\xff+(c\d)/g, "")) : sendCopyData( LoaderName, 0, SD_LOG, _messageCopy ));
+}
+
+// Function by Xizeta
+// Parameters :
+// -item	Item object to get the stats
+// -intrade	Flag to know if we are getting the stats while in trade
+// Return value : String with item stats only or empty if no stats
+function DC_ExtractStats(item,intrade) {
+	var _stats="";
+	// If the item is unidentified, don't get the stats because it's not there
+	if(!item.getFlag(0x10)) {
+		DC_DPrint("DC_ExtractStats() : No stats is displayed on unidentified items!");
+		return _stats;
+	}
+	// Get the item description
+	var _itemdesc = item.description;
+	// Put the description in a array of lines
+	var _desclines = _itemdesc.split( "\n" );
+	// Loop thru the array and trim any line with ÿc other than ÿc3
+	var _desclinesnocolor = new Array();
+	for(_line = _desclines.length; _line > 0; _line-=1) {
+		// If the line is not empty
+		if(_desclines[_line - 1] != "") {
+			// If there is a ÿc in the line, remove it excepted ÿc3
+			if(!_DC_GotItemColor(_desclines[_line - 1])) {
+				_desclinesnocolor.push(DC_StripColors(_desclines[_line - 1]));
+			}
+		}
+		// break the loop because we hit a free line (on set items)
+		else if(item.quality == D2JSP_ITEM_QUALITY_SET){ break; }
+	}
+	// Make the array into 1 line
+	var _start = 1;
+	if(intrade) { _start = 2; }
+	for(_line = _start; _line < _desclinesnocolor.length; _line+=1) {
+		_stats += _desclinesnocolor[_line];
+		if(_line < _desclinesnocolor.length - 1) { _stats += " | "; }
+	}
+	return _stats;
+}
+
+// Function by Xizeta
+// Return value : Amount of gold a char hold (from inv and stash)
+function DC_MyGold() { 
+	return me.getStat(14)+me.getStat(15); 
+}
+
+// Function by Aeternus
+// Return value : Amount of gold a char hold (from inv only)
+function DC_MyGoldCarry() { 
+	return me.getStat(14); 
+}
+
+// Function by Aeternus
+// Return value : Maximum stash gold amount
+function DC_StashGoldFull(){
+	var _maxgold;
+	var _level = me.getStat(12);
+	if(_level < 30) {
+		_maxgold = Math.floor((_level + 10) / 10) * 50000;
+	}
+	else {
+		_maxgold = 800000 + Math.floor((_level - 30) / 2) * 50000;
+	}
+	return (_maxgold == me.getStat(15));
+}
+
+// Function by Aeternus
+// Return value : Maximum char gold amount
+function DC_CharGoldFull() { 
+	return (me.getStat(14) >= (me.getStat(12) * 10000)); 
+}
+
+// Function by Xizeta
+// Return value : Maximum gold amount (stash + char)
+function DC_MaxGold() {
+	var _stashgold;
+	var _level = me.getStat(12);
+	if(_level < 30) {
+		_stashgold = Math.floor((_level + 10) / 10) * 50000;
+	}
+	else {
+		_stashgold = 800000 + Math.floor((_level - 30) / 2) * 50000;
+	}
+	var _chargold = 10000 * _level;
+	return (_chargold + _stashgold);
+}
+
+// Parameters :
+// -playerinfo	Info of the player to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Player object returned by getUnit()
+function DC_getPlayer(playerinfo, mode) {
+	var _player = getUnit(0, playerinfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _player;
+}
+
+// Parameters :
+// -npcinfo	Info of the NPC to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : NPC object returned by getUnit()
+function DC_getNPC(npcinfo, mode) { 
+	var _npc = getUnit(1, npcinfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _npc;
+}
+
+// Parameters :
+// -objectinfo	Info of the object to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Object object returned by getUnit()
+function DC_getObject(objectinfo, mode) {
+	var _object = getUnit(2, objectinfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _object;
+}
+
+// Parameters :
+// -iteminfo	Info of the item to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Item object returned by getUnit()
+function DC_getItem(iteminfo, mode) {
+	var _item = getUnit(4, iteminfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _item;
+}
+
+// Parameters :
+// -tileinfo	Info of the tile to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Tile object returned by getUnit()
+function DC_getTile(tileinfo, mode) {
+	var _tile = getUnit(5, tileinfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _tile;
+}
+
+// Parameters :
+// -missileinfo	Info of the missile to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Missile object returned by getUnit()
+/*function DC_getMissile(missileinfo, mode) { 
+	var _missile = getUnit(8, missileinfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _missile;
+}*/
+
+// Function from njaguar
+// Parameter :
+// -text	Text string where to remove color codes
+// Return value : Text without the color tag
+function DC_StripColors(text) {
+	return text.replace(/ÿc./g,"");
+}
+
+var DC_UnidentifiedName = "Unidentified";
+var DC_EtherealName     = "Ethereal";
+
+// Function by njaguar
+// Parameter :
+// -in_item	Item object returned by getUnit
+// -quality	If quality is set to 1, add the quality name before the item name
+// Return value : Full item name string
+function DC_ItemToFullName(in_item,quality) {
+	var itemFullNameQualities = [ "", "Low Quality ", "", "Superior ", "Magic ", "Set ", "Rare ", "Unique ", "Crafted " ];
+	if(in_item && in_item.type==4) {
+		var sockets = in_item.getStat(194);
+		return (!in_item.getFlag(0x10) ? DC_UnidentifiedName + " " : "") + ((quality !=0) ? itemFullNameQualities[in_item.quality] : "") + (in_item.getFlag(0x400000) ? DC_EtherealName + " " : "") + DC_StripSpaces(DC_StripColors(in_item.fname.replace(/\n/g," - "))) + (sockets ? " (" + sockets + ")" : "");
+	}
+	return "Invalid item object";
+}
+
+
+// Function by TechnoHunter
+// Parameter :
+// -in_item	Item object returned by getUnit
+// Return value : string with number of sockets an item has
+function DC_GetItemSockets(in_item) {
+	return(in_item.getFlag(D2JSP_ITEMFLAG_SOCKETED) ? ("(" + in_item.getStat(194) + ")") : "");
+}
+
+
+// Function by TechnoHunter
+// Parameter :
+// -in_item	Item object returned by getUnit
+// Return value : string with Ethereal or not based on if item is Ethereal
+function DC_GetItemEth(in_item) {
+	return(in_item.getFlag(D2JSP_ITEMFLAG_ETHEREAL) ? "Ethereal " : "");
+}
+
+/*
+// Function by TDW, modified by Xizeta
+// Parameter :
+// -quality_number	Item quality level
+// Return value : True if the quantity value is valid
+function DC_IsValidQuality(quality_number) {
+	return(((quality_number >= D2JSP_ITEM_QUALITY_MINIMUM) && (quality_number <= D2JSP_ITEM_QUALITY_MAXIMUM)) ? true : false);
+}
+
+// Function by TDW, modified by Xizeta
+// Parameter :
+// -quality_number	Item quality level
+// Return value : Return the quality name corresponding to the quality number, or invalid
+function DC_QualityToName(quality_number) {
+	return((DC_IsValidQuality(quality_number)) ? D2JSP_ITEM_QUALITY_QualityToNameList[quality_number] : "*INVALID-QUALITY*");
+}
+*/
+
+/*
+// Function by TDW, modified by Xizeta
+// Parameter :
+// -in_item	Item object returned by getUnit
+// Return value : Proper item prefix (Work-around for unidentifed rare affix bug in core)
+function DC_GetItemPrefix(in_item) {
+	return(((in_item.getFlag(D2JSP_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2JSP_ITEM_QUALITY_RARE)) &&
+		(in_item.quality != D2JSP_ITEM_QUALITY_SET) && (in_item.quality != D2JSP_ITEM_QUALITY_UNIQUE)) ? in_item.prefix : "");
+}
+
+// Function by TDW, modified by Xizeta
+// Parameter :
+// -in_item	Item object returned by getUnit
+// Return value : Proper item suffix (Work-around for unidentifed rare affix bug in core)
+function DC_GetItemSuffix(in_item) {
+	return(((in_item.getFlag(D2JSP_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2JSP_ITEM_QUALITY_RARE)) &&
+ 		(in_item.quality != D2JSP_ITEM_QUALITY_SET) && (in_item.quality != D2JSP_ITEM_QUALITY_UNIQUE)) ? in_item.suffix : "");
+}
+*/
+
+// Function from IceCountess
+// Parameter :
+// -code	Item code for the rune to translate
+// Return value : Rune name or false if the code is invalid
+function DC_RuneCodeToName(code) {
+	switch (code) {
+		case "r01": return "El";
+		case "r02": return "Eld";
+		case "r03": return "Tir";
+		case "r04": return "Nef";
+		case "r05": return "Eth";
+		case "r06": return "Ith";
+		case "r07": return "Tal";
+		case "r08": return "Ral";
+		case "r09": return "Ort";
+		case "r10": return "Thul";
+		case "r11": return "Amn";
+		case "r12": return "Sol";
+		case "r13": return "Shael";
+		case "r14": return "Dol";
+		case "r15": return "Hel";
+		case "r16": return "Io";
+		case "r17": return "Lum";
+		case "r18": return "Ko";
+		case "r19": return "Fal";
+		case "r20": return "Lem";
+		case "r21": return "Pul";
+		case "r22": return "Um";
+		case "r23": return "Mal";
+		case "r24": return "Ist";
+		case "r25": return "Gul";
+		case "r26": return "Vex";
+		case "r27": return "Ohm";
+		case "r28": return "Lo";
+		case "r29": return "Sur";
+		case "r30": return "Ber";
+		case "r31": return "Jah";
+		case "r32": return "Cham";
+		case "r33": return "Zod";
+	}
+	return false;
+}
+
+// Function from IceCountess
+// Get the date and time string for logging
+// Return value : String with the date and time formatted
+function DC_LeadDateAndTime() {
+	var _tmpdate = new Date();
+	var _string = "[" + _tmpdate.getFullYear() + "/" + _DC_LeadZero(_tmpdate.getMonth() + 1) + "/" + _DC_LeadZero(_tmpdate.getDate()) + "]";
+	_string = _string + " [" + _DC_LeadZero(_tmpdate.getHours()) + ":" + _DC_LeadZero(_tmpdate.getMinutes()) + ":" + _DC_LeadZero(_tmpdate.getSeconds()) + "]";
+	return _string;
+}
+
+// Function by njaguar
+// Parameter :
+// -strline	String to trim excess space
+// Return value : String without the excess space
+function DC_StripSpaces(strline) {
+	return strline.replace(/^\s+/,"").replace(/\s+$/,"");
+}
+
+
+// Function from VenIM, modified by Xizeta
+// Parameter :
+// -strline	String to trim excess space
+// -numline	Line number for error display purpose
+// Return value : String without the quotes or false if there is errors
+function DC_StripQuotes(string,numline) {
+	// Find the first quote
+	var _quotes = string.indexOf("\"");
+	// If a quote is found, try to find the ending quote
+	if(_quotes!=-1) {
+		// Find the closing quote
+		_endquotes=string.lastIndexOf("\"");
+		// If no closing quote is found, there is a error with this string
+		if(_endquotes==-1) {
+			// If numline is entered, display a error
+			if(arguments.length > 1) { DC_DPrint("DC_StripQuotes() : Invalid quotes at line #" + numline); }
+			// Return the string as is
+			return string;
+		}
+		// There is no error so return the string with the quotes removed
+		return string.substring(_quotes+1,_endquotes);
+	}
+	// There is no quotes found so return like this
+	return string;
+}
+
+
+// Function by Aeternus, modified by Xizeta
+// Return value : Number of rows in a belt, IE 1 to 4.
+function DC_GetBeltSize(){ 
+	var _item = DC_getItem();
+	if(_item) { do {
+		// If the belt is equipped, check the amount depending on the item code
+		if(_item.bodylocation == 8 && DC_CheckOwner(_item)) {
+			if(_item.code == "lbl" || _item.code == "vbl") { return 2; }
+			if(_item.code == "mbl" || _item.code == "tbl") { return 3; }
+			else { return 4; }
+		}
+	} while(_item.getNext()); }
+	// If we have no belt, return 1 as row number
+	return 1;
+}
+
+// stole this from LifeWatch - darkspirit
+// It will try to return non-first row pots if possible
+function DC_GetPotByClassID(classid) {
+	if(!classid)
+		return null; 
+
+	var _altPot = null;
+	var _pot = DC_getItem(classid,2);
+	if(_pot) { 
+		do {
+			if(DC_CheckOwner(_pot)) {
+				if(_pot.x >= 4) { 
+					return _pot; 
+				}
+				else if(!_altPot) { 
+					_altPot = copyUnit(_pot); 
+				}
+			}
+		} while(_pot.getNext(classid,2)); 
+	}
+	return _altPot;
+}
+
+// Function from darkspirit
+function _DC_GetFirstRowPotByClassID(classid,potcode) {
+	if(!classid) { return null; }
+	var _altPot=null;
+	var _pot=DC_getItem(classid,2);
+	if(_pot) { do {
+		if(DC_CheckOwner(_pot)) {
+			if(_pot.x<4 && (potcode.indexOf(DT_BeltColType[_pot.x]) != -1)) { 
+				if(_DT_BeltColNeeded[_pot.x] == 0) { return _pot; }
+				else if(!_altPot) { _altPot = copyUnit(_pot); }
+			}
+		}
+	} while(_pot.getNext(classid,2)); }
+	return _altPot;
+}
+
+
+// Function from BotOS (mattlant)
+function DC_IsWalkable(_x, _y) {
+	return !(checkCollision(me.area, _x, _y, 1));
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// Scripts interaction functions
+//////////////////////////////////////////////////////////////////////
+
+// Function by njaguar
+// Parameter :
+// -scriptname	Name of the script to get
+// Return value : Script object if a script with the scriptname is found
+function DC_FindScript( scriptname ) {
+	script = getScript();
+	DC_DoDel(DC_LagDelay);
+	if(script) { 
+		do {
+			var _scriptpath = script.name.toLowerCase();
+			if(_scriptpath.indexOf( scriptname.toLowerCase()) != -1) {
+				return script;
+			}
+		} while(script.getNext());
+	}
+	return false;
+}
+
+// Function by njaguar
+// Parameter :
+// -scriptname	Name of the script to get
+// -msg		Message to send to the target script
+// Return value : Success of the function
+function DC_SendMsgToScript( scriptname, msg ) {
+	script = DC_FindScript( scriptname );
+	if(script) {
+		script.send( msg );
+		return true;
+	}
+	return false;
+}
+
+// Function by njaguar
+// Parameter :
+// -scriptname	Name of the script to stop
+// Return value : Success of the function
+function DC_StopScript( scriptname ) {
+	script = DC_FindScript( scriptname );
+	if(script) {
+		script.stop();
+		return true;
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Debugging functions
+//////////////////////////////////////////////////////////////////////
+
+// Function by Xizeta
+// Parameters :
+// -message	message to be displayed on screen
+// Return value : None, log the error message to the log file
+function DC_LogError(message) {
+	if(message.indexOf("DC_WriteLogEntry") == -1) {
+		DC_WriteLogEntry(DC_ErrorLogPath,"Error : " + message);
+	}
+	DC_LogToautod2jsp(" Error : " + message);
+}
+
+// Function by Xizeta
+// Parameters :
+// -message	message to be displayed on screen
+// Return value : None, display the debug message on screen depending of DC_DebugLevel value
+function DC_DPrint(message) {
+	sendCopyData(null, "OOG", 0,"DC_DPrint: " + message );
+	// If level is 2 or more, print the msg on screen
+	if(DC_DebugLevel >= 2) {
+		print("ÿc2debug print : " + message);
+		delay(DC_DebugPrintDel);
+	}
+	// If level is 1 or 3, print the same msg on debug log file too
+	if((DC_DebugLevel == 1 || DC_DebugLevel == 3 ) && message.indexOf("DC_WriteLogEntry") == -1) {
+		DC_WriteLogEntry(DC_DebugLogPath,"debug print : " + message);
+	}
+}
+
+
+
+//////////////////////////////////////////////////////////////////////
+// Private functions
+// YOU SHOULD NEVER USE THEM OUTSIDE THIS LIBRARY
+//////////////////////////////////////////////////////////////////////
+
+// Function from IceCountess
+function _DC_LeadZero(number) {
+	if(number < 10) { number = "0" + number; }
+	return number;
+}
+
+// Function from Pwnage Pindle
+function _DC_PreModeWait() {
+	for(var qw = 1; qw <= 30; qw= qw + 1) {
+		// If we detected a cast, stall until the casting is done
+		var _mymode = me.mode;
+		if(_mymode == 7 || _mymode == 8 || (_mymode > 9 && _mymode < 19)) {
+			return _mymode;
+		}
+		delay(20);
+	}
+	return false;
+}
+
+// Function by Xizeta
+// Check if the string got any color code
+function _DC_GotItemColor(string) {
+	// If there is a color code in the string, check further
+	if(string.indexOf("ÿc0") != -1) { return true; }
+	if(string.indexOf("ÿc1") != -1) { return true; }
+	if(string.indexOf("ÿc2") != -1) { return true; }
+	if(string.indexOf("ÿc4") != -1) { return true; }
+	if(string.indexOf("ÿc5") != -1) { return true; }
+	if(string.indexOf("ÿc9") != -1) { return true; }
+	if(string.indexOf("ÿc;") != -1) { return true; }
+	// There is none so return false
+	return false;
+}
+
+// function by darkspirit
+function DC_PartyPlayer(playerName) {
+	var player = getParty();
+	var InParty = (player.partyid != 65535);
+	// If I am not in a party, I must have missed the invite from this guy
+	if(!InParty && player) { 
+		do {
+			if(player.name != me.name && player.name == playerName) {
+				clickParty(player, 2);
+				DC_DoDel(2000);
+				return true;
+			}
+		} while (player.getNext()); 
+		return false; 
+	}
+	return true;
+}
+
+// function by darkspirit
+function DC_PlayerPresent(playerName) {
+	var player = getParty();
+	if(player) { 
+        do {
+            if(player.name == playerName) {
+                return player;
+            }
+        } while (player.getNext()); 
+    }
+    return false;
+}
+
+// function by darkspirit
+function DC_ResetLeader() {
+	if(YAM_IsLeader == true){
+		if(YAM_UseFriendsList) {
+			say("/f m Join "+ me.gamename + "/" + me.gamepassword);
+		}
+		else {
+			for(var i=0; i < Leaders.length; i++) {
+				if(!DC_PlayerPresent(Leaders[i])) {
+					DC_DPrint("/w "+Leaders[i]+" Join "+ me.gamename + "/" + me.gamepassword);
+					say("/w "+Leaders[i]+" Join "+ me.gamename + "/" + me.gamepassword);
+					delay(500);
+				}
+			}
+			for(var i=0; i < Helpers.length; i++) {
+				if(!DC_PlayerPresent(Helpers[i])) {
+					DC_DPrint("/w "+Helpers[i]+" Join "+ me.gamename + "/" + me.gamepassword);
+					say("/w "+Helpers[i]+" Join "+ me.gamename + "/" + me.gamepassword);
+					delay(500);
+				}
+			}
+		}
+	}
+}
+
+// function by darkspirit
+function DC_InMyParty(playerName) {
+    var player = getParty();
+    var myPartyId = player.partyid;
+        if(player && myPartyId != 65535) { 
+            do {
+                if(player.name == playerName && myPartyId == player.partyid) { 
+                    return true; 
+                }
+            } while (player.getNext()); 
+        }
+    return false;
+}
+
+// Function by TechnoHunter
+// Parameter : none
+// Return value : success of the function
+// used to ping the autod2jsp.exe program and reset the freeze timer
+function DC_Heartbeat(){
+	return ((parseFloat(me.version) < 0.44) ? (sendDDE(1, "autod2jsp", "command", "", "") > 0) : (sendCopyData( "autod2jsp", 0, SD_PING, "" ) == false));
+}
+
+
+// function by bobode for change lvl delays
+function postWalkDelay(){
+	while (me.mode == 2 || me.mode == 6){
+	DC_DoDel(40);	
+	}
+	DC_DoDel(400);
+}
+
+
+function preWalkDelay(){
+	var pwTimeouts =0;
+	while ((!(me.mode == 2 || me.mode == 6)) && (pwTimeouts < 10)){
+		DC_DoDel(40);
+		pwTimeouts = pwTimeouts +1;	
+	}
+
+}
+

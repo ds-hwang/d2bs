@@ -1,0 +1,515 @@
+// Baal script written By Sumo.
+// Configure Baal specific variables. Those are set in config file, don't change anything here!
+entryFunc = BaalXP;
+gameMsgExtendHandler = BaalGameMsgHandler;
+
+var preMage    = true;
+var preCouncil = true;
+var preVenom   = true;
+var preMinion  = true;
+
+
+function BaalGameMsgHandler(sender, cmd, params, c) {
+	if (YAM_isMyLeader(sender) || YAM_isMyHelper(sender)) {
+		if (cmd == "bo" && (DA_UseCTA || DC_CheckSkill(149)) && !DC_InTown(me)) {
+			leader = getUnit(0, sender);
+			if (leader) {
+				startx = me.x; 
+				starty = me.y;
+				DM_MoveTo(leader.x, leader.y);
+				_temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+				DM_MoveTo(startx, starty);
+			}
+		}
+	}
+}
+
+function XP_GoToThrone() {
+	var _merc;
+	// Goto level 3
+	commPather.InitType = 1;
+	//commPather.GotoLevel(130,false,false);
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(82,83);
+	// Goto throne
+	//commPather.GotoLevel(131,false,false);
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	if (!PublicMode){
+		YAM_SafeCheck();
+	}
+	XP_Precasts();
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(82,83);
+	// Go to throne
+	DM_MoveTo(15096,5213,true);
+	DM_MoveTo(15111,5204,true);
+	DM_MoveTo(15112,5185,true);
+	DM_MoveTo(15112,5164,true);
+	DM_MoveTo(15112,5142,true);
+	DM_MoveTo(15112,5122,true);
+	if (PublicMode > 1) {// Clear outside for noobs
+		DM_MoveTo(15085,5106,true);
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	DM_MoveTo(15097,5103,true);
+	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
+	DM_MoveTo(15110,5107,true);
+	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
+	DM_MoveTo(15111,5072); 
+	if(PublicMode == 1) { // for real pub baalers
+		for (var i=0; i < Leaders.length; i++) {
+			if (DC_PartyPlayer(Leaders[i])) 
+				break;
+		}
+		if (BXP_ClearFirst) {
+			say("Clearing tp spot");
+			DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+			XP_ClearPosition(20);
+			DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+			XP_OpenTP();
+			say(YAM_TPMsg);
+		} 
+		else {
+			DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+			XP_OpenTP();
+//			say(YAM_TPMsg + " Be Carefull!");
+			say(YAM_TPMsg);
+			XP_ClearPosition(15);
+		}
+	}
+	DM_MoveTo(15115,5052);
+	if (PublicMode > 1){ XP_ClearPosition(15);}
+	DM_MoveTo(15115,5026);
+	if (PublicMode > 1){ XP_ClearPosition(15);}
+	DM_MoveTo(15117,5004); // at corner for tp.
+	if (XP_ClearPosition(30)) { 
+		DSN_PickItems(YAM_SafeCheck);
+		if (me.classid==3) 
+			XP_HammerdinAuraIdle(); 
+	}
+	DM_MoveTo(15091,5006);	// portal.
+	if (XP_ClearPosition(30)) { 
+		DSN_PickItems(YAM_SafeCheck); 
+		if (me.classid==3) 
+			XP_HammerdinAuraIdle(); 
+	}
+	DM_MoveTo(15078,5006);
+	if (XP_ClearPosition(30)) { 
+		DSN_PickItems(YAM_SafeCheck); 
+		if (me.classid==3)
+			XP_HammerdinAuraIdle(); 
+	}
+	DM_MoveTo(15083,5027);
+	if (XP_ClearPosition(30)) { 
+		DSN_PickItems(YAM_SafeCheck); 
+		if (me.classid==3) 
+			XP_HammerdinAuraIdle(); 
+	}
+	if (PublicMode > 1) { // for leechers
+		DM_MoveTo(15117,5004); // at corner for tp.
+		for (var i=0; i < Leaders.length; i++) {
+			if (DC_PartyPlayer(Leaders[i])) 
+				break;
+		}
+		XP_ClearPosition(15);
+		XP_OpenTP();
+		say(YAM_TPMsg);
+	}
+	if(!BossSpawned) {
+		DM_MoveTo(15074,5041);
+		if (XP_ClearPosition(30)) { 
+			DSN_PickItems(YAM_SafeCheck); 
+			if (me.classid==3) 
+				XP_HammerdinAuraIdle(); 
+		}
+	}
+	if(!BossSpawned) {
+		DM_MoveTo(15089,5056);	// last left side attacking.
+		if (XP_ClearPosition(20)) { 
+			DSN_PickItems(YAM_SafeCheck); 
+			if (me.classid==3) 
+				XP_HammerdinAuraIdle(); 
+		}
+	}
+	if(!BossSpawned) {
+		DM_MoveTo(15110,5056);	// right side attacking.
+		if (XP_ClearPosition(20)) { 
+			DSN_PickItems(YAM_SafeCheck); 
+			if (me.classid==3) 
+				XP_HammerdinAuraIdle(); 
+		}
+	}
+	if(!BossSpawned) {
+		DM_MoveTo(15099,5041);	// move back inside.
+		if (XP_ClearPosition(30)) { 
+			DSN_PickItems(YAM_SafeCheck); 
+			if (me.classid==3) 
+				XP_HammerdinAuraIdle(); 
+		}
+	}
+	if(!BossSpawned) {
+		DM_MoveTo(15090,5025);
+		if (XP_ClearPosition(30)) { 
+			DSN_PickItems(YAM_SafeCheck); 
+			if (me.classid==3) 
+				XP_HammerdinAuraIdle(); 
+		}
+	}
+	_merc = DC_GetMerc();
+	if (!_merc) { YAM_SafeCheck(); }
+}
+
+
+function XP_ClearThrone() {
+	var saybaal = true;
+	var tLast   = new Date();
+	// As long as baal in throne get the next monster and kill it.
+	while (1) {
+		if (XP_ClearPosition(40)) {
+			if (me.classid ==3) {
+				DSN_SnagRange = 30;
+				DSN_GoldSnagRange = 35;
+				DSN_SnagDelay = 100;
+			}
+			DSN_PickItems(YAM_SafeCheck);
+			if (me.classid ==3) {
+				DSN_SnagRange = 10;
+				DSN_GoldSnagRange = 5;
+				DSN_SnagDelay = 100;
+			}
+			FixPosition();
+			tLast = new Date();
+			if (me.classid == 3) {
+				XP_HammerdinAuraIdle();
+				}
+			if (BossSpawned && preMage) {
+				// Do precasts before fight
+				XP_Precasts();
+				preMage=false;
+			}
+			if (RemovePoison) {
+				// Only goes to town if you or merc are poisoned
+				if (YAM_SafeCheck()) RemovePoison=false;
+			}
+			if (CouncilMember && preVenom) {
+				var hydmonster1 = getUnit(1, 351, ALIVE_MODE);
+				var hydmonster2 = getUnit(1, 352, ALIVE_MODE);
+				var hydmonster3 = getUnit(1, 353, ALIVE_MODE);
+				if((hydmonster1 && hydmonster1.getStat(172) != 2 && hydmonster1.getState(105)) ||
+					(hydmonster2 && hydmonster2.getStat(172) != 2 && hydmonster2.getState(105)) ||
+					(hydmonster3 && hydmonster3.getStat(172) != 2 && hydmonster3.getState(105))){
+					if(AvoidHydra){
+						_YAM_Town = true; // fake a lifewatch town call to make us goto town 
+						YAM_SafeCheck();
+					}
+					else {
+						if (DM_CheckTeleport()) { // if we have teleport, go to safe place from hydra.
+							DM_MoveTo(15110,5008);
+							if (me.classid == 3) {
+								XP_HammerdinAuraIdle();
+							}
+							do{
+								delay(30);
+								hydmonster1 = getUnit(1, 351, ALIVE_MODE);
+								hydmonster2 = getUnit(1, 352, ALIVE_MODE);
+								hydmonster3 = getUnit(1, 353, ALIVE_MODE);
+							}
+							while( hydmonster1 || hydmonster2 || hydmonster3);
+						}
+						FixPosition();
+					}
+				}
+				preVenom=false;
+			}
+			if (VenomLord && preMinion) {
+				if(VenomLordCTA) {
+					XP_Precasts();
+				}
+				preMinion=false;
+			}
+			if(MinionOfDest && saybaal) {
+				DSN_PickItems(YAM_SafeCheck);
+				VenomLord=false;
+				if(SkipBaal) {
+					break;
+				} 
+				else {
+					if (PublicMode == 1) {
+						var pu = DC_FindScript(YAM_PartyUpPath);
+						if (pu) { 
+							pu.stop(); 
+							DC_DPrint("PartyUp script Stopped!"); 
+						}
+					}
+					killbaalmsg();
+//					DT_CleanPotions();
+					saybaal=false;
+					if(!YAM_SafeCheck()) {
+						if (me.classid == 3) {
+							XP_HammerdinAuraIdle();
+						}
+						DC_DoDel(3500);
+					}
+				}
+			}
+		}
+		else { 	// nothing to attack.
+			DSN_PickItems(YAM_SafeCheck);
+			if (RemovePoison) {
+				// Only goes to town if you or merc are poisoned
+				if (YAM_SafeCheck()) 
+					RemovePoison=false;
+			}
+			FixPosition();
+			var tNow = new Date();
+			if ((tNow - tLast > MonsterWait*1000) && !MinionOfDest) {
+				DM_MoveTo(15099,5041);
+				DM_MoveTo(15110,5056);	// right side attacking.
+				XP_ClearPosition(20);
+				DM_MoveTo(15089,5056);	// last left side attacking.
+				XP_ClearPosition(20);
+				DM_MoveTo(15099,5041);	// move back inside.
+				tLast = new Date();
+			}
+			// recast bo if it ran out.
+			if (DA_UseCTA && (me.hpmax < MaxLife)) {
+				XP_Precasts();
+			}
+			if (MinionOfDest || !PreAttack()) { 
+				delay (500); 
+			}
+		}
+		if(!DC_FindMonster(543)){	// check for baal in throne room, stop loop if he is not present
+			break;
+		}
+	}
+	if (!SkipBaal) {
+		if (PublicMode == 1) {
+			var pu = DC_FindScript(YAM_PartyUpPath);
+			if (pu) { 
+				pu.stop(); 
+				DC_DPrint("PartyUp script Stopped!"); 
+			}
+		}
+		// Do precasts before going into the portal
+		XP_Precasts();
+		DC_DPrint("Entering Worldstone Chamber...");
+		// Goto world chamber.
+		for (var x=1; x < 3; x++) {
+			var ptol = getUnit(2,563);
+			if (ptol) {
+				DM_UsePortal("Portal", 132, null, ptol);
+				break;
+			}
+		}
+	}
+}
+
+// position correcting.
+function FixPosition(){
+	if (me.classid == 3) {
+		if (((me.x > 15095) || (me.x < 15085)) || ((me.y > 5028) || (me.y < 5022))) {
+			if (me.y > 5065){
+				DM_MoveTo(15094,5048);
+			}
+			DM_MoveTo(15090,5025);
+		}
+	} 
+	else if (me.classid == 1 || (DM_CheckTeleport() && (me.classid == 2 || me.classid == 5))) {
+		if (((me.x > 15097) || (me.x < 15090)) || ((me.y > 5021) || (me.y < 5010))) {
+			DM_MoveTo(15094,5012);
+		}
+	} 
+	else {
+		if (((me.x > 15099) || (me.x < 15090)) || ((me.y > 5047) || (me.y < 5042))) {
+			DM_MoveTo(15094,5045);
+		}
+	}
+}
+
+function PreAttack(){
+	if (!MinionOfDest) {
+		return XP_PreAttack (15090, 5026);
+	}
+	return false;
+}
+
+function Kill_Baal(){
+	if (me.area != 132) 
+		DC_ThrowException("Kill_Baal()", "Failed to enter Worldstone Chamber!");
+	//DC_DoDel(250);
+	if (!DM_CheckTeleport()) {
+		DM_MoveTo(15171,5905);
+		DM_MoveTo(15171,5920);
+		DM_MoveTo(15170,5941);
+		DM_MoveTo(15150,5941);
+		DM_MoveTo(15135,5941);
+	} 
+	else {
+		DM_MoveTo(15167,5900);
+		DM_MoveTo(15146,5895);
+		DM_MoveTo(15136,5905);
+	}
+	DM_MoveTo(15136,5915);
+	// Detecting Baal with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(544);
+		if (target) { 
+			break; 
+		}
+	}
+	if (target) {
+		DC_DPrint("Killing Baal...");
+		XP_BossAttack(target);
+	}
+	else {
+		DC_DPrint("Baal not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function killbaalmsg(){   //Added by The_Boris
+	if(PublicMode > 0){
+		switch (BXP_KillBaalMsges.length){
+			case 0:
+				break;
+			case 1:
+				say(BXP_KillBaalMsges[0]);
+				break;
+			default :
+				say(BXP_KillBaalMsges[rnd(0, BXP_KillBaalMsges.length-1)]);
+				break;
+		}
+	}
+}
+
+function nextgamemsg(){
+	if(PublicMode > 0){
+		switch (BXP_NextGameMsges.length){
+			case 0:
+				break;
+			case 1:
+				say(BXP_NextGameMsges[0]);
+				break;
+			default :
+				say(BXP_NextGameMsges[rnd(0, BXP_NextGameMsges.length-1)]);
+				break;
+			}
+	}
+}
+
+function BaalXP() {
+	var myLeader = Leaders[0]; // Take the first one by default
+	if (me.classid == 1) {
+		XP_Static = 8;
+		(BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = BXP_Static;
+		_XP_UseTeleOnImmune	= false;
+	}
+	if (me.classid ==3) {
+		DSN_SnagRange		= 10;
+		DSN_GoldSnagRange	= 5;
+		DSN_SnagDelay		= 100;
+	}
+	XP_SwitchHP			= BXP_SwitchHP;
+	XP_StallHP			= BXP_StallHP;
+	XP_StallKill		= BXP_StallKill;
+	XP_QuitImmune		= false;
+	XP_MinionStand		= true;
+	XP_MinionStand		= true;
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	if (!WaitForPortal) {
+		YAM_PathToWayPoint();
+		// Do precasts before using waypoint
+		XP_Precasts();
+		// Use the WP to go to Worldstone 2
+		DM_UsePortal("Waypoint",0x81);
+		// Do precasts after going into the portal
+		XP_Precasts();
+		XP_ClearPosition(10);
+		// Go to the throne
+		XP_GoToThrone();
+	} 
+	else { // bot is team botting and waiting for teleporter to throw portal
+		// Use the WP to Act 5 if need be
+		if (me.area != 109) {
+			YAM_PathToWayPoint(); 
+			DM_UsePortal("Waypoint",0x6d); 
+			YAM_InitCommTown(); 
+		}
+		commTown5.GotoStart();
+		DC_Print("Waiting for tp...");
+		while (me.area != 131) {
+			// Wait for 4 mins
+			var i = 0;
+			while (!YAM_TPReady && i < 240 && me.area != 131) {
+				delay(1000);
+				i++;
+			}
+			// Do precasts before going into the portal
+			XP_Precasts();
+			// The one who yells "tp up" becomes my true leader
+			if (YAM_TPReady) 
+				myLeader = YAM_TPReady;
+			// Make sure to party the leader
+			if (!DC_PartyPlayer(myLeader)) {
+				// If failed to party, choose another leader
+				for (var i=0; i < Leaders.length; i++) {
+					if (DC_PartyPlayer(Leaders[i])) { 
+						myLeader=Leaders[i]; 
+						break; 
+					}
+				}
+			}
+			try {
+				// When we have chosen a leader, go into his tp
+				DM_UsePortal ("BluePortal", 131, myLeader);
+			}
+			catch (e) { 
+				DC_Print("e : name = " + e.name + ", message = " + e.message);
+			}
+		}
+		YAM_TPReady = false;
+		// Do precasts after going into the portal
+		XP_Precasts();
+		XP_ClearPosition(25);
+		try {
+			//DM_MoveTo(15090,5066);
+			//DM_MoveTo(15094,5045);
+			commPather.GotoDest(15090,5066);
+			commPather.GotoDest(15094,5045);
+		} 
+		catch (e) {
+			DC_Print("Error : name = " + e.name + ", message = " + e.message);
+		}
+		if (me.getState(32) == 0) { 
+			say("/w "+myLeader+" bo "); 
+			delay(2000); 
+		}
+	}
+	// Clear Throne room
+	XP_ClearThrone();
+	if (!SkipBaal) {
+		// kill baal.
+		if (Kill_Baal()) {
+			DSN_PickItems(YAM_SafeCheck);
+			DL_AddKill();
+		}
+	}
+	nextgamemsg();
+	DC_DoDel(500);
+	if (DSN_LogRunes) { 
+		DL_SaveRuneLog(); 
+	}
+	if (YAM_WaitInChat||(PublicMode && !WaitForPortal)) quit(); // for testing.
+}

@@ -1,0 +1,11 @@
+const MsgStrings = new Array("SoJSold", "DiabloWalks", "From"); 
+
+MsgStrings["SoJSold"] = "Piedras de Jordan vendidas a los Mercaderes"; 
+MsgStrings["DiabloWalks"] = "Diablo camina sobre la Tierra"; 
+MsgStrings["From"] = "De"; 
+
+const IncludeError = "DC_LoadInclude() : Fallo al cargar librerias : "; 
+const AbortMessage = "Juego abortado..."; 
+const HaltMessage = "Script Parado..."; 
+const TownMessage = "Portal al Pueblo..."; 
+const CheckMercMsg = "DT_CheckMerc() : Insuficiente dinero para resucitar al Mercenario!!!";

@@ -1,0 +1,15 @@
+
+function GoldMsgHandler(msg) {
+	if (msg.indexOf(MsgStrings["SoJSold"]) != -1) {
+		_sojcount = msg.split(" ")[0];
+		DC_LogToautod2jsp("Ingamemessage: " + msg);
+		return 1;
+	}
+	else if (msg.indexOf(MsgStrings["DiabloWalks"]) != -1) {
+		_sojcount = "WALKS!";
+		DC_LogToautod2jsp("Ingamemessage: " + msg);
+		return 2;
+	}
+	//DC_LogToautod2jsp("Ingamemessage: " + msg);
+	return 0;
+}

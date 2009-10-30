@@ -1,0 +1,277 @@
+//////////////////////////////////////////////////////////////////////
+//
+// Modified from d2jsp-shrines.dbl
+//================================================================================
+//
+// Instructions of use :
+// -Set your shrine prefs (not necessary if you want default order)
+//DS_ShrinePrefs = new Array(
+//
+//	DS_ShrineType_Stamina,  
+//	DS_ShrineType_ResistFire,
+//	DS_ShrineType_ResistCold,
+//	DS_ShrineType_ResistPoison,
+//	DS_ShrineType_ResistLightning,
+//	DS_ShrineType_ManaRecharge,
+//	DS_ShrineType_Armor,
+//	DS_ShrineType_Combat,
+//	DS_ShrineType_Skill,   
+//	DS_ShrineType_Experience);
+// 
+// // from any safe point, call the following 
+// DS_CheckForShrines();
+//
+// Known Issues:
+//   - May cast telekinesis on the same shrine afew times
+//
+// ToDo:
+//   - Support Wells (which are not shrines)
+//   - Support other shrines that dont take a state (e.g. Monster shrines)
+//================================================================================
+//
+// Legal stuff :
+// 1. This program is free software; You can redistrubute freely as long as this
+// header and contents stays intact. 
+// 2. MODIFICATIONS for redistribution can only be done by submitting to the core scripters 
+// team for approval. If you don't want to submit the modifications and wanted to redistribute this script, you
+// must rename it by replacing XP/d2jsp with your own name to avoid conflicts.
+// 3. You may not modify or change the existing code other than for your own personal use with the XP name
+// 4. Any copies of this software must always be compatible with the current d2jsp-common libs
+// 5. The sale of this software is strictly forbidden
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.
+//
+//////////////////////////////////////////////////////////////////////
+
+var DS_ShrineNames = new Array(
+	"null",
+	"Refilling",
+	"Health",
+	"Mana",
+	"Health Exchange",
+	"Mana Exchange",
+	"Armor",
+	"Combat",
+	"Resist Fire",
+	"Resist Cold",
+	"Resist Lightning",
+	"Resist Poison",
+	"Skill",
+	"Mana recharge",
+	"Stamina",
+	"Experience",
+	"Enirhs",
+	"Portal",
+	"Gem",
+	"Fire",
+	"Monster",
+	"Exploding",
+	"Poison");
+
+//////////////////////////////////////////////////////////////////////
+// Constants (from Sy_Constants.dbl and renamed)
+//////////////////////////////////////////////////////////////////////
+const DS_ShrineState_Armor           = 128;
+const DS_ShrineState_Combat          = 129;
+const DS_ShrineState_ResistLightning = 130;
+const DS_ShrineState_ResistFire      = 131;
+const DS_ShrineState_ResistCold      = 132;
+const DS_ShrineState_ResistPoison    = 133;
+const DS_ShrineState_Skill           = 134;
+const DS_ShrineState_ManaRegen       = 135;
+const DS_ShrineState_Stamina         = 136;
+const DS_ShrineState_Experience      = 137;
+
+const DS_ShrineType_Refilling       = 1;
+const DS_ShrineType_Health          = 2;
+const DS_ShrineType_Mana            = 3;
+const DS_ShrineType_HealthExchange  = 4;
+const DS_ShrineType_ManaExchange    = 5;
+const DS_ShrineType_Armor           = 6;
+const DS_ShrineType_Combat          = 7;
+const DS_ShrineType_ResistFire      = 8;
+const DS_ShrineType_ResistCold      = 9;
+const DS_ShrineType_ResistLightning = 10;
+const DS_ShrineType_ResistPoison    = 11;
+const DS_ShrineType_Skill           = 12;
+const DS_ShrineType_ManaRecharge    = 13;
+const DS_ShrineType_Stamina         = 14;
+const DS_ShrineType_Experience      = 15;
+const DS_ShrineType_Enirhs          = 16;
+const DS_ShrineType_Portal          = 17;
+const DS_ShrineType_Gem             = 18;
+const DS_ShrineType_Fire            = 19;
+const DS_ShrineType_Monster         = 20;
+const DS_ShrineType_Exploding       = 21;
+const DS_ShrineType_Poison          = 22;
+
+
+//////////////////////////////////////////////////////////////////////
+// Public global variables
+//////////////////////////////////////////////////////////////////////
+
+// setup list of shrines we want.  
+// array should be in order from least desireable to most.
+// we will not take a less desireable shrine if we already have a more desireable one.
+// if shrine not in list, we don't take.
+// if we already have specified shrine type, we don't take.
+var DS_ShrinePrefs = new Array(
+		DS_ShrineType_Armor,
+		DS_ShrineType_ResistFire,
+		DS_ShrineType_ResistCold,
+		DS_ShrineType_ResistPoison,
+		DS_ShrineType_ResistLightning,
+		DS_ShrineType_ManaRecharge,
+		DS_ShrineType_Skill,   
+		DS_ShrineType_Experience);
+
+// max distance away we will go for a shrine
+var DS_MaxDistance = 90;
+
+
+//////////////////////////////////////////////////////////////////////
+// Private global variables
+//////////////////////////////////////////////////////////////////////
+
+// maps player states to shrine types
+// also includes whether shrine stacks with itself
+var _DS_StateMap = new Array(	DS_ShrineState_Armor,			DS_ShrineType_Armor,			true,  // verified
+								DS_ShrineState_Combat,			DS_ShrineType_Combat,			false,
+								DS_ShrineState_ResistFire,		DS_ShrineType_ResistFire,		false,
+								DS_ShrineState_ResistCold,		DS_ShrineType_ResistCold,		false,
+								DS_ShrineState_ResistLightning,	DS_ShrineType_ResistLightning,	false,
+								DS_ShrineState_ResistPoison,	DS_ShrineType_ResistPoison,		false,
+								DS_ShrineState_Skill,			DS_ShrineType_Skill,			false, // verified
+								DS_ShrineState_ManaRegen,		DS_ShrineType_ManaRecharge,		false,
+								DS_ShrineState_Stamina,			DS_ShrineType_Stamina,			false,
+								DS_ShrineState_Experience,		DS_ShrineType_Experience,		false);
+
+
+//////////////////////////////////////////////////////////////////////
+// Functions
+//////////////////////////////////////////////////////////////////////
+
+// returns distance between two objects
+function DS_GetRange(obj1, obj2) { 
+	//return (parseInt(Math.sqrt(Math.abs(Math.pow (obj1.x-obj2.x, 2) + Math.pow (obj1.y-obj2.y, 2))),10));
+	return getDistance(obj1, obj2);
+}
+
+
+function DS_IsShrine(classid) {
+	if ((classid < 0) || (classid > 564)) { 
+		return false;
+	}
+	if (getBaseStat(4,classid,150)==2) { 
+		return true;
+	}
+	else { 
+		return false;
+	}
+}
+
+
+// returns true if at least one shrine found and taken
+function DS_CheckForShrines() {
+	var _shrinefound = false;     // assume we didn't find any good shrines
+	// do we see any shrines?
+	var shrine = getUnit(2,null,0);
+	// if at least one shrine visible...
+	if (shrine) {
+		do { // loop over all the shrines we can "see" (we know at least one from above)
+			if (!DS_IsShrine(shrine.classid)) { 
+				continue; 
+			}
+			_shrinefound = _shrinefound || DS_CheckForShrine(shrine); // how the hell does this work ???
+		} while (shrine && shrine.getNext(null,0));
+	}
+	return _shrinefound;
+}
+
+
+// returns true if at least one shrine found and taken
+function DS_CheckForShrine(shrine) {
+	// If no shrine object is entered, return false
+	if (!shrine) { 
+		DC_DPrint("No shrine object passed!");
+		return false; 
+	}
+	// is shrine in range -- if not, skip it
+	if (DS_GetRange(me, shrine) > DS_MaxDistance){
+		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want, but it's out of range!");
+		return false; 
+	}
+	if (checkCollision(me,shrine,1)) { 
+		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want, but we can't get to it!");
+		return false; 
+	}
+	// have we visited this shrine before ?  if so, skip it
+	if (shrine.mode) { 
+		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want, but it's already used!");
+		return false; 
+	}
+	// these are shrines that we always want because they don't take up state
+	if ((DS_ShrineType_Refilling == shrine.objtype && (me.hp < me.hpmax || me.mp < me.mpmax)) ||
+	    (DS_ShrineType_Health    == shrine.objtype && me.hp < me.hpmax) || 
+	    (DS_ShrineType_Mana      == shrine.objtype && me.mp < me.mpmax) || 
+	    (DS_ShrineType_Gem       == shrine.objtype)) { 
+		// take this shrine 
+		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
+		var i = 0;
+		while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+		// save start location
+		var _startx = me.x;
+		var _starty = me.y;
+		var ret = DM_TouchObject(shrine,(DS_ShrineType_Gem == shrine.objtype));
+		if (ret && DS_ShrineType_Gem == shrine.objtype) {
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			delay(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+		// move back to start point
+		DM_CheckPosition(_startx, _starty);
+		return ret;
+	}
+	// find out which shrine flag we currently have (if any)
+	var _shrinestart = 0;    // default to start of ShrinePrefs list
+	for(var i=0; i < _DS_StateMap.length; i+=3) {
+		// if we have this shrine flag...
+		if (me.getState(_DS_StateMap[i]) != 0) {
+			// adjust start point of ShrinePrefs we will take based on this
+			for(var j=0; j < DS_ShrinePrefs.length; j+=1) {
+				if (DS_ShrinePrefs[j] == _DS_StateMap[i+1]) {
+					// skip less desireable shrines (except stacking)
+					_shrinestart = j + (_DS_StateMap[i+2] ? 0 : 1);
+					break;
+				}
+			}
+			break;
+		}
+	}
+	// is the shrine in our (adjusted) ShrinePrefs list?
+	var d = 0;
+	for(var i = _shrinestart; i < DS_ShrinePrefs.length; i+=1) {
+		if (DS_ShrinePrefs[i] == shrine.objtype) { 
+			// take this shrine 
+			DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
+			d = 0;
+			while ((me.mode == 3 || me.mode == 2) && d<20) { d++; delay(100); }
+			// save start location
+			var _startx = me.x;
+			var _starty = me.y;
+			var ret = DM_TouchObject(shrine,false);
+			// move back to start point
+			DM_CheckPosition(_startx, _starty);
+			return ret;
+		}
+	}
+	// return false if no suitable shrine is found
+	return false;
+}
+
+
+

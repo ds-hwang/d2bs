@@ -1,0 +1,66 @@
+//include("YAMB/common/YAM-Common.dbl");
+//include("YAMB/common/YAM-Attack.dbl");
+
+
+function main() {
+	print("ÿc3DevTools Loaded!ÿc0");
+	XY_sh       = getScreenHook(" ",20,500,-1);
+	XY_sh.x     = 170;
+	XY_sh.y     = 15;
+	XY_sh.font  = 8;
+	XY_sh.color = 0;
+	MouseXY_sh       = getScreenHook(" ",20,500,-1);
+	MouseXY_sh.x     = 170;
+	MouseXY_sh.y     = 27;
+	MouseXY_sh.font  = 8;
+	MouseXY_sh.color = 0;
+	Mon_sh       = getScreenHook(" ",20,500,-1);
+	Mon_sh.x     = 500;
+	Mon_sh.y     = 15;
+	Mon_sh.font  = 8;
+	Mon_sh.color = 0;
+	Mon_cls       = getScreenHook(" ",20,500,-1);
+	Mon_cls.x     = 500;
+	Mon_cls.y     = 25;
+	Mon_cls.font  = 8;
+	Mon_cls.color = 0;
+	Mon_mode       = getScreenHook(" ",20,500,-1);
+	Mon_mode.x     = 500;
+	Mon_mode.y     = 35;
+	Mon_mode.font  = 8;
+	Mon_mode.color = 0;
+	Mon_spec       = getScreenHook(" ",20,500,-1);
+	Mon_spec.x     = 500;
+	Mon_spec.y     = 45;
+	Mon_spec.font  = 8;
+	Mon_spec.color = 0;
+
+	while(1) {
+		XY_sh.text = "My x,y: " + me.x + "," + me.y;
+		mouseCoords = getMouseCoords();
+		mx = parseInt(me.x + ((mouseCoords[0]-400)*13/400) ,10);
+		my = parseInt(me.y + ((mouseCoords[1]-300)*20/300) ,10);
+		MouseXY_sh.text = "Mouse: " + mx + "," + my;
+		//if (!InTown(me)) {
+			unit = getUnit(100);
+			if (unit) {
+				Mon_sh.text   = "Name:     " + ((unit.type == 5) ? "Tile" : unit.name);
+				Mon_cls.text  = "Classid:  " + unit.classid;
+				Mon_mode.text = "Mode:     " + unit.mode;
+				Mon_spec.text = (typeof(unit.spectype) != "undefined") ? ("Spectype: " + unit.spectype) : " ";
+			}
+		//}
+		/*else{
+			Mon_sh.text   = " ";
+			Mon_cls.text  = " ";
+			Mon_mode.text = " ";
+			Mon_spec.text = " ";
+		}*/
+		delay(20);
+	}
+}
+
+function InTown(who) {
+	while (who.area == 0) { delay(50); }
+	return ((who.area == 1 || who.area == 40 || who.area == 75 || who.area == 103 || who.area == 109) ? true : false);
+}

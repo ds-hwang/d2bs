@@ -1,0 +1,11 @@
+const MsgStrings = new Array("SoJSold", "DiabloWalks", "From");
+
+MsgStrings["SoJSold"] = "Stones of Jordan vendues aux marchants";
+MsgStrings["DiabloWalks"] = "Diablo marche sur le monde";
+MsgStrings["From"] = "Von";
+
+const IncludeError = "DC_LoadInclude() : Erreur lors du chargement du fichier librairie : ";
+const AbortMessage = "Partie en train d'être avorté...";
+const HaltMessage = "Script arrêté...";  // modified 
+const TownMessage = "En train de retourner au village...";
+const CheckMercMsg = "DT_CheckMerc() : Pas assez de gold pour ressuciter le mercenaire!!!";

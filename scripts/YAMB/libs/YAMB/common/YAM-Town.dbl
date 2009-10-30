@@ -1,0 +1,454 @@
+
+/////////////////////////////////// General Functions ////////////////////////////////////
+
+// Used by YAM_MakeTP
+var TownAreaCodes   = [   0,        1,       40,         75,     103,     109];
+var TownTPPositions = [null, "portal", "portal", "waypoint", "start", "start"];
+var NPCnum = 0;
+
+function YAM_MakeTP() {
+	if(!DC_InTown(me)) {
+		try {
+			if(!DM_MakeTP(me.area,TownAreaCodes[me.act])) {
+				DL_AddAbort();
+				DC_QuitMessage("Unable to return to Town!");
+			}
+		}
+		catch (e if e instanceof DC_ExceptionClass) {
+			if(e.name != "DM_MakeTP()" && e.name != "DM_UsePortal()")
+				throw e;
+			else {
+				if(PublicMode) {
+					try {
+						if(!DM_UsePortal("BluePortal",TownAreaCodes[me.act])) {
+							DL_AddAbort();
+							DC_QuitMessage("Unable to return to Town!");
+						} 
+					}
+					catch (e1 if e1 instanceof DC_ExceptionClass) {
+						DL_AddAbort();
+						DC_QuitMessage("Unable to return to Town!");
+					}
+				}
+				else {
+					DL_AddAbort();
+					DC_QuitMessage("Unable to return to Town!");
+				}
+			}
+		}
+	 	_YAM_Position=TownTPPositions[me.act];
+		return true;
+	} else { return false; }
+}
+
+// Check for curse... 2=Poison, 9=Amplify Damage, 19=Weaken, 55=Iron Maiden, 60=Decrepify, 61=Lower Resist, 114=Blood mana
+function YAM_CheckIfCursed() {
+	if((YAM_HealPoison && me.getState(2)) || me.getState(9) || me.getState(61)) {
+		if(YAM_Debug) print ("YAM_CheckIfCursed: Player is cursed!");
+		return true;
+	}
+	var _merc = DC_GetMerc();
+	if(_merc) { 
+		if((YAM_HealPoison && _merc.getState(2)) || _merc.getState(9) || _merc.getState(61) || (_merc.getState(55) && (_merc.classid==338||_merc.classid==561))) {
+			if(YAM_Debug) print ("YAM_CheckIfCursed: Merc is cursed!");
+			return true; 
+		} 
+	}
+	return false;	// If none of the above is true we are ok
+}
+
+function YAM_SafeCheck() {
+	if(YAM_CheckIfCursed()||DT_CheckBelt()||DT_CheckHeal()||_YAM_OutOfPots||(DT_CheckUnids() > 0)||	DT_CheckMerc()||_YAM_Town) { 
+		_YAM_GoToHealer = true; 
+	}
+	if(DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { 
+		_YAM_GoToRepair = true; 
+	}
+	if(_YAM_GoToHealer || _YAM_GoToRepair) {
+		if(YAM_Debug) {
+			if(_YAM_OutOfPots) 
+				DC_Print("YAM_SafeCheck: We are Out-of-Pots!");
+			if(_YAM_Town) 
+				DC_Print("YAM_SafeCheck: LifeWatch says we need to tp to town!");
+		}
+		var _esc_from = me.area;
+		var _esc_act  = me.act;
+		if(_esc_from == 131){
+			commPather.GotoDest(15117,5004); // at corner for tp.
+		}
+		YAM_TownManager();
+		if(me.act != _esc_act) {
+			YAM_PathToWayPoint();
+			DM_UsePortal("Waypoint",TownAreaCodes[_esc_act]);
+			DC_DoDel(2000); // Wait a while, hopefully to fix the tp not found problem when changing act
+		}
+		XP_Precasts();
+		switch(_esc_act){
+			case 1: commTown.GotoTP();			break;
+			case 2: commTown2.GotoTP();		break;
+			case 3: 							break;
+			case 4: commTown4.GotoStart();		break;
+			case 5: commTown5.GotoStart();		break;
+		}
+		DM_UsePortal("BluePortal",_esc_from);
+		// Assumption: TP Tome has at least 2 scrolls after TownManager!
+		if(PublicMode && DT_GetTome(1)) { 
+			if(_esc_from == 131 || _esc_from == 132){
+				if(!MinionOfDest) { 
+					commPather.GotoDest(15117,5004); // at corner for tp.
+					XP_OpenTP(); 
+					if(typeof(FixPosition) != "undefined")
+						FixPosition(); 
+				}
+			}
+			else
+				XP_OpenTP(); 
+		}
+		return true;
+	}
+	return false;
+}
+
+/////////////////////////////////// Town Manager ////////////////////////////////////
+
+function YAM_InitCommTown() {
+	switch(me.act) {
+		case 1:
+			if(commTown == null) {
+				DC_LoadInclude("YAMB/common/YAM-TMove1.dbl");
+				commTown = new commonLib.PathAct1();
+			}
+			break;
+		case 2:
+			if(commTown2 == null) {
+				DC_LoadInclude("YAMB/common/YAM-TMove2.dbl");
+				commTown2=new commonLib.PathAct2();
+			}
+			break;
+		case 3:
+			if(commTown3 == null) {
+				DC_LoadInclude("YAMB/common/YAM-TMove3.dbl");
+				commTown3=new commonLib.PathAct3();
+			}
+			break;
+		case 4:
+			if(commTown4 == null) {
+				DC_LoadInclude("YAMB/common/YAM-TMove4.dbl");
+				commTown4 = new commonLib.PathAct4();
+			}
+			break;
+		case 5:
+			if(commTown5 == null) {
+				DC_LoadInclude("YAMB/common/YAM-TMove5.dbl");
+				commTown5 = new commonLib.PathAct5();
+			}
+			break;
+	}
+}
+
+function YAM_TownManager() {
+	// Make sure I am in town!
+	YAM_MakeTP();
+	if(!DC_InTown(me)) { 
+		DC_ThrowException("YAM_TownManager()","Failed to reach Town!"); 
+		quit(); 
+	}
+	_YAM_Town = false;
+	// Turn on Vigor for paladins in town
+	if(me.classid==3 && UseVigor == true) {
+		DC_PutSkill(115,0);
+	}
+	// Clear the cursor and inventory
+	DC_ClearCursor();
+	for(var i=516; i > 514; i-=1) { 
+		DT_PickPots(i); 
+	}
+	DT_CleanPotions();
+	DT_TossItem(100, "isc");
+	DT_TossItem(100, "tsc");
+	DT_TossItem(100, "aqv");
+	DT_TossItem(100, "cqv");
+	// If we switched weapons on kill, switch back to the attack tab
+	if(XP_SwitchOnKill) { 
+		DC_SelectTab(1); 
+	}
+	// If randomNPC is true, pick a npc number !!!!! 
+	// ToDo : This needs editing... pick a number and assign a fixed number or range to each npc so 'ALWAYS visit ONE npc' is true...
+	NPCnum = (YAM_RandomNPC == true) ? parseInt(Math.random() * 11,10) : 0;
+	// Check if we need to go to a Healer
+	_XP_GetNumUnId	= DT_CheckUnids();
+	var _tptome		= DT_GetTome(1);
+	if(!_tptome) {// Display a warning
+		DC_Print("WARNING : No TP book found... Please put one in inventory manually!");
+		_YAM_NeedTP = true;
+	}
+	else if( _tptome.getStat(70) < 9) { 
+		_YAM_NeedTP = true; 
+	}
+	if(MXP_OpenUberChest || (YAMXXP.join().indexOf("Pit") != -1)) {
+		if(DC_BuyKeys) { 
+			_YAM_NeedKeys = (DC_CheckKeys() > 6) ? true : false;
+		}
+	}
+	if(YAM_AlwaysGoToHealer || DT_CheckHeal() || YAM_CheckIfCursed()) { 
+		_YAM_GoToHealer = true; 
+	}
+	if(YAM_AlwaysRepair || DT_CheckRepair(DT_RepairPercent) || DT_CheckAmmo()) { 
+		_YAM_GoToRepair = true; 
+	}
+
+	// Then do town management based on where we are...
+	YAM_InitCommTown();
+	switch(me.act){
+		case 1: YAM_Act1TownManager(); break;
+		case 2: YAM_Act2TownManager(); break;
+		case 3: YAM_Act3TownManager(); break;
+		case 4: YAM_Act4TownManager(); break;
+		case 5: YAM_Act5TownManager(); break;
+	}
+	// Reset the variables for the next town run
+	_YAM_GoToHealer = false; 
+	_YAM_GoToRepair = false; 
+	_YAM_NeedTP = false; 
+	_YAM_NeedKeys = false;
+	// At the end of town stuff, if the eth weapon refill is not finished, let it finish
+	if(DT_CheckRecharge()) { 
+		DT_DoRecharge(); 
+	}
+	// If the inventory is full and we want to stop on full inv, check for auto mule or stop script
+	if(YAM_StopFullInv && (DT_CountFreeSpaces() == 0 || (YAM_Automule && DT_CountFreeSpaces() < (DT_FreeSpace * 4)))) {
+		DC_Print("Can't proceed now, my inventory is full :-/");
+		if(YAM_Automule) {
+			DC_Print("But Wait! I have Sicojola's Automule! Let's see if I have any free mules...");
+			sendCopyData ("TGameMaker", 0, 2, getMyPID() + "@mule@need2mule:" + me.name);
+			DC_LoadInclude("automule.dbl");
+		}
+		if(!YAM_Automule || !Automule()) {
+			scriptBroadcast( "starter:pause" );
+			DL_AddAbort();
+			DC_Print("To avoid stopping, set YAM_StopFullInv to false");
+			DC_StopMessage("Inventory is full and YAM_StopFullInv is set to true !");
+		}
+	}
+	// If the merc is not found, YAM_AbortNoMerc is set to true and we use a merc, stop the script
+	if(DT_UseMerc && !DC_GetMerc() && YAM_AbortNoMerc) {
+		// Wait a bit and try again because it sometimes fail to detect merc...
+		DC_DoDel(2000);
+		if(!DC_GetMerc()) {
+			DL_AddAbort();
+			DC_StopMessage("Mercenary not found and YAM_AbortNoMerc is set to true !");
+		}
+	}
+	// If some items is below the critical level and it is not repaired, stop if the user set it
+	if(YAM_StopNoRepair && DT_CheckRepair(DT_RepairPercent)) {
+		DL_AddAbort();
+		DC_Print("To avoid stopping, set YAM_StopNoRepair to false");
+		DC_StopMessage("Unable to repair items and some are in critical condition !");
+	}
+	DC_ClearCursor();
+}
+
+/////////////////////////////////// Item Management ////////////////////////////////////
+
+function XP_DoCheckItems(npc) {
+	var _uniditem = false;
+	var _baditems = new Array();
+	if(_XP_GetNumUnId > 0) {
+		DC_DPrint("XP_DoCheckItems() : Num of UnId to identifty : " + _XP_GetNumUnId);
+		// Get in trade with the npc
+		DT_DoTrade(npc);
+		var _idtome = DT_GetTome();
+		// If we have a tome of id, use it
+		if(_idtome) {
+			// If we don't have enough scrolls in the tome, fill it
+			if(_idtome.getStat(70) < _XP_GetNumUnId) {
+				// Fill the book at the npc
+				DT_FillTome(npc);
+				// If the book is still not filled, abort
+				if(_idtome.getStat(70) < _XP_GetNumUnId) { return false; }
+			}
+			// Get the first unid item
+			_uniditem = DT_GetUnidItem();
+			// Loop until all unid items are checked
+			while (_uniditem) {
+				// Id the item
+				if(DT_IdItem(_idtome,_uniditem)) {
+					// Check the item against bmitems.ini and add to the array if it is a bad item
+					if(!DT_NiceItem(_uniditem)) {
+						_baditems.push(_uniditem.gid);
+					}
+					// If it is a keeper, log it - darkspirit added this section which was missing
+					else {
+						if(DL_LogMode > 1) {
+							var _stats = _uniditem.description;
+							DC_WriteLogEntry("output/fullstats.txt",_stats);
+							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]","[" + DC_ExtractStats(_uniditem,true) + "]");
+						} else {
+							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]");
+						}
+					}
+				}
+				// Get the next unid item
+				_uniditem = DT_GetUnidItem();
+			}
+		}
+		// Use scrolls to id items
+		else {
+			// Get the first unid item
+			_uniditem = DT_GetUnidItem();
+			// Loop until all unid items is checked
+			while (_uniditem) {
+				var _idscroll = DT_GetScroll();
+				// If we don't have any scroll in inventory, buy a few
+				if(!_idscroll) {
+					// If we cannot get at least a scroll, abort
+					if(!DT_BuyScrolls(npc,0,_XP_GetNumUnId)) { return false; }
+					// If we bought the scrolls, get one for use
+					_idscroll = DT_GetScroll();
+					// Abort if we cannot find the bought scroll (weird problem)
+					if(!_idscroll) { return false; }
+				}
+				// Id the item
+				if(DT_IdItem(_idscroll,_uniditem)) {
+					// Check if the item is a keeper and put in the bad items array if it is not
+					if(!DT_NiceItem(_uniditem)) { _baditems.push(_uniditem.gid); }
+					// If it is a keeper, log it
+					else {
+						if(DL_LogMode > 1) {
+							var _stats = _uniditem.description;
+							DC_WriteLogEntry("output/fullstats.txt",_stats);
+							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]","[" + DC_ExtractStats(_uniditem,true) + "]");
+						} else {
+							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]");
+						}
+					}
+				}
+				// Get the next unid item
+				_uniditem = DT_GetUnidItem();
+			}
+		} // Use scrolls to id items else {
+		// If we got crap items, sell it or drop it
+		if(_baditems.length > 0) {
+			var _baditem = false;
+			if(XP_SellBackItems && (!XP_DropItems || (DC_MyGold() < DC_MaxGold()))) {
+				// Loop until all items is sold to the npc or my pockets is full
+				do {
+					// Get the item
+					_baditem = getUnit(4,null,null,_baditems.pop());
+					if(_baditem) {
+						if(DL_LogMode > 1) {
+							_stats = _baditem.description;
+							DC_WriteLogEntry("output/fullstats.txt",_stats);
+							DL_LogItem(DL_GetItemName(_baditem),_baditem.quality,"[Sold]","[" + DC_ExtractStats(_baditem,true) + "]");
+						}
+						else if(DL_LogMode > 0) {
+							DL_LogItem(DL_GetItemName(_baditem),_baditem.quality,"[Sold]");
+						}
+						DT_BuyItem(_baditem,npc,1);
+					}
+				} while (_baditems.length > 0 && (DC_MyGold() < DC_MaxGold()));
+			}
+			// if there is still items available, drop them
+			if(_baditems.length > 0) {
+				// Cancel the menu
+				DT_MenuCancel(npc,1);
+				// Loop until all items is dropped on ground
+				do {
+					// Get the item
+					_baditem = getUnit(4,null,null,_baditems.pop());
+					if(_baditem) {
+						if(DL_LogMode > 1) {
+							_stats = _baditem.description;
+							DC_WriteLogEntry("output/fullstats.txt",_stats);
+							DL_LogItem(DL_GetItemName(_baditem),_baditem.quality,"[Dropped]","[" + DC_ExtractStats(_baditem,true) + "]");
+						}
+						else if(DL_LogMode > 0) {
+							DL_LogItem(DL_GetItemName(_baditem),_baditem.quality,"[Dropped]");
+						}
+						DT_DropItem(_baditem);
+					}
+				} while (_baditems.length != 0);
+				// After the loop, reinteract with the npc for doing other stuff
+				DT_DoInteract(npc);
+			} // if(_baditems.length > 0)
+		} // if(_baditems.length > 0)
+		// also sell bad identified items- darkspirit
+		// Will add a 2 seconds DC_DoDel to this function though
+		DT_ClearInv(npc);
+	} // if(_XP_GetNumUnId > 0)
+	return true;	
+}
+
+// Always fill belt when shoping at healer (save user config, set min to 4 if over 0 and reset after buying)
+function YAM_CheckBelt(npc) {
+	var _DT_BeltColMin=new Array(DT_BeltColMin[0],DT_BeltColMin[1],DT_BeltColMin[2],DT_BeltColMin[3]);
+	for(var b=0; b < 4; b++) { 
+		if(DT_BeltColMin[b] > 0) { 
+			DT_BeltColMin[b]=4; 
+		} 
+	}
+	if(DT_CheckBelt()) { 
+		DT_FillBelt(npc); 
+	}
+	DT_BeltColMin.splice(0,3,_DT_BeltColMin[0],_DT_BeltColMin[1],_DT_BeltColMin[2],_DT_BeltColMin[3]);
+}
+
+
+/////////////////////////////////// NPC Interactions ////////////////////////////////////
+
+function YAM_NPCinteract(npc) {
+	// If the npc object is not present, abort the game
+	if(!npc) {
+		DL_AddAbort();
+		DC_QuitMessage("No NPC available!");
+		return false;
+	}
+	// Interact with the npc
+	if(!DT_DoInteract(npc)) {
+		DL_AddAbort();
+		DC_QuitMessage("Unable to interact with " + npc.name + "!");
+		return false;
+	}
+	// Do stuff depending on which npc
+	if(npc.classid == 267) {
+		// Stash
+		if(YAM_EnableCubing) { // Check if we have stuff to cube
+			DCU_transform();
+		}
+		DT_ManageStash();
+	}
+	else {
+		switch (me.act) {
+			case 1:	YAM_NPCinteract1(npc);	break;
+			case 2:	YAM_NPCinteract2(npc);	break;
+			case 3:	YAM_NPCinteract3(npc);	break;
+			case 4:	YAM_NPCinteract4(npc);	break;
+			case 5:	YAM_NPCinteract5(npc);	break;
+		}
+	}
+	// If shopping is enabled and it is not the stash, Kashya, Greiz, Tyrael or Qual-Kehk, shop the npc
+	if(YAM_ShopIt && npc.classid!=267 && npc.classid!=150 && npc.classid!=198 && npc.classid!=367 && npc.classid!=515) {
+		if(!getUIFlag(0x0c)) {
+			DT_DoTrade(npc); 
+		}
+		DT_ShopIt(npc);
+	}
+	// Use the right cancel method depending on if it is a npc or object
+	DT_MenuCancel(npc, npc.classid == 267 ? 0 : 1);
+	return true;
+}
+
+
+/////////////////////////////////// Paths ////////////////////////////////////
+// Universal paths
+function YAM_PathToWayPoint() {
+	switch(me.act) {
+		case 1: commTown.GotoWP();		break;
+		case 2: commTown2.GotoWP();	break;
+		case 3: commTown3.GotoWP();	break;
+		case 4: commTown4.GotoWP();	break;
+		case 5: commTown5.GotoWP();	break;
+	}
+	_YAM_Position = "waypoint";
+}
+

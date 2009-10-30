@@ -1,0 +1,71 @@
+//Infinite ShopBot Module - by darkspirit
+
+//A YAMB module doesnt have to be coded to kill any bosses. This small module would 
+//not kill bosses but would make the bot go to act5 town, shop for the items that you 
+//want from npc, go to frigid wp, come back to town through the wp, then shop again. 
+//The cycle repeats in an infinite loop until you quit the bot or it encounters an error. 
+//If you need some magical, non-ethereal items (e.g. +3 warcry spears), it may be faster 
+//to acquire them through shopping than through monster killing. 
+//The bot will force YAM_ShopIt to true if it is not already set. 
+//Make sure your bot has enough gold to afford the items that you have set it to buy 
+//(also try to set gambleIt to false, otherwise the bot may waste money gambling rather than shopping). 
+//Set these variables according to your shopping needs in your char config file:  
+
+// YAM_AlwaysMalah = true/false      Set to true to always visit Malah when in act 5. 
+// YAM_AlwaysLarzuk = true/false   Set to true to always visit Larzuk when in act 5. 
+// YAM_VisitAnya = true/false      Set to true to always visit Anya before killing Pindle if ShopIt is true. 
+
+//Remember to set your bmShopIt_XP.ini properly for the items that you want to buy from the vendors. 
+//
+//Steps:
+// 1) Make the preparations that I have described above. 
+// 2) Edit your char config file and add this at the beginning:
+// 
+//YAMXXP.push("Shopping");  
+
+entryFunc = Shopping;
+
+function Shopping() {
+	var _idlestartTime = new Date();
+	var _idlerunTime = 0;
+	var _tmpdate = new Date();
+	var _lastdate = new Date() - 60000;
+	var count = 1;
+	print ("Setting Infinite Game Length!");
+	me.gamelength = 0;
+	if (!YAM_ShopIt) {
+		print ("ÿc1Warning: Forcing YAM_ShopIt to TRUE for this module!ÿc0");
+		YAM_ShopIt = true;
+	}
+	print ("Warning: This module would run in an infinite loop!");
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	// Use the WP to Act 5 if need be
+	if (me.area != 109) { YAM_PathToWayPoint(); DM_UsePortal("Waypoint",0x6d); YAM_InitCommTown(); }
+	while (true) {
+		count++;
+		// Do town stuff in the act we are in
+		YAM_TownManager();
+		if (YAM_VisitAnya) {
+			commTown5.GotoAnya();
+			YAM_NPCinteract(DC_getNPC(512));
+		}
+		_idlerunTime = Math.round( (new Date().getTime() - _idlestartTime) /1000);
+		//make autod2jsp log entry every 2 minutes to zero pingtime, this way autod2jsp will not kill the d2window
+		//after the "Freeze Timeout Threshold" is over as it resets the counter
+		_tmpdate = new Date();
+		if (_tmpdate -_lastdate > 120000) {
+			_lastdate = _tmpdate;
+			DC_LogToautod2jsp("Number of Shopping Trips: " + count + " Gametime: " + _idlerunTime);
+		}
+		YAM_PathToWayPoint();
+		// Do precasts before going into the portal
+		//XP_Precasts();
+		// Take WP to Frigid
+		DM_UsePortal("Waypoint",0x6f);
+		// Do precasts after going into the portal
+		//XP_Precasts();
+		XP_ClearPosition(30);
+		DM_UsePortal("Waypoint",109);
+	}
+}

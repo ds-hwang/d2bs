@@ -1,0 +1,141 @@
+//////////////////////////////////////////////////////////////////////
+//
+// YAM-Chests.dbl Chest search and opening library
+//
+// Version 0.1 by darkspirit
+// Initial release
+//
+// Known Issues:
+//   - May cast telekinesis on the same object afew times
+//
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+// Public global variables
+//////////////////////////////////////////////////////////////////////
+
+// max distance away we will go for a chest
+var YC_MaxDistance = 90;
+
+//////////////////////////////////////////////////////////////////////
+// Private global variables
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+// Functions
+//////////////////////////////////////////////////////////////////////
+
+function fillAssocArray(array_, hash_) { 
+	for(var i = 0; i < array_.length; i++) {
+		hash_[array_[i]]=1;
+	}
+}
+var TEST_ChestListI = [104,105,106,107,169,380,381,383,384]; 
+var TEST_CheckListH = new Array();
+ 
+fillAssocArray(TEST_ChestListI, TEST_CheckListH);
+
+	/*(unit.type == d2_unit_object && ( unit.classid in TEST_CheckListH || (getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_SELECTABLE0)  
+		//&& !getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_ISDOOR)
+		&& getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_MONSTEROK)) 
+		&& (unit.status!=128 || current_keys>0) ))) */
+ 
+ 
+ 
+
+function YC_IsValidChest (classid) {
+	if ( ( classid < 0 ) || ( classid > 564 ) ) { 
+		return 0; 
+	}
+	switch(classid) {
+		case 77:
+		case 84:
+		case 85:
+		case 87:
+		case 93:
+		case 96:
+		case 109:
+		case 120:
+		case 164:
+		case 165:
+		case 166:
+		case 167:
+		case 168:
+		case 172:
+		case 173:
+		case 202:
+		case 206:
+		case 238:
+		case 249:
+		case 275:
+		case 276:
+		case 280:
+		case 281:
+		case 302:
+		case 319:
+		case 320:
+		case 343:
+		case 344:
+		case 422:
+		case 423:
+		case 464:
+		case 465:
+		case 483:
+		case 484:
+		case 491:
+		case 492:
+		case 521:
+		case 522:
+			return 1;
+	}
+	var operateFn = getBaseStat(4,classid,150);
+	if (operateFn==1||operateFn==3||operateFn==4||operateFn==14||operateFn==19||operateFn==20) { return 1; }
+	return 0;
+}
+
+function YC_CheckForChests() {
+	var _chestfound = false;     // assume we didn't find any good chests
+	// do we see any chests?
+	var chest = getUnit(2,null,0);
+	// if at least one chest visible...
+	if (chest) {
+		// loop over all the chests we can "see" (we know at least one from above)
+		do {
+			if (!YC_IsValidChest(chest.classid)) { continue; }
+			_chestfound = _chestfound || YC_CheckForChest(chest);
+		} while (chest && chest.getNext(null,0));
+	}
+	return _chestfound;
+}
+
+function YC_CheckForChest(chest) {
+	// If no chest object is entered, return false
+	if (!chest) { return false; }
+	if (chest.name.toLowerCase() == "dummy") return false;
+   	// is chest in range -- if not, skip it
+	if (getDistance(me, chest) > YC_MaxDistance || checkCollision(me,chest,1)) { return false; }
+	// have we visited this chest before ?  if so, skip it
+	if (chest.mode) { return false; }
+	if (chest.status!=0 && me.classid!=6) {
+		var _key = DC_GetKeys();
+		if ( !_key || (_key.getStat(70) < 1)) {
+			return false;
+		}
+	}
+	var i = 0;
+	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+	// save start location
+	var _startx = me.x;
+	var _starty = me.y;
+	var ret = DM_TouchObject(chest,true);
+	if (chest.mode == 2) {
+		var _DSN_SnagRange = DSN_SnagRange;
+		DSN_SnagRange = 20;
+		delay(400);
+		DSN_PickItems(YAM_SafeCheck);
+		DSN_SnagRange = _DSN_SnagRange;
+	}
+	// move back to start point
+	DM_CheckPosition(_startx, _starty);
+	return ret;
+}

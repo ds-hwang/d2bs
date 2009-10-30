@@ -1,0 +1,1421 @@
+// my pathing lib
+
+
+// testing garbage
+function main(){
+	print("Test main for pathMove started.");
+	var pathMoveInit = new Object();
+		pathMoveInit.UseTeleport    = true;
+		pathMoveInit.UseTeleSorc    = false;
+		pathMoveInit.StepActionFreq = 1;
+		pathMoveInit.StepActionflag = DP_INCUSERSTEP;
+		pathMoveInit.StepDelay      = 250;
+		pathMoveInit.InteractTile   = true;
+		pathMoveInit.TeleDist       = 20;
+		pathMoveInit.WalkDist       = 3;
+	var test = new pathMove(pathMoveInit);
+	
+	this.DP_KeyUpManager = function (keyup){
+		if(getUIFlag(0x05)==1 && keyup != 19){
+			print(getUIFlag());
+			return;
+		}
+		switch (keyup) {
+			// Stop main script, started tools (eg. YAM-LifeWatch) will continue
+			case 88: // "X" was pressed
+				print("ÿc;Key 'X' was pressed, stopping the main script.");
+				delay(500);
+				stop(1);
+				break;
+			case 119: // F8
+				print("Going to Akara");
+				test.GotoNPC(D2JSP_NPC_AKARA,1);
+				//test.GotoNPC(710);
+				break;
+			case 120: //F9
+				print("Going to Tower");
+				test.GotoWarp(DP_WARPTOWER, false, false);
+				delay(2000);
+				print("Going to Countess");
+				test.GotoWarp(DP_WARPNEXT, false, false);
+				delay(1000);
+				test.GotoWarp(DP_WARPNEXT, false, false);
+				delay(1000);
+				test.GotoWarp(DP_WARPNEXT, false, false);
+				delay(1000);
+				test.GotoWarp(DP_WARPNEXT, false, false);
+				delay(1000);
+				test.GotoWarp(DP_WARPNEXT, false, false);
+				delay(1000);
+				
+				//print("Going to Tome");
+				//test.GotoObject(2,357,357,me.area);
+				break;
+			case 121: //F10
+				//print("Going to BloodRaven");
+				//test.GotoNPC(775, 17);
+				print("Going to Gheed");
+				test.GotoNPC(D2JSP_NPC_GHEED,1);
+				//print("Exploring Level");
+				//test.ExploreLevel();
+				break;
+			case 122: //F11
+				print("Going to Waypoint");
+				test.GotoWaypoint();
+				print("Going to Stash");
+				test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH);
+				print("Going to Warriv");
+				test.GotoNPC(D2JSP_NPC_WARRIV_ACT_1,1);
+				//print("Going to WarpNext");
+				//test.GotoWarpInArea(DP_WARPNEXT,me.area);
+				break;
+		}
+	}
+
+	//delay(5000);
+	//print("Going to Waypoint");
+	//test.GotoWaypoint();
+	//print("Going to Stash");
+	//test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH);
+	//print("Going to WarpNext");
+	//test.GotoWarpInArea(DP_WARPNEXT,me.area);
+	//DP_DPrint("Printing Source for Class.");
+	//file = fileOpen("output/mytest.txt",1);
+	//file.writeLine(test.constructor);
+	//delay(500);
+	//file.close();
+	//DP_DPrint("File Printed.");
+	//DP_xyInArea( me.x, me.y, me.area );
+	//DP_DPrint("me.runwalk = "+me.runwalk);
+	//print("Going to Waypoint");
+	//test.GotoWaypoint();
+	//print("Going to Stash");
+	//test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,1);
+	//print("Going to Warriv");
+	//test.GotoNPC(155,1);
+	//print("Going to WarpNext");
+	//test.GotoWarpInArea(DP_WARPNEXT,me.area);
+	//print("Going to Den");
+	//test.GotoWarpInArea(DP_WARPDEN,2);
+	//DP_DPrint("Test main for pathMove started.");
+	addEventListener("keyup", this.DP_KeyUpManager);
+	while(1) {
+		delay(250);
+	}
+}
+//end testing garbage
+
+var DP_version    = "1.1";
+//////////////////////////////////////////////////////////////////////
+// Public constants & variables
+//////////////////////////////////////////////////////////////////////
+const DP_THROWWHENSTUCK    = 0x0001;	// Will throw an exception if it is stuck for more than 5 tries.(value 1)
+const DP_CLEARWHENSTUCK    = 0x0002;	// Will check for monsters to kill if it is stuck for more than 1 try.(value 2)
+const DP_PICKDROPS         = 0x0004;	// Will activate item grabbing along the way.(value 4)
+const DP_USESHRINES        = 0x0008;	// Will use 1 shrine/step (YAM_UseShrines has to be set to true)(value 8)
+const DP_OPENCHESTS        = 0x0010;	// Will open 1 chest/step (YAM_OpenChests has to be set to true)(value 16)
+const DP_SAFECHECK         = 0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
+const DP_USEVIGOR          = 0x0040;	// Will enable vigor aura (Paladins only).(value 64)
+// IMPORTANT: Do not redefine monster bits without updating walkcalls function below!!!
+const DP_KILLSUPERUS       = 0x0100;	// Will kill SuperUniques.(value 256)
+const DP_KILLCHAMPS        = 0x0200;	// Will kill Champions.(value 512)
+const DP_KILLBOSSES        = 0x0400;	// Will kill Bosses.(value 1024)
+const DP_KILLMINIONS       = 0x0800;	// Will kill Minions.(value 2048)
+const DP_CLEARMONSTERS     = 0x1000;	// Will kill normal monsters along the way(value 4096)
+const DP_INCUSERSTEP       = 0x8000;	// Will include (bitwise OR) DP_StepPath user config variable with the walkcallflag(value 32768)
+
+
+var DP_StepPath  = (DP_INCUSERSTEP);	// User configurable control flag default value
+//var DP_StepPath  = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
+//////////////////////////////////////////////////////////////////////
+// Constants
+//////////////////////////////////////////////////////////////////////
+
+//StepActions return values
+var DP_CONTINUE        = 1;
+var DP_STOP            = 2;
+var DP_STEPAHEAD       = 100;
+var DP_STEPBACK        = 200;
+var DP_STEPFAILED      = -1;
+
+// Warps
+var DP_WARPNONE                    = 99;
+var DP_WARPNEXT                    = 0;
+var DP_WARPPREVIOUS                = 1;
+var DP_WARPWAYPOINT                = 2;
+var DP_WARPOTHER1                  = 3;
+var DP_WARPOTHER2                  = 4;
+var DP_WARPOTHER3                  = 5;
+var DP_WARPOTHER4                  = 6;
+var DP_WARPOTHER5                  = 7;
+var DP_WARPOTHER6                  = 8;
+var DP_WARPOTHER7                  = 9;
+var DP_WARPOTHER8                  = 10;
+var DP_WARPUNDERGROUNDPASSAGE      = 0;
+var DP_WARPUNDERGROUNDPASSAGEOTHER = 3;
+var DP_WARPUGPASSAGE               = 0;
+var DP_WARPUGPASSAGEOTHER          = 3;
+var DP_WARPDEN                     = 3;
+var DP_WARPHOLE                    = 3;
+var DP_WARPCAVE                    = 3;
+var DP_WARPPIT                     = 3;
+var DP_WARPCRYPT                   = 3;
+var DP_WARPMAUSOLEUM               = 4;
+var DP_WARPTOWER                   = 4;
+var DP_WARPTOWNTOSEWERTRAP         = 3;
+var DP_WARPTOWNTOSEWERDOCK         = 4;
+var DP_WARPSEWERTOTOWNDOCK         = 3;
+var DP_WARPTOWNTOHAREM             = 5;
+var DP_WARPHAREMTOTOWN             = 3;
+var DP_WARPTOMB                    = 3;
+var DP_WARPVIPER                   = 3;
+var DP_WARPTALTOMB1                = 3;
+var DP_WARPTALTOMB2                = 4;
+var DP_WARPTALTOMB3                = 5;
+var DP_WARPTALTOMB4                = 6;
+var DP_WARPTALTOMB5                = 7;
+var DP_WARPTALTOMB6                = 8;
+var DP_WARPTALTOMB7                = 9;
+var DP_WARPMAGGOT                  = 3;
+var DP_WARPDESSERTSEWERTRAP        = 4;
+var DP_WARPSPIDER                  = 3;
+var DP_WARPDUNGEONFORT             = 4;
+var DP_WARPDUNGEONHOLE             = 5;
+var DP_WARPKURASTTOSEWER           = 3;
+var DP_WARPKURASTTOTEMPLE          = 4;
+var DP_WARPTRAVINCALTOMEPH         = 5;
+var DP_WARPCITYTORIVER             = 0;
+var DP_WARPRIVERTOCITY             = 1;
+var DP_WARPBARRICADEDOWN           = 3;
+var DP_WARPBARRICADEDOWNWALL       = 4;
+var DP_WARPICECAVEDOWNFLOOR        = 3;
+var DP_WARPTEMPLETONIHL            = 3;
+var DP_WARPMOUNTAINTOICE           = 3;
+var DP_WARPMOUNTAINTOBAAL          = 4;
+
+// Global classID for chest in town
+// todo :: add things like hellforge and arcane portal maybe?
+// check scripts for commonly looked for things..
+var D2JSP_UNIT_STASH        = 267;
+// frigid wp  = 496
+// glacial wp = 511
+
+// SuperUnique ID's (704 = hcIdx# from mpq file)
+//Bishibosh                = 704	0
+//Bonebreak                = 705	1
+//Coldcrow                 = 706	2
+//Rakanishu                = 707	3
+//Treehead WoodFist        = 708	4
+//Griswold                 = 709	5
+//The Countess             = 710 	6
+//Pitspawn Fouldog         = 711	7
+//Flamespike the Crawler   = 712	8
+//Boneash                  = 713	9
+//Radament                 = 714	10
+//Bloodwitch the Wild      = 715	11
+//Fangskin                 = 716	12
+//Beetleburst              = 717	13
+//Leatherarm               = 718	14
+//Coldworm the Burrower    = 719	15
+//Fire Eye                 = 720	16
+//Dark Elder               = 721	17
+//The Summoner             = 722	18 (this does not work, MH reports as 250)
+//Ancient Kaa the Soulless = 723	19
+//The Smith                = 724	20
+//Web Mage the Burning     = 725	21
+//Witch Doctor Endugu      = 726	22
+//Stormtree                = 727	23
+//Sarina the Battlemaid    = 728	24
+//Icehawk Riftwing         = 729	25
+//Ismail Vilehand          = 730	26
+//Geleb Flamefinger        = 731	27
+//Bremm Sparkfist          = 732	28
+//Toorc Icefist            = 733	29
+//Wyand Voidfinger         = 734	30
+//Maffer Dragonhand        = 735	31
+//Winged Death             = 736	32
+//The Tormentor            = 737	33
+//Taintbreeder             = 738	34
+//Riftwraith the Cannibal  = 739	35
+//Infector of Souls        = 740	36
+//Lord De Seis             = 741	37
+//Grand Vizier of Chaos    = 742	38
+//The Cow King             = 743	39
+//Corpsefire               = 744	40
+//The Feature Creep        = 745	41 (Name change from MPQ = hephasto) = 745
+//Siege Boss               = 746	42 (Shenk the Overseer) = 746
+//Ancient Barbarian 1      = 747	43
+//Ancient Barbarian 2      = 748	44
+//Ancient Barbarian 3      = 749	45
+//Axe Dweller              = 750	46
+//Bonesaw Breaker          = 751	47
+//Dac Farren               = 752	48
+//Megaflow Rectifier       = 753	49 (Name change from MPQ = Eldritch) = 753
+//Eyeback Unleashed        = 754	50
+//Threash Socket           = 755	51 (Name change from MPQ = Thresh Socket) = 755
+//Pindleskin               = 756	52
+//Snapchip Shatter         = 757	53
+//Anodized Elite           = 758	54
+//Vinvear Molech           = 759	55
+//Sharp Tooth Sayer        = 760	56
+//Magma Torquer            = 761	57
+//Blaze Ripper             = 762	58
+//Frozenstein              = 763	59
+//Nihlathak                = 764	60
+//Baal Subject 1           = 765	61
+//Baal Subject 2           = 766	62
+//Baal Subject 3           = 767	63
+//Baal Subject 4           = 768	64
+//Baal Subject 5           = 769	65
+//Bloodraven               = 775    (Not in MPQ file, but seems to be ID for Bloodraven)
+//Izual                    = 256
+
+
+// Act 1 NPCs
+var D2JSP_NPC_AKARA         = 148;
+var D2JSP_NPC_WARRIV_ACT_1  = 155;
+var D2JSP_NPC_CHARSI        = 154;
+var D2JSP_NPC_GHEED         = 147;
+var D2JSP_NPC_KASHYA        = 150;
+var D2JSP_NPC_CAIN_TRISTRAM = 146;
+var D2JSP_NPC_CAIN_ACT_1    = 244;
+// Act 2
+var D2JSP_NPC_FARA         = 178;
+var D2JSP_NPC_LYSANDER     = 202;
+var D2JSP_NPC_GREIZ        = 198;
+var D2JSP_NPC_ELZIX        = 199;
+var D2JSP_NPC_MESHIF_ACT_2 = 210;
+var D2JSP_NPC_DROGNAN      = 177;
+var D2JSP_NPC_ATMA         = 176;
+var D2JSP_NPC_WARRIV_ACT_2 = 175;
+var D2JSP_NPC_CAIN_ACT_2   = 245;
+var D2JSP_NPC_JERHYN       = 201;
+var D2JSP_NPC_TYRAEL_ACT_2 = 251;
+// Act 3
+var D2JSP_NPC_MESHIF_ACT_3 = 264;
+var D2JSP_NPC_CAIN_ACT_3   = 246;
+var D2JSP_NPC_ALKOR        = 254;
+var D2JSP_NPC_ASHEARA      = 252;
+var D2JSP_NPC_ORMUS        = 255;
+var D2JSP_NPC_HRATLI       = 253;
+// Act 4
+var D2JSP_NPC_CAIN_ACT_4   = 265;
+var D2JSP_NPC_HALBU        = 257;
+var D2JSP_NPC_TYRAEL_ACT_4 = 367;
+var D2JSP_NPC_JAMELLA      = 405;
+// Act 5
+var D2JSP_NPC_CAIN_ACT_5                = 520;
+var D2JSP_NPC_TYRAEL_ACT_5              = 521;
+var D2JSP_NPC_LARZUK                    = 511;
+var D2JSP_NPC_ANYA_FROZEN_RIVER         = 527;
+var D2JSP_NPC_ANYA_TOWN                 = 512;
+var D2JSP_NPC_MALAH                     = 513;
+var D2JSP_NPC_QUALKEHK                  = 515;
+var D2JSP_NPC_NIHLATHAK_TOWN            = 514;
+var D2JSP_NPC_NIHLATHAK_HALLS_OF_VAUGHT = 526;
+
+
+//////////////////////////////////////////////////////////////////////
+// Inherited functions from other libs 
+// Wrappers here to allow for easier re-definitions (YAMB v XP for example)
+//////////////////////////////////////////////////////////////////////
+
+function DP_DPrint(a){
+	if(typeof(DC_DPrint) == 'function'){
+		return DC_DPrint(a);
+	}
+	return print(a);
+}
+
+function DP_CheckSafety(){ 
+	if(typeof(YAM_SafeCheck) == 'function'){
+		return YAM_SafeCheck();
+	}
+	// fallback default behavior 
+	// MAKE A SAFE CHECK FUNCTION!!!!!!
+	return false;
+}
+
+function DP_Precasts(){
+	if(typeof(XP_Precasts) == 'function'){
+		XP_Precasts();
+	}
+	// fallback default behavior
+	// Insert your own defined function above to allow for casting of spells before action
+	return true;
+}
+
+function DP_ClearInRange(range,skip,mode,classid,spectypeMask){
+	if(typeof(XP_ClearPosition) == 'function'){
+		XP_ClearPosition(range,skip,mode,classid,spectypeMask);
+	}
+	// fallback default behavior
+	// Insert your own defined function above to allow for casting of spells before action
+	return true;
+}
+
+
+function pathMove(_info) {
+	// Initialize with user values if those are entered
+	if(_info) {
+		this.UseTeleport    = _info.UseTeleport;
+		this.UseTeleSorc    = _info.UseTeleSorc;
+		this.StepActionFreq = _info.StepActionFreq;
+		this.StepActionflag = _info.StepActionflag;
+		this.StepDelay      = _info.StepDelay;
+		this.InteractTile   = _info.InteractTile;
+		this.TeleDist       = _info.TeleDist;
+		this.WalkDist       = _info.WalkDist;
+	}
+	//<BEGIN INIT BLOCK>
+	// Sanity/type checking for values that may or may not have been initialized on class object creation
+	if(this.UseTeleSorc != true && this.UseTeleSorc != false) {
+		DP_DPrint("pathMove() -> UseTeleSorc not set! Setting value based on teleport skill.");
+		this.UseTeleSorc = (DP_CheckTeleport()) ? true : false;
+	}
+	if(this.UseTeleport != true && this.UseTeleport != false) {
+		DP_DPrint("pathMove() -> UseTeleport not set! Setting value based on teleport skill.");
+		this.UseTeleport = (DP_CheckTeleport()) ? true : false;
+	}
+	// This controls the anount of steps between the StepActions function being called
+	if(isNaN(this.StepActionFreq)) {
+		DP_DPrint("pathMove() -> StepActionFreq not set! Applying default value of 1.");
+		this.StepActionFreq  = 1;
+	}
+	// Set default StepActionflag (see above for description of the possible values for this)
+	if(!this.StepActionflag) {
+		DP_DPrint("pathMove() -> StepActionflag not set! Applying default value of DP_INCUSERSTEP.");
+		this.StepActionflag  = DP_INCUSERSTEP;
+	}
+	// Set this to control the amount of time (in milliseconds) between movement functions (bnet lag control efforts)
+	if(isNaN(this.StepDelay)) {
+		DP_DPrint("pathMove() -> StepDelay not set! Applying default value of 100.");
+		this.StepDelay     = 100;
+	}
+	// Set default behavior for tile action (true or false to automatically click on the tile/stairs/entrance you pathed to)
+	if(this.InteractTile != true && !this.InteractTile != false) {
+		DP_DPrint("pathMove() -> InteractTile not set! Applying default value of false.");
+		this.InteractTile  = false;
+	}
+	// sanity and bounds checking for distances, check here to keep from having to do it again in all member functions - TechnoHunter
+	if(!this.TeleDist || isNaN(!this.TeleDist)){ // set to 10 by default if not initialized on creation
+		DP_DPrint("pathMove() -> TeleDist not set! Applying default distance of 10.");
+		this.TeleDist = 10;
+	}
+	if(this.TeleDist > 30){ // Too high makes you get connection interupted
+		DP_DPrint("pathMove() -> TeleDist value too high! Reducing distance to 20.");
+		this.TeleDist = 20;
+	}
+	if(this.TeleDist < 5){ // Too low and you might as well be walking
+		DP_DPrint("pathMove() -> TeleDist value too low! Increasing distance to 5.");
+		this.TeleDist = 5;
+	}
+	if(!this.WalkDist){ // set to 3 by default if not initialized on creation
+		DP_DPrint("pathMove() -> WalkDist not set! Applying default distance of 3.");
+		this.WalkDist = 3;
+	}
+	if(this.WalkDist > 10){ // Too high makes you get stuck
+		DP_DPrint("pathMove() -> WalkDist value too high! Reducing distance to 10.");
+		this.WalkDist = 10;
+	}
+	if(this.WalkDist < 1){ // Too low and you go nowhere
+		DP_DPrint("pathMove() -> WalkDist value too low! Increasing distance to 1.");
+		this.WalkDist = 1;
+	}
+	//<END INIT BLOCK>
+	// The following are internal use only variables (for use with the StepActions function mainly)
+	// Alias (global) for shouldTeleport, class insensitive - TechnoHunter (DO NOT SET DIRECTLY!)
+	this.UseTele       = (((me.classid == 1) ? this.UseTeleSorc : this.UseTeleport) && DP_CheckTeleport()) ;
+	// Used in the MoveToNode function
+	this.ilastX        = 0;
+	this.ilastY        = 0;
+	this.ilastPoint    = 0;
+	this.ilastArea     = me.area;
+	this.ifailedMoves  = 0;
+	this.iCurrentPoint = 0;
+	this.iMovedBack    = false;
+
+	// The following are used in re-calculating a path if we get stuck
+	//(no need to immediately fail pathing unless thepoint we are aiming for can NOT be reached from where we are)
+	this.TargetX     = 0; 
+	this.TargetY     = 0; 
+	this.TargetType  = 0; 
+	this.TargetRoom  = false;
+	this.TargetID    = false;
+
+	this.GotoDest = function( pDestX, pDestY, pMoveDist, pDataback, pDoorHandler) {
+		// If the function got a undefined X or Y, return false
+		if(!pDestX || !pDestY || isNaN(pDestX) || isNaN(pDestY)) {
+			DP_DPrint("GotoDest() -> Error! Missing or Incorrect DataType for X/Y values entered, aborting the pathing!");
+			return false;
+		}
+		// Check and make sure that the start and end points are not the same(stupid, i know)
+		if(Math.abs(me.x - pDestX) < 4 && Math.abs(me.y - pDestY) < 4){
+			DP_DPrint("GotoDest() -> Start and Destination points are the same!");
+			return true;
+		}
+		// If the function got a undefined pMoveDist, set it to default value based on UseTele
+		if(!pMoveDist || isNaN(pMoveDist)) {
+			pMoveDist = ((this.UseTele && !InTown(me)) ? this.TeleDist : this.WalkDist)
+			//DP_DPrint("GotoDest() -> Warning! Missing or Incorrect DataType for pMoveDist entered, setting to default!");
+			DP_DPrint("GotoDest() -> Warning! pMoveDist not entered, setting to " + pMoveDist + "!");
+		}
+		// Get the path to the destination coordinates
+		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
+		// If a path is not found
+		if  ( !myPath ) {
+			DP_DPrint("GotoDest() -> Unable to find path to dest. Trying again to find path, current ping : " + me.ping);
+			// Try again to get path
+			myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
+		}
+		// If a path is still not found, log the error and return false
+		if  ( !myPath ) {
+			DP_DPrint("GotoDest() -> Unable to find path to destination. (X : " + pDestX + ",Y : " + pDestY + " from Area #" + me.area + ", current ping : " + me.ping + ")");
+			return false;
+		}
+		// Insert my location in path to fix starting node for rest of function (legacy code fix) - TechnoHunter
+		myPath = [[me.x, me.y]].concat(myPath);
+		// Return result of moving along the path
+		return this.MovePath(myPath, pMoveDist, pDataback, pDoorHandler );
+	}
+
+	this.GotoRoom = function(pLow, pHigh, pMoveDist, pDataback, pDoorHandler) {
+		return this.GotoRoomInArea( pLow, pHigh, me.area, pMoveDist, pDataback, pDoorHandler );
+	}
+
+	this.GotoRoomInArea = function( pLow, pHigh, pArea, pMoveDist, pDataback, pDoorHandler ) {
+		// Sanity checks
+		if( isNaN(pLow) || pLow > pHigh || pLow < 0 || pLow > 999 ) {
+			DP_DPrint("GotoRoomInArea() -> Invalid pLow passed!");
+			return false;
+		}
+		if( isNaN(pHigh) || pHigh < pLow || pHigh < 0 || pHigh > 999 ) {
+			DP_DPrint("GotoRoomInArea() -> Invalid pHigh passed!");
+			return false;
+		}
+		// If no area is entered, use my current area
+		if( !pArea || isNaN(pArea)) {
+			pArea = me.area;
+		}
+		// Loops thru the room objects until we find the right one then path to it
+		var _rooms = getRoom( pArea );
+		if( _rooms ) {
+			do {
+				if( _rooms.number >= pLow && _rooms.number <= pHigh ) {
+					// Find the closest walkable coordinate
+					this.TargetRoom = DP_FindClosestWalkable(_rooms.x*5+ (_rooms.getStat(2)/2), _rooms.y*5+(_rooms.getStat(3)/2), 19 );
+					// Path to the room coordinates
+					if(this.TargetRoom != false) {
+						return this.GotoDest( this.TargetRoom.x, this.TargetRoom.y, pMoveDist, pDataback, pDoorHandler );
+					}
+				}
+			} while ( _rooms.getNext() );
+			DP_DPrint("GotoRoomInArea() -> Unable to find a room within the specified range! Current ping is " + me.ping + " ms.");
+			return false;
+		}
+		DP_DPrint("GotoRoomInArea() -> Unable to get a list of rooms! Current ping is " + me.ping + " ms.");
+		return false;
+	}
+
+	this.GotoWarp = function(pWarpType, pMoveDist, pDataback, pDoorHandler) {
+		return this.GotoWarpInArea(pWarpType, me.area, pMoveDist, pDataback, pDoorHandler);
+	}
+
+	this.GotoWarpInArea = function(pWarpType, pArea, pMoveDist, pDataback, pDoorHandler) {
+		if( isNaN(pWarpType) || pWarpType < 0 || pWarpType > 10 ) {
+			DP_DPrint("GotoWarpInArea() -> Invalid Warp type passed");
+			return false;
+		}
+		// If no area is entered, use the current area
+		if( !pArea ) {
+			pArea = me.area;
+		}
+		var _warpcoord = false;
+		switch(pWarpType){
+			case DP_WARPNONE:
+				DP_DPrint("GotoWarpInArea() -> DP_WARPNONE used so no warp to get!");
+				return false;
+			case DP_WARPWAYPOINT:
+				_warpcoord = DP_FindWaypoint( pArea );
+				if( _warpcoord == false) {
+					DP_DPrint("GotoWarpInArea() -> Could not find a waypoint! Current ping is " + me.ping + " ms.");
+					return false;
+				}
+				this.TargetID = _warpcoord.id;
+				break;
+			default:
+				_warpcoord = DP_getLevelWarpXY( pWarpType, pArea );
+				if( _warpcoord == false){
+					DP_DPrint("GotoWarpInArea() -> Could not find a warp! Current ping is " + me.ping + " ms.");
+					return false;
+				}
+				this.TargetID = _warpcoord.id;
+				break;
+		}
+		DP_DPrint("GotoWarpInArea() -> Destination Coords found! X: " + _warpcoord.x + " Y: " + _warpcoord.y );
+		return this.GotoDest( _warpcoord.x, _warpcoord.y, pMoveDist, pDataback, pDoorHandler );
+	}
+
+	this.GotoObject = function( pObjectType, pLow, pHigh, pArea, pMoveDist, pDataback, pDoorHandler ) {
+		if( isNaN(pObjectType) || pObjectType < 0 || pObjectType > 5 ) {
+			DP_DPrint("GotoObject() -> Invalid pObjectType passed!");
+			return false;
+		}
+		if( isNaN(pLow) || pLow > pHigh || pLow < 0 || pLow > 999 ) {
+			DP_DPrint("GotoObject() -> Invalid pLow passed!");
+			return false;
+		}
+		if( isNaN(pHigh) || pHigh < pLow || pHigh < 0 || pHigh > 999 ) {
+			DP_DPrint("GotoObject() -> Invalid pHigh passed!");
+			return false;
+		}
+		// If no area is entered, use the current area
+		if( !pArea ) {
+			pArea = me.area;
+		}
+		// Get the list of objects of the specified type
+		var _objects = getPresetUnits( pArea, pObjectType, null, null );
+		delay(((typeof me.serverip != "undefined") ? me.ping : 50));
+		// if a list of objects is found, loops until we get the object we want
+		if( !_objects.length == 0 ) {
+			// Find the right object in the array and path to this object
+			for( var _index = 0; _index < _objects.length; _index += 1 ) {
+				if( _objects[_index].id >= pLow && _objects[_index].id <= pHigh ) {
+					this.TargetID = _objects[_index].id;
+					return this.GotoDest( (_objects[_index].x + _objects[_index].roomx * 5), (_objects[_index].y + _objects[_index].roomy * 5), pMoveDist, pDataback, pDoorHandler );
+				}
+			}
+			DP_DPrint("GotoObject() -> Failed to get a object within the specified ID range! Current ping is " + me.ping + " ms.");
+			return false;
+		}
+		// No object list was found so return false
+		DP_DPrint("GotoObject() -> Failed to get a list of preset objects! Current ping is " + me.ping + " ms.");
+		return false;
+	}
+
+	this.GotoWaypoint = function( pArea, pMoveDist, pDataback, pDoorHandler ) {
+		if(!pArea){
+			pArea = me.area;
+		}
+		// Find the coordinates of the waypoint. Path if a waypoint is found
+		var _waypoint = DP_FindWaypoint( pArea );
+		// If a waypoint is not found, return false
+		if( _waypoint == false ) {
+			DP_DPrint("GotoWaypoint() -> Failed to get the waypoint in area " + pArea + "! Current ping is " + me.ping + " ms.");
+			return false;
+		}
+		this.TargetID = _waypoint.id;
+		DP_DPrint("GotoWaypoint() -> ID of the waypoint in area " + pArea + "  is " + this.TargetID +".");
+		return this.GotoDest( _waypoint.x, _waypoint.y, pMoveDist, pDataback, pDoorHandler );
+	}
+
+	this.GotoNPC = function( pClassID, pArea, pMoveDist, pDataback, pDoorHandler ) {
+		if(!pClassID || isNaN(pClassID)){
+			DP_DPrint("GotoNPC() -> Invalid or no ClassID Passed! Aborting pathing.");
+			return false;
+		}
+		if(!pArea){
+			pArea = me.area;
+		}
+		// Get the list of NPC's using the passed classID (farther range than getUnit)
+		var npc = getPresetUnits( pArea, 1, pClassID, null );
+		// delay to let the game settle
+		delay(((typeof me.serverip != "undefined") ? me.ping : 50));
+		// No NPC of specified classid was found so return false
+		if( npc.length == 0 ) {
+			DP_DPrint("DP_GotoNPC() -> Failed to get NPC of ClassID : " + pClassID + " in Area : " + pArea + "! Current ping is " + me.ping + " ms.");
+			return false;
+		}
+		this.TargetID = npc[0].id;
+		return this.GotoDest( (npc[0].x + npc[0].roomx * 5), (npc[0].y + npc[0].roomy * 5), pMoveDist, pDataback, pDoorHandler );
+	}
+
+	this.ExploreLevel = function(pMoveDist, pDataback, callback_perRoom, pDoorHandler) {
+		var rooms        = new Array();
+		// Add the rooms in the array
+		var troom        = getRoom(me.area);
+		// Hold on to InteractTile value and SET IT FALSE else the function goes BOOM quite spectacularly -TechnoHunter
+		var _tTile       = this.InteractTile;
+		this.InteractTile = false;
+		do {
+			rooms.push([troom.x * 5, troom.y * 5, troom.getStat(2), troom.getStat(3),troom.number]);
+		} while (troom && troom.getNext());
+		// If no rooms list is generated, return false
+		if( rooms.length == 0 ) {
+			this._Debug("DP_ExploreLevel() -> Failed to build a list of rooms in area " + me.area + "! Current ping is " + me.ping + " ms.");
+			return false;
+		}
+		// Visit each room, closest first.  We recalculate which room is closest after
+		// every visit.  Some of the rooms are inaccessable, so we skip those.
+		while (rooms.length) {
+			rooms.sort(DP_SortRoom);
+			var rm = rooms.shift();
+			var keepgoing = true;
+			try {
+				rmMid = DP_FindClosestWalkable(parseInt((rm[0] + rm[2]/2),10), parseInt((rm[1] + rm[3]/2),10), me.area, 19);
+				if(rmMid != false){
+					keepgoing = this.GotoDest(rmMid.x, rmMid.y, pMoveDist, pDataback, pDoorHandler);
+					if( keepgoing ) {
+						DP_DPrint("NowInRoom : " + rm[4] + ", RoomsLeft : " + rooms.length);
+						if(typeof(callback_perRoom)=="function") {
+							callback_perRoom();
+						}
+					}
+					else {
+						DP_DPrint("Unable to go in Room : " + rm[4] + " and skipped, Rooms Left : " + rooms.length);
+					}
+				}
+			}
+			catch (bomb) {
+				DP_Print("Exception caught in Room : " + rm[4] + " and skipped, Rooms Left : " + rooms.length);
+			}
+		}
+		this.InteractTile = _tTile;
+		return true;
+	}
+
+	//this.GotoLevel = function( destlevel, pMoveDist, databack, _door) {
+	//	DP_DPrint("GotoLevel() -> FUNCTION BROKEN - please use some other function till fixed! - TechnoHunter");
+	this.GotoLevel = function( exitAreaId, goThru) {
+		var exit = getExits(getArea(me.area));
+		for(var n in exit) {
+			if(exit[n].id == exitAreaId) {
+				var oldArea = me.area;
+				this.GotoDest(exit[n].x,exit[n].y);
+				this.TargetID=exit[n].tileid;
+				if(goThru) {
+					if(exit[n].type == 2) {
+						return this.takeTile(exit[n].tileid);
+					}
+					var otherExit = getExits(getArea(exitAreaId));
+					//print(otherExit.toSource ());
+					for(var l = 0; l < otherExit.length; l++) {
+						if(otherExit[l].id == oldArea) {
+							//this.useDoors();
+							while(oldArea == me.area){
+								this.GotoDest(exit[n].x,exit[n].y);
+								clickMap(0, 0, me.x+rnd(-3, 3), me.y+rnd(-3, 3));
+								DC_DoDel(300);
+							}
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	//bobode stole from d2mb 
+	this.takeTile = function (tileId) {
+		try	{
+			//Obtain the unit for the tile and store old area
+			var tileUnit = (arguments.length > 1) ? getUnit(arguments[1], tileId) : getUnit(5, tileId);
+			var oldArea = me.area;
+			//Insure we have the unit
+			if(!tileUnit)
+				throw new Error("ÿc5mBot ÿc#::ÿc0 Pather.takeTile was given an invalid tile.")
+			//Keep trying to go thru the tile until area changes
+			var _prearea = me.area;
+			for(var i = 0 ; i < 100 ; i++){
+				if((i % 25) == 0){
+					tileUnit.interact ();
+				}
+				DC_DoDel(40);
+				if(me.area != _prearea)
+					break;
+				this.GotoDest(tileUnit.x,tileUnit.y); //get closer?
+			}
+			preWalkDelay();
+			postWalkDelay();
+		} 
+		catch (e) {
+			print("Tile Taking Error: " + e);
+		}
+		return;
+	}
+
+////////////////////////////////////////////////////////////////////////////////
+// Mover Section
+////////////////////////////////////////////////////////////////////////////////
+	this.MovePath = function( pPath, pMoveDist, pDataback, pDoorHandler ) {
+		//DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
+		this.TargetX     = pPath[pPath.length-1][0];
+		this.TargetY     = pPath[pPath.length-1][1];
+		// Reset all internal vars (used in MoveToNode)
+		this.iFailedCount  = 0;
+		this.ilastX        = 0;
+		this.ilastY        = 0;
+		this.ilastPoint    = 0;
+		this.ilastArea     = me.area;
+		this.iCurrentStep  = 1;// Set to 1 for the callback function
+		// Starts at zero and loops thru the entire path array until we reach the end
+		var _cNode = 0, _retval = 0;
+		var movedNodes = [];
+		while(_cNode < pPath.length-1) {
+			movedNodes[movedNodes.length] = _cNode;
+			//if(me.x == pPath[_cNode][0] && me.y == pPath[_cNode][1]){
+				//DP_DPrint("MovePath() -> My X/Y same as cNode's, skipping to next node");
+				//_cNode++;
+				//continue;
+			//}
+			// Get and move to the next node
+			_cNode  = this.GetNextNode( pPath, pMoveDist, _cNode );
+			_retval = this.MoveToNode( pPath[_cNode][0], pPath[_cNode][1], _cNode, pDataback, pDoorHandler );
+			//DP_DPrint("cNode: " + _cNode);
+			//all below this is testing based on the MoveToNode's return value
+			if(_retval == DP_STEPAHEAD){
+				//DP_DPrint("MovePath() -> _retval = DP_STEPAHEAD");
+				if(_cNode > pPath.length-1){
+					continue;
+				}
+			}
+			else if(_retval > DP_STEPAHEAD && _retval < DP_STEPBACK) {
+			//	DP_DPrint("MovePath() -> _retval = DP_STEPAHEAD+"+(_retval-DP_STEPAHEAD));
+				var TargetNode = (_retval - DP_STEPAHEAD);
+				while(_cNode < pPath.length-1 && TargetNode) {
+					TargetNode--;
+					_cNode  = this.GetNextNode( pPath, pMoveDist, _cNode );
+					movedNodes[movedNodes.length] = _cNode;
+				}
+			}
+			else if(_retval >= DP_STEPBACK) {
+			//	DP_DPrint("MovePath() -> _retval = DP_STEPBACK"+( (_retval > DP_STEPBACK) ? ("+" + (_retval - DP_STEPBACK)): " " ));
+				var target = movedNodes[movedNodes.length-(_retval - DP_STEPBACK+1)];
+				for(var _backnode = _cNode; _backnode > target; _backnode = movedNodes[movedNodes.length-1] ) {
+					// Move to the previous node
+					_retval = this.MoveToNode( pPath[_backnode][0], pPath[_backnode][1], pDataback, pDoorHandler );
+					// pop a node off the moved array
+					movedNodes.pop();
+				}
+				_cNode = target;
+			}
+			else if( _retval == DP_CONTINUE ) {
+			//	DP_DPrint("MovePath() -> _retval = DP_CONTINUE");
+				_cNode = movedNodes[movedNodes.length-1];
+			}
+			else if(_retval == DP_STOP) {
+			//	DP_DPrint("MovePath() -> _retval = DP_STOP");
+				return true;
+			}
+			////////////////////////////////////////////////////////////////////////////
+			//add the stuck/goAhead/goBack crap here instead of the StepActions function
+			////////////////////////////////////////////////////////////////////////////
+			// sanity check, to make sure we didnt deviate too much
+			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
+			//if(Math.abs(me.x-pPath[_cNode][0])>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode][1])>(bounceOrWalk ? 6 : 3)){
+			if(getDistance(me, pPath[_cNode][0], pPath[_cNode][1]) >(bounceOrWalk ? 6 : 3)){
+			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
+				// If the char is off from the path by nDist, make a new path instead
+				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
+				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode][0], pPath[_cNode][1] ) > (nDist * nDist) ) {
+					//DP_DPrint("MovePath() -> Distance between me and target node farther than " + nDist + ", rebuilding a path");
+					if(Math.abs(me.x-pPath[_cNode][0])>nDist){
+					//	DP_DPrint("MovePath() -> " + Math.abs(me.x-pPath[_cNode][0]) + " larger than " + nDist + " me.x:" + me.x + " cNode: "+ pPath[_cNode][0] );
+					}
+					if(Math.abs(me.y-pPath[_cNode][1])>nDist){
+					//	DP_DPrint("MovePath() -> " + Math.abs(me.y-pPath[_cNode][1]) + " larger than " + nDist + " me.y:" + me.y + " cNode: "+ pPath[_cNode][1] );
+					}
+					// If a new path is built, put it in the old path array and reset the vars
+					var _myPath = getPath( me.area, me.x, me.y, this.TargetX, this.TargetY, (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
+					// If a path is not found
+					if  ( !_myPath ) {
+						// Try to get the path to the destination coordinates again
+						_myPath = getPath( me.area, me.x, me.y, this.TargetX, this.TargetY,  (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
+					}
+					// If a path is still not found, log the error and return false
+					if  ( !_myPath ) {
+					//	DP_DPrint("MovePath() -> Unable to find path to destination. (X : " + this.TargetX + ",Y : " + this.TargetY + " from Area #" + me.area + ", current ping : " + me.ping + ")");
+						return false;
+					}
+					else {
+						pPath = [[me.x, me.y]].concat(_myPath);
+					//	DP_DPrint("MovePath() -> newPath = " + pPath.toSource());
+						_cNode = 0;
+						movedNodes = [];
+					}
+				}
+				else {
+					//DP_DPrint("MovePath() -> Distance between me and target node too far, resetting to previous node");
+					_cNode = movedNodes[movedNodes.length-1];
+					movedNodes.pop();
+				}
+			}
+		}
+		if(this.TargetID != false && this.InteractTile == true) {
+			//DP_DPrint("MovePath() -> End of path reached InteractTile is true and TargetID is valid, trying to click on target!");
+			var tiles = getUnit(5,this.TargetID);
+			if(tiles) {
+				do {
+					if(tiles.classid == this.TargetID) {
+						return DP_clickTile(tiles);
+					}
+				}while(tiles && tiles.getNext());
+			}
+			//DP_DPrint("MovePath() -> Problem! no tile found to click!");
+		}
+		return((Math.abs(me.x-this.TargetX) < 4 && Math.abs(me.y-this.TargetY) < 4) ? true : false);
+	}
+
+	// This functions return the next node from the current node entered in parameter
+	this.GetNextNode = function( inPath, moveDist, cNode ) {
+		//DP_DPrint("GetNextNode() -> Entering function.");
+		var canTele = (this.UseTele && !InTown(me) && DP_CheckTeleport());
+		var _node = cNode;
+		moveDist = this.validateDist(canTele, moveDist );
+		
+		_node = cNode+1;
+		// If the node is over the length of the path array, return the last node on the path
+		return (_node < inPath.length - 1) ? _node : (inPath.length - 1);
+
+		/** Scrap the whole fracking reduction shite.. the core does it for ya! -TechnoHunter
+		// Use Teleport reduction, core handles reduction, hand off the next point on the path - TechnoHunter
+		if( canTele ) {
+			//_node = cNode + moveDist;
+			// If the node is over the length of the path array, return the last node on the path
+			if( _node > inPath.length - 1 ) {
+				return inPath.length - 1;
+			}
+			var _farthest = _node;
+			for(var i = _node; i < inPath.length-1; i++) {
+				if( DP_EuclidianNoSqrt( me.x, me.y, inPath[i][0], inPath[i][1] ) <= (moveDist*moveDist) ) {
+					_farthest = i;
+				}
+			}
+			return _farthest;
+		}
+		// Use walking reduction. for a given path, reduces it into straight line paths, at most no more than 'moveDist' coords apart.
+		// reduction curtesy of njaguar - TechnoHunter
+		else {
+			//_node = cNode+1;
+			// Loop until a node diverts from a straight line then move there, within moveDist
+			if( _node != inPath.length - 1 ) {
+				if(me.runwalk==1){
+					var _dist = 0;
+					var _dx = inPath[_node][0] - inPath[_node+1][0];
+					var _dy = inPath[_node][1] - inPath[_node+1][1];
+					while ( _node < inPath.length - 2 && _dx == inPath[_node+1][0] - inPath[_node+2][0] && _dy == inPath[_node+1][1] - inPath[_node+2][1] && _dist < moveDist) {
+						_node++;
+						_dist++;
+					}
+					// Test for odd areas (area changes)
+					if( ((_node+2) < (inPath.length-1)) && DP_xyInArea(inPath[_node+2][0],inPath[_node+2][1],me.area) == false){
+						DP_DPrint("GetNextNode() -> Target X/Y:" + +inPath[_node][0]+"/"+inPath[_node][1]+" not in current area, advancing node for safe target.");
+						_node += 2;
+						//print("target x/y :"+inPath[_node][0]+"/"+inPath[_node][1]);
+					}
+				}
+				// Return the next node
+				return _node;
+			}
+			// If we are at the end of the path, set the node to the last one from the path
+			else {
+				return inPath.length - 1;
+			}
+		}
+		*/
+	}
+
+	this.MoveToNode = function( pX, pY, pNode, pDataback, pDoorHandler) {
+		//DP_DPrint("MoveToNode() -> Entering function");
+		var shouldTele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
+		if(me.area != this.ilastArea){
+			delay(((typeof me.serverip != "undefined") ? me.ping*2 : 50));
+			this.ilastArea = me.area;
+			shouldTele = false;
+		}
+		if(!shouldTele){
+			this.DoorOpener( pX, pY, pDoorHandler );
+		}
+		else{
+			if(me.getSkill(2) != 54){
+				me.setSkill(54,0);
+			}
+			var count=0;
+			while(me.getSkill(2) != 54 && count++ < 50) {
+				delay(20);
+				if(count==49) {
+					//DP_DPrint("MoveToNode() -> Could not set Teleport skill on right hand");
+					return (DP_STEPBACK+2);
+				}
+				if(count%10==0){
+					me.setSkill(54,0);
+				}
+			}
+		}
+		var hand = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
+		//DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
+		//DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
+		if(shouldTele){
+			var _timer = 250;
+			var _destx=pX;
+			var _desty=pY;
+			do {
+				clickMap(hand.d,0,_destx,_desty);
+				delay(rnd(10,20));
+				clickMap(hand.u,0,_destx,_desty);
+				// If we are within the destination coords, we are teleported correctly
+				if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
+					//DP_DPrint("Timer Used: "+(250-_timer));
+					break; 
+				}
+				//try clicking close to x/y taken from ntbot, bobode
+				_destx = pX + rnd(-2, 2);
+				_desty = pY + rnd(-2, 2);
+				_timer-=10;
+				delay(10);
+			} while (_timer > 0);
+			//DP_DPrint("full delay");
+		}
+		else{
+			clickMap(hand.d,0,pX,pY);
+			delay(rnd(10,20));
+			clickMap(hand.u,0,pX,pY);
+			while(Math.abs(me.x-pX) > 1 || Math.abs(me.y-pY) > 1) {
+				delay(20);
+				if(me.mode!=2 && me.mode!=3) {
+					break;
+				}
+			}
+		}
+		// Increase the counter of failed moves if our position coming into the MoveToNode function is less than 6 from our
+		// last position AND the currentNodeIndex is the same as the last point, if not.. set failed moves back to 0
+		if((Math.abs(me.x - this.ilastX) < (shouldTele ? 6:2)) && (Math.abs(me.y - this.ilastY) < (shouldTele ? 6:2)) && (pNode == this.ilastPoint) && me.runwalk){
+			this.ifailedMoves++;
+			// Check for stuck situations - if set to throw error if stuck, do so (retry allows for up to 5 times before throwing error
+			if(this.ifailedMoves > 5 ) {
+				this.ifailedMoves = 0;
+				if(typeof(DC_ThrowException) == 'function'){
+					DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
+				}
+				else{
+					DP_DPrint("MoveToNode() -> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
+					return DP_STOP;
+				}
+			}
+			// Attemp to clear position when we fail to move and retry the current move point
+			// ASSUMPTION :: if outa-town the thing causing stuck is a monster(or lag)
+			if(this.ifailedMoves > 1 ) {
+				//DP_DPrint("MoveToNode() -> Attempting to clear position...distance x:"+( Math.abs( me.x - pX )  ) +" y:"+ ( Math.abs( me.y - pY )));
+				if(this.ifailedMoves%4 == 0){
+					DP_DPrint("MoveToNode() -> Failed move 4 times, attempting re-click of destination points.");
+					var h = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
+					clickMap(h.d,0,pX,pY);
+					delay(rnd(10,20));
+					clickMap(h.u,0,pX,pY);
+					if(shouldTele){
+						_timer = 250;
+						do {
+							// If we are within the destination coords, we are teleported correctly
+							if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
+								break; 
+							}
+							_timer-=10;
+							delay(10);
+						} while (_timer > 0);
+					}
+					else{
+						while(Math.abs(me.x-pX)>1 || Math.abs(me.y-pY)>1) {
+							delay(20);
+							if(me.mode!=2 && me.mode!=3) {
+								break;
+							}
+						}
+					}
+				}
+				if(!InTown(me)){
+					DP_ClearInRange(20);
+				}
+				return DP_CONTINUE;
+			}
+		}
+		else{
+			this.ifailedMoves = 0;
+		}
+		// Remember current coords
+		this.ilastX     = me.x;
+		this.ilastY     = me.y;
+		this.ilastPoint = pNode;
+		// Check if we should enter the StepActions function
+		// figure range based dynamics, instead of current freq system - TechnoHunter
+		var _retval = ( this.iCurrentStep % this.StepActionFreq == 0 ) ? this.StepActions(pX, pY, pNode, shouldTele, pDataback) : DP_STEPAHEAD;
+		// Increase the step if we should(based on retval)
+		if(_retval >= DP_STEPAHEAD && _retval < DP_STEPBACK){
+			this.iCurrentStep++;
+		}
+		// Return the StepActions retval to the caller
+		//return DP_STEPAHEAD;
+		return _retval;
+	}
+
+	this.StepActions = function(inX, inY, currentNodeIndex, Tele, infoIn) {
+		//DP_DPrint("StepActions() -> cNode: "+currentNodeIndex+"  lastNode: "+this.ilastPoint+"  My XY: "+me.x+","+me.y+" last x,y: "+this.ilastX+","+this.ilastY);
+		switch (typeof(infoIn)){
+			case "function" :
+				return infoIn();
+			default :
+				// Generate our controlFlag bit based on passed values
+				var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
+				// By default the StepActionflag ONLY has DP_INCUSERSTEP in it on creation, this allows
+				// full control to the USER.. if you have no user steps defined.. it just steps ahead
+				// -TechnoHunter
+				if((ctrlFlag&~(DP_INCUSERSTEP|DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK)) == 0){
+					return DP_STEPAHEAD;
+				}
+				var outaTown = !InTown(me);
+				// Clear current position of monsters - do NOT check for items here, instead ONLY check if told to via DP_PICKDROPS
+				if(outaTown && ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+					// If we moved back, call SafeCheck and make sure we do not need to go to town
+					if(this.iMovedBack && (currentNodeIndex < this.ilastPoint|| this.ilastPoint < 2)) {
+						this.iMovedBack = false;
+						if(DP_CheckSafety()){
+							DP_Precasts();
+						}
+					}
+					//To obtain the needed specType is easy.
+					var specType = ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+					specType >>= 8; // shift 1 byte
+					// Clear our location
+					DP_ClearInRange(20,null,ATTACKING_MODE,null,specType);
+					// Check if we have NOT moved back and we need to deal with any lifewatch set conditions
+					if(!this.iMovedBack && (DT_CheckHeal()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)) {
+						DP_DPrint("Temporarily retreating...");
+						this.iMovedBack = true;
+						// Remember current coords
+						this.ilastX     = me.x;
+						this.ilastY     = me.y;
+						this.ilastPoint = currentNodeIndex;
+						return (DP_STEPBACK+2);
+					}
+					// we have already moved back, and passed our checks till now, go ahead and move forward
+					else if(this.iMovedBack){
+						return DP_STEPAHEAD;
+					}
+					DP_ClearInRange(20,null,ALIVE_MODE,null,specType);
+					if(YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+						if(DP_CheckSafety()) {
+							DP_Precasts();
+						}
+					}
+				}
+				// Call SafeCheck
+				if(outaTown && ctrlFlag & DP_SAFECHECK) {
+					if(DP_CheckSafety()){
+						DP_Precasts();
+					}
+				}
+				// Use Shrines - Check user config settings as well as control flag (for both chests and shrines) -TechnoHunter
+				if(outaTown && YAM_UseShrines && ctrlFlag & DP_USESHRINES ) {
+					// if we find a shrine, use it before proceeding for an added bonus
+					DS_MaxDistance = 20;
+					DS_CheckForShrines();
+				}
+				// Use Chests
+				if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
+					YC_MaxDistance = 19;
+					YC_CheckForChests();
+					DSN_PickItems(DP_CheckSafety);
+				}
+				// Pickup drops
+				if(outaTown && ctrlFlag & DP_PICKDROPS){
+					DSN_PickItems(DP_CheckSafety);
+				}
+				// Enable Vigor
+				if(me.classid==3 && ctrlFlag & DP_USEVIGOR) {
+					if(me.getSkill(2) != 115) {
+						DC_PutSkill(115,0);
+					}
+				}
+				//DP_DPrint("got here");
+				// Remember current coords
+				this.ilastX     = me.x;
+				this.ilastY     = me.y;
+				this.ilastPoint = currentNodeIndex;
+				return DP_STEPAHEAD;
+		}
+	}
+
+	this.DoorOpener = function( pX, pY, pDoorHandler ) {
+		switch(typeof( pDoorHandler )){
+			case "function":
+				return pDoorHandler( pX, pY );
+			default:
+				var myDoor = getUnit(2,"Door");
+				if(myDoor){
+					do{
+						if(myDoor.name == "Door" && getDistance(me, myDoor) < 4){
+							break;
+						}
+					}
+					while(myDoor.getNext());
+					// if mode not open click on door else skip it
+					while(myDoor.mode == 0){
+						clickMap( 0, 0, myDoor );
+						delay(rnd(10,20));
+						clickMap( 2, 0, myDoor );
+						delay(200);
+						//myDoor.interact();
+					}
+				}
+				return true;
+		}
+	return true;
+	}
+
+	this.validateDist = function( canUseTele, inDistance ) {
+		if(!inDistance || isNaN(inDistance)) {
+			return ( canUseTele ) ? this.TeleDist : this.WalkDist;
+		}
+		var minDist = (canUseTele) ? 10 : 1;
+		var maxDist = (canUseTele) ? 30 : 10;
+		if(inDistance < minDist){
+			inDistance = minDist;
+		}
+		else if(inDistance > maxDist){
+			inDistance = maxDist;
+		}
+		return inDistance;
+	}
+
+	this.GetSafeOffScreenXY = function( Ax, Ay, Bx, By, _cutoff, _closestwalkable, _multi ) {
+		if(!_cutoff) { _cutoff = 20; }
+		if(!_multi) { _multi = 1; }
+		var Ox = Ax, Oy = Ay;
+		var dX = Math.abs(Bx-Ax)*_multi;
+		var dY = Math.abs(By-Ay)*_multi;
+		Xincr = (Ax > Bx) ? -1 : 1;
+		Yincr = (Ay > By) ? -1 : 1;
+		if(dX >= dY){
+			dPr 	= dY<<1;
+			dPru 	= dPr - (dX<<1);
+			P 	= dPr - dX;
+			for(; dX>=0; dX-=1) {
+				if(DP_Euclidian(Ox, Oy, Ax, Ay) > _cutoff) {
+					return (_closestwalkable) ? DP_FindClosestWalkable(Ax, Ay) : {x:Ax, y:Ay};
+				}
+				if(P > 0){
+					Ax += Xincr;
+					Ay += Yincr;
+					P  += dPru;
+				}
+				else{
+					Ax+=Xincr;
+					P+=dPr;
+				}
+			}
+		}
+		else{
+			dPr 	= dX<<1;
+			dPru 	= dPr - (dY<<1);
+			P 		= dPr - dY;
+			for(; dY>=0; dY-=1)	{
+				if(DP_Euclidian(Ox, Oy, Ax, Ay) > _cutoff) {
+					 return (_closestwalkable) ? DP_FindClosestWalkable(Ax, Ay) : {x:Ax, y:Ay};
+				}
+				if(P > 0){
+					Ax+=Xincr;
+					Ay+=Yincr;
+					P+=dPru;
+				}
+				else{
+					Ay+=Yincr;
+					P+=dPr;
+				}
+			}
+		}
+		return {x:Bx, y:By};
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// pather class helper functions
+////////////////////////////////////////////////////////////////////////////////
+function DP_IsWalkable( pX, pY, pArea ) {
+	// If no area is entered, use the current area
+	if( !pArea ) { pArea = me.area; }
+	return !(checkCollision( pArea, pX, pY, 1 ));
+}
+
+function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
+	DP_DPrint("DP_FindClosestWalkable() -> X = " + pX + ", Y = " + pY);
+	// If the original coords is walkable, return as is
+	if( DP_IsWalkable( pX, pY, pArea ) ) {
+		DP_DPrint("DP_FindClosestWalkable() -> Original points are walkable");
+		return {x:pX, y:pY};
+	}
+	// If the range is not given, use infinite as range
+	if( arguments.length < 4 ) { pRange = 9999; }
+	// Loops until we find the closest walkable within range
+	var _distance = 0;
+	while ( _distance <= pRange ) {
+		for( var vy = -1 - _distance; vy < 2 + _distance; vy += 1 ) {
+			for( var vx = -1 - _distance; vx < 2 + _distance; vx += 1 ) {
+				if( DP_IsWalkable( pX+vx, pY+vy, pArea ) ) {
+					DP_DPrint("DP_FindClosestWalkable() -> Closest Walkable: " + (pX+vx) + ", " + (pY+vy));
+					return {x:pX+vx, y:pY+vy};
+				}
+			}
+		}
+		_distance += 1;
+	}
+	// No closest walkable coords is found so return false (should almost never get it unless pRange is < 2)
+	DP_DPrint("DP_FindClosestWalkable() -> No closest walkable points were found! Current ping is " + me.ping + " ms.");
+	return false;
+}
+
+function DP_CheckTeleport(shouldPrint) {
+	if(arguments.length < 1){
+		shouldPrint = false;
+	}
+	var _haveteleport = me.getSkill(54,1);
+	if(shouldPrint){
+		DP_DPrint("_DP_CheckTeleport() : Teleport skill level is " + _haveteleport);
+	}
+	return (!_haveteleport) ? 0 : _haveteleport;
+}
+
+function InTown(who) {
+	while (who.area == 0) { 
+		delay(50); 
+	}
+	return ((who.area == 1 || who.area == 40 || who.area == 75 || who.area == 103 || who.area == 109) ? true : false);
+}
+
+function DP_SortRoom(a,b) {
+	if(!a || !b) {
+		return 1;
+	}
+	if(getDistance(me.x, me.y, a[0], a[1]) >= getDistance(me.x, me.y, b[0], b[1]))
+		return 1;
+
+	return -1;
+}
+
+function DP_FindWaypoint( pArea ) {
+	var _wpidarray = [ 119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539 ];
+	var _presetobjects = getPresetUnits( pArea, 2, null, null );
+	delay(((typeof me.serverip != "undefined") ? me.ping : 50));
+	if( _presetobjects.length == 0 ) {
+		DP_DPrint("DP_FindWaypoint() -> No preset objects found!");
+		return false;
+	}
+	for( var i = 0; i < _presetobjects.length; i += 1 ) {
+		for( var j = 0; j < _wpidarray.length; j += 1 ) {
+			if( _presetobjects[i].id == _wpidarray[j] ) {
+				if(DP_IsRoomInArea( _presetobjects[i].roomx, _presetobjects[i].roomy, pArea )) {
+					return {x:_presetobjects[i].roomx*5 + _presetobjects[i].x, y:_presetobjects[i].roomy*5+_presetobjects[i].y,id:_presetobjects[i].id};
+				}
+			}
+		}
+	}
+	return false;
+}
+
+function DP_getLevelWarpXY(warptype, _area) {
+	//Warp types array - not sure the original author but this was found in BotOS constants file. - TechnoHunter
+	var WARPS = [0,0,3,3,1,0,3,4,1,0,4,1,0,1,0,0,1,1,0,3,4,3,1,0,5,3,1,1,0,0,1,1,0,3,3,3,3,3,3,4,5,6,7,8,9,1,0,3,1,0,4,3,1,4,5,1,0,3,1,1,0,4,1,1,5,1,1,0,0,0,1,3,4,1,0,3,3,1,0,3,4,1,0];
+	if(!_area) {
+	_area = me.area;
+	}
+	// Get the array of TILE units in the area called
+	var twarps = getPresetUnits( _area, 5, null, null );
+	delay(((typeof me.serverip != "undefined") ? me.ping : 100));
+	if(twarps.length == 0) {
+		print("twarps array emtpy");
+		return false;
+	}
+	for(var p = 0; p < twarps.length; p++) {
+		//DP_DPrint("DP_getLevelWarpXY() -> WARPS[] array entry for element " + p + " value: " + WARPS[twarps[p].id] + " Passed warptype = " + warptype);
+		if(WARPS[twarps[p].id] == warptype) {
+			if(DP_IsRoomInArea(twarps[p].roomx, twarps[p].roomy, _area)){
+				return {x:twarps[p].roomx*5 + twarps[p].x, y:twarps[p].roomy*5 + twarps[p].y,id:twarps[p].id};
+			}
+		}
+	}
+	return false;
+}
+
+function DP_IsRoomInArea( pRoomX, pRoomY, pArea ) {
+	var _area = getArea( pArea );
+	if( _area ) {
+		if( pRoomX >= _area.x && pRoomY >= _area.y && pRoomX < _area.x + _area.xsize && pRoomY < _area.y + _area.ysize ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
+function DP_xyInArea( pX, pY, pArea ) {
+	if(!pArea){
+		pArea = me.area;
+	}
+	var _area = false;
+	while(!_area){
+		_area = getArea( pArea );
+	}
+	if( _area ) {
+		//print("area x:"+_area.x*5+" y:"+_area.y*5+" xsize:"+(_area.x*5+_area.xsize*5)+" ysize:"+(_area.y*5+_area.ysize*5)+" PASSED X:"+pX+" PASSED Y:"+pY);
+		if( pX >= _area.x*5 && pY >= _area.y*5 && pX < (_area.x*5 + _area.xsize*5) && pY < (_area.y*5 + _area.ysize*5) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function DP_clickTile(inTile) {
+	var a = me.area;
+	var retry = 0;
+	do {
+		if( retry%3==0 ) {
+			clickMap(0,0,inTile);
+			delay(rnd(10,20));
+			clickMap(2,0,inTile);
+		}
+		for( var retry2 = 0; getDistance(me,inTile ) > 3 && ( retry2 < 5 ) ; retry2++ ){
+			delay(50);
+		}
+		clickMap(0,0,inTile);
+		delay(rnd(10,50));
+		clickMap(2,0,inTile);
+		for( var retry3 = 0; a == me.area && ( retry3 < 10 ) ; retry3++ ){
+			delay( 100 );
+		}
+	}while(a == me.area && retry++ < 10 );
+	if(a == me.area) {
+		DP_DPrint("DP_clickTile() -> : Unable to click on Tile.");
+		return false;
+	}
+	delay(300);
+	return true;
+}
+
+function DP_LOS( Ax, Ay, Bx, By, _cutoff, _coll ) {
+	var _bit = Math.pow( 2, ((!_coll) ? 2 : _coll) );
+	_cutoff = ( _cutoff > 45 ) ? 45 : _cutoff;
+	return ( _cutoff && DP_DiagShortcut( Ax, Ay, Bx, By ) > _cutoff ) ? false : !checkCollision( me.area, Ax, Ay, 3, Bx, By, 3, _bit );
+}
+
+function DP_Manhattan( pSX, pSY, pDX, pDY ) {
+	return Math.abs( pDX - pSX ) + Math.abs( pDY - pSY );
+}
+
+function DP_Euclidian( pSX, pSY, pDX, pDY ) {
+	return Math.floor( Math.sqrt( Math.abs( ( pSX - pDX ) * ( pSX - pDX ) + ( pSY - pDY ) * ( pSY - pDY ) ) ) );
+}
+
+function DP_EuclidianNoSqrt( pSX, pSY, pDX, pDY ) {
+	return Math.floor( Math.abs( ( pSX - pDX ) * ( pSX - pDX ) + ( pSY - pDY ) * ( pSY - pDY ) ) );
+}
+
+function DP_DiagShortcut( pSX, pSY, pDX, pDY ) {
+	var _dy = Math.abs( pDY - pSY );
+	var _dx = Math.abs( pDX - pSX );
+	return ( _dy <= _dx ) ? _dy * 0.414 + _dx : _dx * 0.414 + _dy;
+}
+
+function DP_MaxDxDy( pSX, pSY, pDX, pDY ){
+	var _dy = Math.abs( pDY - pSY );
+	var _dx = Math.abs( pDX - pSX );
+	return ( _dx > _dy ) ? _dx : _dy;
+}

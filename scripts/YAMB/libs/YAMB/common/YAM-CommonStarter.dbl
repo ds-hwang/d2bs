@@ -1,0 +1,77 @@
+// Do not change the contents of this file unless you know what you are doing
+// This file contains shared config variables between YAMB and its autostarter.dbj
+
+// Leader/Leecher variables
+var Leaders        = new Array(); // Array of Leader char names. Edit the YAM_TeamBotting.dbl file for their name.
+var Helpers        = new Array(); // Array of Helper char names. Edit the YAM_TeamBotting.dbl file for their name.
+var YAM_WaitInChat = false;        // Wait in Chat Screen until messaged by a leader to join a game
+if(typeof(Lang)=="undefined")
+var Lang = null;
+
+///////////////////////////// Do NOT Edit Below this Line! ///////////////////////
+// Game Message localized text constants. 0 = English, 1 = French, 2 = German, 3 = Spanish
+
+switch(Lang) {
+	case 0:	include("YAMB/resources/USEnglish.dbl");	break;
+	case 1:	include("YAMB/resources/French.dbl");		break;
+	case 2:	include("YAMB/resources/German.dbl");		break;
+	case 3:	include("YAMB/resources/Spanish.dbl");		break;
+	default:	include("YAMB/resources/USEnglish.dbl");	break;
+}
+
+// function by darkspirit
+// parameters:
+// -msg : message stripped of color by core
+// -c : color passed by core of message
+// returns : Array made from message passed to function
+// [0] = name of sender
+// [1] = command
+// [2] = rest of message
+function YAM_parseGameMsg (msg, c) {
+	parsedMsg = new Array();
+	msg1      = null;
+	Firstword = msg.substring(0,msg.indexOf(" "));
+	if(c == 2) { // color green
+		if(Firstword == MsgStrings["From"]) { // sent with /f m 
+			parsedMsg[0] = msg.substring(MsgStrings["From"].length+1, msg.indexOf(" ", MsgStrings["From"].length+1)); // modified
+			msg1 = msg.substr(msg.indexOf(":")+2);
+		}
+		else { // sent with /w
+			parsedMsg[0] = msg.substring(0,msg.indexOf(" "));
+			msg1 = msg.substr(msg.indexOf(": ")+2);
+		}
+	}
+	else if(c == 0) { // color white
+		parsedMsg[0] = Firstword.slice(3,-4);
+		msg1 = msg.substr(parsedMsg[0].length + 8);
+	}
+	if(c == 4) { // System Messages - color gold
+		parsedMsg[0] = "";
+		parsedMsg[1] = msg;	
+	}
+	else { // any color but gold
+		parsedMsg[1] = msg1.substring(0,msg1.indexOf(" "));
+		parsedMsg[2] = msg1.substr(msg1.indexOf(" ")+1);
+	}
+	return parsedMsg;
+}
+
+function YAM_isMyLeader(name) {
+	if(name != me.name) {
+		for(i=0; i < Leaders.length; i++) {
+			if(Leaders[i] == name) 
+				return true;
+		}
+	}
+	return false;
+}
+
+
+function YAM_isMyHelper(name) {
+	for(i=0; i < Helpers.length; i++) {
+		if(Helpers[i] == name) 
+			return true;
+	}
+	return false;
+}
+

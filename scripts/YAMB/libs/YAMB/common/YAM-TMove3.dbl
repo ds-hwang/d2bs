@@ -1,0 +1,71 @@
+// Act 3 paths
+// Re-written for new core pathing by TechnoHunter
+commonLib.PathAct3 = function() {
+	// Functions
+	this.GotoStart   = function(){ return commPather.GotoDest(5118,5168);}
+	this.GotoWP      = function(){ return commPather.GotoWaypoint(75);}
+	this.GotoStash   = function(){ return commPather.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,75);}
+	this.GotoOrmus   = function(){ return commPather.GotoNPC(D2JSP_NPC_ORMUS,75);}
+	this.GotoAsheara = function(){ return commPather.GotoNPC(D2JSP_NPC_ASHEARA,75);}
+	this.GotoAlkor   = function(){ return commPather.GotoNPC(D2JSP_NPC_ALKOR,75);}
+	this.GotoCain    = function(){ return commPather.GotoNPC(D2JSP_NPC_CAIN_ACT_3,75);}
+	this.GotoHratli  = function(){ return commPather.GotoDest(5223,5043);}
+	this.GotoMeshif  = function(){ return commPather.GotoNPC(D2JSP_NPC_MESHIF_ACT_3,75);}
+}
+
+function YAM_Act3TownManager() {
+	if (_YAM_GoToHealer || YAM_AlwaysOrmus || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+		commTown3.GotoOrmus();
+		YAM_NPCinteract(DC_getNPC(255));
+		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
+	}
+	DT_CleanPotions(); // cleaning up potion in the inventry.
+	if (DT_CheckInventory() && ( YAM_EnableCubing || DT_CheckStash() ) ) {
+		DT_ClearInv();
+		commTown3.GotoStash();
+		YAM_NPCinteract(DC_getObject(267));
+		DSN_CheckGround(); // Check the ground to see if any nice item is dropped by accident
+	}
+	// Path to the WP for either end or next part...
+	commTown3.GotoWP();
+	// TODO :: see about changing this to same act functionality.. (might be faster as is) -TechnoHunter
+	// If we need to revive the merc or repair, go to Act 4 and let Act4TownManager handle it 
+	if (DT_CheckMerc() || _YAM_NeedKeys || _YAM_GoToRepair) {
+		_YAM_GoToHealer = false; // But first mark the Healer part as already done 
+		_YAM_NeedTP = false; 
+		_XP_GetNumUnId = DT_CheckUnids(); 
+		DM_UsePortal("Waypoint",103); // modified 
+		YAM_TownManager();
+   	} 
+
+}
+
+function YAM_NPCinteract3(npc) {
+	// Do stuff depending on which npc
+	switch (npc.classid) {
+		case 255:// Ormus
+			if (_XP_GetNumUnId > 0 || YAM_UseBeltManager || _YAM_NeedTP) { 
+				DT_DoTrade(npc); 
+			}
+			if (_XP_GetNumUnId > 0) { 
+				XP_DoCheckItems(npc); 
+			}
+			if (_YAM_NeedTP) { 
+				var _tptome = DT_GetTome(1);
+				if (_tptome) { 
+					if (!DT_FillTome(npc,1) && _tptome.getStat(70) < 1) {
+						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!"); 
+					}
+				}
+				else { 
+					if (!DT_BuyScrolls(npc,1,1)) {
+						DC_StopMessage("Failed to buy TP Scroll!");
+					}
+				}
+			}
+			if (YAM_UseBeltManager) { 
+				YAM_CheckBelt(npc); 
+			}
+			break;
+	}
+}

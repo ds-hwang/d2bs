@@ -1,0 +1,385 @@
+entryFunc = MephXP;
+var chest;
+
+
+function MXP_OpenChest() {
+	// Move close enough to detect and open chest with TK
+	if (me.x > 17575) { DM_MoveTo(17565,8069,true); } 
+	if (me.x > 17555) { DM_MoveTo(17550,8069,true); } 
+	DM_MoveTo(17523,8064,true);
+
+	// Detect nearby objects, then loop until we get the uber chest
+	chest = DC_getObject("chest");
+
+	if (chest) { do {
+		if ((chest.classid == 183 || chest.classid == 181) && chest.x == 17513 && chest.y == 8063) {
+			if (chest.status!=0 && me.classid!=6) {
+				var _key = DC_GetKeys();
+				if ( !_key || (_key.getStat(70) < 1)) {
+					print("This chest is locked but I don't have keys! Skipping it.");
+					return false;
+				}
+			}
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 15;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+			return true;
+		}
+	} while (chest.getNext()); }
+	
+	return false;
+}
+
+function MXP_Chest_Stand() {
+	// left chest.
+	DM_MoveTo(17554,8090);
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17548 && chest.y == 8094) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 15;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+	// armour stand
+	DM_MoveTo(17568,8111);
+	chest = DC_getObject("ArmorStand");
+	if (chest) { do {
+		if (chest.x == 17568 && chest.y == 8124) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+
+	DM_MoveTo(17554,8045);
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17548 && chest.y == 8039) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 15;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+	// weapon stand
+	DM_MoveTo(17569,8024);
+	chest = DC_getObject("WeaponRack");
+	if (chest) { do {
+		if (chest.x == 17568 && chest.y == 8009) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+}
+
+function MXP_KillAll() {
+	DM_MoveTo(17596,8013);   // right side
+	XP_SearchAndDestroy(30,false)	
+
+// open the two chests in the right room.
+	DM_MoveTo(17597,8013);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17594 && chest.y == 8003) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+	DM_MoveTo(17615,8008);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17619 && chest.y == 8003) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+	XP_Precasts();
+
+	DM_MoveTo(17616,8025);	
+	DM_MoveTo(17625,8051);	// bremm area
+	XP_SearchAndDestroy(30,false)	
+	DM_MoveTo(17647,8073);	// usaully councils here.
+	XP_SearchAndDestroy(30,false)	
+	
+	DM_MoveTo(17645,8075);	
+
+	// chest near where bremm is.
+	DM_MoveTo(17641,8041);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17633 && chest.y == 8034) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+
+	// chest near where bremm is.
+	DM_MoveTo(17627,8044);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17624 && chest.y == 8038) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+	XP_Precasts();
+
+	DM_MoveTo(17645,8041);	
+	DM_MoveTo(17645,8075);	
+	DM_MoveTo(17640,8104);	
+	DM_MoveTo(17596,8126);	// left side. Need more coordinates to move over there.
+	XP_SearchAndDestroy(30,false)	
+
+	// open the two chest on the left room.
+	DM_MoveTo(17600,8120);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17594 && chest.y == 8113) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+	
+	DM_MoveTo(17615,8117);	
+	chest = DC_getObject("chest");
+	if (chest) { do {
+		if (chest.x == 17619 && chest.y == 8113) {
+			if (DC_CheckSkill(43)) { DC_DoCast(43,0,chest ); }
+			else { DM_MoveTo(chest.x + 2, chest.y); DC_DoClick(0,0,chest); }
+						
+			var _DSN_SnagRange = DSN_SnagRange;
+			DSN_SnagRange = 20;
+			DC_DoDel(400);
+			DSN_PickItems(YAM_SafeCheck);
+			DSN_SnagRange = _DSN_SnagRange;
+		}
+	} while (chest.getNext()); }
+}
+
+
+function MXP_GoToMeph() {
+	// Move from Durance 2 waypoint to Mephisto's lair
+	commPather.InitType = 1;
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(67,68);
+
+	// Load MonsterWatch!
+	if (MXP_WatchMon) { load(YAM_MonsterWatchPath); }
+
+	// Here is where we check health and mana/cursed and heal if needed 
+	if (MephSafeCheck) { YAM_SafeCheck(); }
+	XP_Precasts();
+
+	// if we find a chest, open it
+	if (YAM_OpenChests) {
+		YC_MaxDistance = 19;
+		YC_CheckForChests();
+	}
+
+	// if we find a shrine, use it before going to meph for a added bonus
+	if (YAM_UseShrines) {
+		DS_MaxDistance = 15;
+		DS_CheckForShrines();
+	}
+
+	// Move to the final spot
+	DSN_UsePathing=false;
+	DM_MoveTo(17677,8033);
+	DM_MoveTo(17662,8040);
+	DM_MoveTo(17636,8040);
+	DM_MoveTo(17618,8046);
+	DM_MoveTo(17597,8050);
+	DM_MoveTo(17582,8058);
+
+	// Here is where we check health and mana/cursed and heal if needed 
+	if (MephSafeCheck) { if (YAM_SafeCheck()) XP_Precasts(); }
+
+	if(!MXP_DoMoat){
+		DM_MoveTo(17565,8066); 
+	} else {
+		MXP_MephDodge=false;
+		DM_MoveTo(17585,8054); 
+		DM_WalkTo(17560,8067);
+		DC_DoDel(300);
+		DM_WalkTo(17563,8072);
+		DC_DoDel(300);
+		DM_WalkTo(17585,8083);
+		DC_DoDel(400);
+		DM_MoveTo(17611,8087);
+	}
+}
+
+function MXP_AttackMeph() {
+	// Detecting Mephisto with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(242);
+		if (target) { break; }
+	}
+
+	if (target) {		
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+
+		// if we find a chest, open it
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+
+		// if we find a shrine, use it before going to meph for a added bonus
+		if (YAM_UseShrines) {
+			DS_MaxDistance = 15;
+			DS_CheckForShrines();
+		}
+
+		XP_BossAttack(target);
+
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+
+		print("Mephisto killed !");
+
+		// Move to where Meph died to check for items
+		DM_MoveTo(target.x,target.y);
+
+		target=false;
+	} else {
+		print("Mephisto not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function MephXP() {
+	// Configure Meph specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		if (MXP_SorcSkill.length > 0) {	XP_SetSorcSkills(MXP_SorcSkill,Monster_SorcSkill); } else { XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); }
+		XP_Static = MXP_Static;
+		_XP_UseTeleOnImmune = true;
+	}
+	XP_SwitchHP = MXP_SwitchHP;
+	XP_StallHP = MXP_StallHP;
+	if (me.classid == 3) { XP_KillMinions = false; }
+	XP_MinionStand=true;
+	XP_QuitImmune = MXP_QuitImmune;
+	XP_StallKill=MXP_StallKill;
+
+
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+   	}
+
+   	// Do town stuff in the act we are in
+   	YAM_TownManager(); 
+	
+	YAM_PathToWayPoint();
+
+	// Do precasts before going into the portal
+	XP_Precasts();
+
+	// Use the WP to go to Durance level 2
+	DM_UsePortal("Waypoint",0x65);
+
+	// Do precasts after going into the portal
+	XP_Precasts();
+
+	// Path to the Mephisto's lair
+	MXP_GoToMeph();
+
+	// Go attack Mephisto
+	if (MXP_AttackMeph()) {
+		DL_AddKill();	
+
+		DSN_PickItems(YAM_SafeCheck);
+
+		// If we want to open the Uber Chest, do so now
+		if (MXP_OpenUberChest) { MXP_OpenChest(); }
+
+		if (MXP_ChestStand) {MXP_Chest_Stand();}
+		if (MXP_KillCouncils) {MXP_KillAll();}
+
+		// Go end in Act 3 or 4 according to user config
+		if (MXP_AlwaysGoAct4) {
+			if (me.x < 17540) { DM_MoveTo(17550,8069); }
+			if (me.x < 17560) { DM_MoveTo(17570,8069); }
+			DM_MoveTo(17590,8069);
+
+			while (MXP_BridgeWait > 0) {
+				DC_DoDel(20);
+				MXP_BridgeWait-=20;
+			}
+			DM_UsePortal("Portal",103);
+		}
+	}
+	
+	// UnLoad MonsterWatch
+	if (MXP_WatchMon) {
+		var mw = DC_FindScript(YAM_MonsterWatchPath);
+		if (mw) { mw.stop(); print("Monster Watch Stopped!"); }
+	}
+	if (DSN_LogRunes) { DL_SaveRuneLog(); }
+}

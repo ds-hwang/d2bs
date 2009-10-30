@@ -1,0 +1,105 @@
+entryFunc = Yam_LeechXP();
+var leader= "";
+var leadArea =0;
+function Yam_LeechXP()
+{
+
+	YAM_TownManager();
+	if (me.area != 109) {
+			YAM_PathToWayPoint(); 
+			DM_UsePortal("Waypoint",0x6d); 
+			YAM_InitCommTown(); 
+	}
+	commTown5.GotoStart();
+	XP_Precasts();
+	for(var i = 0 ; i < 100 ; i++)	{
+		if (findLead())
+			break;
+		delay (100);
+	}
+	print("found leader: "+leader);
+	
+	while(me.area==109){	
+		DM_UsePortal ("BluePortal", 131, leader);
+		delay (1000);
+		if (!findLead()) return false;
+	}
+	XP_Precasts();
+	
+	while(findLead()){
+		if (me.area==131){ //throne
+			XP_ClearPosition(40);
+			DSN_PickItems(YAM_SafeCheck);
+			commPather.GotoDest(15115,5030);
+			if (leadArea ==132){
+				for (var x=1; x < 3; x++) {
+				var ptol = getUnit(2,563);
+					if (ptol) {
+						DM_UsePortal("Portal", 132, null, ptol);
+						break;
+					}
+				}
+			}			
+		}
+		if (me.area==132){ //baal's chamber
+			commPather.GotoDest(15136,5915);			
+			// Detecting Baal with 3 retries to be sure to get the target
+			for (var i = 0; i < 3; i+=1) {
+				var target = DC_FindMonster(544);
+				if (target) { 
+					break; 
+				}
+			}
+			if (target) {
+				DC_DPrint("Killing Baal...");
+				XP_BossAttack(target);
+				DSN_PickItems();
+			}
+		}
+	
+	}
+
+	
+		
+return false;	
+}
+
+function findLead()
+{
+var area =0;
+var a = getParty();
+	for (var i=0; i < Leaders.length; i++) {
+		do { 
+			if (a.name==Leaders[i]){
+				leader=a.name;
+				
+			}
+		} while(a.getNext()); 
+	}
+	if (leader=="")
+		return false;
+	
+var _lead= getUnit(0, leader)
+	if(_lead){
+		leadArea=_lead.area;
+		return _lead.area;
+	}
+// leader not found look in party
+a = getParty();
+if(!a)
+	return false;
+	//sendCopyData(null, "OOG", 0,"party len:"+a.partyid  );
+      do { 
+      if (a.name==leader){
+		area=a.area;	
+      }
+   } while(a.getNext()); 
+	if (area==0) {
+		//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+		return false;
+
+	}
+	leadArea=area;
+return area;
+}
+

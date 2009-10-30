@@ -1,0 +1,122 @@
+//Module by keksdosendieb
+
+entryFunc = AncXP;
+
+/*function _StepCallBack() {
+	if (!HXP_Kamikaze) {
+		var x = me.x;
+		var y = me.y;
+		var specType = 0xff;
+		if (YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+		 specType = YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+		 specType >>= 8; // shift 1 byte
+		}
+		XP_ClearPosition(26,false,ATTACKING_MODE,null,specType);
+		XP_ClearPosition(26,false,ALIVE_MODE,null,specType);
+		DSN_PickItems(YAM_SafeCheck);
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+		if (YAM_UseShrines) {
+		 DS_MaxDistance = 19;
+		 DS_CheckForShrines();
+		}
+		DM_CheckPosition(x,y,true);
+	}
+	return mlSTEPAHEAD;
+}*/
+
+
+function AncXP_GoToAnc() {
+	// Goto and Enter The Pit (Area 12) (65 ancient)
+	commPather.InitType = 0;
+	commPather.GotoLevel(65,false,false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(50,50);
+}
+
+
+
+function AncXP_ClearAnc() {
+	roomlist = new Array();
+	troom    = getRoom();
+	_temp = commPather.StepActionflag;
+	commPather.InitType = 1;
+	// Ability to control the types of the monster you want to kill
+	commPather.StepActionflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP);
+	commPather.StepActionflag |= (DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
+	commPather.ExploreLevel(XP_TeleDist, false, false);
+	/*do {
+		roomlist.push([troom.number,troom.x*5,troom.y*5]);
+		//print(troom.number);
+	}while (troom && troom.getNext());
+	if (roomlist) {
+		do {
+			roomlist.sort(sortRoom);
+			me.overhead("Now exploring room : " + roomlist[0][0] + " ,Rooms Remaining : " + roomlist.length);
+			commPather.InitType = 1;
+			// Ability to control the types of the monster you want to kill
+			commPather.StepActionflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP);
+			commPather.StepActionflag |= (DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
+			commPather.GotoRoom(roomlist[0][0],roomlist[0][0],false);
+			//delay(150);
+			roomlist.shift(); //remove the lastest room which has been explored.
+		}while(roomlist && roomlist.length);
+	}*/
+	commPather.StepActionflag = _temp;
+}
+
+
+//from daes
+function sortRoom(a,b){
+	if (!a || !b) 
+		return 1;
+	if (myDist(a[1],a[2]) >= myDist(b[1],b[2])) 
+		return 1;
+	return -1;
+}
+
+function myDist(x, y) {
+	return Dist(me.x, me.y, x, y); 
+}
+
+function Dist(x1, y1, x2, y2) {
+	return Math.floor(Math.sqrt(Dist2(x1, y1, x2, y2))); 
+}
+
+function Dist2(x1, y1, x2, y2) {
+	return Math.floor(Math.abs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))); 
+}
+
+
+function AncXP() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = 0;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP    = 0;
+	XP_StallHP     = 0;
+	XP_MinionStand = true;
+	XP_QuitImmune  = false;
+	if (me.classid == 3) { 
+		XP_KillMinions = false; 
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to Ancient Tunnel
+	DM_UsePortal("Waypoint",44); //0x1b
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Go to The Ancient Tunnels
+	AncXP_GoToAnc();
+	// Clear The Tunnels
+	AncXP_ClearAnc();
+}

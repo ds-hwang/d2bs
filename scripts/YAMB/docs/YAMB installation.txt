@@ -1,0 +1,58 @@
+Yamb Installation Instructions
+==============================
+ 
+Q: Ok, I have installed this so what do I do next?
+
+A: You need to configure the scripts for your player, YAMB will create the needed character config file the first time you run the bot, so all that you need to do is check the settings and change them to your preference. 
+
+Now you need to config  your char with the settings within your configuration file. Here are a few settings to get you up and running.
+
+DT_Columns		- Setting up your inventory. VERY IMPORTANT as stated below.
+YAM_SorcSkill		- Skill use to kill main bosses. 
+Monster_SorcSkill	- Skill use to kill monster.
+
+There are many other settings that you can play with, but make sure it works with the above settings first before you change the others. 
+All the settings have explanations in the comment block section above the setting (comments are started by // at the front of the line) so read them first!
+
+WARNING: Make sure that you have set the DT_Columns correctly otherwise you can lose your existing items! I try hard to emphasize this to people because this bot has a feature to toss out "junk" items from its inventory (to offset a d2jsp-core selling bug), if you don't set your DT_Columns correctly the bot may wrongly think that your "charms" are junk and toss them out! "Junk" items are items that do not pass your snagit_xp.ini and your bmitems_xp.ini so set your DT_Columns correctly if you want your inventory charms to be ignored by these tests.
+I will ignore/disapprove all posts that resulted from not reading the instructions posted here. YOU HAVE BEEN WARNED!
+
+
+After running the bot the first time you will also find another file named:
+c:\d2jsp\scripts\libs\YAMB\configs\YAM_LifeWatchConfig_<your char name here>.d2l
+
+This is where you configure you potions drinking and chickening.
+-------------------------------------------------------------------------------------
+
+Q: Do I need to edit the default.d2j file?
+
+A: No, you don't need to. The default file from the YAMB installation already setup for YAMB bot.
+-------------------------------------------------------------------------------------
+
+Q: What skill do the sorc need for this bot?
+
+A: Must have is the teleport skill, then a skill to kill with.
+-------------------------------------------------------------------------------------
+
+Q: What skill do the hammerdin need for this bot?
+
+A: He will need teleport from enigma, bless hammer with it's synergy and the redemption aura.
+--------------------------------------------------------------------------------------
+
+Q: What other thing I need to set for my char before botting?
+
+
+A: Buy a tp tome and set it in your inventory. 
+Buy an id tome and set it in your inventory (preferable but not required). 
+If you intend to kill Meph and you have set MXP_OpenUberChest and DC_BuyKeys, the bot would automatically buy keys for you. To select where you want your keys to be placed, buy a stack of them and set the stack in your inventory. 
+----------------------------------------------------------------------------------------
+
+Q: I have done all the above setting but I still get the error.
+
+A: Please visit one of our YAMB web site and read the FAQ.
+http://yamb.ya.ohost.de/
+http://darkspirit.fusionnetwork.us/yamb/
+----------------------------------------------------------------------------------------
+
+Congratulation, you are a patient guy and read up to this part. 
+Now go bot and may the luck be with you ;).

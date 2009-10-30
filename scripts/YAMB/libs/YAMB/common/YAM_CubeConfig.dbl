@@ -1,0 +1,75 @@
+//////////////////////////////////////////////////////////////////////
+// Cube recipes
+//====================================================================
+// Remove the '//' at the beginning of a line to enable a recipe
+// For ladder chars
+//--------------------------------------------------------------------
+
+DCU_Codes.push(["gcw",0,3]);        //Chipped Diamond     gcw
+DCU_Codes.push(["gcv",0,3]);        //Chipped Amethyst    gcv
+DCU_Codes.push(["gcb",0,3]);        //Chipped Saphire     gcb
+DCU_Codes.push(["gcy",0,3]);        //Chipped Topaz       gcy
+DCU_Codes.push(["gcr",0,3]);        //Chipped Ruby        gcr
+DCU_Codes.push(["gcg",0,3]);        //Chipped Emerald     gcg
+DCU_Codes.push(["skc",0,3]);        //Chipped Skull       skc
+
+DCU_Codes.push(["gfw",0,3]);        //Flawed Diamond      gfw
+DCU_Codes.push(["gfv",0,3]);        //Flawed Amethyst     gfv
+DCU_Codes.push(["gfb",0,3]);        //Flawed Saphire      gfb
+DCU_Codes.push(["gfy",0,3]);        //Flawed Topaz        gfy
+DCU_Codes.push(["gfr",0,3]);        //Flawed Ruby         gfr
+DCU_Codes.push(["gfg",0,3]);        //Flawed Emerald      gfg
+DCU_Codes.push(["skf",0,3]);        //Flawed Skull        skf
+
+DCU_Codes.push(["gsw",0,3]);        //Normal Diamond      gsw
+DCU_Codes.push(["gsv",0,3]);        //Normal Amethyst     gsv
+DCU_Codes.push(["gsb",0,3]);        //Normal Saphire      gsb
+DCU_Codes.push(["gsy",0,3]);        //Normal Topaz        gsy
+DCU_Codes.push(["gsr",0,3]);        //Normal Ruby         gsr
+DCU_Codes.push(["gsg",0,3]);        //Normal Emerald      gsg
+DCU_Codes.push(["sku",0,3]);        //Normal Skull        sku
+
+DCU_Codes.push(["glw",0,3]);        //Flawless Diamond    glw
+DCU_Codes.push(["gzv",0,3]);        //Flawless Amethyst   gzv
+DCU_Codes.push(["glb",0,3]);        //Flawless Saphire    glb
+DCU_Codes.push(["gly",0,3]);        //Flawless Topaz      gly
+DCU_Codes.push(["glr",0,3]);        //Flawless Ruby       glr
+DCU_Codes.push(["glg",0,3]);        //Flawless Emerald    glg
+DCU_Codes.push(["skl",0,3]);        //Flawless Skull      skl
+
+DCU_Codes.push(["r01",0,3]);        //El Rune         r01
+DCU_Codes.push(["r02",0,3]);        //Eld Rune        r02
+DCU_Codes.push(["r03",0,3]);        //Tir Rune        r03
+DCU_Codes.push(["r04",0,3]);        //Nef Rune        r04
+DCU_Codes.push(["r05",0,3]);        //Eth Rune        r05
+DCU_Codes.push(["r06",0,3]);        //Ith Rune        r06
+DCU_Codes.push(["r07",0,3]);        //Tal Rune        r07
+DCU_Codes.push(["r08",0,3]);        //Ral Rune        r08
+DCU_Codes.push(["r09",0,3]);        //Ort Rune        r09
+
+DCU_Codes.push(["r10",0,3,"gcy",0,1]);    //Thul Rune + chipped Topaz		r10 + gcy
+DCU_Codes.push(["r11",0,3,"gcv",0,1]);    //Amn Rune + chipped Amethyst	r11 + gcv
+DCU_Codes.push(["r12",0,3,"gcb",0,1]);    //Sol Rune + chipped Saphire	r12 + gcb
+DCU_Codes.push(["r13",0,3,"gcr",0,1]);    //Shael Rune + chipped Ruby		r13 + gcr
+DCU_Codes.push(["r14",0,3,"gcg",0,1]);    //Dol Rune + chipped Emerald	r14 + gcg
+DCU_Codes.push(["r15",0,3,"gcw",0,1]);    //Hel Rune + chipped Diamond	r15 + gcw
+
+DCU_Codes.push(["r16",0,3,"gfy",0,1]);    //Io Rune + flawed Topaz			r16 + gfy
+DCU_Codes.push(["r17",0,3,"gfv",0,1]);    //Lum Rune + flawed Amethyst		r17 + gfv
+DCU_Codes.push(["r18",0,3,"gfb",0,1]);    //Ko Rune + flawed Saphire		r18 + gfb
+DCU_Codes.push(["r19",0,3,"gfr",0,1]);    //Fal Rune + flawed Ruby			r19 + gfr
+DCU_Codes.push(["r20",0,3,"gfg",0,1]);    //Lem Rune + flawed Emerald		r20 + gfg
+DCU_Codes.push(["r21",0,2,"gfw",0,1]);    //Pul Rune + flawed Diamond		r21 + gfw
+
+DCU_Codes.push(["r22",0,2,"gsy",0,1]);    //Um Rune + Topaz					r22 + gsy
+DCU_Codes.push(["r23",0,2,"gsv",0,1]);    //Mal Rune + Amethyst				r23 + gsv
+DCU_Codes.push(["r24",0,2,"gsb",0,1]);    //Ist Rune + Saphire				r24 + gsb
+DCU_Codes.push(["r25",0,2,"gsr",0,1]);    //Gul Rune + Ruby					r25 + gsr
+DCU_Codes.push(["r26",0,2,"gsg",0,1]);    //Vex Rune + Emerald				r26 + gsg
+//DCU_Codes.push(["r27",0,2,"gsw",0,1]);    //Ohm Rune + Diamond				r27 + gsw
+
+//DCU_Codes.push(["r28",0,2,"gly",0,1]);    //Lo Rune + flawless Topaz		r28 + gly
+//DCU_Codes.push(["r29",0,2,"gzv",0,1]);    //Sur Rune + flawless Amethyst	r29 + gzv
+//DCU_Codes.push(["r30",0,2,"glb",0,1]);    //Ber Rune + flawless Saphire	    r30 + glb
+//DCU_Codes.push(["r31",0,2,"glr",0,1]);    //Jah Rune + flawless Ruby		r31 + gll
+//DCU_Codes.push(["r32",0,2,"glg",0,1]);    //Cham Rune + flawless Emerald	r32 + glg

@@ -1,0 +1,99 @@
+entryFunc = RavenXP;
+
+function RXP_GoToRaven(inAct) {
+	// Check if we have the cold plains WP
+	//if(inAct != 1 ){
+		if(!DC_InTown(me) && !_DM_AreaWPArray[me.area] && me.area > 4){
+		print("yup, this is the reason");
+			YAM_MakeTP();
+		}
+		commPather.GotoWaypoint((me.area == 2 ? 2 : 0));
+		// Take WP to Cold Plains if we have it, else goto Rogue Encampment
+		DM_UsePortal("Waypoint",(getWaypoint(1) ? 0x03 : 0x01));
+		// Do precasts after going into the portal
+		XP_Precasts();
+	//}
+	/*else{
+		if(getWaypoint(1)){
+			YAM_PathToWayPoint();
+			// Take WP to Cold Plains
+			DM_UsePortal("Waypoint",0x03);
+			// Do precasts after going into the portal
+			XP_Precasts();
+		}
+	}*/
+	// Move to BloodRaven
+	commPather.GotoNPC(775,17);
+}
+
+function AttackRaven() {
+	// Detecting BloodRaven with 3 retries to be sure to get the target
+	//target = DC_FindMonster("Blood Raven",5);
+	target = DC_FindMonster(267,5);
+	iLoop=0;
+	while (!target && iLoop++ < 3) {
+		//target = DC_FindMonster("Blood Raven",5);
+		target = DC_FindMonster(267,5);
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		DC_DPrint("Killing Bloodraven...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		DC_DPrint("Bloodraven killed !");
+		// Delay to let the Death-lightning cleanup stray minions
+		delay(3000);
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(25,target,ATTACKING_MODE);
+			XP_ClearPosition(25,target);
+		}
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		delay(1000); // pause for a second
+		target=false;
+	}
+	else {
+		DC_Print("Blood Raven not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function RavenXP() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static=0;
+	}
+	XP_SwitchHP = RXP_SwitchHP;
+	XP_StallHP = RXP_StallHP;
+	XP_StallKill = RXP_StallKill;
+	XP_QuitImmune = RXP_QuitImmune;
+	XP_MinionStand = true;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do precasts before leaving town
+	XP_Precasts();
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	// Goto Bloodraven
+	RXP_GoToRaven(me.act);
+	// Kill Bloodraven
+	if (AttackRaven()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

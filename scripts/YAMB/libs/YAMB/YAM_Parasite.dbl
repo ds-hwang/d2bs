@@ -1,0 +1,187 @@
+entryFunc = Goauld;
+gameMsgExtendHandler = Goauld_GameMsgHandler;
+
+// This is the universal leecher module that works across acts and also
+// with different bosses.  The leecher would have lifewatch running and
+// buy pots that it needs - darkspirit
+
+// Preparation: Give leecher afew thousand in gold so he can buy pots and tp scrolls
+//              Fill his belt with pots (preferably rejuv pots)
+//              Give him a full tp tome (so he can tp to town if in trouble)
+//		If he has a merc, even better (make sure he doesnt draw monsters though)
+//              Leecher would precast, whatever that does and configured for him
+
+// Note: Special Throne room (area 131) coords supplied by theaxis.
+//       Otherwise the leecher will stick close to the tp.
+//       It is the responsibility of the Leader to clear the tp area.
+
+var myLeader       = false;
+var CowPortalReady = false;
+
+function Goauld_GameMsgHandler(sender, cmd, params, c) {
+	if (YAM_isMyLeader(sender)) {
+		if (cmd+" "+params == Cow_PortalClearMsg) { CowPortalReady = sender; }
+	}
+}
+
+function hostilesPresent() {
+	player = getParty();
+	if (player) { 
+		do {
+			if (player.name != me.name &&
+			getPlayerFlag(me.gid, player.gid, 8)) { 
+				return true; 
+			}
+		} while (player.getNext()); 
+	}
+	return false;
+}
+
+function Goauld() {
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	PublicMode = 2;
+	print("Waiting for portal clear signal from a leader...");
+	myLeader = false;
+	do {
+		for (i=100; i >=0; i--)
+			delay(10);
+	} while (!YAM_TPReady && !CowPortalReady);
+
+	// The one who yells "tp up" becomes my true leader
+	if (YAM_TPReady)
+		myLeader = YAM_TPReady;
+	else if (CowPortalReady)
+		myLeader = CowPortalReady;
+	// Make sure to party the leader
+	if (!DC_PartyPlayer(myLeader)) {
+		// If failed to party, choose another leader
+		for (var i=0; i < Leaders.length; i++) {
+			if (DC_PartyPlayer(Leaders[i])) { 
+				myLeader=Leaders[i]; 
+				break; 
+			}
+		}
+	}
+	if (myLeader) {
+		var i;
+		print("Leader name: " + myLeader);
+		var leader = DC_PlayerPresent(myLeader);
+		if (!leader) {
+			DC_ThrowException("ParasiteXP()","Leader party not found!");
+		}
+		for (i=100; i >=0; i--)
+			delay(50);
+		print("Leader area: " + leader.area);
+		for (i=5; i >=1; i--) {
+			if (leader.area >= TownAreaCodes[i])
+				break;
+		}
+		//YAM_InitCommTown(); // Init commTown on first visit
+		var leaderAct = i;//+1;
+		print("Leader act: " + leaderAct);
+		if (me.act != leaderAct) {
+			YAM_PathToWayPoint();
+			DM_UsePortal("Waypoint",TownAreaCodes[leaderAct]);
+			YAM_InitCommTown(); // Init commTown on first visit
+		}
+		switch(me.act){
+			case 1:
+				if (YAM_TPReady)
+					commTown.GotoTP();
+				else
+					commTown.GotoStash();
+				break;
+			case 2:
+				commTown2.GotoTP();
+				break;
+			case 3:
+				commTown3.GotoWP();
+				break;
+			case 4:
+				commTown4.GotoStart();
+				break;
+			case 5:
+				commTown5.GotoStart();
+				break;
+			default:
+				DC_StopMessage("Act " + me.act + " is not supported by this module!");
+				break;
+		}
+		delay(2000);
+
+		var dest = leader.area; // Baal Throne Room
+		do {
+			// Do precasts after going into the portal
+			XP_Precasts();
+			if (CowPortalReady) {
+				dest = 39;
+				// Do precasts before going into the portal
+				XP_Precasts();
+				// Take the portal to cow level
+				try {
+					DM_UsePortal("Portal", 39);
+				}
+				catch (e) {
+					print("e : name = " + e.name + ", message = " + e.message);
+				}
+			}
+			else {
+				var portal = _DM_FindCorrectPortal(true, myLeader);
+				if (portal < 0) {
+					DC_ThrowException("ParasiteXP()","Portal is suppose to be ready but not found!");
+				}
+				else
+					dest = portal.subarea;
+				try {
+					// When we have chosen a leader, go into his tp
+					DM_UsePortal ("BluePortal", dest, myLeader, portal);
+				}
+				catch (e) {
+					print("e : name = " + e.name + ", message = " + e.message); 
+				}
+			}
+		} while (me.area != dest);
+		// Arrived at the destination!
+		YAM_TPReady    = false;
+		CowPortalReady = false;
+		XP_Precasts();
+		if (me.getState(32)==0) {
+			say("/w " + myLeader + " bo ");
+		}
+		while (1) {
+			if (!DC_PlayerPresent(myLeader) || hostilesPresent()) {
+				quit();
+			}
+			else if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+				YAM_SafeCheck();
+			}
+			else if (DC_InTown(leader)) {
+				YAM_MakeTP();
+				portal = null;
+			}
+			else if (DC_InTown(me)) { // When we have chosen a leader, go into his tp
+				portal = _DM_FindCorrectPortal(true, myLeader);
+				portOwner = (portal < 0) ? me.name : myLeader;
+				if (portal < 0) {
+					portal = _DM_FindCorrectPortal(true, portOwner);
+					if (portal < 0) {
+						DC_ThrowException("ParasiteXP()","Neither leader's nor my portal found!");
+					}
+				}
+				else
+					dest = portal.subarea;
+				try { // When we have chosen a leader, go into his tp
+					DM_UsePortal("BluePortal", dest, portOwner, portal);
+				}
+				catch (e) {
+					print("e : name = " + e.name + ", message = " + e.message);
+				}
+			}
+			delay(1000);
+		}
+	}
+	else {
+		DC_ThrowException("ParasiteXP()","Leader has disappeared!");
+	}
+}

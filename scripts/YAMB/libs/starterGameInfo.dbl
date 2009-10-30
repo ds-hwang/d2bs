@@ -1,0 +1,130 @@
+/*
+	starter's gameInfo() class written by njaguar
+	v2.0
+*/
+
+include( "autod2jsp.dbl" );
+
+function gameInfo() {
+	this.location		= "No Location";
+	this.totalGames	= 0;
+	this.failedGames	= 0;
+	this.isPaused		= false;
+
+	// account info
+	this.accountName	= "";
+	this.accountPas	= "";
+	this.realmId		= 0;
+	this.subRealmId	= 0;
+	this.gameFileName	= "";
+
+	// misc settings
+	this.gameName			= "";
+	this.gamePass			= "";
+	this.useRandomGameName	= true;
+	this.useRandomGamePass	= true;
+	this.botScript			= "default.dbj";
+	this.gameDifficulty	= 2;
+	this.charLocation		= 0;
+	this.gameType			= 1; // closed bnet
+	
+	// follow bot settings
+	this.followBotMode		= 0;
+	this.followLeaderName	= "";
+	
+	this.isRunning			= true;
+	this.needsData			= true;
+	
+	this.oldLocation		= null;
+	this.debugFile			= File.open("output/DebugLog/autostarter.log", FILE_APPEND);
+
+	this.requestSettings = function() {
+		if(coreHasCopyData){
+			sendCopyData( "autod2jsp", 0, CD_GETSETTINGS, "" );
+		}
+		else{
+			this.accountName       = this.requestString( "accountName" );
+			this.accountPass       = this.requestString( "accountPass" );
+			this.gameFileName      = this.requestString( "gameFileName" );
+			this.gameDifficulty    = parseInt(this.requestString( "gameDifficulty" ),10);
+			this.charLocation      = parseInt(this.requestString( "charLocation" ),10);
+			this.gameName          = this.requestString( "gameName" );
+			this.gamePass          = this.requestString( "gamePass" );
+			this.useRandomGameName = parseInt(this.requestString( "useRandomGameName" ),10);
+			this.useRandomGamePass = parseInt(this.requestString( "useRandomGamePass" ),10);
+			this.gameType          = parseInt(this.requestString( "gameType" ),10);
+			//this.realmId           = parseInt(this.requestString( "realmId" ),10);
+		}
+		this.setGameSettings();
+		this.needsData = false;
+	}
+	
+	this.setProperties = function( command ) {
+		eval( String(command).replace(/\\/g, "\\\\").replace(/-/g,"\\-") );
+		this.setGameSettings();
+		this.needsData = false;
+	}
+	
+	this.setLocation = function( _location ) {
+		if( this.location != _location ) {
+			this.location = _location;
+			this.updateStatus();
+		}
+	}
+	
+	this.setGameSettings = function() {
+		// if paused, set the game start script to blank
+		me.gamefilename = (this.isPaused ? "" : this.gameFileName);
+	}
+	
+	this.getStatusString = function() {
+		return this.location + "," + this.totalGames + "," + this.failedGames;
+	}
+	
+	this.updateStatus = function() {
+		if(coreHasCopyData){
+		sendCopyData( "autod2jsp", 0, CD_LOCATION, this.location );
+	}
+		else{
+			sendDDE(1, "autod2jsp", "status", "", getMyPID() + "," + gameData.getStatusString());
+		}
+	}
+	
+	this.ping = function() {
+		sendCopyData( "autod2jsp", 0, CD_PING, "" );
+	}
+
+	this.updateGameStatus = function() {
+		if(coreHasCopyData){
+		sendCopyData( "autod2jsp", 0, CD_GAMEINFO, this.totalGames + "," + this.failedGames );
+	}
+		else {
+			sendDDE(1, "autod2jsp", "status", "", getMyPID() + "," + gameData.getStatusString());
+		}
+	}
+	
+	this.requestString = function( reqString ) {
+		retstr = sendDDE(0, "autod2jsp", "session"+getMyPID(), reqString, "");
+		if(retstr == false) {
+			this.debugOutput( "Did not get a response from the autod2jsp DDE server. Aborting." );
+			stop();
+		}
+		return retstr;
+	}
+	
+	this.debugOutput = function( debugLine,show ) {
+		this.debugFile.write( debugLine + "\n" );
+		this.debugFile.flush();
+		var _show = show;
+		if (arguments.length < 2)
+			_show = true;
+		if (_show){
+			if(coreHasCopyData){
+				sendCopyData( "autod2jsp", 0, CD_LOG, debugLine );
+			}
+			else {
+				debug_log( debugLine );// check for function from the core and replace as needed
+			}
+		}
+	}
+}

@@ -1,0 +1,76 @@
+// ThreshSocket script by 2KH
+
+entryFunc = ThreshSocketXP;
+
+function TXP_AttackThreshSocket() {
+	//Goto Thresh Socket.  He's at the entrance to Crystalline Passage (Area 113)
+	commPather.InitType = 0;
+	commPather.GotoWarp(DP_WARPMOUNTAINTOICE,false,false);
+	// Detecting Thresh Socket with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(443,0x01);
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		//Note: Thresh Socket has no minions
+		print("Killing Thresh Socket...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		print("Thresh Socket killed !");
+		// If we want to attack the monsters around, do it now.  Some monsters
+		// could have come along.
+		if (XP_KillMinions) {
+			XP_ClearPosition(30);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	}
+	else {
+		print("Thresh Socket not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function ThreshSocketXP() {
+	// Configure Thresh Socket specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		if (TXP_SorcSkill.length > 0) {   XP_SetSorcSkills(TXP_SorcSkill,Monster_SorcSkill); } else { XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); }
+		XP_Static = TXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP = TXP_SwitchHP;
+	XP_StallHP = TXP_StallHP;
+	if (me.classid == 3) { XP_KillMinions = false; }
+	XP_MinionStand = true;
+	XP_QuitImmune = TXP_QuitImmune;
+	XP_StallKill=TXP_StallKill;
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+	BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Take WP to Arreat Plateau (Area 112)
+	DM_UsePortal("Waypoint",0x70);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Go Kill Thresh Socket
+	if (TXP_AttackThreshSocket()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) { 
+		DL_SaveRuneLog(); 
+	}
+}

@@ -1,0 +1,130 @@
+entryFunc = AndyXP;
+
+function AXP_GoToAndy() {
+	commPather.InitType = 1;
+	// Move from Catacombs 2 waypoint to Andariel's lair
+	//commPather.GotoLevel(36,false,false);
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(18,18);
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (AndySafeCheck) { 
+		if (YAM_SafeCheck()) 
+			XP_Precasts(); 
+	}
+	//commPather.GotoLevel(37,false,false);
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(18,18);
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (AndySafeCheck) { 
+		if (YAM_SafeCheck()) 
+			XP_Precasts(); 
+	}
+	// Move to the final spot
+	DM_MoveTo(22582,9614);
+	DM_MoveTo(22570,9591);
+	if (!AXP_Kamikaze) {
+		XP_ClearPosition(30,null,ATTACKING_MODE);
+		XP_ClearPosition(30,null,ALIVE_MODE);
+		DSN_PickItems(YAM_SafeCheck);
+		// Check health/mana, belt and if cursed, go to healer if needed
+		if (AndySafeCheck) { 
+			if (YAM_SafeCheck()) 
+				XP_Precasts(); 
+		}
+	}
+}
+
+function AXP_AttackAndy() {
+	// Detecting Andariel with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(156);
+		if (target) { 
+			break; 
+		}
+	}
+	// If Andy is detected,
+	if (target) {
+		// If the target has a enchantment I want to chicken, log and skip
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if(PublicMode > 0) {
+			XP_OpenTP();
+			say(YAM_TPMsg);
+			delay(15000);
+		}
+		DM_MoveTo(22561,9574);
+		DM_MoveTo(22560,9554);
+		DC_Print ("Killing Andariel...");
+		if (!AXP_Kamikaze) {
+			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
+				XP_BossAttack (target); 
+			}
+			DM_MoveTo(22560,9548);
+			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
+				XP_BossAttack (target); 
+			}
+		}
+		DM_MoveTo(22545 + AXP_OffsetX,9535 + AXP_OffsetY);
+		XP_BossAttack (target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { 
+			DC_SelectTab(1); 
+		}
+		DC_Print("Andariel killed !");
+		if (XP_KillMinions) {
+			XP_ClearPosition(20,null,ATTACKING_MODE);
+		}
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		delay (3000);
+		target=false;
+	} 
+	else {
+		DC_Print("Andariel not found! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function AndyXP() {
+	// Configure Andy specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(AXP_SorcSkill.length > 0) ? XP_SetSorcSkills(AXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = AXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP         = AXP_SwitchHP;
+	XP_StallHP          = AXP_StallHP;
+	XP_QuitImmune       = AXP_QuitImmune;
+	XP_StallKill        = AXP_StallKill;
+	XP_MinionStand      = true;
+	if (me.classid == 3) { 
+		XP_KillMinions = false; 
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to Cats level 2
+	DM_UsePortal("Waypoint",0x23);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Path to Andariel's lair
+	AXP_GoToAndy();
+	// Go attack Andariel
+	if (AXP_AttackAndy()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) { 
+		DL_SaveRuneLog(); 
+	}
+}

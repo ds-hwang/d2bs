@@ -1,0 +1,273 @@
+entryFunc = CountessXP;
+
+function CXP_GoToCountess() {
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(25);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+
+	// Set to 0 for Black Marsh
+	commPather.InitType = 0;
+
+	// Move from Black Marsh waypoint to Countess Temple level 5
+	//commPather.GotoLevel(20, false, false);
+	//delay(2000);
+	commPather.GotoWarp(DP_WARPTOWER, false, false);
+	DC_DoDel(DC_LagDelay);
+	delay(2000);
+	DM_TakeStairs(10,10);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(12,12);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	// Change the map resolution to make it higher
+	commPather.InitType = 1;
+
+	// Going down the tower levels
+	commPather.GotoWarp(DP_WARPNEXT, false, false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(9,9);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	commPather.GotoWarp(DP_WARPNEXT, false, false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(9,9);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	commPather.GotoWarp(DP_WARPNEXT, false, false);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(9,9);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	commPather.GotoWarp(DP_WARPNEXT, false, false);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (CountessSafeCheck)
+		YAM_SafeCheck();
+	XP_Precasts();
+
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(9,9);
+	if (CXP_ClearLevel) {
+		XP_ClearPosition(15);
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (CountessSafeCheck) { if (YAM_SafeCheck()) XP_Precasts(); }
+}
+
+// Calculate the 3 "best case" locations (Middle, Right & Left)
+// ToDo : Check the coords so we can be in a safe position while detecting Countess then go to the safest corner
+function CXP_FindCountess() {
+
+	  //if (me.x>12600 && me.y<11100) {
+	  if ((me.y > 11060) && (me.y <= 11078)) {
+		// Move from starting point to the detection spot
+		DM_MoveTo(12625,11070,true);
+		DM_MoveTo(12602,11066,true); // 		DM_MoveTo(12606,11065);
+		DM_MoveTo(12586,11068,true);
+
+		// Move to a spot where we can surely detect that countess
+		var _rm = DM_RandomMove; // this is a tight spot
+		DM_RandomMove = false;
+		DM_MoveTo(12564,11070,true);	 // DM_MoveTo(12566,11065); //possible replacement coords
+		DM_RandomMove = _rm;
+		DM_MoveTo(12544,11066,true);  // DM_MoveTo(12592,11067); DM_MoveTo(12578,11068);
+
+		// Find The Countess
+		for (var i = 0; i < 3; i+=1) {
+			var _countess = DC_FindMonster(45,0x04);
+			if (_countess) { break; }
+		}
+		// Abort if we didn't find her
+		if (!_countess) { return false; }
+
+		if (DA_CheckImmunities(_countess)) {
+			DL_AddChicken();
+			return false;
+		}
+
+		// She's to the far right outside main room
+		if (_countess.y <= 11054) { commPather.GotoDest(12549,11053); }
+
+		// She's in the main room, the right
+		if (_countess.y > 11056 && _countess.y <= 11070) {
+			// In the lower section
+			if (_countess.x < 12533) { commPather.GotoDest(12518,11057); }
+
+			// In the upper section
+			else { commPather.GotoDest(12548,11057);}
+		}
+		// She's in the main room, left side
+		if (_countess.y > 11070 && _countess.y <= 11085) {
+			// In the lower section
+			if (_countess.x < 12533) { DM_MoveTo(12518,11083,true); }
+
+			// In the upper section
+			else{ commPather.GotoDest(12548,11083); }
+		}
+		// She's outside the main room to the left.
+		if (_countess.y > 11086) { commPather.GotoDest(12548,11087); }
+	}
+	// Corresponds to room 2
+	else {
+		// Move from starting point to the detection spot
+		DM_MoveTo(12570,11113,true);
+		DM_MoveTo(12570,11095,true); // 		DM_MoveTo(12570,11099);
+		DM_MoveTo(12570,11076,true); // 		DM_MoveTo(12570,11085);
+		//DM_MoveTo(12555,11069,true); //		DM_MoveTo(12570,11071);
+
+		// Move to a spot where we can surely detect that countess
+		DM_MoveTo(12570,11057,true);
+
+		// Move to a spot where we can surely detect The Countess
+		//commPather.GotoDest(12563+rnd(-4,4), 11025+rnd(-8,8));
+
+		// Find The Countess
+		for (i = 0; i < 3; i+=1) {
+			_countess = DC_FindMonster(45,0x04);
+			if (_countess) { break; }
+		}
+		// Abort if we didn't find her
+		if (!_countess) { return false; }
+
+		if (DA_CheckImmunities(_countess)) {
+			DL_AddChicken();
+			return false;
+		}
+
+		// She's to the far left outside main room
+		if (_countess.x <= 12550){
+			DM_MoveTo(12562,11057,true);
+			DM_MoveTo(12548,11043,true);
+			//commPather.GotoDest(12548,11043);
+		}
+		// She's in the main room, in the left side somewhere
+		if (_countess.x > 12550 && _countess.x <= 12561) {
+			// upper side
+			if (_countess.y < 11027) {
+
+				DM_MoveTo(12577,11043,true);
+				//DM_MoveTo(12577,11025,true);
+				//commPather.GotoDest(12552,11012);
+			}
+			// lower side
+			else{
+				DM_MoveTo(12565,11043,true);
+				DM_MoveTo(12577,11025,true);
+				//commPather.GotoDest(12552,11043);
+			}
+			// Move a little closer if she is far
+			//_newcoord = DM_GetNextCoords(_countess.x,_countess.y,me.x,me.y,15);
+			//DM_MoveTo(_newcoord.x,_newcoord.y,true);
+		}
+		// She's in the main room, left side
+		if (_countess.x > 12561 && _countess.x <= 12579) {
+			// Upper side
+			if (_countess.y < 11027) {
+				DM_MoveTo(12555,11043,true);
+				//DM_MoveTo(12555,11025,true);
+				//commPather.GotoDest(12578,11012);
+			}
+			// Lower side
+			else{
+				DM_MoveTo(12565,11043,true);
+				DM_MoveTo(12555,11025,true);
+				//commPather.GotoDest(12578,11043);
+			}
+			// Move a little closer if she is far
+			//_newcoord = DM_GetNextCoords(_countess.x,_countess.y,me.x,me.y,15);
+			//DM_MoveTo(_newcoord.x,_newcoord.y,true);
+		}
+		// She's outside the main room to the left.
+		if (_countess.x > 12579) {
+			DM_MoveTo(12578,11057,true);
+			DM_MoveTo(12582,11043,true);
+			//commPather.GotoDest(12582,11043);
+		}
+	}
+	return _countess;
+}
+
+function CXP_AttackCountess() {
+	var target = CXP_FindCountess();
+	// If Countess is detected,
+	if (target) {
+		// If we want to attack the monsters around, do it now
+		DC_DoDel(20);
+		if (XP_KillMinions) {
+			XP_ClearPosition(30,target,ATTACKING_MODE,45);
+			XP_ClearPosition(30,target,ATTACKING_MODE);
+			XP_ClearPosition(30,target,ALIVE_MODE,45);
+			XP_ClearPosition(30,target);
+			DSN_PickItems(YAM_SafeCheck);
+		}
+		DC_Print("Killing Countess...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill)
+			DC_SelectTab(1);
+		DC_Print("The Countess killed !");
+		if (XP_KillMinions) {
+			XP_ClearPosition(15);
+		}
+
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	}
+	else {
+		DC_Print("Countess not found or we chickened! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function CountessXP() {
+	// Configure Countess specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(CXP_SorcSkill.length > 0) ? XP_SetSorcSkills(CXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = CXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP         = CXP_SwitchHP;
+	XP_StallHP          = CXP_StallHP;
+	XP_QuitImmune       = CXP_QuitImmune;
+	XP_StallKill        = CXP_StallKill;
+	XP_MinionStand      = true;
+	if (me.classid == 3)
+		XP_KillMinions  = false;
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy)
+		BuildSkeleArmy();
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to BlackMarsh
+	DM_UsePortal("Waypoint",0x06);
+	//delay some to let the game stablize
+	delay(1000);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Path to the Countess
+	CXP_GoToCountess();
+	// Go attack Countess
+	if (CXP_AttackCountess()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes)
+		DL_SaveRuneLog();
+}

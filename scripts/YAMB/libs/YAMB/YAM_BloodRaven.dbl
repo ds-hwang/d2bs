@@ -1,0 +1,123 @@
+//////////////////////////////////////////////////////////////////////
+// BloodRaven Module for YAMB                                       //
+// written by TechnoHunter, for new core pathing                    //
+//////////////////////////////////////////////////////////////////////
+// Public Vars - Already moved to the Variables file
+/*
+// BloodRaven specific variables
+var RXP_SwitchHP   = 40;
+var RXP_StallKill  = false;
+var RXP_StallHP    = 0;
+var RXP_QuitImmune = false;
+var RXP_Kamikaze   = false;
+*/
+
+function GetWP(inID){
+	var wp = getUnit(2,inID);
+	if(wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,wp);
+			delay(10);
+			
+		}
+		l=0;
+		while(getUIFlag(0x14) && l++ < 40) {
+			wp.cancel(0);
+			delay(10);
+		}
+	}
+}
+
+
+entryFunc = RavenXP;
+
+function RXP_GoToRaven() {
+	// Check if we have the cold plains WP
+	if(!DC_InTown(me) && !_DM_AreaWPArray[me.area] && me.area > 4){
+		YAM_MakeTP();
+	}
+	commPather.GotoWaypoint((me.area == 2 ? 3 : 0));
+	GetWP(commPather.TargetID);
+	// Take WP to Cold Plains if we have it, else goto Rogue Encampment
+	DM_UsePortal("Waypoint",(getWaypoint(1) ? 3 : 1));
+	// Do precasts after going into the portal
+	XP_Precasts();
+	if (me.area ==1 && !getWaypoint(1)){
+		commPather.GotoWaypoint(3);
+		GetWP();
+	}
+	// Move to BloodRaven
+	commPather.GotoNPC(805,17);
+}
+
+function AttackRaven() {
+	// Detecting BloodRaven with 3 retries to be sure to get the target
+	var target = DC_FindMonster(267,5);
+	var iLoop=0;
+	while (!target && iLoop++ < 3) {
+		target = DC_FindMonster(267,5);
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		DC_DPrint("Killing Bloodraven...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		DC_DPrint("Bloodraven killed !");
+		// Delay to let the Death-lightning cleanup stray minions
+		delay(3000);
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(25,target,ATTACKING_MODE);
+			XP_ClearPosition(25,target);
+		}
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		delay(1000); // pause for a second
+		target=false;
+	}
+	else {
+		DC_Print("Blood Raven not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function RavenXP() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = 0;
+	}
+	XP_SwitchHP    = RXP_SwitchHP;
+	XP_StallHP     = RXP_StallHP;
+	XP_StallKill   = RXP_StallKill;
+	XP_QuitImmune  = RXP_QuitImmune;
+	XP_MinionStand = true;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do precasts before leaving town
+	XP_Precasts();
+	// Do town stuff in the act we are in if needed.
+	YAM_SafeCheck();
+	// Goto Bloodraven
+	RXP_GoToRaven();
+	// Kill Bloodraven
+	if (AttackRaven()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

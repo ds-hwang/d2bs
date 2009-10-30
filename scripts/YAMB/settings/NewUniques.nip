@@ -1,0 +1,616 @@
+;========= Made by Oscar 2005-01-21 ========
+;========= Thanks njaguar for njip  ========
+;Last update : 2005-01-30 by Oscar
+;
+;Additionally updated : 2005-02-10 by OiT 
+;to Add ALL Uniques
+
+;===========================================
+;================ ARMORS ===================
+;===========================================
+
+;-------------
+;--- GLOVES---
+;-------------
+
+;---NORMAL----
+;Name = Leather Gloves : Quality = Unique ; The Hand of Broc
+;Name = Heavy Gloves : Quality = Unique ; Bloodfist
+Name = Chain Gloves : Quality = Unique : Flag != Eth: 80 > 38 ; Chance Guards
+;Name = Light Gauntlets : Quality = Unique ; Magefist
+;Name = Gauntlets : Quality = Unique ; Frostburn
+
+;--EXCEPTIONAL-
+;Name = Demonhide Gloves : Quality = Unique ; Venom Grip
+;Name = Sharkskin Gloves : Quality = Unique ; Gravepalm
+;Name = Heavy Bracers : Quality = Unique ; Ghoulhide
+;Name = Battle Gauntlets : Quality = Unique ; Lava Gout
+;Name = War Gauntlets : Quality = Unique ; Hellmouth
+
+;----ELITE----
+Name = Vambraces : Quality = Unique : Flag != Eth ; Soul Drainer
+Name = Ogre Gauntlets : Quality = Unique ; Steelrend
+Name = Vampirebone Gloves : Quality = Unique : Flag != Eth ; Dracul's Grasp
+
+;-------------
+;--- BELTS ---
+;-------------
+
+;---NORMAL----
+;Name = Sash : Quality = Unique ; Lenymo
+;Name = Light Belt : Quality = Unique ; Snakecord
+;Name = Belt : Quality = Unique ; Nightsmoke
+Name = Heavy Belt : Quality = Unique ; Goldwrap
+;Name = Plated Belt : Quality = Unique ; BladeBuckle
+
+;--EXCEPTIONAL-
+Name = Demonhide Sash : Quality = Unique ; String of Ears
+;Name = Sharkskin Belt : Quality = Unique ; Razortail
+;Name = Mesh Belt : Quality = Unique ; Gloom's Trap
+;Name = Battle Belt : Quality = Unique ; Snowclash
+Name = War Belt : Quality = Unique : Flag != Eth ; Thundergod's Vigor
+
+;----ELITE----
+Name = Spiderweb Sash : Quality = Unique : Flag != Eth ; Arachnid Mesh
+;Name = Vampirefang Belt : Quality = Unique ; Nosferatu's Coil
+Name = Mithril Coil : Quality = Unique :Flag != Eth ; Verdungo's Hearty Cord
+
+;-------------
+;--- BOOTS ---
+;-------------
+
+;---NORMAL----
+;Name = Boots : Quality = Unique : Flag != Eth ; Hotspur
+;Name = Heavy Boots : Quality = Unique ; Gorefoot
+;Name = Chain Boots : Quality = Unique ; Treads of Cthon
+;Name = Light Plated Boots : Quality = Unique ; Goblintoe
+;Name = Greaves : Quality = Unique ; Tearhaunch
+
+;--EXCEPTIONAL-
+;Name = Demonhide Boots : Quality = Unique ; Infernostride
+Name = Sharkskin Boots : Quality = Unique : Flag != Eth ; Waterwalk
+;Name = Mesh Boots : Quality = Unique ; Silkweave
+Name = Battle Boots : Quality = Unique : Flag != Eth ; War Traveler
+Name = War Boots : Quality = Unique : Flag != Eth ; Gore Rider
+
+;----ELITE----
+Name = Wyrmhide Boots : Quality = Unique ; Merman's Sprocket
+Name = Scarabshell Boots : Quality = Unique ; Sandstorm Trek
+Name = Boneweave Boots : Quality = Unique : Flag != Eth ; Marrowwalk
+Name = Myrmidon Greaves : Quality = Unique ; Shadow Dancer
+
+;------------
+;--- HELMS---
+;------------
+
+;---NORMAL----
+;Name = Cap : Quality = Unique ; Biggin's Bonnet
+;Name = Skull Cap : Quality = Unique ; Tarnhelm
+;Name = Helm : Quality = Unique ; Coif of Glory
+;Name = Full Helm : Quality = Unique ; Dusk Deep
+;Name = Great Helm : Quality = Unique ; Howl Tusk
+;Name = Mask : Quality = Unique ; The Face of Horror
+;Name = Crown : Quality = Unique ; Undead Crown
+;Name = Bone Helm : Quality = Unique ; Bone Skull
+
+;--EXCEPTIONAL-
+;Name = War Hat : Quality = Unique ; Peasant Crown
+;Name = Sallet : Quality = Unique ; Rockstopper
+;Name = Casque : Quality = Unique ; Stealskull
+;Name = Basinet : Quality = Unique ; Darksight Helm
+Name = Winged Helm : Quality = Unique : itemaddamazonskills=2 ; Valkyrie Wing
+;Name = Death Mask : Quality = Unique ; Blackhorn's Face
+;Name = Grand Crown : Quality = Unique ; Crown of Thieves
+Name = Grim Helm : Quality = Unique	; Vampire Gaze
+
+;----ELITE----
+Name = Shako : Quality = Unique ; Harlequin Crest
+;Name = Armet : Quality = Unique : itemlevelreq=62 ; Steelshade
+;Name = Armet : Quality = Unique : itemlevelreq=75 ; Halaberd's Reign
+;Name = Spired Helm : Quality = Unique : itemlevelreq=73 ; Veil of Steel
+Name = Spired Helm : Quality = Unique : itemlevelreq=67 ; Nightwing's Veil
+Name = Demonhead : Quality = Unique ; Andariel's Visage
+Name = Corona : Quality = Unique ; Crown of Ages
+Name = Bone Visage : Quality = Unique ; Giant Skull
+
+;-------------
+;--CIRCLETS---
+;-------------
+
+Name = Tiara : Quality = Unique ; Kira's Guardian
+Name = Diadem : Quality = Unique ; Griffon's Eye
+
+;------------
+;--- ARMOR---
+;------------
+
+;---NORMAL----
+;Name = Quilted Armor : Quality = Unique ; Greyform
+;Name = Leather Armor : Quality = Unique ; Blinkbat's Form
+;Name = Hard Leather Armor : Quality = Unique ; The Centurian
+;Name = Studded Leather : Quality = Unique ; Twitchthroe
+;Name = Ring Mail : Quality = Unique ; Darkglow
+;Name = Scale Mail : Quality = Unique ; Hawkmail
+;Name = Breast Plate : Quality = Unique ; Venom Ward
+;Name = Chain Mail : Quality = Unique ; Sparkling Mail
+;Name = Splint Mail : Quality = Unique ; Iceblink
+;Name = Light Plate : Quality = Unique ; Heavenly Garb
+;Name = Plate Mail : Quality = Unique ; Boneflesh
+;Name = Field Plate : Quality = Unique ; Rockfleece
+;Name = Gothic Plate : Quality = Unique ; Rattlecage
+;Name = Full Plate Mail : Quality = Unique ; Goldskin
+;Name = Ancient Armor : Quality = Unique ; Silks of the Victor
+
+;--EXCEPTIONAL-
+;Name = Ghost Armor : Quality = Unique ; The Spirit Shroud
+Name = Serpentskin Armor : Quality = Unique : Flag != Eth : 39 > 34 : 41 > 34 : 43 > 34 : 45 > 34 ; Skin of the Vipermagi  
+;Name = Demonhide Armor : Quality = Unique ; Skin of the Flayed One
+;Name = Trellised Armor : Quality = Unique ; Ironpelt
+;Name = Tigulated Mail : Quality = Unique ; Crow Caw
+;Name = Linked Mail : Quality = Unique ; Spirit Forge
+Name = Cuirass : Quality = Unique : Flag = Eth ; Duriel's Shell
+Name = Mesh Armor : Quality = Unique ; Shaftstop
+Name = Russet Armor : Quality = Unique ; Skullder's Ire
+;Name = Mage Plate : Quality = Unique ; Que-Hegan's Wisdom
+;Name = Templar Coat : Quality = Unique ; Guardian Angel
+;Name = Sharktooth Armor : Quality = Unique ; Toothrow
+;Name = Embossed Plate : Quality = Unique ; Atma's Wail
+;Name = Chaos Armor : Quality = Unique ; Black Hades
+;Name = Ornate Plate : Quality = Unique ; Corpsemourn
+
+;----ELITE----
+Name = Dusk Shroud : Quality = Unique : Flag != Eth ; Ormus' Robes
+Name = Wire Fleece : Quality = Unique : Flag = Eth ; The Gladiator's Bane
+Name = Balrog Skin : Quality = Unique ; Arkaine's Valor
+Name = Kraken Shell : Quality = Unique ; Leviathan
+Name = Shadow Plate : Quality = Unique : itemlevelreq=66 ; Steel Carapace
+Name = Shadow Plate : Quality = Unique : itemlevelreq=87 ; Spirit Keeper
+Name = Sacred Armor : Quality = Unique : itemlevelreq=74 ; Templar's Might
+Name = Sacred Armor : Quality = Unique : itemlevelreq=84 ; Tyrael's Might
+
+;--------------
+;--- SHIELDS---
+;--------------
+
+;---NORMAL----
+;Name = Buckler : Quality = Unique ; Pelta Lunata
+;Name = Small Shield : Quality = Unique ; Umbral Disk
+;Name = Large Shield : Quality = Unique ; Stormguild
+;Name = Kite Shield : Quality = Unique ; Steelclash
+;Name = Spiked Shield : Quality = Unique ; Swordback Hold
+;Name = Tower Shield : Quality = Unique ; Bverrit Keep
+;Name = Bone Shield : Quality = Unique ; Wall of the Eyeless
+;Name = Gothic Shield : Quality = Unique ; The Ward
+
+;--EXCEPTIONAL-
+;Name = Defender : Quality = Unique ; Visceratuant
+;Name = Round Shield : Quality = Unique ; Moser's Blessed Circle
+;Name = Scutum : Quality = Unique ; Scrotumchaser
+;Name = Dragon Shield : Quality = Unique ; Tiamat's Rebuke
+;Name = Barbed Shield : Quality = Unique ; Lance Guard
+;Name = Pavise : Quality = Unique ; Gerke's Sanctuary
+;Name = Grim Shield : Quality = Unique ; Lidless Wall
+;Name = Ancient Shield : Quality = Unique ; Radament's Sphere
+
+;----ELITE----
+Name = Monarch : Quality = Unique ; Stormshield
+;Name = Blade Barrier : Quality = Unique ; Spike Thorn
+;Name = Aegis : Quality = Unique ; Medusa's Gaze
+;Name = Troll Nest : Quality = Unique ; Head Hunter's Glory
+;Name = Ward : Quality = Unique ; Spirit Ward
+
+
+;============================================
+;================ WEAPONS ===================
+;============================================
+
+;--------------
+;--- SWORDS ---
+;--------------
+
+;---NORMAL----
+;Name = Short Sword : Quality = Unique ; Rixot's Keen
+;Name = Scimitar : Quality = Unique ; Blood Crescent
+;Name = Sabre : Quality = Unique ; Skewer of Krintiz
+;Name = Falchion : Quality = Unique ; Gleamscythe
+;Name = Broad Sword : Quality = Unique ; Griswold's Edge
+;Name = Long Sword : Quality = Unique ; Hellplague
+;Name = War Sword : Quality = Unique ; Culwen's Point
+;Name = Two-Handed Sword : Quality = Unique ; Shadowfang
+;Name = Claymore : Quality = Unique ; Soulflay
+;Name = Giant Sword : Quality = Unique ; Kinemil's Awl
+;Name = Bastard Sword : Quality = Unique ; Blacktongue
+;Name = Flamberge : Quality = Unique ; Ripsaw
+;Name = Great Sword : Quality = Unique ; The Patriarch
+
+;--EXCEPTIONAL-
+;Name = Gladius : Quality = Unique ; Bloodletter
+;Name = Cutlass : Quality = Unique ; Coldsteel Eye
+;Name = Shamshir : Quality = Unique ; Hexfire
+;Name = Tulwar : Quality = Unique ; Blade Of Ali Baba
+;Name = Dimensional Blade : Quality = Unique ; Ginther's Rift
+;Name = Battle Sword : Quality = Unique ; Headstriker
+;Name = Rune Sword : Quality = Unique ; Plague Bearer
+;Name = Ancient Sword : Quality = Unique ; The Atlantean
+;Name = Espandon : Quality = Unique ; Crainte Vomir
+;Name = Dacian Falx : Quality = Unique ; Bing Sz Wang
+;Name = Tusk Sword : Quality = Unique ; The Vile Husk
+;Name = Gothic Sword : Quality = Unique ; Cloudcrack
+;Name = Zweihander : Quality = Unique ; Todesfaelle Flamme
+;Name = Executioner Sword : Quality = Unique ; Swordguard
+
+;----ELITE----
+;Name = Ataghan : Quality = Unique ; Djinn Slayer
+;Name = Elegant Blade : Quality = Unique ; Bloodmoon
+;Name = Phase Blade : Quality = Unique : itemlevelreq=58 ; Lightsabre 
+Name = Phase Blade : Quality = Unique : itemlevelreq=85 ; Azurewrath
+;Name = Cryptic Sword : Quality = Unique ; Frostwind
+;Name = Balrog Blade : Quality = Unique ; Flamebellow
+Name = Champion Sword : Quality = Unique : enhanceddamage > 230 ; Doombringer
+Name = Colossus Blade : Quality = Unique : enhanceddamage > 200 ; The Grandfather
+
+;------------
+;--- AXES ---
+;------------
+
+;---NORMAL----
+;Name = Hand Axe : Quality = Unique ; The Gnasher
+;Name = Axe : Quality = Unique ; Deathspade
+;Name = Double Axe : Quality = Unique ; Bladebone
+;Name = Military Pick : Quality = Unique ; Skull Splitter
+;Name = War Axe : Quality = Unique ; Rakescar
+;Name = Large Axe : Quality = Unique ; Axe of Fechmar
+;Name = Broad Axe : Quality = Unique ; Goreshovel
+;Name = Battle Axe : Quality = Unique ; The Chieftain
+;Name = Great Axe : Quality = Unique ; Brainhew
+;Name = Giant Axe : Quality = Unique ; Humongous
+
+;--EXCEPTIONAL-
+;Name = Hatchet : Quality = Unique ; Coldkill
+;Name = Cleaver : Quality = Unique ; Butcher's Pupil
+;Name = Twin Axe : Quality = Unique ; Islestrike
+;Name = Crowbill : Quality = Unique ; Pompeii's Wrath
+;Name = Naga : Quality = Unique ; Guardian Naga
+;Name = Military Axe : Quality = Unique ; Warlord's Trust
+;Name = Bearded Axe : Quality = Unique ; Spellsteel
+;Name = Tabar : Quality = Unique ; Stormrider
+;Name = Gothic Axe : Quality = Unique ; Boneslayer Blade
+;Name = Ancient Axe : Quality = Unique ; The Minotaur
+
+;----ELITE----
+;Name = Tomahawk : Quality = Unique ; Razor's Edge
+Name = Ettin Axe : Quality = Unique : Sockets = 5: Flag = Eth ; Rune Master
+;Name = War Spike : Quality = Unique ; Cranebeak
+Name = Berserker Axe : Quality = Unique ; Death Cleaver
+;Name = Silver-Edged Axe : Quality = Unique ; Ethereal Edge
+;Name = Decapitator : Quality = Unique ; Hellslayer
+;Name = Champion Axe : Quality = Unique ; Messerschmidt's Reaver
+;Name = Glorious Axe : Quality = Unique ; Executioner's Justice
+
+;------------
+;--- BOWS ---
+;------------
+
+;---NORMAL----
+;Name = Short Bow : Quality = Unique ; Pluckeye
+;Name = Hunter's Bow : Quality = Unique ; Witherstring
+;Name = Long Bow : Quality = Unique ; Raven Claw
+;Name = Composite Bow : Quality = Unique ; Rogue's Bow
+;Name = Short Battle Bow : Quality = Unique ; Stormstrike
+;Name = Long Battle Bow : Quality = Unique ; Wizendraw
+;Name = Short War Bow : Quality = Unique ; Hellclap
+;Name = Long War Bow : Quality = Unique ; Blastbark
+
+;--EXCEPTIONAL-
+;Name = Edge Bow : Quality = Unique ; Skystrike
+;Name = Razor Bow : Quality = Unique ; Riphook
+;Name = Cedar Bow : Quality = Unique ; Kuko Shakaku
+;Name = Double Bow : Quality = Unique ; Endlesshail
+;Name = Short Siege Bow : Quality = Unique ; Witchwild String
+;Name = Large Siege Bow : Quality = Unique ; Cliffkiller
+;Name = Rune Bow : Quality = Unique ; Magewrath
+;Name = Gothic Bow : Quality = Unique ; Goldstrike Arch
+
+;----ELITE----
+Name = Crusader Bow : Quality = Unique ; Eaglehorn
+;Name = Ward Bow : Quality = Unique ; Widowmaker
+Name = Hydra Bow : Quality = Unique ; Windforce
+
+;---------------
+;---CROSSBOWS---
+;---------------
+
+;---NORMAL----
+;Name = Light Crossbow : Quality = Unique ; Leadcrow
+;Name = Crossbow : Quality = Unique ; Ichorsting
+;Name = Heavy Crossbow : Quality = Unique ; Hellcast
+;Name = Repeating Crossbow : Quality = Unique ; Doomslinger
+
+;--EXCEPTIONAL-
+;Name = Arbalest : Quality = Unique ; Langer Briser
+;Name = Siege Crossbow : Quality = Unique ; Pus Spitter
+;Name = Ballista : Quality = Unique ; Buriza-Do Kyanon
+;Name = Chu-Ko-Nu : Quality = Unique ; Demon Machine
+
+;----ELITE----
+;Name = Colossus Crossbow : Quality = Unique ; Hellrack
+;Name = Demon Crossbow : Quality = Unique ; Gut Siphon
+
+;-------------
+;---DAGGERS---
+;-------------
+
+;---NORMAL----
+;Name = Dagger : Quality = Unique ; Gull
+;Name = Dirk : Quality = Unique ; The Diggler
+;Name = Kris : Quality = Unique ; The Jade Tan Do
+;Name = Blade : Quality = Unique ; Spectral Shard
+
+;--EXCEPTIONAL-
+;Name = Poignard : Quality = Unique ; Spineripper
+;Name = Rondel : Quality = Unique ; Heart Carver
+;Name = Cinquedeas : Quality = Unique ; Blackbog's Sharp
+;Name = Stiletto : Quality = Unique ; Stormspike
+
+;----ELITE----
+;Name = Bone Knife : Quality = Unique ; Wizardspike
+;Name = Fanged Knife : Quality = Unique ; Fleshripper
+;Name = Legend Spike : Quality = Unique ; Ghostflame
+
+;---------------
+; ---JAVELINS---
+;---------------
+
+;----ELITE----
+Name = Balrog Spear : Quality = Unique ; Demon's Arch
+;Name = Ghost Glaive : Quality = Unique ; Wraith Flight
+;Name = Winged Harpoon : Quality = Unique ; Gargoyle's Bite
+
+;------------
+; ---MACES---
+;------------
+
+;---NORMAL----
+;Name = Club : Quality = Unique ; Felloak
+;Name = Spiked Club : Quality = Unique ; Stoutnail
+;Name = Mace : Quality = Unique ; Crushflange
+;Name = Morning Star : Quality = Unique ; Bloodrise
+;Name = Flail : Quality = Unique ; The General's Tan Do Li Ga
+;Name = War Hammer : Quality = Unique ; Ironstone
+;Name = Maul : Quality = Unique ; Bonesnap
+;Name = Great Maul : Quality = Unique ; Steeldriver
+
+;--EXCEPTIONAL-
+;Name = Cudgel : Quality = Unique ; Dark Clan Crusher
+;Name = Barbed Club : Quality = Unique ; Fleshrender
+;Name = Flanged Mace : Quality = Unique ; Sureshrill Frost
+;Name = Jagged Star : Quality = Unique ; Moonfall
+;Name = Knout : Quality = Unique ; Baezil's Vortex
+;Name = Battle Hammer : Quality = Unique ; Earthshaker
+;Name = War Club : Quality = Unique ; Bloodtree Stump
+;Name = Martel de Fer : Quality = Unique ; The Gavel Of Pain
+
+;----ELITE----
+;Name = Truncheon : Quality = Unique ; Nord's Tenderizer
+;Name = Tyrant Club : Quality = Unique ; Demon Limb
+;Name = Devil Star : Quality = Unique ; Baranar's Star
+Name = Scourge : Quality = Unique : 93 = 50 ; Horizon's Tornado
+Name = Scourge : Quality = Unique : 93 = 30 ; Stormlash
+Name = Legendary Mallet : Quality = Unique : 0 >= 20 ; Stone Crusher
+Name = Legendary Mallet : Quality = Unique : 6 = 12800 ; Schaefer's Hammer
+Name = Ogre Maul : Quality = Unique ; Windhammer
+Name = Thunder Maul : Quality = Unique : 105 = 10 ; Earth Shifter
+Name = Thunder Maul : Quality = Unique : 0 = 25 ; The Cranium Basher
+
+;--------------
+;---POLEARMS---
+;--------------
+
+;---NORMAL----
+;Name = Bardiche : Quality = Unique ; Dimoak's Hew
+;Name = Voulge : Quality = Unique ; Steelgoad
+;Name = Scythe : Quality = Unique ; Soul Harvest
+;Name = Poleaxe : Quality = Unique ; The Battlebranch
+;Name = Halberd : Quality = Unique ; Woestave
+;Name = War Scythe : Quality = Unique ; The Grim Reaper
+
+;--EXCEPTIONAL-
+;Name = Lochaber Axe : Quality = Unique ; The Meat Scraper
+;Name = Bill : Quality = Unique ; Blackleach Blade
+;Name = Battle Scythe : Quality = Unique ; Athena's Wrath
+;Name = Partizan : Quality = Unique ; Pierre Tombale Couant
+;Name = Bec-De-Corbin : Quality = Unique ; Husoldal Evo
+;Name = Grim Scythe : Quality = Unique ; Grim's Burning Dead
+
+;----ELITE----
+Name = Ogre axe : Quality = Unique : enhanceddamage > 290 ;  Bonehew
+Name = Thresher : Quality = Unique ; The Reaper's Toll
+Name = Cryptic Axe : Quality = Unique ; Tomb Reaver
+Name = Giant Thresher : Quality = Unique ; Stormspire
+
+;--------------
+;---SCEPTERS---
+;--------------
+
+;---NORMAL----
+;Name = Scepter : Quality = Unique ; Knell Striker
+;Name = Grand Scepter : Quality = Unique ; Rusthandle
+;Name = War Scepter : Quality = Unique ; Stormeye
+
+;--EXCEPTIONAL-
+;Name = Rune Scepter : Quality = Unique ; Zakarum's Hand
+;Name = Holy Water Sprinkler : Quality = Unique ; The Fetid Sprinkler
+;Name = Divine Scepter : Quality = Unique ; Hand of Blessed Light
+
+;----ELITE----
+;Name = Mighty Scepter : Quality = Unique : 93 = 20 ; Heaven's Light
+;Name = Mighty Scepter : Quality = Unique : 91 = -60 ; The Redeemer
+Name = Caduceus : Quality = Unique ; Astreon's Iron Ward
+
+;------------
+;---SPEARS---
+;------------
+
+;---NORMAL----
+;Name = Spear : Quality = Unique ; The Dragon Chang
+;Name = Trident : Quality = Unique ; Razortine
+;Name = Brandistock : Quality = Unique ; Bloodthief
+;Name = Spetum : Quality = Unique ; Lance of Yaggai
+;Name = Pike : Quality = Unique ; The Tannr Gorerod
+
+;--EXCEPTIONAL-
+;Name = War Spear : Quality = Unique ; The Impaler
+;Name = Fuscina : Quality = Unique ; Kelpie Snare
+;Name = War Fork : Quality = Unique ; Soulfeast Tine
+;Name = Yari : Quality = Unique ; Hone Sundan
+;Name = Lance : Quality = Unique ; Spire of Honor
+
+;----ELITE----
+;Name = Hyperion Spear : Quality = Unique ; Arioc's Needle
+;Name = Mancatcher : Quality = Unique ; Viperfork
+;Name = War Pike : Quality = Unique ; Steel Pillar
+
+;------------
+;---STAVES---
+;------------
+
+;---NORMAL----
+;Name = Short Staff : Quality = Unique ; Bane Ash
+;Name = Long Staff : Quality = Unique ; Serpent Lord
+;Name = Gnarled Staff : Quality = Unique ; Spire of Lazarus
+;Name = Battle Staff : Quality = Unique ; The Salamander
+;Name = War Staff : Quality = Unique ; The Iron Jang Bong
+
+;--EXCEPTIONAL-
+;Name = Jo Staff : Quality = Unique ; Razorswitch
+;Name = Quarterstaff : Quality = Unique ; Ribcracker
+;Name = Cedar Staff : Quality = Unique ; Chromatic Ire
+;Name = Gothic Staff : Quality = Unique ; Warpspear
+;Name = Rune Staff : Quality = Unique ; Skull Collector
+
+;----ELITE----
+Name = Elder Staff : Quality = Unique ; Ondal's Wisdom
+Name = Archon Staff : Quality = Unique ; Mang Song's Lesson
+
+;----------------------
+;---Throwing Weapons---
+;----------------------
+
+;--EXCEPTIONAL-
+;Name = Battle Dart : Quality = Unique ; Deathbit
+;Name = Francisca : Quality = Unique ; The Scalper
+
+;----ELITE----
+;Name = Winged Knife : Quality = Unique ; Warshrike
+;Name = Flying Axe : Quality = Unique ; Gimmershred
+;Name = Winged Axe : Quality = Unique ; Lacerator
+
+;-----------
+;---WANDS---
+;-----------
+
+;---NORMAL----
+;Name = Wand : Quality = Unique ; Torch of Iro
+;Name = Yew Wand : Quality = Unique ; Maelstrom
+;Name = Bone Wand : Quality = Unique ; Gravenspine
+;Name = Grim Wand : Quality = Unique ; Ume's Lament
+
+;--EXCEPTIONAL-
+;Name = Burnt Wand : Quality = Unique ; Suicide Branch
+;Name = Petrified Wand : Quality = Unique ; Carin Shard
+;Name = Tomb Wand : Quality = Unique ; Arm of King Leoric
+;Name = Grave Wand : Quality = Unique ; Blackhand Key
+
+;----ELITE----
+Name = Lich Wand : Quality = Unique ; Boneshade
+Name = Unearthed Wand : Quality = Unique ; Death's Web
+
+;===========================
+;======CLASS SPECIFIC=======
+;===========================
+
+;---AMAZON---
+;Name = Matriarchal Bow : Quality = Unique ; Blood Raven's Charge
+;Name = Ceremonial Bow : Quality = Unique ; Lycander's Aim
+Name = Ceremonial Javelin : Quality = Unique : Flag = Eth ; Titan's Revenge
+Name = Matriarchal Javelin : Quality = Unique ; Thunderstroke
+;Name = Matriarchal Spear : Quality = Unique ; Stoneraven
+;Name = Ceremonial Pike : Quality = Unique ; Lycander's Flank
+
+;---ASSASSIN---
+;Name = Battle Cestus : Quality = Unique ; Shadow Killer
+Name = Greater Talons : Quality = Unique : Flag = Eth ; Bartuc's Cut-Throat
+;Name = Wrist Sword : Quality = Unique ; Jade Talon
+;Name = Feral Claws : Quality = Unique ; Firelizard's Talons
+
+;---NECROMANCER---
+Name = Hierophant Trophy : Quality = Unique : Flag != Eth ; Homunculus
+Name = Bloodlord Skull : Quality = Unique : Flag != Eth ; Darkforce Spawn
+Name = Succubus Skull : Quality = Unique : Flag != Eth; Boneflame
+
+;---BARBARIAN---
+;Name = Fury Visor : Quality = Unique ; Wolfhowl
+;Name = Conqueror Crown : Quality = Unique ; Halaberd's Reign
+;Name = Destroyer Helm : Quality = Unique ; Demonhorn's Edge
+Name = Slayer Guard : Quality = Unique ; Arreat's Face
+
+;---SORCERESS---
+;Name = Swirling Crystal : Quality = Unique ; The Oculus
+Name = Eldritch Orb : Quality = Unique ; Eschuta's Temper
+Name = Dimensional Shard : Quality = Unique ; Death's Fathom
+
+;---DRUID---
+Name = Totemic Mask : Quality = Unique : Flag != Eth ; Jalal's Mane
+Name = Blood Spirit : Quality = Unique : Flag != Eth; Cerebus' Bite
+Name = Sky Spirit : Quality = Unique : Flag != Eth; Ravenlore
+Name = Earth Spirit : Quality = Unique : Flag != Eth ; Spirit Keeper
+
+;---PALADIN---
+Name = Sacred Rondache : Quality = Unique ; Alma Negra
+Name = Gilded Shield : Quality = Unique ; Herald Of Zakarum
+;Name = Zakarum Shield : Quality = Unique ; Dragonscale
+
+;========================
+;======Unique Rings======
+;========================
+
+Type = ring : Quality = Unique : 80 = 30 ; NagelRing
+;Type = ring : Quality = Unique : 62 >= 6 ; Manald Heal
+Type = ring : Quality = Unique : 77 = 25 ; Stone of Jordan
+;Type = ring : Quality = Unique : 7 = 40 ; Dwarf Star
+Type = ring : Quality = Unique : 2 >= 17 ; Raven Frost
+Type = ring : Quality = Unique : 60 >= 3 : 11 = 50 ; Bul Kathos Wedding Band
+Type = ring : Quality = Unique : 60 >= 6 ; Carrion Wind
+Type = ring : Quality = Unique : itemlevelreq=69 ; Nature's Peace
+Type = ring : Quality = Unique : itemlevelreq=76 ; Wisp Projector
+
+;========================
+;====Uniques Amulets=====
+;========================
+
+;Type = amulet : Quality = Unique : itemlevelreq=10 ; Nokozan Relic
+;Type = amulet : Quality = Unique : itemlevelreq=15 ; The Eye of Etlich
+;Type = amulet : Quality = Unique : itemlevelreq=25 ; The Mahim-Oak Curio
+;Type = amulet : Quality = Unique : 0 = 12 : 39 >= 20 : 41 >= 20 :43 >= 20 :46 >= 20 ; Sacrens Chance
+Type = amulet : Quality = Unique : 62 >= 11 : 60 >= 5 ; Cresent Moon
+Type = amulet : Quality = Unique : 2 = 25 ; Cat's Eye
+;Type = amulet : Quality = Unique : 45 = 75 ; Atma's Scarab
+;Type = amulet : Quality = Unique : 74 = 10 ; The Rising Sun
+Type = amulet : Quality = Unique : 41 = 35 ; Highlord's Wrath
+Type = amulet : Quality = Unique : 39 >= 20 : 41 >= 20 : 43 >= 20 : 45 >= 20 ; Mara's Kaleidoscope
+Type = amulet : Quality = Unique : defensiveaurasskilltab >= 1 ; Seraph's Hymn
+Type = amulet : Quality = Unique : 19 >= 400 ; Metalgrid
+
+;========================
+;=====Unique Charms======
+;========================
+
+Name = Small Charm : Quality = Unique ; Anni
+Name = Large Charm : Quality = Unique ; Torch
+Name = Grand Charm : Quality = Unique ; Gheeds
+
+;========================
+;=====Rainbow Facet======
+;========================
+
+Name = Jewel : Quality = Unique ; Rainbow Facet

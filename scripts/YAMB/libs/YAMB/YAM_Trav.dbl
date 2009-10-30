@@ -1,0 +1,118 @@
+
+
+
+// Don't touch below this line
+//////////////////////////////////////////////////////////////////////////////////////////
+
+entryFunc = TravXP;
+
+var _TrXP_wp    = false;   //current game waypoint
+var _TrXP_xbase = 5699; //x-coord of base waypoint
+var _TrXP_ybase = 1584; //y-coord of base waypoint
+
+function DM_MoveToAttack(x,y,nowalk,noattack) {
+	if (arguments.length < 4) {
+		noattack = true;
+	}
+	// Shift coords based on WP location
+	x = x + (_TrXP_wp.x - _TrXP_xbase);
+	y = y + (_TrXP_wp.y - _TrXP_ybase);
+	DC_DPrint("X:"+x+" Y:"+y);
+	DM_MoveTo(x,y,nowalk,true); //use true tele
+	if (!noattack) {
+		XP_ClearPosition(26,false,ATTACKING_MODE);
+		XP_ClearPosition(26,false,ALIVE_MODE);
+		//DSN_PickItems(YAM_SafeCheck); //too dangerous
+		DM_CheckPosition(x,y,nowalk);
+	}
+}
+
+function DM_MoveToPick(x,y,nopick) {
+	if (arguments.length < 3) {
+		nopick = false;
+	}
+	// Shift coords based on WP location
+	x = x + (_TrXP_wp.x - _TrXP_xbase);
+	y = y + (_TrXP_wp.y - _TrXP_ybase);
+	DM_MoveTo(x,y,true,true); //use true tele
+	if (!nopick) {
+		DSN_PickItems(YAM_SafeCheck);
+		DM_CheckPosition(x,y,true);
+	}
+}
+
+function TrXP_GoToTrav() {
+   DM_MoveToAttack(5720,1587,true,true);
+   DM_MoveToAttack(5720,1563,true,true);
+   DM_MoveToAttack(5739,1557,true,true);
+   DM_MoveToAttack(5760,1556,true,true);
+   DM_MoveToAttack(5780,1555,true,true);
+   DM_MoveToAttack(5800,1554,true,true); //start of path to Durance Stairs
+   DM_MoveToAttack(5799,1534,true,true);
+   DM_MoveToAttack(5799,1526,true,TrXP_Kamikaze);
+   DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze); //before entry arch
+
+}
+
+
+//Toorc Icefist=345  Ismail Vilehand=345  Geleb Flamefinger=346
+//Council Member=345/346
+//Water Watcher=258/261
+//Zealot=237  Heirophant=240  Nightlord=132
+
+
+function TrXP_AttackTrav() {
+	// Attack Council by the Stairs
+	DM_MoveToAttack(5795,1490,true,false); //Durance Stairs
+	DM_MoveToAttack(5787,1491,true,false); //left of stairs
+	// Pick Items by the Stairs... the walls get in the way so try different start points
+	DM_MoveToPick(5787,1491);
+	DM_MoveToPick(5795,1490);
+	// Check for Council straglers and Pick Items from prior kills
+	DM_MoveToAttack(5797,1514,true,false); //before entry arch (again)
+	DM_MoveToAttack(5781,1514,true,false); //left of entry arch
+	DM_MoveToPick(5781,1514);
+	DM_MoveToPick(5797,1514);
+	return true;
+}
+
+
+function TravXP() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static=TrXP_Static;
+	}
+	XP_SwitchHP = TrXP_SwitchHP;
+	XP_StallHP = TrXP_StallHP;
+	XP_StallKill=TrXP_StallKill;
+	XP_MinionStand = true;
+	if (me.classid == 3) { 
+		XP_KillMinions = false;
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to Travincal
+	DM_UsePortal("Waypoint",0x53);
+	// Use the WP to build coord map
+	var test = false;
+	while (!test) {test = getUnit(2,"Waypoint");}
+	_TrXP_wp = {x:test.x,y:test.y};
+	DC_DPrint("wp x:" + _TrXP_wp.x + " wp y:" + _TrXP_wp.y);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Goto the Travincal Lair
+	TrXP_GoToTrav();
+	// Clear the Travincal Lair
+	if (TrXP_AttackTrav()) {
+		DL_AddKill();
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog(); 
+	}
+}

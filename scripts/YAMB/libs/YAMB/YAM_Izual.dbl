@@ -1,0 +1,156 @@
+// Don't touch below this line
+//////////////////////////////////////////////////////////////////////////////////////////
+
+entryFunc = IzualXP;
+
+function RefreshPrecasts() {
+	var _r = DA_Refresh;
+	DA_Refresh = true;
+	XP_Precasts();
+	DA_Refresh = _r;
+}
+
+function StepCallBack(attack) {
+	// commPather will never pass this arguement
+	if (arguments.length < 1) {
+		attack = false;
+	}
+	// Notes:
+	//
+	// commPather.TargetRoom  - commPather.GotoRoom() fills this with the destination coords prior to pathing
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	// Stop the pather when close enough to the destination to detect Izual.  This stops the pather
+	// prior to the final destination coords.
+	if (commPather.TargetRoom && (Math.abs(me.x - commPather.TargetRoom.x) < 20 && Math.abs(me.y - commPather.TargetRoom.y) < 20)) {
+		return DP_STOP;
+	}
+	if (!IXP_Kamikaze || attack) {
+		var x = me.x;
+		var y = me.y;
+		var specType = 0xff;
+		if (DP_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+			//To obtain the needed specType is easy.
+			specType = DP_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+			specType >>= 8; // shift 1 byte
+		}
+		XP_ClearPosition(28,false,ATTACKING_MODE,null,specType);
+		XP_ClearPosition(28,false,ALIVE_MODE,null,specType);
+		DSN_PickItems(YAM_SafeCheck);
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+		if (YAM_UseShrines) {
+			// if we find a shrine, use it before proceeding for an added bonus
+			DS_MaxDistance = 15;
+			DS_CheckForShrines();
+		}
+		DM_CheckPosition(x,y,true);
+	}
+	return DP_STEPAHEAD;
+}
+
+function GotoIzual() {
+	var _rm = DM_RandomMove;
+	DM_RandomMove = false;
+	// If not Kamikaze, take steps less than your clearing range.
+	// Otherwise, use XP_TeleDist.
+	var _teledist = 15;
+	if (IXP_Kamikaze) {
+		_teledist = XP_TeleDist;
+	}
+	commPather.InitType = 1; //0 fails every single time
+	//commPather.GotoLevel(105,_teledist,StepCallBack);
+	StepCallBack(true);  //force attack
+	RefreshPrecasts();   //force precasts
+	commPather.GotoRoomInArea(822,822,105,_teledist,StepCallBack);
+	DM_RandomMove = _rm;
+}
+
+function AttackIzual() {
+	var target;
+	// Detecting Izual with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(256); //406=Izual's Ghost
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if (XP_KillMinions) {
+			// Wait a while until we kill some minions
+			XP_ClearPosition(28,target,ATTACKING_MODE);
+			XP_ClearPosition(28,target);
+		}
+		DC_DPrint("Killing Izual...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { 
+			DC_SelectTab(1); 
+		}
+		DC_DPrint("Izual killed !");
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(28,target,ATTACKING_MODE);
+			XP_ClearPosition(28,target);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		delay(2000); // pause, Izual's death kills everyone around him
+		target=false;
+	} 
+	else {
+		if (IXP_Kamikaze) {
+			DC_DPrint("Izual not found!! Skip to next boss...");
+			return false;
+		} 
+		else {
+			DC_DPrint("ÿc1Izual not found!!  He must be Dead!ÿc0");
+		}
+	}
+	return true;
+}
+
+function IzualXP() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static=0;
+	}
+	XP_SwitchHP    = IXP_SwitchHP;
+	XP_StallHP     = IXP_StallHP;
+	XP_StallKill   = IXP_StallKill;
+	XP_QuitImmune  = IXP_QuitImmune;
+	XP_MinionStand = true;
+	if (me.classid == 3) { 
+		XP_KillMinions = false; 
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	if (me.area != 103) {
+		YAM_PathToWayPoint();
+		DM_UsePortal("Waypoint",0x67); //0x6a = City  0x6b = River
+		YAM_InitCommTown()
+	}
+	// Do precasts before leaving town
+	XP_Precasts();
+	// Exit Act 4 Town
+	commTown4.GotoExit();
+	// Do precasts after leaving town
+	delay(1000); // allow merc/minions to catch up before casting
+	XP_Precasts();
+	// Goto Izual
+	GotoIzual();
+	// Kill Izual
+	if (AttackIzual()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

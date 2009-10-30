@@ -1,0 +1,233 @@
+
+// Summoner Module by darkspirit
+
+var SumXP_Kamikaze = true;
+
+
+// Don't touch below this line
+//////////////////////////////////////////////////////////////////////////////////////////
+
+entryFunc = SummonerXP;
+
+var _TomeY = 0;
+
+function DM_MoveToAttack(x,y,nowalk,noattack) {
+	if (arguments.length < 4) {noattack = true;}
+	DM_MoveTo(x,y,nowalk,true); //use true tele
+	if (!noattack) {
+		var specType = 0xff;
+		if (YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+			//To obtain the needed specType is easy.
+			specType = YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+			specType >>= 8; // shift 1 byte
+		}
+		XP_ClearPosition(26,false,ATTACKING_MODE,null,specType);
+		XP_ClearPosition(26,false,ALIVE_MODE,null,specType);
+		DSN_PickItems(YAM_SafeCheck);
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+		if (YAM_UseShrines) {
+			// if we find a shrine, use it before proceeding for an added bonus
+			DS_MaxDistance = 15;
+			DS_CheckForShrines();
+		}
+		DM_CheckPosition(x,y,nowalk);
+	}
+}
+
+function SumXP_GoLowerRight() {
+	//Tome=25866,5431
+	DM_MoveToAttack(25471,5447,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25495,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25521,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25546,5448,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25558,5447,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25566,5433,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25566,5405,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25561,5383,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25585,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25612,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25641,5388,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25661,5387,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25683,5391,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25706,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25731,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25761,5387,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25782,5387,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25811,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25806,5412,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25807,5437,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25831,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25850,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25861,5442,true,true);
+}
+
+function SumXP_GoLowerLeft() {
+	//Tome=25431,5861
+	DM_MoveToAttack(25446,5471,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5497,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25447,5521,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5540,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5564,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25472,5566,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25493,5566,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5590,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5614,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25507,5641,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5662,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5685,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5712,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5736,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5761,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5783,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5806,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25480,5806,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25461,5806,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25447,5822,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25447,5843,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25442,5856,true,true);
+}
+
+function SumXP_GoUpperLeft() {
+	//Tome=25011,5446
+	DM_MoveToAttack(25421,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25401,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25368,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25346,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25326,5438,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25326,5424,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25326,5406,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25300,5387,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25281,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25248,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25225,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25199,5388,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25172,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25143,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25120,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25101,5386,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25088,5387,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25088,5408,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25088,5432,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25086,5444,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25064,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25046,5446,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25022,5446,true,true);
+}
+
+function SumXP_GoUpperRight() {
+	//Tome=25431,5011
+	DM_MoveToAttack(25446,5421,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5401,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5370,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25446,5346,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25461,5327,true,SumXP_Kamikaze);// this step sometimes fails|25452,5331 original points
+	DM_MoveToAttack(25475,5326,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25496,5327,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25507,5313,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25507,5277,true,SumXP_Kamikaze);// this step sometimes fails|25507,5288 original points
+	DM_MoveToAttack(25505,5261,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5237,true,SumXP_Kamikaze);// check this
+	DM_MoveToAttack(25506,5214,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5191,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25506,5176,true,SumXP_Kamikaze);// this step sometimes fails|25506,5167 original points
+	//DM_MoveToAttack(25506,5153,true,SumXP_Kamikaze);// this step sometimes fails|25506,5141 original points
+	DM_MoveToAttack(25506,5148,true,SumXP_Kamikaze);// this step sometimes fails|25506,5141 original points
+	DM_MoveToAttack(25506,5133,true,SumXP_Kamikaze);// this step sometimes fails|25506,5117 original points
+	DM_MoveToAttack(25506,5108,true,SumXP_Kamikaze);// ADDED
+	DM_MoveToAttack(25493,5088,true,SumXP_Kamikaze);// this step sometimes fails|25506,5088 original points
+	DM_MoveToAttack(25480,5086,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25462,5087,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25447,5067,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25448,5046,true,SumXP_Kamikaze);
+	DM_MoveToAttack(25435,5023,true,true);
+}
+
+function SumXP_GotoSummoner() {
+	switch (_TomeY) {
+		case 5431: SumXP_GoLowerRight(); break;
+		case 5861: SumXP_GoLowerLeft(); break;
+		case 5446: SumXP_GoUpperLeft(); break;
+		case 5011: SumXP_GoUpperRight(); break;
+	}
+}
+
+function SumXP_AttackSummoner() {
+	// Detecting Summoner with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(250);
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if (XP_KillMinions){
+			// Wait a while until we kill some minions
+			XP_ClearPosition(26,target,ATTACKING_MODE);
+		}
+		print("Killing Summoner...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill)
+			DC_SelectTab(1);
+		print("Summoner killed !");
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(26);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	}
+	else {
+		print("Summoner not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function SummonerXP() {
+	// Make sure we have teleport
+	if (!DM_CheckTeleport()) { DC_ThrowException("YAM_Summoner()","You must have a char with teleport to use this script !!"); }
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static=0;
+		}
+	XP_SwitchHP = SumXP_SwitchHP;
+	XP_StallHP = SumXP_StallHP;
+	XP_StallKill = SumXP_StallKill;
+	XP_MinionStand = true;
+	XP_QuitImmune = SumXP_QuitImmune;
+	if (me.classid == 3) { XP_KillMinions = false; }
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+	BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Take Arcane WP
+	DM_UsePortal("Waypoint",74);
+	// Get Summoner Location
+	var _Tome;
+	do {
+		_Tome = getPresetUnits(me.area, 2, 357, null);
+	}while (_Tome.length == 0);
+	_TomeY = _Tome[0].roomy*5 + _Tome[0].y;
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Goto the Summoner
+	SumXP_GotoSummoner();
+	// Kill the Summoner
+	if (SumXP_AttackSummoner()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes)
+		DL_SaveRuneLog();
+}

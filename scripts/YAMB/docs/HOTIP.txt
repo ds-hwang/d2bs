@@ -1,0 +1,20 @@
+// YAM_AlertOnHotIP = value	  	Send an alert command upon finding an hot IP. Accepted values are :
+//				  	"mirc"  Send a message and beep command to your mirc client (must be running of course.)
+//				  	"bnet"  Send a message over battle.net, see next option.
+//				  	"both"  You can guess that one. Must be type exactly as-is, no caps.
+//				 	 
+
+There are 2 ways to find dclone now:
+
+1)  Use the HOTIP module.  It doesnt write to a txt file at the moment.  You must know the IPs that you are looking for first.  
+      - Set these IPs that you are looking for in YAM_HOTIP.d2l
+      - Set YAM_FindIP_normal/nightmare/hell, in the same file, to true as per your needs.
+      - In your char config file, add this line YAMXXP.push("HOTIP");
+
+Note: if YAM_FindIP_normal/nightmare/hell is false in your difficulty, then HOTIP would quit right away and loads the next boss module so adding YAMXXP.push("HOTIP") as the first boss module, for all your chars, is fine also.
+
+// YAM_MonitorDCloneMsg=true/false	Set to true to monitor soj/walks msg in all modules (set Lang var properly)
+//					if the soj message or dclone walks show up, 
+//					the bot will "force" load the HOTIP module and idle in the game.
+
+2)  Set YAM_MonitorDCloneMsg to true.  You do not need to supply the IPs.  The bot will idle upon encountering the "diablo walks" or "soj count" messages after it has completed its current boss run.  If it doesnt encounter these messages, then it will continue on its run as per normal.

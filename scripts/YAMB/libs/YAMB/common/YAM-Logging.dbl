@@ -1,0 +1,530 @@
+//////////////////////////////////////////////////////////////////////
+// Public global variables
+//////////////////////////////////////////////////////////////////////
+// Configuration
+var DL_LogMode = 0;	// 0 = minimum (snagged,kept,bought and gambled only)
+						// 1 = normal (added dropped,ignored and sold)
+						// 2 = full (added snagged for val. and full stats of identified items)
+
+// Log file paths
+var DL_RunLogPath  = "output/YAMB-" + me.name + "RunLog.html";
+var DL_ItemLogPath = "output/YAMB-" + me.name + "ItemLog.html";
+var DL_RuneLogPath = "output/YAMB-" + me.name + "RunesLog.html";
+
+// Counters (return value only)
+var DL_Total        = 0;
+var DL_Kills        = 0;
+var DL_Aborts       = 0;
+var DL_Chickens     = 0;
+//var DL_Crashes      = 0;
+var DL_Deaths       = 0;
+var DL_Errors       = 0;
+var DL_Failures     = 0;
+
+// Stats (return value only)
+var DL_TotalTime    = 0;
+var DL_BestFull     = 0;
+var DL_RunTime      = 0;
+var DL_TotalExp     = 0;
+var DL_LastExp      = 0;
+var DL_ExpLost      = 0;
+
+// Per-Boss basis variable
+var DL_LastBossTime = 0;
+var DL_BestBossTime = 0;
+
+//////////////////////////////////////////////////////////////////////
+// Private global variables
+//////////////////////////////////////////////////////////////////////
+var _DL_CalcLogPath     = "output/" + me.name + "YAM-RunLog-Calc.log";
+var _DL_SavedExp        = 0;
+var _DL_FirstLog        = false;
+var _DL_AverageFullTime = 0;
+var _DL_AverageBossTime = 0; // per-boss
+var _DL_Runes           = new Array();
+var _DL_EndRuns         = 0;
+var _DL_DoRuneLog       = false;
+var _DL_SuccessRate     = " ";
+
+
+//////////////////////////////////////////////////////////////////////
+// Public functions
+//////////////////////////////////////////////////////////////////////
+
+// Init the logging by getting all the values from the calculation file
+function DL_LoadRun() {
+	DC_DPrint("DL_LoadRun()");
+	// Start the chrono
+	DC_ChronoRun();
+	var startOfRun = false;
+	if(DL_Total == 0){
+		startOfRun = true;
+	}
+	// Obtain the path of the calculation log file from the given run log file path
+	var _tempstring = DL_RunLogPath.split(".");
+	_DL_CalcLogPath = _tempstring[0] + "-Calc.log";
+	var iVal = me.getStat(13);
+	if(iVal >= (2<<30))
+		iVal -= (2<<30);
+	var _tempDeaths = DL_Deaths;
+
+	// Get the values from the calculation log file
+	_DL_GetValues(_DL_CalcLogPath);
+
+	if(startOfRun && _tempDeaths > 0) {
+		DL_Deaths += _tempDeaths; 
+		DL_ExpLost = DL_ExpLost + (_DL_SavedExp - iVal);
+	}
+	else if(iVal < _DL_SavedExp)  {
+		// Check for uncaught death (failed chicken)
+		DL_AddDeath(); 
+		DL_ExpLost = DL_ExpLost + (_DL_SavedExp - iVal);
+	}
+	// If the total of runs is equal to 0, it is the first logging done
+	if(DL_Total <= 0) { 
+		_DL_FirstLog = true; 
+	}
+	else { 
+		_DL_AverageFullTime = parseInt(DL_TotalTime / DL_Total,10); 
+	} 
+
+	// Calculate the average boss run time if we got at least one kill
+	if(DL_Kills > 0) { 
+		_DL_AverageBossTime = parseInt(DL_TotalTime / DL_Kills,10); 
+	}
+
+	// Get the current experience amount
+	_DL_SavedExp = iVal;
+	// Check if we have crashed and adjust the counter if it is the case
+	//var _crashed = (DL_Total * YAMXXP.length) - DL_Kills - DL_Aborts - DL_Crashes - DL_Chickens - DL_Deaths - DL_Errors - DL_Failures;
+	//if(startOfRun && !_DL_FirstLog && _crashed > 0) { DL_Crashes += _crashed; }
+	if(startOfRun) {
+		// Add the total
+		DL_Total+=1;
+	}
+	// Save the preliminary info in the calculation log
+	_DL_WriteLog(_DL_CalcLogPath);
+	
+}
+
+// Increment the kills counter and save the info
+function DL_AddKill() {
+	DL_Kills+=1;
+	_DL_SaveRun(0);
+}
+
+// Increment the chicken counter and close the log
+function DL_AddChicken() {
+	DL_Chickens+=1;
+	_DL_SaveRun(1);
+}
+
+// Increment the abort counter and close the log
+function DL_AddAbort() {
+	DL_Aborts+=1;
+	_DL_SaveRun(1);
+}
+
+// Increment the error counter and close the log
+function DL_AddError() {
+	DL_Errors+=1;
+	_DL_SaveRun(1);
+}
+
+// Increment the failure counter and close the log
+function DL_AddFailure() {
+	DL_Failures+=1;
+	_DL_SaveRun(1);
+}
+
+// Increment the abort counter and save the info
+function DL_AddDeath() {
+	DL_Deaths+=1;
+	_DL_WriteLog(_DL_CalcLogPath);
+}
+
+// Parameter :
+// -string	String to add color tags
+// Return value : String with the added HTML color tags
+function DL_HTMLColorLine(itemstring,itemquality) {
+        switch (itemquality) {
+		case 4:	itemstring = "<font color=#0000FF>" + itemstring + "</font>";	break;
+		case 5:	itemstring = "<font color=#008000>" + itemstring + "</font>";	break;
+		case 6:	itemstring = "<font color=#BBBB00>" + itemstring + "</font>";	break;
+		case 7:	itemstring = "<font color=#808000>" + itemstring + "</font>";	break;
+		case 8:	itemstring = "<font color=#FF9900>" + itemstring + "</font>";	break;
+	}
+	return itemstring;
+}
+
+//////////////////////////////////////////////////////////////////////
+// Private functions
+//////////////////////////////////////////////////////////////////////
+
+function _DL_GetValues(logfile) {
+	// If the file cannot be opened, return false
+	// ToDo : Create a empty calc log if we cannot find the official log
+	if(!FileTools.exists(logfile)) {
+		DC_DPrint("_DL_GetValues() : " + logfile + " not available, skipping!");
+		return false;
+	}
+
+	var _file = File.open(logfile, FILE_READ);
+	var a = "";
+
+	// Get the values
+	while(!_file.eof) {
+		var _line = _file.readLine();
+		if(!_line)
+			break;
+		a = _line.split("=");
+		if(a.length == 2) {
+			switch (DC_StripSpaces(a[0])) {
+				case "DL_TotalRuns":
+					DL_Total = parseInt(a[1],10);
+					break;
+				case "DL_TotalKills":
+					DL_Kills = parseInt(a[1],10);
+					break;
+				case "DL_TotalAborts":
+					DL_Aborts = parseInt(a[1],10);
+					break;
+				case "DL_TotalErrors":
+					DL_Errors = parseInt(a[1],10);
+					break;
+				case "DL_TotalFailures":
+					DL_Failures = parseInt(a[1],10);
+					break;
+				case "DL_TotalChickens":
+					DL_Chickens = parseInt(a[1],10);
+					break;
+				/*case "DL_TotalCrashes":
+					DL_Crashes = parseInt(a[1],10);
+					break;*/
+				case "DL_TotalDeaths":
+					DL_Deaths = parseInt(a[1],10);
+					break;
+				case "DL_TotalTime":
+					DL_TotalTime = parseInt(a[1],10);
+					break;
+				case "DL_BestBossTime":
+					DL_BestBossTime = parseInt(a[1],10);
+					break;
+				case "DL_TotalExp":
+					DL_TotalExp = parseInt(a[1],10);
+					break;
+				case "DL_ExpLost":
+					DL_ExpLost = parseInt(a[1],10);
+					break;
+				case "DL_BestFull":
+					DL_BestFull = parseInt(a[1],10);
+					break;
+				case "_DL_SavedExp":
+					_DL_SavedExp = parseInt(a[1],10);
+					break;
+			}
+		}
+	}
+	// Close the file
+	_file.close();
+
+	// Return the succes to the caller
+	return true;
+}
+
+function _DL_WriteLog(logfile) {
+	// Save the raw informations in the calculation file
+	if(!logfile) { // added to make sure the path of the logfile was valid - TechnoHunter
+		DC_DPrint("DL_WriteLog() : Log file path is not valid");
+		return false;
+	}
+	var _calcfile = File.open(logfile, FILE_WRITE);
+
+	// If the file cannot be opened, return false
+	if(!_calcfile) {
+		DC_DPrint("_DL_WriteLog() : Failed to open " + logfile);
+		return false;
+	}
+
+	// Add a warning header and a pointer to the right file
+	_calcfile.write("This file is for calculation and backup only. For actual run informations, open " + DL_RunLogPath + ".\n");
+
+	// Write the calculation values in the file
+	_calcfile.write("DL_TotalRuns=" + DL_Total + "\n");
+	_calcfile.write("DL_TotalKills=" + DL_Kills + "\n");
+	_calcfile.write("DL_TotalAborts=" + DL_Aborts + "\n");
+	_calcfile.write("DL_TotalErrors=" + DL_Errors + "\n");
+	_calcfile.write("DL_TotalFailures=" + DL_Failures + "\n");
+	_calcfile.write("DL_TotalChickens="+ DL_Chickens + "\n");
+	//_calcfile.write("DL_TotalCrashes=" + DL_Crashes + "\n");
+	_calcfile.write("DL_TotalDeaths=" + DL_Deaths + "\n");
+	_calcfile.write("DL_TotalTime=" + DL_TotalTime + "\n");
+	_calcfile.write("DL_BestBossTime=" + DL_BestBossTime + "\n");
+	_calcfile.write("DL_TotalExp=" + DL_TotalExp + "\n");
+	_calcfile.write("DL_ExpLost=" + DL_ExpLost + "\n");
+	_calcfile.write("DL_BestFull=" + DL_BestFull + "\n");
+	_calcfile.write("_DL_SavedExp=" + _DL_SavedExp + "\n");
+
+	// Close the calculation file
+	_calcfile.close();
+
+	// Return the succes to the caller
+	return true;
+}
+
+function _DL_SaveLog(logfile) {
+	// Open the existing log file for write
+	var _file = File.open(logfile, FILE_WRITE);
+	// If the logfile cannot be opened, return false
+	if(!_file) {
+		DC_DPrint("_DL_SaveLog() : Failed to open " + logfile);
+		return false;
+	}
+	// Write the formatted informations to the file
+	_file.write("Success Rate = " + _DL_SuccessRate + "%<br>" + "\n");
+	_file.write("Total runs = " + DL_Total + "<br>" + "\n");
+	_file.write("Total kills = " + DL_Kills + "<br>" + "\n");
+	_file.write("Total skips = "+ DL_Chickens + "<br>" + "\n");
+	_file.write("Total failures = " + DL_Failures + "<br>" + "\n");
+	_file.write("Total errors = " + DL_Errors + "<br>" + "\n");
+	_file.write("Total aborts = " + DL_Aborts + "<br>" + "\n");
+	_file.write("Total deaths = " + DL_Deaths + "<br>" + "\n");
+	//_file.write("Total crashes = " + DL_Crashes + "<br>" + "\n");
+	_file.write("Total time = " + DL_TotalTime + "ms<br>" + "\n");
+	_file.write("Total exp. gained = " + DL_TotalExp + "<br>" + "\n");
+	_file.write("Total exp. lost = " + DL_ExpLost + "<br>" + "\n");
+	if(DL_RunTime != 0) {	_file.write("Last run time (may not be completed) = " + DL_RunTime + "ms<br>" + "\n"); }
+	else { _file.write("Last full run time = run aborted<br>" + "\n"); }
+	_file.write("Best full run time = " + DL_BestFull + "ms<br>" + "\n");
+	_file.write("Average full run Time = " + _DL_AverageFullTime + "ms<br>" + "\n");
+	// Per-Boss info
+	if(DL_LastExp != 0) {	_file.write("Exp. gained on last boss run = " + DL_LastExp + "<br>" + "\n"); }
+	else { _file.write("Exp. gained on last boss run = run aborted<br>" + "\n"); }
+	if(DL_LastBossTime != 0) {	_file.write("Last boss run time = " + DL_LastBossTime + "ms<br>" + "\n"); }
+	else { _file.write("Last per-boss run time = run aborted<br>" + "\n"); }
+	_file.write("Best per-boss run time = " + DL_BestBossTime + "ms<br>" + "\n");
+	_file.write("Average per-boss run Time = " + _DL_AverageBossTime + "ms<br>" + "\n");
+
+	// Close the log file
+	_file.close();
+	return true;
+}
+
+// Parameter : 
+// -type	Type of end, 0 = success and 1 = failure (facultative)
+function _DL_SaveRun(type) {
+	// If nothing is entered, use 0 as default
+	if(arguments.length < 1) { type = 0; }
+	// End the chrono
+	DL_LastBossTime = DC_ChronoRun();
+	// If it is a success, calculate all the info
+	if(type == 0) {
+		_DL_EndRuns += 1;
+		// Calculate the experience for the run
+		var iVal = me.getStat(13);
+		if(iVal >= (2<<30))
+			iVal -= (2<<30);
+		DL_LastExp = iVal - _DL_SavedExp;
+		// Add the experience gained to the total
+		DL_TotalExp = DL_TotalExp + parseInt(DL_LastExp,10);
+		// Add the run time to the total time
+		DL_TotalTime = DL_TotalTime + parseInt(DL_LastBossTime,10);
+		// Get the best time
+		if(DL_LastBossTime < DL_BestBossTime || DL_BestBossTime == 0) { DL_BestBossTime = DL_LastBossTime; }
+		// Caculate the total full run time
+		DL_RunTime = DL_RunTime + parseInt(DL_LastBossTime,10);
+		// If we got a full run
+		if(_DL_EndRuns == YAMXXP.length) {
+			// we check the best full run time
+			if(DL_RunTime < DL_BestFull || DL_BestFull == 0) { DL_BestFull = DL_RunTime; }
+		}
+	}
+	else {
+		// Put aborted because it is a failed run
+		DL_LastExp = 0;
+		DL_LastBossTime = 0;
+	}
+
+	// Calculate the success rate
+	_DL_SuccessRate = String(((DL_Kills / YAMXXP.length) / DL_Total) * 100).substring(0,5);
+
+	// Save the updated values to the calculation log
+	_DL_WriteLog(_DL_CalcLogPath);
+
+	// Write the formatted informations to the run log
+	_DL_SaveLog(DL_RunLogPath);
+}
+
+/////////////////////////////////////// Rune & Item Logging ///////////////////////////////////
+
+function DL_LoadRuneLog() {
+	// First create a new rune array
+	for(var i = 1; i <= 33; i+=1) {
+		var _code = "r" + ((i < 10) ? "0" : "") + i;
+		var _name = DC_RuneCodeToName(_code);
+		_DL_Runes[i-1] = [_name,0,0];
+	}
+	// As the array is created, we can log runes
+	_DL_DoRuneLog = true;
+	// If the file is unavailable, use empty array created above
+	if(!FileTools.exists(DL_RuneLogPath)){ 
+		DC_DPrint("DL_LoadRuneLog() : No file is found, creating a new log!");
+	}
+	else {
+		var _file = File.open(DL_RuneLogPath, FILE_READ);
+		var _count = 0;
+		var _line = "";
+		var a = "";
+		var n = "";
+		// Put the list in the array
+		while(!_file.eof) {
+			if(!_line)
+				break;
+			_line = _file.readLine().replace("<br>","");
+			a = _line.split("=");
+			if(a.length == 2) {
+				_DL_Runes[_count][0] = a[0];
+				n = a[1].split(",");
+				if(n.length == 2) {
+					_DL_Runes[_count][1] = parseInt(n[0],10);
+					_DL_Runes[_count][2] = parseInt(n[1],10);
+				}
+			}
+			_count+=1;
+		}
+		_file.close();
+		return true;
+	}
+	return false;
+}
+
+// Parameters :
+// -runecode	Code of the rune to add
+// -type	type of addition, 1 = dropped, 2 = snagged
+function DL_AddRune(runecode,type) {
+	// If we don't log runes, skip it
+	if(!_DL_DoRuneLog) {
+		DC_DPrint("DL_AddRune() : _DL_Runes array is not created by DL_LoadRuneLog(), skipping rune logging!");
+		return false;
+	}
+	// Get the index from the runecode
+	var _index = parseInt(runecode.substr(1,3),10) - 1;
+	// If we got a invalid index, throw a exception
+	if(typeof(_DL_Runes[_index])=="undefined") { 
+		DC_ThrowException("DL_AddRune()","DL_AddRune() : runecode: " + runecode + " / type: " + type + " / _index: " + _index); 
+		return false; 
+	}
+	// Add the rune to the array
+	_DL_Runes[_index][type]+=1;
+	return true;
+}
+
+// save the array to the runes log file
+function DL_SaveRuneLog() {
+	// If we don't log runes, skip it
+	if(!_DL_DoRuneLog) {
+		DC_DPrint("DL_SaveRuneLog() : _DL_Runes array is not created by DL_LoadRuneLog(), skipping _DL_Runes saving!");
+		return;
+	}
+	var _file = File.open(DL_RuneLogPath, FILE_WRITE);
+	if(_file) {
+		for(var i = 0; i <= 32; i+=1) {
+			_file.write(_DL_Runes[i][0] + "=" + _DL_Runes[i][1] + "," + _DL_Runes[i][2] + "<br>" + "\n");
+		}
+		_file.close();
+	}
+	else { 
+		DC_DPrint("DL_SaveRuneLog() : Unable to open the rune log for writing!"); 
+	}
+}
+
+// Parameter :
+// -item	Item object to get the name
+// Return value : Full and proper item name
+function DL_GetItemName(item) {
+	var _itemname = false;
+	// If the item is a unidentified unique or set item, get the real name from the translation files
+	if((item.quality == 5 || item.quality == 7) && item.getFlag(0x10) == 0){
+		_itemname = DC_GetItemEth(item) + _DL_AutoId(item.code,item.quality) + DC_GetItemSockets(item);
+	}
+	// If the string is still empty, return the displayed name else return the string passed by autoid
+	return ((_itemname == false) ? DC_ItemToFullName(item) : _itemname);
+}
+
+// Parameters :
+// -itemname	Name of the item to log
+// -itemquality	Quality of the item
+// -prefix	String to enter before the item name
+// -suffix	String to enter after the item name
+// Return value : None, will write the item in the log file
+function DL_LogItem(itemname,itemquality,prefix,suffix) {
+	// Format: [2002/12/28] [00:44:25] [-] [Normal] Rejuvenation Potion
+	var _logdatetime = DC_LeadDateAndTime();
+	var _logstring = "";
+	// Add the prefix if there is one
+	if(arguments.length > 2) { _logstring = prefix; }
+	switch(itemquality){
+		case 1:	_logstring = _logstring + " [Low Qual]";	break;
+		case 2:	_logstring = _logstring + " [Normal]  ";	break;
+		case 3:	_logstring = _logstring + " [Superior]";	break;
+		case 4:	_logstring = _logstring + " [Magic]   ";	break;
+		case 5:	_logstring = _logstring + " [Set]     ";	break;
+		case 6:	_logstring = _logstring + " [Rare]    ";	break;
+		case 7:	_logstring = _logstring + " [Unique]  ";	break;
+		case 8:	_logstring = _logstring + " [Crafted] ";	break;
+		default:	_logstring = _logstring + " [Misc]    ";	break;
+	}
+	// Get the item name
+	_logstring = _logstring + " " + itemname;
+	// Add the suffix if there is one
+	if(arguments.length > 3) { _logstring = _logstring + " " + suffix; }
+	// Write the entry to the log file
+	DC_WriteLogEntry(DL_ItemLogPath,DL_HTMLColorLine(_logstring,itemquality));
+	// If logging to loader is set, log it
+	DC_LogToautod2jsp(_logstring);
+	// Add a small delay to make sure it is written to file
+	DC_DoDel(50);
+}
+
+function _DL_AutoId(itemcode,itemquality) {
+	var _file = false;
+	// If the item is a set item, open autoset.lst for reading
+	if(itemquality == 5){
+		if(FileTools.exists("libs/common/autoset.lst"))
+			_file = File.open("libs/common/autoset.lst", FILE_READ);
+		else{
+			print("libs/common/autoset.lst is missing, please download!");
+			return false;
+		}
+	}
+	// If it is a unique item, open autounique.lst for reading
+	else if(itemquality == 7){
+		if(FileTools.exists("libs/common/autounique.lst"))
+			_file = File.open("libs/common/autounique.lst", FILE_READ);
+		else{
+			print("libs/common/autounique.lst is missing, please download!");
+			return false;
+		}
+	}
+	// if the file is opened correctly, find the corresponding item code
+	if(_file) {
+		// Loop while the end of file is not reached
+		while(!_file.eof) {
+			// Get the line
+			var _line = _file.readLine();
+			if(!_line)
+				_line = "";
+			// Split the line in 2 parts
+			var _string = _line.split("=");
+			// If there is 2 parts, and the code matches the one in the file, close the file and return the string
+			if(_string.length == 2 && _string[0] == itemcode) {
+				_file.close();
+				return _string[1];
+			}
+		}
+		// No entry is found so close it
+		_file.close();
+	}
+	// No entry is found so return false
+	return false;
+}

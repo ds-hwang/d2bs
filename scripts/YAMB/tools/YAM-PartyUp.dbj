@@ -1,0 +1,104 @@
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Party Up Script
+//
+//
+// This should be the final word on Inviting to and Joining a Party.  NOT!
+// Cleaned-up version from darkspirit :)
+//
+// 0.4 -- Darkspirit modified and added a few functions for YAMB.
+// 0.3 -- Darien changed something
+// 0.2 -- Turns out this wasn't the final word.. Thx to TDW for showing me how to improve it
+// 0.1 -- initial release
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+var plist = new Array();
+var InHandler = false;
+
+function main() {
+	// Needs to be right in front
+	registerEvent( EVENT_PARTYMSG, partymsgHandler);
+	var InParty = false;
+	var attempted = false;
+	var alone = true;
+	var meP = getParty();
+	//print("loading Party Up!");
+	plist.push(me.name);
+	while(1) {
+		attempted = false;
+		alone = true;
+		meP = getParty();
+		if(meP) {
+			do {
+				if (meP.name == me.name) {
+					InParty = (meP.partyid != 65535);
+				}
+				else {
+					alone = false;
+				}
+		 		if(meP.partyid == 65535 && meP.name != me.name && (InParty || !aPartyExists())) { // dude NOT in a party
+		 			skip=false;
+		 			for(i=0; i < plist.length; i++) {
+		 				if(meP.name == plist[i])
+						skip = true;
+		 			}
+		 			if(!skip && !InHandler) {
+						InHandler = true;
+		 				clickParty(meP, 2);
+		 				plist.push(meP.name);
+						attempted = true;
+						InHandler = false;
+		 			}
+		 		}
+			}while(meP && meP.getNext());
+		}
+		//if (!InParty && !alone && !attempted) { say ("pp"); }
+		delay(5000);
+	}
+}
+
+function aPartyExists() {
+	var player = getParty();
+	if (player) {
+		do {
+			if (player.partyid != 65535)
+				return true;
+		} while (player.getNext());
+	}
+	return false;
+}
+
+//Party Handler
+function partymsgHandler(msg) {
+	if (InHandler)
+		return;
+	InHandler = true;
+	var WholeMessage = arguments[0];
+	Firstword = WholeMessage.split(" ");
+	getName = Firstword[0];
+	action = Firstword[1];
+	var meP1 = getParty();
+	if(meP1.partyid == 65535 && action == "invites" && getName != me.name) {
+		do {
+			if(meP1.name == getName && isInAParty(getName)) { // Only accept invitations from party members
+		 		clickParty(meP1, 2);
+		 		//say("Thanks for the Invite " + getName);
+		 	}
+		} while(meP1.getNext());
+	}
+	//if(meP1.partyid == 65535 && Firstword[2] == "left") say("Get yer ass back in the party " + getName);
+	InHandler = false;
+}
+
+// function by darkspirit
+function isInAParty(playerName) {
+	var player = getParty();
+	if(player) {
+		do {
+			if(player.name == playerName)
+				return (player.partyid != 65535);
+		} while (player.getNext());
+	}
+	return false;
+}

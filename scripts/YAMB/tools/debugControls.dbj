@@ -1,0 +1,162 @@
+/*
+	debugControls.d2j
+	by Paul Taulborg
+*/
+
+var lastHash		= 0;
+var screenHooks		= new Array();
+var curHook			= -1;
+var totalControls	= 0;
+var keyBlocked		= false;
+var debugHooks		= new Array();
+var hash			= 0;
+//var mouseCoords		= new Array();
+var YAM_Version        = "0.9.7.0 Beta";
+var _sh = null;
+
+var 	CONTROL_DATA	= 0,
+		CONTROL_TEXT	= 1,
+		MOUSE_COORDS	= 2,
+		MOUSE_RELATIVE	= 3,
+		HELP_TEXT		= 4,
+		CONTROL_HASH	= 5;
+
+function YAM_SetTitle() {	// Add the title screenhook -- Modded to accurately center text -TechnoHunter
+	var _shstring = "-- Yet-Another-MultiBot " + YAM_Version + " --";
+	var _width = getTextWidthHeight(_shstring,8);
+	var _screenszX = me.screensize == 2 ? 800 : 640;
+	var _screenszY = me.screensize == 2 ? 640 : 480;
+	_sh = null;
+	_sh = new Text(_shstring);
+	_sh.font = 8;
+	_sh.color = 4;
+	_sh.text = _shstring;
+	_sh.x = parseInt((_screenszX - _width[0])/2,10);
+	_sh.y = _screenszY - 95; //	_sh.y = 35;
+	//_sh.x = 50;//parseInt((_screenszX - _width[0])/2,10);
+	//_sh.y = 50;//_screenszY - 95; //	_sh.y = 35;
+}
+
+function main() {
+	addEventListener( "keydown", keydownEvent);
+	//blockKeyEvent( true );
+	//debugHooks[CONTROL_DATA]   = new Text( ".", 50,  50,  -1, -1, 0, 4 );
+	//debugHooks[CONTROL_TEXT]   = new Text( ".", 50,  75,  -1, -1, 0, 4 );
+	//debugHooks[MOUSE_COORDS]   = new Text( ".", 50,  100, -1, -1, 0, 4 );
+	//debugHooks[MOUSE_RELATIVE] = new Text( ".", 50,  125, -1, -1, 0, 4 );
+	//debugHooks[HELP_TEXT]      = new Text( "this is a test.", 675, 550, -1, -1, 0, 4 );
+	//debugHooks[CONTROL_HASH]   = new Text( ".", 50,  150, -1, -1, 0, 4 );
+	
+	//setHelpText();
+	YAM_SetTitle();
+
+//		xx= getScreenHook( "hello", 200, 200 );	// sets hello text screenhook to 100,100
+//		yy= getScreenHook( "", 150, 150, 175, 175, 0x20, 0, 1, 1 );	// draws a box at 50,50,75,75, of white color and default opacity
+
+/*	while(1) {
+		try{
+			if( (hash=getAreaHash())!=lastHash ) {
+				changedArea( hash );
+			}
+		}
+		catch(e){
+			print(e);
+		}
+		debugHooks[CONTROL_HASH].text = "Hash: " + hash;
+		var mouseCoords = getMouseCoords();
+		debugHooks[MOUSE_COORDS].text = "Mouse: " + mouseCoords;
+		var rText = ".";
+		if(curHook!=-1) {
+			mouseCoords[0] -= screenHooks[curHook].control[1];
+			mouseCoords[1] -= screenHooks[curHook].control[2]-screenHooks[curHook].control[4];
+			rText = "Relative: " + mouseCoords;
+		}
+		debugHooks[MOUSE_RELATIVE].text = rText;
+		delay(20);
+	}*/
+}
+
+function blockKeyEvent( flag ) {
+	//blockEvent( EVENT_KEYDOWN, flag );
+	//blockEvent( EVENT_KEYUP, flag );
+	me.blockKeys = flag;	// keep from accidentaly going past the screen you are trying to get..
+	keyBlocked = flag;
+}
+
+function setHelpText() {
+	//debugHooks[HELP_TEXT].text = "F5  - reload\nF3  - dump\nÿc" + (keyBlocked ? 1 : 0 ) + "F2  - key block toggleÿc0\nTAB - next control";
+	debugHooks[HELP_TEXT].text = "test";
+}
+
+function changedArea( hash ) {
+	lastHash = hash;
+	curHook = -1;
+	
+	buildScreenHooks();
+	selectNextControl();
+}
+
+function buildScreenHooks() {
+	screenHooks.length = 0;
+	//runGC();
+	var i = 0;
+	var c = getControl();
+	if(c) do {
+		screenHooks[i] = new Text( "", c.x, c.y-c.ysize, c.x+c.xsize, c.y, 0x20, 0, 1, 0 );
+		// set some custom properties
+		screenHooks[i].control = [c.type, c.x, c.y, c.xsize, c.ysize];
+		screenHooks[i].cText = c.text;
+		
+		i++;
+	} while(c.getNext());
+	
+	totalControls = i;
+}
+
+function selectNextControl() {
+	if(screenHooks.length) {
+		if(curHook!=-1) screenHooks[curHook].opacity=0;
+		curHook++;
+		if(curHook == totalControls) curHook = 0;
+		screenHooks[curHook].opacity = 0x1;
+
+		updateControlData( curHook );
+	}
+}
+
+function updateControlData( index ) {
+	debugHooks[CONTROL_DATA].text = String( "Data: " + screenHooks[index].control );
+	debugHooks[CONTROL_TEXT].text = String( "Text: " + screenHooks[index].cText );
+}
+
+function getAreaHash() {
+	var hash = 0;
+	var c = getControl();
+	if(c) do {
+		hash ^= c.type*c.x*c.y*c.xsize*c.ysize;
+	} while(c.getNext());
+	return hash;
+}
+
+function keydownEvent( w, l ) {
+	switch(w) {
+		case 9: // tab
+			selectNextControl();
+			break;
+		case 113: // F2
+			blockKeyEvent( !keyBlocked );
+			setHelpText();
+			break;
+		case 114: // F3
+			// dump controls
+			load("tools/dumpcontrols.dbj");
+			break;
+		case 116: // F5
+			load("tools/debugControls.dbj");
+			stop();
+			break;
+		default:
+			//s.text = String(w);
+			break;
+	}
+}

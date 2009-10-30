@@ -1,0 +1,44 @@
+//////////////////////////////////////////////////////////
+//Coldplains module by tartarusspawn                    //
+//                                                      //
+//thanks to:TechnoHunter for his expert advice          //
+//////////////////////////////////////////////////////////
+entryFunc = Coldxp;
+
+function CheckForWP(wpWanted){
+	if(!wpWanted){
+		print("No WP wassed to function!");
+		return;
+	}
+	if(getWaypoint(wpWanted)) {
+		YAM_PathToWayPoint();
+		DM_UsePortal("Waypoint",0x03);
+		return;
+	}
+	GetColdWP();
+	return;
+)
+
+function GetColdWP(){
+	commPather.GotoLevel(2, 1, false);
+	commPather.GotoLevel(3, false, false);
+	commPather.GotoWarp(DP_WARPWAYPOINT, false, false);
+	//psuedo code - put the touch wp object here to make it GET the wp now that you are at the wp
+	//get tile for wp
+	//touch tile
+	//loop till wp menu is up
+	//cancel menu (wp gotten)
+}
+
+
+
+function Coldxp() {
+   if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) { 
+   	BuildSkeleArmy(); 
+   	} 
+// exit town
+	YAM_TownManager();
+	XP_Precasts();
+	checkwp()
+
+}

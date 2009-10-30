@@ -1,0 +1,149 @@
+// IMPORTANT: HOTIP has changed.  You need to:
+// - Add YAMXXP.push("HOTIP") in your char config
+// - Go to YAM_HOTIP.dbl (this file) and set YAM_FindIP_hell (or whichever you need) to true.
+// - Specify the IPs to look for in YAM_HOTIP.dbl
+
+// Original code by wurscht, modified by darkspirit into a YAMB module
+// Incorporates part of Kougio's YAMM code
+entryFunc = YAM_CheckIP;
+
+HotIP = new Array();
+
+// Server IP(s) to look for. Format is the last part without preceeding dot ONLY!
+// You can add as many lines as you want to look for multiple IPs.
+HotIP.push("46");
+HotIP.push("60");
+HotIP.push("82");
+//HotIP.push("30");
+//HotIP.push("256");	// Server with IP 256 doesn't exist so it will have no effect if you leave it there.
+
+// Look for the IP(s) specified above, in the corresponding difficulty level,
+// and print a mesage to the screen when found.  
+// The hot IP options will have no effect if all the difficulty level FindIP options
+// are set to false
+YAM_FindIP_normal    = true;
+YAM_FindIP_nightmare = true;
+YAM_FindIP_hell      = true;
+
+///////////////////////////// Do NOT Edit Below this Line! ///////////////////////
+
+
+function YAM_Idle() {	
+	_searchedIP    = "";
+	_idlestartTime = new Date();
+	_idlerunTime   = 0;
+	_pos_x         = me.x;
+	_pos_y         = me.y;
+	_tmpdate       = new Date();
+	_lastdate      = new Date() - 60000;
+	_foundgame     = "FOUND HOT IP: " + _IP + " " + me.realmshort + (me.playertype ? "(HC)":"(SC)") + " Game: " + me.gamename + "//" + me.gamepassword;
+	_oldmessage    = "";
+	// Set Max Game length to infinite so we dont time out
+	me.gamelength = 0;
+
+	// Set autostarter.dbj to rejoin the same game if we get disconnected
+	if (!DC_SendMsgToScript("scripts\\YAMBstarter.dbj","join " + me.gamename + "/" + me.gamepassword)) {
+y		print("ÿc1Failed sending msg to YAMBstarter.dbj!ÿc0");
+	}
+	// Set up YAMB gameMsgHandler to call GoldMsgHandler and update the soj counter
+	if (!YAM_MonitorDCloneMsg) {
+		DC_LoadInclude("YAMB/common/YAM-MonitorGoldMsg.dbl");
+		YAM_MonitorDCloneMsg = true;
+	}
+
+	YAM_MustIdle = true;
+
+	// Add the IP found screenhook
+	var IPfound_sh = getScreenHook(null);
+	IPfound_sh.x = 20;
+	IPfound_sh.y = 400;
+	IPfound_sh.font = 8;
+	IPfound_sh.color = 7;
+	IPfound_sh.text = "Gametime: \nSojcount:\nCurrent IP:\nSearched IP:\nPassword:\nGamename:\nWe found the IP for you ;)";
+	
+	// Create HotIPs String
+	for (xip = 0; xip < HotIP.length; xip++) { // Modified again, Fix for endless loop if YAM_MustIdle == true -TechnoHunter
+		if ((HotIP[xip] > 0) && (HotIP[xip] < 255)) 
+			_searchedIP = _searchedIP + String(HotIP[xip]) + " ";
+	}
+	
+	// Add the IP found screenhook number 2 (with the actual Data in it)
+	var IPfound2_sh = getScreenHook(null);
+	IPfound2_sh.x = 150;
+	IPfound2_sh.y = 400;
+	IPfound2_sh.font = 8;
+	IPfound2_sh.color = 13;
+	IPfound2_sh.text = "0 seconds\n" + _sojcount + "\n" + _IP + "\n" + _searchedIP + "\n" + me.gamepassword + "\n" + me.gamename;
+	
+	while(1) {
+		delay(rnd(300,500));
+		//for tests we log ingame messages to autod2jsp logfile (later we will do sojcount and d2walk checks here)
+		/*if (YAM_gamemessage != _oldmessage) {
+			_oldmessage = YAM_gamemessage;
+			DC_LogToautod2jsp("Ingamemessage: " + _oldmessage);
+		}*/
+		
+		//update IP found screenhook number 2
+		_idlerunTime = Math.round( (new Date().getTime() - _idlestartTime) /1000);
+		IPfound2_sh.text = _idlerunTime + " seconds\n" + _sojcount + "\n" + _IP + "\n" + _searchedIP + "\n" + me.gamepassword + "\n" + me.gamename;
+		// make an autod2jsp log entry every 2 minutes, this way autod2jsp will not kill the d2window
+		// after the "Freeze Timeout Threshold" is passed, as it resets the counter to zero pingtime
+		_tmpdate = new Date();
+		if (_tmpdate -_lastdate > 120000) {
+			_lastdate = _tmpdate;
+			DC_LogToautod2jsp(_foundgame + " SOJs: " + _sojcount + " Gametime: " + _idlerunTime);
+			//sendDDE(1, "autod2jsp", "command", "", "");
+		}
+		
+		// only move in a square of 21x21 pixel
+		if(rnd(1,50)==1) {
+			me.move(_pos_x+rnd(-10,10), _pos_y+rnd(-10,10));	
+		}
+	}
+}
+
+function YAM_CheckIP() {
+	if (!YAM_MustIdle) { // Do we want IP-Check in the difficulty lvl we are in atm?
+		switch(me.diff) {
+			case 0 : 
+				if (!YAM_FindIP_normal) { 
+					return; 
+				} 
+				break;
+			case 1 : 
+				if (!YAM_FindIP_nightmare) { 
+					return; 
+				} 
+				break;
+			case 2 : 
+				if (!YAM_FindIP_hell) { 
+					return; 
+				} 
+				break;
+			default : 
+				DC_ThrowException("YAM_CheckIP()","You disabled IP-Check for this difficulty lvl"); 
+				break;
+		}
+	}
+
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+
+	//Log IP to autod2jsp logwindow
+	DC_LogToautod2jsp("we are on IP: " + _IP);
+	for (xip = 0; xip < HotIP.length; xip++) { // Modified
+		if (YAM_MustIdle || HotIP[xip] == _IP) {  //darkycheckthisline
+			if (YAM_AlertOnHotIP == "mirc" || YAM_AlertOnHotIP == "both") {
+				_ipfoundtimestamp = DC_LeadDateAndTime();
+				sendDDE(1,"mIRC","command","","/beep 5 200");
+				sendDDE(1,"mIRC","command","","/echo 12 -a " + _ipfoundtimestamp + " HotIP ." + _IP + " : " + me.gamename + "/" + me.gamepassword + " found by " + me.name + " in " + me.windowtitle + " !!");
+			}
+			if (YAM_AlertOnHotIP == "bnet" || YAM_AlertOnHotIP == "both") {
+				say(YAM_SayCmdOnHotIP  + " HotIP ." + _IP + " : " + me.gamename + "/" + me.gamepassword + " found by " + me.name + " in " + me.windowtitle + " !!");
+			}
+			
+			//and now idle around ;)
+			YAM_Idle();
+		}
+	}
+}

@@ -1,0 +1,91 @@
+// Function by Xizeta
+// Re-written for new core pathing by TechnoHunter
+commonLib.PathAct4 = function() {
+	// Functions
+	this.GotoStash   = function(){ return commPather.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,103);}
+	this.GotoTyrael  = function(){ return commPather.GotoNPC(D2JSP_NPC_TYRAEL_ACT_4,103);}
+	this.GotoCain    = function(){ return commPather.GotoNPC(D2JSP_NPC_CAIN_ACT_4,103);}
+	this.GotoWP      = function(){ return commPather.GotoWaypoint(103);}
+	this.GotoJamella = function(){ return commPather.GotoNPC(D2JSP_NPC_JAMELLA,103);}
+	this.GotoHalbu   = function(){ return commPather.GotoNPC(D2JSP_NPC_HALBU,103);}
+	this.GotoStart   = function(){ return commPather.GotoDest(5048,5043);}
+	this.GotoExit    = function(){ return commPather.GotoDest(5168,5089);}
+}
+
+function YAM_Act4TownManager() {
+	if (_YAM_GoToHealer || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+		commTown4.GotoJamella();
+		YAM_NPCinteract(DC_getNPC(405));
+		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
+	}
+	if (_YAM_GoToRepair || NPCnum>=rnd(2,9)) {
+		commTown4.GotoHalbu();
+		YAM_NPCinteract(DC_getNPC(257));
+	}
+	if (DT_CheckMerc()) {
+		DC_Print("Need to go revive the mercenary :-/");
+		commTown4.GotoTyrael();
+		YAM_NPCinteract(DC_getNPC(367));
+	}
+	DT_CleanPotions(); // cleaning up potion in the inventry.
+	if (DT_CheckInventory() && ( YAM_EnableCubing || DT_CheckStash() ) ) {
+		DT_ClearInv();
+		commTown4.GotoStash();
+		YAM_NPCinteract(DC_getObject(267));
+		DSN_CheckGround(); // Check the ground to see if any nice item is dropped by accident
+	}
+}
+
+function YAM_NPCinteract4(npc) {
+	// Do stuff depending on which npc
+	switch (npc.classid) {
+		case 405:// Jamella
+			if (YAM_GambleIt) {
+				if (DC_MyGold() > YAM_GambleMinGold) {
+					DT_DoTrade(npc,1);
+					DT_GambleIt(npc);
+					DT_MenuCancel(npc,1);
+					DT_DoInteract(npc);
+					DT_MenuCancel(npc,1);
+				}
+			}
+			if (_XP_GetNumUnId > 0 || YAM_UseBeltManager || _YAM_NeedTP || _YAM_NeedKeys) { 
+				DT_DoTrade(npc); 
+			}
+			if (_XP_GetNumUnId > 0) { 
+				XP_DoCheckItems(npc); 
+			}
+			if (_YAM_NeedTP) {
+				_tptome = DT_GetTome(1);
+				if (_tptome) { 
+					if (!DT_FillTome(npc,1) && _tptome.getStat(70) < 1) {
+						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!"); 
+					}
+				}
+				else { 
+					if (!DT_BuyScrolls(npc,1,1)) {
+						DC_StopMessage("Failed to buy TP Scroll!"); 
+					}
+				}
+			}
+			if (_YAM_NeedKeys) { 
+				DT_BuyKeys(npc); 
+			}
+			if (YAM_UseBeltManager) { 
+				YAM_CheckBelt(npc); 
+			}
+			break;
+		case 257:// Halbu
+			DT_DoTrade(npc);
+			DT_RepairItems(npc);
+			if (DT_CheckAmmo()) { 
+				DT_BuyAmmo(npc); 
+			}
+			break;
+		case 367://Tyreal
+			if (!DT_ReviveMerc(npc)) { 
+				DC_Print("Failed to revive the mercenary!"); 
+			}
+			break;
+	}
+}

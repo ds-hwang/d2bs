@@ -1,0 +1,443 @@
+
+///// TEST: tbk cleaning, wirt leg pickup, skip, kingwatch stop lag
+
+//// TODO: fix the d2jsp-cubing lib (clearing cube very buggy, item loss, ui cancels, etc)
+var CowPortalMsg   = "cow up";
+var CowPortalReady = false;
+var myLeader       = Leaders[0]; // Take the first one by default
+
+entryFunc = DoCow;
+
+gameMsgExtendHandler = Cow_GameMsgHandler;
+
+
+
+function Cow_GameMsgHandler(sender, cmd, params, c) {
+	//me.overhead("sender: "+sender+" cmd: "+cmd+" params: "+params);
+	if (YAM_isMyLeader(sender)||YAM_isMyHelper(sender)) {
+		if (cmd+" "+params == CowPortalMsg)
+			CowPortalReady = sender;
+		else if (cmd == "bo" && (DA_UseCTA || DC_CheckSkill(149)) && !DC_InTown(me)) {
+			leader = getUnit(0, sender);
+			if (leader) {
+				x = me.x;
+				y = me.y;
+				DM_MoveTo(leader.x, leader.y);
+				_temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+				DM_MoveTo(x, y);
+			}
+		}
+	}
+}
+
+
+// Cow module configuration
+function YAM_InitCowConfig() {
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static      = 0;
+		XP_MinionStand = true;
+	}
+	XP_SwitchOnKill=false;
+	XP_QuitImmune=false;
+}
+
+function Cow_KingCheck(monster) {
+	if (Cow_NoKing && (SM_King || monster.spectype & 1))
+		DC_ThrowException("Cow", "King Found");
+}
+
+function Cow_KillKing() {
+	print("Are you nuts !?!");
+	SM_King=true;
+}
+
+function Cow_RoomCallback() {
+	//print("room " + room.number + " @ (" + room.x + ", " + room.y + ")");
+	Cow_StepCallback();
+}
+
+function Cow_StepCallback() {
+	i = 0;
+	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+	// Record our current coords so they can be restored
+	step_x = me.x;
+	step_y = me.y;
+	XP_ClearPosition(30,null,ATTACKING_MODE);
+	if (SM_King)
+		DC_ThrowException("Cow", "King Found");
+	XP_ClearPosition(30,null,ALIVE_MODE);
+	if (SM_King)
+		DC_ThrowException("Cow", "King Found");
+	if (YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+		YAM_SafeCheck();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (YAM_OpenChests) {
+		YC_MaxDistance = 19;
+		YC_CheckForChests();
+	}
+	if (YAM_UseShrines) { // if we find a shrine, use it before proceeding for an added bonus
+		DS_MaxDistance = 15;
+		DS_CheckForShrines();
+	}
+	// Restore our coords so the pather can continue
+	if (Math.abs(me.x - step_x) > 30 || Math.abs(me.y - step_y) > 30) {
+		if (DA_GetRangeXY(me,step_x,step_y) > 35) {
+			me.overhead("Returning to previous position.");
+			commPather.GotoDest(step_x,step_y);
+			DSN_PickItems(YAM_SafeCheck);
+		}
+		else {
+			DM_MoveTo(step_x,step_y);
+		}
+	}
+	me.overhead("Stepping ahead.");
+	return DP_STEPAHEAD; //ie. continue on
+}
+
+//// Make a DC_PickItem with this. Need to check if item is in walkable range first!
+function PickItem(item) {
+	for (var x=0; x < 3; x++) {
+		if (item.mode==3 || item.mode==5) {
+			while (me.mode == 7 || me.mode == 8 || (me.mode >= 10 && me.mode <= 16) || me.mode == 18) {
+				DC_DoDel(20);
+				_totaltime+=20;
+				if (_totaltime >= 1000) { break; }
+			}
+			if (me.mode == 7 || me.mode == 8 || (me.mode >= 10 && me.mode <= 16) || me.mode == 18)
+				continue;
+			DC_DoClick(0,0,item);
+			if (item.mode==0)
+				return true;
+		}
+	}
+	delay(200);
+	if (item.mode==0)
+		return true;
+	return false;
+}
+
+function Cow_GetLeg() {
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Stony Field
+	DM_UsePortal("Waypoint",0x04);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Move from WP to Cairn Stones
+	var stoneAlpha = getPresetUnits(me.area, 2, 17, null)[0];
+	if (typeof stoneAlpha.id == "undefined")
+		DC_ThrowException("YAM_Cow()", "Could not find location of Cairn Stones.");
+	commPather.InitType = 0;
+	commPather.GotoDest(stoneAlpha.roomx * 5 + 5, stoneAlpha.roomy * 5 + 5);
+	// Wait for red portal to open and monsters to move away from it
+	//// Add option to kill Raka instead
+	delay(750);
+	DM_MoveTo(stoneAlpha.roomx * 5 -5, stoneAlpha.roomy * 5 +10);
+	delay(500);
+	// Take portal to Tristram
+	DM_UsePortal("Portal", 38);
+	// Go besides Wirt's body
+	DM_MoveTo(25147,5087);
+	DM_MoveTo(25124,5091);
+	DM_MoveTo(25098,5091);
+	DM_MoveTo(25085,5085);
+	DM_MoveTo(25047,5090);
+	DM_MoveTo(25047,5115);
+	DM_MoveTo(25047,5143);
+	DM_MoveTo(25047,5166);
+	DM_MoveTo(25049,5177);
+	// Kill monsters around to be safe
+	XP_ClearPosition(20);
+	// Tele beside Wirt's body if I'm too far
+	if (Math.abs(25048 - me.x) > 5 || Math.abs(5181 - me.y) > 5)
+		DM_MoveTo(25048,5181);
+	wirtBody = null;
+	for (x=0; x < 5; x++) {
+		wirtBody=getUnit(2,268);
+		if (wirtBody)
+			break;
+		delay(50);
+	}
+	if (typeof wirtBody == "undefined")
+		DC_ThrowException("YAM_Cow()", "Could not find Wirt's body.");
+	// Interact with Wirt
+	for (x=0; x < 3 && wirtBody.mode != 2; x++) {
+		DC_DoClick(0,0,wirtBody);
+		delay(500);
+	}
+	wirtLeg = null;
+	for (x=0; x < 5; x++) {
+		wirtLeg=getUnit(4,"leg");
+  		if (wirtLeg)
+			break;
+		delay(50);
+	}
+	if (typeof wirtLeg == "undefined")
+		DC_ThrowException("YAM_Cow()", "Could not find Wirt's leg.");
+	PickItem(wirtLeg);
+	// Check for items
+	DSN_PickItems();
+}
+
+function Cow_OpenCowPortal() {
+	// Using d2jsp-cubing
+	if (typeof(DCU_ClearCube) == "undefined") {
+		DC_LoadInclude("YAMB/common/YAM-Cubing.dbl");
+		DCU_countrycode=1;
+	}
+	// Make 100% sure we have items because we crash if we don't, choose the right tome
+	extraTome = getUnit(4,"tbk");
+	while(extraTome) {
+		if (extraTome.mode == 0) {
+			if (extraTome.bodylocation == 0) {
+				var _ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
+				if (_ignoreitem) {
+					if (extraTome.getNext("tbk"))
+						continue;
+					else
+						extraTome=false;
+				}
+			}
+		}
+		else if (extraTome.mode == 3) {
+			PickItem(extraTome);
+			extraTome = getUnit(4,"tbk");
+			continue;
+		}
+		else {
+			if (extraTome.getNext("tbk"))
+				continue;
+			else
+				extraTome=false;
+		}
+		break;
+	}
+	if (!extraTome)
+		return "no tome.";
+	wirtLeg=getUnit(4,"leg");
+	if (wirtLeg) {
+		if (wirtLeg.mode != 0) {
+			if (wirtLeg.mode == 3) {
+				PickItem(wirtLeg);
+				wirtLeg=getUnit(4,"leg");
+				if (wirtLeg.mode != 0)
+					wirtLeg=false;
+			} else { wirtLeg=false; }
+		}
+	}
+	if (!wirtLeg)
+		return "no leg.";
+	mychest = getUnit(2,"bank");
+	if (!mychest)
+		return "no stash!";
+	mycube = getUnit(4, "box");
+	if (!mycube)
+		return "no cube. Cow module requires a cube to run !";
+	// Clear the cube of any items
+	DT_DoInteract(mychest);
+	DCU_CheckInventory();
+	DCU_ClearCube();
+	// Put leg and tome in cube
+	DCU_ReEnterStash();
+	DCU_MoveItemToCube(wirtLeg, 0, 0);
+	DCU_MoveItemToCube(extraTome, 1, 0);
+	// Transmute
+	DT_DoInteract(mycube);
+	DCU_UseCube();
+	DT_MenuCancel(mycube,0);
+	for (var x=1000; !getUIFlag(0x19) && x > 0; x-=25) { // Wait for stash UI to apear
+		delay(25);
+	}
+	DT_MenuCancel(mychest,0);
+	return "sucess";
+}
+
+function Cow_MooMoo() {
+	King = getUnit(1,"The Cow King");
+	if (King && getDistance(me, King) < 20) {
+		SM_King=true;
+	}
+	Cow_StepCallback();
+	if (PublicMode) {
+		say(Cow_PortalClearMsg); // Leecher monitors this message
+		if (me.getState(32) == 0) {
+			say("/w "+myLeader+" bo ");
+			delay(2000);
+		}
+		Cow_StepCallback();
+	}
+	commPather.InitType = 0;
+	commPather.ExploreLevel(false,Cow_StepCallback,Cow_RoomCallback);
+}
+
+function DoCow() {
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	if (Cow_OpenOnly && (me.getQuest(4,10) || !me.getQuest(40,0))) {
+		DC_ThrowException("YAM_Cow", "Cow_OpenOnly is set to true, but I have already completed that Quest or I have not killed Baal yet!");
+	}
+	if (me.getQuest(4, 10) || !me.getQuest(40,0)) {
+		print("I cant open the Cow Portal, so I can kill the Cow King!");
+		if (!WaitForPortal)
+			DC_ThrowException("YAM_Cow", "I can't open the Cow portal anymore !!");
+	}
+	else {
+		if (!Cow_NoKing && !Cow_OpenOnly) {
+			print("ÿc1I recommend that you stop the script now and set Cow_NoKing to true!ÿc0");
+			//Cow_NoKing = true; // I have not completed the quest, so dont kill King!
+		}
+	}
+	YAM_InitCowConfig();
+	if (!WaitForPortal) {
+		// Add leg into ignored items list for cow run duration
+		DT_IgnoredItems.push("leg");
+		// Check if we need to buy a TP book
+		var needTBK=true;
+		var extraTome=getUnit(4,"tbk");
+		var _ignoreitem;
+		do {	if (extraTome && extraTome.mode == 0) {
+				if (extraTome.bodylocation == 0) {
+					_ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
+					if (!_ignoreitem) {
+						needTBK=false;
+						break;
+					}
+				} else {
+					needTBK=false;
+					break;
+				}
+			} else if (extraTome && extraTome.mode == 3) {
+				if (PickItem(extraTome)) {
+					needTBK=false;
+					break;
+				}
+			}
+		} while(extraTome && extraTome.getNext("tbk"));
+		// Check if we need a leg
+		var needLeg=true;
+		var wirtLeg=getUnit(4,"leg");
+		if (wirtLeg) {
+			if (wirtLeg.mode == 0) {
+				needLeg=false;
+			} else if (wirtLeg.mode == 3) {
+				if (PickItem(wirtLeg))
+					needLeg=false;
+			}
+		}
+		// Go grab Wirt's leg if needed and make sure we are in Act 1
+		if (needLeg) {
+			YAM_PathToWayPoint();
+			Cow_GetLeg();
+			YAM_MakeTP();
+		} else if (me.act != 1) {
+			YAM_PathToWayPoint();
+			DM_UsePortal("Waypoint",0x01);
+		}
+		YAM_InitCommTown(); // Init commTown on first visit
+		// If we need a tpbook, go to Akara, buy a tp tome and do healer stuff too
+		if (needTBK) {
+			commTown.GotoAkara();
+			var npc = DC_getNPC(148);
+			if (!npc || !DT_DoInteract(npc)) DC_ThrowException("Cow", "Unable to interact with Akara !");
+			DT_DoTrade(npc);
+			if (_XP_GetNumUnId > 0) XP_DoCheckItems(npc);
+			var _tptome = DT_GetTome(1);
+			if (!_tptome) DT_BuyScrolls(npc,1,1);
+			else if (_tptome.getStat(70) < 7) DT_FillTome(npc,1);
+
+			var _tbk = DT_GetTome(1,npc.name);
+			if (_tbk) DT_BuyItem(_tbk,npc,2);
+
+			if (YAM_UseBeltManager) YAM_CheckBelt(npc);
+
+			DT_MenuCancel(npc,1);
+		}
+		// Go to stash
+		commTown.GotoStash();
+		// Open portal to Cow Level
+		var result = Cow_OpenCowPortal();
+		// There was an error opening portal, abort run
+		if (result != "sucess") {
+			// Drop any extra tbk
+			var extraTome = getUnit(4,"tbk", 0);
+			if (extraTome) { do {
+				if (extraTome.bodylocation == 0) {
+					var _ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
+					if (!_ignoreitem)
+						DT_DropItem(extraTome);
+				}
+			} while(extraTome && extraTome.getNext("tbk", 0)); }
+			DC_ThrowException("YAM_Cow()", "Error Opening Cow Portal : " + result);
+		}
+		// Remove leg from ignored items list
+		DT_IgnoredItems.pop();
+		for (var i=0; i < Leaders.length; i++) {
+			if (DC_PartyPlayer(Leaders[i])) break;
+		}
+		// Do not need to be in public mode to say that because
+		// you do not need to party the person who opens the cow portal
+		// in order to enter it.  This message is used for team bots. - darkspirit
+		say(CowPortalMsg);
+	}
+	else {
+		if (me.act != 1) {
+			YAM_PathToWayPoint();
+			DM_UsePortal("Waypoint",0x01);
+			YAM_InitCommTown(); // Init commTown on first visit
+		}
+		commTown.GotoStash();
+		print ("Waiting for Cow Portal...");
+		while (!CowPortalReady) { delay (1000); }
+		// The one who yells "cow up" becomes my true leader
+		if (CowPortalReady) myLeader = CowPortalReady;
+		// Make sure to party the leader
+		if (!DC_PartyPlayer(myLeader)) {
+			// If failed to party, choose another leader
+			for (var i=0; i < Leaders.length; i++) {
+				if (DC_PartyPlayer(Leaders[i])) { myLeader=Leaders[i]; break; }
+			}
+		}
+	}
+	if (!Cow_OpenOnly) {
+		// Do rest of town stuff if needed
+		YAM_TownManager();
+		commTown.GotoStash();
+		// Load King watch if we don't want him dead
+		if (Cow_NoKing)
+			load("tools/YAM-KingWatch.dbj");
+		// Do precasts before going into the portal
+		XP_Precasts();
+		// Take the portal to cow level
+		DM_UsePortal("Portal", 39);
+		// Do precasts after going into the portal
+		XP_Precasts();
+		// Clear the cow level
+		try {
+			Cow_MooMoo();
+		}
+		catch (e if e instanceof DC_ExceptionClass) {
+			if (e.message != "King Found")
+				throw e;
+			else {
+				print("Cow King Found!  Ending Cow module!");
+				DC_LogToautod2jsp("Cow King Found!  Ending Cow module!");
+			}
+		}
+		DSN_PickItems();
+		YAM_MakeTP();
+		DL_AddKill();
+		// Stop King Watch
+		if (Cow_NoKing) {
+			if (DC_StopScript("YAM-KingWatch.dbj"))
+				print("King Watch stopped");
+		}
+	}
+}

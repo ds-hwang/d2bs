@@ -1,0 +1,61 @@
+You need 2 CD-keys and preferably 2 PCs, each with an installation of diablo 
+and working d2jsp.  If you dont have that, then you dont have the resources to 
+make this work.
+
+Remember to define your leaders in the libs/YAMB/configs/YAM_Leaders.d2l file first! 
+
+Every bot in your team is a leader so it is peer-to-peer. 
+Although you can define it differently too since each char config file has this line: 
+
+DC_LoadInclude("YAMB/configs/YAM_Leaders.d2l"); 
+
+You can play around with its flexibility if you know what you are doing. 
+
+You should also make your team bots as bnet friends now since YAM_UseFriendsList is set to true by default. 
+
+So every bot is a leader. If you want one char to wait for a tp, set WaitForPortal to true. 
+It will also wait for a portal if you dont have teleport for baal. 
+
+I have also created a universal parasite YAMB module (YAM_Parasite.d2l):
+
+// This is the universal leecher module that works across acts and also 
+// with different bosses.  The leecher would have lifewatch running and 
+// buy pots that it needs. 
+
+// Preparation: Give leecher afew thousand in gold so he can buy pots and tp scrolls 
+//              Fill his belt with pots (preferably rejuv pots) 
+//              Give him a full tp tome (so he can tp to town if in trouble) 
+//      If he has a merc, even better (make sure he doesnt draw monsters though) 
+//              Leecher would precast, whatever that does and configured for him 
+
+// Note: Special Throne room (area 131) coords supplied by theaxis. 
+//       Otherwise the leecher will stick close to the tp. 
+//       It is the responsibility of the Leader to clear the tp area.
+ 
+Use that for the leecher, and make sure you set PublicMode to 2 for both leecher and leader.
+
+Current Leecher module works only if leader is using Baal (with PublicMode set to 2) and Cow, but we can enable it for 
+other modules in the near future. 
+
+The team botting works for Baal, Diablo, and Cow (1 bot has to have WaitForPortal set to true, while the other will 
+get the leg and open a cow tp). The Cow module automatically buys a tp tome now and uses the extended game msg handler 
+to recognize module specific commands like "cow up" to automatically enter the cow portal. 
+
+For Baal, if your char doesnt have teleport, it will automatically WaitForPortal while the other bot can teleport and 
+open a tp for him.  Similarly for Diablo.
+
+================================================================================
+
+Ok, here is the deal between leecher bot and team bots. 
+
+1) Leecher bot: They DO NOT attack, they leech. Use the YAM_Parasite module. Remember Parasite = Leecher. 
+
+2) Team bots: They ATTACK. Use the same module. For example, both chars have to use the Baal module if you want to team up Baal run, if you dont want the other char to teleport down to baal too, set WaitForPortal to true for him. 
+
+Why? Because only the specific module knows how to attack and move the chars in that area so if it is attacking that you want you NEED both of them to use the same module. 
+
+For Leeching it is very simple, just go down the tp and stay there so, I can make a special module (YAM_Parasite) just for it.
+
+To use the Parasite module just put this at the top of your char config file:
+
+YAMXXP.push("Parasite");

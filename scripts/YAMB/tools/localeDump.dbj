@@ -1,0 +1,37 @@
+// filename :: localeDump.dbj
+// purpose :: create a file dump of ALL locale strings in D2, to allow proper non-english script making
+// author :: TechnoHunter
+// works in :: d2bs
+
+
+function main() {
+	var savefile = "output/getLocaleString.txt";
+	var file = File.open(savefile, FILE_WRITE);
+	if (!file) {
+		print("unable to open file !");
+		stop();
+	}
+	// Last entry in the resulting file that is NOT a line with "Ith" is 22817, Ith being the default no value statement
+	for (var i=0;i<22818;i++){
+		file.write(" <" + i + ">" + "\t" + String(getLocaleString(i)).replace(/\n/g," - ") + "\n");
+	}
+	file.close();
+	print("file writing done");
+}
+
+
+
+function NTMain() {
+	var savefile = "output/getLocaleString.txt";
+	var file = FileOpen(savefile, 1);
+	if (!file) {
+		Print("unable to open file !");
+		Stop();
+	}
+	// Last entry in the resulting file that is NOT a line with "Ith" is 22817, Ith being the default no value statement
+	for (var i=0;i<22818;i++){
+		file.Write(" <" + i + ">" + "\t" + String(getLocaleString(i)).replace(/\n/g," - ") + "\n");
+	}
+	file.Close();
+	Print("file writing done");
+}

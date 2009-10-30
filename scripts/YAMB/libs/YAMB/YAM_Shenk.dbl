@@ -1,0 +1,189 @@
+// Modified for non-tele chars by keksdosendieb
+
+entryFunc = ShenkXP;
+
+/* TODO
+-Shenk sometimes like to run away for no reason, completly out of range. Stop attacking and skip then.
+	Other option is to follow but that's more of a trap since he goes way down and there are too many monsters.
+-Shenk is sometimes killed by clear location routine. 
+	1) skip shenk in ClearLocation routine and
+	2) break it when shenk dies because it seems they are still detected if "killed by shenk"
+-Either temp enable DSN_UsePathing or lower DSN range before shenk pickup because obstacles 
+	and trying to pick up stuff monsters drop causes problems.
+-Pick up potions after first clear position because when a unique pack is there they sometimes 
+	take out many pots
+-Skip going in town between eld and shenk if they are one after the other and we don't need it.
+
+*/
+
+var havetele=false;  // default not cause i like amazons for shenk
+
+
+function SXP_GoToShenk() {
+   if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck); }
+	DM_MoveTo(3797,5102,true); //above stairs
+	if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck); }
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (!SXP_Kamikaze && ShenkSafeCheck) { 
+		if (YAM_SafeCheck()) 
+			XP_Precasts(); 
+	}
+	DM_MoveTo(3820,5106,true); //middle stairs
+	if (!SXP_Kamikaze) { 
+		XP_ClearPosition(15); 
+		DSN_PickItems(YAM_SafeCheck); 
+	}
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (!SXP_Kamikaze && ShenkSafeCheck) { 
+		if (YAM_SafeCheck()) 
+			XP_Precasts(); 
+	}
+	DM_MoveTo(3841,5120,true); //bottom stairs
+	if(havetele){//right of stairs
+		DM_MoveTo(3849,5100,true);
+	} 
+	if (!SXP_Kamikaze) { 
+		XP_ClearPosition(15); 
+		DSN_PickItems(YAM_SafeCheck); 
+	}
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (!SXP_Kamikaze && ShenkSafeCheck) { 
+		if (YAM_SafeCheck()) 
+			XP_Precasts(); 
+	}
+
+	if(!havetele){//below stairs
+		DM_MoveTo(3860,5118,true); 
+		DM_MoveTo(3871,5114,true);   
+	}
+	else {// right side
+		DM_MoveTo(3867,5094,true); 
+	}
+	if (!SXP_Kamikaze) { 
+		XP_ClearPosition(20); 
+		DSN_PickItems(YAM_SafeCheck); 
+	}
+}
+
+function SXP_AttackShenk() {
+	// Detecting Shenk with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(479,0x01);
+		if (target) { 
+			break; 
+		}
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		// if we find a chest, open it
+		if (YAM_OpenChests) {
+			YC_MaxDistance = 19;
+			YC_CheckForChests();
+		}
+
+		// Check health/mana, belt and if cursed, go to healer if needed
+		if (!SXP_Kamikaze && ShenkSafeCheck && target.hp > 0) { 
+			if (YAM_SafeCheck()) 
+				XP_Precasts(); 
+		}
+		// if we find a shrine, use it before going to shenk for a added bonus
+		if (YAM_UseShrines) {
+			DS_MaxDistance = 19;
+			DS_CheckForShrines();
+		}
+		// Move to final spot
+		//DM_MoveTo(3884 - SXP_OffsetX,5115 - SXP_OffsetY);
+		//DM_MoveTo(3885 - SXP_OffsetX,5090 - SXP_OffsetY,true);
+		if (!SXP_Kamikaze) {
+			if (XP_KillMinions) {
+				delay(20);
+				// Wait a while until we kill some minions
+				XP_MinionStand = true;
+				XP_ClearPosition(30,target,ATTACKING_MODE,479);
+				XP_ClearPosition(30,target,ATTACKING_MODE);
+				XP_ClearPosition(30,target,ALIVE_MODE,479);
+				var i = 0; // counter to make sure we dont go on an infinite loop!
+				do { 
+					delay(50); 
+					i+=1; 
+				} while (!XP_ClearPosition(30,target,ALIVE_MODE) && i < 3);
+				DSN_PickItems(YAM_SafeCheck);
+				// Check health/mana, belt and if cursed, go to healer if needed
+				if (ShenkSafeCheck && target.hp > 0) { 
+					if (YAM_SafeCheck()) 
+						XP_Precasts(); 
+				}
+			}
+		}
+		else {
+			if(havetele){
+				DM_MoveTo(target.x,target.y,true);
+			}
+		}
+		print("Killing Shenk the Overseer...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+		print("Shenk the Overseer killed !");
+		if (XP_KillMinions) {
+			XP_MinionStand=false;
+			XP_ClearPosition(20,null,ATTACKING_MODE);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+      	delay(3000); 
+		target=false;
+	} else {
+		print("Shenk not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function ShenkXP() {
+	// Configure Shenk specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(SXP_SorcSkill.length > 0) ? XP_SetSorcSkills(SXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = SXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP         = SXP_SwitchHP;
+	XP_StallHP          = SXP_StallHP;
+	XP_StallKill        = SXP_StallKill;
+	XP_QuitImmune       = SXP_QuitImmune;
+	XP_MinionStand      = false;
+	if (me.classid == 3) { 
+		XP_KillMinions = false; 
+	}
+	// Check if have teleport
+	if (DM_CheckTeleport()) {
+		havetele = true;  
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+	BuildSkeleArmy();
+	}
+	if(me.area != 111){
+		// Do town stuff in the act we are in
+		YAM_TownManager();
+		YAM_PathToWayPoint();
+		// Do precasts before going into the portal
+		XP_Precasts();
+		// Take WP to Frigid
+		DM_UsePortal("Waypoint",0x6f);
+	}
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Path to Shenk
+	SXP_GoToShenk();
+	// Go Kill Shenk
+	if (SXP_AttackShenk()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog(); 
+	}
+}

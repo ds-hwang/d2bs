@@ -1,0 +1,14 @@
+
+function keyupHandler(keyup){
+	print(keyup);
+}
+
+function main(){
+	addEventListener(EVENT_KEYUP, keyupHandler);
+	print("key up tester running!");
+
+	while(1){
+		delay(100);
+	}
+}
+

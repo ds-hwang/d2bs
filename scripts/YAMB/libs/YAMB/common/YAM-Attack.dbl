@@ -1,0 +1,624 @@
+
+// Private variables
+var _XP_AttackCompleted = 0;
+var _XP_EndPosition;
+var ignoreKorpse   = new Array();
+var _XP_haveTimed   = false;
+var _XP_haveUntimed = false;
+
+///////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// YAMB-attack /////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////// Precasts ////////////////////////////////////////
+
+function DA_UseCTASkills() {
+	if(DA_UseCTA && me.classid != 4 && !DC_InTown(me)) {
+		DA_BOSwitch("bo");
+		DC_DoCast(155,0);
+		var ret = DC_DoCast(149,0);
+		DA_BOSwitch("attack");
+		if(ret) { 
+			while (me.getState(32) == 0) { 
+				delay(30); 
+			}
+		}
+		MaxLife = me.hpmax;
+	}
+}
+
+function DA_BOSwitch(which) {
+	var _adder       = 0;
+	var _mainbo      = 0;
+	var _switchbo    = 0;
+	var _switchavail = false;
+	var _weapon      = DC_getItem(null, 1);
+	if(_weapon) { 
+		do {
+			if(DC_CheckOwner(_weapon)) {
+				// If first weapon tab
+				if(_weapon.bodylocation == 4 || _weapon.bodylocation == 5) {
+					if(_weapon.getFlag(0x4000000)) { 
+						_adder = parseInt(_weapon.getStat(97, 149), 10); // DA_CheckRunewordSkill(_weapon, 149, 97); 
+					}
+					else {
+						_adder = _weapon.getStat(107, 149);
+						if(me.classid == 4 && DC_CheckSkill(149)) {
+							// + warcries
+							if(_weapon.getStat(188,34)) {
+								if(_adder) _adder =+ _weapon.getStat(188,34);
+								else _adder = _weapon.getStat(188,34);
+							}
+							// + barb skill
+							if(_weapon.getStat(83,4)) {
+								if(_adder) _adder =+ _weapon.getStat(83,4);
+								else _adder = _weapon.getStat(83,4);
+							}
+							// + all skill
+							if(_weapon.getStat(127)) {
+								if(_adder) _adder =+ _weapon.getStat(127);
+								else _adder = _weapon.getStat(127);
+							}
+						}
+					}
+					if(_adder) { 
+						_mainbo += _adder; 
+					}
+				}
+				// If second weapon tab
+				if(_weapon.bodylocation == 11 || _weapon.bodylocation == 12) {
+					_switchavail = true;
+					if(_weapon.getFlag(0x4000000)) { 
+						_adder =  parseInt(_weapon.getStat(97, 149), 10); //DA_CheckRunewordSkill(_weapon, 149, 97); 
+					}
+					else {
+						_adder = _weapon.getStat(107, 149);
+						if(me.classid == 4 && DC_CheckSkill(149)) {
+							// + warcries
+							if(_weapon.getStat(188,34)) {
+								if(_adder) _adder =+ _weapon.getStat(188,34);
+								else _adder = _weapon.getStat(188,34);
+							}
+							// + barb skill
+							if(_weapon.getStat(83,4)) {
+								if(_adder) _adder =+ _weapon.getStat(83,4);
+								else _adder = _weapon.getStat(83,4);
+							}
+							// + all skill
+							if(_weapon.getStat(127)) {
+								if(_adder) _adder =+ _weapon.getStat(127);
+								else _adder = _weapon.getStat(127);
+							}
+						}
+					}
+					if(_adder) { 
+						_switchbo += _adder; 
+					}
+					//_switchbo += _weapon.getStat(107, 149);
+				}
+			}
+		} while (_weapon.getNext(null, 1)); 
+	}
+	if(_switchavail) {
+		DC_DPrint("Your actual BO level is " + _mainbo + ", your weapon switch has level " + _switchbo + " BO !");
+		if(_mainbo > _switchbo && which == "attack") {
+			DC_DPrint("switching to Attack");
+			DC_DoWeaponSwitch();
+		}
+		if(_mainbo < _switchbo && which == "bo") {
+			DC_DPrint("switching to BO/CTA");
+			DC_DoWeaponSwitch();
+		}
+	}
+}
+
+// -item	Item object to get stats
+// Return value : Stats list of the item to make it look like getStat(-1)
+function DA_CreateRunewordStatList(item) {
+	var _statlist        = item.getStat(-2);
+	var _orderedstatlist = false;
+	if(_statlist) {
+		_orderedstatlist = new Array();
+		for(var stat = 0; stat < 358; stat += 1) {
+			if(stat in _statlist) {
+				for( substat in _statlist[stat] ) {
+					_orderedstatlist.push([stat, substat, _statlist[stat][substat]]);
+				}
+			}
+		}
+	}
+	return _orderedstatlist;
+}
+
+// -item = UNIT		the item to check (eg a cta-weapon)
+// -whichstat = INT	ID of the skill (eg 149 for Battle Orders)
+// -stattype = INT	type of the stat (eg 97, where the 149 on a cta is located)
+// Return value :
+function DA_CheckRunewordSkill(item, whichstat, stattype) {
+	var _itemstats = DA_CreateRunewordStatList(item);
+	if(_itemstats) {
+		for(var x = 0; x < _itemstats.length; x += 1) {
+			if(_itemstats[x][0] == stattype && _itemstats[x][1] == whichstat) {
+				return parseInt(_itemstats[x][2],10);
+			}
+		}
+	}
+	return false;
+}
+
+
+////////////////////////////////// Immunities check //////////////////////////////////
+
+function DA_LogChicken(string) {
+	if(DA_LogChickens) {
+		DC_WriteLogEntry(DA_ChickenLogPath,string);
+		DC_LogToautod2jsp(string);
+	}
+}
+
+function DA_CheckImmunities(enemy) {
+	if(!enemy) {
+		DC_DPrint("DA_CheckImmunities() : No enemy object entered!");
+		return false;
+	}
+	var _immunecheck = new Array(7);
+	var _enchantmentcheck = new Array(13);
+	var _auracheck = new Array(8);
+
+	_immunecheck[1]=new Array(36,"immune to Physical");
+	_immunecheck[2]=new Array(37,"immune to Magic");
+	_immunecheck[3]=new Array(39,"immune to Fire");
+	_immunecheck[4]=new Array(41,"immune to Lightning");
+	_immunecheck[5]=new Array(43,"immune to Cold");
+	_immunecheck[6]=new Array(45,"immune to Poison");
+
+	_enchantmentcheck[1]=new Array(5,"Extra Strong");
+	_enchantmentcheck[2]=new Array(6,"Extra Fast");
+	_enchantmentcheck[3]=new Array(7,"Cursed");
+	_enchantmentcheck[4]=new Array(8,"Magic Resistant");
+	_enchantmentcheck[5]=new Array(9,"Fire Enchanted");
+	_enchantmentcheck[6]=new Array(17,"Lightning Enchanted");
+	_enchantmentcheck[7]=new Array(18,"Cold Enchanted");
+	_enchantmentcheck[8]=new Array(25,"Mana Burn");
+	_enchantmentcheck[9]=new Array(26,"Teleportation");
+	_enchantmentcheck[10]=new Array(27,"Spectral Hit");
+	_enchantmentcheck[11]=new Array(28,"Stone Skin");
+	_enchantmentcheck[12]=new Array(29,"Multi-Shot");
+
+	_auracheck[1]=new Array(28,"Conviction Aura Enchanted");
+	_auracheck[2]=new Array(33,"Might Aura Enchanted");
+	_auracheck[3]=new Array(35,"Holy Fire Aura Enchanted");
+	_auracheck[4]=new Array(40,"Blessed Aim Aura Enchanted");
+	_auracheck[5]=new Array(43,"Holy Freeze Aura Enchanted");
+	_auracheck[6]=new Array(46,"Holy Shock Aura Enchanted");
+	_auracheck[7]=new Array(49,"Fanaticism Aura Enchanted");
+
+	var _chickenstring;
+
+	// Check for immunities
+	for(var i = 1; i <= 6; i+=1) {
+		if(DA_IsImmuneTo(enemy,i) && DA_Immunities[i]) {
+			_chickenstring = "Chicken : " + enemy.name + " is " + _immunecheck[i][1] + "!!!";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	// Check for immunities combos if there is a list
+	for(var i = 1; i < DA_ImmunitiesCombo.length; i+=1) {
+		if((enemy.getStat(_immunecheck[DA_ImmunitiesCombo[i][0]][0]) > 99) && (enemy.getStat(_immunecheck[DA_ImmunitiesCombo[i][1]][0]) > 99) && DA_ImmunitiesCombo[i][2]) {
+			_chickenstring = enemy.name + " is both " + _immunecheck[DA_ImmunitiesCombo[i][0]][1] + " and " + _immunecheck[DA_ImmunitiesCombo[i][1]][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	// Check for enchantments
+	for(var i = 1; i <= 12; i+=1) {
+		if((enemy.getEnchant(_enchantmentcheck[i][0])) && DA_Enchantments[i]) {
+			_chickenstring = enemy.name + " is " + _enchantmentcheck[i][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	for(var i = 1; i < DA_EnchantmentsCombos.length; i+=1) {
+		if((enemy.getEnchant(_enchantmentcheck[DA_EnchantmentsCombos[i][0]][0])) && (enemy.getEnchant(_enchantmentcheck[DA_EnchantmentsCombos[i][1]][0])) && DA_EnchantmentsCombos[i][2]) {
+			_chickenstring = enemy.name + " is both " + _enchantmentcheck[DA_EnchantmentsCombos[i][0]][1] + " and " + _enchantmentcheck[DA_EnchantmentsCombos[i][1]][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	for(var i = 1; i <= 7; i+=1) {
+		if((enemy.getState(_auracheck[i][0])) && (DA_Auras[i] == true)) {
+			_chickenstring = enemy.name + " is " + _auracheck[i][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	for(var i = 1; i < DA_EnchantAuraCombos.length; i+=1) {
+		if((enemy.getEnchant(_enchantmentcheck[DA_EnchantAuraCombos[i][0]][0])) && (enemy.getState(_auracheck[DA_EnchantAuraCombos[i][1]][0])) && DA_EnchantAuraCombos[i][2]) {
+			_chickenstring = enemy.name + " is both " + _enchantmentcheck[DA_EnchantAuraCombos[i][0]][1] + " and " + _auracheck[DA_EnchantAuraCombos[i][1]][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	for(var i = 1; i < DA_ImmunityAuraCombos.length; i+=1) {
+		if((DA_IsImmuneTo(enemy,_immunecheck[DA_ImmunityAuraCombos[i][0]][0])) && (enemy.getState(_auracheck[DA_ImmunityAuraCombos[i][1]][0])) && DA_ImmunityAuraCombos[i][2]) {
+			_chickenstring = enemy.name + " is both " + _immunecheck[DA_ImmunityAuraCombos[i][0]][1] + " and " + _auracheck[DA_ImmunityAuraCombos[i][1]][1] + " !! Skipping...";
+			print(_chickenstring);
+			DA_LogChicken(_chickenstring);
+			return true;
+		}
+	}
+	// If the user want to see the list of immunities, enchantments and auras, display it
+	if(DA_DisplayImmunities) {
+		var _ioutput = enemy.name + " is";
+		var _eoutput = enemy.name + " is enchanted with";
+		var _aoutput = enemy.name + " has the auras";
+
+		for(var d = 1; d <= 6; d+=1) {
+			if(enemy.getStat(_immunecheck[d][0]) > 99) {
+				_ioutput+="ÿc@, ÿc1"+_immunecheck[d][1];
+			}
+		}
+		for(var d = 1; d <= 12; d+=1) {
+			if(enemy.getEnchant(_enchantmentcheck[d][0])) {
+				_eoutput+="ÿc@, ÿc7"+_enchantmentcheck[d][1];
+			}
+		}
+		for(var d = 1; d <= 7; d+=1) {
+			if(enemy.getState(_auracheck[d][0])) {
+				_aoutput+="ÿc@, ÿc8"+_auracheck[d][1];
+			}
+		}
+		// If there is something added on the line, display it
+		if(_ioutput != enemy.name + " is") 
+			DC_Print(_ioutput);
+		if(_eoutput != enemy.name + " is enchanted with") 
+			DC_Print(_eoutput);
+		if(_aoutput != enemy.name + " has the auras") 
+			DC_Print(_aoutput);
+	}
+	return false;
+}
+
+
+////////////////////////////////// General Attack Functions //////////////////////////////////
+
+function DA_IsImmuneTo(enemy, type) {
+	if(!enemy) {
+		DC_DPrint("DA_IsImmuneTo() : No enemy object entered!");
+		return false;
+	}
+	if(!type) {
+		DC_DPrint("DA_IsImmuneTo() : You must specify a immunity type to check!");
+		return false;
+	}
+	switch(type) {
+		case 1: // Physical
+			if(enemy.getStat(36) > 99) { return true; }
+			break;
+		case 2: // Magic
+			if(enemy.getStat(37) > 99) { return true; }
+			break;
+		case 3: // Fire
+			if(enemy.getStat(39) > 99) { return true; }
+			break;
+		case 4: // Lightning
+			if(enemy.getStat(41) > 99) { return true; }
+			break;
+		case 5: // Cold
+			if(enemy.getStat(43) > 99) { return true; }
+			break;
+		case 6: // Poison
+			if(enemy.getStat(45) > 99) { return true; }
+			break;
+		case 0:
+			return true;
+	} 
+	return false;
+}
+
+function DA_GetRange(object) {
+	// Return the calculated range
+	return getDistance(me,object );
+}
+
+function DA_GetRangeXY(object, x, y) {
+	var _xdiff   = Math.abs(x - object.x);
+	var _ydiff   = Math.abs(y - object.y);
+	var _xyrange = Math.sqrt((_xdiff * _xdiff) + (_ydiff * _ydiff));
+	// Return the calculated range
+	return parseInt(_xyrange,10);
+}
+
+function DA_CountMinions(classid) {
+	var _numminions = 0;
+	// Count while we have minions of the same classid
+	var _minion = DC_getNPC(classid);
+	if(_minion) { 
+		do {
+			if(_minion.mode != 0 && _minion.mode != 12 && DC_CheckOwner(_minion)) { 
+				_numminions+=1; 
+			}
+		} while(_minion.getNext(classid)); 
+	}
+	// Return the number of minions
+	return _numminions;
+}
+
+// return -1 => i do not know, but probably not attackable
+// return 0 => unattackable
+// return 1 => normal attackable
+// return 2 => boss attackable
+// monster ID
+//c_DaeClassID_Mephisto = 242; // attackable
+//c_DaeClassID_Nihlathak = 526; // attackable
+//c_MonsterClassID_Baal_Throne = 543; // unattackable
+//c_DaeClassID_Baal = 544; // attackable
+// objects
+//c_ObjClassID_The_Worldstone_Chamber = 563;
+
+function DA_CheckMonster(monster) {
+	if(!monster || monster.mode == 12 || monster.hp <= 0)
+		return 0; 
+	// check the alignment
+	if( monster.getStat(172) == 2 || monster.getState(105) == 0 ) 
+		return 0;
+	// Use NeverCount base monstat for traps, hydra, etc.
+	if(getBaseStat(1,monster.classid,23)) 
+		return 0;
+	var merc = DC_GetMerc();
+	if(merc && monster.name == merc.name)
+		return 0;
+	if(monster.classid > 573)
+		return -1;
+	// If it is Baal on the throne before the Worldstone Chamber, return 0
+	if(monster.classid==543 || (monster.classid > 515 && monster.classid < 520))
+		return 0;
+	if(monster.name=="Valkyrie" || monster.name=="Decoy") 
+		return 0;
+	if(monster.spectype & 1 || monster.spectype & 4)
+		return 2;
+
+	return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// XP Attack //////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////// General Functions //////////////////////////////////
+
+function XP_Coord(x,y) {
+	this.x = x;
+	this.y = y;
+}
+
+function XP_CheckAttacks() {
+	_XP_AttackCompleted+=1;
+	if(_XP_AttackCompleted >= XP_MaxAttacks) {
+		DSN_PickItems(YAM_SafeCheck);
+		DC_ThrowException("XP_CheckAttacks()","Maximum number of attacks reached!");
+		return;
+	}
+}
+
+// Sumo: added meph's cold orb detection.
+function XP_CheckUtil(target) {
+	var _merc;
+	var needdodging = false;
+	// If the target died, no need to check further
+	if(target.hp < 1 || !getUnit(1,null,null,target.gid))
+		return true;
+	if(_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)
+		YAM_SafeCheck();
+	// If we want to use the Meph dodge function, check if we need to dodge
+	if(MXP_MephDodge && target.classid == 242) {
+		//var _mephdist = DM_Dist(me.x,me.y,target.x,target.y);
+		var _mephdist = getDistance(me, target);
+		if(target.mode == 5) {	// meph ready to cast missile.
+			var orb = 0;
+			for(var i=0; i < 3 && !needdodging; i+=1) {	// extra try for orb detection.
+				orb = getUnit(3);
+				if(orb) { // detecting missile type.
+					do {
+						if(orb.classid == 276) {	// found cold orb from meph.
+							DC_Print("Incoming missile...");
+							needdodging = true;
+							break;
+						}
+					} while (orb.getNext());
+				}
+			}
+		}
+		if(_mephdist < MXP_MinRange || _mephdist > MXP_MaxRange || needdodging) {
+			XP_DodgeMeph(target);
+			if(needdodging && me.getState(11) != 0) {
+				me.overhead("Ouch!!");
+				DC_Print("OMG, WTF, LAGGG!!!, this PC is slow like a piece of shitz!");
+			}
+			else if(needdodging && (me.getState(11) == 0)) {
+				DC_Print("Ha ha ha, you can't get me!!!");
+				needdodging = false;
+			}
+		}
+	}
+	// If we want to switch weapons for the final blow, do it
+	if(XP_SwitchOnKill && target.hp <= XP_SwitchHP) {
+		if(!DC_SelectTab(0)) {
+			DC_Print("WARNING : Your MF tab is the same as the attack tab! Setting XP_SwitchOnKill to false");
+			XP_SwitchOnKill = false;
+		}
+	}
+	// if we want to let the merc land the final blow, stall
+	if(XP_StallKill) {
+		_merc = DC_GetMerc();
+		if(_merc && target.hp <= XP_StallHP && !(target.getStat(36) > 99 && XP_StallSkipPhys)) {
+			XP_StallKill=false;
+			DC_Print("Stalling for merc to kill " + target.name);
+			for(var ty = 0; ty < 400; ty+=1) {
+				DM_CheckPosition(target.x, target.y);
+				DSN_PickItems();
+				// Set redemption on the right hand
+				if(DC_CheckSkill(113))
+					DC_PutSkill(113,0);
+				if(target.hp <= 0)
+					return true;
+				DC_DoDel(20);
+			}
+		}
+	}
+	// Correct the position if we are not using the Meph dodge function and we are sorc.
+	if(me.classid == 1 ) {
+		if((!MXP_MephDodge && !MXP_DoMoat) || target.classid != 242) {
+			//if(XP_BossLOS && (checkCollision(me,target,6) || ((Math.abs(me.x - target.x) > 30) || (Math.abs(me.y - target.y) > 30)))) {
+			if(XP_BossLOS && (checkCollision(me,target,6) || getDistance(me, target) > 30)) {
+				DC_Print ("No direct LOS or target too far, moving closer...");
+				if(!_XP_haveTimed && !_XP_haveUntimed)	{
+					DM_MoveTo (target.x, target.y, true);
+				}
+				else {
+					DM_MoveTo (target.x+rnd(-7,7), target.y+rnd(-7,7), true);
+				}
+			}
+		}
+		else if(MXP_DoMoat && target.classid == 242) {
+			_merc = DC_GetMerc();
+			//if(_merc && ((Math.abs(me.x - _merc.x) > 5) || (Math.abs(me.y - _merc.y) > 5))) {
+			if(_merc && getDistance(me, _merc) > 5) {
+				DC_DoCast(54,0,_XP_EndPosition.x,_XP_EndPosition.y);
+			}
+		}
+	}
+	return false;
+}
+
+/*
+  |`````|`````|
+  |  2  |  3  |
+  |   |`|`|   |
+ y|---+-+-+---|
+  |   |_|_|   |
+  |  1  |  4  |
+  |_____|_____|
+	x
+turn block 45 degree anticlockwise for d2 map.
+value X increase go down.
+value y increase go left.
+-Refrence meph as center of box.
+-Calculate which quadrant we in with reference to meph.
+-To avoid teleport into invalid area. We using a box checking to keep meph with in it:
+-  If meph is outside the box, move depend on which way meph moved.
+-  If meph is still in the box and we need range adjust moment, move but stay in the same quadrant with reference to meph.
+-To speed up calculation, we always move 45 degree from meph in each quadrant.
+-Need fast PC and internet connection to dodge successfully :(
+*/
+function XP_DodgeMeph(target) {
+	if(me.x > target.x) {
+		if(me.y > target.y) {	// we in quadrant 1 of target.
+			if(target.x > 17569) {	// meph has gone below the box.
+				if(target.y > 8090 ) {  // meph has gone too far to the left of the box.
+					// Meph is too close to you, move to quadrant 3.
+					DM_MoveTo(target.x - 10, target.y - 10,false,true);
+				} else {
+					// move to quadrant 2
+					DM_MoveTo(target.x - 10, target.y + 10,false,true);
+				}
+			} else if(target.x < 17553 && target.y > 8090) {  // meph has gone too high up and too far left.
+				// move to quadrant 4
+				DM_MoveTo(target.x + 10, target.y - 10,false,true);
+			} else {
+				// we need to move closer to meph.
+				DM_MoveTo(target.x + 10, target.y + 10,false,true);
+			}
+		}
+		else {	// we in quadrant 4 of target.
+			if(target.x > 17569) {  // meph has gone below the box.
+				if(target.y < 8050) {  //meph has gone too far to the left of the box.
+					// need to move to quadrant 2.
+					DM_MoveTo(target.x - 10, target.y + 10,false,true);
+				} else {
+					// move to quarant 3.
+					DM_MoveTo(target.x - 10, target.y - 10,false,true);
+				}
+			} else if(target.x < 17553 && target.y < 8050) { // meph has gone too high up and too far right.
+				// move to quarant 1.
+				DM_MoveTo(target.x + 10, target.y + 10,false,true);
+			} else {
+				// we need to move closer to meph.
+				DM_MoveTo(target.x + 10, target.y - 10,false,true);
+			}
+		}
+	} else {
+		if(me.y > target.y) {	// we in quadrant 2 of target.
+			if(target.x < 17553) {  // meph has gone up too high.
+				if(target.y > 8090) {  //meph gone too far to the left.
+					// need to move to quadrant 4.
+					DM_MoveTo(target.x + 10, target.y - 10,false,true);
+				} else {
+					// moveto quarant 1.
+					DM_MoveTo(target.x + 10, target.y + 10,false,true);
+				}
+			}else if(target.x > 17569 && target.y > 8090) { // meph has gone too low and too far left
+				// meph still low, moveto quarant 3.
+				DM_MoveTo(target.x - 10, target.y - 10,false,true);
+			} else {
+				// move closer to meph.
+				DM_MoveTo(target.x - 10, target.y + 10,false,true);
+			}
+		}
+		else {	// we in quadrant 3 of target.
+			if(target.x < 17553) {  // meph gone up too high.
+				if(target.y < 8050) {  //meph gone too far to the right.
+					// need to move to quadrant 1.
+					DM_MoveTo(target.x + 10, target.y + 10,false,true);
+				} else {
+					// meph is high but not too far right, moveto quarant 4.
+					DM_MoveTo(target.x + 10, target.y - 10,false,true);
+				}
+			} else if(target.x > 17569 && target.y < 8050 ) { // meph is too low and far right.
+					// move to quadrant 2.
+					DM_MoveTo(target.x - 10, target.y + 10,false,true);
+			} else {
+				// move closer to meph.
+				DM_MoveTo(target.x - 10, target.y - 10,false,true);
+			}
+		}
+	}
+	//print(DM_Dist(me.x,me.y,target.x,target.y));
+	//print(Math.round(DM_Dist(me.x,me.y,target.x,target.y)));
+}
+
+function XP_SearchAndDestroy(range,skip) {
+   // Clear our location and pick up any items
+   XP_ClearPosition(range,skip,ATTACKING_MODE);
+   XP_ClearPosition(range,skip);
+   if(YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+   DSN_PickItems(YAM_SafeCheck);
+}
+
+
+/*
+function XP_ClearLevel() {
+	// temp vars to hold the original values of the StepPath and shrine/chest use vars - TechnoHunter
+	_temp        = commPather.Walkcallflag;
+	_tempShrines = YAM_UseShrines;
+	_tempChests  = YAM_OpenChests;
+	// Set our shrine/chest vars to take advantage of the pather.
+	YAM_UseShrines          = true;
+	YAM_OpenChests          = true;
+	// Ability to control the types of the monster you want to kill
+	commPather.Walkcallflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
+	commPather.InitType = 1;
+	commPather.ExploreLevel(XP_TeleDist, false, false);
+	// Reset all changed variables to the original values.
+	commPather.Walkcallflag = _temp;
+	YAM_UseShrines          = _tempShrines;
+	YAM_OpenChests          = _tempChests;
+}
+*/

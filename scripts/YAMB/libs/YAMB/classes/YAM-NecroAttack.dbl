@@ -1,0 +1,558 @@
+// Module by darkspirit with help from 2KH
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var XP_BuildSkeleArmy = false;
+var XP_BoneBehind     = true;
+var XP_BoneArmor      = true;  // Cast Bone Armor or not
+var XP_Golem          = 1;     // 0 = disable, 1 = Clay, 2 = Blood, 3= Fire
+var XP_CastOnBoss     = false;
+
+var XP_BoneBoss         = false;
+var XP_BoneNumber       = 1;
+var XP_Curse            = 66;	// "Amplify Damage"
+var XP_NecroSkill       = 93; 	// "Bone Spirit"
+var XP_NecroSkillMinion = 84; 	// "Bone Spear"
+var XP_CorpseExplosion  = true;
+
+var XP_useSkel     = true;
+var XP_useSkelMage = false;
+var XP_useRevive   = false;
+
+var XP_GolemSkill=new Array();
+XP_GolemSkill.push(false);  //dummy value
+XP_GolemSkill.push(75);     //Clay Golem
+XP_GolemSkill.push(85);     //Blood Golem
+XP_GolemSkill.push(94);     //Fire Golem
+
+var XP_GolemType=new Array();
+XP_GolemType.push(false);   //dummy value
+XP_GolemType.push(289);     //Clay Golem
+XP_GolemType.push(290);     //Blood Golem
+XP_GolemType.push(292);     //Fire Golem
+XP_GolemType.push(291);     //Iron Golem
+
+var XP_ToRevive=3;
+	/*new var to control number of corspes processed per function call because
+	(1) reviving corpses takes place after monster kills and before item pickup... in a private game this isn't a problem,
+	but in a public game you won't be  getting any items (and this solution probably isn't good enough for this)... and
+	(2) the bot can spend to much time reviving corpses*/
+
+var korpse;
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts(gotBOed) {
+	if (arguments.length < 1){
+		gotBOed = false;
+	}
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() -> Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+	// Bone Armor
+	if ((me.getState(14)==0 || DC_InTown(me)) && DC_CheckSkill(68) >= 1) {
+		DC_DoCast(68,0);
+	}
+	var myGolem = DC_getNPC(291); // Check for Iron Golem first
+	var reBO=false;
+	// Golem
+	var _golem = XP_GolemSkill[XP_Golem];
+	if (_golem && DC_CheckSkill(_golem) < 1) {
+		_golem = false;
+	}
+	// Cast a Golem if no one is raised
+	if (_golem && (!myGolem||myGolem.mode==12||!myGolem.getParent()||myGolem.getParent().name!=me.name)) {
+		myGolem = DC_getNPC(XP_GolemType[XP_Golem]);
+		if (!myGolem||myGolem.mode==12||!myGolem.getParent()||myGolem.getParent().name!=me.name) {
+			DC_DoCast(_golem,0);
+			reBO=true;
+		}
+	}
+	return reBO;
+}
+
+function XP_Precasts() {
+	BOed = false;
+	if (DA_UseCTA && (me.hpmax < MaxLife || DA_Refresh || me.getState(32) == 0)) {
+		if(me.hpmax < MaxLife)
+			DC_DPrint("XP_Precasts() -> me.hpmax:" + me.hpmax + " < MaxLife:" + MaxLife);
+		if(DA_Refresh)
+			DC_DPrint("XP_Precasts() -> DA_Refresh = true");
+		if(me.getState(32) == 0)
+			DC_DPrint("XP_Precasts() -> me.getState(32) == 0");
+		DA_UseCTASkills();
+		BOed = true;
+	}
+	if (DA_AutoPrecasts) {
+		if (DA_DoPrecasts(BOed)) {
+			if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || me.getState(32)==0)) {
+				DA_UseCTASkills();
+			}
+		}
+	}
+	else {
+		// Cast only if we want to refresh or if we are in town
+		if (DA_Refresh || DC_InTown(me) || BOed) {
+			// Bone Armor
+			if (XP_BoneArmor) {
+				DC_DoCast(68,0);
+			}
+			// Golem
+			if (!XP_CastOnBoss) {
+ 				if (XP_Golem > 0) {
+					DC_DoCast(XP_GolemSkill[XP_Golem],0);
+				}
+				if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || me.getState(32)==0)) {
+					DA_UseCTASkills();
+				}
+			}
+		}
+	}
+}
+
+
+function CastDistract(target) {
+	if (!DA_AutoPrecasts && XP_CastOnBoss) {
+		if (XP_Golem > 0) { DC_DoCast(XP_GolemSkill[XP_Golem],0,target); }
+	}
+}
+
+function XP_BossAttack(target,x,y) {
+	// So that revives would not clump together
+	if (XP_useRevive && DM_CheckTeleport()) {
+		DC_DoClick(0,0,me.x,me.y-1);
+		DC_DoClick(0,0,me.x,me.y+1);
+	}
+	//The two points define a line of valid move points which can be traversed
+	if (arguments.length < 2) {x = 0;}
+	if (arguments.length < 3) {y = 0;}
+	var _x = me.x;
+	var _y = me.y;
+	_XP_AttackCompleted=0;
+	CastDistract(target);
+	if (XP_BoneBoss) {
+		for (q = 1; q <= XP_BoneNumber; q+=1) {
+			DC_DoCast(88,0,target);	// "Bone Prison"
+		}
+	}
+	if(XP_Curse == 66 && target && (target.getState(9) == 0) && target.classid != 371) {
+		//dprint("Amplify Damage!",1);
+		DC_DoCast(XP_Curse,0,target);
+	}
+	else if(XP_Curse == 76 && target && (target.getState(55) == 0) && target.classid != 371) {
+		//dprint("Iron Maiden!",1);
+		DC_DoCast(XP_Curse,0,target);
+	}
+	else if(XP_Curse == 82 && target && (target.getState(58) == 0) && target.classid != 371) {
+		//dprint("Life Tap!",1);
+		DC_DoCast(XP_Curse,0,target);
+	}
+	else if(XP_Curse == 87 && target && (target.getState(60) == 0) && target.classid != 371) {
+		//dprint("Decrepify!",1);
+		DC_DoCast(XP_Curse,0,target);
+	}
+	else if(XP_Curse == 91 && target && (target.getState(61) == 0) && target.classid != 371) {
+		//dprint("Lower Resist!",1);
+		DC_DoCast(XP_Curse,0,target);
+	}
+	if (XP_CorpseExplosion) { XP_UseNecroCE(target); }
+	while (target.hp > 0 && target.getStat(37) <= 99) {
+		DC_DoCast(XP_NecroSkill,2,target);
+		XP_CheckAttacks();
+		if (XP_CheckUtil(target)) { return; }
+		else if (DA_AutoPrecasts && me.getState(14)==0) {
+			DC_DoCast(68,0);
+		}
+		if (XP_BossLOS && x != 0 && y != 0 && checkCollision(me,target,7)) {
+			//Move to alternate end point.  If this doesn't work reliably
+			//I'll write code that can move anywhere between the 2 end
+			//points.
+			DM_MoveTo(x,y,true);
+			//Make our original spot the next move point
+			x = _x;
+			y = _y;
+			//Save our new location as the original spot
+			_x = me.x;
+			_y = me.y;
+		}
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var revived=false;
+	var _area = me.area; // cache area property
+	if (arguments.length < 2){
+		skip = false;
+	}
+	if (arguments.length < 3){
+		mode = ALIVE_MODE;
+	}
+	if (arguments.length < 4){
+		classid = null;
+	}
+	if (arguments.length < 5){
+		spectypeMask = 0xff;
+	}
+	_XP_AttackCompleted=0;
+	try{
+		// So that revives would not clump together
+		if (XP_useRevive && DM_CheckTeleport()) {
+			DC_DoClick(0,0,me.x,me.y-1);
+			DC_DoClick(0,0,me.x,me.y+1);
+		}
+		// BO every once in a while if we run out - darkspirit
+		if (!me.getState(32) && me.hpmax <= MaxLife && (DA_UseCTA || DC_CheckSkill(149))) {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		}
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39){
+						Cow_KingCheck(monster);
+					}
+					if (skip && skip.hp <= XP_SwitchHP) {
+						// If we want to switch weapons for the final blow, do it
+						if (XP_SwitchOnKill) {
+							if (skip.hp > 0) {
+								DC_SelectTab(0);
+							}
+							else{
+								DC_SelectTab(1);
+							}
+						}
+						if (skip.hp < 1){
+							return retval;
+						}
+					}
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+						if (monster.classid == 691 && AbortDoll) {
+							DC_ThrowException("XP_ClearingPostition()","Bloody dolls!");
+						}
+						if ( ((spectypeMask & monster.spectype) || (monster.spectype==0 && (spectypeMask & 0x10)))
+							&& ( ((_area == 132 || _area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) || !checkCollision(_area,me.x,me.y,3,monster.x,monster.y,3,7))) {
+						if (monster.classid == 23 || monster.classid == 62) {
+							if (!BossSpawned) CastDistract(monster);
+							BossSpawned = true;
+						}
+						else if (monster.classid == 381 || monster.classid == 105) {
+							if (!Mage) CastDistract(monster);
+							Mage=true;
+						}
+						else if (monster.classid == 557) {
+							if (!CouncilMember) CastDistract(monster);
+							CouncilMember = true;
+						}
+						else if (monster.classid == 558) {
+							if (!VenomLord) CastDistract(monster);
+							VenomLord = true;
+						}
+						else if (monster.classid == 571) {
+							if (!MinionOfDest) CastDistract(monster);
+							MinionOfDest = true;
+						}
+						result = XP_AttackMonster(monster,range,x,y);
+						if (!retval) { retval = result; }
+					  }
+					}
+				 } while (monster.getNext(classid,mode));
+			}
+		} //end for loop
+		if (mode == ALIVE_MODE) {
+			result = XP_NecroRevive();
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass){
+		if (e.name == "XP_CheckAttacks()")
+			print("Max Attack Reached!");
+		else
+			throw e;
+	}
+	return retval;
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	if (!monster || monster.hp < 1) return false;
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+	if(XP_Curse == 66 && monster && (monster.getState(9) == 0) && monster.classid != 371) {
+		//dprint("Ampliy Damage!",1);
+		DC_DoCast(XP_Curse,0,monster);
+	}
+	else if(XP_Curse == 76 && monster && (monster.getState(55) == 0) && monster.classid != 371) {
+		//dprint("Iron Maiden!",1);
+		DC_DoCast(XP_Curse,0,monster);
+	}
+	else if(XP_Curse == 82 && monster && (monster.getState(58) == 0) && monster.classid != 371) {
+		//dprint("Life Tap!",1);
+		DC_DoCast(XP_Curse,0,monster);
+	}
+	else if(XP_Curse == 87 && monster && (monster.getState(60) == 0) && monster.classid != 371) {
+		//dprint("Decrepify!",1);
+		DC_DoCast(XP_Curse,0,monster);
+	}
+	else if(XP_Curse == 91 && monster && (monster.getState(61) == 0) && monster.classid != 371) {
+		//dprint("Lower Resist!",1);
+		DC_DoCast(XP_Curse,0,monster);
+	}
+	if (XP_CorpseExplosion) { 
+		XP_UseNecroCE(monster); 
+	}
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && (monster.getStat(37) <= 99) && DA_GetRange(monster) < range){
+		DC_DoCast(XP_NecroSkillMinion,(XP_NecroSkillMinion>0?2:1),monster);
+		if (monster.hp < hpprev) {
+			hpprev = monster.hp;
+			attprev = _XP_AttackCompleted + 1;
+			if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { 
+				YAM_SafeCheck();
+			}
+			else if (DA_AutoPrecasts) {
+				//Check Bone Armor
+				if (me.getState(14)==0 || (_XP_AttackCompleted > 0 && (_XP_AttackCompleted % 10) == 0)) {
+					DC_DoCast(68,0); //this already checks to see if we have the skill
+				}
+				//Check Golem
+				if (XP_Golem > 0) {
+					var myGolem = DC_getNPC(XP_GolemType[XP_Golem]);
+					if (!myGolem) {
+						DC_DoCast(XP_GolemSkill[XP_Golem],0,monster);
+					}
+					else if (myGolem.mode==12||!myGolem.getParent()||myGolem.getParent().name!=me.name) {
+						DC_DoCast(XP_GolemSkill[XP_Golem],0,myGolem.x,myGolem.y);
+					}
+				}
+			}
+		}
+		XP_CheckAttacks ();
+	}
+	//DSN_PickItems(YAM_SafeCheck);
+	return true;
+}
+
+function XP_UseNecroCE(target) {
+	if (!target || target.hp < 1 || (target.getStat(36) > 99 && target.getStat(39) > 99)) return;
+	var CE_level = DC_CheckSkill(74);
+	var CEa = (CE_level - 1) / 3;
+	var CE_rad = 2.6 + CEa;
+	bomb = getBodyTarget(25);
+	//if (bomb && target && target.hp > 0 && me.mp > 20 && DA_GetRangeXY(target,bomb.x,bomb.y) <= CE_rad) {
+	if (bomb && target && target.hp > 0 && me.mp > 20 && DA_GetRange(target,bomb) <= CE_rad) {
+		DC_DoCast(74,0,bomb);
+		delay(100);
+	}
+}
+
+//reviveSkill:  70 = skell  80=skellmage  95=revive
+function XP_MaxRevives(revSkill) {
+	return	(revSkill == 70) ? ((me.getSkill(70,1) < 4) ? me.getSkill(70,1) : 2 + Math.floor(me.getSkill(70,1) / 3)) : 
+			(revSkill == 80) ? ((me.getSkill(80,1) < 4) ? me.getSkill(80,1) : 2 + Math.floor(me.getSkill(80,1) / 3)) :
+			(revSkill == 95) ? (me.getSkill(95,1)) : 0;
+//	switch(revSkill){
+//		case 70:
+//			return((me.getSkill(70,1) < 4) ? me.getSkill(70,1) : 2 + Math.floor(me.getSkill(70,1) / 3));
+//		case 80:
+//			return((me.getSkill(80,1) < 4) ? me.getSkill(80,1) : 2 + Math.floor(me.getSkill(80,1) / 3));
+//		case 95:
+//			return(me.getSkill(95,1));
+//	}
+}
+
+
+//reviveSkill:  70=skell  80=skellmage  95=revive
+//reviveID:  363=skell  364= skellmage
+function XP_CheckRevives(reviveSkill,reviveID) {
+	if (reviveSkill != 70 && reviveSkill != 80 && reviveSkill != 95){
+		DC_DPrint("XP_CheckRevives() -> Invalid skill passed!");
+		return false;
+	}
+	var success    = false;
+	var haveRevive = 0;
+	var maxRevives = XP_MaxRevives(reviveSkill);
+	var needMana   = 0;
+	var skeltype   = 0;
+	var i = 0;
+	// get the right skeltype id (4 = skeleton, 5 = skeletonmage, 6 = revive)
+	switch(reviveSkill){
+		case 70:
+			needMana = 5 + DC_CheckSkill(reviveSkill);
+			skeltype = 4;
+			break;
+		case 80:
+			needMana = 7 + DC_CheckSkill(reviveSkill);
+			skeltype = 5;
+			break;
+		case 95:
+			needMana = 45;
+			skeltype = 6;
+			break;
+	}
+	// Count my revives
+	haveRevive = me.getMinionCount(skeltype);//0;
+	success = (haveRevive >= maxRevives || me.mp <= needMana);
+	//XP_ToRevive controls how many corpses to proccess per function call
+	while (haveRevive < maxRevives && me.mp > needMana && i++ < XP_ToRevive) {
+		korpse = getBodyTarget(25);
+		if (reviveSkill == 95) {
+			if (korpse && ((korpse.spectype & 0x07) == 0)	&& korpse.classid != 571
+				&& korpse.classid != 572 && korpse.classid != 573
+				&& korpse.classid != 312 && korpse.classid != 702
+				&& getBaseStat(6, korpse.classid, 8) && getBaseStat(6, korpse.classid, 9)) {
+				//DC_DPrint("Reviving " + korpse.name + " from range " + DA_GetRange(korpse));
+				print("Reviving " + korpse.name + " from range " + DA_GetRange(korpse));
+				DC_DoCast(reviveSkill,0,korpse);
+				success = true;
+			}
+			else if (!korpse){
+				break;
+			}
+		}
+		else { // Skel or SkelMage
+			if(korpse){
+				var iLoop = 0;
+				//DC_DPrint("Raising " + (reviveSkill ==  70 ? "Skel": "Mage") + " from " + korpse.name + " from range " + DA_GetRange(korpse));
+				DC_DPrint("Raising " + (reviveSkill ==  70 ? "Skel": "Mage") + " from " + korpse.name + " from range " + DA_GetRange(korpse));
+				while(korpse && haveRevive == me.getMinionCount(skeltype) && iLoop++ < 5){
+					DC_DoCast(reviveSkill,0,korpse);
+					delay(((typeof me.serverip != "undefined") ? me.ping : 50));
+				}
+				success = true;
+			}
+			else{
+				break;
+			}
+		}
+		delay(300);
+		haveRevive = me.getMinionCount(skeltype);
+	}
+	return success;
+}
+
+
+function XP_NecroRevive() {
+	var success = true;
+	if(!DC_InTown(me)) {
+		// Check Skeletons
+		if (XP_useSkel) {
+			success = XP_CheckRevives(70,363);
+		}
+		// Check Skeleton Mages
+		if (XP_useSkelMage && success) {
+			success = XP_CheckRevives(80,364);
+		}
+		// Check Revives
+		if (XP_useRevive && success) {
+			success = XP_CheckRevives(95);
+		}
+	}
+   return success;
+}
+
+// Function from Darien
+function getBodyTarget(range) {
+	var body_target = false;
+	var BodyTarget = getUnit(1, null, DEAD_MODE);
+	if(BodyTarget) do {
+		if (BodyTarget.getStat(172) == 2 || BodyTarget.getState(105)==0) {
+			continue;
+		}
+		if (BodyTarget.getState(99) || BodyTarget.getState(104) || BodyTarget.getState(118)) {
+			continue;
+		}
+		// Use NeverCount base monstat for traps, hydra, etc.
+		if (getBaseStat(1,BodyTarget.classid,23)) {
+			continue;
+		}
+		if(getDistance(me, BodyTarget) < (!range ? 25 : range) && !BodyTarget.getParent() &&
+			/*BodyTarget.classid != 271 && BodyTarget.classid != 289 &&
+			BodyTarget.classid != 290 && BodyTarget.classid != 291 &&
+			BodyTarget.classid != 292 && BodyTarget.classid != 338 &&
+			BodyTarget.classid != 351 && BodyTarget.classid != 352 &&
+			BodyTarget.classid != 353 && BodyTarget.classid != 359 &&
+			BodyTarget.classid != 363 && BodyTarget.classid != 364 &&
+			BodyTarget.classid != 371 && BodyTarget.classid != 543 &&
+			BodyTarget.classid != 561 && */
+			getBaseStat(6, BodyTarget.classid, 8) &&
+			(((me.area == 132 || me.area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
+			!checkCollision(me.area,me.x,me.y,3,BodyTarget.x,BodyTarget.y,3,7))) {
+			var skipTarget=false;
+			for(var tk = 0; tk<ignoreKorpse.length; tk++) {
+				if(ignoreKorpse[tk] == BodyTarget.gid) {
+					skipTarget=true;
+					break;
+				}
+			}
+			if(!skipTarget) {
+				ignoreKorpse.push(BodyTarget.gid);
+					return BodyTarget;
+			}
+		}
+	}while(BodyTarget.getNext(null,DEAD_MODE));
+	return false;
+}
+
+function BuildSkeleArmy() {
+	if (me.area != 121) {
+		if (!DC_InTown(me)) {
+			YAM_MakeTP();
+			if (!DC_InTown(me)) {
+				XP_BuildSkeleArmy = false;
+				return; // Failed
+			}
+		}
+		YAM_TownManager();
+		// Use the WP to Act 5 if need be
+		if (me.area != 109) {
+			YAM_PathToWayPoint();
+			try {
+				DM_UsePortal("Waypoint",0x6d);
+			}
+			catch (e) {
+				XP_BuildSkeleArmy = false;
+				return;
+			} // No portal
+			YAM_InitCommTown();
+		}
+		// Go to the portal Area
+		commTown5.GotoAnya();
+		_YAM_Position="anya";
+		// Do precasts before going into the portal
+		XP_Precasts();
+		try {
+			// Enter the red portal
+			DM_UsePortal("Portal", 121);
+		}
+		catch (e) {
+			XP_BuildSkeleArmy = false;
+			return;
+		} // No portal
+		// Do precasts after going into the portal
+		XP_Precasts();
+	}
+	//DM_MoveTo(10063,13281);
+	commPather.GotoDest(10063,13281);
+	// Revives will not work
+	tempRev = XP_useRevive;
+	XP_useRevive = false;
+	if (XP_NecroRevive()) {
+		if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) {
+			DA_UseCTASkills();
+		}
+	}
+	XP_useRevive = tempRev;
+	XP_BuildSkeleArmy = false;
+}
+
+function XP_PreAttack(x,y) {
+	//if (DC_DoCast(78,0,x,y)) { return true; }
+	return false;
+}

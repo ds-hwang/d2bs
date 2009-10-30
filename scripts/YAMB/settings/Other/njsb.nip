@@ -1,0 +1,26 @@
+; paul's test configzor
+
+;name = amu ; all amulets
+;quality = unique ; all uniques
+
+Item Type = Belt : maxhp >= 20480 ; belts of the whale
+Item Type = Armor : maxhp >= 20480 ; armor of the whale
+Item Type = Armor : item num sockets = 4 ; 4 socketed armor
+Item Type = Helm : item num sockets = 3 ; 3 socketed helmets
+Item Type = Weapon : Item Class >= Normal : enhanced damage >= 200 ; cruel weapons
+Item Type = Shield : fireresist >= 25 : lightresist >= 25 : coldresist >= 25 : poisonresist >= 25 ; prismatic shields
+Item Type = Boots : item faster move velocity >= 30 ; faster run walk boots
+
+Quality = Unique ; all uniques
+
+; temp test for ethereal
+Item Flag = Ethereal
+
+Item Type = Weapon : enhanced damage >= 1
+
+;Item Type = Weapon : mana drain min dam > 1 ; any weapon with mana leech
+
+Item Type = Staff : itemaddlightningskilltab >= 1
+
+Item Type = Weapon : item num sockets >= 3
+Item Type = Armor : item num sockets >= 3

@@ -1,0 +1,92 @@
+entryFunc = EldritchXP;
+
+function EXP_AttackEldritch() {
+	DM_MoveTo(3760,5098);
+	DM_MoveTo(3750 - EXP_OffsetX,5084 - EXP_OffsetY);
+
+	// Detecting Eldritch with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(453,0x01);
+		if (target) {
+			break;
+		}
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+
+		//DM_MoveTo(3740,5086);
+		DC_DoDel(20);
+		if (XP_KillMinions)	{
+			// Wait a while until we kill some minions
+			XP_ClearPosition(30,target,ATTACKING_MODE,453);
+			XP_ClearPosition(30,target,ATTACKING_MODE);
+			XP_ClearPosition(30,target,ALIVE_MODE,453);
+			var i = 0; // counter to make sure we dont go on an infinite loop!
+			do { DC_DoDel(50); i+=1; } while (!XP_ClearPosition(30,target) && i < 3);
+			//DSN_PickItems(YAM_SafeCheck);
+		}
+
+		print("Killing Eldritch...");
+		XP_BossAttack(target);
+
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+
+		print("Eldritch the Rectifier killed !");
+
+		// If we want to attack the monsters around, do it now
+
+		if (XP_KillMinions) {
+			XP_ClearPosition(30);
+		}
+
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+
+		target=false;
+	} else {
+		print("Eldritch not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function EldritchXP() {
+	// Configure Eldritch specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		XP_SetSorcSkills(((EXP_SorcSkill.length > 0) ? EXP_SorcSkill : YAM_SorcSkill),Monster_SorcSkill);
+		XP_Static = EXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP = EXP_SwitchHP;
+	XP_StallHP = EXP_StallHP;
+	XP_QuitImmune = EXP_QuitImmune;
+	XP_StallKill = EXP_StallKill;
+	XP_MinionStand = true;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Take WP to Frigid
+	DM_UsePortal("Waypoint",0x6f);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Go Kill Eldritch
+	if (EXP_AttackEldritch()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

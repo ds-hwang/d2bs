@@ -1,0 +1,179 @@
+//////////////////////////////////////////////////////////////////////
+//
+// YAM-areas.dbl areas library
+//
+// Core scripters team : Xizeta, Muellsammler, Vebev, Killkeeper, PSI_Orion
+// Version 1.0
+// Updated on 2004/12/13
+//
+// Legal stuff :
+// This program is free software; You can redistrubute freely as long as this
+// header and contents stays intact. Modifications for redistribution can only
+// be done by submitting to the core scripters team for approval. If you don't
+// want to submit the modifications and wanted to redistribute this script, you
+// must rename it by replacing d2jsp with your own name to avoid conflicts.
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.
+//
+//////////////////////////////////////////////////////////////////////
+var DAR_Version="1.0";
+var DAR_Areas = new Array(133);
+
+
+//////////////////////////////////////////////////////////////////////
+// Areas array
+//////////////////////////////////////////////////////////////////////
+
+DAR_Areas[0] = "None";
+DAR_Areas[1] = "Rogue Encampment";
+DAR_Areas[2] = "Blood Moor";
+DAR_Areas[3] = "Cold Plains";
+DAR_Areas[4] = "Stony Field";
+DAR_Areas[5] = "Dark Wood";
+DAR_Areas[6] = "Black Marsh";
+DAR_Areas[7] = "Tamoe Highland";
+DAR_Areas[8] = "Den Of Evil";
+DAR_Areas[9] = "Cave Level 1";
+DAR_Areas[10] = "Underground Passage Level 1";
+DAR_Areas[11] = "Hole Level 1";
+DAR_Areas[12] = "Pit Level 1";
+DAR_Areas[13] = "Cave Level 2";
+DAR_Areas[14] = "Underground Passage Level 2";
+DAR_Areas[15] = "Hole Level 2";
+DAR_Areas[16] = "Pit Level 2";
+DAR_Areas[17] = "Burial Grounds";
+DAR_Areas[18] = "Crypt";
+DAR_Areas[19] = "Mausoleum";
+DAR_Areas[20] = "Forgotten Tower";
+DAR_Areas[21] = "Tower Cellar Level 1";
+DAR_Areas[22] = "Tower Cellar Level 2";
+DAR_Areas[23] = "Tower Cellar Level 3";
+DAR_Areas[24] = "Tower Cellar Level 4";
+DAR_Areas[25] = "Tower Cellar Level 5";
+DAR_Areas[26] = "Monastery Gate";
+DAR_Areas[27] = "Outer Cloister";
+DAR_Areas[28] = "Barracks";
+DAR_Areas[29] = "Jail Level 1";
+DAR_Areas[30] = "Jail Level 2";
+DAR_Areas[31] = "Jail Level 3";
+DAR_Areas[32] = "Inner Cloister";
+DAR_Areas[33] = "Cathedral";
+DAR_Areas[34] = "Catacombs Level 1";
+DAR_Areas[35] = "Catacombs Level 2";
+DAR_Areas[36] = "Catacombs Level 3";
+DAR_Areas[37] = "Catacombs Level 4";
+DAR_Areas[38] = "Tristram";
+DAR_Areas[39] = "Moo Moo Farm";
+DAR_Areas[40] = "Lut Gholein";
+DAR_Areas[41] = "Rocky Waste";
+DAR_Areas[42] = "Dry Hills";
+DAR_Areas[43] = "Far Oasis";
+DAR_Areas[44] = "Lost City";
+DAR_Areas[45] = "Valley Of Snakes";
+DAR_Areas[46] = "Canyon Of The Magi";
+DAR_Areas[47] = "A2 Sewers Level 1";
+DAR_Areas[48] = "A2 Sewers Level 2";
+DAR_Areas[49] = "A2 Sewers Level 3";
+DAR_Areas[50] = "Harem Level 1";
+DAR_Areas[51] = "Harem Level 2";
+DAR_Areas[52] = "Palace Cellar Level 1";
+DAR_Areas[53] = "Palace Cellar Level 2";
+DAR_Areas[54] = "Palace Cellar Level 3";
+DAR_Areas[55] = "Stony Tomb Level 1";
+DAR_Areas[56] = "Halls Of The Dead Level 1";
+DAR_Areas[57] = "Halls Of The Dead Level 2";
+DAR_Areas[58] = "Claw Viper Temple Level 1";
+DAR_Areas[59] = "Stony Tomb Level 2";
+DAR_Areas[60] = "Halls Of The Dead Level 3";
+DAR_Areas[61] = "Claw Viper Temple Level 2";
+DAR_Areas[62] = "Maggot Lair Level 1";
+DAR_Areas[63] = "Maggot Lair Level 2";
+DAR_Areas[64] = "Maggot Lair Level 3";
+DAR_Areas[65] = "Ancient Tunnels";
+DAR_Areas[66] = "Tal Rashas Tomb #1";
+DAR_Areas[67] = "Tal Rashas Tomb #2";
+DAR_Areas[68] = "Tal Rashas Tomb #3";
+DAR_Areas[69] = "Tal Rashas Tomb #4";
+DAR_Areas[70] = "Tal Rashas Tomb #5";
+DAR_Areas[71] = "Tal Rashas Tomb #6";
+DAR_Areas[72] = "Tal Rashas Tomb #7";
+DAR_Areas[73] = "Duriels Lair";
+DAR_Areas[74] = "Arcane Sanctuary";
+DAR_Areas[75] = "Kurast Docktown";
+DAR_Areas[76] = "Spider Forest";
+DAR_Areas[77] = "Great Marsh";
+DAR_Areas[78] = "Flayer Jungle";
+DAR_Areas[79] = "Lower Kurast";
+DAR_Areas[80] = "Kurast Bazaar";
+DAR_Areas[81] = "Upper Kurast";
+DAR_Areas[82] = "Kurast Causeway";
+DAR_Areas[83] = "Travincal";
+DAR_Areas[84] = "Spider Cave";
+DAR_Areas[85] = "Spider Cavern";
+DAR_Areas[86] = "Swampy Pit Level 1";
+DAR_Areas[87] = "Swampy Pit Level 2";
+DAR_Areas[88] = "Flayer Dungeon Level 1";
+DAR_Areas[89] = "Flayer Dungeon Level 2";
+DAR_Areas[90] = "Swampy Pit Level 3";
+DAR_Areas[91] = "Flayer Dungeon Level 3";
+DAR_Areas[92] = "A3 Sewers Level 1";
+DAR_Areas[93] = "A3 Sewers Level 2";
+DAR_Areas[94] = "Ruined Temple";
+DAR_Areas[95] = "Disused Fane";
+DAR_Areas[96] = "Forgotten Reliquary";
+DAR_Areas[97] = "Forgotten Temple";
+DAR_Areas[98] = "Ruined Fane";
+DAR_Areas[99] = "Disused Reliquary";
+DAR_Areas[100] = "Durance Of Hate Level 1";
+DAR_Areas[101] = "Durance Of Hate Level 2";
+DAR_Areas[102] = "Durance Of Hate Level 3";
+DAR_Areas[103] = "The Pandemonium Fortress";
+DAR_Areas[104] = "Outer Steppes";
+DAR_Areas[105] = "Plains Of Despair";
+DAR_Areas[106] = "City Of The Damned";
+DAR_Areas[107] = "River Of Flame";
+DAR_Areas[108] = "Chaos Sanctuary";
+DAR_Areas[109] = "Harrogath";
+DAR_Areas[110] = "Bloody Foothills";
+DAR_Areas[111] = "Frigid Highlands";
+DAR_Areas[112] = "Arreat Plateau";
+DAR_Areas[113] = "Crystalized Passage";
+DAR_Areas[114] = "Frozen River";
+DAR_Areas[115] = "Glacial Trail";
+DAR_Areas[116] = "Drifter Cavern";
+DAR_Areas[117] = "Frozen Tundra";
+DAR_Areas[118] = "Ancient's Way";
+DAR_Areas[119] = "Icy Cellar";
+DAR_Areas[120] = "Arreat Summit";
+DAR_Areas[121] = "Nihlathaks Temple";
+DAR_Areas[122] = "Halls Of Anguish";
+DAR_Areas[123] = "Halls Of Pain";
+DAR_Areas[124] = "Halls Of Vaught";
+DAR_Areas[125] = "Abaddon";
+DAR_Areas[126] = "Pit Of Acheron";
+DAR_Areas[127] = "Infernal Pit";
+DAR_Areas[128] = "The Worldstone Keep Level 1";
+DAR_Areas[129] = "The Worldstone Keep Level 2";
+DAR_Areas[130] = "The Worldstone Keep Level 3";
+DAR_Areas[131] = "Throne Of Destruction";
+DAR_Areas[132] = "The Worldstone Chamber";
+
+
+//////////////////////////////////////////////////////////////////////
+// Public functions
+//////////////////////////////////////////////////////////////////////
+
+function DAR_GetAreaName(_area) {
+	return ((_area < 0 || _area > 132) ? ("Unknown") : (DAR_Areas[_area]));
+}
+
+function DAR_GetAreaID(_areaName) {
+	for(var _count = 0; _count < 133; _count++) {
+		if (_areaName.toLowerCase() == DAR_Areas[_count].toLowerCase()) { 
+			return(_count);
+		}
+	}
+	return(-1);
+}

@@ -1,0 +1,1112 @@
+/*
+        D2JSP-CUBING.DBL
+        by Muellsammler
+
+        credits to blue mind for his basic work
+
+Description:
+cubes all recipes which need only 1 or 2 different items
+before calling the main function DCU_transform() you have to assure that the stash window is open
+you should call DCU_UpdateCubeIniAtStartup() before your script loads the .nip files the first time in game
+
+History:
+- v0.99, 2004-06-06:
+			rebuild for the d2jsp libs
+- v1.00, 2004-06-25:
+			tested with d2jsp libs
+- v1.01, 2004-08-21:
+			added a check if we can move an item to inventory before we pick it from the cube
+			(sometimes we must temporarely drop it when cube chest menu doesn't reopen automatically)
+- v1.02, 2004-08-31:
+			added full support of free inventory spaces (credits to vebev)
+			added an anti idle when stash and inventory are too full to clear the cube
+- v1.03, 2004-12-10:
+			fixed erroneous calls in DCU_MoveItemToInv();
+- v1.04, 2004-12-17:
+			added an 'out of size' check to DCU_MoveItemToInv() and DCU_MoveItemToStash()
+			thanx @ PSI_Orion for reporting it
+
+- v1.05, 2005-01-24:
+			Modified the INI creation part so it create a .NIP file instead to get
+			along with the modifications to integrate d2jsp-ip.dbl instead of d2jsp-im.dbl
+
+- v1.06, 2005-01-31:
+			Modified the NIP creation part to remove the ".nip file don't exist" error.
+
+- v1.07, 2005-01-31:
+			Replaced the old interact() calls by DC_Doclick.
+
+- v2.0, 2005-02-23:
+			Added logging for a successful cubed item again -TechnoHunter.
+			Did a big cleanup of the lib and got rid of old functions or duplicated functions
+			so we can call the d2jsp libs functions directly instead of a wrapper.
+
+ToDo:
+- add recipes with more than 2 different items
+- add amount of needed items in the .nip files via dynamic add-remove
+
+*/
+
+// To make the configuration in your script, just copy this section :
+
+/*
+//////////////////////////////////////////////////////////////////////
+// Cube Settings
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+// General cubing settings
+//====================================================================
+// DCU_CubingEnabled = true/false	Switch to (de-)activate the cube lib
+// DCU_countrycode = x			Language (0=ger, 1=eng)
+// DCU_Snagfile = "temp.nip";		File to save missing items
+//--------------------------------------------------------------------
+
+DCU_CubingEnabled = true;
+DCU_countrycode = 1;
+DCU_Snagfile = "temp.nip";
+
+
+//////////////////////////////////////////////////////////////////////
+// Available recipes (maybe there are some more).
+// Remove the '//' at the beginning of a line to enable a recipe
+//====================================================================
+
+//DCU_Codes.push(["gcw",0,3]);        //Chipped Diamond    gcw
+//DCU_Codes.push(["gcv",0,3]);        //Chipped Amethyst   gcv
+//DCU_Codes.push(["gcb",0,3]);        //Chipped Saphire    gcb
+//DCU_Codes.push(["gcy",0,3]);        //Chipped Topaz      gcy
+//DCU_Codes.push(["gcr",0,3]);        //Chipped Ruby       gcr
+//DCU_Codes.push(["gcg",0,3]);        //Chipped Emerald    gcg
+//DCU_Codes.push(["skc",0,3]);        //Chipped Skull      skc
+
+//DCU_Codes.push(["gfw",0,3]);        //Flawed Diamond     gfw
+//DCU_Codes.push(["gfv",0,3]);        //Flawed Amethyst    gfv
+//DCU_Codes.push(["gfb",0,3]);        //Flawed Saphire     gfb
+//DCU_Codes.push(["gfy",0,3]);        //Flawed Topaz       gfy
+//DCU_Codes.push(["gfr",0,3]);        //Flawed Ruby        gfr
+//DCU_Codes.push(["gfg",0,3]);        //Flawed Emerald     gfg
+//DCU_Codes.push(["skf",0,3]);        //Flawed Skull       skf
+
+//DCU_Codes.push(["gsw",0,3]);        //Normal Diamond     gsw
+//DCU_Codes.push(["gsv",0,3]);        //Normal Amethyst    gsv
+//DCU_Codes.push(["gsb",0,3]);        //Normal Saphire     gsb
+//DCU_Codes.push(["gsy",0,3]);        //Normal Topaz       gsy
+//DCU_Codes.push(["gsr",0,3]);        //Normal Ruby        gsr
+//DCU_Codes.push(["gsg",0,3]);        //Normal Emerald     gsg
+//DCU_Codes.push(["sku",0,3]);        //Normal Skull       sku
+
+//DCU_Codes.push(["glw",0,3]);        //Flawless Diamond   glw
+//DCU_Codes.push(["gzv",0,3]);        //Flawless Amethyst  gzv
+//DCU_Codes.push(["glb",0,3]);        //Flawless Saphire   glb
+//DCU_Codes.push(["gly",0,3]);        //Flawless Topaz     gly
+//DCU_Codes.push(["glr",0,3]);        //Flawless Ruby      glr
+//DCU_Codes.push(["glg",0,3]);        //Flawless Emerald   glg
+//DCU_Codes.push(["skl",0,3]);        //Flawless Skull     skl
+
+//DCU_Codes.push(["r01",0,3]);        //El  Rune        r01
+//DCU_Codes.push(["r02",0,3]);        //Eld Rune        r02
+//DCU_Codes.push(["r03",0,3]);        //Tir Rune        r03
+//DCU_Codes.push(["r04",0,3]);        //Nef Rune        r04
+//DCU_Codes.push(["r05",0,3]);        //Eth Rune        r05
+//DCU_Codes.push(["r06",0,3]);        //Ith Rune        r06
+//DCU_Codes.push(["r07",0,3]);        //Tal Rune        r07
+//DCU_Codes.push(["r08",0,3]);        //Ral Rune        r08
+//DCU_Codes.push(["r09",0,3]);        //Ort Rune        r09
+
+//DCU_Codes.push(["r10",0,3,"gcy",0,1]);    //Thul Rune + chipped Topaz      r10 + gcy
+//DCU_Codes.push(["r11",0,3,"gcv",0,1]);    //Amn Rune + chipped Amethyst    r11 + gcv
+//DCU_Codes.push(["r12",0,3,"gcb",0,1]);    //Sol Rune + chipped Saphire     r12 + gcb
+//DCU_Codes.push(["r13",0,3,"gcr",0,1]);    //Shael Rune + chipped Ruby      r13 + gcr
+//DCU_Codes.push(["r14",0,3,"gcg",0,1]);    //Dol Rune + chipped Emerald     r14 + gcg
+//DCU_Codes.push(["r15",0,3,"gcw",0,1]);    //Hel Rune + chipped Diamond     r15 + gcw
+
+//DCU_Codes.push(["r16",0,3,"gfy",0,1]);    //Io Rune + flawed Topaz         r16 + gfy
+//DCU_Codes.push(["r17",0,3,"gfv",0,1]);    //Lum Rune + flawed Amethyst     r17 + gfv
+//DCU_Codes.push(["r18",0,3,"gfb",0,1]);    //Ko Rune + flawed Saphire       r18 + gfb
+//DCU_Codes.push(["r19",0,3,"gfr",0,1]);    //Fal Rune + flawed Ruby         r19 + gfr
+//DCU_Codes.push(["r20",0,3,"gfg",0,1]);    //Lem Rune + flawed Emerald      r20 + gfg
+//DCU_Codes.push(["r21",0,2,"gfw",0,1]);    //Pul Rune + flawed Diamond      r21 + gfw
+
+//DCU_Codes.push(["r22",0,2,"gsy",0,1]);    //Um Rune + Topaz                r22 + gsy
+//DCU_Codes.push(["r23",0,2,"gsv",0,1]);    //Mal Rune + Amethyst            r23 + gsv
+//DCU_Codes.push(["r24",0,2,"gsb",0,1]);    //Ist Rune + Saphire             r24 + gsb
+//DCU_Codes.push(["r25",0,2,"gsr",0,1]);    //Gul Rune + Ruby                r25 + gsr
+//DCU_Codes.push(["r26",0,2,"gsg",0,1]);    //Vex Rune + Emerald             r26 + gsg
+//DCU_Codes.push(["r27",0,2,"gsw",0,1]);    //Ohm Rune + Diamond             r27 + gsw
+
+//DCU_Codes.push(["r28",0,2,"gly",0,1]);    //Lo Rune + flawless Topaz       r28 + gly
+//DCU_Codes.push(["r29",0,2,"gzv",0,1]);    //Sur Rune + flawless Amethyst   r29 + gzv
+//DCU_Codes.push(["r30",0,2,"glb",0,1]);    //Ber Rune + flawless Saphire    r30 + glb
+//DCU_Codes.push(["r31",0,2,"glr",0,1]);    //Jah Rune + flawless Ruby       r31 + gll
+//DCU_Codes.push(["r32",0,2,"glg",0,1]);    //Cham Rune + flawless Emerald   r32 + glg
+
+
+//////////////////////////////////////////////////////////////////////
+// Settings for MOD user (NOT USED FOR CLOSED BNET !!)
+//====================================================================
+// DCU_mod_use = true/false	When you set this to true you have to adjust all 4 following variables !!
+// DCU_mod_StashX = 1;		// width of stash
+// DCU_mod_StashY = 1;		// hight of stash
+// DCU_mod_InvX = 1;		// width of inventory
+// DCU_mod_InvY = 1;		// hight of inventory
+//--------------------------------------------------------------------
+
+DCU_mod_use = false;
+DCU_mod_StashX = 1;
+DCU_mod_StashY = 1;
+DCU_mod_InvX = 1;
+DCU_mod_InvY = 1;
+
+
+//////////////////////////////////////////////////////////////////////
+// End of Cube settings
+//////////////////////////////////////////////////////////////////////
+*/
+
+
+/************************************************************************/
+/*                                variables                             */
+/************************************************************************/
+var DCU_Version = "2.2";
+var DCU_Scripter = "Muellsammler";
+var DCU_Credits = "";
+
+const DCU_EMPTY = 0, DCU_FULL = 1;
+
+var DCU_countrycode    = 1;                          // language (0=ger, 1=eng)
+var DCU_StashX         = 6;                          // width of stash
+var DCU_StashY         = me.gametype==1 ? 8 : 4;    // height of stash, 8 is expansion, 4 is classic
+var DCU_InvX           = 10;                         // width of inventory
+var DCU_InvY           = 4;                          // height of inventory
+var DCU_Stash          = new Array(DCU_StashX);     // array for each field of the stash
+var DCU_Inven          = new Array(DCU_InvX);       // array for each field of the inventory
+var DCU_Codes          = new Array();               // array of recipes we wanna use  :: (itemcode1, items_found, items_needed[,itemcode2, items_found, items_needed])
+var DCU_Jobs           = new Array();               // temp array for jobs to do, only filled if we have all items for a recipe
+var DCU_iniItems       = new Array();               // array of items in DCU_Snagfile (itemcode, amount)
+var DCU_iniUpdateItems = new Array();               // array of jobs which need an ini update to snag missing items (itemcode, amount)
+var DCU_Snagfile       = "temp.nip";                 // file which temporarely adds needed items to snagit.ini
+var DCU_CubingEnabled  = false;                      // switch to (de-)activate the cube lib
+var DCU_LogStuff       = true;                       // variable which enables the logging of the cubed item
+
+// variables for MOD user
+var DCU_mod_use    = false;
+var DCU_mod_StashX = 1;
+var DCU_mod_StashY = 1;
+var DCU_mod_InvX   = 1;
+var DCU_mod_InvY   = 1;
+
+// evaluation and debugging
+var DCU_DebugMode      = true; //false;    // spam mode ;)
+var DCU_DisplayMode    = false;    // no cubing action, only displaying the jobs
+var DCU_EvaluationMode = false;    // only for evaluation purposes
+
+
+
+/************************************************************************/
+/*                             functions                                */
+/************************************************************************/
+
+// update of the inv/stash size for MOD usage
+function DCU_UpdateUserSettings() {
+	if(DCU_mod_use) {
+		DCU_StashX = DCU_mod_StashX;
+		DCU_StashY = DCU_mod_StashY;
+		DCU_InvX = DCU_mod_InvX;
+		DCU_InvY = DCU_mod_InvY;
+	}
+}
+
+// clear the counters in the recipes array
+function DCU_clearCounters() {
+	DCU_Jobs=new Array();
+	DCU_iniUpdateItems=new Array();
+	for(var x=0;x<DCU_Codes.length;x+=1) {
+		DCU_Codes[x][1]=0; // clear counter 1
+		if(DCU_Codes[x].length>3) {
+			DCU_Codes[x][4]=0; // clear counter 2
+		}
+	}
+}
+
+// main function, call this from your scripts
+function DCU_transform() {
+	DCU_debugmessage("ÿc0DCU_transform ->  Entering function.");
+	if(!DCU_CubingEnabled) {// cubing not allowed
+		DCU_debugmessage("ÿc0DCU_transform ->  DCU_CubingEnabled is set false, Exiting function.");
+		return true;
+	}
+	var DCU_mycube = DCU_getItem("box", 0);
+	if(!DCU_mycube) {
+		DCU_debugmessage("ÿc0DCU_transform -> No cube, unable to start Transformer !");
+		return false;
+	}
+	DCU_UpdateUserSettings(); //check for MOD-mode
+	DC_Print(DCU_msg(400));
+	DCU_debugmessage("ÿc0DCU_transform -> Transformer: resetting counters ...");
+	DCU_clearCounters(); //reset item counters and job array
+	DCU_OpenStash(); // open stash if it isn't already done
+	DCU_debugmessage("ÿc0DCU_transform -> Transformer: checking inventory ...");
+	DCU_CheckInventory(); //check inventory blocks (DCU_EMPTY/DCU_FULL)
+	if(!DCU_ClearCube()) {
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: unable to empty cube !");
+		return false; // clean the cube or back when not possible
+	}
+	DCU_CheckInventory(); //check inventory blocks (DCU_EMPTY/DCU_FULL)
+	DCU_debugmessage("ÿc0DCU_transform -> Entering transformer itemloop ...");
+	while(1) {
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: clearing cube ...");
+		DCU_ClearCube(); // clean the cube
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: checking jobs ...");
+		DCU_CheckJobs(); //fill jobs array if we have all items needed for a recipe and update ini file
+		if(DCU_DisplayMode) {
+			DCU_DisplayJobs(); //display all jobs, only for evaluation purposes
+			return true;
+		}
+		//update the nip for temporary snagitems
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: updating .nip ...");
+		DCU_UpdateTransformerIni();
+		//end of transformer if no jobs left
+		if(DCU_Jobs.length==0) {
+			DC_Print(DCU_msg(401));
+			return true; //return to main script if there are no cube jobs
+		}
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: entering cube loop ...");
+		DCU_CubeLooper(); // cubing the listed jobs
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: checking inventory ...");
+		DCU_CheckInventory(); //rescanning inventory
+		DCU_debugmessage("ÿc0DCU_transform -> Transformer: cubing successful ...");
+		DCU_CloseCube();
+		DCU_ReEnterStash();
+		//DCU_CloseStash();
+	}
+	//DCU_stopmessage("<<breakpoint>>"); // evaluation
+	DCU_debugmessage("ÿc0DCU_transform ->  Exiting function.");
+	return true;
+}
+
+// updates the temp snagit at the start of a run
+function DCU_UpdateCubeIniAtStartup() {
+//	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Entering function.");
+	DCU_CheckJobs(); //fill jobs array if we have all items needed for a recipe and update .nip file
+	DCU_UpdateTransformerIni(); //update the ini for temporary snagitems
+//	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Exiting function.");
+}
+
+//only for items which are needed but not snagged by the .nip files
+//these must always be item nr. 2 in the recipe !!!
+function DCU_UpdateTransformerIni() {
+//	DCU_debugmessage("ÿc0DCU_UpdateTransformerIni ->  Entering function.");
+	// Create the temp item file
+	var sfile = File.open("settings/" + DCU_Snagfile, FILE_WRITE);
+	if(sfile) {
+		// Create a header
+		sfile.write(";automatically generated file, no need of manual changes !" + "\n");
+		sfile.write("\n");
+		// If no items is needed, mark it
+		if(DCU_iniUpdateItems.length==0)
+			sfile.write(";no item needed" + "\n");
+		// Loop thru the array of needed items to create a temporary .nip file
+		for(var x=0; x < DCU_iniUpdateItems.length; x+=1) {
+			if(DCU_iniUpdateItems[x][1]>=1) {
+				if(YAM_UseNJIP == false){
+				sfile.write("[recipe item #" + (x+1) + "]" + "\n");
+				sfile.write("code=\"" + DCU_iniUpdateItems[x][0] + "\"" + "\n");
+				sfile.write("amount=" + DCU_iniUpdateItems[x][1] + "\n");
+				}
+				else{
+					sfile.write("Name = " + DCU_iniUpdateItems[x][0] + " ;[recipe item #" + (x+1) + "]" + "\n");
+					//sfile.write("amount=" + DCU_iniUpdateItems[x][1] + "\n");  // Xizeta : check if we can manage a amount via dynamic add-remove
+				}
+				sfile.write("\n");
+			}
+		}
+		// Close the file
+		sfile.close();
+	}
+	else {
+		DC_ThrowException("d2jsp-cubing","Unable to create " + DCU_Snagfile + " file !");
+	}
+	// everything fine
+//	DCU_debugmessage("ÿc0DCU_UpdateTransformerIni ->  Exiting function.");
+}
+
+//evaluation
+function DCU_DisplayJobs() {
+//	DCU_debugmessage("ÿc0DCU_DisplayJobs ->  Entering function.");
+	DC_Print("Jobs to do : " + DCU_Jobs.length);
+	DC_Print("Recipe : " + DCU_Codes.length);
+	DC_Print("Parser jobs : " + DCU_iniUpdateItems.length);
+	for(var j=0; j < DCU_Jobs.length; j+=1) {
+		if(DCU_Jobs[j].length > 3) {
+			DC_Print("Job " + (j+1) + " : " + DCU_Jobs[j][0] + " + " + DCU_Jobs[j][3]);
+		}
+		else {
+			DC_Print("Job " + (j+1) + " : " + DCU_Jobs[j][0]);
+		}
+	}
+//	DCU_debugmessage("ÿc0DCU_DisplayJobs ->  Exiting function.");
+}
+
+function DCU_CheckJobs() {
+	DCU_debugmessage("ÿc0DCU_CheckJobs ->  Entering function.");
+	DCU_clearCounters(); //new
+	nextRecipe:
+	for(var i=0; i<DCU_Codes.length; i++) {
+		var loopitem1 = DCU_getItem(DCU_Codes[i][0],0);
+		if(loopitem1 && DCU_MyItem(loopitem1)) {
+			do {
+				DCU_Codes[i][1]++;
+				DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem1.name + ", location=" + loopitem1.location + ", mode=" + loopitem1.mode);
+				if(DCU_Codes[i][1] == DCU_Codes[i][2]) {
+					if(DCU_Codes[i].length > 3) { //mix recipe
+						needseconditem = true;
+						loopitem2 = DCU_getItem(DCU_Codes[i][3],0);
+						if(loopitem2 && DCU_MyItem(loopitem2))
+							do {
+								DCU_Codes[i][4]++;
+								DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem2.name + ", location=" + loopitem2.location + ", mode=" + loopitem2.mode);
+								if(DCU_Codes[i][4] == DCU_Codes[i][5]) {
+									DCU_Jobs.push([DCU_Codes[i][0],DCU_Codes[i][1],DCU_Codes[i][2],DCU_Codes[i][3],DCU_Codes[i][4],DCU_Codes[i][5]]);
+									DCU_debugmessage("ÿc0DCU_CheckJobs -> Job added, " + loopitem1.name + " - count=" + DCU_Codes[i][1] + " + " + loopitem2.name + " - count=" + DCU_Codes[i][4]);
+									needseconditem = false;
+									//decrease counter in ini-file
+									//not needed atm
+									//DCU_iniUpdateItems.push([DCU_Codes[i][3], -DCU_Codes[i][5]]);//syntax ok ??
+									continue nextRecipe;
+								}
+							}
+							while (loopitem2 && loopitem2.getNext(DCU_Codes[i][3],0));
+						if(needseconditem) //increase counter in ini-file
+							DCU_iniUpdateItems.push([DCU_Codes[i][3], DCU_Codes[i][5]-DCU_Codes[i][4]]);
+					}
+					else { //normal recipe
+						DCU_Jobs.push([DCU_Codes[i][0],DCU_Codes[i][1],DCU_Codes[i][2]]);
+						DCU_debugmessage("ÿc0DCU_CheckJobs -> Job added, " + loopitem1.name + " - count=" + DCU_Codes[i][1]);
+						continue nextRecipe;
+					}
+				}
+			}
+			while (loopitem1 && loopitem1.getNext(DCU_Codes[i][0],0));
+		}
+	}
+	DCU_debugmessage("ÿc0DCU_CheckJobs ->  Exiting function.");
+}
+
+function DCU_CubeLooper() {
+	DCU_debugmessage("ÿc0DCU_CubeLooper ->  Entering function.");
+	var done=0;
+	var cubeitem;
+	var myItems;
+	var itemsMatching;
+	while (done<DCU_Jobs.length) {
+		switch (DCU_Jobs[done].length) {
+			case 3: // cubing 3 of the same type
+//				myItems = me.getItems();//TESTING
+//				if(myItems && myItems.length != 0){
+//					for(var n = 0; n < myItems.length-1 && itemsMatching != DCU_Jobs[done][2]; n++){
+//					if(myItems[n].
+//					}
+//				}
+				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
+				if(cubeitem && DCU_MyItem(cubeitem)) {
+					for(var y=0; y < DCU_Jobs[done][2]; y++) {
+						if(cubeitem.bodylocation != 3){
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							delay(1000);//TESTING
+							DCU_MoveItemToCube(cubeitem, 0, y); //item, x & y location in cube
+							delay(1000);//TESTING
+							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
+						}
+						cubeitem.getNext(DCU_Jobs[done][0],0);
+					}
+				}
+				break;
+			case 6:
+				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
+				if(cubeitem && DCU_MyItem(cubeitem)) {
+					for(var y=0; y < DCU_Jobs[done][2]; y++) {
+						if(cubeitem.bodylocation != 3){
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							DCU_MoveItemToCube(cubeitem, 0, y); //item, coordinate in cube
+							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
+						}
+						cubeitem.getNext(DCU_Jobs[done][0],0);
+					}
+				}
+				cubeitem = DCU_getItem(DCU_Jobs[done][3],0);
+				if(cubeitem && DCU_MyItem(cubeitem)) {
+					for(var y=0; y < DCU_Jobs[done][5]; y++) {
+						if(cubeitem.bodylocation != 3){
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							DCU_MoveItemToCube(cubeitem, 1, y); //item, coordinate in cube
+							if(y!=DCU_Jobs[done][5]-1)
+								cubeitem.getNext();
+						}
+						cubeitem.getNext(DCU_Jobs[done][3],0);
+					}
+				}
+				break;
+			default:
+				//error, a job with the wrong number of parameters
+				DCU_quitmessage("ÿc1Transformer: Wrong parameter count !");
+				break;
+		}
+		DCU_debugmessage("ÿc0DCU_CubeLooper ->  Items for job put in cube.");
+		DCU_OpenCube();
+		DCU_UseCube();
+		DCU_ClearCube();
+		done++;
+	}
+	DCU_debugmessage("ÿc0DCU_CubeLooper ->  Exiting function.");
+	//return true;
+}
+
+function DCU_ClearCube() {
+	DCU_debugmessage("ÿc0DCU_ClearCube ->  Entering function.");
+	var _cubeitem;
+	_cubeitem = DCU_getItem(null,103);
+	if(_cubeitem) {
+		do {
+			if(!DCU_CheckInvTempSpace(_cubeitem)){ // no room to pickup item again after dropping
+				DCU_debugmessage("ÿc0DCU_ClearCube ->  no space to clear cube in inventory or stash! Exiting function.");
+				return false;
+			}
+			DCU_OpenCube();
+			if(!DCU_MoveItemToStash(_cubeitem) && !DCU_MoveItemToInv(_cubeitem)) {
+				// anti idle function
+				DCU_CloseCube();
+				DCU_CloseStash();
+				DCU_AntiIdleWhenFull();
+			}
+		} while (_cubeitem.getNext(null,103));
+	}
+	DCU_debugmessage("ÿc0DCU_ClearCube ->  Exiting function.");
+	return true;
+}
+
+//TODO :: must work out a new function if a recipe uses items with more than 1x1
+function DCU_MoveItemToCube(moveitem, xmod, ymod) {  //item, coordinates in cube
+	DCU_debugmessage("ÿc0DCU_MoveItemToCube ->  Entering function.");
+	// Clear the spaces they occupied
+	switch (moveitem.bodylocation) {
+		case 0: //inventory
+			for(var m=moveitem.x; m < moveitem.x + moveitem.sizex; m++) {
+				for(var n=moveitem.y; n < moveitem.y + moveitem.sizey; n++) {
+					DCU_Inven[m][n] = DCU_EMPTY;
+				}
+			}
+			break;
+		case 4: //stash
+			for(var m=moveitem.x; m < moveitem.x + moveitem.sizex; m++) {
+				for(var n=moveitem.y; n < moveitem.y + moveitem.sizey; n++) {
+					DCU_Stash[m][n] = DCU_EMPTY;
+				}
+			}
+			break;
+		case 3: //cube
+		default:
+			DCU_debugmessage(DCU_msg(407) + moveitem.bodylocation + DCU_msg(408));
+			break;
+	}
+	DCU_debugmessage("ÿc0DCU_MoveItemToCube -> trying to move item: " + moveitem.name + " currently in  " + ((moveitem.bodylocation == 0) ? "inventory" :  (moveitem.bodylocation == 4) ? "stash" : (moveitem.bodylocation == 3) ? "cube" : "INVALID LOCATION") + " to cube");
+	if(!DCU_GetItemtoCursor(moveitem))
+		DCU_quitmessage(DCU_msg(403));
+	if(!DCU_DropItemFromCursor2Location(xmod, ymod, 3))
+		DCU_quitmessage(DCU_msg(404));
+
+	DCU_debugmessage("ÿc0DCU_MoveItemToCube ->  Completed, Exiting function.");
+}
+
+function DCU_MoveItemToStash(moveitem) {
+	DCU_debugmessage("ÿc0DCU_MoveItemToStash ->  Entering function.");
+	var x,y;
+	var xs, ys;
+	var i,j;
+	var isGood;
+
+	xs=moveitem.sizex;
+	ys=moveitem.sizey;
+
+	stashloop:
+	for(var x=0; x<DCU_StashX; x++) {
+		for(var y=0; y<DCU_StashY; y++) {
+			isGood = true;
+			DCU_debugmessage("ÿc0DCU_MoveItemToStash -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
+			for(var i=x; i < x + xs; i++) {
+				for(var j=y; j < y + ys; j++) {
+					// out of stash size ?// stash spaces full ?
+					if(i >= DCU_StashX || j >= DCU_StashY || DCU_Stash[i][j] == DCU_FULL)
+						isGood = false;
+				}
+			}
+			if(isGood) {
+				DCU_debugmessage("ÿc0DCU_MoveItemToStash -> stash " + x + "/" + y + " x/y is free");
+				break stashloop;
+			}
+		}
+	}
+	if(!isGood){
+		DCU_debugmessage("ÿc0DCU_MoveItemToStash -> incorrect x/y or stash is full, Exiting function.");
+		return false;
+	}
+	if(!DCU_GetItemtoCursor(moveitem))
+		DCU_quitmessage(DCU_msg(405));
+	DCU_CloseCube();
+	DCU_ReEnterStash();
+	DCU_debugmessage("ÿc0DCU_MoveItemToStash -> Dropping item to stash at " + x + "/" + y + " x/y");
+	if(!DCU_DropItemFromCursor2Location(x, y, 4))
+		DCU_quitmessage(DCU_msg(406));
+	for(var i=x; i<x+xs; i++) {
+		for(var j=y; j<y+ys; j++) {
+			DCU_Stash[i][j] = DCU_FULL;
+		}
+	}
+	return true;
+}
+
+function DCU_MoveItemToInv(moveitem) {
+	DCU_debugmessage("ÿc0DCU_MoveItemToInv ->  Entering function.");
+	var x,y;
+	var xs, ys;
+	var i,j;
+	var isGood;
+
+	xs = moveitem.sizex;
+	ys = moveitem.sizey;
+
+	_invloop:
+	for(var x=0; x < DCU_InvX; x++) {
+		for(var y=0; y<DCU_InvY; y++) {
+			isGood = true;
+			DCU_debugmessage("ÿc0DCU_MoveItemToInv -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
+			for(var i=x; i < x + xs; i++) {
+				for(var j=y; j < y + ys; j++) {
+					// out of stash size ? // empty space ?
+					if(i >= DCU_InvX || j >= DCU_InvY ||DCU_Inven[i][j] == DCU_FULL)
+						isGood = false;
+				}
+			}
+			if(isGood) {
+				DCU_debugmessage("ÿc0DCU_MoveItemToInv -> inv " + x + "/" + y + " x/y is free");
+				break _invloop;
+			}
+		}
+	}
+
+	if(!isGood){
+		DCU_debugmessage("ÿc0DCU_MoveItemToInv -> incorrect x/y or inv is full, Exiting function.");
+		return false;
+	}
+
+	if(!DCU_GetItemtoCursor(moveitem))
+		DCU_quitmessage(DCU_msg(405));
+	DCU_debugmessage("ÿc0DCU_MoveItemToInv -> Dropping item to inventory at " + x + "/" + y + " x/y");
+	if(!DCU_DropItemFromCursor2Location(x, y, 0))
+		DCU_quitmessage(DCU_msg(409));
+	for(var i=x; i < x + xs; i++) {
+		for(var j=y; j < y + ys; j++) {
+			DCU_Inven[i][j] = DCU_FULL;
+		}
+	}
+	DCU_CloseCube();
+	DCU_debugmessage("ÿc0DCU_MoveItemToInv -> Exiting function.");
+	return true;
+}
+
+// enter the stash menu again when it's menu doesn't popup automatically again after closing the cube menu
+function DCU_ReEnterStash() {
+	DCU_debugmessage("ÿc0DCU_ReEnterStash ->  Entering function.");
+	var DCU_myStash = getUnit(2,"bank");
+	if(!DCU_myStash) // stash not found
+		DCU_quitmessage(DCU_msg(413));
+	var interwait = 0x19;
+	// wait for the stash menu
+	for(var x=0; x < 10; x++) {
+		if(getUIFlag(interwait)) // stash menu is open
+			return true;
+		else
+			DCU_PingDel(100);
+	}
+	// clear the cursor and grab the item from ground
+	if(me.itemoncursor) {
+		// check if we can pick it up again when we drop it now
+		// it should never happen, that this becomes false !
+		// we should not have it at the cursor without having checked the destination first !
+		//var _cursoritem = getUnit(4, null, 4);
+		var _cursoritem = getUnit(100);
+		if(!_cursoritem)
+			DCU_quitmessage("DCU_ReEnterStash(): Can't find the item on cursor !");
+		if(DCU_CheckInvTempSpace(_cursoritem)) // drop item, we can grab it again
+			DCU_clearcursor();
+		else
+			DCU_quitmessage("DCU_ReEnterStash(): Can't drop an item, no room to pick it up again !");
+		if(me.itemoncursor) // unable to drop item
+			DCU_quitmessage(DCU_msg(414));
+		DCU_CheckDrop(); // here we pick it up again
+	}
+	// re-enter the stash menu
+	for(var trys=1; trys <= 5; trys++) {
+		DCU_walkto(DCU_myStash.x, DCU_myStash.y);
+		DC_DoClick(0,0,DCU_myStash);
+		for(var can=0; can < 10; can++) {
+			if(getUIFlag(interwait)) // stash menu reopened
+				return true;
+			DCU_DoDel(100);
+		}
+	}
+	DCU_quitmessage(DCU_msg(415)); // unable to reenter stash menu
+	return false;
+}
+
+function DCU_CheckInventory() {
+	DCU_debugmessage("ÿc0DCU_CheckInventory ->  Entering function.");
+	var invitem = DCU_getItem(null,100);
+	var invitemx, invitemy;
+
+	for(var x=0; x<DCU_InvX; x++) {
+		DCU_Inven[x] = new Array(DCU_InvY);
+		for(var y=0; y < DCU_InvY; y++) {
+			DCU_Inven[x][y] = DCU_EMPTY;
+		}
+	}
+
+	if(invitem)
+		do {
+			if(DCU_MyItem(invitem)) {
+				invitemy = invitem.y;
+				invitemx = invitem.x;
+				for(var y = 0; y < invitem.sizey; y++) {
+					for(var x = 0; x < invitem.sizex; x++) {
+						DCU_Inven[x + invitemx][y + invitemy] = DCU_FULL;
+					}
+				}
+			}
+		} while (invitem.getNext(null,100));
+
+	for(var x=0; x < DCU_StashX; x++) {
+		DCU_Stash[x] = new Array(DCU_StashY);
+		for(var y=0; y < DCU_StashY; y++) {
+			DCU_Stash[x][y] = DCU_EMPTY;
+		}
+	}
+
+	invitem = DCU_getItem(null,104);
+	if(invitem)
+		do {
+			if(DCU_MyItem(invitem)) {
+				invitemy = invitem.y;
+				invitemx = invitem.x;
+				for(var y = 0; y < invitem.sizey; y++) {
+					for(var x = 0; x < invitem.sizex; x++) {
+						DCU_Stash[x + invitemx][y + invitemy] = DCU_FULL;
+					}
+				}
+			}
+		} while (invitem.getNext(null,104));
+	DCU_debugmessage("ÿc0DCU_CheckInventory ->  Exiting function.");
+}
+
+/* inventory matrix
+0/0	1/0	2/0	3/0	4/0	5/0	6/0	7/0	8/0	9/0	...
+0/1	1/1	2/1	3/1	4/1	5/1	6/1	7/1	8/1	9/1	...
+0/2	1/2	2/2	3/2	4/2	5/2	6/2	7/2	8/2	9/2	...
+0/3	1/3	2/3	3/3	4/3	5/3	6/3	7/3	8/3	9/3	...
+*/
+
+// checks for enough space in inventory for a special item
+// checkitem=[object]		item unit
+function DCU_CheckInvTempSpace(_checkitem) {
+	DCU_debugmessage("ÿc0DCU_CheckInvTempSpace ->  Entering function.");
+	var _neededx = _checkitem.sizex;
+	var _neededy = _checkitem.sizey;
+	var _x_pos;
+	var _x_size;
+	var _y_pos;
+	var _y_size;
+	// creating inventory array and clean it
+	DCU_Inven = new Array(DCU_InvX);
+	for(var x=0; x < DCU_InvX; x++) {
+		DCU_Inven[x] = new Array(DCU_InvY);
+		for(var y=0; y < DCU_InvY; y++)
+			DCU_Inven[x][y] = DCU_EMPTY;
+	}
+
+	// inventory scan
+	//var _invitem = getUnit(4, null, 100);
+	var _invitem = me.getItem(4, null, 100);
+	if(_invitem)
+		do {
+			if(DC_CheckOwner(_invitem, me.name)) {
+				_x_pos = _invitem.x;
+				_x_size = _invitem.sizex;
+				_y_pos = _invitem.y;
+				_y_size = _invitem.sizey;
+				for(var y = _y_pos; y < (_y_pos + _y_size); y++) {
+					for(var x = _x_pos; x < (_x_pos + _x_size); x++) {
+						if(typeof(DCU_Inven[x][y]) == "undefined") {
+							DCU_debugmessage("DCU_CheckInvTempSpace():" + _invitem.name + ":" + _x_pos + "," + _x_size + "," + _y_pos + "," + _y_size + "--" + x + "/" + y);
+							return false;
+						}
+						DCU_Inven[x][y] = DCU_FULL;
+					}
+				}
+			}
+		} while (_invitem.getNext(null, 100));
+
+/*	// dumping inventory 2 screen
+	for(var y = 0; y < DCU_InvY; y++) {
+		_line = "";
+		for(var x = 0; x < DCU_InvX; x++) {
+			if(DCU_Inven[x][y] == DCU_FULL) _line +="x";
+			else if(DCU_Inven[x][y] == DCU_EMPTY) _line +="o";
+			else _line +="#";
+		}
+		print(_line);
+	}*/
+
+	var _invempty = false;
+	for(var x=0 ; x < (DCU_InvX-(_neededx-1)); x++) { //just look in all lines where it can match
+		for(var y=0 ; y < (DCU_InvY-(_neededy-1)); y++) { //just look in all colums where it can match
+			if(DCU_Inven[x][y] == DCU_EMPTY) { //start scanning at this position
+				_invempty = true;
+				_itemscan:
+				for(var ix=0 ; ix < _neededx; ix++) {
+					for(var iy=0 ; iy < _neededy; iy++) {
+						if(DCU_Inven[x+ix][y+iy] == DCU_FULL) {
+							_invempty = false
+							break _itemscan;
+						}
+					}
+				}
+				return (_invempty) ? true : false;
+			}
+		}
+	}
+	DCU_debugmessage("ÿc0DCU_CheckInvTempSpace ->  Exiting function.");
+	return true;
+}
+
+
+
+/************************************************************************/
+/*                     message functions/variables                      */
+/************************************************************************/
+
+// places the text depending on DCU_countrycode (0=ger, 1=eng=default)
+function DCU_msg(textnumber) {
+    if(DCU_string[textnumber] && DCU_string[textnumber][DCU_countrycode])
+        return DCU_string[textnumber][DCU_countrycode];
+    else
+        return DCU_string[0][DCU_countrycode]
+}
+
+var DCU_string= new Array();
+
+DCU_string[400]=new Array("ÿc4" + DCU_Scripter + "s Transformer " + DCU_Version + " gestartet " + DCU_Credits,"ÿc4" + DCU_Scripter + "s Transformer " + DCU_Version + " started " + DCU_Credits);
+DCU_string[401]=new Array("ÿc4Transformer beendet","ÿc4Transformer done");
+DCU_string[402]=new Array("ÿc1Transformer: Kann ein Item nicht aus dem Cube nehmen !","ÿc1Transformer: Couldn't move item out of cube !");
+DCU_string[403]=new Array("ÿc1Transformer: Bekomme ein Item nicht an den Cursor !","ÿc1Transformer: Unable to get item to the cursor !");
+DCU_string[404]=new Array("ÿc1Transformer: Kann ein Item nicht im Cube ablegen !","ÿc1Transformer: Unable to drop item into the cube !");
+DCU_string[405]=new Array("ÿc1Transformer: Bekomme ein Item aus dem Cube nicht an den Cursor !","ÿc1Transformer: Unable to get item from cube to the cursor !");
+DCU_string[406]=new Array("ÿc1Transformer: Kann ein Item nicht in der Kiste ablegen !","ÿc1Transformer: Unable to drop item to stash !");
+DCU_string[407]=new Array("ÿc1Transformer: Habe ein Item mit unbekannter Herkunft (","ÿc1Transformer: Got an item from unknown location (");
+DCU_string[408]=new Array("), bereit für nen Verbindungsabbruch ? :)","), get ready for a CI :)");
+DCU_string[409]=new Array("ÿc1Transformer: Kann ein Item nicht im Inventar ablegen !","ÿc1Transformer: Unable to drop item to inventory !");
+DCU_string[410]=new Array("ÿc1Transformer: Konnte ini-Datei nicht aktualisieren !","ÿc1Transformer: Unable to update ini file !");
+DCU_string[411]=new Array("ÿc1Transformer: Konnte ini-Datei nicht erstellen !","ÿc1Transformer: Unable to create ini file !");
+DCU_string[412]=new Array("Transformer: Ini-Datei wird erstellt !","Transformer: Creating ini file !");
+DCU_string[413]=new Array("ÿc1Transformer: Kiste nicht gefunden !","ÿc1Transformer: Can't find my stash !");
+DCU_string[414]=new Array("ÿc1Transformer: Kann ein Item nicht fallenlassen !","ÿc1Transformer: Unable to drop an item !");
+DCU_string[415]=new Array("ÿc1Transformer: Meine Kiste reagiert nicht !","ÿc1Transformer: Can't interact with my stash !");
+//DCU_string[416]=new Array("xxx","xxx");
+//DCU_string[417]=new Array("xxx","xxx");
+//DCU_string[418]=new Array("xxx","xxx");
+//DCU_string[419]=new Array("xxx","xxx");
+DCU_string[420]=new Array("ÿc1Transformer: Kiste öffnen nicht möglich !","ÿc1Transformer: Unable to open stash window !");
+DCU_string[421]=new Array("ÿc1Transformer: Kiste schließen nicht möglich !","ÿc1Transformer: Unable to close stash window !");
+DCU_string[422]=new Array("ÿc1Transformer: Cube öffnen nicht möglich !","ÿc1Transformer: Unable to open cube window !");
+DCU_string[423]=new Array("ÿc1Transformer: Cube schließen nicht möglich !","ÿc1Transformer: Unable to close cube window !");
+DCU_string[424]=new Array("ÿc1Transformer: Cube nicht gefunden !","ÿc1Transformer: Cube not found !");
+//DCU_string[425]=new Array("xxx","xxx");
+//DCU_string[426]=new Array("xxx","xxx");
+//DCU_string[427]=new Array("xxx","xxx");
+//DCU_string[428]=new Array("xxx","xxx");
+//DCU_string[429]=new Array("xxx","xxx");
+
+
+
+/************************************************************************/
+/* functions which could be used from other libs, modify to your needs  */
+/************************************************************************/
+
+
+function _DCU_quitmessage(message) {
+	if(DCU_EvaluationMode)
+		DCU_stopmessage(message);
+	DC_Print(message);
+	delay(500);
+	quit();
+}
+
+function _DCU_stopmessage(message) {
+	DC_Print(message);
+	delay(500);
+	quit();
+}
+
+function DCU_debugmessage(message) {
+	var dbgLvl = DC_DebugLevel;
+	DC_DebugLevel = 3;
+	if(DCU_DebugMode)
+		DC_DPrint(message);
+	DC_DebugLevel = dbgLvl;
+}
+
+// we don't wanna use items which are not belonging to us ;)
+function DCU_MyItem(item) {
+//	DCU_debugmessage("ÿc0DCU_MyItem ->  Entering function.");
+	if(item){
+		var parent = item.getParent();
+		if(parent){
+//			DCU_debugmessage("ÿc0DCU_MyItem ->  " + item.name + " is " + ((parent.name == me.name) ? "mine." : "not mine."));
+			return ((parent.name == me.name) ? true : false);
+		}
+	}
+//	DCU_debugmessage("ÿc0DCU_MyItem ->  Passed an invalid/without parent item, Exiting function.");
+	return false;
+}
+
+//open the stash
+function DCU_OpenStash() {
+//	DCU_debugmessage("ÿc0DCU_OpenStash -> Entering function.");
+	if(getUIFlag(0x19)){ // stash menu already open
+//		DCU_debugmessage("ÿc0DCU_OpenStash -> getUIFlag says stash is already open! Exiting function.");
+		return;
+	}
+	DCU_mychest = getUnit(2,"bank");
+	if(!DCU_mychest) // stash not found
+		DCU_quitmessage(DCU_msg(413));
+//	DCU_debugmessage("ÿc0DCU_OpenStash -> trying 5 times to open the stash.");
+	for(var trys=1; trys <= 5; trys++) {
+		DC_DoClick(0,0,DCU_mychest);
+		for(var can=0; can < 20; can++) {
+			if(getUIFlag(0x19)==1){
+//				DCU_debugmessage("ÿc0DCU_OpenStash -> getUIFlag says stash is now open! Exiting function.");
+				return;
+			}
+			DCU_DoDel(100);
+		}
+	}
+	DCU_quitmessage(DCU_msg(420));
+}
+
+//close the stash
+function DCU_CloseStash() {
+//	DCU_debugmessage("ÿc0DCU_CloseStash -> Entering function.");
+	if(!getUIFlag(0x19)){
+//		DCU_debugmessage("ÿc0DCU_CloseStash -> getUIFlag says that stash is already closed! Exiting function.");
+		return;
+	}
+//	DCU_debugmessage("ÿc0DCU_CloseStash -> trying 5 times to close the stash.");
+	for(var trys=1; trys <= 5; trys++) {
+		me.cancel(0);
+		for(var can=0; can < 20; can++) {
+			if(!getUIFlag(0x19)){
+//				DCU_debugmessage("ÿc0DCU_CloseStash -> getUIFlag says that stash is now closed! Exiting function.");
+				return;
+			}
+			DCU_DoDel(100);
+		}
+	}
+	DCU_quitmessage(DCU_msg(421));
+}
+
+//open the cube
+function DCU_OpenCube() {
+//	DCU_debugmessage("ÿc0DCU_OpenCube -> Entering function.");
+	var DCU_mycube = DCU_getItem("box", 0);
+	if(!DCU_mycube)
+		DCU_quitmessage(DCU_msg(424));
+	if(getUIFlag(0x1A)){
+//		DCU_debugmessage("ÿc0DCU_OpenCube -> getUIFlag says cube is already open! exiting function.");
+		return;
+	}
+//	DCU_debugmessage("ÿc0DCU_OpenCube -> trying 5 times to open the cube.");
+	for(var trys=1; trys <= 5; trys++) {
+		clickItem(1,DCU_mycube);
+		for(var can=0; can < 20; can++) {
+			if(getUIFlag(0x1A)){
+//				DCU_debugmessage("ÿc0DCU_OpenCube -> getUIFlag says cube is now open. exiting function.");
+				return;
+			}
+			DCU_DoDel(100);
+		}
+	}
+	DCU_quitmessage(DCU_msg(422));
+}
+
+//close the cube
+function DCU_CloseCube() {
+//	DCU_debugmessage("ÿc0DCU_CloseCube -> Entering function.");
+	if(!getUIFlag(0x1A)){
+//		DCU_debugmessage("ÿc0DCU_CloseCube -> getUIFlag says cube is already closed! exiting function");
+		return;
+	}
+//	DCU_debugmessage("ÿc0DCU_CloseCube -> trying 5 times to close the cube.");
+	for(var trys=1; trys<=5; trys++) {
+		me.cancel(0);
+		for(var can=0; can<20; can++) {
+			if(!getUIFlag(0x1A)) {
+//				DCU_debugmessage("ÿc0DCU_CloseCube -> getUIFlag says cube is now closed. exiting function");
+				return;
+			}
+			DCU_DoDel(100);
+		}
+	}
+	DCU_quitmessage(DCU_msg(423));
+}
+
+//transmute
+function DCU_UseCube() {
+	DCU_debugmessage("ÿc0DCU_UseCube -> Entering function.");
+	var cubeitemsbefore = 0;
+	var cubeitemsafter = 0;
+	var cubeitems = DCU_getItem(null, 103);
+	if(cubeitems)
+		do {
+			cubeitemsbefore++;
+		}
+		while(cubeitems.getNext(null, 103));
+	if(cubeitemsbefore<2){
+		DCU_debugmessage("ÿc0DCU_UseCube -> Not enough items in cube, Exiting function.");
+		return false;
+	}
+	for(var x=0; x<5; x++) {
+		cubeitemsafter = 0;
+		transmute();
+		DCU_DoDel(300);
+		cubeitems = DCU_getItem(null, 103);
+		if(cubeitems)
+			do {
+				cubeitemsafter++;
+			}
+			while (cubeitems.getNext(null, 103));
+		if(cubeitemsafter < cubeitemsbefore) {
+			if(cubeitemsafter == 1) {
+				var newitem = DCU_getItem(null, 103);
+				if(newitem && DCU_LogStuff) {
+					var logstring = DCU_GetItemName(newitem);
+					DCU_LogItem(logstring, newitem.quality, "[ Cubed ] ");
+				}
+			}
+			DCU_debugmessage("ÿc0DCU_UseCube -> Items transformed! Exiting function.");
+			return true;
+		}
+	}
+	DCU_debugmessage("ÿc0DCU_UseCube -> Failed to transform items in cube! Exiting function.");
+	return false;
+}
+
+function DCU_DropItemFromCursor2Location(x, y, location) { //location: 4=stash, 3=cube, 0=inventory
+//	DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location ->  Entering function.");
+	var _itemname = "";
+	if(me.itemoncursor)
+		_itemname = getUnit(100).name;
+//	if(_itemname)
+//		DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location -> trying 5 times to drop item: " + _itemname + "ÿc0 to " + ((location == 3) ? "cube" : (location == 4) ? "stash" : (location == 0) ? "inventory" : "UNKNOWN LOCATION"));
+	for(var trys=1; trys<=5; trys++) {
+		clickItem(0,x,y,location);
+		for(var up = 0; up < 20; up++) {
+			if(!me.itemoncursor) {
+//				DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location -> item: " + _itemname + "ÿc0 dropped.");
+				//delay(5000); //TESTING
+				return true;
+			}
+			DCU_DoDel(50);
+		}
+	}
+	DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location -> item: " + _itemname + "ÿc0 FAILED TO DROP!!");
+	return false;
+}
+
+function DCU_GetItemtoCursor(pickitem) {
+//	DCU_debugmessage("ÿc0DCU_GetItemtoCursor -> putting item: " + pickitem.name + "ÿc0 on cursor");
+	for(var trys=1; trys<=5; trys++) {
+		clickItem(0,pickitem);
+		for(var up = 0; up < 20; up++) {
+			if(me.itemoncursor) {
+//				DCU_debugmessage("ÿc0DCU_GetItemtoCursor -> item: " + pickitem.name + "ÿc0 is now on cursor");
+				//delay(5000); //TESTING
+				return true;
+			}
+			DCU_DoDel(50);
+		}
+	}
+//	DCU_debugmessage("ÿc0DCU_GetItemtoCursor -> FAILED to put item: " + pickitem.name + "ÿc0 on cursor");
+	return false;
+}
+
+// against some unwanted characters in a item.fname string
+function DCU_ImproveFName(checkString) {
+	// cutting 4 letters when finding a "["
+	while ((where = checkString.indexOf("[")) != -1)
+		checkString = checkString.substring(0,where) + checkString.substring(where+4);
+	// cutting CRLFs and rearanging the name (Tshako Harle --> Harle Tshako)
+	while ((where = checkString.indexOf("\x0A")) != -1)
+		checkString = checkString.substring(where+1) + " " + checkString.substring(0,where);
+	// changing double spaces to single spaces
+	while ((where = checkString.indexOf("  ")) != -1)
+		checkString = checkString.substring(0,where) + checkString.substring(where+1);
+	// cutting spaces at the end of the string
+	while (checkString.substring(checkString.length-1) == " ")
+		checkString = checkString.substring(0,checkString.length-1);
+	// cutting leading spaces
+	while (checkString.substring(0,1) == " ")
+		checkString = checkString.substring(1);
+	// clear all "undefined"
+	while ((undef = checkString.indexOf("undefined")) != -1)
+		checkString = checkString.substring(0,undef) + checkString.substring(undef+9);
+	return checkString;
+}
+
+/************************************************************************/
+/*          functions/variables which are used from other libs          */
+/************************************************************************/
+
+function DCU_quitmessage(message) { DC_ThrowException("d2jsp-cubing", message); }
+function DCU_stopmessage(message) { DC_StopMessage(message);    } // ok
+function DCU_clearcursor()        { return DC_ClearCursor();   } // ok
+function DCU_getItem(a, b)        { return DC_getItem(a, b);   } // ok
+function DCU_CheckDrop()          { return DSN_CheckGround();  } // ok
+function DCU_PingDel(msecs)       { return DC_PingDel(msecs);  } // ok
+function DCU_DoDel(msecs)         { return DC_DoDel(msecs);    } // ok
+function DCU_walkto(x, y)         { return DM_WalkTo(x, y);    } // ok
+function DCU_LogItem(a, b, c)     { return DL_LogItem(a, b, c);} // ok
+function DCU_GetItemName(a)       { return DL_GetItemName(a);  } // ok
+
+
+function DCU_AntiIdleWhenFull() {
+	while(DC_InTown(me)) {
+		DCU_TownAntiIdle("I'm full !", 15000);
+	}
+	quit(); // against running out of town
+}
+
+// walks around to keep game alive
+// message=[text]	text which will be displayed overhead after walking around
+// idledelay=[integer]	time in msec where we do nothing
+function DCU_TownAntiIdle(_message, _idledelay) {
+	if(!_idledelay || _idledelay < 500)
+		_idledelay = 500;
+	if(DC_InTown(me)) {
+		_newX = rnd(me.x-5, me.x+5);
+		_newY = rnd(me.y-5, me.y+5);
+		clickMap(0, 0, _newX, _newY);
+		DCU_DoDel(150);
+		clickMap(2, 0, _newX, _newY);
+		DCU_DoDel(150);
+		me.overhead(_message);
+		DCU_DoDel(_idledelay);
+	}
+}

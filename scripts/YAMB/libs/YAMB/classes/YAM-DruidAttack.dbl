@@ -1,0 +1,530 @@
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var XP_CastOnBoss=false;
+var XP_CycloneArmor = true;
+var XP_WereBear=false;		// Set to true if you use WereBear
+var XP_WereWolf=false;		// Set to true if you use WereWolf
+var XP_Raven=0;			// Set the Number of Ravens you can summon, 0 to disable it
+var XP_SpiritWolf=0;		// Set the Number of Spirit Wolves can Summon, 0 to disable it
+var XP_DireWolf=0;		// Set the Number of Dire Wolves can Summon, 0 to disable it
+var XP_Grizzly=false;		// Set to true if you want to Summon Grizzly Bear
+var XP_PoisonVine=false;	// Set to true if you use Poison Vine
+var XP_CarrionVine=false;	// Set to true if you use Carrion Vine
+var XP_SolarCreeper=false;	// Set to true if you use SolarCreeper
+var XP_Oaksage=true;		// Set to true if you use Oaksage
+var XP_Wolverine=false;		// Set to true if you use Spirit of Wolverine
+var XP_SpiritBarbs=false;	// Set to true if you use Spirit of Barbs
+var XP_Hurricane=false;		// Set to true if you use Hurricane
+var XP_Armageddon=false;	// Set to true if you use Armageddon
+
+var XP_DruidAttack=new Array();
+var XP_DruidNumber=new Array();
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts() {
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() : Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+	// Cyclone Armor
+	if (me.getState(139)==0 && me.getState(140)==0 && me.getState(151)==0 && DC_CheckSkill(235) >= 1) { DC_DoCast(235,0); }
+
+	// Cast either WW or WB
+	if (XP_WereWolf && me.getState(139)==0 && DC_CheckSkill(223) >= 1 && me.mp > 30) { DC_DoCast(223,0); }
+	else if (XP_WereBear && me.getState(140)==0 && DC_CheckSkill(228) >= 1 && me.mp > 30) { DC_DoCast(228,0); }
+
+	// Cast Ravens
+	var RavenNum = ((DC_CheckSkill(221) > 5) ? 5 : DC_CheckSkill(221));
+	if (RavenNum > 0 && (me.mp > 15)) {
+
+		var _numravens=DA_CountMinions(419);
+
+		while(_numravens < RavenNum) {
+
+			DC_DoCast(221,0);
+			_numravens++;
+		}
+	}
+
+	var _plant=false;
+	var myPlant;
+
+	if (DC_CheckSkill(241) >= 1) { _plant = 241; }
+	else if(DC_CheckSkill(231) >= 1) { _plant = 231; }
+    	else if(DC_CheckSkill(222) >= 1) { _plant = 222; }
+
+	if (_plant) {
+		// Solar Creeper
+		if (_plant == 241) {
+
+			// If Plant is not cast, cast it
+			myPlant = DC_getNPC(427,ALIVE_MODE);
+			if(!myPlant||myPlant.mode==12||!myPlant.getParent()||myPlant.getParent().name!=me.name) { DC_DoCast(_plant,0); }
+		}
+		// Carrion Vine
+		else if (_plant == 231) {
+
+			// If Plant is not cast, cast it
+			myPlant = DC_getNPC(426,ALIVE_MODE);
+			if(!myPlant||myPlant.mode==12||!myPlant.getParent()||myPlant.getParent().name!=me.name) { DC_DoCast(_plant,0); }
+		}
+		// Poison Vine
+		else if (_plant == 222) {
+
+			// If Plant is not cast, cast it
+			myPlant = DC_getNPC(425,ALIVE_MODE);
+			if(!myPlant||myPlant.mode==12||!myPlant.getParent()||myPlant.getParent().name!=me.name) { DC_DoCast(_plant,0); }
+		}
+	}
+
+	var _animal=false;
+	var reBO=false;
+
+	if (DC_CheckSkill(247) >= 1) { _animal = 247; }
+	else if (DC_CheckSkill(237) >= 1) { _animal = 237; }
+	else if (DC_CheckSkill(227) >= 1) { _animal = 227; }
+
+	if (_animal) {
+		// Summon Grizzly
+		if (_animal == 247) {
+			var myAnimal = DC_getNPC(428,ALIVE_MODE);
+			if(!myAnimal||myAnimal.mode==12||!myAnimal.getParent()||myAnimal.getParent().name!=me.name) { DC_DoCast(_animal,0); reBo=true; }
+		}
+		// Summon Dire Wolf
+		else if (_animal == 237) {
+			var AnimalNum = ((DC_CheckSkill(_animal) > 3) ? 3 : DC_CheckSkill(_animal));
+			var _numAnimals = DA_CountMinions(421);
+
+			while(_numAnimals < AnimalNum) {
+
+				DC_DoCast(_animal,0);
+				_numAnimals++;
+				reBo=true;
+			}
+		}
+		// Summon Spirit Wolf
+		else if (_animal == 227) {
+			var AnimalNum = ((DC_CheckSkill(_animal) > 5) ? 5 : DC_CheckSkill(_animal));
+			var _numAnimals = DA_CountMinions(420);
+
+			while(_numAnimals < AnimalNum) {
+
+				DC_DoCast(_animal,0);
+				_numAnimals++;
+				reBo=true;
+			}
+		}
+	}
+
+	if (reBO) { if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); } }
+
+	// Cast Ravens
+	var RavenNum = ((DC_CheckSkill(221) > 5) ? 5 : DC_CheckSkill(221));
+	if (RavenNum > 0 && (me.mp > 15)) {
+
+		var _numravens=DA_CountMinions(419);
+
+		while(_numravens < RavenNum) {
+
+			DC_DoCast(221,0);
+			_numravens++;
+		}
+	}
+
+
+	var _spirit=false;
+	var mySpirit;
+
+	if (DC_CheckSkill(246) >= 1) { _spirit = 246; }
+	else if(DC_CheckSkill(236) >= 1) { _spirit = 236; }
+    	else if(DC_CheckSkill(226) >= 1) { _spirit = 226; }
+
+	if (_spirit) {
+		// Spirit of Barbs
+		if (_spirit == 246) {
+
+			// If Spirit is not cast, cast it
+			mySpirit = DC_getNPC(422,ALIVE_MODE);
+			if(!mySpirit||!mySpirit.getParent()||mySpirit.getParent().name!=me.name) { DC_DoCast(_spirit,0); }
+		}
+		// Heart of Wolverine
+		else if (_spirit == 236) {
+
+			// If Spirit is not cast, cast it
+			mySpirit = DC_getNPC(423,ALIVE_MODE);
+			if(!mySpirit||!mySpirit.getParent()||mySpirit.getParent().name!=me.name) { DC_DoCast(_spirit,0); }
+		}
+		// Oak Sage
+		else if (_spirit == 226) {
+
+			// If Spirit is not cast, cast it
+			mySpirit = DC_getNPC(424,ALIVE_MODE);
+			if(!mySpirit||!mySpirit.getParent()||mySpirit.getParent().name!=me.name) { DC_DoCast(_spirit,0); }
+		}
+	}
+
+	if (!DC_InTown(me)) {
+		// Hurricane
+		if (me.getState(139)==0 && me.getState(140)==0 && me.getState(144)==0 && DC_CheckSkill(250) >= 1 && me.mp > 30) { DC_DoCast(250,0); }
+
+		// Armageddon
+		if (me.getState(145)==0 && DC_CheckSkill(249) >= 1 && me.mp > 35) { DC_DoCast(249,0); }
+	}
+
+	return reBO;
+}
+
+function XP_Precasts() {
+	var BOed = false;
+
+	if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); BOed = true; }
+	if (DA_AutoPrecasts) {
+		DA_DoPrecasts();
+	}
+	else {
+		// Cast only if we want to refresh or if we are in town
+		if (DA_Refresh || DC_InTown(me) || BOed) {
+
+			// Cyclone Armor
+			if (XP_CycloneArmor && DC_CheckSkill(235) >= 1) { DC_DoCast(235,0); }
+
+			// Cast either WW or WB
+			if (XP_WereWolf && me.mp > 30) { DC_DoCast(223,0); }
+			else if (XP_WereBear && me.mp > 30) { DC_DoCast(228,0); }
+
+			// Cast Solar Creeper
+			if (XP_SolarCreeper && me.mp > 15) { DC_DoCast(241,0); }
+
+			// Cast Carrion Vine
+			else if (XP_CarrionVine && me.mp > 15) { DC_DoCast(231,0); }
+
+			// Cast Poison Vine
+			else if (XP_PoisonVine && me.mp > 15) { DC_DoCast(222,0); }
+
+			// Cast Ravens
+			if (XP_Raven > 0 && (me.mp > 15)) {
+
+				var _numravens=DA_CountMinions(419);
+
+				while(_numravens < XP_Raven) {
+
+					DC_DoCast(221,0);
+					_numravens++;
+				}
+			}
+
+			var reBO=false;
+				// Cast Grizzly
+				if (!XP_CastOnBoss && XP_Grizzly && me.mp > 15) { DC_DoCast(247,0); reBO=true; }
+
+				// Cast Dire Wolves
+				else if (XP_DireWolf > 0 && me.mp > 15) {
+
+					var _numdirewolf=DA_CountMinions(421);
+					while(_numdirewolf < XP_DireWolf && (me.mp > 15)) {
+
+						DC_DoCast(237,0);
+		 				_numdirewolf++;
+						reBO=true;
+					}
+				}
+
+				// Cast Spirit Wolves
+				else if (XP_SpiritWolf > 0 && me.mp > 15) {
+
+					var _numspiritwolf=DA_CountMinions(420);
+
+					while (_numspiritwolf < XP_SpiritWolf && (me.mp > 15)) {
+
+						DC_DoCast(227,0);
+		 				_numspiritwolf++;
+						reBO=true;
+					}
+				}
+			if (reBO) { if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); } }
+
+			// Call Spirit of Barbs
+			if (XP_SpiritBarbs && me.mp > 15) { DC_DoCast(246,0); }
+
+			// Call Spirit of Wolverine
+			else if (XP_Wolverine && me.mp > 15) { DC_DoCast(236,0); }
+
+			// Cast Oak Sage
+			else if (XP_Oaksage && me.mp > 15) { DC_DoCast(226,0); }
+		}
+
+		if (!DC_InTown(me)) {
+			// Hurricane
+			if (XP_Hurricane && DC_CheckSkill(250) >= 1 && me.mp > 30) { DC_DoCast(250,0); }
+
+			// Armageddon
+			if (XP_Armageddon && DC_CheckSkill(249) >= 1 && me.mp > 35) { DC_DoCast(249,0); }
+		}
+	}
+}
+
+function CastDistract(target) {
+	if (!DA_AutoPrecasts && XP_CastOnBoss) {
+
+		// Cast Grizzly
+		if (XP_Grizzly && me.mp > 15) { DC_DoCast(247,0); }
+	}
+}
+
+function XP_BossAttack(target) {
+
+	_XP_AttackCompleted=0; 
+
+	CastDistract(target);
+
+	while (target.hp > 0) {
+		for (var x = 0; x < XP_DruidAttack.length; x+=1) {
+			if (!DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_DruidAttack[x])) &&
+			   (!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[x]) != 1 || !isMelee(XP_DruidAttack[x]))) {
+
+				if ((me.getState(139) || me.getState(140)) && isMelee(XP_DruidAttack[x]) &&
+					DC_IsWalkable(target.x, target.y)) {
+					DM_MoveTo (target.x, target.y);
+					if (DA_GetRange(target) > 3) continue;
+				}
+				// Tornado
+				else if (XP_DruidAttack[x] == 245 && DA_GetRange(target) > 7 &&
+					DC_IsWalkable(target.x, target.y)) {
+					DM_MoveTo (target.x, target.y);
+					if (DA_GetRange(target) > 7) continue;
+				}
+
+				var hand = (DC_IsLeftSkill(XP_DruidAttack[x]) ? 2 : 0);
+
+				for (var r = 1; r <= XP_DruidNumber[x]; r+=1) {
+
+					DC_DoCast(XP_DruidAttack[x],hand,target);
+					XP_CheckAttacks ();
+					if (XP_CheckUtil(target)) { return; }
+				}
+			}
+		}
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var _area = me.area; // cache area property
+
+	if (arguments.length < 2)
+	{
+		skip = false;
+	}
+
+	if (arguments.length < 3) {
+		mode = ALIVE_MODE;
+	}
+
+   	if (arguments.length < 4) {
+		classid = null;
+   	}
+
+	if (arguments.length < 5) {
+		spectypeMask = 0xff;
+	}
+
+	_XP_AttackCompleted=0;
+
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (!me.getState(32) && me.hpmax <= MaxLife && (DA_UseCTA || DC_CheckSkill(149))) {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		}
+		else
+			DA_DoPrecasts();
+
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) Cow_KingCheck(monster);
+
+					if (skip && skip.hp <= XP_SwitchHP) {
+						// If we want to switch weapons for the final blow, do it
+						if (XP_SwitchOnKill) {
+							if (skip.hp > 0) {
+								DC_SelectTab(0);
+							}
+							else DC_SelectTab(1);
+						}
+						if (skip.hp < 1) return retval;
+					}
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)) { YAM_SafeCheck(); }
+
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+					   if (monster.classid == 691 && AbortDoll) {DC_ThrowException("XP_ClearingPostition()","Bloody dolls!");}
+
+					   if (((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) && ((_area == 132 || _area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
+					   !checkCollision(_area,me.x,me.y,3,monster.x,monster.y,3,7)) {
+						if (monster.classid == 23 || monster.classid == 62) {
+							if (!BossSpawned) CastDistract(monster);
+							BossSpawned = true;
+						}
+						else if (monster.classid == 381 || monster.classid == 105) {
+							if (!Mage) CastDistract(monster);
+							Mage=true;
+						}
+						else if (monster.classid == 557) {
+							if (!CouncilMember) CastDistract(monster);
+							CouncilMember = true;
+						}
+						else if (monster.classid == 558) {
+							if (!VenomLord) CastDistract(monster);
+							VenomLord = true;
+						}
+						else if (monster.classid == 571) {
+							if (!MinionOfDest) CastDistract(monster);
+							MinionOfDest = true;
+						}						
+
+						result = XP_AttackMonster(monster,range,x,y);
+						if (!retval) { retval = result; }
+					  }
+					}
+				} while (monster.getNext(classid,mode));
+			}
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			print("Max Attack Reached!");
+		else
+			throw e;
+	}
+
+	return retval;
+}
+
+function isMelee(skill) {
+	return ((skill==232)||(skill==233)||(skill==242)||(skill==248)||(skill==239)||(skill==238));
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	if (!monster || monster.hp < 1) return false;
+
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+
+		for (var ix = 0; ix < XP_DruidAttack.length; ix+=1) {
+			if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(XP_DruidAttack[ix])) &&
+			   (!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[ix]) != 1 || !isMelee(XP_DruidAttack[ix]))) {
+
+				if ((me.getState(139) || me.getState(140)) && isMelee(XP_DruidAttack[ix]) &&
+					DC_IsWalkable(monster.x, monster.y)) {
+					DM_MoveTo (monster.x, monster.y);
+					if (DA_GetRange(monster) > 3) continue;
+				}
+				// Tornado
+				else if (XP_DruidAttack[ix] == 245 && DA_GetRange(monster) > 7 &&
+					DC_IsWalkable(monster.x, monster.y)) {
+					DM_MoveTo (monster.x, monster.y);
+					if (DA_GetRange(monster) > 7) continue;
+				}
+
+				for (var r = 1; r <= XP_DruidNumber[ix]; r+=1) {
+					var hand = (DC_IsLeftSkill(XP_DruidAttack[ix]) ? 2 : 0);
+					DC_DoCast(XP_DruidAttack[ix],hand,monster);
+					if (monster.hp < hpprev) {
+						hpprev = monster.hp;
+						attprev = _XP_AttackCompleted + 1;
+						if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)) { YAM_SafeCheck(); }
+					}
+					XP_CheckAttacks ();
+				}
+			}
+		}
+	}
+
+	//DSN_PickItems(YAM_SafeCheck);
+
+	return true;
+}
+
+function DA_GetSkillDamageType(skill) {
+	switch (skill) {
+		case 232:	//case "Feral Rage" :
+		case 233:	//case "Maul" :
+		case 240:	//case "Twister" :
+		case 242:	//case "Hunger" :
+		case 243:	//case "Shock Wave" :
+		case 245:	//case "Tornado" :
+		case 248:	//case "Fury" :
+			return 1;
+		case 225:	//case "Firestorm" :
+		case 229:	//case "Molten Boulder" :
+		case 234:	//case "Fissure" :
+		case 239:	//case "Fire Claws" :
+		case 244:	//case "Volcano" :
+		case 249:	//case "Armageddon" :
+			return 3;
+		case 230:	//case "Arctic Blast" :
+		case 250:	//case "Hurricane" :
+			return 5;
+		case 238:	//case "Rabies" :
+			return 6;
+		default:
+			DC_DPrint("GetSkillDamageType() : " + skill + " is not a damage skill");
+			return 0;
+	}
+}
+
+function XP_PreAttack(x,y) {
+	// Tornado
+	if (me.getState(139)==0 && me.getState(140)==0 && DC_CheckSkill(245) >= 1) {
+		for(var i=0; i < preAttackAmount; i+=1) {
+			DC_DoCast(245,2,x,y);
+			DC_DoDel(50);
+		}
+		return true;
+	}
+	return false;
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : 0 if there is no delay or the amount of delay in ms
+/*function DC_GetCastDelay(skillid) {
+
+	if (typeof(skillid) != "number") {
+
+        	DC_DPrint("DC_GetCastDelay() : Skill entered is a name or undefined, cannot check");
+		return false;
+    	}
+
+	switch (skillid) {
+		// Druid
+		case 225:	return( 600); // "Firestorm"
+		case 229:	return(2000); // "Molten Boulder"
+		case 234:	return(2000); // "Eruption"
+		case 244:	return(4000); // "Volcano"
+		case 249:	return(6000); // "Armageddon"
+		case 250:	return(6000); // "Hurricane"
+		case 223:	return(1000); // "Werewolf"
+		case 228:	return(1000); // "Werebear"
+		case 247:	return(1000); // "Grizzly Bear"
+
+		// Nothing fit so return 0
+		default:	return 0;
+	}
+}*/

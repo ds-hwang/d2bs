@@ -1,0 +1,51 @@
+// King Watch by Kougio
+
+// King life out of 128 left at which to retreat in town / chicken
+var KingLifeTown = 127;
+var KingLifeChicken = 90;
+
+// Frequency at which King will be checked
+var LoopDelay = 200;
+
+
+function main() {
+	print("King Watch started");
+
+	var SentSM=false;
+	var King=getUnit(1,"The Cow King");
+	while(1) {
+		if (me.area==39) {	// Don't look for King elsewhere than Cow Level
+			if (!King) King=getUnit(1,"The Cow King");
+			if (King) {
+				if (King.hp < KingLifeChicken)
+					quit();
+
+				if (!SentSM && King.hp < KingLifeTown) {
+					sendCopyData(null, me.windowtitle, 0,"SM_King" ); //bob
+					var script = FindScript("yamb.d2j");
+					if (!script) { quit(); }
+					else {
+						script.send("SM_King");
+						SentSM=true;
+					}
+				}
+			}
+		}
+		delay(LoopDelay);
+	}
+}
+
+function FindScript(scriptname) {
+	script = getScript();
+	delay(300);
+
+	if (script) { do {
+		var _scriptpath = script.name.toLowerCase();
+
+		if (_scriptpath.indexOf(scriptname)!= -1) {
+			return script;
+		}
+	} while(script.getNext()); }
+
+	return false;
+}

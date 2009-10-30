@@ -1,0 +1,21 @@
+
+
+function main(){
+
+	addEventListener("keydown", keydownEvent);
+	
+	while(true)
+		delay(10);
+}
+
+
+function keydownEvent( w ) {
+	switch(w) {
+		case 114: // F3
+			// dump controls
+			load("tools/dumpcontrols.dbj");
+			break;
+		default:
+			break;
+	}
+}

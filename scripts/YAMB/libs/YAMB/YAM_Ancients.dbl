@@ -1,0 +1,188 @@
+//Module by Boris
+
+entryFunc = AncientsXP;
+
+function AnXP_GoToAncients() {
+	commPather.InitType = 1;
+	commPather.GotoWarp(DP_WARPNEXT);
+	if(PublicMode > 0) {
+		XP_OpenTP();
+		say (YAM_TPMsg);
+		delay(15000);
+	}
+	DM_TakeStairs(74,74);
+	//DM_MoveTo(10055,12653);
+	//DM_MoveTo(10050,12632);
+	//DM_MoveTo(10047,12617);
+	commPather.GotoDest(10047,12617);
+	aAltar();
+	delay(500);
+	me.cancel(1);
+	delay(1500);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+function AnXP_AttackTalic() {
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster("Talic",5);
+		if (target) {
+			// If the target has a enchantment I want to chicken, log and skip
+			if (DA_CheckImmunities(target)) {
+				DL_AddChicken();
+				return false;
+			}
+			else {
+				break;
+			}
+		}
+	}
+	// If Unique is detected,
+	if (target) {
+		if (me.classid != 1){ //Teleport into crowd if NOT sorceress
+			DM_MoveTo(target.x -5,target.y -5);
+		}
+		print ("Killing Talic...");
+		XP_BossAttack (target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		print("Talic killed !");
+		target     = false;
+	}
+	else {
+		print("Talic not found! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+function AnXP_AttackKorlic() {
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster("Korlic",5);
+		if (target) {
+			// If the target has a enchantment I want to chicken, log and skip
+			//if (DA_CheckImmunities(target)) {
+				//DL_AddChicken();
+				//return false;
+			//}
+			//else {
+				break;
+			//}
+		}
+	}
+	// If Unique is detected,
+	if (target) {
+		if (me.classid != 1){ //Teleport into crowd if NOT sorceress
+			DM_MoveTo(target.x -5,target.y -5);
+		}
+		print ("Killing Korlic...");
+		XP_BossAttack (target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		print("Korlic killed !");
+		target=false;
+	}
+	else {
+		print("Korlic not found! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+function AnXP_AttackMadawc() {
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster("Madawc",5);
+		if (target) {
+			// If the target has a enchantment I want to chicken, log and skip
+			//if (DA_CheckImmunities(target)) {
+				//DL_AddChicken();
+				//return false;
+			//}
+			//else {
+				break;
+			//}
+		}
+	}
+	// If Unique is detected,
+	if (target) {
+		if (me.classid != 1){ //Teleport into crowd if NOT sorceress
+			DM_MoveTo(target.x -5,target.y -5);
+		}
+		print ("Killing Madawc...");
+		XP_BossAttack (target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		print("Madawc killed !");
+		target=false;
+	}
+	else {
+		print("Madawc not found! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function aAltar() {
+	var aAltar = getUnit(2, 546);
+	if (!aAltar)
+		DC_ThrowException("YAM_Ancients()", "Could not find location of Ancients Altar.");
+	if (getDistance(me, aAltar) > 7)
+		DM_MoveTo(aAltar.x, aAltar.y - 2);
+	for (var x=0; x < 3 && aAltar.mode != 2; x++) {
+		DC_DoClick(0,0,aAltar);
+		delay(500);
+	}
+}
+
+function AncientsXP() {
+	var AncientsKilled = 0;
+	// Configure Trav specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(TrXP_SorcSkill.length > 0) ? XP_SetSorcSkills(TrXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = TrXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP    = TrXP_SwitchHP;
+	XP_StallHP     = TrXP_StallHP;
+	XP_QuitImmune  = TXP_QuitImmune;
+	XP_MinionStand = true;
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+	BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	DM_UsePortal("Waypoint",0x76);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	AnXP_GoToAncients();
+	// Go attack Trav Guys
+	if (AnXP_AttackTalic()) {
+		AncientsKilled += 1;
+		DL_AddKill();
+	}
+	XP_ClearPosition(20,null,ATTACKING_MODE);
+	if (AnXP_AttackKorlic()) {
+		AncientsKilled += 1;
+		DL_AddKill();
+	}
+	XP_ClearPosition(20,null,ATTACKING_MODE);
+	if (AnXP_AttackMadawc()) {
+		AncientsKilled += 1;
+		DL_AddKill();
+	}
+	if (AncientsKilled == 1){
+	}
+}

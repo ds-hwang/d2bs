@@ -1,0 +1,181 @@
+//Duriel Module by darkspirit
+
+//This module would continue on from the Summoner module if set immediately after it.
+//It would click on the tome and enter the red portal at the Summoner.
+
+// e.g.
+//YAMXXP.push("Summoner");
+//YAMXXP.push("Duriel");
+
+//Otherwise, this module would make use of the Canyon wp.
+
+entryFunc = YAM_Duriel;
+
+function YAM_GoToDuriel() {
+	// Do precasts after going into the portal
+	XP_Precasts();
+	XP_ClearPosition(20);
+	DSN_PickItems(YAM_SafeCheck);
+	var _TalTomb = getRoom();
+	var correctTalTomb = _TalTomb.correcttomb;
+	commPather.InitType = 0;
+	if(correctTalTomb) {
+		switch(correctTalTomb) {
+			case 66:    commPather.GotoWarp(DP_WARPTALTOMB1, false, false);  break;
+			case 67:    commPather.GotoWarp(DP_WARPTALTOMB2, false, false);  break;
+			case 68:    commPather.GotoWarp(DP_WARPTALTOMB3, false, false);  break;
+			case 69:    commPather.GotoWarp(DP_WARPTALTOMB4, false, false);  break;
+			case 70:    commPather.GotoWarp(DP_WARPTALTOMB5, false, false);  break;
+			case 71:    commPather.GotoWarp(DP_WARPTALTOMB6, false, false);  break;
+			case 72:    commPather.GotoWarp(DP_WARPTALTOMB7, false, false);  break;
+		}
+		var tile = correctTalTomb-66+38;
+		DM_TakeStairs(tile, tile);
+		XP_ClearPosition(20);
+		DSN_PickItems(YAM_SafeCheck);
+		// Move to the Orifice
+		var Orifice = getPresetUnits(me.area, 2, 152, null);
+		if (Orifice.length == 0) {
+			print("ÿc1Error: Could not locate orifice!ÿc0");
+			return false;
+			}
+		commPather.InitType = 1;
+		commPather.GotoDest(Orifice[0].roomx*5+Orifice[0].x,Orifice[0].roomy*5+Orifice[0].y);
+		var pos = DP_FindClosestWalkable(me.x-10,me.y-10,9);
+		DM_MoveTo(pos.x, pos.y); // Go to safer position
+		if (XP_KillMinions) {
+			// Wait a while until we kill some minions
+			XP_ClearPosition(25,ATTACKING_MODE);
+			XP_ClearPosition(25);
+			DSN_PickItems(YAM_SafeCheck);
+		}
+		YAM_SafeCheck();
+		XP_Precasts();
+		var Lair = getUnit(2, 100);
+		if (!Lair) {
+			print("ÿc1Error: Could not locate Duriel's Lair!ÿc0");
+			return false;
+		}
+		var orifice = getUnit(2, 152);
+		var count = 0;
+		while(me.area != 73 && count < 5) {
+			DM_TakeEntrance(Lair);
+			if(me.area != 73) {
+				if(orifice) {
+					DM_MoveTo (orifice.x,orifice.y);
+				}
+				XP_ClearPosition(30);
+				if(Lair) {
+					DM_MoveTo(Lair.x,Lair.y);
+					XP_ClearPosition(30);
+					Lair.move();
+					XP_ClearPosition(30);
+				}
+				DSN_PickItems(YAM_SafeCheck);
+				count++;
+			}
+		}
+		if (me.area != 73) {
+			print("ÿc1Error: Could not enter Duriel's Lair!");
+			return false;
+		}
+	}
+	else {
+		print("ÿc1Error: Could not find Tal's Tomb!");
+		return false;
+	}
+	return true;
+}
+
+function AttackDuriel() {
+	var target;
+	// Detecting Duriel with 5 retries to be sure to get the target
+	for (var i = 0; i < 5; i+=1) {
+		target = DC_FindMonster(211);
+		if (target) {
+			break;
+		}
+		delay(300);
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		print("Killing Duriel...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+		print("Duriel killed !");
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	} 
+	else {
+		print("Duriel not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function YAM_Duriel() {
+	// Configure Duriel specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(DuXP_SorcSkill.length > 0) ? XP_SetSorcSkills(DuXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = DuXP_Static;
+	}
+	XP_SwitchHP = DuXP_SwitchHP;
+	XP_StallHP = DuXP_StallHP;
+	XP_StallKill = DuXP_StallKill;
+	XP_MinionStand = true;
+	XP_QuitImmune = false;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	var fromtown = true;
+	var tome = getUnit(2, 357);
+	if (me.area == 74 && tome) {
+		summoner = DC_FindMonster(250);
+		if (!summoner || summoner.mode == 12 || summoner.mode == 0) {
+			// Make sure Summoner is dead before proceeding
+			XP_ClearPosition(20);
+			DSN_PickItems(YAM_SafeCheck);
+			DM_MoveTo(tome.x, tome.y);
+			DC_DoClick(0,0,tome);
+			delay(500);
+			tome.cancel(1);
+			delay(1500);
+			fromtown = false;
+			try { 
+				DM_UsePortal("Portal", 46); 
+			}
+			catch (e) { 
+				fromtown = true; 
+			}
+		}
+	}
+	if (fromtown) {
+		if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+			BuildSkeleArmy();
+		}
+		// Do town stuff in the act we are in
+		YAM_TownManager();
+		YAM_PathToWayPoint();
+		// Do precasts before going into the portal
+		XP_Precasts();
+		// Take Canyon WP
+		DM_UsePortal("Waypoint",46);
+	}
+	// Path to Duriel
+	if (!YAM_GoToDuriel()) {
+		return;
+	}
+	// Go Kill Duriel
+	if (AttackDuriel()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

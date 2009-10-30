@@ -1,0 +1,137 @@
+//Pain Pindle Module by darkspirit
+//This is the painful way of doing Pindle. It is alot more dangerous and more prone to errors and failures. It uses the "Halls of Pain" wp to get to Pindle and the bot would appear directly behind Pindle and his pack (which is very dangerous). However if your bot has done the Nihlathaks's quest and it doesnt have the red portal anymore but still wants to do Pindle, you may consider using this script. 
+//It also uses the PXP pindle config variables, so we dont need new config var support.
+
+entryFunc = YAM_PainPindle;
+
+function PXP_AttackPindle() {
+
+	XP_ClearPosition(20);  
+
+	DSN_PickItems(YAM_SafeCheck);
+
+	commPather.InitType = 1;
+
+	//Goto Halls of Anguish
+	commPather.GotoLevel(122, false, false);
+	if (YAM_SafeCheck()) XP_Precasts();
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(78,78);
+
+	XP_ClearPosition(20);
+
+	DSN_PickItems(YAM_SafeCheck);
+
+	if (YAM_SafeCheck()) XP_Precasts();
+
+	//Goto Nihlathaks's temple
+	commPather.GotoLevel(121, false, false);
+	if (YAM_SafeCheck()) XP_Precasts();
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(78,78);
+
+	// If the user set a position outside the limits of the temple, do corrections
+	if (PXP_OffsetX > 3) { PXP_OffsetX=3; }
+	if (PXP_OffsetX < -5) { PXP_OffsetX=-5; }
+	if (PXP_OffsetY > 24) { PXP_OffsetY=24; }
+	if (PXP_OffsetY < -10) { PXP_OffsetY=-10; }
+
+	// Go to the final spot
+	DM_MoveTo(10061 + PXP_OffsetX, 13234 - PXP_OffsetY, true);
+
+	// Cast Decoy at the doorway if DecoyPosition is at 1 and you are a amazon
+	if (me.classid == 0 && XP_CastDecoy && XP_DecoyPosition==1) { DC_DoCast(28,0,me.x,me.y); }
+
+	// ToDo : Make it generic to all XP scripts with coords calculation along a axis of me/boss
+	//        or disable for other scripts (remove var)
+	else if (me.classid == 2 && XP_BoneBehind) {
+		DC_DoCast(78,0,10058,13242); 	// "Bone Wall"
+	}
+
+	// Detecting Pindleskin with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(440,0x01);
+		if (target) { break; }
+	}
+
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+			
+		if (XP_KillMinions)
+		{
+			XP_ClearPosition(30,target,ALIVE_MODE,440);
+		}
+
+		print("Killing Pindleskin...");
+
+		XP_BossAttack(target);
+
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { DC_SelectTab(1); }
+
+		print("Pindleskin killed !");
+
+		// If we want to attack the monsters around, do it now
+
+		if (XP_KillMinions) {
+			XP_ClearPosition(30,null,ALIVE_MODE,440);		
+			XP_ClearPosition(30,null,ATTACKING_MODE,438);
+		}
+
+		// Move to where he died to check for items
+		DM_MoveTo(target.x,target.y);
+		
+		target=false;
+	} else {
+		print("Pindleskin not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+
+}
+
+function YAM_PainPindle() { 
+   	// Configure PainPindle specific variables. Those are set in config file, don't change anything here! 
+   	if(me.classid == 1) { 
+		if (PXP_SorcSkill.length > 0) {   XP_SetSorcSkills(PXP_SorcSkill,Monster_SorcSkill); } else { XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); } 
+		XP_Static = PXP_Static; 
+		_XP_UseTeleOnImmune = false; 
+	} 
+	XP_SwitchHP = PXP_SwitchHP; 
+	XP_StallHP = PXP_StallHP; 
+	if(me.classid == 3) { XP_KillMinions = false; } 
+	XP_MinionStand = true; 
+	XP_QuitImmune = PXP_QuitImmune; 
+	XP_StallKill=PXP_StallKill;
+
+	if(me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+
+	// Do town stuff in the act we are in
+	YAM_TownManager(); 
+
+	YAM_PathToWayPoint(); 
+
+	// Do precasts before going into the portal 
+	XP_Precasts();
+ 
+	// Take WP to Halls Of Pain (Area 123) 
+	DM_UsePortal("Waypoint",123); 
+	
+	// Do precasts after going into the portal 
+	XP_Precasts();
+
+	// Go Kill Pindleskin
+	if(PXP_AttackPindle()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+		// If we want to attack the courtyard zombies, go attack them
+		if(XP_AttackZombies) { XP_Zombies(); }
+	}
+
+	if(DSN_LogRunes) { DL_SaveRuneLog(); } 
+}

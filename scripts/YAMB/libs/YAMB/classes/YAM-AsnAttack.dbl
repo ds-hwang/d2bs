@@ -1,0 +1,484 @@
+
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var XP_CastCloak=false;
+var XP_CastOnBoss=false;
+var XP_Venom=false;
+var XP_Fade=false;
+var XP_ShadowMaster=false;
+var XP_BladeShield=false;
+var XP_AssassinBuild = 0;
+var XP_NumTraps = 5;
+//var XP_TrapSkill = 271;	// Lightning Sentry
+var XP_TrapSkill = 276;	// Death Sentry
+var XP_TrapsWaitTime = 1000;
+var XP_WWDistance = 5;
+var XP_ChargeSkill=false;
+//var XP_FinishSkill=255;		// Dragon Talon
+var XP_FinishSkill=270;		// Dragon Tail
+
+///////////////////////////////////// Common functions ////////////////////////////////////////
+
+function DA_DoPrecasts() {
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() : Ignoring precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+		var reBO=false;
+		DA_ShadowSwitch("shadow");
+
+		// Venom (state detection not working)
+		if(me.getState(31)==0 && DC_CheckSkill(278) >= 1) {
+
+			DC_DoCast(278,0);
+		}
+
+		// Fade (state detection not working)
+		if(me.getState(159)==0 && DC_CheckSkill(267) >= 1) {
+			DC_DoCast(267,0);
+		}
+		// BOS
+		else if (DC_CheckSkill(267) < 1 && me.getState(157)==0 && DC_CheckSkill(258) >= 1) {
+			DC_DoCast(258,0);
+		}
+
+		// Shadow Master
+		if (DC_CheckSkill(279) >= 1) {
+			// If Shadow Master is not cast, cast it
+			var myShadow = DC_getNPC(418);
+			if(!myShadow||myShadow.mode==0||!myShadow.getParent()||myShadow.getParent().name!=me.name) { DC_DoCast(279,0); reBO=true; }
+		}
+
+		DA_ShadowSwitch("attack");
+
+		if (me.getState(158)==0 && DC_CheckSkill(277) >= 1) {
+			DC_DoCast(277,0);
+		}
+
+		return reBO;
+}
+
+function XP_Precasts() {
+	var BOed = false;
+
+	if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); BOed = true; }
+	if (DA_AutoPrecasts) {
+		if (DA_DoPrecasts()) {
+			if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); }
+		}
+	}
+	else {
+		// Cast only if we want to refresh or if we are in town
+		if (DA_Refresh || DC_InTown(me) || BOed) {
+			DA_ShadowSwitch("shadow");
+
+			// Venom
+			if (XP_Venom) { DC_DoCast(278,0); }
+
+			// Fade
+			if (XP_Fade) { DC_DoCast(267,0); }
+			else { DC_DoCast(258,0); }
+
+			// Shadow Master
+			if (XP_ShadowMaster && !XP_CastOnBoss) { DC_DoCast(279,0); if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) { DA_UseCTASkills(); }}
+
+			DA_ShadowSwitch("attack");
+
+			if (XP_BladeShield) { DC_DoCast(277,0); }
+		}
+	}
+}
+
+function CastDistract(target) {
+	if (!DA_AutoPrecasts && XP_CastOnBoss && XP_ShadowMaster) {
+		DA_ShadowSwitch("shadow");
+		DC_DoCast(279,0,target);
+		DA_ShadowSwitch("attack");
+	}
+}
+
+function XP_BossAttack(target) {
+
+	_XP_AttackCompleted=0; 
+
+	_XP_EndPosition = new XP_Coord(me.x,me.y);
+
+	CastDistract(target);
+
+	if (XP_CastCloak && target.getState(153)==0) DC_DoCast(264, 0, target);
+
+	// Use the Martial Artist method
+	// Cast 3 charge skills then cast a finish skill and repeat until target dead
+	if (XP_AssassinBuild == 0 && DC_IsWalkable(target.x, target.y) && !me.getState(55)) {
+		DC_DoCast(275, 2, target);	// Dragon Flight
+		XP_WWAttack(target);
+		XP_CheckAttacks();
+		if (XP_CheckUtil(target)) { return; }
+	}
+	else if (XP_AssassinBuild == 1 && !me.getState(55)) {
+	// Use the Martial Artist method
+	// Cast 3 charge skills then cast a finish skill and repeat until target dead
+
+		while (target.hp > 0) {
+
+			if (XP_ChargeSkill) {
+				if (DA_GetRange(target) > 3 && DC_IsWalkable(target.x, target.y)) {
+					DM_MoveTo (target.x, target.y);
+				}
+
+				// Cast 3 charges
+				for (var _charge = 0; _charge < 3; _charge+=1) {
+
+					DC_DoCast(XP_ChargeSkill,0,target);
+					XP_CheckAttacks();
+					if (XP_CheckUtil(target)) { return; }
+				}
+			}
+
+			if (XP_FinishSkill != 257 && XP_FinishSkill != 266 && XP_FinishSkill != 275 &&
+				DA_GetRange(target) > 3 && DC_IsWalkable(target.x, target.y)) {
+				DM_MoveTo (target.x, target.y);
+			}
+
+			// Cast the finish move
+			DC_DoCast(XP_FinishSkill,0,target);
+			XP_CheckAttacks();
+			if (XP_CheckUtil(target)) { return; }
+		}
+
+	}
+	// Use the Trapassin method
+	// Set X traps on a radius of 5 units from target coords then wait x seconds
+	// ToDo : Make a function to check the duration of each trap and return true/false for refresh
+	//        Or let the user set a wait time then recast them all when the timer expire
+	else {
+
+		if (XP_NumTraps < 0) { XP_NumTraps = 0; }
+		if (XP_NumTraps > 5) { XP_NumTraps = 5; }
+
+		while (target.hp > 0 && me.mp > 15) {
+
+			var _waittime = XP_TrapsWaitTime;
+
+			// Place the traps around the target in cardinals coords and 1 corner
+			if (XP_NumTraps > 0) { DC_DoCast(XP_TrapSkill,0,target.x,target.y + 5); }
+			if (XP_NumTraps > 1) { DC_DoCast(XP_TrapSkill,0,target.x + 5,target.y); }
+			if (XP_NumTraps > 2) { DC_DoCast(XP_TrapSkill,0,target.x,target.y - 5); }
+			if (XP_NumTraps > 3) { DC_DoCast(XP_TrapSkill,0,target.x - 5,target.y); }
+			if (XP_NumTraps > 5) { DC_DoCast(XP_TrapSkill,0,target.x - 5,target.y - 5); }
+
+			DC_DoCast (273, 0, target);	// Mind Blast
+
+			while (_waittime > 0) {
+
+				XP_CheckAttacks();
+				if (XP_CheckUtil(target)) { return; }
+
+				DC_DoDel(50);
+				_waittime-=50;
+			}
+		}
+	}
+}
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var result;
+	var retval = false;
+	var _area = me.area; // cache area property
+
+	if (arguments.length < 2)
+	{
+		skip = false;
+	}
+
+	if (arguments.length < 3) {
+		mode = ALIVE_MODE;
+	}
+
+   	if (arguments.length < 4) {
+		classid = null;
+   	}
+
+	if (arguments.length < 5) {
+		spectypeMask = 0xff;
+	}
+
+	_XP_AttackCompleted=0;
+
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (!me.getState(32) && me.hpmax <= MaxLife && (DA_UseCTA || DC_CheckSkill(149))) {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		}
+
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) Cow_KingCheck(monster);
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+					//if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRangeXY(monster,x,y) < range)) {
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+						if (monster.classid == 691 && AbortDoll) { DC_ThrowException("XP_ClearingPostition()","Bloody dolls!"); }
+						if (((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) && !checkCollision(_area,me.x,me.y,3,monster.x,monster.y,3,7)) {
+							if (monster.classid == 23 || monster.classid == 62) {
+								if (!BossSpawned) CastDistract(monster);
+								BossSpawned = true;
+							}
+							else if (monster.classid == 381 || monster.classid == 105) {
+								if (!Mage) CastDistract(monster);
+								Mage=true;
+							}
+							else if (monster.classid == 557) {
+								if (!CouncilMember) CastDistract(monster);
+								CouncilMember = true;
+							}
+							else if (monster.classid == 558) {
+								if (!VenomLord) CastDistract(monster);
+								VenomLord = true;
+							}
+							else if (monster.classid == 571) {
+								if (!MinionOfDest) CastDistract(monster);
+								MinionOfDest = true;
+							}
+
+							result = XP_AttackMonster(monster,range,x,y);
+							if (!retval) { retval = result; }
+						}
+					}
+				} while (monster.getNext(classid,mode));
+			}
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			print("Max Attack Reached!");
+		else
+			throw e;
+	}
+
+	return retval;
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	if (!monster || monster.hp < 1) return false;
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+	if (XP_CastCloak && monster.getState(153)==0) DC_DoCast(264, 0, monster);
+//	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRangeXY(monster,x,y) < range){
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+		if (XP_AssassinBuild == 0 && !me.getState(55)) {
+			DC_DoCast(275, 2, monster);	// Dragon Flight
+			XP_WWAttack(monster);
+			if (monster.hp < hpprev) {
+				hpprev = monster.hp;
+				attprev = _XP_AttackCompleted + 1;
+				if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+			}
+			XP_CheckAttacks ();
+		}
+		else if (XP_AssassinBuild == 1 && !me.getState(55)) {
+			// Use the Martial Artist method
+			// Cast 3 charge skills then cast a finish skill and repeat until target dead
+			while (monster.hp > 0) {
+				if (XP_ChargeSkill) {
+					if (DA_GetRange(monster) > 3 && DC_IsWalkable(monster.x, monster.y)) {
+						DM_MoveTo (monster.x, monster.y);
+					}
+					// Cast 3 charges
+					for (var _charge = 0; _charge < 3; _charge+=1) {
+						DC_DoCast(XP_ChargeSkill,0,monster);
+						XP_CheckAttacks();
+						if (monster.hp < hpprev) {
+							hpprev = monster.hp;
+							attprev = _XP_AttackCompleted + 1;
+							if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+						}
+					}
+				}
+				// Cast the finish move
+				if (XP_FinishSkill != 257 && XP_FinishSkill != 266 && XP_FinishSkill != 275 &&
+					DA_GetRange(monster) > 3 && DC_IsWalkable(monster.x, monster.y)) {
+					DM_MoveTo (monster.x, monster.y);
+				}
+				DC_DoCast(XP_FinishSkill,0,monster);
+				XP_CheckAttacks();
+				if (monster.hp < hpprev) {
+					hpprev = monster.hp;
+					attprev = _XP_AttackCompleted + 1;
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+				}
+			}
+		}
+		// Use the Trapassin method
+		// Set X traps on a radius of 5 units from target coords then wait x seconds
+		// ToDo : Make a function to check the duration of each trap and return true/false for refresh
+		//        Or let the user set a wait time then recast them all when the timer expire
+		else {
+			if (XP_NumTraps < 0) { XP_NumTraps = 0; }
+			if (XP_NumTraps > 5) { XP_NumTraps = 5; }
+				while (monster.hp > 0) {
+					var _waittime = XP_TrapsWaitTime;
+					// Place the traps around the target in cardinals coords and 1 corner
+					if (XP_NumTraps > 0) { DC_DoCast(XP_TrapSkill,0,monster.x,monster.y + 5); }
+					if (XP_NumTraps > 1) { DC_DoCast(XP_TrapSkill,0,monster.x + 5,monster.y); }
+					if (XP_NumTraps > 2) { DC_DoCast(XP_TrapSkill,0,monster.x,monster.y - 5); }
+					if (XP_NumTraps > 3) { DC_DoCast(XP_TrapSkill,0,monster.x - 5,monster.y); }
+					if (XP_NumTraps > 5) { DC_DoCast(XP_TrapSkill,0,monster.x - 5,monster.y - 5); }
+
+					DC_DoCast (273, 0, monster);	// Mind Blast
+
+					while (_waittime > 0) {
+
+						if (monster.hp < hpprev) {
+							hpprev = monster.hp;
+							attprev = _XP_AttackCompleted + 1;
+							if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+						}
+						XP_CheckAttacks ();
+
+						DC_DoDel(50);
+						_waittime-=50;
+					}
+				}
+		}
+	}
+
+	//DSN_PickItems(YAM_SafeCheck);
+
+	return true;
+}
+
+// ToDo : Mod it so we figure which axis to move (this can be changed on certain maps)
+function XP_WWAttack(enemy) {
+
+	// Attack back and forth
+	while (enemy.hp > 0) {
+
+		DC_DoCast(151,0,enemy.x,enemy.y + XP_WWDistance);
+		if(enemy.hp <= 0) { break; }
+
+		DC_DoCast(151,0,enemy.x,enemy.y - XP_WWDistance);
+	}
+}
+
+function DA_ShadowSwitch(which) {
+	var _adder = 0;
+	var _mainbo=0;
+	var _switchbo=0;
+	var _switchavail=false;
+
+	if (me.classid != 6 || DA_UseCTA) return;
+
+	var _weapon = DC_getItem(null, 1);
+
+	if (_weapon) { do {
+		if (DC_CheckOwner(_weapon)) {
+			// If first weapon tab
+			if (_weapon.bodylocation == 4 || _weapon.bodylocation == 5) {
+				// + Shadow skils
+				_adder = _weapon.getStat(188, 49);
+
+				// + asn skill
+				if (_weapon.getStat(83,6)) {
+					if (_adder) _adder =+ _weapon.getStat(83,6);
+					else _adder = _weapon.getStat(83,6);
+				}
+
+				// + all skill
+				if (_weapon.getStat(127)) {
+					if (_adder) _adder =+ _weapon.getStat(127);
+					else _adder = _weapon.getStat(127);
+				}
+
+				if (_adder) { _mainbo += _adder; }
+			}
+			// If second weapon tab
+			if (_weapon.bodylocation == 11 || _weapon.bodylocation == 12) {
+				_switchavail = true;
+
+				// + Shadow skils
+				_adder = _weapon.getStat(188, 49);
+
+				// + asn skill
+				if (_weapon.getStat(83,6)) {
+					if (_adder) _adder =+ _weapon.getStat(83,6);
+					else _adder = _weapon.getStat(83,6);
+				}
+
+				// + all skill
+				if (_weapon.getStat(127)) {
+					if (_adder) _adder =+ _weapon.getStat(127);
+					else _adder = _weapon.getStat(127);
+				}
+
+				if (_adder) { _switchbo += _adder; }
+			}
+		}
+	} while (_weapon.getNext(null, 1)); }
+
+	if (_switchavail) {
+		DC_DPrint("Your actual Shadow level is " + _mainbo + ", your weapon switch has level " + _switchbo + " Shadow !");
+
+		if(_mainbo > _switchbo && which == "attack") {
+			DC_DPrint("switching to Attack");
+			DC_DoWeaponSwitch();
+		}
+		if(_mainbo < _switchbo && which == "shadow") {
+			DC_DPrint("switching to Shadow");
+			DC_DoWeaponSwitch();
+		}
+	}
+}
+
+function XP_PreAttack(x, y) {
+	if (XP_AssassinBuild == 2) {
+		// Place the traps around the target in cardinals coords and 1 corner
+		if (XP_NumTraps > 0) { DC_DoCast(XP_TrapSkill,0,x,y + 5); }
+		if (XP_NumTraps > 1) { DC_DoCast(XP_TrapSkill,0,x + 5,y); }
+		if (XP_NumTraps > 2) { DC_DoCast(XP_TrapSkill,0,x,y - 5); }
+		if (XP_NumTraps > 3) { DC_DoCast(XP_TrapSkill,0,x - 5,y); }
+		if (XP_NumTraps > 5) { DC_DoCast(XP_TrapSkill,0,x - 5,y - 5); }
+		
+		delay (XP_TrapsWaitTime+1000);
+
+		return (XP_NumTraps > 0);
+	}
+
+	return false;
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : 0 if there is no delay or the amount of delay in ms
+/*function DC_GetCastDelay(skillid) {
+
+	if (typeof(skillid) != "number") {
+
+        	DC_DPrint("DC_GetCastDelay() : Skill entered is a name or undefined, cannot check");
+		return false;
+    	}
+
+	switch (skillid) {
+                 // Assassin
+		case 275:	return(1000); // "Dragon Flight"
+		case 277:	return(2000); // "Blade Sentinel"
+		case 268:	return(6000); // "Shadow Warrior"
+		case 279:	return(6000); // "Shadow Master"
+
+		// Nothing fit so return 0
+		default:	return 0;
+	}
+}*/

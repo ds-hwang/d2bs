@@ -1,0 +1,207 @@
+entryFunc = PitXP;
+
+function PitXP_GoToPit() {
+	if (me.area == 6) {
+		commPather.InitType = 0;
+		_temp = commPather.StepActionflag;
+		commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
+		commPather.GotoWarpInArea(DP_WARPPIT,7);
+		commPather.StepActionflag = _temp;
+	}
+	else {
+		// Move from Outer Cloister WP (Area 27) to Monastary Gate
+		if (me.y > 4950) {
+			//(WP=15131,4956)   ?? transpose 56 to 65?? (WP=15131,4965)
+			DM_MoveTo(15140,4972,true);
+			DM_MoveTo(15145,4991,true);
+		}
+		else if (me.y > 4930) {
+			//(WP=15161,4936)
+			DM_MoveTo(15155,4956,true);
+			DM_MoveTo(15156,4970,true);
+			DM_MoveTo(15159,4993,true);
+		}
+		else {
+			//(WP=15156,4921)
+			DM_MoveTo(15170,4936,true);
+			DM_MoveTo(15160,4952,true);
+			DM_MoveTo(15156,4970,true);
+			DM_MoveTo(15159,4993,true);
+		}
+		// Enter Monastary Gate (Area 26) and Goto Tamahoe Highlands
+		DM_MoveTo(15155,5012,true);
+		DM_MoveTo(15140,5021,true);
+		DM_MoveTo(15138,5044,true);
+		DM_MoveTo(15138,5066,true);
+		// Enter Tamahoe Highlands (Area 7) and clear area
+		DM_MoveTo(15139,5091,true);
+		DM_MoveTo(15139,5113,true); //move away from the gate
+	}
+	var i = 0;
+	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+	var _x = me.x;
+	var _y = me.y;
+	XP_ClearPosition(25,null,ATTACKING_MODE);
+	XP_ClearPosition(25);
+ 	if (me.classid == 3)  {
+		XP_HammerdinAuraIdle();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	DM_MoveTo(_x, _y, true);
+	i = 0;
+	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+	// Goto and Enter The Pit (Area 12)
+	commPather.InitType = 0;
+	_temp = commPather.StepActionflag;
+	commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
+	commPather.GotoWarpInArea(DP_WARPPIT,7);
+	commPather.StepActionflag = _temp;
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(2,3);
+}
+
+function PitXP_ClearPit() {
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (PitSafeCheck) { YAM_SafeCheck(); }
+	XP_Precasts();
+	// Clear the entrance of Level 1
+	XP_ClearPosition(15);
+	DSN_PickItems(YAM_SafeCheck);
+	// Goto Pit Level 2 clearing the path and picking up items along the way.
+	_temp = commPather.StepActionflag;
+	commPather.StepActionflag = DP_THROWWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
+	// Ability to control the types of the monster you want to kill
+	commPather.StepActionflag |= (DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
+	commPather.InitType = 1;
+	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	commPather.StepActionflag = _temp;
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(5,5);
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (PitSafeCheck) {
+		YAM_SafeCheck();
+	}
+	XP_Precasts();
+	// Clear Pit Level 2
+	if (me.classid == 3)  {
+		// Entry Way
+		DM_MoveTo(7538,14406,true);
+		DM_MoveTo(7551,14441,true);
+		XP_SearchAndDestroy(15);
+		// Lower Left Corner
+		DM_MoveTo(7558,14467,true);
+		XP_SearchAndDestroy(15);
+		DM_MoveTo(7578,14440,true);
+		XP_SearchAndDestroy(15);
+		DM_MoveTo(7574,14409,true);
+		XP_SearchAndDestroy(15);
+		DM_MoveTo(7598,14422,true);
+		XP_SearchAndDestroy(15);
+	}
+	else { //if (me.classid == 1) {
+		// Entry Way
+		DM_MoveTo(7536,14404,true);
+		XP_SearchAndDestroy(25);
+		// Left Side
+		DM_MoveTo(7536,14416,true);
+		XP_SearchAndDestroy(25);
+		DM_MoveTo(7536,14427,true);
+		XP_SearchAndDestroy(25);
+		// Lower Left Corner
+		DM_MoveTo(7549,14447,true);
+		DM_MoveTo(7552,14455,true);
+		XP_SearchAndDestroy(25);
+		// Moving Right
+		DM_MoveTo(7569,14462,true);
+		XP_SearchAndDestroy(25);
+		DM_MoveTo(7584,14453,true);
+		XP_SearchAndDestroy(25);
+		// Moving to area with Chest
+		DM_MoveTo(7597,14441,true);
+		DM_MoveTo(7610,14429,true);
+		XP_SearchAndDestroy(25);
+	}
+	// Open Chest
+	DM_MoveTo(7605,14421,true);
+	PXP_OpenChest();
+	DSN_PickItems(YAM_SafeCheck);
+	// Moving left and up
+	DM_MoveTo(7584,14417);
+	//DM_MoveTo(7572,14400);
+	XP_SearchAndDestroy(25);
+	return true;
+}
+
+function PXP_OpenChest() {
+	// Move close enough to detect and open chest with TK
+	// Detect nearby objects, then loop until we get the uber chest
+	var chest = DC_getObject("chest");
+	if (chest) {
+		do {
+			if (chest.status!=0 && me.classid!=6) {
+				var _key = DC_GetKeys();
+				if ( !_key || (_key.getStat(70) < 1)) {
+					print("This chest is locked but I don't have keys! Skipping it.");
+					return false;
+				}
+			}
+			if (DC_CheckSkill(43)) {
+				DC_DoCast(43,0,chest );
+			}
+			else {
+				DM_MoveTo(chest.x + 2, chest.y, true);
+				DC_DoClick(0,0,chest);
+			}
+			DC_DoDel(400);
+			return true;
+		} while (chest.getNext());
+	}
+}
+
+
+function PitXP() {
+	// Configure Pindle specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = 0;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP = 0;
+	XP_StallHP = 0;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	XP_MinionStand = true;
+	XP_QuitImmune = false;
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to Outer Cloister
+	if (DM_CheckTeleport()) {
+		try {
+			DM_UsePortal("Waypoint",0x1b);
+		}
+		catch (e) {
+		}
+	}
+	if (me.area != 0x1b && me.area != 6){
+		DM_UsePortal("Waypoint",6);
+	}
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Go to The Pit
+	PitXP_GoToPit();
+	// Clear The Pit
+	if (PitXP_ClearPit()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}

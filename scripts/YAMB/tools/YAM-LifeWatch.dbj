@@ -1,0 +1,712 @@
+//////////////////////////////////////////////////////////////////////
+// 	     YAM-LifeWatch by DarkSpirit
+//       Derived from ChainXP-LifeWatch by ET aka cougio aka Kougio
+//
+// Base: 	LifeWatchXP.d2j 2.7	Original scripters :
+// 			Syadasti, Swedish Power, HPB_Forever, Aeternus, Xizeta and DaBeerMan
+//
+// This program is distributed in the hope that it will be useful, but
+// WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTIBILITY
+// or FITNESS FOR A PARTICULAR PURPOSE.
+//
+// NOTE : It is important to adjust the values so LW_ChickenLife < LW_ChickenTownLife < LW_LifeRejuvThresh < LW_LifeThresh
+//        and LW_ChickenMana < LW_ManaRejuvThresh < LW_ManaThresh. If 2 vars has the same value,
+//        it will always pick the best potion, thus skipping the lesser one.
+//
+//////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////
+// Lifewatch configuration
+//====================================================================
+// Following are default values for all characters.
+// See below this section for character specific config.
+//////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+// Character lifewatch settings
+//====================================================================
+// All potion drink and chicken values for self are now absolute values instead of percentages (faster) !!
+//--------------------------------------------------------------------
+// LW_UseTownChicken  = true/false			Set to true to chicken to town on many things. For HC, set it to false.
+// LW_LifeThresh      = number				Drink a normal potion if under this amount of life.
+// LW_LifeRejuvThresh = number				Drink a rejuvenation potion if under this amount of life.
+// LW_ChickenTownLife = xx					This is your chicken to town life. If you go below this life amount,
+//											the game will make a portal and go to town.
+// LW_ChickenLife     = number				This is your chicken life amount. If you go below this life total, exit game.
+// LW_QuitOnNoDrink   = number				Quit if you cannot drink a potion because your character action is preventing
+//											it and life is lower then this amount.
+// LW_ManaThresh      = number				Drink a normal potion if under this amount of mana.
+// LW_ManaRejuvThresh = number				Drink a rejuvenation potion if under this amount of mana.
+// LW_ChickenMana     = number				This is your chicken mana amount. If you go below this mana total, exit game.
+// LW_ShowOrbs        = true/false			This allows you to set whether or not to show the life and mana orb values on screen
+// LW_ChickenOnOutOfManaPots  = true/false	Set to true to quit when out of mana potions in belt.
+// LW_ChickenOnOutOfHealPots  = true/false	Set to true to quit when out of healing potions in belt.
+// LW_ChickenOnOutOfRejuvPots = true/false	Set to true to quit when out of rejuvenation potions in belt.
+// LW_ChickenOnOutOfPots      = true/false	Set to true to quit when out of rejuvenation and either out of life or
+//											out of mana potions too (recommended.)
+//
+// Note: If you set LW_UseTownChicken to false, the bot will quit the game if one of the conditions below is true:
+// 1) LW_ChickenTownLife is reached
+// 2) LW_ChickenMana is reached
+// 3) LW_DeadMercChicken is true and merc dies
+// 4) LW_MercChickenLife is reached for your merc
+// 5) LW_QuitOnNoDrink is reached and you cannot drink a potion
+// 6) LW_ChickenOnOutOf... is reached and set to true
+//
+// If, on the other hand, LW_UseTownChicken is set to true, the bot will be signaled to tp to town if any of the above conditions are true.
+// If you want the bot to ignore any of one these conditions (i.e. not to quit the game or tp to town irregardless of the value of LW_UseTownChicken),
+// you should set the respective boolean value of the condition above to false, or set it to -1, if it is a number.
+//--------------------------------------------------------------------
+var LW_UseTownChicken          = true;
+
+var LW_LifeThresh              = -70;
+var LW_LifeRejuvThresh         = -60;
+var LW_ChickenTownLife         = -50;
+var LW_ChickenLife             = -30;
+var LW_QuitOnNoDrink           = -35;
+
+var LW_ManaThresh              = -15;
+var LW_ManaRejuvThresh         = 0;
+var LW_ChickenMana             = 0;
+
+var LW_ShowOrbs                = false;
+
+var LW_ChickenOnOutOfManaPots  = false;
+var LW_ChickenOnOutOfHealPots  = false;
+var LW_ChickenOnOutOfRejuvPots = false;
+var LW_ChickenOnOutOfPots      = true;
+
+//--------------------------------------------------------------------
+// Mercenary settings
+//--------------------------------------------------------------------
+// All potion drinking and chicken values for merc are still percentages !!
+//--------------------------------------------------------------------
+// LW_DisplayMercHP   = true/false      Set to true to display Merc HP on screen. Will be displayed as a value out of 128, not in %.
+// LW_MercLifeThresh  = number (%)      This is the threshold to use a life potion on your merc in percent.
+// LW_MercRejuvThresh = number (%)      This is the threshold to use a rejuv potion on your merc in percent.
+// LW_DrinkTimer      = number (secs)   But dont drink more than one potion for this number of seconds.
+// LW_RejuvDrinkTimer = number (secs)   Dont drink more than one rejuv potion for this number of seconds.
+// LW_MercChickenLife = number (%)      This is your mercs chicken life percentage. If he goes below this, exit game.
+// LW_DeadMercChicken = true/false      Set to true to chicken if your merc dies.  If LW_UseTownChicken is set, you will
+//                                      chicken to town ONLY if you have configured to use a merc and you have enough gold
+//                                      to revive him.  Otherwise the chicken request will be issued but ignored.
+//--------------------------------------------------------------------
+var LW_DisplayMercHP   = true;
+var LW_MercLifeThresh  = 70;
+var LW_MercRejuvThresh = 20;
+var LW_DrinkTimer      = 3;
+var LW_RejuvDrinkTimer = 1;
+var LW_MercChickenLife = 10;
+var LW_DeadMercChicken = true;
+
+//--------------------------------------------------------------------
+// Misc settings
+//--------------------------------------------------------------------
+// LW_LoopDelay      = xxx			This is the time your script will pause in between each life check
+// 									Setting the LoopDelay very low consumes a lot of CPU power.
+//									If Diablo seems sluggish raise this value. 200 should be fine for most systems,
+//									though HC players on a fast system might want to do 100.
+// LW_IgnorePosition = true/false	Set to true to drink any potion in your belt, not just those readily clickable.
+// 									IgnorePosition is intended for cautious players who are paranoid about detection.
+// 									It will allow only the drinking of the lowest 4 belt positions (i.e. the ones you
+//									would normally drink from.) Otherwise the bot can drink from the entire belt.
+// LW_QuitOnHostile  = true/false	Quit when someone goes hostile with you.
+// LW_MaxPing        = number		Ping in ms to chicken at. Should never be under 500!
+// LW_MaxSpamFailed  = number		Maximum number of times to print "failed to drink" message until sucessful drink.
+// LW_CheckConfig    = true/false	Set to true to let YAM-LifeWatch validate the config variables and stop if not valid
+//--------------------------------------------------------------------
+
+var LW_LoopDelay      = 200;
+var LW_IgnorePosition = true;
+var LW_QuitOnHostile  = false;
+var LW_MaxPing        = 2500;
+var LW_MaxSpamFailed  = 0;
+var LW_CheckConfig    = false;
+
+////////////////////////////////////////////////////////////////////////
+// DON'T TOUCH ANYTHING BELOW HERE
+////////////////////////////////////////////////////////////////////////
+
+if (!FileTools.exists("libs/YAMB/configs/YAM_LifeWatchConfig_" + me.name + ".dbl")) {
+	try{
+ 		print("Character LifeWatch config file not found! Creating file using default config!"); 
+		if (!FileTools.exists("libs/YAMB/Templates/YAM_LifeWatchConfig.dbl"))
+			throw "TemplateFile Not Available to copy from :: Error in LifeWatchConfig file creation!";
+		var newLWCharFile = File.open("libs/YAMB/configs/YAM_LifeWatchConfig_" + me.name + ".dbl", FILE_WRITE);
+		if (!newLWCharFile)
+			throw "Unable to create New LifeWatchConfig File :: Error in LifeWatchConfig file creation!";
+ 		newLWCharFile.close(); 
+		try{
+			FileTools.copy("libs/YAMB/Templates/YAM_LifeWatchConfig.dbl", "libs/YAMB/configs/YAM_LifeWatchConfig_" + me.name + ".dbl");
+		}
+		catch(ftException){
+			print("-------------------------------------------------------------");
+			print(ftException);
+			stop();
+		}
+		print("Your LifeWatch config file was created: ./scripts/libs/YAMB/configs/YAM_LifeWatchConfig_"+me.name+".dbl");
+ 		print("Please edit this file for your character before continuing!"); 
+	}
+	catch(fileException){
+		print("-------------------------------------------------------------");
+		print(fileException);
+		stop();
+	}
+}
+
+var YAM_LW_CharConfigFile = "YAMB/configs/YAM_LifeWatchConfig_" + me.name + ".dbl"; 
+if (!include(YAM_LW_CharConfigFile)) { 
+	// Show a error to the user 
+	print("include() : Failed to load library : " + YAM_LW_CharConfigFile); 
+	print("ÿc1include() : There are errors in libs/" + YAM_LW_CharConfigFile + " !"); 
+	print("ÿc1include() : Using default LifeWatch settings!"); 
+}
+
+//////////////////////////////////////////////////////////////////////
+// Private variables
+//////////////////////////////////////////////////////////////////////
+var potion                  = -1;
+var _LW_OutOfPots           = false;
+var _LW_MyArea              = me.area;
+var _LW_MyMerc              = null;
+var _LW_timerLastDrink      = 0;
+var _LW_timerMercLastDrink  = 0;
+var _LW_ShowInnerExceptions = true;
+var _LW_TownQuitAllowed     = true;
+// the following store the unaltered variables as passed by the character config file 
+// (allowing recalculation based on BO) - TechnoHunter
+var _LW_LifeThresh          = LW_LifeThresh;
+var _LW_LifeRejuvThresh     = LW_LifeRejuvThresh;
+var _LW_ChickenTownLife     = LW_ChickenTownLife;
+var _LW_ChickenLife         = LW_ChickenLife;
+var _LW_ManaThresh          = LW_ManaThresh;
+var _LW_ManaRejuvThresh     = LW_ManaRejuvThresh;
+var _LW_ChickenMana         = LW_ChickenMana;
+var _LW_QuitOnNoDrink       = LW_QuitOnNoDrink;
+
+var LW_FailedDrinks         = 0;
+var LW_PotionName           = ["ÿc3mana","ÿc1healing","ÿc;rejuvenation","ÿc;full rejuvenation"];
+
+// Screenhooks
+if(LW_ShowOrbs){
+	var hp_sh = new Text(String(me.hp),  55, 540, 9, 1);
+	var mp_sh = new Text(String(me.mp), 720, 540, 9, 1);
+}
+
+var ping_sh = new Text(" ", 700, 580, 2, 1 );
+
+var merc_sh = null; //Place holder for merc screenhook, not initialized now incase merc not being used.
+
+
+function convertPercent(showTest){
+	// lw percentage conversion, uses stored vars for setting global values
+	if(_LW_LifeThresh      < 0 && _LW_LifeThresh      > -99) { LW_LifeThresh      = parseInt((me.hpmax / 100 )* (_LW_LifeThresh      * -1) + 1, 10 ); }
+	if(_LW_LifeRejuvThresh < 0 && _LW_LifeRejuvThresh > -99) { LW_LifeRejuvThresh = parseInt((me.hpmax / 100 )* (_LW_LifeRejuvThresh * -1) + 1, 10 ); }
+	if(_LW_ChickenTownLife < 0 && _LW_ChickenTownLife > -99) { LW_ChickenTownLife = parseInt((me.hpmax / 100 )* (_LW_ChickenTownLife * -1) + 1, 10 ); }
+	if(_LW_ChickenLife     < 0 && _LW_ChickenLife     > -99) { LW_ChickenLife     = parseInt((me.hpmax / 100 )* (_LW_ChickenLife     * -1) + 1, 10 ); }
+	if(_LW_QuitOnNoDrink   < 0 && _LW_QuitOnNoDrink   > -99) { LW_QuitOnNoDrink   = parseInt((me.hpmax / 100 )* (_LW_QuitOnNoDrink   * -1) + 1, 10 ); }
+	if(_LW_ManaThresh      < 0 && _LW_ManaThresh      > -99) { LW_ManaThresh      = parseInt((me.mpmax / 100 )* (_LW_ManaThresh      * -1) + 1, 10 ); }
+	if(_LW_ManaRejuvThresh < 0 && _LW_ManaRejuvThresh > -99) { LW_ManaRejuvThresh = parseInt((me.mpmax / 100 )* (_LW_ManaRejuvThresh * -1) + 1, 10 ); }
+	if(_LW_ChickenMana     < 0 && _LW_ChickenMana     > -99) { LW_ChickenMana     = parseInt((me.mpmax / 100 )* (_LW_ChickenMana     * -1) + 1, 10 ); }
+
+	// for testing purposes
+	if(showTest == true){
+		LW_Print("Current MaxHP "   + me.hpmax );
+		LW_Print("LifeThresh "      + LW_LifeThresh );
+		LW_Print("LifeRejuvThresh " + LW_LifeRejuvThresh );
+		LW_Print("ChickenTownLife " + LW_ChickenTownLife );
+		LW_Print("ChickenLife "     + LW_ChickenLife );
+		LW_Print("QuitOnNoDrink "   + LW_QuitOnNoDrink );
+		LW_Print("---------------------" );
+		LW_Print("Current MaxMP "   + me.mpmax );
+		LW_Print("ManaThresh "      + LW_ManaThresh );
+		LW_Print("ManaRejuvThresh " + LW_ManaRejuvThresh);
+		LW_Print("ChickenMana "     + LW_ChickenMana );
+	}
+}
+
+function YAM_LifeWatch() {
+	// Check the lifewatch values and set them if they are in percentage form
+	convertPercent();
+	// Check the config values if the user want
+	if (LW_CheckConfig) {
+		if ((me.hpmax          <= LW_LifeThresh) || 
+			(LW_LifeThresh      <= LW_LifeRejuvThresh && LW_LifeThresh > 0) || 
+			(LW_LifeRejuvThresh <= LW_ChickenTownLife && LW_LifeRejuvThresh > 0) || 
+			(LW_ChickenTownLife <= LW_ChickenLife     && LW_ChickenTownLife > 0) || 
+			(LW_ManaThresh      <= LW_ManaRejuvThresh && LW_ManaThresh > 0) || 
+			(LW_ManaRejuvThresh <= LW_ChickenMana     && LW_ManaRejuvThresh > 0) || 
+			(me.mpmax <= LW_ManaThresh)) {
+			LW_Print("ÿc1There is a problem with your YAM-LifeWatch settings!ÿc0");
+			LW_Print("ÿc1Please check that you have at least "+LW_LifeThresh+" life and "+LW_ManaThresh+" mana to work with the current setting.");
+			LW_Print("ÿc1Otherwise change the current LW_LifeThresh or/and LW_ManaThresh values!ÿc0");
+			LW_Print("ÿc1Also check that LW_ChickenLife < LW_LifeRejuvThresh < LW_ChickenTownLife < LW_LifeThresh and ÿc0");
+			LW_Print("ÿc1LW_ChickenMana < LW_ManaRejuvThresh < LW_ManaThreshÿc0");
+			DC_StopMessage("ÿc1The script will now stop due to bad YAM-LifeWatch settings!ÿc0");
+		}
+	}
+
+	// Set the core chickening values and enable core chickening logging
+	me.logchicken    = true;
+	me.logquit       = true;
+	me.chickenhp     = LW_ChickenLife;
+	me.quitonhostile = LW_QuitOnHostile ?  1 : 0;
+	// Internal holder for current maxHP, used in while loop as control variable
+	var iLW_MaxLife      = me.hpmax;
+
+    // Get the actual values from percents
+	LW_MercLifeThresh  = parseInt((128 * LW_MercLifeThresh ) / 100,10);
+	LW_MercRejuvThresh = parseInt((128 * LW_MercRejuvThresh) / 100,10);
+	LW_MercChickenLife = parseInt((128 * LW_MercChickenLife) / 100,10);
+	LW_Print("Starting potion loop for " + me.name + (LW_GetMerc() ? (" and " + _LW_MyMerc.name) : " "));
+
+	while (1) {
+		if(iLW_MaxLife != me.hpmax){
+			convertPercent();
+			me.chickenhp = LW_ChickenLife;
+			iLW_MaxLife  = me.hpmax;
+		}
+		if(me.area != _LW_MyArea) {
+			if (_LW_OutOfPots) {
+				_LW_OutOfPots = false;
+			}
+			scriptBroadcast("SM_OutOfPotsReset");
+			LW_GetMerc();
+			_LW_MyArea          = me.area;
+			_LW_TownQuitAllowed = true;
+			scriptBroadcast(_LW_MyMerc ? "SM_MercAlive" : "SM_MercDead");
+		}
+		if (!DC_InTown(me)) {
+			LW_Checker();
+			if (_LW_MyMerc) {
+				LW_CheckMerc();
+			}
+		}
+		else {
+			if (_LW_MyMerc && _LW_MyMerc.getState(2)) { // if merc is poisoned
+				LW_CheckMercTown();
+			}
+		}
+		if(LW_ShowOrbs){
+			hp_sh.text = String(me.hp);
+			mp_sh.text = String(me.mp);
+        }
+		if (LW_DisplayMercHP && _LW_MyMerc){
+			merc_sh.text = String(_LW_MyMerc.hp);
+		}
+		ping_sh.text = String("ÿc2*Ping: " + me.ping);
+		if (me.ping > LW_MaxPing) {
+			if (!DC_InTown(me)){
+				LW_Quit("ping");
+			}
+		}
+		delay(LW_LoopDelay);
+	}
+}
+
+function LW_Checker() {
+	// Fix for CTA users
+	if((me.hp < LW_ChickenLife && me.hp != me.hpmax)  || me.hp < 1) { 
+		LW_Quit("life"); 
+	} // TechnoHunter - Same as above
+	if(me.hp < LW_ChickenTownLife && me.hp != me.hpmax) { 
+		LW_TownQuit("ÿc1Low life, chickening to town"); 
+	}
+	if(me.mp < LW_ChickenMana) { 
+		LW_TownQuit("ÿc3Low mana, chickening to town"); 
+	}
+	if (me.hp <= LW_LifeRejuvThresh && me.hp != me.hpmax) { potion=3; }
+	else if ((me.hp <= LW_LifeThresh && me.mp <= LW_ManaThresh && me.hp != me.hpmax) || me.mp <= LW_ManaRejuvThresh) { potion=2; }
+	else if (me.hp <= LW_LifeThresh && me.hp != me.hpmax) { potion=1; }
+	else if (me.mp <= LW_ManaThresh) { potion=0; }
+	else { return; }
+
+	var tNow = new Date();	// Timer so you don't drink more than you can handle
+
+	if (potion == 2 || potion == 3) { 
+		if (_LW_timerLastDrink && ((tNow - _LW_timerLastDrink) < (LW_RejuvDrinkTimer*1000))) { 
+			return; 
+		} 
+	}
+	else { 
+		if (_LW_timerLastDrink && ((tNow - _LW_timerLastDrink) < (LW_DrinkTimer*1000))) { 
+			return; 
+		} 
+	}
+
+	var _result = LW_DrinkPot(potion,false);
+	switch (_result) {
+		case 1:
+			LW_Print("ÿc8 Drank a " + LW_PotionName[potion] + " ÿc8potion");
+			LW_FailedDrinks = 0;
+			_LW_timerLastDrink = new Date();
+			break;
+		case 0:
+			var _redrink = 0;
+			if (potion != 3) { 
+				_redrink=LW_RetryDrink(potion); 
+			}
+			if (_redrink == 0 ) { 
+				switch(potion) {
+					case 1:
+						if (LW_ChickenOnOutOfHealPots) {
+							LW_TownQuit("ÿc1Out of health potionsÿc0");
+						}
+						break;
+					case 2:
+					case 3:
+						if (LW_ChickenOnOutOfRejuvPots) {
+						LW_TownQuit("ÿc1Out of rejuvenation potionsÿc0");
+						}
+						break;
+					case 0:
+						if (LW_ChickenOnOutOfManaPots) {
+							LW_TownQuit("ÿc1Out of mana potionsÿc0");
+						} 
+						break;
+				} 
+			}
+			else if (_redrink == -1) { 
+				LW_SafetyQuit(); 
+			}
+			else if (_redrink == 1) { 
+				LW_FailedDrinks=0; 
+				_LW_timerLastDrink = new Date(); 
+			}
+			break;
+		case -1: 
+			LW_SafetyQuit();
+			LW_EPrint("ÿc1Failed to drink a "+ LW_PotionName[potion] +" ÿc1potion!!");
+			break;
+	}
+}
+
+// ClassID list for conversion:		515 rvs 	516 rvl
+//	587 hp1		588 hp2		589 hp3		590 hp4		591 hp5
+//	592 mp1 	593 mp2 	594 mp3		595 mp4		596 mp5
+// Returns: 1 = success, 0 = failure, out of potions, -1 = failure, can't drink
+function LW_DrinkPot(type,toMerc) {
+	var _pot = null;
+	switch (type) {
+		case 3:
+			_pot=LW_GetPotByClassID(516);
+			if (!_pot) { 
+				_pot=LW_GetPotByClassID(515); 
+				if (_pot) { 
+					potion=2; 
+				} 
+			}
+			break;
+		case 2:
+			_pot=LW_GetPotByClassID(515);
+			if (!_pot) { 
+				_pot=LW_GetPotByClassID(516); 
+				if (_pot) { 
+					potion=3; 
+				} 
+			}
+			break;
+		case 1:
+			for (var i = 591; i > 586; i-=1) { // Get the biggest health potion
+				_pot=LW_GetPotByClassID(i);
+				if (_pot) { 
+					break; 
+				}
+			}
+			break;
+		case 0:
+			for (var i = 596; i > 591; i-=1){ // Get the biggest mana potion
+				_pot=LW_GetPotByClassID(i);
+				if (_pot) { 
+					break; 
+				}
+			}
+			break;
+		default: 
+			_pot = null;
+	}
+	if (_pot) {
+		for (var t=0; t < 5; t++) {
+			if (!(me.mode == 0  || me.mode == 17 || me.mode == 18)) { 
+				break; 
+			}
+			delay(20);
+		}
+		if (me.mode == 0  || me.mode == 17 || me.mode == 18) { 
+			return -1; 
+		}
+		if (toMerc) { 
+			clickItem(3,_pot); 
+			return 1; 
+		}
+		else { 
+			clickItem(1,_pot); 
+			return 1; 
+		}
+	} 
+	else { 
+		return 0; 
+	}
+}
+
+function LW_RetryDrink(potion) {
+	var _potion=potion;
+	if (potion == 2) { 
+		potion = (me.hp <= LW_LifeThresh) ? 1 : 0; 
+	} 
+	else { 
+		potion = 2;
+	}
+	var _result = LW_DrinkPot(potion,false);
+	if (_result == 1) {
+		LW_Print("ÿc8 Drank a "+ LW_PotionName[potion] +" ÿc8potion because I'm out of "+ LW_PotionName[_potion]+"ÿc8 ones !!");
+		LW_FailedDrinks = 0;
+		return 1;
+	} 
+	else if (_result == -1) {
+		LW_EPrint("ÿc1Failed to drink a "+ LW_PotionName[potion] +" ÿc1potion!!");
+		return -1;
+	} 
+	else {
+		if (!_LW_OutOfPots) {
+			if (LW_ChickenOnOutOfPots) {
+				LW_TownQuit("ÿc1Failed to drink: out of both "+ LW_PotionName[_potion] +"ÿc1 and "+ LW_PotionName[potion] +" ÿc1potions!!","SM_OutOfPots");
+			}
+			_LW_OutOfPots=true;
+		}
+		return 0;
+	}
+}
+
+function LW_CheckMerc() {
+	if (!_LW_MyMerc) { 
+		return false; 
+	}
+	if (_LW_MyMerc.hp < 1) {
+		_LW_MyMerc = null;
+		if (LW_DisplayMercHP) { 
+			merc_sh.text="R.I.P."; 
+		}
+		if (LW_DeadMercChicken) { 
+			LW_TownQuit("ÿc2Merc is deadÿc0","SM_MercDead"); 
+		}
+		return false;
+	}
+	if (_LW_MyMerc.hp < LW_MercChickenLife) { 
+		LW_TownQuit("ÿc2Merc about to dieÿc0"); 
+	}
+	if (_LW_MyMerc.hp <= LW_MercRejuvThresh) { 
+		potion=2; 
+	}
+	else if (_LW_MyMerc.hp <= LW_MercLifeThresh) { 
+		potion=1; 
+	}
+	else { 
+		return false; 
+	}
+	var tNow = new Date();	// Timer so we don't give him more life pots than he can handle
+	if (potion == 1 && (_LW_timerMercLastDrink && ((tNow - _LW_timerMercLastDrink) < (LW_DrinkTimer * 1000)))) { 
+		return false; 
+	}
+	else if (_LW_timerMercLastDrink && ((tNow - _LW_timerMercLastDrink) < (LW_RejuvDrinkTimer*1000))) { 
+		return false; 
+	}
+	var _result = LW_DrinkPot(potion,true);
+	if (_result == 1) {
+		LW_Print("ÿc2 Gave mercenary a "+ LW_PotionName[potion] +" ÿc2potion");
+		_LW_timerMercLastDrink = new Date();
+		LW_FailedDrinks=0;
+		delay(100);	// is that really needed? try lower at least
+	} 
+	else if (_result==0) {
+		var _potion=potion;
+		if (potion==1) { potion=2; }
+		else { potion=1; }
+		_result = LW_DrinkPot(potion,true);
+		if (_result == 1) {
+			LW_Print("ÿc2 Gave mercenary a "+ LW_PotionName[potion] +" ÿc2potion because I'm out of "+ LW_PotionName[_potion]+"ÿc2 ones !!");
+			_LW_timerMercLastDrink = new Date();
+			LW_FailedDrinks = 0;
+			delay(100);	//// same here!
+		} 
+		else if (_result==0) {
+			if (!_LW_OutOfPots) {
+				if (LW_ChickenOnOutOfPots) {
+					LW_TownQuit("ÿc1Failed to feed merc: out of both "+ LW_PotionName[_potion] +"ÿc1 and "+ LW_PotionName[potion] +"potionsÿc1!!","SM_OutOfPots");
+				}
+				_LW_OutOfPots=true;
+			}
+		}
+	}
+	if (_result == -1) { 
+		LW_EPrint("ÿc1 Feeding mercernary a "+ LW_PotionName[potion] +" potion ÿc1failed !!");
+	}
+	return false;
+}
+
+function LW_CheckMercTown() {
+	if (_LW_MyMerc.hp <= LW_MercRejuvThresh) { potion=1; } // if merc is below rejuv thresh, give him a life pot
+	else { return true; }
+
+	var tNow = new Date();	// Timer so we don't give him more life pots than he can handle
+	if (_LW_timerMercLastDrink && ((tNow - _LW_timerMercLastDrink) < (LW_DrinkTimer * 1000))) { return false; }
+	var _result = LW_DrinkPot(potion,true);
+
+	if (_result == 1) {
+		LW_Print("ÿc2 Gave mercenary a "+ LW_PotionName[potion] +" ÿc2potion");
+		_LW_timerMercLastDrink = new Date();
+		LW_FailedDrinks = 0;
+		delay(100);	// here too but matters less
+	}
+	else if (_result==0) {
+		var _potion=potion;
+		if (_LW_MyMerc.hp < 75) { potion=2; } else { return true; }
+
+		_result = LW_DrinkPot(potion,true);
+
+		if (_result == 1) {
+			LW_Print("ÿc2 Gave mercenary a "+ LW_PotionName[potion] +" ÿc2potion because I'm out of "+ LW_PotionName[_potion]+"ÿc2 ones !!");
+			_LW_timerMercLastDrink = new Date();
+			LW_FailedDrinks = 0;
+			delay(100);  // here too but matters less
+		}
+		else { return false; }
+	}
+	if (_result == -1) {
+		LW_EPrint("ÿc2Feeding mercernary a "+ LW_PotionName[potion] +" ÿc2potion ÿc1failed ÿc2!!");
+	}
+	return true;
+}
+
+function LW_EPrint(string) {
+	if (LW_FailedDrinks < LW_MaxSpamFailed){
+		LW_Print(string);
+	}
+	LW_FailedDrinks += 1;
+}
+
+function LW_SafetyQuit() {
+	if (me.hp < LW_QuitOnNoDrink){
+		LW_TownQuit("ÿc1Unable to drink a potion");
+	}
+}
+
+function LW_Quit(message) {
+	switch(message){
+		case "ping": DC_LogToautod2jsp("YAM-LifeWatch : Chickening due to high ping!");	break;
+		case "life": DC_LogToautod2jsp("YAM-LifeWatch : Chickening due to low life!");		break;
+	}
+	quit();
+}
+
+// Go to town if the loader is used, will abort the game if is not.
+function LW_TownQuit(message, smsg) {
+	if(LW_UseTownChicken) {
+		if(_LW_TownQuitAllowed){
+			LW_Print("ÿc8YAM-LifeWatch : Will chicken to town [ " + message + "ÿc8 ]");
+			if (arguments.length < 2){
+				smsg = "SM_Town";
+			}
+			scriptBroadcast(smsg);
+			_LW_TownQuitAllowed = false;
+		}
+	}
+	else {
+		DC_LogToautod2jsp("ÿc1YAM-LifeWatch : Chickening [ " + message + "ÿc1 ]");
+		quit();
+	}
+}
+
+function LW_GetMerc() {
+	//var _merc = DC_GetMerc();
+	var _merc = me.getMerc();
+	if (_merc) {
+		_LW_MyMerc = _merc;
+		if (LW_DisplayMercHP && merc_sh==null) {
+			merc_sh=new Text(String(_LW_MyMerc.hp), 29, 14, 9, 1);
+		}
+		return true;
+	}
+    else {
+        _LW_MyMerc = null;
+        return false;
+    }
+	return false;
+}
+
+function LW_GetPotByClassID(classid) {
+	if (!classid) {
+		return null; 
+	}
+	var _altPot = null;
+	var _pot    = getUnit(4,classid,2);
+	if (_pot) { 
+		do {
+			if (DC_CheckOwner(_pot)) {
+				if (LW_IgnorePosition && classid < 515) {
+					// More efficient to not drink the first row, first - darkspirit
+					if (_pot.x >= 4) { 
+						return _pot; 
+					}
+					else if (!_altPot) { 
+						_altPot = copyUnit(_pot); 
+					}
+				}
+				else {
+					if (_pot.x < 4) { 
+						return _pot; 
+					}
+					else if (!_altPot) { 
+						_altPot = copyUnit(_pot); 
+					}
+				}
+			}
+		} while(_pot.getNext(classid,2)); 
+	}
+	return _altPot;
+}
+
+function LW_Print(what) {
+	if(typeof(DC_Print) == 'function'){
+		DC_Print(what);
+	}
+	else{
+		print(what);
+	}
+}
+
+function main() {
+	include("YAMB/common/YAM-Common.dbl");
+	try { 
+		YAM_LifeWatch(); 
+	}
+	catch (LW_Exception) {
+		DC_LogError("////////////////////////////////////////////////////////////////////////////");
+		DC_LogError("LW Exception : name = " + LW_Exception.name + ", message = " + LW_Exception.message);
+		if (_LW_ShowInnerExceptions && LW_Exception.inner) {
+			DC_LogError("Inner Exceptions Attached - details below");
+			var einner = LW_Exception.inner;
+			while (einner) {
+				DC_LogError("Name: " + einner.name);
+				DC_LogError("Error code: " + einner.number);
+				DC_LogError("Message: " + einner.message);
+				DC_LogError("lineNumber: " + einner.lineNumber);
+				DC_LogError("fileName: " + einner.fileName);
+				var einstack = einner.stack;
+				if (!(einstack instanceof Array)) {
+					einstack = einstack.split("\n");
+					einstack.pop();
+					einstack.pop();
+					einstack.reverse();
+				}
+				for (var i = 0; i < einstack.length; i+=1) {
+					DC_LogError("Stack Trace -> function[" + (i+1) + "]: " + einstack[i]);
+				}
+				einner = einner.inner;
+			}
+		}
+		print("LW Exception : name = " + LW_Exception.name + ", message = " + LW_Exception.message);
+		//DC_QuitMessage("LW Exception : name = " + LW_Exception.name + ", message = " + LW_Exception.message);
+	}
+}

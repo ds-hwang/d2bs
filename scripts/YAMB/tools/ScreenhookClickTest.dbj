@@ -1,0 +1,42 @@
+js_strict(true);
+
+var minmax = true;
+
+var bhook = new Box(690, 80, 100, 60, 15, 2); 
+var framehook = new Frame (690, 80, 100, 60);
+
+//texthooks
+var thook = new Text('Stats',700, 100, 2, 1);
+var xhook = new Text('X:', 700, 120, 7, 0);
+var yhook = new Text('Y:', 700, 130, 7, 0);
+
+function main() {
+
+	thook.click = minimize;
+	
+	while (me.ingame) {
+		delay(100);
+		xhook.text = ('X:' + me.x);
+		yhook.text = ('Y:' + me.y);
+	};
+}
+
+function minimize() {
+	if (minmax) {
+		xhook.visible = false;
+		yhook.visible = false;
+		bhook.ysize = 28;
+		framehook.ysize = 28;
+		minmax = false;
+		me.blockKeys = true;
+	}
+	else if (minmax == false) {
+		xhook.visible = true;
+		yhook.visible = true;
+		bhook.ysize = 60;//300;
+		framehook.ysize = 60;//300;
+		minmax = true;
+		me.blockKeys = false;
+	}
+}
+

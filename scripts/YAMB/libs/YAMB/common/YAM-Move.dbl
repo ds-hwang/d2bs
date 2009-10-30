@@ -1,0 +1,752 @@
+
+//////////////////////////////////////////////////////////////////////
+// Public variables
+//////////////////////////////////////////////////////////////////////
+
+var DM_UseTeleport   = true;
+var DM_RandomMove    = true;
+var DM_RandomMoveDel = true;
+var DM_WalkDel       = 40;
+var DM_AreaChangeDel = 500; // Delay after changing area (by using stairs)
+var DM_CatchUpWait = 0; // Delay to let the game catch up before resuming the script
+
+// If the pathing lib is loaded, set DM_UseTeleport to the one from d2jsp-pathing
+//if(typeof(DP_version) != 'undefined') { DM_UseTeleport = _DP_UseTele; }
+
+
+//////////////////////////////////////////////////////////////////////
+// Private variables
+//////////////////////////////////////////////////////////////////////
+var _DM_TownAreaCodes = [0,1,40,75,103,109];
+
+var _DM_WPWasUsed = false;
+
+var _DM_AreaWPArray = [
+    0,    0x01, 0, 0x03, 0x04, 0x05, 0x06, 0,    0,    0,    0,    0,    0,    0,    0,    0,    // 0..15
+    0,    0,    0, 0,    0,    0,    0,    0,    0,    0,    0,    0x1b, 0,    0x1d, 0,    0,    // 16..31
+    0x20, 0,    0, 0x23, 0,    0,    0,    0,    0x28, 0,    0x2a, 0x2b, 0x2c, 0,    0x2e, 0,    // 32..47
+    0x30, 0,    0, 0,    0x34, 0,    0,    0,    0,    0x39, 0,    0,    0,    0,    0,    0,    // 48..63
+    0,    0,    0, 0,    0,    0,    0,    0,    0,    0,    0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, // 64..79
+    0x50, 0x51, 0, 0x53, 0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    // 80..95
+    0,    0,    0, 0,    0,    0x65, 0,    0x67, 0,    0,    0x6a, 0x6b, 0,    0x6d, 0,    0x6f, // 96..111
+    0x70, 0x71, 0, 0x73, 0,    0x75, 0x76, 0,    0,    0,    0,    0x7b, 0,    0,    0,    0,    // 112..127
+    0,    0x81, 0, 0,    0]; // 128..132
+
+var _DM_Waypoints = [
+    0x01, 0x03, 0x04, 0x05, 0x06, 0x1b, 0x1d, 0x20, 0x23,  // 0 ..8  act1
+    0x28, 0x30, 0x2a, 0x39, 0x2b, 0x2c, 0x34, 0x4a, 0x2e,  // 9 ..17 act2
+    0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 0x50, 0x51, 0x53, 0x65,  // 18..26 act3
+    0x67, 0x6a, 0x6b,                                      // 27..29 act4
+    0x6d, 0x6f, 0x70, 0x71, 0x73, 0x7b, 0x75, 0x76, 0x81]; // 30..38 act5
+
+
+//////////////////////////////////////////////////////////////////////
+// Public functions
+//////////////////////////////////////////////////////////////////////
+
+// Function by Xizeta
+/*
+function DM_Coord(x,y) {
+	this.x = x;
+	this.y = y;
+	this.dist = DM_Dist(x,y,me.x,me.y);
+}*/
+
+// Function by Xizeta from Darien concept
+// Return value : Skill level of the Teleport skill if we have it or 0
+function DM_CheckTeleport() {
+	if(!DM_UseTeleport) { 
+		return 0;
+	}
+	var _haveteleport = me.getSkill(54,1);
+	return (!_haveteleport) ? 0 : _haveteleport;
+}
+
+// Function from Pwnage Pindle
+// Parameters :
+// -x,y		Coordinates to check my position against
+function DM_CheckPosition(x, y) {
+	if((me.classid == 3 && (Math.abs(me.x - x) > 3) || (Math.abs(me.y - y) > 3)) || (me.classid != 3 && (Math.abs(me.x - x) > 7) || (Math.abs(me.y - y) > 7))) {
+		DC_DPrint("DM_CheckPosition() : Correcting position");
+		DM_MoveTo(x, y);
+	}
+}
+
+// Function by Xizeta
+// Parameters :
+// -x,y		Coordinates of the destination
+// The function will select the right movement method depending on criterias
+function DM_MoveTo(x,y,dontwalk,truetele) {
+	// Stall while you are doing something
+	while (me.mode==7 || me.mode==8 || (me.mode>9 && me.mode<19)) {DC_DoDel(10);}
+	// If you are in town, use walk only
+	if(DC_InTown(me)) { return DM_WalkTo(x, y);}
+	// If you have teleport and is set to use it, teleport to the end position
+	if(DM_CheckTeleport()){
+		return DM_TeleportTo(x, y, dontwalk,truetele);
+	}
+	//If nothing fit, use walk by default
+	return DM_WalkTo(x, y);
+}
+
+// Coded by Xizeta, part of code from Darien used
+function _DM_TeleportTo(x,y,truetele) {
+	// If we randomize the movement, modify the coords a little
+   if(me.classid != 3 && DM_RandomMove && !truetele) {
+		var rndx=x+rnd(-1,1);
+		var rndy=y+rnd(-4,4);
+	}
+	// We are not using random movement so use the exact coords
+	else {
+		var rndx=x;
+		var rndy=y;
+	}
+	// Loop for 5 retries until we are moved to the destination point
+	for(var rv = 0; rv < 5; rv+=1) {
+		// Cast teleport
+		DC_DoCast(54,0,rndx,rndy);
+		// Loop until we arrive at destination
+		var _timer = 500;
+		do {
+			// If we are within the destination coords, we are teleported correctly
+			if((Math.abs(me.x - rndx) < 4) && (Math.abs(me.y - rndy) < 4)) {
+				DC_DPrint("_DM_TeleportTo() : Teleported to [" + me.x + ", " + me.y + "]");
+				return true;
+			}
+			_timer-=10;
+			delay(10);
+		} while (_timer > 0);
+		// If it doesn't work, get new coords because you may have tried to go to a bad spot
+		if(rv%2==0){
+			rndx=x+rnd(-1,1);
+			rndy=y+rnd(-4,4);
+		}
+	}
+
+   return false;
+}
+
+// Coded by Xizeta, part of code from Darien used
+function DM_TeleportTo(x,y,dontwalk,truetele) {
+   var _targetx = me.x;
+   var _targety = me.y;
+   var iTry = 1;
+   var ret=true;
+   var r = DM_Dist(x, y, _targetx, _targety);
+
+	while (r > 40 && iTry <= 3) {
+	if(r <= 40) {
+		_targetx = x;
+		_targety = y; 
+		}
+      else {
+         _targetx = Math.floor(me.x + (40 * (x - me.x) / (r > 0 ? r : 1)));
+         _targety = Math.floor(me.y + (40 * (y - me.y) / (r > 0 ? r : 1))); }
+
+      ret = _DM_TeleportTo(_targetx,_targety,truetele);
+      if(!ret) break;
+
+      r = DM_Dist(x, y, _targetx, _targety);
+      iTry += 1;
+   }
+
+   if(ret && _DM_TeleportTo(x,y,truetele)) return true;
+
+	if(arguments.length > 2 && dontwalk) {
+		DC_ThrowException("DM_TeleportTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
+		return false;
+	}
+	else {
+		DC_DPrint("DM_TeleportTo() : Teleport failed, now walking instead");
+		return DM_WalkTo(x, y);
+	}
+}
+
+function DM_WalkTo(x,y) {
+	var _targetx = me.x;
+	var _targety = me.y;
+	var iTry = 1;
+	var ret=true;
+	var r = DM_Dist(x, y, _targetx, _targety);
+
+	while (r > 40 && iTry <= 3) {
+		if(r <= 40) {
+			_targetx = x;
+			_targety = y; }
+		else {
+			_targetx = Math.floor(me.x + (40 * (x - me.x) / (r > 0 ? r : 1)));
+			_targety = Math.floor(me.y + (40 * (y - me.y) / (r > 0 ? r : 1))); }
+
+		ret = _DM_WalkTo(_targetx,_targety);
+		if(!ret) break;
+
+		r = DM_Dist(x, y, _targetx, _targety);
+		iTry += 1;
+	}
+
+	if(ret && _DM_WalkTo(x,y)) return true;
+
+	return false;
+}
+
+// Function from Pwnage Pindle, modified by Xizeta
+function _DM_WalkTo(x,y) {
+	var _startx = me.x;
+	var _starty = me.y;
+	var _currdestx = x;
+	var _currdesty = y;
+	var _retry = 0;
+	var _numtrys=parseInt(10000/DM_WalkDel,10);
+	var _thrash = 0;
+	var _nthrash=parseInt(3000/DM_WalkDel,10);
+	// If the char has running disabled, toggle to enable it
+	if(me.runwalk == 0) { me.runwalk=1; }
+	// If we are already in the correct coords, return true
+	if(Math.abs(me.x - x) <= 1 && Math.abs(me.y - y) <= 1) { return true; }
+	// Display a debug message
+	DC_DPrint("Walking to [" + x + ", " + y + "]");
+	// Loop until we got in the dest coords
+	while ((Math.abs(me.x - x) > 4 || Math.abs(me.y - y) > 4) && _retry <= _numtrys && (me.mode != 17)) {
+		// Randomize the coords if RandomMove is set to true
+		if(DM_RandomMove) {
+			_currdestx+=rnd(-2,2);
+			_currdesty+=rnd(-2,2);
+		}
+		// Click on the current coords set to go there
+		DC_DoClick(0,0,_currdestx,_currdesty);
+		// If the RandomMoveDel is set to true, randomize the movement delay
+		if(DM_RandomMoveDel) { DC_DoDel(DM_WalkDel); }
+		else { delay(DM_WalkDel); }
+		// Increase the retry counter
+		_retry+=1;
+		// If we don't arrive in the destination point, calculate the next set of coords
+		if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
+			if(_thrash >= _nthrash) {
+				//updated by Pachelbel
+				var dx = _currdestx - _startx;
+				var dy = _currdesty - _starty;
+				var a = Math.atan2(dx, dy);
+				a = Math.floor(a * 100) + 157;  // + pi/2;
+				var direction = rnd(a, a+314)/100;  // + pi
+				_currdestx = Math.floor(Math.sin(direction)*20) + me.x;
+				_currdesty = Math.floor(Math.cos(direction)*20) + me.y;
+				_thrash=0;
+			}
+			else { _thrash+=1; }
+		}
+		// Else, use my pos as coords
+		else {
+			_startx = me.x;
+			_starty = me.y;
+			_currdestx = x;
+			_currdesty = y;
+		}
+	}
+	// If we didn't succeed moving to the end coords, we got a problem so abort the game
+	if(Math.abs(me.x - x) > 4 || Math.abs(me.y - y) > 4) {
+		if(me.mode != 17) {
+			DC_ThrowException("DM_WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
+		}
+		return false;
+	}
+	return true;
+}
+
+// Function from PSI_Orion, modified by Xizeta
+// Parameters :
+// -startarea	the area to go FROM (usually me.area)
+// -endarea	the destination area
+// Return value : Stair id or -1 if none is found
+function DM_getStairIDByArea(startarea,endarea) {
+	_stairid = -1;
+	_stairunit = DC_getTile();
+	if(_stairunit) { 
+		do {
+			if(_stairunit.area == startarea && _stairunit.subarea == endarea) {
+				_stairid = _stairunit.classid;
+				DC_DoDel(20);
+			}
+		} while(_stairid == -1 && _stairunit.getNext()); 
+	}
+	return(_stairid);
+}
+
+// Function from Scavenger, modified by Killkeeper and Xizeta
+// Parameters :
+// -lo		Starting classid
+// -hi		Ending classid
+// -area	Area where the stairs is placed
+// Return value : Success of the function
+function DM_TakeStairs(lo, hi, area) {
+	// Get the stair tile
+	var _tile = _DM_GetStairs(lo, hi, area);
+	// If no tile is found, return a error message
+	if(!_tile) {
+		DC_ThrowException("DM_TakeStairs()","No tile found with classid: " + lo + "-" + hi);
+		return false;
+	}
+	// Loop until we changed area by using the stairs
+	var _myarea = me.area;
+	var _retry = 0;
+	do {
+		// If we tried 3 times, retry to move to get closer
+		if( _retry % 3 == 0 ) { 
+			DM_MoveTo(_tile.x,_tile.y); 
+		}
+		// Stall while we are not moved closer to the tile
+		//for(var _retry2 = 0; _DM_Dist2( _tile.x, _tile.y ) > 9 && ( _retry2 < 10 ); _retry2+=1) {
+		for(var _retry2 = 0; getDistance( me, _tile ) > 3 && ( _retry2 < 10 ); _retry2+=1) {
+			DC_DoDel(100);
+		}
+		// Click on the stair tile
+		DC_DoClick(0,0,_tile);
+		// Stall until we changed area
+		for(var _retry2 = 0; _myarea == me.area && ( _retry2 < 10 ); _retry2+=1) {
+			DC_DoDel(100);
+		}
+		// Increase the counter
+		//_retry+=1;
+	} while (_myarea == me.area && _retry++ < 10 );
+	// If we didn't change area, we failed to use the stairs
+	if(_myarea == me.area) {
+		DC_ThrowException("DM_TakeStairs()","Failed to take stairs!");
+		return false;
+	}
+	// Stall a little to let the game catch up (until the area is loaded in memory)
+	var _delLoop = YAM_GameCatchup;
+	do {
+		delay(50);
+		_delLoop -= 50;
+	} while(_delLoop >= 0);
+	return true;
+}
+
+// Modified by darkspirit for performance
+function DM_Dist(x1, y1, x2, y2) { return Math.sqrt(Math.abs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))); }
+
+//////////////////////////////////////////////////////////////////////
+// Portal and waypoints functions
+//////////////////////////////////////////////////////////////////////
+
+// Function by Muellsammler, modified by Xizeta
+// we should use something like this to generate our messages
+// call ChangeArea() and display messages
+function DM_UsePortal(how, dest, ownername, portal) {
+	// no need to use this function when we're already in the destination area
+	if(me.area == dest) { return true;}
+	if(how == "myPortal") how = "BluePortal";
+	// try to change the area
+	var _msg_select = _DM_ChangeArea(how, dest, ownername, portal);
+	// success message
+	if(_msg_select > 0) {
+		DC_DPrint("Changed Area in " + _msg_select + "msec !");
+		// Stall a little to let the game catch up (until the area is loaded in memory)
+		var _delLoop = YAM_GameCatchup;
+		do {
+			delay(50);
+			_delLoop -= 50;
+		} while(_delLoop >= 0);
+		return true;
+	}
+	// darkspirit: attempt to recover from unable to reach dest
+	if(_msg_select == -7) {
+		// Random click
+		DC_DoClick(0, 0, me.x+rnd(-2,2), me.y+rnd(-2,2));
+		DC_DoDel(50);
+		if(me.area == dest) return true;
+	}
+	// error messages
+	switch (_msg_select) {
+		case -1: DC_ThrowException("DM_UsePortal()",how + " not found !"); 										break;
+		case -2: DC_ThrowException("DM_UsePortal()",ownername + "'s Portal not found !");							break;
+		case -3: DC_ThrowException("DM_UsePortal()","Red Portal not found !");										break;
+		case -4: DC_ThrowException("DM_UsePortal()","Area " + dest + " has no Waypoint !");						break;
+		case -5: DC_ThrowException("DM_UsePortal()","Wanted Waypoint to area " + dest + " is not available !");	break;
+		case -6: DC_ThrowException("DM_UsePortal()","Unable to interact with Waypoint ! (" + me.area + ")");		break;
+		case -7: DC_ThrowException("DM_UsePortal()","Unable to reach area " + dest + " !");						break;
+		case -8: DC_ThrowException("DM_UsePortal()","Warp timeout (Area " + dest + ") !");						break;
+	}
+	return false;
+}
+
+// Fixed by darkspirit
+// Function from Muellsammler, modified by Xizeta
+function DM_MakeTP(from,dest) {
+	if(me.area == from) {
+		var _portal=null;
+		// Get the book or scroll object first
+		var _scroll= getUnit(4,"tbk",100);
+		// If we don't have a book, check for a scroll
+		if(!_scroll || !_scroll.getStat(70)) {
+			_scroll= DC_getItem("tsc",100);
+			if(!_scroll) {
+				DC_ThrowException("DM_MakeTP()","Cannot cast TP. No scrolls found !");
+				return false;
+			}
+		}
+		// If we have a scroll, make the portal
+		tploop:
+		if(_scroll) {
+			// Cycle until we find my portal in case someone else made one
+			var _foundportal = false;
+			var _cycles=0;
+			while (!_foundportal && _cycles<3 && _scroll) {
+				_cycles+=1;
+				if(_DM_UseScroll(_scroll)) {
+					// darkspirit - used to be 250, trying 50
+					DC_DoDel(50);
+					for(var tries=0; tries<  25; tries+=1) {
+						_portal = getUnit(2,59,2);
+						// Look for my portal
+						if(_portal) { 
+							do {
+								// Added range checking - darkspirit
+								if(_portal.getParent() && _portal.getParent() == me.name && DA_GetRange(_portal) < 25) {
+										_foundportal=true;
+										break tploop;
+								}
+							} while (_portal.getNext(59,2)); 
+						}
+						delay(50);
+					}
+				}
+				else {
+					DC_ThrowException("DM_MakeTP()","Unable to use TP book/scroll !");
+					return false;
+				}
+			}
+			if(!_foundportal && !_scroll) { 
+				DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); 
+				return false; 
+			}
+			if(!_foundportal) {
+				DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); 
+				return false; 
+			}
+		}
+		else { 
+			DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); 
+			return false; 
+		}
+		DM_UsePortal("BluePortal",dest,me.name,_portal);
+		return true;
+	}
+	return true;
+}
+
+// Function by xizeta
+// Parameters :
+// -message	message to be displayed on screen
+// Return value : None, goes to town after displaying the message and/or logging the error
+function DM_TownMessage(message) {
+	print(message);
+	if(DC_Verbose) { print(TownMessage);}
+	DC_DPrint("TP to town request sent! Message = " + message);
+	DC_LogError("TP to town request sent! Message = " + message);
+	if(!DC_InTown(me)) { // Thx to DaBeerMan
+		if(!DM_MakeTP(me.area,_DM_TownAreaCodes[me.act])){
+			DC_QuitMessage("DM_TownMessage() : Unable to take the TP to go back to town!");
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////
+// Private functions
+//////////////////////////////////////////////////////////////////////
+
+// new var for timeout
+var DM_ChangeAreaTimeout = 10000; // allowed time to change area
+
+// ToDo : To be cleaned and modified to use numbers instead of strings in the "how" part
+function _DM_ChangeArea(how, dest, ownername, myportal) {
+	var _warpstart    = 0;
+	var _warpend      = 0;
+	var portal       = null;
+	var PlayerPortal = false;
+	var _loops = 5; // max tries
+	// red or blue portal ?
+	if(how == "BluePortal") {
+		if(!ownername) { ownername = me.name; }
+		how = "Portal";
+		PlayerPortal = true;
+	}
+	// If the user supplied a portal to use, use that unit instead of finding one
+	if(arguments.length > 3 && myportal){
+		portal = copyUnit(myportal);
+        }
+	// search for the portal/wp
+	else if(how == "Portal") {
+		portal = _DM_FindCorrectPortal(PlayerPortal, ownername);
+		if(portal < 0) { portal = _DM_FindPortalArea(dest);}
+		if(portal==-1) {return -1; }// portal not found
+	}
+	else {
+		var wpHex = _DM_AreaWPArray[dest];
+		if(!wpHex) { return -4; }// destination area has no wp
+		portal = getUnit(2,how);
+	}
+	if(!portal) { return -1; } // portal not found, return when the portal unit wasn't found
+	// walk to the portal/waypoint
+	DM_MoveTo(portal.x, portal.y);
+	// interact with portal/waypoint
+	_interactloop:
+	for(var x = 0; x < _loops; x += 1) {
+		// waypoint and portal
+		if(getUIFlag(0x17)) { 
+			me.cancel(0); 
+		}
+		if(!getUIFlag(0x14)) {
+			_warpstart = getTickCount();
+			var _waitforwarp = true;
+		}
+		// waypoint only
+		if(how == "Waypoint") {
+			DC_DoClick(0,0,portal); // interact when no wp menu is open (no problem for tps)
+			_waitforwarp = false;
+			if(!getUIFlag(0x14) && x >= (_loops-1)) 
+				return -6; // unable to interact
+			if(getUIFlag(0x14)) {
+				if(!_DM_CheckWP(wpHex)) {
+					DT_MenuCancel(portal,0);
+					return -5; // wp for me not available
+				}
+				_warpstart = getTickCount();
+				portal.interact(wpHex);
+				_waitforwarp = true;
+			}
+		}
+		// wait for success
+		if(_waitforwarp) {
+			if(DM_ChangeAreaTimeout < 1000) 
+				DM_ChangeAreaTimeout = 1000;
+			var _waitloops = parseInt(DM_ChangeAreaTimeout/250,10);
+			var u = 0;
+			if(how != "Waypoint") {
+				var fromarea = me.area;
+				while(me.area == fromarea && u < _waitloops) {
+					DC_DoClick(0,0,portal); // interact when no wp menu is open (no problem for tps)
+					//portal.interact();
+					for(var n = 0; n <= 50; n++)
+						delay(10);
+					u++;
+				}
+			}
+			else {
+				while(me.area != dest && u < _waitloops) {
+					for(var n = 0; n <= 50; n++)
+						delay(10);
+					u++;
+				}
+			}
+			while (me.area == 0) 
+				delay(20); // in the warp
+			if(me.area == dest) {
+				_warpend = getTickCount();
+				break _interactloop; // break the for loop after reaching the destination area
+			}
+			else{
+				print("portal fucked up! me.area is " + me.area + " going to area " + dest);
+				return -8;
+			}
+		}
+		else{// delay between 2 interactions
+			for(var n = 0; n <= 50; n++)
+				delay(20);
+		}
+	}
+	// we didn't reach the destination area
+	if(me.area != dest) { 
+		return -7;
+	}// unable to reach destination area in 5secs
+	// cancel interaction menus
+	if(how == "Waypoint") {
+		DT_MenuCancel(portal,0);
+		_DM_WPWasUsed = true;
+	}
+	// success
+	var _warptime = (_warpend==0) ? 0 : (_warpend - _warpstart);
+	return _warptime;
+}
+
+function _DM_GetStairs(lo,hi,area) {
+	var _tile = DC_getTile();
+	// Loop until the right tile is found
+	if(_tile) { do {
+		// If the tile is in the right classid range
+		if(_tile.classid >= lo && _tile.classid <= hi) {
+			// If the right tile is found, return the tile object
+			if( !area || _tile.area == area ) { return _tile; }
+		}
+	} while (_tile.getNext()); }
+	return false;
+}
+
+function _DM_Dist2(x1, y1, x2, y2) { return Math.floor((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)); }
+
+function _DM_CheckWP(wpHexA) {
+	for(var x=0; x<39; x+=1) {
+		if(wpHexA == _DM_Waypoints[x]) {
+			return((getWaypoint(x)) ? true : false);
+		}
+	}
+	return false;
+}
+
+function _DM_FindCorrectPortal(blueportal, ownername) {
+	var portal = getUnit(2,"Portal");
+	
+	if(me.area == 102 && !blueportal)
+		portal = getUnit(2, "portal");
+	
+	if(!portal) { // no portal found
+		DC_DPrint("DM_FindCorrectPortal -> getUnit failed to find a portal");
+		return -1; 
+	}
+	// look for a blue portal
+	if(blueportal) {
+		if(portal) { 
+			do {
+				if(portal.getParent() && portal.getParent() == ownername && DA_GetRange(portal) < 25) { 
+					return portal;
+				}
+			//} while (portal.getNext(59,2));
+			} while (portal.getNext()); 
+		}
+		return -2; // no portal with the correct owner found
+	}
+	// look for a red portal
+	if(portal) { 
+		do {
+			if(!portal.getParent()) { 
+				return portal;
+			}
+		} while (portal.getNext()); 
+	}
+	return -3; // no red portal found
+}
+
+// Function by darkspirit
+function _DM_FindPortalArea(dest) {
+	var portal = getUnit(2,"Portal");
+	if(!portal) { 
+		return -1; 
+	}// no portal found
+	do {
+		if(portal.subarea == dest) {
+			if(portal.getParent()) {
+				if(portal.getParent() == me.name || DC_InMyParty(portal.getParent())) { 
+					return portal;
+				}
+			}
+			else { 
+				return portal;
+			}
+		}
+	} while (portal.getNext("Portal"));
+	return -1;
+}
+
+// Function from Muellsammler, modified by Xizeta
+function _DM_UseScroll(scroll) {
+	clickItem(1,scroll);
+	DC_DoDel(750);
+	return true;
+}
+
+// Fixed by darkspirit
+// Function from Muellsammler, modified by Xizeta
+function XP_OpenTP() {
+	// Get the book or scroll object first
+	var _scroll= getUnit(4,"tbk",100);
+	// If we don't have a book, check for a scroll
+	if(!_scroll || !_scroll.getStat(70)) {
+		_scroll= DC_getItem("tsc",100);
+		if(!_scroll) {
+			DC_ThrowException("MakeTP()","Cannot cast TP. No scrolls found !");
+			return false;
+		}
+	}
+	// If we have a scroll, make the portal
+	tploop:
+	if(_scroll) {
+		// Cycle until we find my portal in case someone else made one
+		var _foundportal = false;
+		var _cycles=0;
+		while (!_foundportal && _cycles<3 && _scroll) {
+			_cycles+=1;
+			if(_DM_UseScroll(_scroll)) {
+				// darkspirit - used to be 250, trying 50
+				DC_DoDel(50);
+				// darkspirit - used to be 20 times, trying 10
+				for(var tries=0; tries<  10; tries+=1) {
+					var _portal = getUnit(2,"Portal");
+					// Look for my portal
+					if(_portal) { do {
+						// Added range checking - darkspirit
+						if(_portal.getParent() && _portal.getParent() == me.name &&
+							DA_GetRange(_portal) < 20) {
+							_foundportal=true;
+							break tploop;
+						}
+					} while (_portal.getNext()); }
+						delay(50);
+				}
+			}
+			else {
+				DC_ThrowException("DM_MakeTP()","Unable to use TP book/scroll !");
+				return false;
+			}
+		}
+		if(!_foundportal && !_scroll) { DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); return false; }
+		if(!_foundportal) { DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); return false; }
+	}
+	else { DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); return false; }
+	return true;
+}
+
+// Fixed by darkspirit
+function DM_TakeEntrance(entrance) {
+	if(!entrance) 
+		return;
+	var i = 0;
+	DM_MoveTo(entrance.x, entrance.y);
+	var _waitloops = parseInt(DM_ChangeAreaTimeout/500,10);
+	var fromarea = me.area;
+	while(me.area == fromarea && i < _waitloops) {
+		//DC_DoClick(0,0,entrance); // why??
+		entrance.interact();//bob
+		delay(500);
+		i++;
+	}
+}
+
+function DM_TouchObject(obj, wait4Mode2) {
+	if(!obj)
+		return false;
+	if(me.classid == 1 && DC_CheckSkill(43) && (getDistance(me,obj) > 20)){
+		// If I'm a sorc, I have the TK skill, and the object is outside TK range, go closer.
+		DM_MoveTo(obj.x, obj.y);
+	}
+	else {
+		DM_MoveTo(obj.x, obj.y);
+	}
+	var retry = 0;
+	while ((obj.mode != 2 ) && ( retry < 5 ) ) {
+		if(!obj.mode) {
+			if(me.classid == 1 && DC_CheckSkill(43)) {
+				// Cast Telekinesis
+				DC_DoCast(43,0,obj);
+			}
+			else {
+				DM_MoveTo(obj.x,obj.y);
+				DC_DoClick(0,0,obj);
+			}
+		}
+		else if(!wait4Mode2) 
+			break;
+		var _wait = 0;
+		while ( (obj.mode != 2 ) && ( _wait < 20 ) ) { _wait+=1; delay(10); }
+		retry+=1;
+	}
+	return (retry < 5);
+}

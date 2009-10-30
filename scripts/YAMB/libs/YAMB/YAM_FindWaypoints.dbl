@@ -1,0 +1,242 @@
+	entryFunc = FindWaypoints();
+	function FindWaypoints(){
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	DM_UsePortal("Waypoint",0x01);
+	
+	
+
+		commPather.GotoLevel(2, true);
+		XP_Precasts();
+		commPather.GotoLevel(3, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(4, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(10, true);	
+		commPather.GotoLevel(5, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(6, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+	
+
+		commPather.GotoLevel(7, true);
+		commPather.GotoLevel(26, true);
+		commPather.GotoLevel(27, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(28, true);
+		commPather.GotoLevel(29, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(30, true);
+		commPather.GotoLevel(31, true);
+		commPather.GotoLevel(32, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(33, true);
+		commPather.GotoLevel(34, true);
+		commPather.GotoLevel(35, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		DM_UsePortal("Waypoint",0x28);
+		commPather.GotoLevel(47, true);
+		commPather.GotoLevel(48, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+		DM_UsePortal("Waypoint",0x28);
+
+		commPather.GotoLevel(41, true);
+		commPather.GotoLevel(42, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(56, true);
+		commPather.GotoLevel(57, true);
+		commPather.GotoWaypoint(me.area);
+		DM_UsePortal("Waypoint",0x2a);
+
+		commPather.GotoLevel(43, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(44, true);
+		commPather.GotoWaypoint(me.area);
+		DM_UsePortal("Waypoint",0x28);
+	
+		commPather.GotoDest(5101,5157); //palice entrance
+		commPather.GotoLevel(50, true);	
+		commPather.GotoLevel(51, false);//problem with the tile
+		DM_TakeStairs(29,29);
+		commPather.GotoLevel(52, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(53, true);
+		commPather.GotoLevel(54, true);
+		commPather.GotoObject(2,298,298,me.area);
+		var _unit = NTC_GetUnit(2, 298);
+		delay(2000);
+		_unit.interact(); 
+		_unit.interact(); 
+		delay(5000);
+		if (me.area==54){
+			_unit.interact(); 
+			_unit.interact(); 
+		}
+		preWalkDelay();
+		postWalkDelay();		
+	commPather.GotoWaypoint(me.area);
+	debugpreset();
+	GetWP(commPather.TargetID);
+
+		commPather.GotoObject(2,357,357,me.area);
+		opentomb();
+		me.cancel(1)
+		delay(1000);
+		DM_UsePortal("Portal",46);
+		commPather.GotoObject(2,402,402,me.area);
+		DM_UsePortal("Waypoint",75);
+	
+		commPather.GotoLevel(76, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+	
+		commPather.GotoLevel(77, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(78, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(79, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(80, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+	
+		commPather.GotoLevel(81, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(82, true);
+		commPather.GotoLevel(83, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(100, true);
+		commPather.GotoLevel(101, true);
+		commPather.GotoWaypoint(me.area);
+		DM_UsePortal("Waypoint",103);
+
+		commPather.GotoLevel(104, true);
+		commPather.GotoLevel(105, true);
+		commPather.GotoLevel(106, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+	
+		commPather.GotoLevel(107, true);
+		commPather.GotoWaypoint(me.area);
+		DM_UsePortal("Waypoint",109);
+
+			
+		commPather.GotoLevel(110, true);
+		commPather.GotoLevel(111, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(112, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(113, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(115, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+		commPather.GotoLevel(117, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+	
+	
+	
+		commPather.GotoLevel(118, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+
+	
+		commPather.GotoLevel(120, true);
+		commPather.GotoLevel(128, true);
+		commPather.GotoLevel(129, true);
+		commPather.GotoWaypoint(me.area);
+		GetWP(commPather.TargetID);
+		
+}
+	
+function GetWP(inID){
+	var wp = getUnit(2,inID);
+	if(wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,wp);
+			delay(10);
+			
+		}
+		l=0;
+		while(getUIFlag(0x14) && l++ < 40) {
+			wp.cancel(0);
+			delay(10);
+		}
+	}
+}
+function opentomb(){
+ var Seal=null;
+   do { Seal = getUnit(2,357); } while (!Seal);
+
+   // Check if the seal is already open
+   if (Seal.mode != 0) return true;
+
+   // Try to open the portal, trying up to 10 times after initial attempt
+   DC_DoClick(0,0,Seal);
+   delay(200);
+   for (var x1=0; x1 < 10 && Seal.mode == 0; x1++) {
+      // Move to alternate spot and try again
+      DM_MoveTo(Seal.x,Seal.y,true);
+      delay(300);
+      DC_DoClick(0,0,Seal);
+      delay(200);
+   }
+   return true;
+}
+function debugpreset(){
+var _presetobjects = getPresetUnits( me.area, 2, null, null );
+	delay(((typeof me.serverip != "undefined") ? me.ping : 50));
+	if ( _presetobjects.length == 0 ) {
+		DP_DPrint("DP_FindWaypoint() -> No preset objects found!");		
+		return false;
+	}
+	for ( var i = 0; i < _presetobjects.length; i += 1 ) {
+	DP_DPrint(i+ " id "+_presetobjects[i].id)
+	}
+}
+
+

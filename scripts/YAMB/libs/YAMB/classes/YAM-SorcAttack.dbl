@@ -1,0 +1,783 @@
+DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
+//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
+
+var _XP_TimedSpells         = new Array();
+var _XP_UntimedSpells       = new Array();
+var _XP_MinionTimedSpells   = new Array();
+var _XP_MinionUntimedSpells = new Array();
+var _XP_CurrentTimed        = 0;
+var _XP_CurrentUntimed      = 0;
+var _XP_NumImmune           = 0;
+var _XP_UseTeleOnImmune     = true;
+
+// Sorceress auto setting vars dont touch! - TechnoHunter
+var _chillingarmor          = false;
+var _shiverarmor            = false;
+var _frozenarmor            = false;
+var _enchantMerc            = false;
+var _testAutoDone           = false;
+
+var XP_ColdArmor            = 0;		// 0=disable, 1=frozen, 2=shiver, 3=chilling
+var XP_EnergyShield         = false;
+var XP_ThunderStorm         = false;
+var XP_EnchantMerc          = false;
+
+// Nihlathak Specific
+var safeNih = true;			// Set to true for sorcs with "Moat trick" skills like Meteor
+								// or Blizzard for a safer attack.
+var NihXP_UntimedRepeat = 1;	// Number of times to cast untimed attacks at minions when
+								// attacking Nihlathak with timed attacks (safeNih set to true).
+
+var YAM_SorcSkill     = new Array();
+var PXP_SorcSkill     = new Array();
+var NihXP_SorcSkill   = new Array();
+var CXP_SorcSkill     = new Array();
+var MXP_SorcSkill     = new Array();
+var AXP_SorcSkill     = new Array();
+var EXP_SorcSkill     = new Array();
+var SXP_SorcSkill     = new Array();
+var BXP_SorcSkill     = new Array();
+var TXP_SorcSkill     = new Array();
+var TrXP_SorcSkill    = new Array();
+var HXP_SorcSkill     = new Array();
+var DuXP_SorcSkill    = new Array();
+var IXP_SorcSkill    = new Array();
+var Monster_SorcSkill = new Array();
+
+var XP_TimedFirst    = true;
+var XP_Static        = 0;
+var XP_UntimedRepeat = 3;
+var PXP_Static       = 0;
+var NihXP_Static     = 0;
+var CXP_Static       = 0;
+var AXP_Static       = 6;
+var MXP_Static       = 6;
+var EXP_Static       = 0;
+var SXP_Static       = 0;
+var BXP_Static       = 0;
+var TXP_Static       = 8;
+var HXP_Static       = 8;
+var DuXP_Static      = 8;
+var TrXP_Static      = 8;
+var SumXP_Static     = 8;
+var DXP_Static       = 0;
+var IXP_Static       = 8;
+
+var XP_ZombieUseStatic   = false;
+var XP_ZombieStaticTimes = 2;
+
+
+function DA_DoPrecasts() {
+	// If the user set DA_AutoPrecasts to false, skip precasts
+	if (!DA_AutoPrecasts) {
+		DC_DPrint("DA_DoPrecasts() : Ignoring auto precasts because DA_AutoPrecasts is set to false");
+		return true;
+	}
+
+
+	// Determine the best armor to use
+	if (_testAutoDone == false) {
+		if(DC_CheckSkill(52) >= 1)			{ _enchantMerc   = true; }
+		if(DC_CheckSkill(60) >= 1)			{ _chillingarmor = true; }
+		else if(DC_CheckSkill(50) >= 1)	{ _shiverarmor   = true; }
+		else if(DC_CheckSkill(40) >= 1)	{ _frozenarmor   = true; }
+		_testAutoDone = true;
+	}
+
+	// Enchant
+	if (_enchantMerc){
+		var _merc = DC_GetMerc();
+		if (_merc && (_merc.getState(16) == 0)) {
+			// Loop until the merc get within range before casting Enchant
+			for (var x=0; x < 10; x+=1) {
+				// If the merc is in range, break the loop
+				if (DA_GetRange(_merc) <= 20)
+					break;
+				// If we are in the wild, cast Teleport on place to bring back the merc
+				if (!DC_InTown(me) && DC_CheckSkill(54))
+					DC_DoCast(54, 0, me.x, me.y);
+				// Wait 1/10 of a second
+				DC_DoDel(100);
+			}
+			// If the merc is in range, cast it
+			if (DA_GetRange(_merc) <= 20)
+				DC_DoCast(52,0,_merc);
+		}
+	}
+	// Frozen Armor
+	if (me.getState(10)==0 && _frozenarmor) {
+		DC_DoCast(40,0);
+	}
+	// Shiver Armor
+	if(me.getState(88)==0 && _shiverarmor) {
+		DC_DoCast(50,0);
+	}
+	// Chilling Armor
+	if (me.getState(20)==0 && _chillingarmor) {
+		DC_DoCast(60,0);
+	}
+	// Energy Shield
+	if(me.getState(30)==0 && DC_CheckSkill(58) >= 1) {
+		DC_DoCast(58,0);
+	}
+	// Thunderstorm
+	if(!DC_InTown(me) && me.getState(38)==0 && DC_CheckSkill(57) >= 1) {
+		DC_DoCast(57,0);
+	}
+	return true;
+}
+
+function XP_Precasts() {
+	var BOed = false;
+
+	if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || (me.getState(32) == 0))) {
+		DA_UseCTASkills();
+		BOed = true;
+		}
+	if (DA_AutoPrecasts) {
+		DA_DoPrecasts();
+	}
+	else {
+		// Cast only if we want to refresh or if we are in town
+		if (DA_Refresh || DC_InTown(me) || BOed) {
+			switch(XP_ColdArmor) {
+				case 1:	DC_DoCast(40,0);	break;// Frozen Armor
+				case 2 :	DC_DoCast(50,0);	break;// Shiver Armor
+				case 3 :	DC_DoCast(60,0);	break;// Chilling Armor
+			}
+			// Energy shield
+			if (XP_EnergyShield) { DC_DoCast(58,0); }
+		}
+		if (!DC_InTown(me) && XP_ThunderStorm)
+			DC_DoCast(57,0);
+		if (!DC_InTown(me) && XP_EnchantMerc)
+			XP_SorcEnchant();
+	}
+}
+
+function XP_SelectAttack(monster, MonsterSkill, from) {
+	var ms = 0;
+	var start = from;
+	if (start >= MonsterSkill.length) { start = 0; }
+	// Try to find a skill monster is not immune to
+	for (ms=start; ms < MonsterSkill.length; ms+=1) {
+		if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(MonsterSkill[ms]))) {
+			break;
+		}
+	}
+	if (ms >= MonsterSkill.length) {
+		if (start > 0) {
+			// Try to find a skill monster is not immune to
+			for (ms=0; ms < start; ms+=1) {
+				if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(MonsterSkill[ms]))) {
+					break;
+				}
+			}
+		}
+		if (ms >= start) ms = -1;
+	}
+	return ms;
+}
+
+function DA_GetSkillDamageType(skill) {
+	switch (skill) {
+		case 43:	//case "Telekinesis" :
+			return 2;
+		case 36:	//case "Fire Bolt" :
+		case 41:	//case "Inferno" :
+		case 46:	//case "Blaze" :
+		case 47:	//case "Fire Ball" :
+		case 51:	//case "Fire Wall" :
+		case 52:	//case "Enchant" :
+		case 62:	//case "Hydra" :
+		case 56:	//case "Meteor" :
+			return 3;
+		case 53:	//case "Chain Lightning" :
+		case 49:	//case "Lightning" :
+		case 57:	//case "Thunder Storm" :
+		case 48:	//case "Nova" :
+		case 42:	//case "Static Field" :
+		case 38:	//case "Charged Bolt" :
+			return 4;
+		case 64:	//case "Frozen Orb" :
+		case 59:	//case "Blizzard" :
+		case 44:	//case "Frost Nova" :
+		case 45:	//case "Ice Blast" :
+		case 55:	//case "Glacial Spike" :
+		case 39:	//case "Ice Bolt" :
+		case 60:	//case "Chilling Armor" :
+		case 50:	//case "Shiver Armor" :
+		case 40:	//case "Frozen Armor" :
+			return 5;
+		default:
+			DC_DPrint("GetSkillDamageType() : " + skill + " is not a damage skill");
+			return 0;
+	}
+}
+
+function XP_BossAttack(target) {
+	DC_DPrint("XP_BossAttack() : Entering function.");
+	_XP_AttackCompleted = 0;
+	_XP_CurrentTimed    = 0;
+	_XP_CurrentUntimed  = 0;
+	var s = 0;
+	var hand;
+	var staticed = false;
+
+	_XP_CurrentTimed   = XP_SelectAttack(target, _XP_TimedSpells, 0);
+	_XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, 0);
+	_XP_haveTimed      = (_XP_CurrentTimed   >= 0) ? true : false;
+	_XP_haveUntimed    = (_XP_CurrentUntimed >= 0) ? true : false;
+	_XP_EndPosition    = new XP_Coord(me.x,me.y);
+
+	if (XP_Static > 0) {XP_CastStatic(target); }
+	if (XP_UntimedRepeat == 0) { XP_UntimedRepeat = 1; }
+	if (!_XP_haveTimed && !_XP_haveUntimed) {
+		DC_Print("ÿc1Warning: " + target.name + " is immune to all your defined attacks!ÿc0");
+	}
+
+	if (XP_TimedFirst && _XP_haveTimed) {
+		s = _XP_TimedSpells[_XP_CurrentTimed];
+		DC_DPrint("XP_BossAttack() : XP_TimedFirst : Casting TimedSkill # " + s + " on index " + _XP_CurrentTimed);
+		_XP_CurrentTimed += 1;
+		_XP_CurrentTimed = XP_SelectAttack(target, _XP_TimedSpells, _XP_CurrentTimed);
+		DC_DoCast(s,0,target);
+		if (XP_CheckUtil(target)){ return; }
+	}
+
+	while (target.hp > 0 && target.mode != 12 && target.mode != 0) {
+		// Untimed attack
+		if (_XP_haveUntimed) {
+			s = _XP_UntimedSpells[_XP_CurrentUntimed];
+			_XP_CurrentUntimed+=1;
+			_XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, _XP_CurrentUntimed);
+			hand = (DC_IsLeftSkill(s) ? 2 : 0);
+			for (var r = 0; r < XP_UntimedRepeat; r+=1) {
+				DC_DPrint("XP_BossAttack() : Casting UntimedSkill # " + parseInt(s,10) + " on index " + parseInt(_XP_CurrentUntimed-1,10));
+				DC_DoCast(s,hand,target.x,target.y);
+				if (XP_CheckUtil(target)) { return; }
+			}
+		}
+		// Timed attack.
+		if (_XP_haveTimed) {
+			s = _XP_TimedSpells[_XP_CurrentTimed];
+			DC_DPrint("XP_BossAttack() : Casting TimedSkill # " + parseInt(s,10) + " on index " + parseInt(_XP_CurrentTimed,10));
+			_XP_CurrentTimed+=1;
+			_XP_CurrentTimed = XP_SelectAttack(target, _XP_TimedSpells, _XP_CurrentTimed);
+			DC_DoCast(s,0,target);
+			if (XP_CheckUtil(target)) { return; }
+		}
+		// Target is immune and user set using telekinesis on boss.
+		if (!_XP_haveUntimed && !_XP_haveTimed && (_XP_UseTeleOnImmune || !XP_ClearPosition(30,target))) {
+			// Static if not lightning immune
+			if ((XP_Static <= 0) && (target.getStat(41) >99) && !staticed) {
+				XP_Static = 8;
+				XP_CastStatic (target);
+				staticed=true;
+			}
+			s = "Telekinesis";
+			for (r = 0; r < XP_UntimedRepeat; r+=1) {
+				DC_DPrint("XP_BossAttack() : Casting Telekinesis");
+				DC_DoCast(s, 0,target.x,target.y);
+				if (XP_CheckUtil(target)) { return; }
+			}
+		}
+		XP_CheckAttacks();
+	}
+}
+
+function XP_DropMeteor(target) {
+	if (DT_UseMerc) {
+		_merc=DC_GetMerc();
+		if (_merc && _merc.hp > 0) {
+			DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,_merc.x,_merc.y);
+		}
+	}
+	else {
+		DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y);
+	}
+}
+
+function XP_CastStatic(target) {
+	var _MaxStaticHP = 0
+	switch(me.diff){
+		case 0:	_MaxStaticHP = 0;	break;
+		case 1:	_MaxStaticHP = 43;	break;
+		case 2:	_MaxStaticHP = 65;	break;
+	}
+	if (!target || !DC_CheckSkill(42) || target.getStat(41) > 99 || target.hp < _MaxStaticHP)
+		return;
+	if ((XP_TimedFirst) && (_XP_TimedSpells.length > 0)) {
+		DC_DPrint("XP_CastStatic() : XP_TimedFirst : Casting Timed #" + parseInt(_XP_TimedSpells[_XP_CurrentTimed],10) + " on index " + parseInt(_XP_CurrentTimed,10));
+		if (_XP_TimedSpells[_XP_CurrentTimed]==56) {
+			DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y); // was XP_DropMeteor function.
+		}
+		else { DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y); }
+		_XP_CurrentTimed+=1;
+		if (_XP_CurrentTimed == _XP_TimedSpells.length) { _XP_CurrentTimed = 0; }
+		if (XP_CheckUtil(target)) { return; }
+	}
+	// Set the range from target
+	var _r = 1.0 + 0.668 * me.getSkill(42,1);
+
+	_XP_EndStaticPosition = new XP_Coord(me.x,me.y);
+
+	// Compute delta-x and delta-y
+	var _dx = me.x - target.x;
+	var _dy = me.y - target.y;
+
+	// Compute Distance to Target
+	//var _tDist = Math.sqrt(Math.abs((_dx * _dx) + (_dy * _dy)));
+	var _tDist = getDistance(me,target);
+
+	// Compare distance from target to the range
+	var _iTry = 1;
+	while ((_tDist > _r)  && (_iTry <= 5)) {
+		// Compute the x and y coordinates
+		var _nx = me.x - Math.round((_dx * (_tDist - _r)) / _tDist);
+		var _ny = me.y - Math.round((_dy * (_tDist - _r)) / _tDist);
+		// Move to range
+		DM_MoveTo(_nx,_ny);
+		// Compute distance after move
+		//if (target.classid == 242) { delay(450); }
+		_dx = me.x - target.x;
+		_dy = me.y - target.y;
+		//_tDist = Math.sqrt(Math.abs((_dx * _dx) + (_dy * _dy)));
+		_tDist = getDistance(me,target);
+		_iTry++;
+	}
+	for (n = 1; n <= XP_Static && target.hp >= _MaxStaticHP; n+=1) {
+		DC_DPrint("Casting Static Field # " + n);
+		DC_DoCast(42,0,target);   // "Static Field"
+	}
+	while (me.getState(121)!= 0) {
+		delay(10);
+	}
+	//Only return to start position if target isn't there
+	_dx = _XP_EndStaticPosition.x - target.x;
+	_dy = _XP_EndStaticPosition.y - target.y;
+	_tDist = Math.sqrt(Math.abs((_dx * _dx) + (_dy * _dy)));
+	if (_tDist > 3.0) {
+		DM_MoveTo(_XP_EndStaticPosition.x,_XP_EndStaticPosition.y);
+	}
+	if (XP_CheckUtil(target)) {
+		return;
+	}
+}
+
+
+function XP_SetSorcSkills(SorcSkill, MonsterSkill) {
+	// If no skills is in the arrays, stop the script with an error msg
+	if (SorcSkill.length < 1) { DC_StopMessage("Your skill list is empty, please check your configuration."); }
+	if (MonsterSkill.length < 1) { DC_Print("ÿc1WARNING: Your minion killing skill list is empty, please check your configuration."); }
+	// Reset the vars if they were previously configured - SorcSkills
+	if (_XP_TimedSpells.length > 0) { _XP_TimedSpells.splice(0,_XP_TimedSpells.length); }
+	if (_XP_UntimedSpells.length > 0) { _XP_UntimedSpells.splice(0,_XP_UntimedSpells.length); }
+	// Read the list and separate timed and untimed skills
+	for (var s = 0; s < SorcSkill.length; s+=1) {
+		if (DC_GetCastDelay(SorcSkill[s])) { _XP_TimedSpells.push(SorcSkill[s]); }
+		else { _XP_UntimedSpells.push(SorcSkill[s]); }
+	}
+	// Reset the vars if they were previously configured - MinionSkills
+	if (_XP_MinionTimedSpells.length > 0) { _XP_MinionTimedSpells.splice(0,_XP_MinionTimedSpells.length); }
+	if (_XP_MinionUntimedSpells.length > 0) { _XP_MinionUntimedSpells.splice(0,_XP_MinionUntimedSpells.length); }
+		// Read the list and separate timed and untimed skills
+	for (var s = 0; s < MonsterSkill.length; s+=1) {
+		if (DC_GetCastDelay(MonsterSkill[s])) { _XP_MinionTimedSpells.push(MonsterSkill[s]); }
+		else { _XP_MinionUntimedSpells.push(MonsterSkill[s]); }
+	}
+}
+
+
+function YAM_GetMonsters(range,x,y,mode,classid,spectypeMask) {
+		DC_DPrint("YAM_GetMonsters() : Entering function.");
+		var monster;
+		var targets = new Array();
+		var count = 0;
+		var ms1 = 0, ms2 = 0;
+		_XP_NumImmune = 0;
+		for (var i=0; i < 1; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (DA_CheckMonster(monster) && ((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10)))) {
+						if ((DA_GetRange(monster) < range) && !checkCollision(me,monster,7)) {
+								if (XP_TimedFirst) {
+									ms1 = XP_SelectAttack (monster, _XP_MinionTimedSpells, 0);
+									ms2 = XP_SelectAttack (monster, _XP_MinionUntimedSpells, 0);
+								}
+								else { ms1 = -1; ms2 = XP_SelectAttack (monster, Monster_SorcSkill, 0); }
+								if (ms1 < 0 && ms2 < 0) { _XP_NumImmune += 1; }
+								else {
+									targets[count] = new Array(monster.gid, ms1, ms2);
+									count += 1;
+								}
+						}
+					}
+				} while (monster.getNext(classid,mode));
+			}
+		}
+	return targets;
+}
+
+function XP_ClearPosition1(range,skip,mode,classid,spectypeMask) {
+	var x = me.x;
+	var y = me.y;
+	var retval = false;
+	var mgid, mtimed, muntimed;
+	_XP_AttackCompleted = 0;
+	var targets = YAM_GetMonsters(range,x,y,mode,classid,spectypeMask);
+	DC_DPrint("Killing " + targets.length + " monsters around me..." + _XP_NumImmune + " Immunes");
+	if (XP_QuitImmune && (_XP_NumImmune >= XP_ImmuneQuit)) {
+		DSN_PickItems(YAM_SafeCheck);
+		DL_AddAbort();
+		DC_ThrowException("XP_AttackMonster()","Too many immune monsters!");
+		return false;
+	}
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (DA_UseCTA) {
+			if ((me.getState(32) == 0) && me.hpmax <= MaxLife && DC_CheckSkill(149)){
+				var _temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+			}
+		}
+		else
+			DA_DoPrecasts();
+		for (var i=0; i < targets.length; i+=1) {
+			if (skip && skip.hp <= XP_SwitchHP) {
+				// If we want to switch weapons for the final blow, do it
+				if (XP_SwitchOnKill) {
+					if (skip.hp > 0) {
+						DC_SelectTab(0);
+					}
+					else DC_SelectTab(1);
+				}
+				if (skip.hp < 1) return retval;
+			}
+			if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+			mgid = targets[i][0];
+			mtimed = targets[i][1];
+			muntimed = targets[i][2];
+			if (!skip || mgid != skip.gid) {
+					if (mtimed >= 0) {
+						retval = XP_CastTimed1(mgid, mtimed);
+					}
+					if (muntimed >= 0) {
+						retval = XP_AttackMonster1(mgid,muntimed,range,x,y);
+					}
+			}
+		}
+    }
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			DC_Print("Max Attack Reached!");
+		else
+			throw e;
+	}
+	return retval;
+}
+
+function XP_CastTimed1(gid,skill) {
+	var monster = getUnit(1,null,null,gid);
+	if (monster && monster.hp > 0) {
+		return DC_DoCast(_XP_MinionTimedSpells[skill],0,monster);
+	}
+	return false;
+}
+
+
+function XP_AttackMonster1(gid,skill,range,x,y) {
+	var monster = getUnit(1,null,null,gid);
+	var _mskill = _XP_MinionUntimedSpells[skill];
+	if (monster && monster.hp > 0) {
+		if (!XP_MinionStand) { DM_CheckPosition(monster.x, monster.y); }
+		var hand = (DC_IsLeftSkill(_mskill) ? 2 : 0);
+		var hpprev = 129;
+		var attprev = _XP_AttackCompleted;
+		while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+			if (DC_DoCast (_mskill, hand, monster)) {
+				if (monster.hp < hpprev) {
+					hpprev = monster.hp;
+					attprev = _XP_AttackCompleted + 1;
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+				}
+				XP_CheckAttacks ();
+			}
+			else { return false; }
+		}
+	}
+	return true;
+}
+
+
+function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
+	DC_DPrint("XP_ClearPosition() : Entering function.");
+	var x = me.x;
+	var y = me.y;
+	var monster;
+	var target = false;
+	var retval = false;
+	var _area = me.area; // cache area property
+
+	if (arguments.length < 2){
+		skip = false;
+	}
+	if (arguments.length < 3){
+		mode = ALIVE_MODE;
+	}
+   	if (arguments.length < 4){
+		classid = null;
+   	}
+	if (arguments.length < 5){
+		spectypeMask = 0xff;
+	}
+	if (XP_QuitImmune){
+		DC_DPrint("XP_ClearPosition() : XP_QuitImmune = true : Calling XP_ClearPosition1().");
+		return XP_ClearPosition1(range,skip,mode,classid,spectypeMask);
+	}
+
+	DC_DPrint("Killing the monsters around me...");
+	_XP_NumImmune       = 0;
+	_XP_AttackCompleted = 0;
+
+	try
+	{
+		// BO every once in a while if we run out - darkspirit
+		if (DA_UseCTA){
+			if ((me.getState(32) == 0) && me.hpmax <= MaxLife && DC_CheckSkill(149)) {
+				var _temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+			}
+		}
+		else
+			DA_DoPrecasts();
+		for (var i=0; i < MonsterSearch; i+=1) {
+			monster = getUnit(1,classid,mode);
+			if (monster) {
+				do {
+					if (_area==39) Cow_KingCheck(monster);
+					if (skip && skip.hp <= XP_SwitchHP) {
+						// If we want to switch weapons for the final blow, do it
+						if (XP_SwitchOnKill) {
+							if (skip.hp > 0) {
+								DC_SelectTab(0);
+							}
+							else DC_SelectTab(1);
+						}
+						if (skip.hp < 1) return retval;
+					}
+					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+					if ((!skip || monster.gid != skip.gid) && DA_CheckMonster(monster) && (DA_GetRange(monster) < range)) {
+						if (monster.classid == 691 && AbortDoll) { DC_ThrowException("XP_ClearPosition()","Bloody dolls found and AbortDolls = True!");}
+						if (_area == 131){
+							ThroneMonsterChecking(monster);
+						}
+						if ((spectypeMask & monster.spectype) || (!monster.spectype && (spectypeMask & 0x10))) {
+							if ((_area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) {
+								retval = XP_AttackMonster(monster,range,x,y);
+							} else if (!checkCollision(me,monster,7)) {
+								retval = XP_AttackMonster(monster,range,x,y);
+							}
+						}
+					}
+				} while (monster.getNext(classid,mode));
+			}
+		}
+	}
+	catch (e if e instanceof DC_ExceptionClass)
+	{
+		if (e.name == "XP_CheckAttacks()")
+			DC_Print("Max Attack Reached!");
+		else
+			throw e;
+	}
+	return retval;
+}
+
+
+function ThroneMonsterChecking(monster) {
+	if (monster.classid == 23 || monster.classid == 62) { BossSpawned = true; }
+	else if (monster.classid == 381 || monster.classid == 105) {
+		if (!Mage) {
+			DM_MoveTo(15094,5012);
+			Mage=true;
+			for (n = 1; n <= YAM_MinionStatic; n+=1) {
+				DC_DPrint("Casting Static Field # " + n);
+				DC_DoCast(42,0,monster);   // "Static Field"
+			}
+		}
+	}
+	else if (monster.classid == 557) {
+		if(!CouncilMember) {
+			DM_MoveTo(15094,5012);
+			CouncilMember = true;
+			for (n = 1; n <= YAM_MinionStatic; n+=1) {
+				DC_DPrint("Casting Static Field # " + n);
+				DC_DoCast(42,0,monster);   // "Static Field"
+			}
+		}
+	}
+	else if (monster.classid == 558) {
+		if(!VenomLord) {
+			DM_MoveTo(15094,5012);
+		 	VenomLord = true;
+			for (n = 1; n <= YAM_MinionStatic; n+=1) {
+				DC_DPrint("Casting Static Field # " + n);
+				DC_DoCast(42,0,monster);   // "Static Field"
+			}
+		}
+	}
+	else if (monster.classid == 571) {
+		if(!MinionOfDest) {
+			DM_MoveTo(15094,5012);
+			MinionOfDest = true;
+			for (n = 1; n <= YAM_MinionStatic; n+=1) {
+				DC_DPrint("Casting Static Field # " + n);
+				DC_DoCast(42,0,monster);   // "Static Field"
+			}
+		}
+	}
+}
+
+
+function XP_CastTimed(monster,attackSkills) {
+	if (monster.hp > 0) {
+		var UseAttacks = ((arguments.length >= 2) ? attackSkills : _XP_MinionTimedSpells);
+		var ms = XP_SelectAttack(monster, UseAttacks, 0);
+		if (ms >= 0) {
+			DC_DoCast(UseAttacks[ms],0,monster);
+		}
+	}
+	return ((ms >= 0)? true : false);
+}
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+	DC_DPrint("XP_AttackMonster() : Entering function.");
+	_XP_AttackCompleted = 0;
+	_XP_CurrentTimed    = 0;
+	_XP_CurrentUntimed  = 0;
+	var s;
+	var hand;
+	var hpprev = 129;
+   	var attprev = _XP_AttackCompleted;
+	var lLast;
+
+	_XP_CurrentTimed   = XP_SelectAttack(monster, _XP_MinionTimedSpells, 0);
+	_XP_CurrentUntimed = XP_SelectAttack(monster, _XP_MinionUntimedSpells, 0);
+	_XP_haveTimed      = (_XP_CurrentTimed   >= 0) ? true : false;
+	_XP_haveUntimed    = (_XP_CurrentUntimed >= 0) ? true : false;
+
+	if (XP_UntimedRepeat == 0) //Sanity check, must be at least one to attack at all - TechnoHunter
+		XP_UntimedRepeat=1;
+	if (XP_TimedFirst && _XP_haveTimed) {
+		s = _XP_MinionTimedSpells[_XP_CurrentTimed];
+		DC_DPrint("XP_AttackMonster() : XP_TimedFirst : Casting TimedSkill # " + s + " on index " + _XP_CurrentTimed);
+		_XP_CurrentTimed+=1;
+		_XP_CurrentTimed = XP_SelectAttack(monster, _XP_MinionTimedSpells, _XP_CurrentTimed);
+		DC_DoCast(s,0,monster);
+	}
+
+	while ((monster.hp > 0) && (monster.mode != 12) && (monster.mode != 0) && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range) {
+		// Untimed attack
+		if (_XP_haveUntimed) {
+			s = _XP_MinionUntimedSpells[_XP_CurrentUntimed];
+			hand = (DC_IsLeftSkill(s) ? 2 : 0);
+			for (var r = 0; r < XP_UntimedRepeat; r+=1) {
+				DC_DPrint("XP_AttackMonster() Casting UntimedSkill # " + s + " on index " + _XP_CurrentUntimed);
+				DC_DoCast(s,hand,monster.x,monster.y);
+			}
+			if (monster.hp < hpprev)
+			{
+				hpprev = monster.hp;
+				attprev = _XP_AttackCompleted + 1;
+				if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+			}
+			lLast = new Date();
+			_XP_CurrentUntimed+=1;
+			_XP_CurrentUntimed = XP_SelectAttack(monster, _XP_MinionUntimedSpells, _XP_CurrentUntimed);
+		}
+		// Timed attack.
+		if (_XP_haveTimed && (monster.hp > 0) && (monster.mode != 12) && (monster.mode != 0))  {
+			s = _XP_MinionTimedSpells[_XP_CurrentTimed];
+			DC_DPrint("XP_AttackMonster() : Casting TimedSkill #" + s + " on index " + _XP_CurrentTimed);
+			_XP_CurrentTimed+=1;
+			_XP_CurrentTimed = XP_SelectAttack(monster, _XP_MinionTimedSpells, _XP_CurrentTimed);
+			DC_DoCast(s,0,monster);
+			lLast = new Date();
+		}
+		if (!_XP_haveUntimed && !_XP_haveTimed ) {
+			return false;
+		}
+		XP_CheckAttacks();
+	}
+	return true;
+}
+
+function XP_PreAttack(x,y) {
+	if (preMeteor){  // meteor.
+		DC_DoCast(56, 0, x+rnd(-4,4),y+rnd(-4,4));
+		DC_DoDel(1200);	// don't change
+		return true;
+	}else if (preBlizzard) {   // blizzard.
+		DC_DoCast(59, 0, x+rnd(-4,4), y+rnd(-4,4));
+		DC_DoDel(1800);	// don't change
+		return true;
+	}
+	return false;
+}
+
+function XP_SorcEnchantMinions(playerName) {
+	var Minion = getUnit(1, null, ALIVE_MODE);
+	if (Minion)
+		do {
+			if (Minion.getParent() && Minion.getParent().name == playerName) {
+				if (DA_GetRange(Minion) > 25)
+					DM_MoveTo(Minion.x,Minion.y);
+				DC_DoCast(52,0,Minion);
+			delay(500);
+			}
+		} while (Minion.getNext(null, ALIVE_MODE));
+}
+
+function XP_SorcEnchant() {
+	var player= getUnit(0);
+	if (player) {
+		do {
+			if (player.mode != 0 && player.mode != 17 && DC_InMyParty(player.name)) {
+				if (DA_GetRange(player) > 25)
+					DM_MoveTo(player.x,player.y);
+				DC_DoCast(52,0,player);
+				delay(500);
+				XP_SorcEnchantMinions(player.name);
+			}
+		}while(player.getNext());
+	}
+}
+
+// Function by Xizeta
+// Parameter :
+// -skillid	ID of the skill to check
+// Return value : 0 if there is no delay or the amount of delay in ms
+function DC_GetCastDelay(skillid) {
+	if (typeof(skillid) != "number") {
+        	DC_DPrint("DC_GetCastDelay() : Skill entered is a name or undefined, cannot check");
+		return false;
+    	}
+	switch (skillid) {
+		// Sorceress
+		case 51: 	return(1400); // "Fire Wall"
+		case 56: 	return(1200); // "Meteor"
+		case 62: 	return(2000); // "Hydra"
+		case 59:	return(1800); // "Blizzard"
+		case 64: 	return(1000); // "Frozen Orb"
+		// Nothing fit so return 0
+		default:	return 0;
+	}
+}

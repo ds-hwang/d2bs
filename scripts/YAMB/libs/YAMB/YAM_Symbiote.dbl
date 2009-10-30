@@ -1,0 +1,448 @@
+entryFunc = Tokra;
+gameMsgExtendHandler = Tokra_GameMsgHandler;
+
+// This is the universal follow bot module that works across acts and also
+// with different bosses.
+// This module was derived from Sumo's Enchanter bot code and also provides
+// enchant and BO services. - by darkspirit
+
+var myLeader       = false;
+var CowPortalReady = false;
+var curArea        = 0;
+var guard          = true;
+var follow         = false;
+var leader         = null;
+var doneTM         = false;
+var quitNow        = false;
+var Sym_Leash      = 7;    		// Set this to the max length of the leash
+XP_QuitImmune      = false;
+
+function Tokra_GameMsgHandler(sender, cmd, params, c) {
+	if (YAM_isMyLeader(sender)) {
+		if (cmd+" "+params == Cow_PortalClearMsg) {
+			CowPortalReady = sender;
+		} else if (params == "help") {
+			say("/w "+ sender + " You must whisper me the command like this: /w " + me.name + " command param");
+			say("/w "+ sender + " For a list of commands: /w "+me.name+" cmd");
+			say("/w "+ sender + " For a list of way point commands: /w "+me.name+" wp");
+		} else if (params == "cmd") {
+			say("/w "+ sender + " For enchant: /w "+me.name+" enchant");
+			say("/w "+ sender + " For bo: /w "+me.name+" bo");
+			say("/w "+ sender + " For bot to follow: /w "+me.name+" come");
+			say("/w "+ sender + " To toggle bot guard mode: /w "+me.name+" guard");
+			say("/w "+ sender + " To get me joinning your game: /w "+me.name+" Join gamename/pass");
+		} else if (params == "wp") {
+			say("/w "+ sender + " For way points: /w "+me.name+" <wp wanted>");
+			say("/w "+ sender + " Act1 wp commands are: cold, stony, dark, black, outer, jail, inner, cata");
+			say("/w "+ sender + " Act2 wp commands are: sewer, dry, halls, far, lost, palace, arcane, canyon");
+			say("/w "+ sender + " Act3 wp commands are: spider, great, flayer, lower, kurast, upper, trav, durance");
+			say("/w "+ sender + " Act4 wp commands are: city, river");
+			say("/w "+ sender + " Act5 wp commands are: frigid, arreat, crystal, glacial, pain, frozen, ancient, worldstone");
+		} else if (params == "come") {
+			YAM_TPReady = sender;
+			say("/w " + sender + " follow mode enabled!");
+			follow=true;
+		} else if (params == "guard") {
+			guard=!guard;
+			say("/w " + sender + " guard mode "+(guard ? "enabled" : "disabled"));
+		} else if (params == "stay") {
+			if (me.area == leader.area){ followTheLeader(leader); }
+			follow=false;
+			say("/w " + sender + " follow mode disabled!");
+		} else if (params == "town") {
+			follow=false;
+			YAM_TownManager();
+		} else if (params == "vigor" && me.classid==3) {
+			UseVigor = !UseVigor;
+			say("/w "+ sender + " UseVigor "+(UseVigor ? "enabled" : "disabled"));
+		} else if (cmd == "cast") {
+			var _leader = getUnit(0, sender);
+			if (_leader) DC_DoCast(params, 0, _leader.x, _leader.y);
+			else DC_DoCast(params, 0);
+		} else if (params == "opentp") {
+			if (!DC_InTown(me)) {
+				XP_OpenTP();
+			}
+		} else if (params == "bye") {
+			quitNow = true;
+			YAM_TPReady = sender;
+			say("/w "+sender+" Symbiote is leaving its host!");
+		} else if (params == "bo" && (DA_UseCTA || DC_CheckSkill(149)) && !DC_InTown(me)) {
+			var _leader = getUnit(0, sender);
+			if (_leader) {
+				//var x = me.x; var y = me.y;
+				DM_MoveTo(_leader.x, _leader.y);
+				var _temp = DA_Refresh;
+				DA_Refresh = true;
+				XP_Precasts();
+				DA_Refresh = _temp;
+				//DM_MoveTo(x, y);
+			}
+		} else if (params == "enchant" && DC_CheckSkill(52) && !DC_InTown(me)) {
+			var _leader = getUnit(0, sender);
+			if (_leader) {
+				//var x = me.x; var y = me.y;
+				DM_MoveTo(_leader.x, _leader.y);
+				if (DA_UseCTA) {DA_UseCTASkills();}
+				XP_SorcEnchant();
+			}
+		} else if (params == "precast") {
+			var _temp = DA_Refresh;
+			DA_Refresh = true;
+			XP_Precasts();
+			DA_Refresh = _temp;
+		} else if (params == "cold"){   XP_CreateTP(0x03,sender);
+		} else if (params == "stony"){ XP_CreateTP(0x04,sender);
+		} else if (params == "dark"){ XP_CreateTP(0x05,sender);
+		} else if (params == "black"){ XP_CreateTP(0x06,sender);
+		} else if (params == "outer"){ XP_CreateTP(0x1b,sender);
+		} else if (params == "jail"){ XP_CreateTP(0x1d,sender);
+		} else if (params == "inner"){ XP_CreateTP(0x20,sender);
+		} else if (params == "cata"){ XP_CreateTP(0x23,sender);
+
+		} else if (params == "sewer"){ XP_CreateTP(0x30,sender);
+		} else if (params == "dry"){ XP_CreateTP(0x2a,sender);
+		} else if (params == "halls"){ XP_CreateTP(0x39,sender);
+		} else if (params == "far"){ XP_CreateTP(0x2b,sender);
+		} else if (params == "lost"){ XP_CreateTP(0x2c,sender);
+		} else if (params == "palace"){ XP_CreateTP(0x34,sender);
+		} else if (params == "arcane"){ XP_CreateTP(0x4a,sender);
+		} else if (params == "canyon"){ XP_CreateTP(0x2e,sender);
+
+		} else if (params == "spider"){ XP_CreateTP(0x4c,sender);
+		} else if (params == "great"){ XP_CreateTP(0x4d,sender);
+		} else if (params == "flayer"){ XP_CreateTP(0x4e,sender);
+		} else if (params == "lower"){ XP_CreateTP(0x4f,sender);
+		} else if (params == "kurast"){ XP_CreateTP(0x50,sender);
+		} else if (params == "upper"){ XP_CreateTP(0x51,sender);
+		} else if (params == "trav"){ XP_CreateTP(0x53,sender);
+		} else if (params == "durance"){ XP_CreateTP(0x65,sender);
+
+		} else if (params == "city"){ XP_CreateTP(0x6a,sender);
+		} else if (params == "river"){ XP_CreateTP(0x6b,sender);
+
+		} else if (params == "frigid"){ XP_CreateTP(0x6f,sender);
+		} else if (params == "arreat"){ XP_CreateTP(0x70,sender);
+		} else if (params == "crystal"){ XP_CreateTP(0x71,sender);
+		} else if (params == "glacial"){ XP_CreateTP(0x73,sender);
+		} else if (params == "pain"){ XP_CreateTP(0x7b,sender);
+		} else if (params == "frozen"){ XP_CreateTP(0x75,sender);
+		} else if (params == "ancient"){ XP_CreateTP(0x76,sender);
+		} else if (params == "worldstone"){ XP_CreateTP(0x81,sender);
+		}
+	}
+}
+
+function Cow_KingCheck(monster) {
+	if (Cow_NoKing) {
+		if (SM_King || monster.spectype & 1) {
+			DC_ThrowException("Cow", "King Found");
+		}
+	}
+}
+
+function XP_GotoTownTP() {
+	YAM_InitCommTown(); // Init commTown on first visit
+	if (me.act == 1) {
+		if (CowPortalReady) commTown.GotoStash();
+		else commTown.GotoTP();
+	} else if (me.act == 2) {
+		commTown2.GotoTP();
+	} else if (me.act == 3) {
+		commTown3.GotoWP();
+	} else if (me.act == 4) {
+		commTown4.GotoStart();
+	} else if (me.act == 5) {
+		commTown5.GotoStart();
+	}
+	XP_Precasts();
+}
+
+function XP_GotoNearestWP() {
+	if (DC_InTown(me)) {
+		YAM_InitCommTown();
+		YAM_PathToWayPoint();
+		XP_Precasts();
+	}
+	else {
+		var wp = getUnit(2, "Waypoint");
+		if (wp && DC_IsWalkable(wp.x, wp.y)) {
+			commPather.GotoDest(wp.x, wp.y);
+		}
+		else {
+			commPather.InitType = 1;
+			commPather.StepActionflag = DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+			if (me.classid==3 && UseVigor){
+				commPather.StepActionflag |= DP_USEVIGOR;
+			}
+			try {
+			commPather.GotoWarp(DP_WARPWAYPOINT, false, false);
+			}
+			catch (e) {
+				YAM_MakeTP();
+			}
+		}
+	}
+}
+
+// create a tp at the wp that the requester asked for.
+function XP_CreateTP(wp,sender) {
+	if (!_DM_AreaWPArray[me.area]) {
+		say ("/w "+ sender + " I don't think I have a WP around here!");
+		return false;
+	}
+	XP_GotoNearestWP();
+	try {
+		DM_UsePortal("Waypoint",wp);
+	}
+	catch (e) {
+		say("/w " + sender + " Sorry, I don't have that WP!");
+		return false;
+	}
+	XP_ClearPosition(25);
+	say("/w " + sender + " Creating tp now (follow mode disabled)!");
+	XP_OpenTP();
+	follow=false;
+}
+
+function GetLeaderAct(area) {
+	for (i=5; i >=1; i--) {
+		if (area >= TownAreaCodes[i])
+			break;
+	}
+	return (i);
+}
+
+function CantGetToArea(leaderName) {
+	YAM_TownManager();
+	say("/w "+ leaderName + " Please open a portal and request again!");
+	follow = false;
+}
+
+function followTheLeader (myLeader) {
+	if (myLeader) {
+		if (me.area != myLeader.area) {
+			var leaderAct = GetLeaderAct(myLeader.area);
+			if (leaderAct != me.act) {
+				if (!DC_InTown(me)) {
+					if (_DM_AreaWPArray[me.area]) { XP_GotoNearestWP(); }
+					else { YAM_MakeTP(); YAM_InitCommTown(); YAM_PathToWayPoint(); }
+				}
+				else { YAM_InitCommTown(); YAM_PathToWayPoint(); }
+
+				if (_DM_AreaWPArray[myLeader.area]) {
+					try { DM_UsePortal("Waypoint", myLeader.area); }
+					catch (e) { DM_UsePortal("Waypoint",TownAreaCodes[leaderAct]); }
+				}
+				else { DM_UsePortal("Waypoint",TownAreaCodes[leaderAct]); delay(2000); }
+			}
+			// Should be in the same act by now
+			var dest = myLeader.area;
+			while (me.area != dest) {
+				if (DC_InTown(me))
+                    XP_GotoTownTP();
+				if (CowPortalReady) {
+					dest = 39;
+					// Do precasts before going into the portal
+					XP_Precasts();
+					// Take the portal to cow level
+					try {
+                        DM_UsePortal("Portal", 39);
+                    }
+					catch (e) {
+                        print("e : name = " + e.name + ", message = " + e.message);
+                    }
+				}
+                else {
+					var portal = _DM_FindPortalArea(myLeader.area);
+					if (portal < 0) {
+						if (_DM_AreaWPArray[myLeader.area] && _DM_AreaWPArray[me.area]) {
+							XP_GotoNearestWP();
+							try {
+                                DM_UsePortal("Waypoint", myLeader.area);
+                            }
+                            catch(e) {
+                                CantGetToArea(myLeader.name);
+                            }
+						}
+						else if (DC_InTown(myLeader)) {
+                            YAM_TownManager();
+                            return;
+                        }
+						else {  // No portal or wp connection
+							commPather.InitType = 1;
+							commPather.InteractTile = true;
+      							commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+							if (me.classid==3 && UseVigor)
+                                commPather.StepActionflag |= DP_USEVIGOR;
+							try {
+                                commPather.GotoLevel(myLeader.area, false, false);
+                            }
+							catch (e) {
+								CantGetToArea(myLeader.name);
+								return;
+							}
+						}
+					}
+                    else {
+						dest = portal.subarea;
+						try {
+							// When we have chosen a leader, go into his tp
+							DM_UsePortal ("BluePortal", dest, myLeader.name, portal);
+						}
+						catch (e) {
+                            print("e : name = " + e.name + ", message = " + e.message);
+                        }
+					}
+				}
+				delay(1000);
+			}
+		}
+		else if (DC_InTown(me))
+            return;
+		// Arrived at the destination!
+		YAM_TPReady = false;
+		CowPortalReady = false;
+		// I am NOT in town and the leader is in the same area as me!
+		DC_ModeDel();
+		var Leader = getUnit(0, null, null, myLeader.gid);
+		if (!Leader) {
+			// Leader is NOT in my immediate vincinity
+			Leader = DC_PlayerPresent(myLeader.name);
+			if (Leader && typeof(Leader.x) == "number") {
+				DC_Print ("Using Pather to move to Leader...");
+				commPather.InitType = 1;
+      				commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+				if (me.classid==3 && UseVigor)
+                    commPather.StepActionflag |= DP_USEVIGOR;
+				try {
+                    commPather.GotoDest(Leader.x,Leader.y,false,false);
+                }
+                catch (e) {
+                    return;
+                }
+			}
+			return false;
+		}
+		else if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+            YAM_SafeCheck();
+        }
+		else if (Math.abs(Leader.x-me.x) > Sym_Leash || Math.abs(Leader.y-me.y) > Sym_Leash) {
+			if (DC_IsWalkable(Leader.x, Leader.y)) {
+				if ((me.classid==3) && UseVigor) // turn on vigor.
+                    			DC_PutSkill(115,0);
+				try {
+                    DM_MoveTo (Leader.x, Leader.y);
+                }
+                catch(e) {
+                    return;
+                }
+			}
+			else {
+				DC_Print ("Using Pather to move to Leader...");
+				commPather.InitType = 1;
+      				commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+				if (me.classid==3 && UseVigor)
+                    commPather.StepActionflag |= DP_USEVIGOR;
+				try {
+                    commPather.GotoDest(Leader.x, Leader.y, false, false);
+                }
+                catch (e) {
+                    return;
+                }
+			}
+		}
+	}
+	else {
+        DC_ThrowException("followTheLeader()","Leader has disappeared!");
+    }
+}
+
+function Tokra() {
+   	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static=CXP_Static;
+   	}
+
+   	XP_SwitchHP    = CXP_SwitchHP;
+   	XP_StallHP     = CXP_StallHP;
+   	XP_StallKill   = CXP_StallKill;
+   	XP_MinionStand = true;
+
+   	if (me.classid == 3) {
+        XP_KillMinions = false;
+    }
+
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+   	}
+
+	// Set Max Game length to infinite so we dont time out
+	me.gamelength = 0;
+	MonsterSearch=1;
+
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+
+	DC_Print("Waiting for commands from a leader...");
+	do {
+		delay(1000);
+	} while (!YAM_TPReady && !CowPortalReady);
+
+	// The one who yells "tp up" becomes my true leader
+	if (YAM_TPReady)
+        myLeader = YAM_TPReady;
+	else if (CowPortalReady)
+        myLeader = CowPortalReady;
+
+	// Make sure to party the leader
+	if (!DC_PartyPlayer(myLeader)) {
+		// If failed to party, choose another leader
+		for (var i=0; i < Leaders.length; i++) {
+			if (DC_PartyPlayer(Leaders[i])) { myLeader=Leaders[i]; break; }
+		}
+	}
+
+	DC_Print("Leader name: " + myLeader);
+
+	var _tmpdate = new Date();
+	var _lastdate = new Date() - 60000;
+
+	while (!quitNow) {
+		leader = DC_PlayerPresent(myLeader);
+		if (!leader) {
+            delay(1000);
+            continue;
+        }
+		if (follow)
+            followTheLeader(leader);
+		DC_ModeDel();
+		if (!DC_InTown(me)) {
+			doneTM = false;
+			if (guard) {
+				try { if (XP_ClearPosition(30)) DSN_PickItems(YAM_SafeCheck); }
+				catch (e if e instanceof DC_ExceptionClass)
+    				{
+					if (e.name != "Cow")
+						throw e;
+					else {
+						say ("/w "+myLeader+" Cow King found!  Going back to town (follow mode disabled)!");
+							follow=false;
+							YAM_TownManager();
+					}
+				}
+			}
+		}
+		else if (!doneTM) {
+			// Do town stuff in the act we are in
+			YAM_TownManager();
+			doneTM = true;
+		}
+		delay(500);
+		_tmpdate = new Date();
+		if (_tmpdate -_lastdate > 180000) {
+			_lastdate = _tmpdate;
+			sendCopyData( "autod2jsp", 0, SD_PING, "" )
+		}
+	}
+}

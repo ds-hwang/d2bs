@@ -1,0 +1,542 @@
+//[quote="2KH"]Since I'm done with d2jsp... here is the last stuff I was working on.... I was in the process of converting everything into this framework and then was going to split off the common functions into there own unit... and the boss modules would be reduced to 20 or lines or less of code (in most cases)
+
+//note... there is a Frozenstein module burried in here
+
+//YAM_Game.dbl
+
+//[code]
+
+// Don't touch below this line 
+////////////////////////////////////////////////////////////////////////////////////////// 
+
+var XP_StepDist = 10;
+var XP_Kamikaze = false;
+
+entryFunc = BossXP; 
+
+var _puX = 0; 
+var _puY = 0; 
+var _portal = null;
+var _xbase = 5699; //x-coord of base waypoint (Trav)
+var _ybase = 1584; //y-coord of base waypoint (Trav)
+
+function RefreshPrecasts() { 
+
+   var _r = DA_Refresh; 
+   DA_Refresh = true; 
+   XP_Precasts(); 
+   DA_Refresh = _r; 
+    
+} 
+
+function StepCallBack(attack) { 
+
+   // commPather will never pass this arguement
+   if (arguments.length < 1) {attack = false;}
+
+   // Notes:
+   //
+   // _DP_Room  - commPather.GotoRoom() fills this with the destination coords prior to pathing
+
+   // Stop the pather when close enough to the destination to detect Izual.  This stops the pather
+   // prior to the final destination coords.
+   if (_DP_Room && (Math.abs(me.x - _DP_Room.x) < 20 && Math.abs(me.y - _DP_Room.y) < 20)) {
+      return mlSTOP;
+   }
+
+   if (!XP_Kamikaze || attack) {
+      var x = me.x; 
+      var y = me.y; 
+      var specType = 0xff; 
+
+      if (YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) { 
+         //To obtain the needed specType is easy. 
+         specType = YAM_StepPath & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS); 
+         specType >>= 8; // shift 1 byte 
+      } 
+
+      XP_ClearPosition(28,false,ATTACKING_MODE,null,specType); 
+      XP_ClearPosition(28,false,ALIVE_MODE,null,specType); 
+      DSN_PickItems(YAM_SafeCheck); 
+      if (YAM_OpenChests) { 
+         YC_MaxDistance = 19; 
+         YC_CheckForChests(); 
+      } 
+
+      if (YAM_UseShrines) { 
+         // if we find a shrine, use it before proceeding for an added bonus 
+         DS_MaxDistance = 15; 
+         DS_CheckForShrines(); 
+      } 
+      DM_CheckPosition(x,y,true);
+   }
+    
+   return mlSTEPAHEAD; 
+} 
+
+function StepTo(x,y,attack,shift) {
+
+   if (arguments.length < 3) {attack = false;}
+   if (arguments.length < 4) {shift = false;}
+
+   if (shift) {
+      x = x + (_portal.x - _xbase); 
+      y = y + (_portal.y - _ybase); 
+   }
+   DM_MoveTo(x,y,true,true);
+   if (attack) {StepCallBack(attack);}
+}
+
+function GotoTrav() {
+
+   _xbase = 5699;
+   _ybase = 1584;
+
+   StepTo(5720,1587,false,true); 
+   StepTo(5720,1563,false,true); 
+   StepTo(5739,1557,false,true); 
+   StepTo(5760,1556,false,true); 
+   StepTo(5780,1555,false,true); 
+   StepTo(5800,1554,false,true); //start of path to Durance Stairs 
+   StepTo(5799,1534,false,true); 
+   StepTo(5799,1526,true,true); 
+   StepTo(5797,1514,true,true); //before entry arch
+   StepTo(5795,1490,true,true); //Durance Stairs 
+   StepTo(5787,1491,true,true); //left of stairs 
+
+
+   // Check for Council straglers
+   StepTo(5797,1514,true,true); //before entry arch (again) 
+   StepTo(5781,1514,true,true); //left of entry arch 
+}
+
+function GotoIzual() { 
+
+   var _rm = DM_RandomMove; 
+   DM_RandomMove = false; 
+
+   // If not Kamikaze, take steps less than your clearing range. 
+   // Otherwise, use XP_TeleDist. 
+   var _teledist = XP_StepDist; 
+   if (XP_Kamikaze) {_teledist = XP_TeleDist;} 
+
+   XP_ResetVars();
+   commPather.InitType = 1; //0 fails every single time
+   commPather.GotoLevel(105,_teledist,StepCallBack);
+   
+   StepCallBack(true);  //force attack
+   RefreshPrecasts();   //force precasts
+
+   commPather.InitType = 0;
+   commPather.GotoRoom(822,822,_teledist,StepCallBack);
+    
+   DM_RandomMove = _rm; 
+} 
+
+function GotoHephasto() { 
+
+   var _rm = DM_RandomMove; 
+   DM_RandomMove = false; 
+
+   // If not Kamikaze, take steps less than your clearing range. 
+   // Otherwise, use XP_TeleDist. 
+   var _teledist = XP_StepDist; 
+   if (XP_Kamikaze) {_teledist = XP_TeleDist;} 
+
+   XP_ResetVars();
+   GetPresetCoords(376); //Hellforge
+   commPather.InitType = 0; 
+   commPather.GotoDest(_puX,_puY,_teledist,StepCallBack); 
+//   commPather.GotoRoom(853,854,_teledist,StepCallBack);
+
+   DM_MoveTo(_puX+7,_puY+7); 
+   StepCallBack(true); 
+    
+   DM_RandomMove = _rm; 
+}
+
+function GotoPindle() {
+   // Moving from red portal to the temple entry
+   DM_MoveTo(10063,13281);
+   DM_MoveTo(10059,13256);
+
+   // If the user set a position outside the limits of the temple, do corrections
+   if (PXP_OffsetX > 3) { PXP_OffsetX=3; }
+   if (PXP_OffsetX < -5) { PXP_OffsetX=-5; }
+   if (PXP_OffsetY > 24) { PXP_OffsetY=24; }
+   if (PXP_OffsetY < -10) { PXP_OffsetY=-10; }
+
+   // If you don't use teleport, go to the doorway before getting in the end position
+   if (!DM_CheckTeleport()) {
+      DM_MoveTo(10057,13245); //<-- Doorway position
+
+      // Cast Decoy at the doorway if DecoyPosition is at 1 and you are a amazon
+      if (me.classid == 0 && XP_CastDecoy && XP_DecoyPosition==1) { DC_DoCast(28,0,me.x,me.y); }
+   }
+
+   // Go to the final spot
+   DM_MoveTo(10061 + PXP_OffsetX, 13234 - PXP_OffsetY);
+}
+
+
+function SummonerGoLowerRight() { 
+
+   //Tome=25866,5431 
+
+   StepTo(25471,5447,!XP_Kamikaze); 
+   StepTo(25495,5446,!XP_Kamikaze); 
+   StepTo(25521,5446,!XP_Kamikaze); 
+   StepTo(25546,5448,!XP_Kamikaze); 
+   StepTo(25558,5447,!XP_Kamikaze); 
+   StepTo(25566,5433,!XP_Kamikaze); 
+   StepTo(25566,5405,!XP_Kamikaze); 
+   StepTo(25561,5383,!XP_Kamikaze); 
+   StepTo(25585,5386,!XP_Kamikaze); 
+   StepTo(25612,5386,!XP_Kamikaze); 
+   StepTo(25641,5388,!XP_Kamikaze); 
+   StepTo(25661,5387,!XP_Kamikaze); 
+   StepTo(25683,5391,!XP_Kamikaze); 
+   StepTo(25706,5386,!XP_Kamikaze); 
+   StepTo(25731,5386,!XP_Kamikaze); 
+   StepTo(25761,5387,!XP_Kamikaze); 
+   StepTo(25782,5387,!XP_Kamikaze); 
+   StepTo(25811,5386,!XP_Kamikaze); 
+   StepTo(25806,5412,!XP_Kamikaze); 
+   StepTo(25807,5437,!XP_Kamikaze); 
+   StepTo(25831,5446,!XP_Kamikaze); 
+   StepTo(25850,5446,!XP_Kamikaze); 
+   StepTo(25861,5442,true); 
+} 
+
+function SummonerGoLowerLeft() { 
+
+   //Tome=25431,5861 
+
+   StepTo(25446,5471,!XP_Kamikaze); 
+   StepTo(25446,5497,!XP_Kamikaze); 
+   StepTo(25447,5521,!XP_Kamikaze); 
+   StepTo(25446,5540,!XP_Kamikaze); 
+   StepTo(25446,5564,!XP_Kamikaze); 
+   StepTo(25472,5566,!XP_Kamikaze); 
+   StepTo(25493,5566,!XP_Kamikaze); 
+   StepTo(25506,5590,!XP_Kamikaze); 
+   StepTo(25506,5614,!XP_Kamikaze); 
+   StepTo(25507,5641,!XP_Kamikaze); 
+   StepTo(25506,5662,!XP_Kamikaze); 
+   StepTo(25506,5685,!XP_Kamikaze); 
+   StepTo(25506,5712,!XP_Kamikaze); 
+   StepTo(25506,5736,!XP_Kamikaze); 
+   StepTo(25506,5761,!XP_Kamikaze); 
+   StepTo(25506,5783,!XP_Kamikaze); 
+   StepTo(25506,5806,!XP_Kamikaze); 
+   StepTo(25480,5806,!XP_Kamikaze); 
+   StepTo(25461,5806,!XP_Kamikaze); 
+   StepTo(25447,5822,!XP_Kamikaze); 
+   StepTo(25447,5843,!XP_Kamikaze); 
+   StepTo(25442,5856,true); 
+} 
+
+function SummonerGoUpperLeft() { 
+
+   //Tome=25011,5446 
+
+   StepTo(25421,5446,!XP_Kamikaze); 
+   StepTo(25401,5446,!XP_Kamikaze); 
+   StepTo(25368,5446,!XP_Kamikaze); 
+   StepTo(25346,5446,!XP_Kamikaze); 
+   StepTo(25326,5438,!XP_Kamikaze); 
+   StepTo(25326,5424,!XP_Kamikaze); 
+   StepTo(25326,5406,!XP_Kamikaze); 
+   StepTo(25300,5387,!XP_Kamikaze); 
+   StepTo(25281,5386,!XP_Kamikaze); 
+   StepTo(25248,5386,!XP_Kamikaze); 
+   StepTo(25225,5386,!XP_Kamikaze); 
+   StepTo(25199,5388,!XP_Kamikaze); 
+   StepTo(25172,5386,!XP_Kamikaze); 
+   StepTo(25143,5386,!XP_Kamikaze); 
+   StepTo(25120,5386,!XP_Kamikaze); 
+   StepTo(25101,5386,!XP_Kamikaze); 
+   StepTo(25088,5387,!XP_Kamikaze); 
+   StepTo(25088,5408,!XP_Kamikaze); 
+   StepTo(25088,5432,!XP_Kamikaze); 
+   StepTo(25086,5444,!XP_Kamikaze); 
+   StepTo(25064,5446,!XP_Kamikaze); 
+   StepTo(25046,5446,!XP_Kamikaze); 
+   StepTo(25022,5446,true); 
+} 
+
+function SummonerGoUpperRight() { 
+
+   //Tome=25431,5011 
+
+   StepTo(25446,5421,!XP_Kamikaze); 
+   StepTo(25446,5398,!XP_Kamikaze); //5401 worked, but not there
+   StepTo(25446,5370,!XP_Kamikaze); 
+   StepTo(25446,5345,!XP_Kamikaze); //5346 is good but can go to 5341
+   StepTo(25461,5328,!XP_Kamikaze); //25452,5331 is bad
+   StepTo(25475,5326,!XP_Kamikaze); 
+   StepTo(25495,5328,!XP_Kamikaze); //25496,5327 worked, but not there
+   StepTo(25507,5306,!XP_Kamikaze); //5313 is good, try 5308 or 5306
+   StepTo(25507,5278,!XP_Kamikaze); //5288 is bad
+   StepTo(25504,5261,!XP_Kamikaze); //25505 worked, but not there... also can try 25506,5253
+   StepTo(25506,5237,!XP_Kamikaze); 
+   StepTo(25506,5207,!XP_Kamikaze); //25506,5214 not there
+   StepTo(25506,5180,!XP_Kamikaze); //5191 is good, but a short hop from 5207
+   StepTo(25506,5158,!XP_Kamikaze); //5167 not there
+   StepTo(25506,5133,!XP_Kamikaze); //5141 may work, but questionable... new is more midpoint
+   StepTo(25506,5106,!XP_Kamikaze); //5117 is good... to 5106, closer to 5106 the better
+//   StepTo(25506,5088,!XP_Kamikaze); //5088 not good... 5081 is, but need check other maps... can be skipped if prior is 5106
+   StepTo(25485,5086,!XP_Kamikaze); //25480,5086... 5088 to 5086 is good... 25480 (far if prior skipped) to 25493 is good
+   StepTo(25462,5087,!XP_Kamikaze); 
+   StepTo(25447,5067,!XP_Kamikaze); 
+   StepTo(25448,5046,!XP_Kamikaze); 
+   StepTo(25435,5023,true); 
+} 
+
+
+function GotoSummoner() {
+
+   XP_Kamikaze = true;
+   GetPresetCoords(357); //Tome
+   switch (_puY) { 
+      case 5431: SummonerGoLowerRight(); break; 
+      case 5861: SummonerGoLowerLeft(); break; 
+      case 5446: SummonerGoUpperLeft(); break; 
+      case 5011: SummonerGoUpperRight(); break; 
+   }
+   XP_Kamikaze = false;
+}
+
+function DoTrav() {
+
+   PreBoss("Waypoint",0x53,null);
+   GotoTrav();
+   DL_AddKill();
+}
+
+function DoIzual() {
+
+   PreBoss(null,null,103);
+   GotoIzual();
+   if (AttackBoss(256,null)) {DL_AddKill();} //406=Izual's Ghost
+}
+
+function DoHephasto() {
+
+   PreBoss("Waypoint",0x6b,null);
+   GotoHephasto(); 
+   if (AttackBoss(409,0x01)) {DL_AddKill();}
+}
+
+function DoPindle() {
+
+   PreBoss("Portal",121,109);
+   GotoPindle(); 
+   if (AttackBoss(440,0x01)) {DL_AddKill();}
+}
+
+function DoEldritch() {
+
+   PreBoss("Waypoint",0x6f,null);
+   
+   DM_MoveTo(3760,5098);
+   DM_MoveTo(3750 - EXP_OffsetX,5084 - EXP_OffsetY);
+
+   if (AttackBoss(453,0x01)) {DL_AddKill();}
+}
+
+function DoThreshSocket() {
+
+   PreBoss("Waypoint",0x70,null);
+   
+   XP_Kamikaze = true;
+   XP_ResetVars();
+   commPather.InitType = 0;
+   commPather.GotoLevel(113,false,StepCallBack); 
+   XP_Kamikaze = false;
+
+   if (AttackBoss(443,0x01)) {DL_AddKill();}
+}
+
+function DoFrozenstein() {
+
+   PreBoss("Waypoint",0x71,null);
+
+   var _rm = DM_RandomMove; 
+   DM_RandomMove = false; 
+
+   // If not Kamikaze, take steps less than your clearing range. 
+   // Otherwise, use XP_TeleDist. 
+   var _teledist = XP_StepDist; 
+   if (XP_Kamikaze) {_teledist = XP_TeleDist;} 
+
+   XP_ResetVars();
+   commPather.InitType = 0;
+   commPather.GotoLevel(114,_teledist,StepCallBack); 
+
+   DM_TakeStairs(75,75);
+   StepCallBack(true);  //force attack
+   RefreshPrecasts();   //force precasts
+
+   GetPresetCoords(460); //Anya Platform; 558=Frozen Anya, but she isn't there if quest is done
+   commPather.GotoDest(_puX,_puY,_teledist,StepCallBack); 
+
+   DM_RandomMove = _rm; 
+   
+   if (AttackBoss(449,0x01)) {DL_AddKill();}
+}
+
+function DoSummoner() {
+
+   PreBoss("Waypoint",74,null);
+   GotoSummoner();
+   if (AttackBoss(250,null)) {DL_AddKill();}
+}
+
+function GetPresetCoords(classid) {
+   var _pu = false; 
+   while (!_pu) {_pu = getPresetUnits(me.area, 2, classid, null);} 
+   _puX = _pu[0].roomx*5 + _pu[0].x; 
+   _puY = _pu[0].roomy*5 + _pu[0].y; 
+}
+
+function PreBoss(portal,dest,reqarea) {
+   // Do town stuff in the act we are in 
+   YAM_TownManager();
+
+   if (reqarea) {
+      switch (reqarea) {
+         case 103: //Act 4 Town
+            if (me.area != reqarea) {
+               YAM_PathToWayPoint(); 
+               DM_UsePortal("Waypoint",0x67); //0x6a = City  0x6b = River
+               YAM_InitCommTown();
+            }
+            break;
+         case 109: //Act 5 Town
+            if (me.area != reqarea) {
+               YAM_PathToWayPoint(); 
+               DM_UsePortal("Waypoint",0x6d);
+               YAM_InitCommTown();
+               YAM_PathToAnya();
+               _YAM_Position = "anya";
+            }
+            break;
+      }
+   }
+   else {YAM_PathToWayPoint();}
+
+   // In Town Precasts
+   XP_Precasts();
+
+   // Leave Town
+   if (reqarea) {
+      switch (reqarea) {
+         case 103: //Act 4 Town
+            commTown4.GotoExit();
+            delay(2000); //allow merc/minions to catch up
+            break;
+         case 109:
+            DM_UsePortal(portal,dest);
+            break;
+      }
+   }
+   else {
+      DM_UsePortal(portal,dest);
+      _portal = null;
+      while (!_portal) {_portal = getUnit(2,portal);} 
+   }
+
+   // Out of Town Precasts
+   XP_Precasts();
+}
+
+function AttackBoss(classid,type) { 
+   // Detecting Boss with 3 retries to be sure to get the target 
+   for (var i = 0; i < 3; i+=1) { 
+      var target = DC_FindMonster(classid,type); 
+      if (target) { break; } 
+   } 
+   if (target) { 
+      if (DA_CheckImmunities(target)) { 
+         DL_AddChicken(); 
+         return false; 
+      } 
+        
+      if (XP_KillMinions) { 
+         // Wait a while until we kill some minions 
+         XP_ClearPosition(28,target,ATTACKING_MODE);          
+         XP_ClearPosition(28,target);          
+      } 
+
+      print("Killing " + target.name + "..."); 
+      XP_BossAttack(target); 
+
+      // If we switched weapons on kill, switch back to the attack tab 
+      if (XP_SwitchOnKill) { DC_SelectTab(1); } 
+
+      print(target.name + " killed !"); 
+
+      // If we want to attack the monsters around, do it now 
+      if (XP_KillMinions) { 
+         XP_ClearPosition(28,target,ATTACKING_MODE);          
+         XP_ClearPosition(28,target);          
+      } 
+
+      // Move to where he died to check for items 
+      DM_MoveTo(target.x,target.y);
+      if (classid == 256) {delay(2000);} // pause, Izual's death kills everyone around him
+
+      target=false; 
+   } else { 
+      if (XP_Kamikaze) { 
+         print("Target not found!! Skip to next boss..."); 
+         return false; 
+      } else { 
+         print("ÿc1Target not found!!  He must be Dead!ÿc0"); 
+      }
+      XP_ClearPosition(28);
+   } 
+   DSN_PickItems(YAM_SafeCheck); 
+   return true; 
+} 
+
+
+function BossXP() { 
+
+   if (me.classid == 1) { 
+      XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); 
+      XP_Static=0; 
+   } 
+
+   // This needs cleaned... I dont see a need for a param for every single boss
+   XP_SwitchHP = IXP_SwitchHP; 
+   XP_StallHP = IXP_StallHP; 
+   XP_StallKill = IXP_StallKill; 
+   XP_MinionStand = true; 
+   XP_QuitImmune = IXP_QuitImmune; 
+
+   if (me.classid == 3) { XP_KillMinions = false; } 
+
+   if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) { 
+      BuildSkeleArmy(); 
+   } 
+
+//   try {DoFrozenstein();} catch (e) {}
+
+//   try {DoIzual();} catch (e) {}
+
+//   try {DoHephasto();} catch (e) {}
+
+   try {DoSummoner();} catch (e) {}
+
+   try {DoTrav();} catch (e) {}
+
+   try {DoPindle();} catch (e) {}
+
+//   try {DoEldritch();} catch (e) {}
+
+//   try {DoThreshSocket();} catch (e) {}
+
+}
+//[/code][/quote]

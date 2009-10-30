@@ -1,0 +1,161 @@
+entryFunc = PindleXP;
+
+function PXP_AttackPindle() {
+	// Moving from red portal to the temple entry
+	if (!DM_CheckTeleport()) {
+		DM_MoveTo(10061,13292);
+	}
+	DM_MoveTo(10063,13281);
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	DM_MoveTo(10059,13256);
+	// If the user set a position outside the limits of the temple, do corrections
+	if (PXP_OffsetX > 3) { PXP_OffsetX=3; }
+	if (PXP_OffsetX < -5) { PXP_OffsetX=-5; }
+	if (PXP_OffsetY > 24) { PXP_OffsetY=24; }
+	if (PXP_OffsetY < -10) { PXP_OffsetY=-10; }
+	// If you don't use teleport, go to the doorway before getting in the end position
+	if (!DM_CheckTeleport()) {
+		DM_MoveTo(10057,13245); //<-- Doorway position
+		// Cast Decoy at the doorway if DecoyPosition is at 1 and you are a amazon
+		if (me.classid == 0 && XP_CastDecoy && XP_DecoyPosition==1) { 
+			DC_DoCast(28,0,me.x,me.y); 
+		}
+	}
+	// Go to the final spot
+	DM_MoveTo(10061 + PXP_OffsetX, 13234 - PXP_OffsetY);
+	// Detecting Pindleskin with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(440,0x01);
+		if (target) { break; }
+	}
+	if (target) {
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		// ToDo : Make it generic to all XP scripts with coords calculation along a axis of me/boss
+		//        or disable for other scripts (remove var)
+		if (me.classid == 2 && XP_BoneBehind) {
+			DC_DoCast(78,0,10058,13242); 	// "Bone Wall"
+		}
+		DC_DoDel(20);
+		snagTarget = {x:target.x,y:target.y};
+		if (XP_KillMinions)	{
+			XP_ClearPosition(30,target,ALIVE_MODE,440);
+			//DSN_PickItems(YAM_SafeCheck);
+		}
+		DC_Print("Killing Pindleskin...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) {
+			DC_SelectTab(1);
+		}
+		DC_Print("Pindleskin killed !");
+		// If we want to attack the monsters around, do it now
+		if (XP_KillMinions) {
+			XP_ClearPosition(30,null,ALIVE_MODE,440);
+			XP_ClearPosition(30,null,ATTACKING_MODE,438);
+		}
+		// Move to where he died to check for items
+		DM_MoveTo(snagTarget.x,snagTarget.y);
+		target=false;
+	}
+	else {
+		DC_Print("Pindleskin not found!! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function XP_Zombies() {
+	DM_MoveTo(10063, 13234);
+	DC_Print("Waiting for Zombies...");
+	XP_MinionStand = XP_ZombieStand;
+	// Stall until the monsters come to life
+	DC_DoDel(2500);
+	XP_ClearPosition(30);
+	DSN_PickItems(YAM_SafeCheck);
+	DM_MoveTo(10059,13256);
+	if (me.classid == 3) {	 // waiting for prowler to wake up.
+		DC_DoDel(3000);
+	}
+	i = 0; // counter to make sure we dont go on an infinite loop!
+	do { 
+		DC_DoDel(50); 
+		i+=1; 
+	} while (!XP_ClearPosition(30) && i < 10);
+	DSN_PickItems(YAM_SafeCheck);
+}
+
+function PindleXP() {
+	// Configure Pindle specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		XP_SetSorcSkills(((PXP_SorcSkill.length > 0) ? PXP_SorcSkill : YAM_SorcSkill),Monster_SorcSkill);
+		XP_Static = PXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP   = PXP_SwitchHP;
+	XP_StallHP    = PXP_StallHP;
+	XP_QuitImmune = PXP_QuitImmune;
+	XP_StallKill  = PXP_StallKill;
+	if (me.classid == 3) {
+		XP_KillMinions = false;
+	}
+	XP_MinionStand = true;
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	// Use the WP to Act 5 if need be
+	if (me.area != 109) {
+		YAM_PathToWayPoint();
+		DM_UsePortal("Waypoint",0x6d);
+		YAM_InitCommTown();
+	}
+	// Go to the portal Area
+	commTown5.GotoAnya();
+	_YAM_Position="anya";
+	// If we want to gamble or visit Anya, do it
+	if (YAM_VisitAnya) {
+		YAM_NPCinteract(DC_getNPC(512));
+	}
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Enter the red portal
+	DM_UsePortal("Portal", 121);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Go Kill Pindleskin
+	if (PXP_AttackPindle()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+		// If we want to attack the courtyard zombies, go attack them
+		if (XP_AttackZombies) {
+			XP_Zombies();
+		}
+	}
+	// Get out of there through chosen method
+	if (PXP_EscapeThroughPortal) {
+		DM_MoveTo(10063,13281);
+		DC_DoDel(20);
+		DM_MoveTo(10060,13302);
+		DC_DoDel(20);
+		DM_MoveTo(10065+rnd(1,2),13305+rnd(1,2));
+		DC_DoDel(20);
+		DM_UsePortal("Portal", 109);
+		DC_DoDel(100);
+		_YAM_Position = "anya";
+		if ((me.classid==3) && UseVigor) { // turn on vigor.
+			DC_PutSkill(115,0);
+		}
+		// If we want to gamble or visit Anya, do it again!
+		if (YAM_VisitAnya) {
+			YAM_NPCinteract(DC_getNPC(512));
+		}
+		commTown5.GotoWP();
+		_YAM_Position = "waypoint";
+	}
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}
