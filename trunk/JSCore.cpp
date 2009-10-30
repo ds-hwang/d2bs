@@ -560,7 +560,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, nBodyLoc);	
 		}
 		// Click Merc Gear
-		else if(nClickType == 3)
+		else if(nClickType == 4)
 		{
 			if(nBodyLoc == 1 || nBodyLoc == 3 || nBodyLoc == 4)
 			{
@@ -596,7 +596,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 		InventoryLayout* pLayout = NULL;
 
-		if(nClickType == 3)
+		if(nClickType == 4)
 		{
 			UnitAny* pMerc = D2CLIENT_GetMercUnit();
 
@@ -696,58 +696,24 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 				}
 			}
 
-			//location=: 0=inventory, 2=player trade, 3=cube, 4=stash, 5=belt
-			if(nLoc == 0) // Inventory
+			//nLoc is location=: 0=inventory, 2=player trade, 3=cube, 4=stash, 5=belt
+			if(nLoc == 0 || nLoc == 2 || nLoc == 3 || nLoc == 4)
 			{
-				pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
-
-				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
-				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
-
-				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
-				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x,y,nLoc , D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
-				
-				return JS_TRUE;
-			}
-			else if(nLoc == 2) // Player Trade
-			{
-				pLayout = (InventoryLayout*)p_D2CLIENT_TradeLayout;
-
-				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
-				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
-		
-				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
-				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x,y,nLoc , D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
-
-				return JS_TRUE;
-			}
-			else if(nLoc == 3) // Cube
-			{
-				pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
-
-				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
-				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
-		
-				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
-				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x,y,nLoc , D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
-				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
-
-				return JS_TRUE;
-			}
-			else if(nLoc == 4) // Stash
-			{
-				pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
+				switch(nLoc)
+				{
+					case 0:
+						pLayout = (InventoryLayout*)p_D2CLIENT_InventoryLayout;
+						break;
+					case 2:
+						pLayout = (InventoryLayout*)p_D2CLIENT_TradeLayout;
+						break;
+					case 3:
+						pLayout = (InventoryLayout*)p_D2CLIENT_CubeLayout;
+						break;
+					case 4:
+						pLayout = (InventoryLayout*)p_D2CLIENT_StashLayout;
+						break;
+				}
 
 				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
 				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
