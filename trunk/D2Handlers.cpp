@@ -539,6 +539,11 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 		MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
 		POINT pt = mouse->pt;
 		ScreenToClient(mouse->hwnd, &pt);
+
+		// filter out clicks on the window border
+		if(pt.x < 0 || pt.y < 0)
+			return CallNextHookEx(NULL, code, wParam, lParam);
+
 		bool clicked = false;
 
 		switch(wParam)
