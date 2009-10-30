@@ -1,3 +1,5 @@
+js_strict(true);
+
 function Pattern(file)
 {
 	// read the file this pattern represents
@@ -12,9 +14,49 @@ function Pattern(file)
 	var pattern = new XML(content);
 
 	if(pattern.name() != 'pattern')
-		throw new Error('File is not a pattern (found ' + pattern.name() +', expected "pattern")');
+		throw new Error('File is not a pattern (found root node <' + pattern.name() +'>, expected node <pattern>)');
 
 	// pattern is a valid pattern, split it into its constituent parts
+	// Patterns will have a set of <area>s nested inside an <areas> node.
+	// Each <area> will have an id representing the id of the area or a
+	// name representing the game name of an area (ids are preferred).
+	// Each <area> will have a set of (each optional but at least one must
+	// be present) <object>s, <monster>s, and <action>s (tiles are considered
+	// objects for purposes of what goes where). They will be wrapped in
+	// <objects>, <monsters>, or <actions> as necessary.
+
+	var areas = [], actions = [];
+
+	print('Found ' + pattern.areas.length() + ' area' + pattern.areas.length() > 1 ? 's' : '');
+	for each(var area in pattern.areas.*)
+	{
+		// TODO: process this into an Area object that encapsulates what it
+		// represents: traverse from the current area to this one
+		// for now, store the area so we can iterate it
+		var areaObj = {'id': area.@id, 'objects': [], 'monsters': []};
+		areas.push(areaObj);
+
+		for each(var monster in area.monsters.*)
+		{
+			// TODO: process this into something more reasonable
+			areaObj.monsters.push({'id': monster.@id, 'typeflag': monster.@typeflag, 'mode': monster.@mode});
+		}
+
+		for each(var object in area.objects.*)
+		{
+			// TODO: process this into something more reasonable
+			areaObj.objects.push({'id': object.@id, 'mode': object.@mode});
+		}
+	}
+
+	for each(var a in areas)
+	{
+		print('Found ' + a.objects.length + ' objects and ' + a.monsters.length + ' monsters for area ' + a.id);
+		for each(var m in a.monsters)
+			print('Found monster ' + m.id + ' with typeflag ' + m.typeflag + ' and mode ' + m.mode);
+		for each(var o in a.objects)
+			print('Found object ' + o.id + ' with mode ' + o.mode);
+	}
 
 	function hasExt(file)
 	{
