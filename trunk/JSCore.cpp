@@ -1322,22 +1322,6 @@ JSAPI_FUNC(my_debugLog)
 	return JS_TRUE;
 }
 
-// TODO: eventually ditch this, it's useless
-INT my_GC(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{
-	DEPRECATED;
-	CDebug cDbg("runGC");
-	CriticalRoom cRoom;
-	CriticalMisc cMisc;
-
-	cRoom.EnterSection();
-	cMisc.EnterSection();
-
-	JS_YieldRequest(cx);
-
-	return JS_TRUE;
-}
-
 INT my_say(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	CDebug cDbg("say");

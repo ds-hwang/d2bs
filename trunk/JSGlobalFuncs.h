@@ -63,7 +63,6 @@ static JSFunctionSpec global_funcs[] = {
 	// TODO: deprecate these below here
 	{"iniread",				my_iniread,				4},
 	{"iniwrite",			my_iniwrite,			4},
-	{"runGC",				my_GC,					0},
 
 	// game functions that don't have anything to do with gathering data
 	{"submitItem",			my_submitItem,			0},

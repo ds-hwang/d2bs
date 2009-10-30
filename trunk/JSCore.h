@@ -46,7 +46,6 @@ JSAPI_FUNC(my_isIncluded);
 JSAPI_FUNC(my_playSound);
 JSAPI_FUNC(my_quit);
 JSAPI_FUNC(my_quitGame);
-JSAPI_FUNC(my_GC);
 JSAPI_FUNC(my_say);
 JSAPI_FUNC(my_sendCopyData);
 JSAPI_FUNC(my_sendDDE);
@@ -70,3 +69,4 @@ JSAPI_FUNC(my_getOOGLocation);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_submitItem);
 JSAPI_FUNC(my_getInteractedNPC);
+
