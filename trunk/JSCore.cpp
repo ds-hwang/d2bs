@@ -790,9 +790,8 @@ INT my_getLocaleString(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(my_rand)
 {
-	// TODO: Re-evaluate why the hell we even have this function... it exists in the standard classes via Math
 	CDebug cDbg("rnd");
 
 	if(argc < 2 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]))
@@ -801,7 +800,13 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		return JS_TRUE;
 	}
 
-	INT seed = rand();
+	srand(GetTickCount());
+
+	long long seed = 0;
+	if(ClientState() == ClientStateInGame)
+		seed = D2GAME_D2Rand((*p_D2CLIENT_PlayerUnit)->dwSeed);
+	else
+		seed = rand();
 
 	jsint high;
 	jsint low;
@@ -814,7 +819,7 @@ INT my_rnd(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 	if(high > low+1)
 	{
-		int i = seed%((high-1)-low) + low+1;
+		int i = (seed % (high - low + 1)) + low;
 		*rval = INT_TO_JSVAL(i);
 	}
 	else

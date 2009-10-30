@@ -243,10 +243,12 @@ FUNCPTR(D2GFX, GetHwnd, HWND __stdcall, (), -10078) // Updated
 VARPTR(D2WIN, FirstControl, Control *, 0x5C718) // Updated 
 VARPTR(D2WIN, FocusedControl, Control*, 0x5C718+0x10) // Updated
 
+FUNCPTR(D2GAME, D2Rand, DWORD __fastcall, (DWORD* seed), 0x1080);
+
 //6F8ED848   E8 33FEFFFF      CALL D2Win.6F8ED680
 
 
-#define _D2PTRS_END	p_D2WIN_FocusedControl
+#define _D2PTRS_END	D2GAME_D2Rand
 
 #undef FUNCPTR
 #undef VARPTR

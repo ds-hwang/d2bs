@@ -39,7 +39,7 @@ JSAPI_FUNC(my_clickMap);
 JSAPI_FUNC(my_acceptTrade);
 JSAPI_FUNC(my_beep);
 JSAPI_FUNC(my_clickItem);
-JSAPI_FUNC(my_rnd);
+JSAPI_FUNC(my_rand);
 JSAPI_FUNC(my_gold);
 JSAPI_FUNC(my_checkCollision);
 JSAPI_FUNC(my_isIncluded);
