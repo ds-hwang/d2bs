@@ -722,11 +722,11 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 function XP_PreAttack(x,y) {
 	if (preMeteor){  // meteor.
-		DC_DoCast(56, 0, x+rnd(-4,4),y+rnd(-4,4));
+		DC_DoCast(56, 0, x+rand(-4,4),y+rand(-4,4));
 		DC_DoDel(1200);	// don't change
 		return true;
 	}else if (preBlizzard) {   // blizzard.
-		DC_DoCast(59, 0, x+rnd(-4,4), y+rnd(-4,4));
+		DC_DoCast(59, 0, x+rand(-4,4), y+rand(-4,4));
 		DC_DoDel(1800);	// don't change
 		return true;
 	}

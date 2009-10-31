@@ -13,12 +13,12 @@ commonLib.PathAct4 = function() {
 }
 
 function YAM_Act4TownManager() {
-	if (_YAM_GoToHealer || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToHealer || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rand(2,9)) {
 		commTown4.GotoJamella();
 		YAM_NPCinteract(DC_getNPC(405));
 		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
 	}
-	if (_YAM_GoToRepair || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToRepair || NPCnum>=rand(2,9)) {
 		commTown4.GotoHalbu();
 		YAM_NPCinteract(DC_getNPC(257));
 	}

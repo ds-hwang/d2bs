@@ -140,7 +140,7 @@ function PindleXP() {
 		DC_DoDel(20);
 		DM_MoveTo(10060,13302);
 		DC_DoDel(20);
-		DM_MoveTo(10065+rnd(1,2),13305+rnd(1,2));
+		DM_MoveTo(10065+rand(1,2),13305+rand(1,2));
 		DC_DoDel(20);
 		DM_UsePortal("Portal", 109);
 		DC_DoDel(100);

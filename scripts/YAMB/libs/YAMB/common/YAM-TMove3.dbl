@@ -14,7 +14,7 @@ commonLib.PathAct3 = function() {
 }
 
 function YAM_Act3TownManager() {
-	if (_YAM_GoToHealer || YAM_AlwaysOrmus || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToHealer || YAM_AlwaysOrmus || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rand(2,9)) {
 		commTown3.GotoOrmus();
 		YAM_NPCinteract(DC_getNPC(255));
 		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident

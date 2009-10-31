@@ -16,12 +16,12 @@ commonLib.PathAct1 = function() {
 }
 
 function YAM_Act1TownManager() {
-	if (_YAM_GoToHealer || YAM_AlwaysAkara || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToHealer || YAM_AlwaysAkara || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rand(2,9)) {
 		commTown.GotoAkara();
 		YAM_NPCinteract(DC_getNPC(148));
 		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
 	}
-	if (_YAM_GoToRepair || YAM_AlwaysCharsi || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToRepair || YAM_AlwaysCharsi || NPCnum>=rand(2,9)) {
 		commTown.GotoCharsi();
 		YAM_NPCinteract(DC_getNPC(154));
 	}
@@ -30,7 +30,7 @@ function YAM_Act1TownManager() {
 		commTown.GotoKashya();
 		YAM_NPCinteract(DC_getNPC(150));
 	}
-	if ((YAM_AlwaysGamble && DC_MyGold() > YAM_GambleMinGold) || YAM_VisitGheed || NPCnum>=rnd(2,9)) { 
+	if ((YAM_AlwaysGamble && DC_MyGold() > YAM_GambleMinGold) || YAM_VisitGheed || NPCnum>=rand(2,9)) { 
 		commTown.GotoGheed();
 		YAM_NPCinteract(DC_getNPC(147));
 	}

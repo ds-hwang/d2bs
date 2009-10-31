@@ -118,18 +118,18 @@ function main() {
 
 function setNextGameMake() {
 	lastGameMade = getTickCount();
-	nextGameMake = getTickCount() + createGameThreshold + rnd( 0-createGameThresholdRandom, createGameThresholdRandom) + inGameAt;
+	nextGameMake = getTickCount() + createGameThreshold + rand( 0-createGameThresholdRandom, createGameThresholdRandom) + inGameAt;
 	inGameAt = 0;
 }
 
 function resetNextPauseAt() {
-	nextPauseAt = gameData.totalGames + rnd( gamesToPauseMin, gamesToPauseMax );
+	nextPauseAt = gameData.totalGames + rand( gamesToPauseMin, gamesToPauseMax );
 }
 
 function pickRandomLocaleKey() {
 	var s = "";
 	while(s=="") 
-		s = String( getLocaleString( rnd(0,1) ? rnd(0, 5390) : rnd(10000, 11134) )).replace(/\n/g, " ").replace(/\r/g, "").replace(/\//g, ".");
+		s = String( getLocaleString( rand(0,1) ? rand(0, 5390) : rand(10000, 11134) )).replace(/\n/g, " ").replace(/\r/g, "").replace(/\//g, ".");
 	if(s.length>254) 
 		s.length=254;
 	return s;
@@ -187,7 +187,7 @@ function locationAction( location ) {
 							}
 						}
 						if(gameData.totalGames > nextPauseAt) {
-							inGameAt += rnd( timeToPauseMin, timeToPauseMax );
+							inGameAt += rand( timeToPauseMin, timeToPauseMax );
 							resetNextPauseAt();
 						}
 						lastGameStatus=0;
@@ -215,11 +215,11 @@ function locationAction( location ) {
 		case 3: // Lobby Chat
 			break;
 		case 4: // Create Game
-			var name = (!gameData.gameName || gameData.useRandomGameName ? getRandomString(rnd(minimumGameNameChars,maximumGameNameChars)) : gameData.gameName + gameData.totalGames);
-			var pass = (gameData.useRandomGamePass ? getRandomString(rnd(minimumGamePassChars,maximumGamePassChars)) : gameData.gamePass);
+			var name = (!gameData.gameName || gameData.useRandomGameName ? getRandomString(rand(minimumGameNameChars,maximumGameNameChars)) : gameData.gameName + gameData.totalGames);
+			var pass = (gameData.useRandomGamePass ? getRandomString(rand(minimumGamePassChars,maximumGamePassChars)) : gameData.gamePass);
 			if(transferring) {
 				gameData.gameDifficulty=0; 
-				pass = (!gameData.gamePass || gameData.useRandomGameName ? getRandomString(rnd(4,6)) : gameData.gamePass);
+				pass = (!gameData.gamePass || gameData.useRandomGameName ? getRandomString(rand(4,6)) : gameData.gamePass);
 			}
 			if( controlData.setText( controlData.controls.lobby.create.editBox.gameName, name ) &&
 				controlData.setText( controlData.controls.lobby.create.editBox.password, pass ) && 
@@ -410,7 +410,7 @@ function locationAction( location ) {
 			break;
 		case 28: // Lobby - Game Does Not Exist
 			gameData.debugOutput( "Game Does Not Exist. Waiting to prevent Realm Down..." );
-			inGameAt = rnd( gameDoesNotExistDelayMin, gameDoesNotExistDelayMax );
+			inGameAt = rand( gameDoesNotExistDelayMin, gameDoesNotExistDelayMax );
 			lastGameStatus = 0;
 			gameData.failedGames++;
 			setNextGameMake();
@@ -431,7 +431,7 @@ function locationTimeout( time, locationId ) {
 
 function timeoutDelay( time, location, noRandom ) {
 	if(!noRandom) 
-		time += rnd( -60, 60 ) * 1000;
+		time += rand( -60, 60 ) * 1000;
 	endtime = getTickCount() + time;
 	while(endtime > getTickCount()) {
 		gameData.setLocation( location + " (" + parseInt((endtime-getTickCount())/1000,10) + "s)" );
@@ -554,7 +554,7 @@ function getRandomString( _length ) {
 	_retString = "";
 	_charSet = "0123456789abcdefghijklmnopqrstuvwxyz";
 	while( _length-- ) {
-		_retString += _charSet.charAt( rnd( 0, _charSet.length-1 ) );
+		_retString += _charSet.charAt( rand( 0, _charSet.length-1 ) );
 	}
 	return _retString;
 }

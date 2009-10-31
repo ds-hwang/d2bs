@@ -132,7 +132,7 @@ function CXP_FindCountess() {
 		DM_MoveTo(12570,11057,true);
 
 		// Move to a spot where we can surely detect The Countess
-		//commPather.GotoDest(12563+rnd(-4,4), 11025+rnd(-8,8));
+		//commPather.GotoDest(12563+rand(-4,4), 11025+rand(-8,8));
 
 		// Find The Countess
 		for (i = 0; i < 3; i+=1) {

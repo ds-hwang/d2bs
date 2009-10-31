@@ -649,7 +649,7 @@ function DT_DoRecharge() {
 		_rechtimeout-=1000;
 		if((_rechtimeout/1000) % 3 == 0) {
 			// Move a little to avoid being kicked from game
-			DC_DoClick(0,0,me.x+rnd(-1,1), me.y+rnd(-1,1));
+			DC_DoClick(0,0,me.x+rand(-1,1), me.y+rand(-1,1));
 		}
 	}
 }

@@ -1100,8 +1100,8 @@ function DCU_TownAntiIdle(_message, _idledelay) {
 	if(!_idledelay || _idledelay < 500)
 		_idledelay = 500;
 	if(DC_InTown(me)) {
-		_newX = rnd(me.x-5, me.x+5);
-		_newY = rnd(me.y-5, me.y+5);
+		_newX = rand(me.x-5, me.x+5);
+		_newY = rand(me.y-5, me.y+5);
 		clickMap(0, 0, _newX, _newY);
 		DCU_DoDel(150);
 		clickMap(2, 0, _newX, _newY);

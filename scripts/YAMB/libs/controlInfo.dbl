@@ -709,7 +709,7 @@ function controlInfo() {
 			} else {
 				control.click( );
 			}
-			if(!_skipdelay) delay( this.clickDelay + rnd( 0, this.clickDelayRandom ) );
+			if(!_skipdelay) delay( this.clickDelay + rand( 0, this.clickDelayRandom ) );
 			return true;
 		}
 		return false;
@@ -721,7 +721,7 @@ function controlInfo() {
 			var control = this.get( controlArray );
 			if( control ) {
 				control.setText( str );
-				delay( this.textDelay + rnd( 0, this.textDelayRandom ) );
+				delay( this.textDelay + rand( 0, this.textDelayRandom ) );
 				return true;
 			}
 		}

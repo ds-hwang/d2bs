@@ -76,7 +76,7 @@ y		print("ÿc1Failed sending msg to YAMBstarter.dbj!ÿc0");
 	IPfound2_sh.text = "0 seconds\n" + _sojcount + "\n" + _IP + "\n" + _searchedIP + "\n" + me.gamepassword + "\n" + me.gamename;
 	
 	while(1) {
-		delay(rnd(300,500));
+		delay(rand(300,500));
 		//for tests we log ingame messages to autod2jsp logfile (later we will do sojcount and d2walk checks here)
 		/*if (YAM_gamemessage != _oldmessage) {
 			_oldmessage = YAM_gamemessage;
@@ -96,8 +96,8 @@ y		print("ÿc1Failed sending msg to YAMBstarter.dbj!ÿc0");
 		}
 		
 		// only move in a square of 21x21 pixel
-		if(rnd(1,50)==1) {
-			me.move(_pos_x+rnd(-10,10), _pos_y+rnd(-10,10));	
+		if(rand(1,50)==1) {
+			me.move(_pos_x+rand(-10,10), _pos_y+rand(-10,10));	
 		}
 	}
 }

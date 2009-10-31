@@ -383,7 +383,7 @@ function killbaalmsg(){   //Added by The_Boris
 				say(BXP_KillBaalMsges[0]);
 				break;
 			default :
-				say(BXP_KillBaalMsges[rnd(0, BXP_KillBaalMsges.length-1)]);
+				say(BXP_KillBaalMsges[rand(0, BXP_KillBaalMsges.length-1)]);
 				break;
 		}
 	}
@@ -398,7 +398,7 @@ function nextgamemsg(){
 				say(BXP_NextGameMsges[0]);
 				break;
 			default :
-				say(BXP_NextGameMsges[rnd(0, BXP_NextGameMsges.length-1)]);
+				say(BXP_NextGameMsges[rand(0, BXP_NextGameMsges.length-1)]);
 				break;
 			}
 	}

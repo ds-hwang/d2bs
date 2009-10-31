@@ -413,8 +413,20 @@ function XP_CheckUtil(target) {
 	var _merc;
 	var needdodging = false;
 	// If the target died, no need to check further
-	if(target.hp < 1 || !getUnit(1,null,null,target.gid))
+	// seperating checks to find the culprit of not staying till meph is dead -TechnoHunter
+//	if(target.hp < 1 || !getUnit(1,null,null,target.gid))
+//		return true;
+	if(!target) // got into here without actually having a target! bail out -TechnoHunter
 		return true;
+	if(target.hp < 1 ){
+		DC_DPrint("XP_CheckUtil() : checking " + target.name + " but target hp less than 1!");
+		return true;
+	}
+	if(!getUnit(1,null,null,target.gid)){
+		DC_DPrint("XP_CheckUtil() : checking " + target.name + " getUnit failed to find the target!");
+		return true;
+	}
+
 	if(_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)
 		YAM_SafeCheck();
 	// If we want to use the Meph dodge function, check if we need to dodge
@@ -483,7 +495,7 @@ function XP_CheckUtil(target) {
 					DM_MoveTo (target.x, target.y, true);
 				}
 				else {
-					DM_MoveTo (target.x+rnd(-7,7), target.y+rnd(-7,7), true);
+					DM_MoveTo (target.x+rand(-7,7), target.y+rand(-7,7), true);
 				}
 			}
 		}

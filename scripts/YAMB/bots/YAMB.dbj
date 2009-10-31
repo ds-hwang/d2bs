@@ -152,14 +152,16 @@ function YAM_KeyUpManager(keyup) {
 			break;
 		// Pause main script
 		case 19: // "Pause" was pressed
-			/*registerEvent(0, EVENT_KEYUP);
+			removeEventListener(YAM_KeyUpManager);
 			DC_Print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
 			scriptBroadcast( "starter:pause" );
-			pscript = DC_FindScript(YAM_PausePath);
+			var pscript = DC_FindScript(YAM_PausePath);
 			if (!pscript) {
 				load(YAM_PausePath);
 				do {
-					delay (500);
+					print("paused"); // spamming to see if still in loop TESTING
+					delay (1000);// increasing delay from 500 for testing - TechnoHunter TESTING
+					if(!pscript) // seeing if finding it once will still work. TESTING
 					pscript = DC_FindScript(YAM_PausePath);
 				} while(pscript && pscript.running)
 			}
@@ -168,7 +170,7 @@ function YAM_KeyUpManager(keyup) {
 			}
 			scriptBroadcast( "starter:pause" );
 			DC_Print("ÿc2Resuming Bot...");
-			addEventListener("keyup", YAM_KeyUpManager);*/
+			addEventListener("keyup", YAM_KeyUpManager);
 			YAM_Pause = !YAM_Pause;
 			if (YAM_Pause){
 				print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");

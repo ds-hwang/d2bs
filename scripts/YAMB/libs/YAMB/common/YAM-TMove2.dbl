@@ -18,7 +18,7 @@ commonLib.PathAct2 = function() {
 }
 
 function YAM_Act2TownManager() { 
-	if (_YAM_GoToHealer || _YAM_GoToRepair || NPCnum>=rnd(2,9)) {
+	if (_YAM_GoToHealer || _YAM_GoToRepair || NPCnum>=rand(2,9)) {
 		commTown2.GotoFara();
 		YAM_NPCinteract(DC_getNPC(178));
 	}

@@ -694,7 +694,7 @@ function pathMove(_info) {
 							//this.useDoors();
 							while(oldArea == me.area){
 								this.GotoDest(exit[n].x,exit[n].y);
-								clickMap(0, 0, me.x+rnd(-3, 3), me.y+rnd(-3, 3));
+								clickMap(0, 0, me.x+rand(-3, 3), me.y+rand(-3, 3));
 								DC_DoDel(300);
 							}
 						}
@@ -952,7 +952,7 @@ function pathMove(_info) {
 			var _desty=pY;
 			do {
 				clickMap(hand.d,0,_destx,_desty);
-				delay(rnd(10,20));
+				delay(rand(10,20));
 				clickMap(hand.u,0,_destx,_desty);
 				// If we are within the destination coords, we are teleported correctly
 				if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
@@ -960,8 +960,8 @@ function pathMove(_info) {
 					break; 
 				}
 				//try clicking close to x/y taken from ntbot, bobode
-				_destx = pX + rnd(-2, 2);
-				_desty = pY + rnd(-2, 2);
+				_destx = pX + rand(-2, 2);
+				_desty = pY + rand(-2, 2);
 				_timer-=10;
 				delay(10);
 			} while (_timer > 0);
@@ -969,7 +969,7 @@ function pathMove(_info) {
 		}
 		else{
 			clickMap(hand.d,0,pX,pY);
-			delay(rnd(10,20));
+			delay(rand(10,20));
 			clickMap(hand.u,0,pX,pY);
 			while(Math.abs(me.x-pX) > 1 || Math.abs(me.y-pY) > 1) {
 				delay(20);
@@ -1001,7 +1001,7 @@ function pathMove(_info) {
 					DP_DPrint("MoveToNode() -> Failed move 4 times, attempting re-click of destination points.");
 					var h = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
 					clickMap(h.d,0,pX,pY);
-					delay(rnd(10,20));
+					delay(rand(10,20));
 					clickMap(h.u,0,pX,pY);
 					if(shouldTele){
 						_timer = 250;
@@ -1151,7 +1151,7 @@ function pathMove(_info) {
 					// if mode not open click on door else skip it
 					while(myDoor.mode == 0){
 						clickMap( 0, 0, myDoor );
-						delay(rnd(10,20));
+						delay(rand(10,20));
 						clickMap( 2, 0, myDoor );
 						delay(200);
 						//myDoor.interact();
@@ -1376,7 +1376,7 @@ function DP_clickTile(inTile) {
 			delay(50);
 		}
 		clickMap(0,0,inTile);
-		delay(rnd(10,50));
+		delay(rand(10,50));
 		clickMap(2,0,inTile);
 		for( var retry3 = 0; a == me.area && ( retry3 < 10 ) ; retry3++ ){
 			delay( 100 );

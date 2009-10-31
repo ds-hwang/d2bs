@@ -716,20 +716,20 @@ function DC_DoClick(button,shift,x,y) {
 			DC_DPrint("DC_DoClick() : shift parameter not entered!");
 			break;
 		case 2:// self
-			var xRnd = rnd(-2,2);
-			var yRnd = rnd(-2,2);
+			var xRnd = rand(-2,2);
+			var yRnd = rand(-2,2);
 			clickMap( button, shift, me.x+xRnd, me.y+yRnd );
-			delay(DC_ClickDel+rnd(10,30));
+			delay(DC_ClickDel+rand(10,30));
 			clickMap( button+2, shift, me.x+xRnd, me.y+yRnd );
 			return true;
 		case 3: // Object/Tile/Item
 			clickMap( button, shift, x );
-			delay(DC_ClickDel+rnd(10,30));
+			delay(DC_ClickDel+rand(10,30));
 			clickMap( button+2, shift, x );
 			return true;
 		case 4:// Target X/Y
 			clickMap( button, shift, x, y );
-			delay(DC_ClickDel+rnd(10,30));
+			delay(DC_ClickDel+rand(10,30));
 			clickMap( button+2, shift, x, y );
 			return true;
 		default:
@@ -1016,10 +1016,10 @@ function DC_ChronoRun() {
 // Return value : None, just stall until the delay amount is reached
 function DC_DoDel(amount) {
 	if(DC_RandomDel) { 
-		delay(amount + rnd(0,amount)); 
+		delay(amount + rand(0,amount)); 
 	}
 	else { 
-		delay(amount + rnd(0,10)); 
+		delay(amount + rand(0,10)); 
 	}
 }
 
@@ -1486,7 +1486,7 @@ function DC_IsWalkable(_x, _y) {
 // -scriptname	Name of the script to get
 // Return value : Script object if a script with the scriptname is found
 function DC_FindScript( scriptname ) {
-	script = getScript();
+	var script = getScript();
 	DC_DoDel(DC_LagDelay);
 	if(script) { 
 		do {

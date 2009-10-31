@@ -93,8 +93,8 @@ function DM_MoveTo(x,y,dontwalk,truetele) {
 function _DM_TeleportTo(x,y,truetele) {
 	// If we randomize the movement, modify the coords a little
    if(me.classid != 3 && DM_RandomMove && !truetele) {
-		var rndx=x+rnd(-1,1);
-		var rndy=y+rnd(-4,4);
+		var rndx=x+rand(-1,1);
+		var rndy=y+rand(-4,4);
 	}
 	// We are not using random movement so use the exact coords
 	else {
@@ -118,8 +118,8 @@ function _DM_TeleportTo(x,y,truetele) {
 		} while (_timer > 0);
 		// If it doesn't work, get new coords because you may have tried to go to a bad spot
 		if(rv%2==0){
-			rndx=x+rnd(-1,1);
-			rndy=y+rnd(-4,4);
+			rndx=x+rand(-1,1);
+			rndy=y+rand(-4,4);
 		}
 	}
 
@@ -209,8 +209,8 @@ function _DM_WalkTo(x,y) {
 	while ((Math.abs(me.x - x) > 4 || Math.abs(me.y - y) > 4) && _retry <= _numtrys && (me.mode != 17)) {
 		// Randomize the coords if RandomMove is set to true
 		if(DM_RandomMove) {
-			_currdestx+=rnd(-2,2);
-			_currdesty+=rnd(-2,2);
+			_currdestx+=rand(-2,2);
+			_currdesty+=rand(-2,2);
 		}
 		// Click on the current coords set to go there
 		DC_DoClick(0,0,_currdestx,_currdesty);
@@ -227,7 +227,7 @@ function _DM_WalkTo(x,y) {
 				var dy = _currdesty - _starty;
 				var a = Math.atan2(dx, dy);
 				a = Math.floor(a * 100) + 157;  // + pi/2;
-				var direction = rnd(a, a+314)/100;  // + pi
+				var direction = rand(a, a+314)/100;  // + pi
 				_currdestx = Math.floor(Math.sin(direction)*20) + me.x;
 				_currdesty = Math.floor(Math.cos(direction)*20) + me.y;
 				_thrash=0;
@@ -351,7 +351,7 @@ function DM_UsePortal(how, dest, ownername, portal) {
 	// darkspirit: attempt to recover from unable to reach dest
 	if(_msg_select == -7) {
 		// Random click
-		DC_DoClick(0, 0, me.x+rnd(-2,2), me.y+rnd(-2,2));
+		DC_DoClick(0, 0, me.x+rand(-2,2), me.y+rand(-2,2));
 		DC_DoDel(50);
 		if(me.area == dest) return true;
 	}
@@ -466,7 +466,9 @@ function _DM_ChangeArea(how, dest, ownername, myportal) {
 	var _loops = 5; // max tries
 	// red or blue portal ?
 	if(how == "BluePortal") {
-		if(!ownername) { ownername = me.name; }
+		if(!ownername) { 
+			ownername = me.name; 
+		}
 		how = "Portal";
 		PlayerPortal = true;
 	}
@@ -477,15 +479,21 @@ function _DM_ChangeArea(how, dest, ownername, myportal) {
 	// search for the portal/wp
 	else if(how == "Portal") {
 		portal = _DM_FindCorrectPortal(PlayerPortal, ownername);
-		if(portal < 0) { portal = _DM_FindPortalArea(dest);}
-		if(portal==-1) {return -1; }// portal not found
+		if(portal < 0) { 
+			portal = _DM_FindPortalArea(dest);
+		}
+		if(portal == -1) {// portal not found
+			return -1; 
+		}
 	}
 	else {
 		var wpHex = _DM_AreaWPArray[dest];
 		if(!wpHex) { return -4; }// destination area has no wp
 		portal = getUnit(2,how);
 	}
-	if(!portal) { return -1; } // portal not found, return when the portal unit wasn't found
+	if(!portal) { // portal not found, return when the portal unit wasn't found
+		return -1; 
+	}
 	// walk to the portal/waypoint
 	DM_MoveTo(portal.x, portal.y);
 	// interact with portal/waypoint
@@ -632,7 +640,7 @@ function _DM_FindPortalArea(dest) {
 		return -1; 
 	}// no portal found
 	do {
-		if(portal.subarea == dest) {
+		if(portal.objtype == dest) {
 			if(portal.getParent()) {
 				if(portal.getParent() == me.name || DC_InMyParty(portal.getParent())) { 
 					return portal;

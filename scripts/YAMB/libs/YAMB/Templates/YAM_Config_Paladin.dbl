@@ -137,7 +137,7 @@ YAM_IsLeader       = true;
 //////////////////////////////////////////////////////////////////////
 // General configuration
 //====================================================================
-// YAM_StartGameDelay = rnd(min,max) Random delay in milliseconds before game initialization.
+// YAM_StartGameDelay = rand(min,max) Random delay in milliseconds before game initialization.
 // YAM_MinGameLength = number (sec)  Minimum game length under which bot will stall after runs, in seconds.
 // YAM_MaxGameLength = number (sec)  Maximum game length before aborting, in seconds. Use 0 for infinite length.
 // YAM_GameCatchup = number (msec)   Time delay to let d2jsp catchup after an area change
@@ -163,8 +163,8 @@ YAM_IsLeader       = true;
 //                                   YAM_StepPath also needs to be set correctly for this.
 // YAM_HealPoison=true/false         Heal if you get poisoned.
 //--------------------------------------------------------------------
-YAM_StartGameDelay   = rnd(2000,4000); // Use 0 for no delay.
-YAM_MinGameLength    = rnd(180, 200);  // Randomized to avoid detection.
+YAM_StartGameDelay   = rand(2000,4000); // Use 0 for no delay.
+YAM_MinGameLength    = rand(180, 200);  // Randomized to avoid detection.
 YAM_MaxGameLength    = 690;            // Default is 11.5 min, don't set too low or you may not kill everyone!
 YAM_GameCatchup      = 1000;
 DC_Verbose           = false;
