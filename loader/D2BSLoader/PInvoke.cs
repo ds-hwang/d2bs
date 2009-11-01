@@ -117,18 +117,10 @@
 
 		public static bool LoadRemoteLibrary(Process p, string module)
 		{
-//			IntPtr address = GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
-//			if(address != IntPtr.Zero)
-//			{
-				IntPtr moduleName = WriteObject(p, module);
-//				IntPtr result = CreateRemoteThread(p, address, moduleName, CreateThreadFlags.RunImmediately);
-//				if(result != IntPtr.Zero)
-//					WaitForSingleObject(result, UInt32.MaxValue);
-//				FreeObject(p, moduleName);
-//				return result != IntPtr.Zero;
-//			}
-//			return false;
-			return CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+			IntPtr moduleName = WriteObject(p, module);
+			bool result = CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+			FreeObject(p, moduleName);
+			return result;
 		}
 		public static bool UnloadRemoteLibrary(Process p, string module)
 		{
@@ -142,12 +134,11 @@
 		public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param)
 		{
 			IntPtr moduleHandle = FindModuleHandle(p, module);
-			if(moduleHandle == IntPtr.Zero)
+			IntPtr offset = FindOffset(module, function);
+			if(moduleHandle == IntPtr.Zero || offset == IntPtr.Zero)
 				return false;
 
-			IntPtr localHandle = LoadLibraryEx(module, IntPtr.Zero, LoadLibraryFlags.LoadWithAlteredSeachPath);
-			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + (GetProcAddress(localHandle, function).ToInt32() - localHandle.ToInt32()));
-			FreeLibrary(localHandle);
+			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + offset.ToInt32());
 			if(address != IntPtr.Zero)
 			{
 				IntPtr result = CreateRemoteThread(p, address, param, CreateThreadFlags.RunImmediately);
@@ -179,7 +170,23 @@
 			}
 			return IntPtr.Zero;
 		}
+		public static IntPtr FindOffset(string moduleName, string function)
+		{
+			IntPtr localHandle = LoadLibraryEx(moduleName, LoadLibraryFlags.LoadAsDataFile);
+			if(localHandle != IntPtr.Zero)
+			{
+				IntPtr address = GetProcAddress(localHandle, function);
+				FreeLibrary(localHandle);
+				return (IntPtr)(address.ToInt32() - localHandle.ToInt32());
+			}
+			return IntPtr.Zero;
+		}
 
+		[DebuggerHidden]
+		public static IntPtr LoadLibraryEx(string module, LoadLibraryFlags flags)
+		{
+			return LoadLibraryEx(module, IntPtr.Zero, flags);
+		}
 		[DebuggerHidden]
 		public static IntPtr GetProcessHandle(Process p, ProcessAccessFlags flags)
 		{
