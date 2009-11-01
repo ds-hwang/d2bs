@@ -62,6 +62,15 @@
 		CreateSuspended = 0x4,
 		StackSizeParamIsAReservation = 0x10000
 	}
+	[Flags]
+	public enum LoadLibraryFlags : uint
+	{
+		LoadAsDataFile = 0x00000002,
+		DontResolveReferences = 0x00000001,
+		LoadWithAlteredSeachPath = 0x00000008,
+		IgnoreCodeAuthzLevel = 0x00000010,
+		LoadAsExclusiveDataFile = 0x00000040
+	}
 
 	public static class User32
 	{
@@ -92,32 +101,34 @@
 		private static extern bool CloseHandle(IntPtr hObject);
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out int lpNumberOfBytesWritten);
-		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true)]
+		[DllImport("kernel32.dll", SetLastError = true)]
 		private static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true)]
-		private static extern IntPtr GetModuleHandleA(string lpModuleName);
+		[DllImport("kernel32.dll", SetLastError = true)]
+		private static extern IntPtr GetModuleHandle(string lpModuleName);
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
-		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true)]
-		private static extern IntPtr LoadLibraryA(string library);
+		[DllImport("kernel32.dll", SetLastError = true)]
+		static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, LoadLibraryFlags dwFlags);
+		[DllImport("kernel32.dll", SetLastError = true)]
+		private static extern IntPtr LoadLibrary(string library);
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool FreeLibrary(IntPtr hHandle);
 
 		public static bool LoadRemoteLibrary(Process p, string module)
 		{
-			IntPtr address = GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
-			if(address != IntPtr.Zero)
-			{
+//			IntPtr address = GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
+//			if(address != IntPtr.Zero)
+//			{
 				IntPtr moduleName = WriteObject(p, module);
-				IntPtr result = CreateRemoteThread(p, address, moduleName, CreateThreadFlags.RunImmediately);
-				if(result != IntPtr.Zero)
-					WaitForSingleObject(result, UInt32.MaxValue);
-				FreeObject(p, moduleName);
-				return result != IntPtr.Zero;
-			}
-			return false;
-			//return CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+//				IntPtr result = CreateRemoteThread(p, address, moduleName, CreateThreadFlags.RunImmediately);
+//				if(result != IntPtr.Zero)
+//					WaitForSingleObject(result, UInt32.MaxValue);
+//				FreeObject(p, moduleName);
+//				return result != IntPtr.Zero;
+//			}
+//			return false;
+			return CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
 		}
 		public static bool UnloadRemoteLibrary(Process p, string module)
 		{
@@ -134,7 +145,7 @@
 			if(moduleHandle == IntPtr.Zero)
 				return false;
 
-			IntPtr localHandle = LoadLibraryA(module);
+			IntPtr localHandle = LoadLibraryEx(module, IntPtr.Zero, LoadLibraryFlags.LoadWithAlteredSeachPath);
 			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + (GetProcAddress(localHandle, function).ToInt32() - localHandle.ToInt32()));
 			FreeLibrary(localHandle);
 			if(address != IntPtr.Zero)

@@ -170,8 +170,6 @@ namespace D2BSLoader
 			return  File.Exists(path + "libnspr4.dll") &&
 					File.Exists(path + "js32.dll") &&
 					File.Exists(path + "cGuard.dll") &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "libnspr4.dll") &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "js32.dll") &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "cGuard.dll");
 		}
 
