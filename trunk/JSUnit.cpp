@@ -196,7 +196,8 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 12, 0));
 			break;
 		case ME_RUNWALK:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
+			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
+				*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
 			break;
 		case UNIT_ADDRESS:
 			*vp = INT_TO_JSVAL(pUnit);
@@ -296,7 +297,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				*vp = INT_TO_JSVAL(D2COMMON_GetItemText(pUnit->dwTxtFileNo)->ySize);
 			}
 			break;
-		case ITEM_Type:
+		case ITEM_TYPE:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				if(!D2COMMON_GetItemText(pUnit->dwTxtFileNo))
 					break;
@@ -347,18 +348,22 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				*vp = INT_TO_JSVAL(pUnit->pPath->bDirection);
 			break;
 		case OBJECT_TYPE:
-			if(pUnit->dwType == UNIT_OBJECT)
-				if(pUnit->pObjectData)
-				{
-					pRoom = D2COMMON_GetRoomFromUnit(pUnit);
-					if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel && IsTownLevel(pRoom->pRoom2->pLevel->dwLevelNo))
-						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
-					else
-						*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
-				}
+			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
+			{
+				pRoom = D2COMMON_GetRoomFromUnit(pUnit);
+				if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel && IsTownLevel(pRoom->pRoom2->pLevel->dwLevelNo))
+					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
+				else
+					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
+			}
+			break;
+		case OBJECT_LOCKED:
+			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
+				*vp = INT_TO_JSVAL( pUnit->pObjectData->ChestLocked );
 			break;
 		case ME_WSWITCH:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
+			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
+				*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
 			break;
 		default:
 			break;
