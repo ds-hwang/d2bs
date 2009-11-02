@@ -561,6 +561,90 @@ Properties:
 [[FileTools.appendText]]
 </pre>
 </div>
+<div title="GlobalFunctions" modifier="illmat" created="200911020914" modified="200911020916" changecount="3">
+<pre>[[getUnit]]
+[[getPath]]
+[[getCollision]]
+[[getMercHP]]
+[[getCursorType]]
+[[getSkillByName]]
+[[getSkillById]]
+[[getLocaleString]]
+[[getTextWidthHeight]]
+[[getThreadPriority]]
+[[getUIFlag]]
+[[getTradeInfo]]
+[[getWaypoint]]
+[[getScript]]
+[[getRoom]]
+[[getParty]]
+[[getPresetUnit]]
+[[getPresetUnits]]
+[[getArea]]
+[[getExits]]
+[[getBaseStat]]
+[[getControl]]
+[[getPlayerFlag]]
+[[getTickCount]]
+[[getInteractedNPC]]
+
+[[print]]
+[[delay]]
+[[load]]
+[[isIncluded]]
+[[include]]
+[[stop]]
+[[rnd]]
+[[sendCopyData]]
+[[sendDDE]]
+[[keystate]]
+[[addEventListener]]
+[[removeEventListener]]
+[[clearEvent]]
+[[clearAllEvents]]
+[[js_strict]]
+[[version]]
+[[scriptBroadcast]]
+[[sqlite_version]]
+[[dopen]]
+[[debugLog]]
+[[iniread - DEPRECATED]]
+[[iniwrite - DEPRECATED]]
+[[runGC - DEPRECATED]]
+
+[[submitItem]]
+[[login]]
+[[getLocation]]
+[[getMouseCoords]]
+[[copyUnit]]
+[[clickMap]]
+[[acceptTrade]]
+[[beep]]
+[[clickItem]]
+[[getDistance]]
+[[gold]]
+[[checkCollision]]
+[[playSound]]
+[[quit]]
+[[quitGame]]
+[[say]]
+[[clickParty]]
+[[blockMinimize]]
+[[weaponSwitch]]
+[[transmute]]
+
+[[md5]]
+[[sha1]]
+[[sha256]]
+[[sha384]]
+[[sha512]]
+[[md5_file]]
+[[sha1_file]]
+[[sha256_file]]
+[[sha384_file]]
+[[sha512_file]]
+</pre>
+</div>
 <div title="MainMenu" modifier="lord2800" created="200910281257" modified="200911012304" changecount="2">
 <pre>GlobalFunctions
 [[Objects]]</pre>
@@ -606,8 +690,20 @@ $4
 !!!''Example:''
 {{{$5}}}</pre>
 </div>
+<div title="delay" modifier="illmat" created="200911020917" modified="200911020957" changecount="3">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;delay&quot; &quot;int milliseconds&quot; &quot;Always returns void.&quot; &quot;Pauses the script execution.&quot; &quot;delay (1000); // script sleeps 1 second&quot;&gt;&gt;</pre>
+</div>
 <div title="lord2800" modifier="lord2800" created="200911012333" changecount="1">
 <pre>D2BS lead developer and all around awesome guy.</pre>
+</div>
+<div title="print" modifier="illmat" created="200911020916" modified="200911020952" changecount="6">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;print&quot; &quot;string message&quot; &quot;Always returns void.&quot; &quot;Prints a message to the console.&quot; &quot;print ('Hello World');&quot;&gt;&gt;</pre>
+</div>
+<div title="say" modifier="illmat" created="200911020915" modified="200911020953" changecount="5">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;say&quot; &quot;string message&quot; &quot;Returns true if successful, false if it fails.&quot; &quot;Sends a chatmessage to the game.&quot; &quot;say ('Hello World');&quot;&gt;&gt;</pre>
+</div>
+<div title="version" modifier="illmat" created="200911020936" modified="200911020957" changecount="7">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;version&quot; &quot;void&quot; &quot;Returns a string with the d2bs version.&quot; &quot;&quot; &quot;var ver = version (); print (ver);&quot;&gt;&gt;</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
