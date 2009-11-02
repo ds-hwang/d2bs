@@ -1,12 +1,11 @@
 #include "JSSandbox.h"
+#include "D2BS.h"
 #include "ScriptEngine.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
 JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("sandbox ctor");
 	sandbox* box = new sandbox; // leaked?
 	box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 	if(!box->context)
@@ -47,7 +46,6 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("sandbox addProperty");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	JSContext* cxptr = (!box ? cx : box->context);
 	JSObject* ptr = (!box ? obj : box->innerObj);
@@ -83,7 +81,6 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("sandbox delProperty");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
 	if(JSVAL_IS_INT(id))
@@ -107,7 +104,6 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("sandbox getProperty");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
 	if(JSVAL_IS_INT(id))
@@ -137,7 +133,6 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("sandbox setProperty");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
 	if(JSVAL_IS_INT(id))
@@ -163,7 +158,6 @@ JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 void sandbox_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("sandbox finalize");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box) {
 		JS_SetContextThread(box->context);
@@ -174,7 +168,6 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 
 JSBool sandbox_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("sandbox eval");
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
 		sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
@@ -191,7 +184,6 @@ JSBool sandbox_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("sandbox include");
 	*rval = JSVAL_FALSE;
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
@@ -225,7 +217,6 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("sandbox isIncluded");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]) && box)
 	{
@@ -239,7 +230,6 @@ JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 
 JSBool sandbox_clear(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("sandbox clear");
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box)
 		JS_ClearScope(cx, box->innerObj);

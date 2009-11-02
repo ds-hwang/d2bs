@@ -1,5 +1,4 @@
 #include "JSUnit.h"
-#include "CDebug.h"
 #include "D2Ptrs.h"
 #include "Constants.h"
 #include "Helpers.h"
@@ -12,7 +11,6 @@
 
 VOID unit_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("unit finalize");
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(lpUnit)
@@ -24,8 +22,6 @@ VOID unit_finalize(JSContext *cx, JSObject *obj)
 
 INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {	
-	CDebug cDbg("unit getProperty");
-
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
 
@@ -373,8 +369,6 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 INT unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("unit setProperty");
-
 	switch(JSVAL_TO_INT(id))
 	{
 		case ME_CHICKENHP:
@@ -411,8 +405,6 @@ INT unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("getUnit");
-
 	if(argc < 1)
 		return JS_TRUE;
 
@@ -479,8 +471,6 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit getNext");
-
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
@@ -521,8 +511,6 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_cancel(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit cancel");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -547,8 +535,6 @@ INT unit_cancel(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 INT unit_repair(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit repair");
-
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	*rval = JSVAL_FALSE;
 
@@ -575,8 +561,6 @@ INT unit_repair(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 INT unit_useMenu(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit useMenu");
-
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	*rval = JSVAL_FALSE;
 
@@ -598,8 +582,6 @@ INT unit_useMenu(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit interact");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -644,11 +626,10 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(pUnit->dwType == UNIT_OBJECT && argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
-		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
-	//	D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
+		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
+		D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
-
 		return JS_TRUE;
 	}
 	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
@@ -667,8 +648,6 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getStat");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -748,8 +727,6 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getState");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -781,8 +758,6 @@ INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT item_getFlags(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getFlags");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -803,8 +778,6 @@ INT item_getFlags(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getFlag");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -830,8 +803,6 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getPrice");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -881,8 +852,6 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getItems");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -933,8 +902,6 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit getSkill");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1028,8 +995,6 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("item shop");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1086,8 +1051,6 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
 INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getParent");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1164,8 +1127,6 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 // Works only on players sinces monsters _CANT_ have mercs!
 INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getMerc");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1255,8 +1216,6 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 // unit.setSkill( int skillId OR String skillName, int hand [, int itemGlobalId] );
 INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit setSkill");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1287,8 +1246,6 @@ INT unit_setskill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit overhead");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1322,8 +1279,6 @@ INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
-	CDebug cDbg("unit getItem");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1378,8 +1333,6 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit move");
-
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1423,8 +1376,6 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
 INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit getEnchant");
-
 	if(!GameReady())
 		return JS_TRUE;
 	
@@ -1457,8 +1408,6 @@ INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 INT unit_getQuest(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit getQuest");
-
 	if(!GameReady())
 		return JS_TRUE;
 	
@@ -1475,8 +1424,6 @@ INT unit_getQuest(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("unit getMinionCount");
-
 	if(!GameReady())
 		return JS_TRUE;
 	

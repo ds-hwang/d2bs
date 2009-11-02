@@ -1,5 +1,4 @@
 #include "JSScript.h"
-#include "CDebug.h"
 #include "Script.h"
 #include "ScriptEngine.h"
 
@@ -7,8 +6,6 @@
 
 JSAPI_PROP(script_getProperty)
 {
-	CDebug cDbg("script getProperty");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
@@ -38,8 +35,6 @@ JSAPI_PROP(script_getProperty)
 
 JSAPI_FUNC(script_getNext)
 {
-	CDebug cDbg("script getNext");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	if(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) == NULL || !JS_GetContextPrivate(iterp))
 		*rval = JSVAL_FALSE;
@@ -54,8 +49,6 @@ JSAPI_FUNC(script_getNext)
 
 JSAPI_FUNC(script_stop)
 {
-	CDebug cDbg("script stop");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Stop();
@@ -65,8 +58,6 @@ JSAPI_FUNC(script_stop)
 
 JSAPI_FUNC(script_pause)
 {
-	CDebug cDbg("script pause");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Pause();
@@ -76,8 +67,6 @@ JSAPI_FUNC(script_pause)
 
 JSAPI_FUNC(script_resume)
 {
-	CDebug cDbg("script resume");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 	script->Resume();
@@ -87,8 +76,6 @@ JSAPI_FUNC(script_resume)
 
 JSAPI_FUNC(script_send)
 {
-	CDebug cDbg("script send");
-
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
@@ -103,8 +90,6 @@ JSAPI_FUNC(script_send)
 
 JSAPI_FUNC(my_getScript)
 {
-	CDebug cDbg("getScript");
-
 	JSContext* iterp = NULL;
 	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
 		return JS_TRUE;
@@ -117,3 +102,4 @@ JSAPI_FUNC(my_getScript)
 
 	return JS_TRUE;
 }
+

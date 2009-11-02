@@ -1,13 +1,11 @@
 #include "JSArea.h"
 #include "D2Ptrs.h"
-#include "CDebug.h"
+#include "D2Helpers.h"
 
 #include "debugnew/debug_new.h"
 
 VOID area_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("area finalize");
-
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
 	if(pArea)
@@ -19,8 +17,6 @@ VOID area_finalize(JSContext *cx, JSObject *obj)
 
 INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("area getProperty");
-	
 	*vp = INT_TO_JSVAL(0);
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
@@ -63,3 +59,4 @@ INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	}
 	return JS_TRUE;
 }
+

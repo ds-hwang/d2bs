@@ -17,11 +17,11 @@
 #include <cstdio>
 #include <io.h>
 #include <errno.h>
+#include <windows.h>
 
 #include "JSFileTools.h"
+#include "D2BS.h"
 #include "File.h"
-#include "windows.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
@@ -35,8 +35,6 @@ JSAPI_FUNC(filetools_ctor)
 
 JSAPI_FUNC(filetools_remove)
 {
-	CDebug cDbg("filetools remove");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply a file name");
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -52,8 +50,6 @@ JSAPI_FUNC(filetools_remove)
 
 JSAPI_FUNC(filetools_rename)
 {
-	CDebug cDbg("filetools rename");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -77,8 +73,6 @@ JSAPI_FUNC(filetools_rename)
 
 JSAPI_FUNC(filetools_copy)
 {
-	CDebug cDbg("filetools copy");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -153,8 +147,6 @@ JSAPI_FUNC(filetools_copy)
 
 JSAPI_FUNC(filetools_exists)
 {
-	CDebug cDbg("filetools exists");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "Invalid file name");
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -170,8 +162,6 @@ JSAPI_FUNC(filetools_exists)
 
 JSAPI_FUNC(filetools_readText)
 {
-	CDebug cDbg("filetools readText");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -201,8 +191,6 @@ JSAPI_FUNC(filetools_readText)
 
 JSAPI_FUNC(filetools_writeText)
 {
-	CDebug cDbg("filetools writeText");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -226,8 +214,6 @@ JSAPI_FUNC(filetools_writeText)
 
 JSAPI_FUNC(filetools_appendText)
 {
-	CDebug cDbg("filetools appendText");
-
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, obj, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -248,3 +234,4 @@ JSAPI_FUNC(filetools_appendText)
 
 	return JS_TRUE;
 }
+

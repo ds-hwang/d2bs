@@ -1,15 +1,15 @@
 #include "JSScreenHook.h"
+#include "D2BS.h"
 #include "ScreenHook.h"
 #include "Script.h"
 #include "File.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
 using namespace std;
 
-void hook_finalize(JSContext *cx, JSObject *obj) {
-	CDebug cDbg("hook finalize");
+void hook_finalize(JSContext *cx, JSObject *obj)
+{
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 
 	if(hook)
@@ -19,9 +19,8 @@ void hook_finalize(JSContext *cx, JSObject *obj) {
 	}
 }
 
-JSAPI_FUNC(hook_remove) {
-	CDebug cDbg("hook remove");
-
+JSAPI_FUNC(hook_remove)
+{
 	Genhook* hook = (Genhook*)JS_GetPrivate(cx, obj);
 	if(hook)
 	{
@@ -38,9 +37,8 @@ JSAPI_FUNC(hook_remove) {
 
 // Function to create a frame which gets called on a "new Frame ()"
 // Parameters: x, y, xsize, ysize, alignment, automap, onClick, onHover
-JSAPI_FUNC(frame_ctor) {
-	CDebug cDbg("frame_ctor");
-
+JSAPI_FUNC(frame_ctor)
+{
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	uint x = 0, y = 0, x2 = 0, y2 = 0;
@@ -83,9 +81,8 @@ JSAPI_FUNC(frame_ctor) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(frame_getProperty) {
-	CDebug cDbg("frame_getProperty");
-
+JSAPI_PROP(frame_getProperty)
+{
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
 	if(!pFramehook)
 		return JS_TRUE;
@@ -121,9 +118,9 @@ JSAPI_PROP(frame_getProperty) {
 	}
 	return JS_TRUE;
 }
-JSAPI_PROP(frame_setProperty) {
-	CDebug cDbg("frame_setProperty");
 
+JSAPI_PROP(frame_setProperty)
+{
 	FrameHook* pFramehook = (FrameHook*)JS_GetPrivate(cx, obj);
 	if(!pFramehook)
 		return JS_TRUE;
@@ -170,9 +167,8 @@ JSAPI_PROP(frame_setProperty) {
 //Box functions
 
 //Parameters: x, y, xsize, ysize, color, opacity, alignment, automap, onClick, onHover
-JSAPI_FUNC(box_ctor) {
-	CDebug cDbg("box_ctor");
-
+JSAPI_FUNC(box_ctor)
+{
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -219,9 +215,8 @@ JSAPI_FUNC(box_ctor) {
 
 	return JS_TRUE;
 }
-JSAPI_PROP(box_getProperty) {
-	CDebug cDbg("box_getProperty");
-
+JSAPI_PROP(box_getProperty)
+{
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	if(!pBoxHook)
 		return JS_TRUE;
@@ -263,9 +258,9 @@ JSAPI_PROP(box_getProperty) {
 	}
 	return JS_TRUE;
 }
-JSAPI_PROP(box_setProperty) {
-	CDebug cDbg("box_setProperty");
 
+JSAPI_PROP(box_setProperty)
+{
 	BoxHook* pBoxHook = (BoxHook*)JS_GetPrivate(cx, obj);
 	if(!pBoxHook)
 		return JS_TRUE;
@@ -321,9 +316,8 @@ JSAPI_PROP(box_setProperty) {
 //Line functions
 
 // Parameters: x, y, x2, y2, color, automap, click, hover
-JSAPI_FUNC(line_ctor) {
-	CDebug cDbg("line_ctor");
-
+JSAPI_FUNC(line_ctor)
+{
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -367,9 +361,8 @@ JSAPI_FUNC(line_ctor) {
 }
 
 
-JSAPI_PROP(line_getProperty) {
-	CDebug cDbg("line_getProperty");
-
+JSAPI_PROP(line_getProperty)
+{
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	if(!pLineHook)
 		return JS_TRUE;
@@ -406,9 +399,8 @@ JSAPI_PROP(line_getProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(line_setProperty) {
-	CDebug cDbg("line_setProperty");
-
+JSAPI_PROP(line_setProperty)
+{
 	LineHook* pLineHook = (LineHook*)JS_GetPrivate(cx, obj);
 	if(!pLineHook)
 		return JS_TRUE;
@@ -456,9 +448,8 @@ JSAPI_PROP(line_setProperty) {
 // Function to create a text which gets called on a "new text ()"
 
 // Parameters: text, x, y, color, font, align, automap, onHover, onText
-JSAPI_FUNC(text_ctor) {
-	CDebug cDbg("text_ctor");
-
+JSAPI_FUNC(text_ctor)
+{
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -507,9 +498,8 @@ JSAPI_FUNC(text_ctor) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(text_getProperty) {
-	CDebug cDbg("text_getProperty");
-
+JSAPI_PROP(text_getProperty)
+{
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	if(!pTextHook)
 		return JS_TRUE;
@@ -549,9 +539,8 @@ JSAPI_PROP(text_getProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(text_setProperty) {
-	CDebug cDbg("text_setProperty");
-
+JSAPI_PROP(text_setProperty)
+{
 	TextHook* pTextHook = (TextHook*)JS_GetPrivate(cx, obj);
 	if(!pTextHook)
 		return JS_TRUE;
@@ -608,9 +597,8 @@ JSAPI_PROP(text_setProperty) {
 // Function to create a image which gets called on a "new Image ()"
 
 // Parameters: image, x, y, color, align, automap, onHover, onimage
-JSAPI_FUNC(image_ctor) {
-	CDebug cDbg("image_ctor");
-
+JSAPI_FUNC(image_ctor)
+{
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
 	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
@@ -662,9 +650,8 @@ JSAPI_FUNC(image_ctor) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(image_getProperty) {
-	CDebug cDbg("image_getProperty");
-
+JSAPI_PROP(image_getProperty)
+{
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	if(!pImageHook)
 		return JS_TRUE;
@@ -698,9 +685,8 @@ JSAPI_PROP(image_getProperty) {
 	return JS_TRUE;
 }
 
-JSAPI_PROP(image_setProperty) {
-	CDebug cDbg("image_setProperty");
-
+JSAPI_PROP(image_setProperty)
+{
 	ImageHook* pImageHook = (ImageHook*)JS_GetPrivate(cx, obj);
 	if(!pImageHook)
 		return JS_TRUE;

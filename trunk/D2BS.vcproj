@@ -332,10 +332,6 @@
 			Name="Misc"
 			>
 			<File
-				RelativePath=".\CDebug.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Common.cpp"
 				>
 			</File>

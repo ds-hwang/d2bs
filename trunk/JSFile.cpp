@@ -21,8 +21,8 @@
 #include <io.h>
 
 #include "JSFile.h"
+#include "D2BS.h"
 #include "File.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
@@ -41,8 +41,6 @@ JSAPI_FUNC(file_ctor)
 
 JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 {
-	CDebug cDbg("file equality");
-
 	*bp = JS_FALSE;
 	if(JSVAL_IS_OBJECT(v) && !JSVAL_IS_VOID(v) && !JSVAL_IS_NULL(v))
 	{
@@ -57,8 +55,6 @@ JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 
 JSAPI_PROP(file_getProperty)
 {
-	CDebug cDbg("file getProperty");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	struct _stat filestat = {0};
 	if(fdata->fptr)
@@ -122,8 +118,6 @@ return JS_TRUE;
 
 JSAPI_PROP(file_setProperty)
 {
-	CDebug cDbg("file setProperty");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 	{
@@ -143,8 +137,6 @@ JSAPI_PROP(file_setProperty)
 
 JSAPI_FUNC(file_open)
 {
-	CDebug cDbg("file open");
-
 	if(argc < 2)
 		THROW_ERROR(cx, obj, "Not enough parameters, 2 or more expected");
 	if(!JSVAL_IS_STRING(argv[0]))
@@ -213,8 +205,6 @@ JSAPI_FUNC(file_open)
 
 JSAPI_FUNC(file_close)
 {
-	CDebug cDbg("file close");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 	{
@@ -235,8 +225,6 @@ JSAPI_FUNC(file_close)
 
 JSAPI_FUNC(file_reopen)
 {
-	CDebug cDbg("file reopen");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 		if(!fdata->fptr) {
@@ -252,8 +240,6 @@ JSAPI_FUNC(file_reopen)
 
 JSAPI_FUNC(file_read)
 {
-	CDebug cDbg("file read");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
 	{
@@ -304,8 +290,6 @@ JSAPI_FUNC(file_read)
 
 JSAPI_FUNC(file_readLine)
 {
-	CDebug cDbg("file readLine");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		const char* line = readLine(fdata->fptr);
@@ -321,8 +305,6 @@ JSAPI_FUNC(file_readLine)
 
 JSAPI_FUNC(file_readAllLines)
 {
-	CDebug cDbg("file readAllLines");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
@@ -342,8 +324,6 @@ JSAPI_FUNC(file_readAllLines)
 
 JSAPI_FUNC(file_readAll)
 {
-	CDebug cDbg("file readAll");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		fseek(fdata->fptr, 0, SEEK_END);
@@ -364,8 +344,6 @@ JSAPI_FUNC(file_readAll)
 
 JSAPI_FUNC(file_write)
 {
-	CDebug cDbg("file write");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		for(uintN i = 0; i < argc; i++)
@@ -380,8 +358,6 @@ JSAPI_FUNC(file_write)
 
 JSAPI_FUNC(file_seek)
 {
-	CDebug cDbg("file seek");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
 	{
@@ -421,8 +397,6 @@ JSAPI_FUNC(file_seek)
 
 JSAPI_FUNC(file_flush)
 {
-	CDebug cDbg("file flush");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
 		fflush(fdata->fptr);
@@ -433,8 +407,6 @@ JSAPI_FUNC(file_flush)
 
 JSAPI_FUNC(file_reset)
 {
-	CDebug cDbg("file reset");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		if(fdata->locked && _fseek_nolock(fdata->fptr, 0L, SEEK_SET))
@@ -448,8 +420,6 @@ JSAPI_FUNC(file_reset)
 
 JSAPI_FUNC(file_end)
 {
-	CDebug cDbg("file end");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
 	{
@@ -464,8 +434,6 @@ JSAPI_FUNC(file_end)
 
 void file_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("file finalize");
-
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
 	{

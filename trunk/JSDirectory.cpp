@@ -23,8 +23,8 @@
 #include <cerrno>
 
 #include "JSDirectory.h"
+#include "D2BS.h"
 #include "File.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
@@ -34,8 +34,6 @@
 
 JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("openDir");
-
 	if(argc != 1)
 		return JS_TRUE;
 
@@ -72,8 +70,6 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("dir getFiles");
-
 	if(argc > 1)
 		return JS_TRUE;
 	if(argc < 1)
@@ -118,8 +114,6 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("dir getDirectories");
-
 	if(argc > 1)
 		return JS_TRUE;
 	if(argc < 1)
@@ -163,8 +157,6 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 
 JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("dir create");
-
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char path[_MAX_PATH];
 	char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
@@ -190,8 +182,6 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 }
 JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("dir delete");
-
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
 	char path[_MAX_PATH];
@@ -212,8 +202,6 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("dir getProperty");
-
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
 	if(JSVAL_IS_INT(id))

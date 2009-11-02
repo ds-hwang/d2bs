@@ -1,14 +1,12 @@
 #include "Control.h"
 #include "JSControl.h"
-#include "CDebug.h"
 #include "Helpers.h"
+#include "D2Helpers.h"
 
 #include "debugnew/debug_new.h"
 
 void control_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("control finalize");
-
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 
 	if(pData)
@@ -19,8 +17,6 @@ void control_finalize(JSContext *cx, JSObject *obj)
 }
 JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("control getProperty");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -66,9 +62,9 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case CONTROL_CURSORPOS:
 			*vp = INT_TO_JSVAL(pControl->dwCursorPos);
 			break;
-		case CONTROL_MAXLENGTH:
+//		case CONTROL_MAXLENGTH:
 //			*vp = INT_TO_JSVAL(pControl->dwMaxLength);
-			break;
+//			break;
 		case CONTROL_SELECTSTART:
 			*vp = INT_TO_JSVAL(pControl->dwSelectStart);
 			break;
@@ -87,8 +83,6 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 JSAPI_PROP(control_setProperty)
 {
-	CDebug cDbg("control setProperty");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -145,8 +139,6 @@ JSAPI_PROP(control_setProperty)
 
 JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("control getNext");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -190,8 +182,6 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("Control click");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -221,8 +211,6 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 
 JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("Control setText");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -253,8 +241,6 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("Control getText");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -296,8 +282,6 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	CDebug cDbg("getControl");
-
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
@@ -340,3 +324,4 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	return JS_TRUE;
 }
+

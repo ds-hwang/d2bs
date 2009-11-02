@@ -1,12 +1,9 @@
 #include "JSPresetUnit.h"
-#include "CDebug.h"
 
 #include "debugnew/debug_new.h"
 
 VOID presetunit_finalize(JSContext *cx, JSObject *obj)
 {
-	CDebug cDbg("presetunit finalize");
-
 	myPresetUnit *pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 
 	if(pUnit)
@@ -18,8 +15,6 @@ VOID presetunit_finalize(JSContext *cx, JSObject *obj)
 
 INT presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
-	CDebug cDbg("presetunit getProperty");
-
 	myPresetUnit* pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 
 	if(!pUnit)

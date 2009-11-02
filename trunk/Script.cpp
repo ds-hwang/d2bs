@@ -5,7 +5,6 @@
 #include "Core.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
-#include "CDebug.h"
 #include "Helpers.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
@@ -378,10 +377,6 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		delete[] argv;
 		return;
 	}
-
-	char msg[50];
-	sprintf_s(msg, sizeof(msg), "Script::ExecEventAsync(%s)", evtName);
-	CDebug cDbg(msg);
 
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
