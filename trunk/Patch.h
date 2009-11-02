@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Offset.h"
 #include "D2Intercepts.h"
 
