@@ -517,8 +517,73 @@ Also see [[AdvancedOptions]]</pre>
 <div title="DefaultTiddlers" modifier="lord2800" created="200910281255" changecount="1">
 <pre></pre>
 </div>
-<div title="MainMenu" modifier="lord2800" created="200910281257" changecount="1">
-<pre></pre>
+<div title="FileObject" modifier="lord2800" created="200911012318" modified="200911012320" changecount="2">
+<pre>Static Functions:
+[[File.open]]
+
+Functions:
+[[File.close]]
+[[File.reopen]]
+[[File.read]]
+[[File.readLine]]
+[[File.readAllLines]]
+[[File.readAll]]
+[[File.write]]
+[[File.seek]]
+[[File.flush]]
+[[File.reset]]
+[[File.end]]
+
+Properties:
+[[File.readable]]
+[[File.writable]]
+[[File.seekable]]
+[[File.mode]]
+[[File.binaryMode]]
+[[File.autoflush]]
+[[File.length]]
+[[File.path]]
+[[File.position]]
+[[File.eof]]
+</pre>
+</div>
+<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911012353" changecount="2">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;~FileTools.remove&quot; &quot;string name&quot; &quot;boolean&quot; &quot;remove a file based on name&quot; &quot;~FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911012330" changecount="3">
+<pre>Static Functions:
+[[FileTools.remove]]
+[[FileTools.rename]]
+[[FileTools.copy]]
+[[FileTools.exists]]
+[[FileTools.readText]]
+[[FileTools.writeText]]
+[[FileTools.appendText]]
+</pre>
+</div>
+<div title="MainMenu" modifier="lord2800" created="200910281257" modified="200911012304" changecount="2">
+<pre>GlobalFunctions
+[[Objects]]</pre>
+</div>
+<div title="Objects" modifier="lord2800" created="200911012315" changecount="1">
+<pre>SQLiteObject
+DBStatementObject
+FileObject
+FileToolsObject
+D2BSScriptObject
+FrameObject
+BoxObject
+LineObject
+TextObject
+ImageObject
+SandboxObject
+RoomObject
+PresetUnitObject
+PartyObject
+ExitObject
+DirectoryObject
+ControlObject
+AreaObject</pre>
 </div>
 <div title="SiteSubtitle" modifier="lord2800" created="200910281259" changecount="1">
 <pre>everything you wanted to know about D2BS, but were afraid to ask</pre>
@@ -528,6 +593,25 @@ Also see [[AdvancedOptions]]</pre>
 </div>
 <div title="SiteUrl" modifier="lord2800" created="200910281259" changecount="1">
 <pre>http://www.assembla.com/wiki/show/d2bs/</pre>
+</div>
+<div title="TemplateFunction" modifier="lord2800" created="200911012349" modified="200911020000" changecount="4">
+<pre>''Function:''
+&lt;&lt;&lt;
+$1($2)
+&lt;&lt;&lt;
+
+''Returns:'' $3
+
+''Remarks:''
+$4
+
+''Example:''
+&lt;&lt;&lt;
+$5
+&lt;&lt;&lt;</pre>
+</div>
+<div title="lord2800" modifier="lord2800" created="200911012333" changecount="1">
+<pre>D2BS lead developer and all around awesome guy.</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
