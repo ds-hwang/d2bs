@@ -1,3 +1,5 @@
+#pragma once
+
 #include "D2Structs.h"
 
 #pragma warning ( push )
