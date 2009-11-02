@@ -91,8 +91,28 @@ JSAPI_FUNC(script_send)
 JSAPI_FUNC(my_getScript)
 {
 	JSContext* iterp = NULL;
-	if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
-		return JS_TRUE;
+	if(argc == 1 && JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == JS_TRUE)
+		iterp = cx;
+	else if(argc == 1 && JSVAL_IS_INT(argv[0]))
+	{
+		// loop over the Scripts in ScriptEngine and find the one with the right threadid
+		DWORD tid = (DWORD)JSVAL_TO_INT(argv[0]);
+		ScriptList list;
+		ScriptEngine::GetScripts(list);
+		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+		{
+			if((*it)->GetThreadId() == tid)
+			{
+				iterp = (*it)->GetContext();
+				break;
+			}
+			if(iterp == NULL)
+				return JS_TRUE;
+		}
+	}
+	else
+		if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
+			return JS_TRUE;
 
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
 
