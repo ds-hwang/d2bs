@@ -324,9 +324,9 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	bool pause = script->IsPaused();
-
 	jsrefcount depth = JS_SuspendRequest(cx);
+
+	bool pause = script->IsPaused();
 
 	if(pause)
 		script->SetPauseState(true);
