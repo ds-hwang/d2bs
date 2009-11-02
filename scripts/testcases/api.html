@@ -547,8 +547,8 @@ Properties:
 [[File.eof]]
 </pre>
 </div>
-<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911012353" changecount="2">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;~FileTools.remove&quot; &quot;string name&quot; &quot;boolean&quot; &quot;remove a file based on name&quot; &quot;~FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
+<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911020006" changecount="5">
+<pre>&lt;&lt;tiddler TemplateFunction with:&quot;FileTools.remove&quot; &quot;string name&quot; &quot;True if the file was removed, otherwise false.&quot; &quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; &quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
 </div>
 <div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911012330" changecount="3">
 <pre>Static Functions:
@@ -594,21 +594,17 @@ AreaObject</pre>
 <div title="SiteUrl" modifier="lord2800" created="200910281259" changecount="1">
 <pre>http://www.assembla.com/wiki/show/d2bs/</pre>
 </div>
-<div title="TemplateFunction" modifier="lord2800" created="200911012349" modified="200911020000" changecount="4">
+<div title="TemplateFunction" modifier="lord2800" created="200911012349" modified="200911020002" changecount="7">
 <pre>''Function:''
-&lt;&lt;&lt;
-$1($2)
-&lt;&lt;&lt;
+{{{$1($2)}}}
 
 ''Returns:'' $3
 
-''Remarks:''
+!!!''Remarks:''
 $4
 
-''Example:''
-&lt;&lt;&lt;
-$5
-&lt;&lt;&lt;</pre>
+!!!''Example:''
+{{{$5}}}</pre>
 </div>
 <div title="lord2800" modifier="lord2800" created="200911012333" changecount="1">
 <pre>D2BS lead developer and all around awesome guy.</pre>
