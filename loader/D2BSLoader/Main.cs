@@ -89,9 +89,10 @@ namespace D2BSLoader
 					try {
 						moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant();
 					} catch { }
-					string classname = PInvoke.User32.GetClassNameFromProcess(p);
-					if(!String.IsNullOrEmpty(classname) && classname == "Diablo II" &&
-						(moduleName == "game.exe" || moduleName.Contains("d2loader")))
+					string classname = GetLCClassName(p);
+					if(!String.IsNullOrEmpty(classname) && classname == "diablo ii" &&
+						(moduleName == "game.exe" || moduleName.Contains("d2loader") ||
+						 moduleName.Contains("d2launcher")))
 					{
 						ProcessWrapper pw = new ProcessWrapper(p);
 						processes.Add(pw);
@@ -155,14 +156,29 @@ namespace D2BSLoader
 			Status.Text = status;
 		}
 
+		private string GetLCClassName(Process p) { return PInvoke.User32.GetClassNameFromProcess(p).ToLowerInvariant(); }
 		private Process GetProcessById(int pid)
 		{
 			try { return Process.GetProcessById(pid); }
 			catch(ArgumentException) { return null; }
 		}
-		private void Start(int pid) { Start(); }
-		private void Inject(int pid) { Process p = GetProcessById(pid); if(p != null) Attach(p); }
-		private void Kill(int pid) { Process p = GetProcessById(pid); if(p != null) p.Kill(); }
+
+		private void Start(int pid)
+		{
+			Inject(Start());
+		}
+		private void Inject(int pid)
+		{
+			Process p = GetProcessById(pid);
+			if(p != null && GetLCClassName(p) == "diablo ii")
+				Attach(p);
+		}
+		private void Kill(int pid)
+		{
+			Process p = GetProcessById(pid);
+			if(p != null && GetLCClassName(p) == "diablo ii")
+				p.Kill();
+		}
 
 		private bool Attach(Process p)
 		{
@@ -188,15 +204,16 @@ namespace D2BSLoader
 				SetStatus("Failed!", Color.Red);
 		}
 
-		private void Start()
+		private int Start()
 		{
 			if(String.IsNullOrEmpty(D2Exe))
-				return;
+				return -1;
 
 			ProcessStartInfo psi = new ProcessStartInfo(D2Path + Path.DirectorySeparatorChar + D2Exe, D2Args);
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
-			Process.Start(psi);
+			Process p = Process.Start(psi);
+			return p.Id;
 		}
 
 		private void Load_Click(object sender, EventArgs e)
@@ -226,7 +243,13 @@ namespace D2BSLoader
 	{
 		public bool Loaded { get; set; }
 		public Process Process { get; internal set; }
-		public string ProcessName { get { return Process.MainWindowTitle + " [" + Process.Id + "]" + (Loaded ? " *" : ""); } }
+		public string ProcessName {
+			get {
+				if(Process.HasExited)
+					return "Exited...";
+				return Process.MainWindowTitle + " [" + Process.Id + "]" + (Loaded ? " *" : "");
+			}
+		}
 		public ProcessWrapper(Process p) { Process = p; }
 	}
 
