@@ -404,9 +404,18 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
+	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
-		ScriptEngine::PauseAll();
+		ScriptList list;
+		ScriptEngine::GetScripts(list);
+		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+		{
+			if((*it)->IsPaused())
+				pausedList.push_back(*it);
+			(*it)->Pause();
+		}
+
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");
 	}
@@ -414,7 +423,8 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	{
 		if(Vars.bDebug)
 			Log("*** LEAVING GC ***");
-		ScriptEngine::ResumeAll();
+		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
+			(*it)->Resume();
 	}
 	return JS_TRUE;
 }
