@@ -50,8 +50,6 @@ public:
 	static JSRuntime* GetRuntime(void) { return runtime; }
 
 	static void StopAll(bool forceStop = false);
-	static void PauseAll(void);
-	static void ResumeAll(void);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
 							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,

@@ -196,36 +196,6 @@ void ScriptEngine::StopAll(bool forceStop)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::PauseAll(void)
-{
-	if(GetState() != Running)
-		return;
-
-	EnterCriticalSection(&lock);
-	
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Pause();
-	
-	LeaveCriticalSection(&lock);
-}
-
-void ScriptEngine::ResumeAll(void)
-{
-	if(GetState() != Running)
-		return;
-
-	EnterCriticalSection(&lock);
-	
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Resume();
-	
-	LeaveCriticalSection(&lock);
-}
-
 void ScriptEngine::FlushCache(void)
 {
 	if(GetState() != Running)
