@@ -158,11 +158,15 @@ function YAM_KeyUpManager(keyup) {
 			var pscript = DC_FindScript(YAM_PausePath);
 			if (!pscript) {
 				load(YAM_PausePath);
+				var lp=1;
 				do {
-					print("paused"); // spamming to see if still in loop TESTING
+					print("paused : in loop"); // spamming to see if still in loop TESTING
 					delay (1000);// increasing delay from 500 for testing - TechnoHunter TESTING
-					if(!pscript) // seeing if finding it once will still work. TESTING
-					pscript = DC_FindScript(YAM_PausePath);
+					if(!pscript){ // seeing if finding it once will still work. TESTING
+						pscript = DC_FindScript(YAM_PausePath);
+						print("lp = " +lp );
+					}
+					lp++;
 				} while(pscript && pscript.running)
 			}
 			else { 
@@ -563,8 +567,8 @@ function main() {
 	// Include the base common lib and setup the debug and error log paths
 	include("YAMB/common/YAM-Common.dbl");
 	sendCopyData(null, "OOG", 0,"yam-main common included " );
-	DC_DebugLogPath = "output/" + me.name + "-YAM-DebugLog.html";
-	DC_ErrorLogPath = "output/" + me.name + "-YAM-ErrorLog.html";
+	DC_DebugLogPath = "output/" + me.name + "-YAMB-DebugLog.html";
+	DC_ErrorLogPath = "output/" + me.name + "-YAMB-ErrorLog.html";
 	// Stop everything on main function errors (safety for testing changes, shouldn't happen in releases)
 	try {
 		sendCopyData(null, "OOG", 0,"yam-main trying yam() " );

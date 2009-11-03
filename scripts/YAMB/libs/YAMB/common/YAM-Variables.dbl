@@ -271,7 +271,7 @@ var DA_DisplayImmunities  = true;
 
 // Chickens
 var DA_LogChickens    = true;
-var DA_ChickenLogPath = "output/" + me.name + "YAM-ChickenLog.html";
+var DA_ChickenLogPath = "output/" + me.name + "-YAMB-ChickenLog.html";
 
 // Precasts section
 var DA_AutoPrecasts = true;

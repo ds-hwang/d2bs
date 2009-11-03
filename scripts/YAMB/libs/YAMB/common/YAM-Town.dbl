@@ -43,6 +43,7 @@ function YAM_MakeTP() {
 
 // Check for curse... 2=Poison, 9=Amplify Damage, 19=Weaken, 55=Iron Maiden, 60=Decrepify, 61=Lower Resist, 114=Blood mana
 function YAM_CheckIfCursed() {
+	DC_DPrint("YAM_CheckIfCursed() : Entering function");
 	if((YAM_HealPoison && me.getState(2)) || me.getState(9) || me.getState(61)) {
 		if(YAM_Debug) print ("YAM_CheckIfCursed: Player is cursed!");
 		return true;

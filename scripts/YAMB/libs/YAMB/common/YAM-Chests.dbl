@@ -116,7 +116,7 @@ function YC_CheckForChest(chest) {
 	if (getDistance(me, chest) > YC_MaxDistance || checkCollision(me,chest,1)) { return false; }
 	// have we visited this chest before ?  if so, skip it
 	if (chest.mode) { return false; }
-	if (chest.status!=0 && me.classid!=6) {
+	if (chest.islocked!=0 && me.classid!=6) {
 		var _key = DC_GetKeys();
 		if ( !_key || (_key.getStat(70) < 1)) {
 			return false;

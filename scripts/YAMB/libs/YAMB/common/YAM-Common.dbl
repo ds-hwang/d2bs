@@ -826,6 +826,7 @@ function DC_GetMerc() {
 	// If we get the price to ressurect the merc, he is dead so return false
 	if(me.mercrevive) { return false; }
 	var _merc = me.getMerc();
+	DC_DPrint("DC_GetMerc() : using me.getMerc() -> Merc was" + ((_merc) ? " found!  merc gid = " : " not found!") + ((_merc) ? _merc.gid : " ")); //TESTING
 	
 	return (_merc && _merc.hp > 0 && _merc.mode != 12) ? _merc : false;
 }
@@ -872,7 +873,7 @@ function DC_OpenChest(chest) {
 	// if the object is opened, return false
 	if(chest.mode) { return false; }
 	// If the chest is locked, check if we have a free key
-	if(chest.status!=0) {
+	if(chest.islocked!=0) {
 		// Get the key stack object for usage
 		var key = DC_GetKeys();
 		// If we don't have a key object or is the key stack empty, return false

@@ -364,27 +364,50 @@ function DA_CountMinions(classid) {
 //c_ObjClassID_The_Worldstone_Chamber = 563;
 
 function DA_CheckMonster(monster) {
-	if(!monster || monster.mode == 12 || monster.hp <= 0)
-		return 0; 
-	// check the alignment
-	if( monster.getStat(172) == 2 || monster.getState(105) == 0 ) 
-		return 0;
-	// Use NeverCount base monstat for traps, hydra, etc.
-	if(getBaseStat(1,monster.classid,23)) 
-		return 0;
-	var merc = DC_GetMerc();
-	if(merc && monster.name == merc.name)
-		return 0;
-	if(monster.classid > 573)
-		return -1;
-	// If it is Baal on the throne before the Worldstone Chamber, return 0
-	if(monster.classid==543 || (monster.classid > 515 && monster.classid < 520))
-		return 0;
-	if(monster.name=="Valkyrie" || monster.name=="Decoy") 
-		return 0;
-	if(monster.spectype & 1 || monster.spectype & 4)
-		return 2;
+	DC_DPrint("DA_CheckMonster() : Entering function");
 
+	if(!monster){
+		DC_DPrint("DA_CheckMonster() : No monster");
+		return 0; 
+	}
+	if(monster.mode == 12 || monster.hp <= 0){
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is dead");
+		return 0; 
+	}
+	// check the alignment
+	if( monster.getStat(172) == 2 || monster.getState(105) == 0 ) {
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is aligned with us, and un-attackable");
+		return 0;
+	}
+	// Use NeverCount base monstat for traps, hydra, etc.
+	if(getBaseStat(1,monster.classid,23)) {
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is of type nevercount");
+		return 0;
+	}
+	var merc = DC_GetMerc();
+	if(merc && monster.name == merc.name){
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is our merc!");
+		return 0;
+	}
+	if(monster.classid > 573){
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " classid above 573");
+		return -1;
+	}
+	// If it is Baal on the throne before the Worldstone Chamber, return 0
+	if(monster.classid==543 || (monster.classid > 515 && monster.classid < 520)){
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is baal on throne, un attackable");
+		return 0;
+	}
+	if(monster.name=="Valkyrie" || monster.name=="Decoy") {
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is a player minion");
+		return 0;
+	}
+	if(monster.spectype & 1 || monster.spectype & 4){
+		DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " is a boss type");
+		return 2;
+	}
+
+	DC_DPrint("DA_CheckMonster() : monster: (" + monster.name + ") gid:" + monster.gid + " passed all exclusion tests, and is attackable");
 	return 1;
 }
 
@@ -469,6 +492,7 @@ function XP_CheckUtil(target) {
 	}
 	// if we want to let the merc land the final blow, stall
 	if(XP_StallKill) {
+		DC_DPrint("XP_CheckUtil() : XP_StallKill is true, waiting for merc to finish killing");
 		_merc = DC_GetMerc();
 		if(_merc && target.hp <= XP_StallHP && !(target.getStat(36) > 99 && XP_StallSkipPhys)) {
 			XP_StallKill=false;
@@ -501,7 +525,6 @@ function XP_CheckUtil(target) {
 		}
 		else if(MXP_DoMoat && target.classid == 242) {
 			_merc = DC_GetMerc();
-			//if(_merc && ((Math.abs(me.x - _merc.x) > 5) || (Math.abs(me.y - _merc.y) > 5))) {
 			if(_merc && getDistance(me, _merc) > 5) {
 				DC_DoCast(54,0,_XP_EndPosition.x,_XP_EndPosition.y);
 			}

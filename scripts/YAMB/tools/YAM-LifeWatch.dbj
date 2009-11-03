@@ -619,6 +619,7 @@ function LW_TownQuit(message, smsg) {
 }
 
 function LW_GetMerc() {
+	LW_DPrint("LW_GetMerc() : Entering function");
 	//var _merc = DC_GetMerc();
 	var _merc = me.getMerc();
 	if (_merc) {
@@ -670,6 +671,15 @@ function LW_GetPotByClassID(classid) {
 function LW_Print(what) {
 	if(typeof(DC_Print) == 'function'){
 		DC_Print(what);
+	}
+	else{
+		print(what);
+	}
+}
+
+function LW_DPrint(what) {
+	if(typeof(DC_DPrint) == 'function'){
+		DC_DPrint(what);
 	}
 	else{
 		print(what);

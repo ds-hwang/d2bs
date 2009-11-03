@@ -448,17 +448,22 @@ function DT_getCorpses() {
 // Function by HolyCoitus, modified by Darien and Xizeta
 // Return value : True if we need to ressurect the merc.
 function DT_CheckMerc() {
+	DC_DPrint("DT_CheckMerc(): Entering function.");
 	if(DT_UseMerc) {
 		// Get the merc
 		var _merc = DC_GetMerc();
 		// If we got one, return false because it is alive
 		if(_merc) { 
-			DC_DPrint("DT_CheckMerc(): Merc is fine!");
+			DC_DPrint("DT_CheckMerc(): Merc is alive, returning false");
 			return false; 
 		}
 		// If we dont have a merc, return false and set further merc use to FALSE because it is a waste of time!
 		if(!_merc && !me.mercrevivecost) { 
-			DC_DPrint("DT_CheckMerc(): No Merc Owned/Found!");
+			//DC_DPrint("DT_CheckMerc(): No Merc Owned/Found!");
+			if(!_merc)
+				DC_DPrint("DT_CheckMerc(): Failed to find merc!");
+			if(!me.mercrevivecost)
+				DC_DPrint("DT_CheckMerc(): No mercrevivecost set!");
 			DT_UseMerc = false;
 			return false; 
 		}
@@ -1362,16 +1367,16 @@ function DT_CheckHeal() {
 // Return value : None, just display the Magic Find and Extra Gold information on screen
 function DT_DisplayMF() {
 
-	_meMF = me.getStat(80) + me.getStat(240);
-	_meEG = me.getStat(79);
+	var _meMF = me.getStat(80) + me.getStat(240);
+	var _meEG = me.getStat(79);
 
 	if(DT_UseMerc) {
-		_mymerc = DC_GetMerc();
+		var _mymerc = DC_GetMerc();
 		if(_mymerc) {
-			_mercMF = _mymerc.getStat(80) + _mymerc.getStat(240);
-			_mercEG = _mymerc.getStat(79);
-			_bothMF = _meMF + _mercMF;
-			_bothEG = _meEG + _mercEG;
+			var _mercMF = _mymerc.getStat(80) + _mymerc.getStat(240);
+			var _mercEG = _mymerc.getStat(79);
+			var _bothMF = _meMF + _mercMF;
+			var _bothEG = _meEG + _mercEG;
 			DC_Print("Magic Find:    " + me.name + ": " + _meMF + "%%     " + _mymerc.name + ": " + _mercMF + "%%     Total : " + _bothMF + "%% !");
 			DC_Print("Extra Gold:    " + me.name + ": " + _meEG + "%%     " + _mymerc.name + ": " + _mercEG + "%%     Total : " + _bothEG + "%% !");
 			return;

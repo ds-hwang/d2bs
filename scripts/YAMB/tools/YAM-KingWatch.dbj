@@ -22,7 +22,7 @@ function main() {
 
 				if (!SentSM && King.hp < KingLifeTown) {
 					sendCopyData(null, me.windowtitle, 0,"SM_King" ); //bob
-					var script = FindScript("yamb.d2j");
+					var script = FindScript("yamb.dbj");
 					if (!script) { quit(); }
 					else {
 						script.send("SM_King");
