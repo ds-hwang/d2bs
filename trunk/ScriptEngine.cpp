@@ -411,7 +411,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 		ScriptEngine::GetScripts(list);
 		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
 		{
-			if((*it)->IsPaused())
+			if(!(*it)->IsPaused())
 				pausedList.push_back(*it);
 			(*it)->Pause();
 		}
