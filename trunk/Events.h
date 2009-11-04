@@ -12,3 +12,4 @@ VOID MouseClickEvent(int button, POINT pt, bool bUp);
 VOID MouseMoveEvent(POINT pt);
 VOID ScriptBroadcastEvent(uintN argc, jsval* argv);
 VOID ItemDropEvent(DWORD GID,CHAR* Code,WORD itemX,WORD itemY,WORD Mode);
+VOID GoldDropEvent(DWORD GID,CHAR* Code,WORD itemX,WORD itemY,WORD Mode);

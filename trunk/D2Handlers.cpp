@@ -325,7 +325,6 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 	}
 	if(pPacket[0] == 0x95 || pPacket[0] == 0x18)
 	{
-		
 		WORD Life = *(WORD*)&pPacket[1];
 		WORD Mana = *(WORD*)&pPacket[3];
 
@@ -341,11 +340,15 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		{
 			Mana ^= 0x4000;
 		}
-
 		Mana *= 2;
 
-		LifeEvent(Life);
-		ManaEvent(Mana);
+		static WORD SaveLife = 0;
+		if(SaveLife != Life)
+			LifeEvent(Life);
+
+		static WORD SaveMana = 0;
+		if(SaveMana != Mana)
+			ManaEvent(Mana);
 	}
 	else if(pPacket[0] == 0x26)
 	{
@@ -388,7 +391,11 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 			WORD Mode = *(BYTE*)&pPacket[1];
 			DWORD GID = *(DWORD*)&pPacket[4];
 
-			ItemDropEvent(GID,Code,itemX,itemY,Mode);
+			if(strcmp(Code, "gld") == 0)
+				GoldDropEvent(GID,Code,itemX,itemY,Mode);
+			else
+				ItemDropEvent(GID,Code,itemX,itemY,Mode);
+
 		}
 	}
 	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite

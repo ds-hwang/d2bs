@@ -177,6 +177,7 @@ VOID ScriptBroadcastEvent(uintN argc, jsval* args)
 		(*it)->ExecEventAsync("scriptmsg", argc, argv);
 	}
 }
+
 VOID ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
 {
 	ScriptList scripts;
@@ -194,5 +195,25 @@ VOID ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
 		argv[3] = new AutoRoot(INT_TO_JSVAL(itemY));
 		argv[4] = new AutoRoot(INT_TO_JSVAL(Mode));
 		(*it)->ExecEventAsync("itemdrop", 5, argv);
+	}
+}
+
+VOID GoldDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode)
+{
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("golddrop"))
+			continue;
+
+		JSContext* cx = (*it)->GetContext();
+		AutoRoot** argv = new AutoRoot*[5];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(GID));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Code)));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(itemX));
+		argv[3] = new AutoRoot(INT_TO_JSVAL(itemY));
+		argv[4] = new AutoRoot(INT_TO_JSVAL(Mode));
+		(*it)->ExecEventAsync("golddrop", 5, argv);
 	}
 }
