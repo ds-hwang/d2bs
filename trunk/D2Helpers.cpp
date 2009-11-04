@@ -54,12 +54,11 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp, size_t bufSize)
 	}
 	if(pUnit->dwType == UNIT_ITEM)
 	{
-		wchar_t wBuffer[8192] = {NULL};
+		wchar_t wBuffer[512] = {0};
 		D2CLIENT_GetItemName(pUnit, wBuffer, sizeof(wBuffer));
 		char* szBuffer = UnicodeToAnsi(wBuffer);
-		if(strchr(szBuffer, '\n')) {
-            *strchr(szBuffer,'\n') = 0x00;
-		}
+		if(strchr(szBuffer, '\n'))
+			*strchr(szBuffer,'\n') = 0x00;
 
 		strcpy_s(szTmp, bufSize, szBuffer);
 		delete[] szBuffer;
