@@ -836,7 +836,7 @@ function DC_GetMerc() {
 function DC_CheckKeys() {
 	// If we don't want to buy keys, return 0 immediatly
 	if(!DC_BuyKeys || me.classid == 6) { return 0; }
-	_keys=DC_GetKeys();
+	var _keys=DC_GetKeys();
 	// If we don't have keys, return 12
 	if(!_keys) { return 12; }
 	// If we have a keys stack, get the quantity and return the number if it is below the percent threshold
