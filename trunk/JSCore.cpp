@@ -40,15 +40,21 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		{
 			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
 				THROW_ERROR(cx, obj, "Converting to string failed");
-			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
-			if(lpszText == NULL)
+
+			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			if(Text == NULL)
 				THROW_ERROR(cx, obj, "Could not get string for value");
+
+			jsrefcount depth = JS_SuspendRequest(cx);
+
 			char* c = 0;
-			while((c = strchr(lpszText, '%')) != 0)
+			while((c = strchr(Text, '%')) != 0)
 				*c = (unsigned char)0xFE;
-			Print(lpszText);
+
+			Print(Text ? Text : "undefined");
+			
+			JS_ResumeRequest(cx, depth);
 		}
-		else Print("undefined");
 	}
 	return JS_TRUE;
 }
@@ -64,6 +70,8 @@ JSAPI_FUNC(my_delay)
 			Sleep(nDelay);
 			JS_ResumeRequest(cx, depth);
 		}
+		else
+			THROW_ERROR(cx, obj, "delay(0) called, argument must be >= 1");
 	}
 
 	return JS_TRUE;
@@ -103,7 +111,6 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		}
 		else
 			THROW_ERROR(cx, obj, "File name exceeds _MAX_PATH characters");
-
 	}
 
 	return JS_TRUE;
@@ -114,7 +121,6 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
-
 		if(script)
 		{
 			CHAR * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
@@ -143,21 +149,20 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			(JSVAL_IS_BOOLEAN(argv[0]) && JSVAL_TO_BOOLEAN(argv[0]) == TRUE))
 	{
 		Script* script = (Script*)JS_GetContextPrivate(cx);
-
 		if(script)
 			script->Stop();
-
-		return JS_FALSE;
 	}
 	else
-	{
 		ScriptEngine::StopAll();
-		return JS_FALSE;
-	}
+
+	return JS_FALSE;
 }
 
 INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	if(!GameReady())
+		return JS_TRUE;
+
 	if(argc >= 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 	{
 		*rval = JSVAL_VOID;
@@ -175,6 +180,7 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 				if(!jsunit)
 				{
 					delete lpUnit;
+					lpUnit = NULL;
 					THROW_ERROR(cx, obj, "Couldn't copy unit");
 				}
 
@@ -273,22 +279,20 @@ INT my_acceptTrade(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			// Don't operate if we can't trade anyway ...
 			*rval = JSVAL_FALSE;
-			return JS_TRUE;
 		}
 		else if((*p_D2CLIENT_bTradeAccepted))
 		{
 			(*p_D2CLIENT_bTradeAccepted) = FALSE;
 			D2CLIENT_CancelTrade();
 			*rval = JSVAL_TRUE;
-			return JS_TRUE;
 		}
 		else
 		{
 			(*p_D2CLIENT_bTradeAccepted) = TRUE;
 			D2CLIENT_AcceptTrade();
 			*rval = JSVAL_TRUE;
-			return JS_TRUE;
 		}
+		return JS_TRUE;
 	}
 
 	THROW_ERROR(cx, obj, "Invalid parameter passed to acceptTrade!");
@@ -350,7 +354,6 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	DWORD nAreas[64] = {0};
 	INT nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
 
-	
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
 			*rval = JSVAL_FALSE;
@@ -388,7 +391,6 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	g_collisionMap.MakeBlank(matrix, ptEnd);
 
 	bool bFix = FALSE;
-	
 
 	if(UseTele)
 	{
@@ -889,6 +891,9 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 INT my_gold(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	if(!GameReady())
+		return JS_TRUE;
+
 	jsint nGold = NULL;
 	jsint nMode = 1;
 
@@ -1104,6 +1109,9 @@ INT my_getTradeInfo(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 INT my_getUIFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	if(!GameReady())
+		return JS_TRUE;
+
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
 		*rval = JSVAL_VOID;
@@ -1202,7 +1210,7 @@ INT my_version(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.12a.", D2BS_VERSION); 
 
-	return JS_TRUE;	
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_debugLog)
@@ -1280,7 +1288,6 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
-
 	if(!hWnd)
 	{
 		*rval = JSVAL_FALSE;
@@ -1809,16 +1816,13 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	
 	Level* pLevel = GetLevel(nArea);
-	
 	if(!pLevel)
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
-
 	myArea* pArea = new myArea;
-
 	if(!pArea)
 	{
 		*rval = JSVAL_FALSE;
@@ -1843,6 +1847,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if(!unit)
 	{
 		delete pArea;
+		pArea = NULL;
 		THROW_ERROR(cx, obj, "Failed to build area unit!");
 	}
 
@@ -1864,12 +1869,10 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	cRoom.EnterSection();
 
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
-
-	
 	if(!pArea)
 		return JS_TRUE;
-	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	DWORD dwArrayCount = 0;
 
 	for(UINT i = 0; i < pArea->Exits; i++)
@@ -1885,6 +1888,7 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		if(!jsUnit)
 		{
 			delete pExit;
+			pExit = NULL;
 			THROW_ERROR(cx, obj, "Failed to create exit object!");
 		}
 
@@ -1893,10 +1897,7 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		dwArrayCount++;
 	}
 
-
-
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
-
 	return JS_TRUE;
 }
 
@@ -2049,7 +2050,7 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	char lpszBuf[MAX_PATH];
 	sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, pFileName);
 
-    	char szBuffer[65535];        // Max ini line length is 65535 under 95
+	char szBuffer[65535];        // Max ini line length is 65535 under 95
 
 	char* pSectionName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
 	if(!pSectionName)
@@ -2067,10 +2068,10 @@ int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//  IniWrite(filename, sectionname, keyname, value)                          //                                     
+//  IniWrite(filename, sectionname, keyname, value)                          //
 //                                                                           //
 //  Original Credits: Jonathan Bennett <jon@hiddensoft.com>                  //
-//  Embedded by: Insolence                                                   //              
+//  Embedded by: Insolence                                                   //
 ///////////////////////////////////////////////////////////////////////////////
 int my_iniwrite(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -2338,6 +2339,9 @@ JSAPI_FUNC(my_getMouseCoords)
 
 JSAPI_FUNC(my_submitItem)
 {
+	if(!GameReady())
+		return JS_TRUE;
+
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
 		D2CLIENT_submitItem(pUnit->dwUnitId);
@@ -2362,11 +2366,10 @@ JSAPI_FUNC(my_getInteractedNPC)
 	}
 
 	myUnit* pmyUnit = new myUnit; // leaked?
-
 	if(!pmyUnit)
 		return JS_TRUE;
 
-	CHAR szName[128] = "";
+	CHAR szName[256] = "";
 	pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 	pmyUnit->dwClassId = pNPC->dwTxtFileNo;
 	pmyUnit->dwMode = pNPC->dwMode;
@@ -2375,11 +2378,9 @@ JSAPI_FUNC(my_getInteractedNPC)
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
 	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-
 	if(!jsunit)
 		return JS_TRUE;
 
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
-
