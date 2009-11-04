@@ -441,8 +441,9 @@ function XP_CheckUtil(target) {
 //		return true;
 	if(!target) // got into here without actually having a target! bail out -TechnoHunter
 		return true;
-	if(target.hp < 1 ){
-		DC_DPrint("XP_CheckUtil() : checking " + target.name + " but target hp less than 1!");
+
+	if((target.hp <= 0) || (target.mode == 12) || (target.mode == 0)) {
+		DC_DPrint("XP_CheckUtil() : checking " + target.name + " but target is dead!");
 		return true;
 	}
 	if(!getUnit(1,null,null,target.gid)){

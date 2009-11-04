@@ -1369,7 +1369,7 @@ function DP_clickTile(inTile) {
 	do {
 		if( retry%3==0 ) {
 			clickMap(0,0,inTile);
-			delay(rnd(10,20));
+			delay(rand(10,20));
 			clickMap(2,0,inTile);
 		}
 		for( var retry2 = 0; getDistance(me,inTile ) > 3 && ( retry2 < 5 ) ; retry2++ ){

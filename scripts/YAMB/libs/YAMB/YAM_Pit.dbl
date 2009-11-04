@@ -138,7 +138,7 @@ function PXP_OpenChest() {
 	var chest = DC_getObject("chest");
 	if (chest) {
 		do {
-			if (chest.status!=0 && me.classid!=6) {
+			if (chest.islocked!=0 && me.classid!=6) {
 				var _key = DC_GetKeys();
 				if ( !_key || (_key.getStat(70) < 1)) {
 					print("This chest is locked but I don't have keys! Skipping it.");
