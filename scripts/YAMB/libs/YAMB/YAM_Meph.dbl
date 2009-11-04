@@ -7,13 +7,15 @@ function MXP_OpenChest() {
 	if (me.x > 17575) { DM_MoveTo(17565,8069,true); } 
 	if (me.x > 17555) { DM_MoveTo(17550,8069,true); } 
 	DM_MoveTo(17523,8064,true);
+	XP_ClearPosition(30,false); // added on request to make sure its safe to get the chest (casters in hell)
+	DM_MoveTo(17523,8064,true); // reset position before searching for chest
 
 	// Detect nearby objects, then loop until we get the uber chest
 	chest = DC_getObject("chest");
 
 	if (chest) { do {
 		if ((chest.classid == 183 || chest.classid == 181) && chest.x == 17513 && chest.y == 8063) {
-			if (chest.status!=0 && me.classid!=6) {
+			if (chest.islocked!=0 && me.classid!=6) {
 				var _key = DC_GetKeys();
 				if ( !_key || (_key.getStat(70) < 1)) {
 					print("This chest is locked but I don't have keys! Skipping it.");
