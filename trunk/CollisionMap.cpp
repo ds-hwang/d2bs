@@ -30,9 +30,9 @@ void CCollisionMap::OnMapChanged(BYTE iNewMapID)
 	if (iNewMapID != m_iCurMap)
 	{
 		m_iCurMap = iNewMapID;
-		m_map.Lock();
+		//m_map.Lock();
 		m_map.Destroy();
-		m_map.Unlock();	
+		//m_map.Unlock();
 		::memset(&m_ptLevelOrigin, 0, sizeof(POINT));
 		m_aCollisionTypes.RemoveAll();
 	}
