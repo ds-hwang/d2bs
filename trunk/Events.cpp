@@ -36,7 +36,7 @@ VOID WhisperEvent(CHAR* lpszNick, CHAR* lpszMsg)
 	}
 }
 
-VOID LifeEvent(DWORD dwLife, DWORD dwMana)
+VOID LifeEvent(DWORD dwLife)
 {
 	ScriptList scripts;
 	ScriptEngine::GetScripts(scripts);
@@ -45,10 +45,24 @@ VOID LifeEvent(DWORD dwLife, DWORD dwMana)
 		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("melife"))
 			continue;
 
-		AutoRoot** argv = new AutoRoot*[2];
+		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
-		argv[1] = new AutoRoot(INT_TO_JSVAL(dwMana));
-		(*it)->ExecEventAsync("melife", 2, argv);
+		(*it)->ExecEventAsync("melife", 1, argv);
+	}
+}
+
+VOID ManaEvent(DWORD dwMana)
+{
+	ScriptList scripts;
+	ScriptEngine::GetScripts(scripts);
+	for(ScriptList::iterator it = scripts.begin(); it != scripts.end(); it++)
+	{
+		if(!(*it)->IsRunning() || !(*it)->IsListenerRegistered("memana"))
+			continue;
+
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(dwMana));
+		(*it)->ExecEventAsync("memana", 1, argv);
 	}
 }
 

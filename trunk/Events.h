@@ -1,7 +1,8 @@
 #pragma once
 
 VOID ChatEvent(CHAR* lpszNick, CHAR* lpszMsg);
-VOID LifeEvent(DWORD dwLife, DWORD dwMana);
+VOID LifeEvent(DWORD dwLife);
+VOID ManaEvent(DWORD dwMana);
 VOID CopyDataEvent(DWORD dwMode, CHAR* lpszMsg);
 VOID GameMsgEvent(CHAR* lpszMsg);
 VOID WhisperEvent(CHAR* lpszNick, CHAR* lpszMsg);

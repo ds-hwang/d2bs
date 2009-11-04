@@ -296,10 +296,10 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			{
 				Print("ÿc2D2BSÿc0 :: Loading %s", arg);
 
-				CHAR szPath[8192] = "";
-				sprintf_s(szPath, sizeof(szPath), "%s\\%s", Vars.szScriptPath, arg);
+				char Path[_MAX_PATH+_MAX_FNAME] = "";
+				sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
 
-				Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
+				Script* script = ScriptEngine::CompileFile(Path, InGame, true);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				else
@@ -344,7 +344,8 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 
 		Mana *= 2;
 
-		LifeEvent(Life, Mana);
+		LifeEvent(Life);
+		ManaEvent(Mana);
 	}
 	else if(pPacket[0] == 0x26)
 	{
