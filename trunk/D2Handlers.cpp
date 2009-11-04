@@ -344,11 +344,17 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 
 		static WORD SaveLife = 0;
 		if(SaveLife != Life)
+		{
+			SaveLife = Life;
 			LifeEvent(Life);
+		}
 
 		static WORD SaveMana = 0;
 		if(SaveMana != Mana)
+		{
+			SaveMana = Mana;
 			ManaEvent(Mana);
+		}
 	}
 	else if(pPacket[0] == 0x26)
 	{
