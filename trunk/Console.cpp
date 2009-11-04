@@ -138,10 +138,10 @@ void Console::ExecuteCommand(void)
 			sprintf_s(msg, sizeof(msg), "ÿc2D2BSÿc0 :: Loading %s", arg);
 			AddLine(msg);
 
-			CHAR szPath[8192] = "";
-			sprintf_s(szPath, sizeof(szPath), "%s\\%s", Vars.szScriptPath, arg);
+			char Path[_MAX_PATH+_MAX_FNAME] = "";
+			sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
 
-			Script* script = ScriptEngine::CompileFile(szPath, InGame, true);
+			Script* script = ScriptEngine::CompileFile(Path, InGame, true);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
