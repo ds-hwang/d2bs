@@ -256,7 +256,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case ITEM_FNAME:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-				wchar_t wszfname[128] = L"";
+				wchar_t wszfname[256] = L"";
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
