@@ -1,5 +1,9 @@
 #pragma once
 
+#include <windows.h>
+
+#include "Script.h"
+
 #include "js32.h"
 
 JSAPI_PROP(script_getProperty);
@@ -46,4 +50,10 @@ static JSFunctionSpec script_methods[] = {
 	{"stop",			script_stop,		0},
 	{"send",			script_send,		1},
 	{0},
+};
+
+struct FindHelper
+{
+	DWORD tid;
+	Script* script;
 };

@@ -4,6 +4,8 @@
 
 #include "debugnew/debug_new.h"
 
+bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc);
+
 JSAPI_PROP(script_getProperty)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
@@ -97,18 +99,13 @@ JSAPI_FUNC(my_getScript)
 	{
 		// loop over the Scripts in ScriptEngine and find the one with the right threadid
 		DWORD tid = (DWORD)JSVAL_TO_INT(argv[0]);
-		ScriptList list;
-		ScriptEngine::GetScripts(list);
-		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		{
-			if((*it)->GetThreadId() == tid)
-			{
-				iterp = (*it)->GetContext();
-				break;
-			}
-			if(iterp == NULL)
-				return JS_TRUE;
-		}
+		Script* result = NULL;
+		FindHelper args = {tid, result};
+		ScriptEngine::ForEachScript(FindScriptByTid, &args, 1);
+		if(result != NULL)
+			iterp = result->GetContext();
+		else
+			return JS_TRUE;
 	}
 	else
 		if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
@@ -123,3 +120,13 @@ JSAPI_FUNC(my_getScript)
 	return JS_TRUE;
 }
 
+bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc)
+{
+	FindHelper* helper = (FindHelper*)argv;
+	if(script->GetThreadId() == helper->tid)
+	{
+		helper->script = script;
+		return false;
+	}
+	return true;
+}

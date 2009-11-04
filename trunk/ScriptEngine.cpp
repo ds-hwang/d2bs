@@ -17,6 +17,12 @@ ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 
+// internal ForEachScript helpers
+bool __fastcall DisposeScript(Script* script, void*, uint);
+bool __fastcall StopScript(Script* script, void* argv, uint argc);
+bool __fastcall GCPauseScripts(Script* script, void* argv, uint argc);
+bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
+
 Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	if(GetState() != Running)
@@ -108,14 +114,12 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 		return 0;
 
 	EnterCriticalSection(&lock);
-	ScriptList list;
-	GetScripts(list);
-	int count = list.size();
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
+	int count = scripts.size();
+	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!active && (*it)->IsRunning() && !(*it)->IsAborted())
+		if(!active && it->second->IsRunning() && !it->second->IsAborted())
 			count--;
-		if(!unexecuted && (*it)->GetExecutionCount() == 0 && !(*it)->IsRunning())
+		if(!unexecuted && it->second->GetExecutionCount() == 0 && !it->second->IsRunning())
 			count--;
 	}
 	assert(count >= 0);
@@ -140,11 +144,6 @@ BOOL ScriptEngine::Startup(void)
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
-		//JS_SetThrowHook(runtime, exceptionCallback, NULL);
-		//JS_SetCallHook(runtime, executeCallback, NULL);
-		//JS_SetExecuteHook(runtime, executeCallback, NULL);
-		//JS_SetDebuggerHandler(runtime, debuggerCallback, NULL);
-
 		state = Running;
 		LeaveCriticalSection(&lock);
 	}
@@ -161,10 +160,7 @@ void ScriptEngine::Shutdown(void)
 		StopAll(true);
 
 		// clear all scripts now that they're stopped
-		ScriptList list;
-		GetScripts(list);
-		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-			DisposeScript(*it);
+		ForEachScript(::DisposeScript, NULL, 0);
 
 		scripts.clear();
 
@@ -188,10 +184,7 @@ void ScriptEngine::StopAll(bool forceStop)
 
 	EnterCriticalSection(&lock);
 
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		(*it)->Stop(forceStop, (ScriptEngine::GetState() == Stopping));
+	ForEachScript(StopScript, &forceStop, 1);
 
 	LeaveCriticalSection(&lock);
 }
@@ -212,11 +205,7 @@ void ScriptEngine::FlushCache(void)
 
 	isFlushing = true;
 
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		if(!(*it)->IsRunning())
-			DisposeScript(*it);
+	ForEachScript(::DisposeScript, NULL, 0);
 
 	isFlushing = false;
 
@@ -224,16 +213,18 @@ void ScriptEngine::FlushCache(void)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::GetScripts(ScriptList& list)
+void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
-	if(scripts.empty())
+	if(callback == NULL)
 		return;
 
 	EnterCriticalSection(&lock);
 
-	list.clear();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
-		list.push_back(it->second);
+	{
+		if(!callback(it->second, argv, argc))
+			break;
+	}
 
 	LeaveCriticalSection(&lock);
 }
@@ -243,11 +234,8 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 	if(GetState() != Running)
 		return;
 
-	ScriptList list;
-	GetScripts(list);
-	for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		if(!(*it)->IsAborted())
-			(*it)->ExecEventAsync(evtName, argc, argv);
+	EventHelper helper = {evtName, argv, argc};
+	ForEachScript(ExecEventOnScript, &helper, 1);
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -264,30 +252,33 @@ void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, co
 		throw std::exception("Couldn't initialize the constant");
 }
 
-JSTrapStatus exceptionCallback(JSContext *cx, JSScript *script, jsbytecode *pc, jsval *rval, void *closure)
+// internal ForEachScript helper functions
+bool __fastcall DisposeScript(Script* script, void*, uint)
 {
-	return JSTRAP_CONTINUE;
+	ScriptEngine::DisposeScript(script);
+	return true;
 }
 
-void* executeCallback(JSContext* cx, JSStackFrame* frame, JSBool before, JSBool* ok, void* closure)
+bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	if(!script)
-		return NULL;
-
-	static JSBool dummy;
-	dummy = (script->IsSingleStep() ? JS_TRUE : JS_FALSE);
-	return dummy ? &dummy : NULL;
+	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
+	return true;
 }
 
-JSTrapStatus debuggerCallback(JSContext *cx, JSScript *jsscript, jsbytecode *pc, jsval *rval, void *closure)
+bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	if(!script)
-		return JSTRAP_CONTINUE;
+	EventHelper* helper = (EventHelper*)argv;
+	script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
+	return true;
+}
 
-	script->EnableSingleStep();
-	return JSTRAP_CONTINUE;
+bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
+{
+	ScriptList* list = (ScriptList*)argv;
+	if(!script->IsPaused())
+		list->push_back(script);
+	script->Pause();
+	return true;
 }
 
 JSBool branchCallback(JSContext* cx, JSScript*)
@@ -377,14 +368,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
-		ScriptList list;
-		ScriptEngine::GetScripts(list);
-		for(ScriptList::iterator it = list.begin(); it != list.end(); it++)
-		{
-			if(!(*it)->IsPaused())
-				pausedList.push_back(*it);
-			(*it)->Pause();
-		}
+		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 		if(Vars.bDebug)
 			Log("*** ENTERING GC ***");

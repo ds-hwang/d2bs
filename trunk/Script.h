@@ -67,7 +67,7 @@ private:
 	JSScript* script;
 
 	JSObject *globalObject, *scriptObject;
-	bool isLocked, isPaused, isReallyPaused, isAborted, singleStep;
+	bool isLocked, isPaused, isReallyPaused, isAborted;
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
@@ -89,10 +89,6 @@ public:
 	void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
 	bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
-
-	void EnableSingleStep(void);
-	void DisableSingleStep(void);
-	bool IsSingleStep(void);
 
 	char* GetFilename(void) { return scriptState == Command ? "<Command Line>" : fileName.c_str(); }
 	JSContext* GetContext(void) { return context; }

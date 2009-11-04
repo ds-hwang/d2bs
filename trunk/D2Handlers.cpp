@@ -398,9 +398,9 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 			DWORD GID = *(DWORD*)&pPacket[4];
 
 			if(strcmp(Code, "gld") == 0)
-				GoldDropEvent(GID,Code,itemX,itemY,Mode);
+				GoldDropEvent(GID, itemX, itemY, Mode);
 			else
-				ItemDropEvent(GID,Code,itemX,itemY,Mode);
+				ItemDropEvent(GID, Code, itemX, itemY, Mode);
 
 		}
 	}
