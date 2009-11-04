@@ -323,7 +323,7 @@ pathMoveInit.StepActionflag = DP_INCUSERSTEP;
 pathMoveInit.StepDelay      = XP_StepDelay;
 pathMoveInit.InteractTile   = false;
 pathMoveInit.TeleDist       = XP_TeleDist;
-pathMoveInit.WalkDist       = 3;
+pathMoveInit.WalkDist       = 8;
 
 // Class variables to make use of OO libs
 var commPather = new pathMove(pathMoveInit);

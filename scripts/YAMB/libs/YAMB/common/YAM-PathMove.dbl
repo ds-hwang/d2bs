@@ -12,7 +12,7 @@ function main(){
 		pathMoveInit.StepDelay      = 250;
 		pathMoveInit.InteractTile   = true;
 		pathMoveInit.TeleDist       = 20;
-		pathMoveInit.WalkDist       = 3;
+		pathMoveInit.WalkDist       = 8;
 	var test = new pathMove(pathMoveInit);
 	
 	this.DP_KeyUpManager = function (keyup){
@@ -66,38 +66,10 @@ function main(){
 				test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH);
 				print("Going to Warriv");
 				test.GotoNPC(D2JSP_NPC_WARRIV_ACT_1,1);
-				//print("Going to WarpNext");
-				//test.GotoWarpInArea(DP_WARPNEXT,me.area);
 				break;
 		}
 	}
 
-	//delay(5000);
-	//print("Going to Waypoint");
-	//test.GotoWaypoint();
-	//print("Going to Stash");
-	//test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH);
-	//print("Going to WarpNext");
-	//test.GotoWarpInArea(DP_WARPNEXT,me.area);
-	//DP_DPrint("Printing Source for Class.");
-	//file = fileOpen("output/mytest.txt",1);
-	//file.writeLine(test.constructor);
-	//delay(500);
-	//file.close();
-	//DP_DPrint("File Printed.");
-	//DP_xyInArea( me.x, me.y, me.area );
-	//DP_DPrint("me.runwalk = "+me.runwalk);
-	//print("Going to Waypoint");
-	//test.GotoWaypoint();
-	//print("Going to Stash");
-	//test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH,1);
-	//print("Going to Warriv");
-	//test.GotoNPC(155,1);
-	//print("Going to WarpNext");
-	//test.GotoWarpInArea(DP_WARPNEXT,me.area);
-	//print("Going to Den");
-	//test.GotoWarpInArea(DP_WARPDEN,2);
-	//DP_DPrint("Test main for pathMove started.");
 	addEventListener("keyup", this.DP_KeyUpManager);
 	while(1) {
 		delay(250);

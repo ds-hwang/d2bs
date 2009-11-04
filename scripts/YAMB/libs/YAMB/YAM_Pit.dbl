@@ -3,7 +3,7 @@ entryFunc = PitXP;
 function PitXP_GoToPit() {
 	if (me.area == 6) {
 		commPather.InitType = 0;
-		_temp = commPather.StepActionflag;
+		var _temp = commPather.StepActionflag;
 		commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
 		commPather.GotoWarpInArea(DP_WARPPIT,7);
 		commPather.StepActionflag = _temp;
@@ -52,7 +52,7 @@ function PitXP_GoToPit() {
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
 	// Goto and Enter The Pit (Area 12)
 	commPather.InitType = 0;
-	_temp = commPather.StepActionflag;
+	var _temp = commPather.StepActionflag;
 	commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
 	commPather.GotoWarpInArea(DP_WARPPIT,7);
 	commPather.StepActionflag = _temp;
@@ -156,6 +156,7 @@ function PXP_OpenChest() {
 			return true;
 		} while (chest.getNext());
 	}
+	return false; // default value to keep the engine happy -TechnoHunter
 }
 
 
