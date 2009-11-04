@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <vector>
 
 #include "ScriptEngine.h"
 #include "Core.h"
@@ -20,7 +21,6 @@ CRITICAL_SECTION ScriptEngine::lock = {0};
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
-bool __fastcall GCPauseScripts(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
 Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
@@ -220,9 +220,15 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 
 	EnterCriticalSection(&lock);
 
+	// damn std::list not supporting operator[]...
+	std::vector<Script*> list;
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
+		list.push_back(it->second);
+	int count = list.size();
+	// damn std::iterator not supporting manipulating the list...
+	for(int i = 0; i < count; i++)
 	{
-		if(!callback(it->second, argv, argc))
+		if(!callback(list[i], argv, argc))
 			break;
 	}
 
