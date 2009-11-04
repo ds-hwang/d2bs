@@ -128,16 +128,13 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit)
 		return JS_TRUE;
 
-	char* tmp = NULL;
 	Room1* pRoom = NULL;
 
 	switch(JSVAL_TO_INT(id))
@@ -152,10 +149,11 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			*vp = INT_TO_JSVAL(pUnit->dwMode);
 			break;
 		case UNIT_NAME:
-			tmp = new char[8192];
-			GetUnitName(pUnit, tmp, 8192);
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
-			delete[] tmp;
+			{
+				char tmp[128] = "";
+				GetUnitName(pUnit, tmp, 128);
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+			}
 			break;
 		case UNIT_ACT:
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
@@ -163,7 +161,7 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case UNIT_AREA:
 			pRoom = D2COMMON_GetRoomFromUnit(pUnit);
 			if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel)
-				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);			
+				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);
 			break;
 		case UNIT_ID:
 			*vp = INT_TO_JSVAL(pUnit->dwUnitId);
@@ -198,9 +196,6 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case ME_RUNWALK:
 			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
-			break;
-		case UNIT_ADDRESS:
-			*vp = INT_TO_JSVAL(pUnit);
 			break;
 		case UNIT_SPECTYPE:
 			DWORD SpecType;
@@ -246,7 +241,6 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix))
 					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix)));
 			break;
-			
 		case ITEM_SUFFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
 				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix))
@@ -262,12 +256,13 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case ITEM_FNAME:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
-				wchar_t wszfname[256] = L"";
+				wchar_t wszfname[128] = L"";
 				D2CLIENT_GetItemName(pUnit, wszfname, sizeof(wszfname));
 				if(wszfname) {
 					char* tmp = UnicodeToAnsi(wszfname);
 					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 					delete[] tmp;
+					tmp = NULL;
 				}
 			}
 			break;
@@ -306,14 +301,19 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case ITEM_DESC:
 			{
-			if(pUnit->dwType != UNIT_ITEM)
-				break;
+				if(pUnit->dwType != UNIT_ITEM)
+					break;
 
-				wchar_t wBuffer[8192] = L"";
+				wchar_t wBuffer[2048] = L"";
 				D2CLIENT_GetItemDesc(pUnit, wBuffer);
-				tmp = UnicodeToAnsi(wBuffer);
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
-				delete[] tmp;
+
+				char *tmp = UnicodeToAnsi(wBuffer);
+				if(tmp)
+				{
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+					delete[] tmp;
+					tmp = NULL;
+				}
 			}
 			break;
 		case UNIT_ITEMCOUNT:
@@ -1109,7 +1109,7 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	{
 		if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner)
 		{
-			myUnit* pmyUnit = new myUnit;
+			myUnit* pmyUnit = new myUnit; // leaks
 
 			if(!pmyUnit)
 				return JS_TRUE;
