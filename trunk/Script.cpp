@@ -264,9 +264,10 @@ bool Script::Include(const char* file)
 {
 	// since includes will happen on the same thread, locking here is acceptable
 	EnterCriticalSection(&lock);
-	char* fname;
-	_strlwr_s(fname = _strdup((char*)file), strlen(file)+1);
-	//char* fname = _strlwr((char*)file);
+	char* fname = _strdup((char*)file);
+	if(!fname)
+		return false;
+	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
