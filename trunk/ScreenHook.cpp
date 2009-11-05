@@ -292,7 +292,7 @@ void ImageHook::SetImage(const char* nimage)
 	Lock();
 	if(location)
 		free(location);
-	delete image;
+	delete[] image;
 
 	location = _strdup(nimage);
 	image = LoadCellFile(location);
