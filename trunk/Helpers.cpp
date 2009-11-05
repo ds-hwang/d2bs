@@ -34,9 +34,7 @@ bool StringToBool(const char* str)
 
 void StringReplace(char* str, const char find, const char replace)
 {
-	char* c = str;
-	do {
-		if(*c == find)
-			*c = replace;
-	} while(*(++c) != '\0');
+	char* ptr = NULL;
+	while((ptr = strchr(str, find)) != NULL)
+		*ptr = replace;
 }
