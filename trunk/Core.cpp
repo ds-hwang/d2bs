@@ -20,31 +20,43 @@
 //! @param delim Delimiter to attempt to split at
 //! Will split at the delimiter if possible or at max length itself.
 //! @param lst The list to insert the lines into.
-static void SplitLines(const std::string & str, uint maxlen, const char delim, std::list<std::string> & lst)
+//! @return True for success False for no conversion or error
+bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst)
 {
 	using namespace std;
 
-	uint pos;
-	string tmp = str;
-	string chunk;
+	if(str.length() < 1)
+		return false;
 
-	if(tmp.length() < maxlen)
-		lst.push_back(tmp);
-	else
+	size_t pos, len;
+	string tmp(str);
+
+	while(tmp.length() > maxlen)
 	{
-		while(tmp.length() >= maxlen)
+		len = tmp.length();
+		// maxlen-1 since std::string::npos indexes from 0
+		pos = tmp.find_last_of(delim, maxlen-2);
+		if(!pos || pos == string::npos)
 		{
-			pos = tmp.find_last_of(delim, maxlen);
-			if(pos >= maxlen)
-				pos = maxlen;
-			chunk = tmp.substr(0, pos);
+			//Target delimiter was not found, breaking at maxlen
+			// maxlen-1 since std::string::npos indexes from 0
+			lst.push_back(tmp.substr(0, maxlen-1));
+			tmp.erase(0, maxlen-1);
+		}
+		else if(pos)
+		{
+			//We found the last delimiter before maxlen
+			lst.push_back(tmp.substr(0, pos) + delim);
 			tmp.erase(0, pos);
-			lst.push_back(chunk + " ");
-
-			if(pos == string::npos)
-				break;
 		}
 	}
+	if(!tmp.length())
+		DebugBreak();
+
+	if(tmp.length())
+		lst.push_back(tmp);
+
+	return true;
 }
 
 void Print(const char * szFormat, ...)
