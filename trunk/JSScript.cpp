@@ -1,10 +1,19 @@
 #include "JSScript.h"
 #include "Script.h"
 #include "ScriptEngine.h"
+#include "D2BS.h"
 
 #include "debugnew/debug_new.h"
 
+struct FindHelper
+{
+	DWORD tid;
+	char* name;
+	Script* script;
+};
+
 bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc);
+bool __fastcall FindScriptByName(Script* script, void* argv, uint argc);
 
 JSAPI_PROP(script_getProperty)
 {
@@ -99,11 +108,23 @@ JSAPI_FUNC(my_getScript)
 	{
 		// loop over the Scripts in ScriptEngine and find the one with the right threadid
 		DWORD tid = (DWORD)JSVAL_TO_INT(argv[0]);
-		Script* result = NULL;
-		FindHelper args = {tid, result};
+		FindHelper args = {tid, NULL, NULL};
 		ScriptEngine::ForEachScript(FindScriptByTid, &args, 1);
-		if(result != NULL)
-			iterp = result->GetContext();
+		if(args.script != NULL)
+			iterp = args.script->GetContext();
+		else
+			return JS_TRUE;
+	}
+	else if(argc == 1 && JSVAL_IS_STRING(argv[0]))
+	{
+		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		char* ptr = NULL;
+		while((ptr = strchr(name, '/')) != NULL)
+			*ptr = '\\';
+		FindHelper args = {0, name, NULL};
+		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
+		if(args.script != NULL)
+			iterp = args.script->GetContext();
 		else
 			return JS_TRUE;
 	}
@@ -118,6 +139,21 @@ JSAPI_FUNC(my_getScript)
 	*rval = OBJECT_TO_JSVAL(res);
 
 	return JS_TRUE;
+}
+
+bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
+{
+	FindHelper* helper = (FindHelper*)argv;
+	static uint pathlen = strlen(Vars.szScriptPath) + 1;
+	char* fname = script->GetFilename();
+	// calculate the relative name from the filename
+	const char* relName = (strlen(fname) > pathlen ? fname + pathlen : fname);
+	if(strcmp(relName, helper->name) == 0)
+	{
+		helper->script = script;
+		return false;
+	}
+	return true;
 }
 
 bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc)

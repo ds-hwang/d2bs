@@ -51,9 +51,3 @@ static JSFunctionSpec script_methods[] = {
 	{"send",			script_send,		1},
 	{0},
 };
-
-struct FindHelper
-{
-	DWORD tid;
-	Script* script;
-};
