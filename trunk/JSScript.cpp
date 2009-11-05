@@ -26,10 +26,7 @@ JSAPI_PROP(script_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case SCRIPT_FILENAME:
-			{
-				char* relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName));
-			}
+			*vp = STRING_TO_JSVAL(JS_InternString(cx, script->GetFilename()));
 			break;
 		case SCRIPT_GAMETYPE:
 			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
@@ -65,7 +62,8 @@ JSAPI_FUNC(script_stop)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-	script->Stop();
+	if(script->IsRunning())
+		script->Stop();
 
 	return JS_TRUE;
 }
@@ -74,7 +72,9 @@ JSAPI_FUNC(script_pause)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-	script->Pause();
+
+	if(script->IsRunning())
+		script->Pause();
 
 	return JS_TRUE;
 }
@@ -83,7 +83,9 @@ JSAPI_FUNC(script_resume)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-	script->Resume();
+
+	if(script->IsPaused())
+		script->Resume();
 
 	return JS_TRUE;	
 }
@@ -148,7 +150,7 @@ bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;
 	static uint pathlen = strlen(Vars.szScriptPath) + 1;
-	char* fname = script->GetFilename();
+	const char* fname = script->GetFilename();
 	// calculate the relative name from the filename
 	const char* relName = (strlen(fname) > pathlen ? fname + pathlen : fname);
 	if(strcmp(relName, helper->name) == 0)
