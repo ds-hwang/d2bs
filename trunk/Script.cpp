@@ -57,13 +57,24 @@ Script::Script(const char* file, ScriptState state) :
 	EnterCriticalSection(&lock);
 
 	char* tmpName = _strdup(file);
-	_strlwr_s(tmpName, strlen(file)+1);
+	if(!tmpName)
+		throw std::exception("Could not dup filename");
+
+	if(state == Command)
+	{
+		_strlwr_s(tmpName, strlen(file)+1);
+	}
+	else
+	{
+		_strlwr_s(tmpName, strlen(file)+1);
+		replace(fileName.begin(), fileName.end(), '/', '\\');
+	}
+
 	fileName = string(tmpName);
 	free(tmpName);
-	if(state != Command)
-		replace(fileName.begin(), fileName.end(), '/', '\\');
+	tmpName = NULL;
 	
-	try 
+	try
 	{
 		if(scriptState != Command && _access(fileName.c_str(), 0) != 0)
 			throw std::exception("File not found");
@@ -236,12 +247,17 @@ void Script::Stop(bool force, bool reallyForce)
 
 bool Script::IsIncluded(const char* file)
 {
-	//char* fname = _strlwr((char*)file);
-	char* fname;
-	_strlwr_s(fname = _strdup((char*)file), strlen(file)+1);
+	uint count = 0;
+	char* fname = _strdup(file);
+	if(!fname)
+		return false;
+
+	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\');
+	count = includes.count(string(fname));
 	free(fname);
-	return !!includes.count(string(fname));
+
+	return !!count;
 }
 
 bool Script::Include(const char* file)
