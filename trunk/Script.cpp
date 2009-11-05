@@ -314,6 +314,11 @@ bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 	if(strlen(evtName) < 1)
 		return false;
 
+	// if there are no events registered under that name at all, then obviously there
+	// can't be a specific one registered under that name
+	if(functions.count(evtName) < 1)
+		return false;
+
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 		if((*it)->value() == evtFunc)
 			return true;
