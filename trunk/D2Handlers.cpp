@@ -53,8 +53,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
 	BOOL bInGame = FALSE;
-	BOOL bStarterScript = FALSE;
-	BOOL bClicked = FALSE;
 	Vars.dwGameTime = GetTickCount();
 	Vars.dwMaxGameTime = atoi(maxGameTime);
 	Vars.bDebug = StringToBool(debug);
@@ -88,22 +86,28 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 		if(D2WIN_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
 		{
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 			if(!Vars.oldWNDPROC)
-				Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
-			if(Vars.oldWNDPROC)
+				continue;
+
+			if(!Vars.oldWNDPROC)
+				DebugBreak();
+			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+			if(mainThread)
 			{
-				DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
-				if(mainThread)
-				{
-					if(!Vars.hKeybHook)
-						Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
-					if(!Vars.hMouseHook)
-						Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
-				}
+				if(!Vars.hKeybHook)
+					Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
+				if(!Vars.hMouseHook)
+					Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
 			}
 		}
+		else
+			continue;
 
-		if(Vars.oldWNDPROC && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
+		if(!Vars.oldWNDPROC)
+			DebugBreak();
+
+		if(ClientState() == ClientStateMenu || ClientState() == ClientStateInGame)
 		{
 			char versionimg[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
@@ -113,16 +117,27 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
 		}
 
-		if(Vars.oldWNDPROC && Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
+		if(Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
 		{
 			if(!ScriptEngine::Startup())
 				return FALSE;
 
 			Vars.bActive = TRUE;
-			Log("D2BS Startup complete.");
+			Log("D2BS Engine startup complete.");
+			Print("ÿc2D2BSÿc0 :: Engine startup complete!");
+
+			if(ClientState() == ClientStateMenu && Vars.bStartAtMenu)
+				clickControl(*p_D2WIN_FirstControl);
+
+			Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
+			Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
+			if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
+				Print("ÿc2D2BSÿc0 :: starter.dbj running.");
+			else
+				Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
 		}
 
-		Sleep(100);
+		Sleep(50);
 		i++;
 	}
 
@@ -132,77 +147,53 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		{
 			case ClientStateInGame:
 			{
-				if(GameReady())
-				{
-					Vars.image->SetX(D2GetScreenSizeX()/2);
-					Vars.text->SetX(D2GetScreenSizeX()/2);
+				Vars.image->SetX(D2GetScreenSizeX()/2);
+				Vars.text->SetX(D2GetScreenSizeX()/2);
 
-					if(bInGame && 
-							((Vars.dwMaxGameTime > 0 && Vars.dwGameTime > 0 && 
+				if(bInGame)
+				{
+					if((Vars.dwMaxGameTime && Vars.dwGameTime && 
 							(GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime) ||
 							(!IsTownLevel(GetPlayerArea()) &&
-							(Vars.nChickenHP > 0 && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
-							(Vars.nChickenMP > 0 && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))))
-						D2CLIENT_ExitGame();
+							(Vars.nChickenHP && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
+							(Vars.nChickenMP && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit()))))
+					D2CLIENT_ExitGame();
+				}
+				else
+				{
+					Sleep(1000);
 
-					if(!bInGame)
-					{
-						Sleep(500);
+					Vars.dwGameTime = GetTickCount();
+					D2CLIENT_InitInventory();
 
-						Vars.dwGameTime = GetTickCount();
-						D2CLIENT_InitInventory();
+					Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+					Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
+					if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
+						Print("ÿc2D2BSÿc0 :: default.dbj running.");
+					else
+						Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 
-						Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-
-						Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
-						if(script)
-							CreateThread(0, 0, ScriptThread, script, 0, 0);
-						else
-							Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
-
-						bInGame = TRUE;
-					}
+					bInGame = TRUE;
 				}
 				break;
 			}
-			case ClientStateBusy:
-				break;
 			case ClientStateMenu:
 			{
+				Vars.image->SetX(D2GetScreenSizeX()/2);
+				Vars.text->SetX(D2GetScreenSizeX()/2);
+
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
 					bInGame = FALSE;
 				}
-
-				Vars.image->SetX(D2GetScreenSizeX()/2);
-				Vars.text->SetX(D2GetScreenSizeX()/2);
-
-				if(!bClicked)
-				{
-					if(Vars.bStartAtMenu)
-					{
-						clickControl(*p_D2WIN_FirstControl);
-						bClicked = TRUE;
-					}
-				}
-
-				if(!bStarterScript)
-				{
-					Sleep(500);
-
-					Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
-					Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
-					if(script)
-						CreateThread(0, 0, ScriptThread, script, 0, 0);
-					else
-						Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
-					bStarterScript = TRUE;
-				}
 				break;
 			}
+			case ClientStateBusy:
+			case ClientStateNull:
+				break;
 		}
-		Sleep(100);
+		Sleep(50);
 	}
 
 	ScriptEngine::Shutdown();
