@@ -1016,6 +1016,11 @@ function DC_ChronoRun() {
 // -amount 	Amount of time in ms to delay
 // Return value : None, just stall until the delay amount is reached
 function DC_DoDel(amount) {
+
+	if(amount < 1) {
+		print("Delay < 1");
+		amount = 1;
+	}
 	if(DC_RandomDel) { 
 		delay(amount + rand(0,amount)); 
 	}
