@@ -57,7 +57,7 @@ Script::Script(const char* file, ScriptState state) :
 	EnterCriticalSection(&lock);
 
 	char* tmpName = _strdup(file);
-	_strlwr_s(tmpName, strlen(file));
+	_strlwr_s(tmpName, strlen(file)+1);
 	fileName = string(tmpName);
 	free(tmpName);
 	replace(fileName.begin(), fileName.end(), '/', '\\');
@@ -232,7 +232,7 @@ bool Script::IsIncluded(const char* file)
 {
 	//char* fname = _strlwr((char*)file);
 	char* fname;
-	_strlwr_s(fname = _strdup((char*)file), strlen(file));
+	_strlwr_s(fname = _strdup((char*)file), strlen(file)+1);
 	StringReplace(fname, '/', '\\');
 	free(fname);
 	return !!includes.count(string(fname));
@@ -243,7 +243,7 @@ bool Script::Include(const char* file)
 	// since includes will happen on the same thread, locking here is acceptable
 	EnterCriticalSection(&lock);
 	char* fname;
-	_strlwr_s(fname = _strdup((char*)file), strlen(file));
+	_strlwr_s(fname = _strdup((char*)file), strlen(file)+1);
 	//char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
