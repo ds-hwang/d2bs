@@ -60,8 +60,14 @@ Script::Script(const char* file, ScriptState state) :
 	_strlwr_s(tmpName, strlen(file)+1);
 	fileName = string(tmpName);
 	free(tmpName);
-	replace(fileName.begin(), fileName.end(), '/', '\\');
-	try {
+	if(state != Command)
+		replace(fileName.begin(), fileName.end(), '/', '\\');
+	
+	try 
+	{
+		if(scriptState != Command && _access(fileName.c_str(), 0) != 0)
+			throw std::exception("File not found");
+
 		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
@@ -73,7 +79,7 @@ Script::Script(const char* file, ScriptState state) :
 		globalObject = JS_GetGlobalObject(context);
 
 		if(state == Command)
-			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
+			script = JS_CompileScript(context, globalObject, fileName.c_str(), fileName.length(), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)

@@ -90,8 +90,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			if(!Vars.oldWNDPROC)
 				continue;
 
-			if(!Vars.oldWNDPROC)
-				DebugBreak();
 			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
 			if(mainThread)
 			{
@@ -103,9 +101,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		}
 		else
 			continue;
-
-		if(!Vars.oldWNDPROC)
-			DebugBreak();
 
 		if(ClientState() == ClientStateMenu || ClientState() == ClientStateInGame)
 		{

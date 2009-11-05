@@ -90,7 +90,7 @@ public:
 	bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
 
-	char* GetFilename(void) { return scriptState == Command ? "<Command Line>" : fileName.c_str(); }
+	const char* GetFilename(void) { const char* file = _strdup(fileName.c_str()); return file; }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
