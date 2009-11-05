@@ -552,7 +552,7 @@ function YAM() {
 			YAM_TownManager();
 			YAM_RunTime=new Date().getTime() - YAM_RunTimer;
 		}
-		if (YAM_RunTime < YAM_MinGameLength*1000) {
+		if (YAM_RunTime && YAM_RunTime < YAM_MinGameLength*1000) {
 			YAM_MakeTP();
 			DC_Print("Stalling for "+ Math.round(YAM_MinGameLength - YAM_RunTime/1000) +" seconds");
 			delay(YAM_MinGameLength*1000 - YAM_RunTime);
