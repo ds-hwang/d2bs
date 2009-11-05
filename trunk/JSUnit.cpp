@@ -427,13 +427,13 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
-	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
 		nClassId = JSVAL_TO_INT(argv[1]);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
 		nMode = JSVAL_TO_INT(argv[2]);
 
-	if(argc > 3 && JSVAL_IS_INT(argv[3]))
+	if(argc > 3 && JSVAL_IS_INT(argv[3]) && !JSVAL_IS_NULL(argv[3]))
 		nUnitId = JSVAL_TO_INT(argv[3]);
 
 	UnitAny* pUnit = NULL;

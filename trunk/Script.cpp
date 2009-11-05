@@ -56,7 +56,10 @@ Script::Script(const char* file, ScriptState state) :
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
-	fileName = string(_strlwr(_strdup(file)));
+	char* tmpName = _strdup(file);
+	_strlwr_s(tmpName, strlen(file));
+	fileName = string(tmpName);
+	free(tmpName);
 	replace(fileName.begin(), fileName.end(), '/', '\\');
 	try {
 		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
@@ -227,8 +230,11 @@ void Script::Stop(bool force, bool reallyForce)
 
 bool Script::IsIncluded(const char* file)
 {
-	char* fname = _strlwr((char*)file);
+	//char* fname = _strlwr((char*)file);
+	char* fname;
+	_strlwr_s(fname = _strdup((char*)file), strlen(file));
 	StringReplace(fname, '/', '\\');
+	free(fname);
 	return !!includes.count(string(fname));
 }
 
@@ -236,12 +242,15 @@ bool Script::Include(const char* file)
 {
 	// since includes will happen on the same thread, locking here is acceptable
 	EnterCriticalSection(&lock);
-	char* fname = _strlwr((char*)file);
+	char* fname;
+	_strlwr_s(fname = _strdup((char*)file), strlen(file));
+	//char* fname = _strlwr((char*)file);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
 	{
 		LeaveCriticalSection(&lock);
+		free(fname);
 		return true;
 	}
 	bool rval = false;
@@ -263,6 +272,7 @@ bool Script::Include(const char* file)
 		JS_SetContextThread(GetContext());
 		JS_EndRequest(GetContext());
 		LeaveCriticalSection(&lock);
+		free(fname);
 		return false;
 	}
 
@@ -270,6 +280,7 @@ bool Script::Include(const char* file)
 	JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
 	LeaveCriticalSection(&lock);
+	free(fname);
 	return rval;
 }
 

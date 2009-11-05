@@ -242,7 +242,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 		if(!szLine)
 			return FALSE;
 
-		szLine = _strlwr(szLine);
+		_strlwr_s(szLine, strlen(szLine));
 		_strlwr_s(szGateway, strSize);
 		if(strstr(szLine, szGateway))
 		{
@@ -272,7 +272,8 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 					char * szGatelist = UnicodeToAnsi(cText->wText);
 					if(!szGatelist)
 						return FALSE;
-					szGatelist = _strlwr(szGatelist);
+
+					_strlwr_s(szGatelist, strlen(szGatelist));
 					if(strstr(szGatelist, szGateway))
 					{
 						// chosen gateway IS in the list and matches, cleanup and break the loop
