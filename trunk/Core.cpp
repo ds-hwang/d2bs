@@ -35,20 +35,24 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 	{
 		len = tmp.length();
 		// maxlen-1 since std::string::npos indexes from 0
-		pos = tmp.find_last_of(delim, maxlen-2);
+		pos = tmp.find_last_of(delim, maxlen-1);
 		if(!pos || pos == string::npos)
 		{
 			//Target delimiter was not found, breaking at maxlen
 			// maxlen-1 since std::string::npos indexes from 0
 			lst.push_back(tmp.substr(0, maxlen-1));
 			tmp.erase(0, maxlen-1);
+			continue;
 		}
-		else if(pos)
+		pos = tmp.find_last_of(delim, maxlen-1);
+		if(pos && pos != string::npos)
 		{
 			//We found the last delimiter before maxlen
 			lst.push_back(tmp.substr(0, pos) + delim);
 			tmp.erase(0, pos);
 		}
+		else
+			DebugBreak();
 	}
 	if(!tmp.length())
 		DebugBreak();
