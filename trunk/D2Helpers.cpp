@@ -54,7 +54,7 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp, size_t bufSize)
 	}
 	if(pUnit->dwType == UNIT_ITEM)
 	{
-		wchar_t wBuffer[512] = {0};
+		wchar_t wBuffer[256] = {0};
 		D2CLIENT_GetItemName(pUnit, wBuffer, sizeof(wBuffer));
 		char* szBuffer = UnicodeToAnsi(wBuffer);
 		if(strchr(szBuffer, '\n'))
@@ -120,24 +120,29 @@ VOID SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 ClientGameState ClientState(VOID)
 {
 	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
-		return ClientStateInGame;
+	{
+		if((*p_D2CLIENT_PlayerUnit)->pInventory &&
+				(*p_D2CLIENT_PlayerUnit)->pPath &&
+				(*p_D2CLIENT_PlayerUnit)->pPath->xPos &&
+				(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1 &&
+				(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2 &&
+				(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel &&
+				(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
+			return ClientStateInGame;
+		else
+			return ClientStateBusy;
+	}
 	else if(!(*p_D2CLIENT_PlayerUnit) && *p_D2WIN_FirstControl)
 		return ClientStateMenu;
+	else if(!(*p_D2CLIENT_PlayerUnit) && !(*p_D2WIN_FirstControl))
+		return ClientStateNull;
 	else
-		return ClientStateBusy;
+		DebugBreak();
 }
 
 BOOL GameReady(VOID)
 {
-	return !!(ClientState() == ClientStateInGame &&
-			*p_D2CLIENT_PlayerUnit &&
-			(*p_D2CLIENT_PlayerUnit)->pInventory &&
-			(*p_D2CLIENT_PlayerUnit)->pPath &&
-			(*p_D2CLIENT_PlayerUnit)->pPath->xPos &&
-			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1 &&
-			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2 &&
-			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel &&
-			(*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo);
+	return (ClientState() == ClientStateInGame ? true : false);
 }
 
 DWORD GetPlayerArea(VOID)
