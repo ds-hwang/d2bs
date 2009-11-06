@@ -72,10 +72,9 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache)
 		{
-			if(scripts.count(file) > 0)
+			if(scripts.count("Command Line") > 0)
 			{
 				Script* ret = scripts["Command Line"];
-				delete[] file;
 				LeaveCriticalSection(&lock);
 				return ret;
 			}
