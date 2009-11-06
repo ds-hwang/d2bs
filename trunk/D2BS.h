@@ -26,7 +26,11 @@
 
 #endif
 
+#ifdef DEBUG
+#define D2BS_VERSION "$Rev$"
+#else
 #define D2BS_VERSION "1.1.1"
+#endif
 
 #include <windows.h>
 
