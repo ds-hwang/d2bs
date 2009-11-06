@@ -136,8 +136,11 @@ ClientGameState ClientState(VOID)
 		return ClientStateMenu;
 	else if(!(*p_D2CLIENT_PlayerUnit) && !(*p_D2WIN_FirstControl))
 		return ClientStateNull;
+#ifdef DEBUG
 	else
 		DebugBreak();
+#endif
+	return ClientStateNull;
 }
 
 BOOL GameReady(VOID)
