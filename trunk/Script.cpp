@@ -67,8 +67,8 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Could not dup filename");
 
 		_strlwr_s(tmpName, strlen(file)+1);
-		replace(fileName.begin(), fileName.end(), '/', '\\');
 		fileName = string(tmpName);
+		replace(fileName.begin(), fileName.end(), '/', '\\');
 		free(tmpName);
 	}
 	try
