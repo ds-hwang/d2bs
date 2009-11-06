@@ -242,7 +242,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 		if(!szLine)
 			return FALSE;
 
-		_strlwr_s(szLine, strlen(szLine));
+		_strlwr_s(szLine, strlen(szLine)+1);
 		_strlwr_s(szGateway, strSize);
 		if(strstr(szLine, szGateway))
 		{
@@ -273,7 +273,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 					if(!szGatelist)
 						return FALSE;
 
-					_strlwr_s(szGatelist, strlen(szGatelist));
+					_strlwr_s(szGatelist, strlen(szGatelist)+1);
 					if(strstr(szGatelist, szGateway))
 					{
 						// chosen gateway IS in the list and matches, cleanup and break the loop
