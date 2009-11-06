@@ -283,7 +283,6 @@ bool Script::Include(const char* file)
 		jsval dummy;
 		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(GetContext(), GetGlobalObject(), script, &dummy);
-		JS_DestroyScript(GetContext(), script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
