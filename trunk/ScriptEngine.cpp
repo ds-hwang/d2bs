@@ -74,9 +74,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		{
 			if(scripts.count("Command Line") > 0)
 			{
-				Script* ret = scripts["Command Line"];
-				LeaveCriticalSection(&lock);
-				return ret;
+				DisposeScript(scripts["Command Line"]);
 			}
 		}
 		Script* script = new Script(command, Command);
