@@ -27,6 +27,11 @@ bool __fastcall ExecEventHelper(Script* script, void* argv, uint argc)
 	EventHelper* helper = (EventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
 		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
+	else
+	{
+		for(int i = 0; i < helper->argc; i++)
+			delete helper->argv[i];
+	}
 	return true;
 }
 
