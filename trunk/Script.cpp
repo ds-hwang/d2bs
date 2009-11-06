@@ -50,35 +50,29 @@ Script::Script(const char* file, ScriptState state) :
 			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
 			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
-	if(scriptState != Command && _access(file, 0) != 0)
-		throw std::exception("File not found");
-
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
-	char* tmpName = _strdup(file);
-	if(!tmpName)
-		throw std::exception("Could not dup filename");
-
-	if(state == Command)
+	if(scriptState == Command)
 	{
-		_strlwr_s(tmpName, strlen(file)+1);
+		fileName = string("Command Line");
 	}
 	else
 	{
-		_strlwr_s(tmpName, strlen(file)+1);
-		replace(fileName.begin(), fileName.end(), '/', '\\');
-	}
-
-	fileName = string(tmpName);
-	free(tmpName);
-	tmpName = NULL;
-	
-	try
-	{
-		if(scriptState != Command && _access(fileName.c_str(), 0) != 0)
+		if(_access(file, 0) != 0)
 			throw std::exception("File not found");
 
+		char* tmpName = _strdup(file);
+		if(!tmpName)
+			throw std::exception("Could not dup filename");
+
+		_strlwr_s(tmpName, strlen(file)+1);
+		replace(fileName.begin(), fileName.end(), '/', '\\');
+		fileName = string(tmpName);
+		free(tmpName);
+	}
+	try
+	{
 		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
@@ -90,7 +84,7 @@ Script::Script(const char* file, ScriptState state) :
 		globalObject = JS_GetGlobalObject(context);
 
 		if(state == Command)
-			script = JS_CompileScript(context, globalObject, fileName.c_str(), fileName.length(), "Command Line", 1);
+			script = JS_CompileScript(context, globalObject, file, strlen(file)+1, "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)

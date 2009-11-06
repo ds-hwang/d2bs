@@ -67,8 +67,6 @@ Script* ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
-	char* file = _strdup(command);
-	_strlwr_s(file, strlen(file)+1);
 	try
 	{
 		EnterCriticalSection(&lock);
@@ -76,22 +74,20 @@ Script* ScriptEngine::CompileCommand(const char* command)
 		{
 			if(scripts.count(file) > 0)
 			{
-				Script* ret = scripts[file];
+				Script* ret = scripts["Command Line"];
 				delete[] file;
 				LeaveCriticalSection(&lock);
 				return ret;
 			}
 		}
 		Script* script = new Script(command, Command);
-		scripts[file] = script;
+		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
-		delete[] file;
 		return script;
 	}
 	catch(std::exception e)
 	{
 		LeaveCriticalSection(&lock);
-		delete[] file;
 		Print(const_cast<char*>(e.what()));
 		return NULL;
 	}
