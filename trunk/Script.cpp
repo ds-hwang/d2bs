@@ -264,7 +264,9 @@ bool Script::Include(const char* file)
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(IsIncluded(fname) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
+	if(!!includes.count(string(fname)) ||
+	   !!inProgress.count(string(fname)) ||
+	    (fileName == string(fname)))
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
@@ -273,16 +275,19 @@ bool Script::Include(const char* file)
 	bool rval = false;
 	JS_BeginRequest(GetContext());
 
-	JSScript* script = JS_CompileFile(GetContext(), globalObject, fname);
+	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
 	if(script)
 	{
+		JSObject* scriptObj = JS_NewScriptObject(GetContext(), script);
+		JS_AddRoot(GetContext(), &scriptObj);
 		jsval dummy;
 		inProgress[fname] = true;
-		rval = !!JS_ExecuteScript(GetContext(), globalObject, script, &dummy);
+		rval = !!JS_ExecuteScript(GetContext(), GetGlobalObject(), script, &dummy);
 		JS_DestroyScript(GetContext(), script);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
+		JS_RemoveRoot(GetContext(), &scriptObj);
 	}
 	else
 	{
