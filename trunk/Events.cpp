@@ -29,7 +29,7 @@ bool __fastcall ExecEventHelper(Script* script, void* argv, uint argc)
 		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
 	else
 	{
-		for(int i = 0; i < helper->argc; i++)
+		for(uintN i = 0; i < helper->argc; i++)
 			delete helper->argv[i];
 	}
 	return true;
