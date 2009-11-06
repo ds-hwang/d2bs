@@ -719,10 +719,42 @@
 					<File
 						RelativePath=".\JSFile.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\JSFileTools.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+								PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\JSHash.cpp"
