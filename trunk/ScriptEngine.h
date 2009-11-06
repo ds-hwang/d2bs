@@ -57,6 +57,8 @@ public:
 							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
 	static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
+
+	friend JSBool gcCallback(JSContext* cx, JSGCStatus status);
 };
 
 // this ForEachScript helper is exposed in case it can be of use somewhere

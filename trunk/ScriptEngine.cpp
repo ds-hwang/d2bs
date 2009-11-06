@@ -367,6 +367,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
+		EnterCriticalSection(&ScriptEngine::lock);
 		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 		if(Vars.bDebug)
@@ -378,6 +379,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 			Log("*** LEAVING GC ***");
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
+		LeaveCriticalSection(&ScriptEngine::lock);
 	}
 	return JS_TRUE;
 }
