@@ -84,7 +84,7 @@ Script::Script(const char* file, ScriptState state) :
 		globalObject = JS_GetGlobalObject(context);
 
 		if(state == Command)
-			script = JS_CompileScript(context, globalObject, file, strlen(file)+1, "Command Line", 1);
+			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
 		if(!script)
