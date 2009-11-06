@@ -1155,8 +1155,10 @@ INT my_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!(szFile && szFile[0]))
 		THROW_ERROR(cx, obj, "Could not convert string");
 
+	char path[_MAX_FNAME+_MAX_PATH];
+	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, szFile);
 	Script* js = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(js->IsIncluded(szFile));
+	*rval = BOOLEAN_TO_JSVAL(js->IsIncluded(path));
 
 	return JS_TRUE;
 }
