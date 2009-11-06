@@ -26,7 +26,10 @@ JSAPI_PROP(script_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case SCRIPT_FILENAME:
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, script->GetFilename()));
+			{
+				const char* relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName));
+			}
 			break;
 		case SCRIPT_GAMETYPE:
 			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
