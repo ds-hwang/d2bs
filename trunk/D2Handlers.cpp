@@ -531,19 +531,19 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 {
+	MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
+	POINT pt = mouse->pt;
+	ScreenToClient(mouse->hwnd, &pt);
+
+	// filter out clicks on the window border
+	if(code == HC_ACTION && (pt.x < 0 || pt.y < 0))
+		return CallNextHookEx(NULL, code, wParam, lParam);
+
 	if(Vars.bBlockMouse)
 		return 1;
 
 	if(code == HC_ACTION)
 	{
-		MOUSEHOOKSTRUCT* mouse = (MOUSEHOOKSTRUCT*)lParam;
-		POINT pt = mouse->pt;
-		ScreenToClient(mouse->hwnd, &pt);
-
-		// filter out clicks on the window border
-		if(pt.x < 0 || pt.y < 0)
-			return CallNextHookEx(NULL, code, wParam, lParam);
-
 		bool clicked = false;
 
 		switch(wParam)
