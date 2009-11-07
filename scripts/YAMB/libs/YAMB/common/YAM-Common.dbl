@@ -1,4 +1,4 @@
-var DC_Version = "2.0";
+var DC_Version = "2.1";
 DC_LoadInclude("baseStats/base_skills.dbl");
 
 
@@ -197,7 +197,7 @@ var _DC_LogToLoader      = (parseFloat(version()) < 0.44) ? (sendDDE (1, "autod2
 var commonLib = function() {}
 
 //////////////////////////////////////////////////////////////////////
-// d2jsp core functions
+// d2bs core functions
 //////////////////////////////////////////////////////////////////////
 
 // trigger for all incoming normal messages
@@ -710,7 +710,7 @@ function DC_DoClick(button,shift,x,y) {
 		}
 	switch( arguments.length ) {
 		case 0:
-			DC_DPrint("DC_DoClick() : There is no arguments entered!");
+			DC_DPrint("DC_DoClick() : There are no arguments entered!");
 			break;
 		case 1:
 			DC_DPrint("DC_DoClick() : shift parameter not entered!");
@@ -753,13 +753,19 @@ function DC_CheckOwner(object,ownername) {
 	if(arguments.length < 2) {
 		if(object.getParent()) {
 			_unit = object.getParent();
-			if(_unit == me.name || _unit.name == me.name) { return true; }
+			if(_unit == me.name || _unit.name == me.name) { 
+				delete _unit; //TESTING -see if this clears up the leaked objects
+				return true; 
+			}
 		}
 	}
 	else {
 		if(object.getParent()) {
 			_unit = object.getParent();
-			if(_unit == ownername || _unit.name == ownername) { return true; }
+			if(_unit == ownername || _unit.name == ownername) { 
+				delete _unit; //TESTING -see if this clears up the leaked objects
+				return true; 
+			}
 		}
 	}
 	return false;
@@ -771,7 +777,12 @@ function DC_CheckOwner(object,ownername) {
 // Return value : Success of the function
 function DC_ItemToCursor(item) {
 	// Check if the cursor is clean
-	if(me.itemoncursor) { return true; }
+	if(me.itemoncursor) { 
+		return true; 
+	}
+	if(!item || !item.type == 1)
+		return false;
+	
 	// Click on the item
 	clickItem(0,item);
 	// Init the timer
@@ -779,7 +790,9 @@ function DC_ItemToCursor(item) {
 	// Loop while the item is not put on cursor
 	do {
 		// For each 0.5 second, retry the click
-		if((_timer % 500) == 0) { clickItem(0,item); }
+		if((_timer % 500) == 0) { 
+			clickItem(0,item); 
+		}
 		// Decrease the timer
 		_timer -= 25;
 		delay(25);
@@ -791,9 +804,12 @@ function DC_ItemToCursor(item) {
 // Return value : Success of the function
 function DC_ClearCursor() {
 	// Quit if no item is on the cursor
-	if(!me.itemoncursor) { return true; }
+	if(!me.itemoncursor) { 
+		return true; 
+	}
 	// Get the item on cursor
-	var _cursoritem = DC_getItem(null,4);
+	//var _cursoritem = DC_getItem(null,4);
+	var _cursoritem = getUnit(100); // use the core to get the item (faster than the getitemloop from DC_getItem)
 	// We found a item on cursor
 	if(_cursoritem)	{
 		// Init the timer
@@ -1018,7 +1034,7 @@ function DC_ChronoRun() {
 function DC_DoDel(amount) {
 
 	if(amount < 1) {
-		print("Delay < 1");
+		DC_DPrint("Delay < 1");
 		amount = 1;
 	}
 	if(DC_RandomDel) { 

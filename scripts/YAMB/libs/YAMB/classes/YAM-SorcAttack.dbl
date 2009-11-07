@@ -406,8 +406,13 @@ function YAM_GetMonsters(range,x,y,mode,classid,spectypeMask) {
 									ms1 = XP_SelectAttack (monster, _XP_MinionTimedSpells, 0);
 									ms2 = XP_SelectAttack (monster, _XP_MinionUntimedSpells, 0);
 								}
-								else { ms1 = -1; ms2 = XP_SelectAttack (monster, Monster_SorcSkill, 0); }
-								if (ms1 < 0 && ms2 < 0) { _XP_NumImmune += 1; }
+								else { 
+									ms1 = -1; 
+									ms2 = XP_SelectAttack (monster, Monster_SorcSkill, 0); 
+								}
+								if (ms1 < 0 && ms2 < 0) { 
+									_XP_NumImmune += 1; 
+								}
 								else {
 									targets[count] = new Array(monster.gid, ms1, ms2);
 									count += 1;
@@ -454,11 +459,15 @@ function XP_ClearPosition1(range,skip,mode,classid,spectypeMask) {
 					if (skip.hp > 0) {
 						DC_SelectTab(0);
 					}
-					else DC_SelectTab(1);
+					else 
+						DC_SelectTab(1);
 				}
-				if (skip.hp < 1) return retval;
+				if (skip.hp < 1)
+					return retval;
 			}
-			if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+			if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { 
+				YAM_SafeCheck(); 
+			}
 			mgid = targets[i][0];
 			mtimed = targets[i][1];
 			muntimed = targets[i][2];
@@ -766,7 +775,7 @@ function XP_SorcEnchant() {
 // -skillid	ID of the skill to check
 // Return value : 0 if there is no delay or the amount of delay in ms
 function DC_GetCastDelay(skillid) {
-	if (typeof(skillid) != "number") {
+	if (typeof(skillid) != 'number') {
         	DC_DPrint("DC_GetCastDelay() : Skill entered is a name or undefined, cannot check");
 		return false;
     	}

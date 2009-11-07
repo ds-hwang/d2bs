@@ -164,12 +164,13 @@ function DS_IsShrine(classid) {
 	if ((classid < 0) || (classid > 564)) { 
 		return false;
 	}
-	if (getBaseStat(4,classid,150)==2) { 
-		return true;
-	}
-	else { 
-		return false;
-	}
+	return (getBaseStat(4,classid,150)==2) ? true : false;
+	//if (getBaseStat(4,classid,150)==2) { 
+	//	return true;
+	//}
+	//else { 
+	//	return false;
+	//}
 }
 
 

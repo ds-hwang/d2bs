@@ -8,7 +8,7 @@ function main(){
 		pathMoveInit.UseTeleport    = true;
 		pathMoveInit.UseTeleSorc    = false;
 		pathMoveInit.StepActionFreq = 1;
-		pathMoveInit.StepActionflag = DP_INCUSERSTEP;
+		pathMoveInit.StepActionflag = (DP_INCUSERSTEP|DP_USEVIGOR|DP_THROWWHENSTUCK);
 		pathMoveInit.StepDelay      = 250;
 		pathMoveInit.InteractTile   = true;
 		pathMoveInit.TeleDist       = 20;
