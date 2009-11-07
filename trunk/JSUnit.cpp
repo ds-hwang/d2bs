@@ -164,7 +164,8 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 				*vp = INT_TO_JSVAL(pRoom->pRoom2->pLevel->dwLevelNo);
 			break;
 		case UNIT_ID:
-			*vp = INT_TO_JSVAL(pUnit->dwUnitId);
+			//*vp = DOUBLE_TO_JSVAL(pUnit->dwUnitId);
+			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
 			break;
 		case UNIT_XPOS:
 			*vp = INT_TO_JSVAL(GetUnitX(pUnit));

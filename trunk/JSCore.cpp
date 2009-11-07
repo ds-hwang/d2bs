@@ -71,7 +71,8 @@ JSAPI_FUNC(my_delay)
 			JS_ResumeRequest(cx, depth);
 		}
 		else
-			THROW_ERROR(cx, obj, "delay(0) called, argument must be >= 1");
+			JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
+			//THROW_ERROR(cx, obj, "delay(0) called, argument must be >= 1");
 	}
 
 	return JS_TRUE;
