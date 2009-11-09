@@ -6,7 +6,7 @@
 
 #define __USE_SPIDERMONKEY__
 
-#include "ScriptEngine.h"
+#include "Engine.h"
 #include "Script.h"
 
 using namespace std;
@@ -17,20 +17,24 @@ int main(int argc, char** argv)
 	char path[MAX_PATH];
 	GetModuleFileName(GetModuleHandle(NULL), path, MAX_PATH);
 	PathRemoveFileSpec(path);
+	string engineName = string("spidermonkey"), scriptPath = string(path);
 
-	ScriptEngine::Startup(path, 0x1000000);
+	Engine* engine = Engine::Create(engineName);
+	engine->Startup(scriptPath, 0x1000000);
 
 	for(int i = 0; i < argc; i++)
 	{
 		// check if this file exists
 		if(!(_access(argv[i], 0) != 0 && errno == ENOENT))
 		{
-			ScriptPtr script = ScriptEngine::FindOrCompile(string(argv[i]));
+			string scriptName = string(argv[i]);
+			ScriptPtr script = engine->FindOrCompile(scriptName);
 			if(script)
 				script->Run();
 		}
 	}
 
-	ScriptEngine::Shutdown();
+	engine->Shutdown();
+	delete engine;
 	return 0;
 }

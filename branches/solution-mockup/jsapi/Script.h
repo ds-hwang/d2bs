@@ -15,10 +15,9 @@ namespace botsys
 
 class Script
 {
-private:
+protected:
 	// hide the ctor, but disable the copy ctor/assignment op
 	Script(std::string filename);
-	~Script(void);
 	Script(const Script&);
 	Script& operator=(const Script&);
 
@@ -27,12 +26,14 @@ private:
 	CRITICAL_SECTION lock;
 
 public:
+	virtual ~Script(void) = 0;
+
 	// create a new execution path and run the current script inside it
-	void Run(void);
+	virtual void Run(void) = 0;
 	// stop the current script gracefully
-	void Stop(void);
+	virtual void Stop(void) = 0;
 	// stop the current script forcefully
-	void End(void);
+	virtual void End(void) = 0;
 
 	std::string GetFilename(void) { return filename; }
 

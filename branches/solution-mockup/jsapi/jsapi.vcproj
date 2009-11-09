@@ -42,16 +42,18 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\spidermonkey; ..\v8"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				WarnAsError="true"
 				DebugInformationFormat="4"
+				CallingConvention="1"
 				DisableSpecificWarnings="4100"
 			/>
 			<Tool
@@ -114,12 +116,13 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				EnableFunctionLevelLinking="false"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				WarnAsError="true"
 				DebugInformationFormat="3"
+				CallingConvention="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -182,15 +185,15 @@
 			</Filter>
 		</Filter>
 		<File
+			RelativePath=".\Engine.h"
+			>
+		</File>
+		<File
 			RelativePath=".\main.cpp"
 			>
 		</File>
 		<File
 			RelativePath=".\Script.h"
-			>
-		</File>
-		<File
-			RelativePath=".\ScriptEngine.h"
 			>
 		</File>
 		<File
