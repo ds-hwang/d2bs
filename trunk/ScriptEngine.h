@@ -68,6 +68,7 @@ struct EventHelper
 	char* evtName;
 	AutoRoot** argv;
 	uintN argc;
+	bool executed;
 };
 
 JSBool branchCallback(JSContext* cx, JSScript* script);

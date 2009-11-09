@@ -24,11 +24,9 @@ bool __fastcall ExecEventHelper(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
-		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
-	else
 	{
-		for(uintN i = 0; i < helper->argc; i++)
-			delete helper->argv[i];
+		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
+		helper->executed = true;
 	}
 	return true;
 }
@@ -39,6 +37,9 @@ void LifeEvent(DWORD dwLife)
 	argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
 	EventHelper helper = {"melife", argv, 1};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void ManaEvent(DWORD dwMana)
@@ -47,6 +48,9 @@ void ManaEvent(DWORD dwMana)
 	argv[0] = new AutoRoot(INT_TO_JSVAL(dwMana));
 	EventHelper helper = {"memana", argv, 1};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void KeyDownUpEvent(WPARAM key, BYTE bUp)
@@ -63,6 +67,9 @@ void PlayerAssignEvent(DWORD dwUnitId)
 	argv[0] = new AutoRoot(INT_TO_JSVAL(dwUnitId));
 	EventHelper helper = {"playerassign", argv, 1};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void MouseClickEvent(int button, POINT pt, bool bUp)
@@ -73,6 +80,9 @@ void MouseClickEvent(int button, POINT pt, bool bUp)
 	argv[2] = new AutoRoot(INT_TO_JSVAL(pt.y));
 	EventHelper helper = {(bUp ? "mouseup" : "mousedown"), argv, 3};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void MouseMoveEvent(POINT pt)
@@ -82,6 +92,9 @@ void MouseMoveEvent(POINT pt)
 	argv[1] = new AutoRoot(INT_TO_JSVAL(pt.y));
 	EventHelper helper = {"mousemove", argv, 2};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void ScriptBroadcastEvent(uintN argc, jsval* args)
@@ -91,6 +104,9 @@ void ScriptBroadcastEvent(uintN argc, jsval* args)
 		argv[i] = new AutoRoot(args[i]);
 	EventHelper helper = {"scriptmsg", argv, argc};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode)
@@ -102,6 +118,9 @@ void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode)
 	argv[3] = new AutoRoot(INT_TO_JSVAL(Mode));
 	EventHelper helper = {"golddrop", argv, 4};
 	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	if(!helper.executed)
+		for(uintN i = 0; i < helper.argc; i++)
+			delete helper.argv[i];
 }
 
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
