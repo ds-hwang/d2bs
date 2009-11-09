@@ -9,8 +9,6 @@
 #include "TeleportPath.h"
 #include "Common.h"
 
-#include "debugnew/debug_new.h"
-
 #define RANGE_INVALID	10000  // invalid range flag
 int TP_RANGE = 35;
 

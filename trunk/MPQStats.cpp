@@ -2,8 +2,6 @@
 #include "D2Ptrs.h"
 #include "Core.h"
 
-#include "debugnew/debug_new.h"
-
 MPQTables BaseStatTable[] = {
 	//	DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, WORD wTableSize, WORD wUnknown
 	{0x6FDF0438,	0x6FDF0434,	itemTable,			ARRAYSIZE(itemTable),			0xFFFF},

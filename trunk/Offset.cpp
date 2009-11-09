@@ -2,8 +2,6 @@
 #include "D2Ptrs.h"
 #include "Patch.h"
 
-#include "debugnew/debug_new.h"
-
 #ifndef ArraySize
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 #endif

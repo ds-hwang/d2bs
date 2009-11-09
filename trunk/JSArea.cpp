@@ -2,8 +2,6 @@
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
 
-#include "debugnew/debug_new.h"
-
 VOID area_finalize(JSContext *cx, JSObject *obj)
 {
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);

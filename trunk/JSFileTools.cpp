@@ -23,8 +23,6 @@
 #include "D2BS.h"
 #include "File.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 JSAPI_FUNC(filetools_ctor)

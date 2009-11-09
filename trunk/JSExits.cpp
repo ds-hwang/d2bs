@@ -1,7 +1,5 @@
 #include "JSExits.h"
 
-#include "debugnew/debug_new.h"
-
 void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);

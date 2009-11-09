@@ -20,8 +20,6 @@
 #include "D2BS.h"
 #include "File.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 struct SqliteDB;

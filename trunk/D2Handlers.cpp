@@ -14,8 +14,6 @@
 #include "Console.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 Variables Vars;

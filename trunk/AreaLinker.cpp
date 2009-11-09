@@ -7,8 +7,6 @@
 #include "Core.h"
 #include "AreaLinker.h"
 
-#include "debugnew/debug_new.h"
-
 AreaNode* GetAreaNode(INT nAreaId)
 {
 	for(INT i = 0; i < ArraySize(AreaNodes); i++)

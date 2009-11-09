@@ -2,8 +2,6 @@
 
 #include "Hash.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 char* HashString(char* dataIn, ALG_ID algo)

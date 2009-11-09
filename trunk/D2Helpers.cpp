@@ -9,8 +9,6 @@
 #include "D2Intercepts.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 void Log(char* szFormat, ...)
 {
 	va_list vaArgs;

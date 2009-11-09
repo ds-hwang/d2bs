@@ -3,8 +3,6 @@
 #include "ScriptEngine.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 struct FindHelper
 {
 	DWORD tid;

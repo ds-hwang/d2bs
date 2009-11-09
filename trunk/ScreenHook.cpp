@@ -2,8 +2,6 @@
 #include "JSScreenHook.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 HookList Genhook::hooks = HookList();

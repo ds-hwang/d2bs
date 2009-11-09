@@ -3,9 +3,6 @@
 #include "ScreenHook.h"
 #include "Script.h"
 #include "File.h"
-
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 void hook_finalize(JSContext *cx, JSObject *obj)

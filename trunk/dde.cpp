@@ -1,8 +1,6 @@
 #include "ScriptEngine.h"
 #include "dde.h"
 
-#include "debugnew/debug_new.h"
-
 DWORD DdeSrvInst = 0;
 HSZ hszD2BSns;
 

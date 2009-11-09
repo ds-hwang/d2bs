@@ -2,8 +2,6 @@
 #include "D2BS.h"
 #include "ScriptEngine.h"
 
-#include "debugnew/debug_new.h"
-
 JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	sandbox* box = new sandbox; // leaked?

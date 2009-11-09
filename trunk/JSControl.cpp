@@ -3,8 +3,6 @@
 #include "Helpers.h"
 #include "D2Helpers.h"
 
-#include "debugnew/debug_new.h"
-
 void control_finalize(JSContext *cx, JSObject *obj)
 {
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));

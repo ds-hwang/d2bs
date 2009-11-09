@@ -11,8 +11,6 @@
 #include "CriticalSections.h"
 #include "Console.h"
 
-#include "debugnew/debug_new.h"
-
 //! Splits a given string into lines trying not to cut words.
 //!
 //! @param str The string to split.

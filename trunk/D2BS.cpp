@@ -9,8 +9,6 @@
 #include "Console.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 
 BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
@@ -28,7 +26,6 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 			strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
 #else 	
-			new_verbose_flag = false;
 			GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
 			PathRemoveFileSpec(Vars.szPath);
 			strcat_s(Vars.szPath, MAX_PATH, "\\");
@@ -104,7 +101,6 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cConsoleSection);
 
 #ifdef _MSVC_DEBUG
-	check_leaks();
 #endif
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;

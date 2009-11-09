@@ -1,7 +1,5 @@
 #include "ScriptEngine.h"
 
-#include "debugnew/debug_new.h"
-
 struct ChatEventHelper
 {
 	char *event, *nick, *msg;

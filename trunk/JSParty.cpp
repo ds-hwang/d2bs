@@ -2,8 +2,6 @@
 #include "D2Structs.h"
 #include "D2Helpers.h"
 
-#include "debugnew/debug_new.h"
-
 JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);

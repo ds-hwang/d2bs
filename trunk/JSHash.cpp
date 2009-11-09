@@ -3,8 +3,6 @@
 #include "File.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 JSAPI_FUNC(my_md5)
 {
 	if(argc != 1)

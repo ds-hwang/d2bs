@@ -7,8 +7,6 @@
 #include "CriticalSections.h"
 #include "D2Skills.h"
 
-#include "debugnew/debug_new.h"
-
 VOID unit_finalize(JSContext *cx, JSObject *obj)
 {
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
@@ -603,7 +601,7 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!pUnit)
 		return JS_TRUE;
 
-	if(pUnit == (*p_D2CLIENT_PlayerUnit)
+	if(pUnit == (*p_D2CLIENT_PlayerUnit))
 		return JS_TRUE;
 
 	if(pUnit->dwType == UNIT_ITEM && pUnit->dwMode != ITEM_MODE_ON_GROUND && pUnit->dwMode != ITEM_MODE_BEING_DROPPED)

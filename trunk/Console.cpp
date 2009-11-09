@@ -5,8 +5,6 @@
 #include "ScriptEngine.h"
 #include "Helpers.h"
 
-#include "debugnew/debug_new.h"
-
 bool Console::visible = false;
 bool Console::enabled = false;
 bool Console::initialized = false;

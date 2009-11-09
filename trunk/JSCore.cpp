@@ -30,8 +30,6 @@
 #include "ScriptEngine.h"
 #include "D2BS.h"
 
-#include "debugnew/debug_new.h"
-
 INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	for(uintN i = 0; i < argc; i++)

@@ -7,8 +7,6 @@
 #include "Script.h"
 #include "ScriptEngine.h"
 
-#include "debugnew/debug_new.h"
-
 using namespace std;
 
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)

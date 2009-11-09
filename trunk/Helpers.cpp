@@ -1,8 +1,6 @@
 #include "D2BS.h"
 #include "string.h"
 
-#include "debugnew/debug_new.h"
-
 wchar_t* AnsiToUnicode(const char* str)
 {
 	wchar_t* buf = NULL;

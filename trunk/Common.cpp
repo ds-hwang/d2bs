@@ -12,8 +12,6 @@
 
 #include "Common.h"
 
-#include "debugnew/debug_new.h"
-
 #define PI 3.1415926535
 
 long CalculateDistance(const POINT& pt1, const POINT& pt2)

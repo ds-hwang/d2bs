@@ -6,8 +6,6 @@
 #include "D2Ptrs.h"
 #include "Room.h"
 
-#include "debugnew/debug_new.h"
-
 JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	Room2 *pRoom2 = (Room2*)JS_GetPrivate(cx, obj);

@@ -3,8 +3,6 @@
 #include "Constants.h"
 #include "D2Helpers.h"
 
-#include "debugnew/debug_new.h"
-
 UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	if(!GameReady())
