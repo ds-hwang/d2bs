@@ -101,9 +101,6 @@ INT unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case OOG_MAXGAMETIME:
 			*vp = INT_TO_JSVAL(Vars.dwMaxGameTime);
 			break;
-		case OOG_DEBUG:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bDebug);
-			break;
 		case ME_MERCREVIVECOST:
 			*vp = INT_TO_JSVAL((*p_D2CLIENT_MercReviveCost));
 			break;

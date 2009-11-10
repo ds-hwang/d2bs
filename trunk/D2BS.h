@@ -61,7 +61,6 @@ struct Variables
 	BOOL	bNeedShutdown;
 
 	DWORD	dwMaxGameTime;
-	BOOL	bDebug;
 	BOOL	bBlockMinimize;
 	BOOL	bQuitOnError;
 	BOOL	bQuitOnHostile;

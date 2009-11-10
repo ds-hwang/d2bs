@@ -368,13 +368,15 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 		EnterCriticalSection(&ScriptEngine::lock);
 		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
-		if(Vars.bDebug)
-			Log("*** ENTERING GC ***");
+#ifdef DEBUG
+		Log("*** ENTERING GC ***");
+#endif
 	}
 	else if(status == JSGC_END)
 	{
-		if(Vars.bDebug)
-			Log("*** LEAVING GC ***");
+#ifdef DEBUG
+		Log("*** LEAVING GC ***");
+#endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
 		LeaveCriticalSection(&ScriptEngine::lock);

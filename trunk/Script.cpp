@@ -207,7 +207,7 @@ void Script::Resume(void)
 
 bool Script::IsPaused(void)
 {
-	return IsBadReadPtr(this, sizeof(this)) ? false : isPaused;
+	return isPaused;
 }
 
 void Script::Stop(bool force, bool reallyForce)
@@ -305,13 +305,12 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return !IsBadReadPtr(this, sizeof(this)) && !IsBadReadPtr(context, sizeof(context)) &&
-					context && !(!JS_IsRunning(context) || IsPaused());
+	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
 bool Script::IsAborted()
 {
-	return IsBadReadPtr(this, sizeof(this)) ? true : isAborted;
+	return isAborted;
 }
 
 bool Script::IsListenerRegistered(const char* evtName)
@@ -395,6 +394,7 @@ void Script::ClearAllEvents(void)
 	EnterCriticalSection(&lock);
 	for(FunctionMap::iterator it = functions.begin(); it != functions.end(); it++)
 		ClearEvent(it->first.c_str());
+	functions.clear();
 	LeaveCriticalSection(&lock);
 }
 

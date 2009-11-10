@@ -100,8 +100,6 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
 
-#ifdef _MSVC_DEBUG
-#endif
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;
 }

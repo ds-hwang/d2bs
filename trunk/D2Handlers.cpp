@@ -53,7 +53,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	BOOL bInGame = FALSE;
 	Vars.dwGameTime = GetTickCount();
 	Vars.dwMaxGameTime = atoi(maxGameTime);
-	Vars.bDebug = StringToBool(debug);
 	Vars.bBlockMinimize = StringToBool(blockMinimize);
 	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 	Vars.bQuitOnError = StringToBool(quitOnError);
