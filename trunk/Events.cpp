@@ -20,107 +20,188 @@ struct ItemEventHelper
 	WORD mode;
 };
 
-bool __fastcall ExecEventHelper(Script* script, void* argv, uint argc)
+struct KeyEventHelper
 {
-	EventHelper* helper = (EventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
+	BOOL up;
+	WPARAM key;
+};
+
+struct SingleArgHelper
+{
+	DWORD arg1;
+};
+
+struct DoubleArgHelper
+{
+	DWORD arg1, arg2;
+};
+
+struct TripleArgHelper
+{
+	DWORD arg1, arg2, arg3;
+};
+
+struct QuadArgHelper
+{
+	DWORD arg1, arg2, arg3, arg4;
+};
+
+struct BCastEventHelper
+{
+	jsval* argv;
+	uintN argc;
+};
+
+bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
+{
+	SingleArgHelper* helper = (SingleArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("melife"))
 	{
-		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
-		helper->executed = true;
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		script->ExecEventAsync("melife", 1, argv);
 	}
 	return true;
 }
 
 void LifeEvent(DWORD dwLife)
 {
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(dwLife));
-	EventHelper helper = {"melife", argv, 1};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	SingleArgHelper helper = {dwLife};
+	ScriptEngine::ForEachScript(LifeEventCallback, &helper, 1);
+}
+
+bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
+{
+	SingleArgHelper* helper = (SingleArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("memana"))
+	{
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		script->ExecEventAsync("memana", 1, argv);
+	}
+	return true;
 }
 
 void ManaEvent(DWORD dwMana)
 {
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(dwMana));
-	EventHelper helper = {"memana", argv, 1};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	SingleArgHelper helper = {dwMana};
+	ScriptEngine::ForEachScript(ManaEventCallback, &helper, 1);
+}
+
+bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
+{
+	KeyEventHelper* helper = (KeyEventHelper*)argv;
+	char* event = (helper->up ? "keyup" : "keydown");
+	if(script->IsRunning() && script->IsListenerRegistered(event))
+	{
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->key));
+		script->ExecEventAsync(event, 1, argv);
+	}
+	return true;
 }
 
 void KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(key));
-	EventHelper helper = {(bUp ? "keyup" : "keydown"), argv, 1};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
+	KeyEventHelper helper = {bUp, key};
+	ScriptEngine::ForEachScript(KeyEventCallback, &helper, 1);
+}
+
+bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
+{
+	SingleArgHelper* helper = (SingleArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("playerassign"))
+	{
+		AutoRoot** argv = new AutoRoot*[1];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		script->ExecEventAsync("playerassign", 1, argv);
+	}
+	return true;
 }
 
 void PlayerAssignEvent(DWORD dwUnitId)
 {
-	AutoRoot** argv = new AutoRoot*[1];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(dwUnitId));
-	EventHelper helper = {"playerassign", argv, 1};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	SingleArgHelper helper = {dwUnitId};
+	ScriptEngine::ForEachScript(PlayerAssignCallback, &helper, 1);
+}
+
+bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
+{
+	TripleArgHelper* helper = (TripleArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("mouseclick"))
+	{
+		AutoRoot** argv = new AutoRoot*[3];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->arg3));
+		script->ExecEventAsync("mouseclick", 3, argv);
+	}
+	return true;
 }
 
 void MouseClickEvent(int button, POINT pt, bool bUp)
 {
-	AutoRoot** argv = new AutoRoot*[3];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(button));
-	argv[1] = new AutoRoot(INT_TO_JSVAL(pt.x));
-	argv[2] = new AutoRoot(INT_TO_JSVAL(pt.y));
-	EventHelper helper = {(bUp ? "mouseup" : "mousedown"), argv, 3};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	TripleArgHelper helper = {button, pt.x, pt.y};
+	ScriptEngine::ForEachScript(MouseClickCallback, &helper, 1);
+}
+
+bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
+{
+	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("mousemove"))
+	{
+		AutoRoot** argv = new AutoRoot*[2];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
+		script->ExecEventAsync("mousemove", 2, argv);
+	}
+	return true;
 }
 
 void MouseMoveEvent(POINT pt)
 {
-	AutoRoot** argv = new AutoRoot*[2];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(pt.x));
-	argv[1] = new AutoRoot(INT_TO_JSVAL(pt.y));
-	EventHelper helper = {"mousemove", argv, 2};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	DoubleArgHelper helper = {pt.x, pt.y};
+	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 1);
+}
+
+bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
+{
+	BCastEventHelper* helper = (BCastEventHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
+	{
+		AutoRoot** argv = new AutoRoot*[helper->argc];
+		for(uintN i = 0; i < argc; i++)
+			argv[i] = new AutoRoot(helper->argv[i]);
+		script->ExecEventAsync("scriptmsg", helper->argc, argv);
+	}
+	return true;
 }
 
 void ScriptBroadcastEvent(uintN argc, jsval* args)
 {
-	AutoRoot** argv = new AutoRoot*[argc];
-	for(uintN i = 0; i < argc; i++)
-		argv[i] = new AutoRoot(args[i]);
-	EventHelper helper = {"scriptmsg", argv, argc};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	BCastEventHelper helper = {args, argc};
+	ScriptEngine::ForEachScript(BCastEventCallback, &helper, 1);
+}
+
+bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
+{
+	QuadArgHelper* helper = (QuadArgHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("golddrop"))
+	{
+		AutoRoot** argv = new AutoRoot*[4];
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->arg3));
+		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->arg4));
+		script->ExecEventAsync("golddrop", 2, argv);
+	}
+	return true;
 }
 
 void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode)
 {
-	AutoRoot** argv = new AutoRoot*[4];
-	argv[0] = new AutoRoot(INT_TO_JSVAL(GID));
-	argv[1] = new AutoRoot(INT_TO_JSVAL(itemX));
-	argv[2] = new AutoRoot(INT_TO_JSVAL(itemY));
-	argv[3] = new AutoRoot(INT_TO_JSVAL(Mode));
-	EventHelper helper = {"golddrop", argv, 4};
-	ScriptEngine::ForEachScript(ExecEventHelper, &helper, 1);
-	if(!helper.executed)
-		for(uintN i = 0; i < helper.argc; i++)
-			delete helper.argv[i];
+	QuadArgHelper helper = {GID, itemX, itemY, Mode};
+	ScriptEngine::ForEachScript(GoldDropCallback, &helper, 1);
 }
 
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
