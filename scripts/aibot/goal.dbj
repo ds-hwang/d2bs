@@ -1,6 +1,13 @@
+js_strict(true);
+
+include('configuration.dbl');
+include('cache.dbl');
+include('pattern.dbl');
+
 function main()
 {
 	addEventListener('scriptmsg', scriptmsg);
+	while(true) delay(10000); // low priority delay
 }
 
 function scriptmsg(msg)

@@ -1,0 +1,50 @@
+js_strict(true);
+
+include('configuration.dbl');
+include('cache.dbl');
+
+function main()
+{
+	var config = new Config();
+	while(true)
+	{
+		// wake up and check every 1 second for out of game
+		while(me.ingame) delay(1000);
+		// make a game
+		switch(getLocation())
+		{
+			case 1: // lobby
+			case 3: // chat
+				{
+					delay(1000);
+
+					// click the create game button
+					findAndClick(6, 533, 469, 120, 20);
+					delay(250);
+
+					// fill in the game name box
+					findAndFill(1, 432, 162, 158, 20, makerand());
+					delay(250);
+
+					// fill in the password box
+					findAndFill(1, 432, 217, 158, 20, makerand());
+					delay(250);
+
+					// click on the difficulty
+					var difficulties = [getControl(6,430,381,16,16), getControl(6,555,381,16,16), getControl(6,698,381,16,16)];
+					var diff = parseInt(config.get('Difficulty', '2'));
+					difficulties[diff].click();
+					delay(250);
+
+					// click on create game
+					findAndClick(6, 594, 433, 172, 32);
+					break;
+				}
+		}
+	}
+}
+
+function findAndClick(t, x, y, a, b) { var z = getControl(t, x, y, a, b); if(z) z.click(); }
+function findAndFill(t, x, y, a, b, z) { var e = getControl(t, x, y, a, b); if(e) e.setText(z); }
+
+function makerand() { return md5(getTickCount()).substr(rand(0, 17), rand(5, 15)); }

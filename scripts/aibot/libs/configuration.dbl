@@ -1,18 +1,23 @@
 js_strict(true);
 
-function Config()
+function Config(file)
 {
-	var db = {};
+	var db = {'settings': {'global': []}};
 
-	this.Load = function()
+	var fname = file || 'global';
+	this.reload = function()
 	{
-		var cache = Cache.Load(me.name + '.config');
+		var cache = Cache.Load(fname + '.config');
 		if(cache != undefined) {
 			db = cache;
 		} else {
 			loadXML('global');
-			loadXML(me.name);
-			Cache.Save(me.name + '.config', db);
+			if(fname != 'global')
+			{
+				db['settings'][fname] = [];
+				loadXML(fname);
+			}
+			Cache.Save(fname + '.config', db);
 		}
 	};
 
@@ -26,14 +31,12 @@ function Config()
 
 		var content = FileTools.readText(file);
 		// remove the xml declaration (bug 336551)
-		content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, "");
+		content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, '').replace('\r', '', 'g').replace('\n', '', 'g').replace('\t', '', 'g');
 		var config = new XML(content);
 
 		// verify that the config is sane
 		if(config.name() != 'config' || config.@name != name)
 			throw new Error('Configuration name did not match expected name!');
-
-		db['settings'][name] = [];
 
 		// iterate the settings and add them by key/value
 		for each(var value in config.settings.*)
@@ -43,33 +46,35 @@ function Config()
 		}
 	}
 
-	this.Get = function(value, def)
+	this.get = function(value, def)
 	{
-		if(db['settings'][me.name][value] !== undefined)
-			return db['settings'][me.name][value];
-		else if(db['settings']['global'][value] !== undefined)
+		if(db['settings'].hasOwnProperty(fname) && db['settings'][fname].hasOwnProperty(value))
+			return db['settings'][fname][value];
+		else if(db['settings']['global'].hasOwnProperty(value))
 			return db['settings']['global'][value];
 		return def;
 	};
 
-	this.Set = function(name, value)
+	this.set = function(name, value)
 	{
 		// you can only write to your own config, not the global one
 		db['settings'][me.name][name] = value;
 	};
 
-	this.Save = function()
+	this.save = function()
 	{
-		var file = 'configs/' + me.name + '.xml';
+		var file = 'configs/' + fname + '.xml';
 		// build the xml file
-		var xml = <config name={me.name}>
+		var xml = <config name={fname}>
 			<settings>
 			</settings>
 		</config>;
 
-		for each(var value in db['settings'][me.name])
-			xml.settings += <value name={value}>{db['settings'][me.name][value]}</value>;
+		for each(var value in db['settings'][fname])
+			xml.settings += <value name={value}>{db['settings'][fname][value]}</value>;
 
 			FileTools.writeText(file, xml.toXMLString());
-	}
+	};
+
+	this.reload();
 }

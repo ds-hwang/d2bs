@@ -4,28 +4,68 @@ include('configuration.dbl');
 
 function main()
 {
+	print('Loading the config');
 	var config = new Config();
-	config.Load();
-
-	// I'll come up with some better default later
-	var loginProfile = config.Get('loginProfile', 'n2ation');
-	print('Logging into profile ' + loginProfile);
-	login(config.Get('loginProfile', 'n2ation'));
 
 	// read the patterns this character wants to load
 	// for testing, we're going to hardcode the 'pit' pattern
-	var pattern = Cache.Load(me.name+'.pattern');
+	print('Loading the pattern');
+	var pname = config.get('BasePattern', '');
+	if(pname == '')
+	{
+		print('Invalid base pattern specified!');
+		stop();
+	}
+
+	var pattern = Cache.Load(pname+'.pattern');
 	if(pattern === undefined)
-		var pattern = new Pattern(config.Get('pattern', 'pit'));
+		var pattern = new Pattern(pname);
 
 	// cache the pattern for future loads
-	Cache.Save(me.name+'.pattern', pattern);
+	Cache.Save(pname+'.pattern', pattern);
 
-	delay(rand(1,4)*1000); // let the game catch up if needed
+	// find the profile they want to log into
+	var loginProfile = config.get('LoginProfile', '');
+	if(loginProfile == '')
+	{
+		print('Invalid login profile specified!');
+		stop();
+	}
+	else
+	{
+		print('Logging into profile ' + loginProfile);
+		login(loginProfile);
+	}
+
+	// let the game catch up if needed
+	delay(rand(1,4)*1000);
 
 	// load our bot threads
-	load('goal.dbj');
-	load('attack.dbj');
-	load('lifewatch.dbj');
-	load('pickit.dbj');
+	var threads = [
+		config.get('GameCreator', 'creategame.dbj'),
+		config.get('Goal', 'goal.dbj'),
+		config.get('Attack', 'attack.dbj'),
+		config.get('LifeWatch', 'lifewatch.dbj'),
+		config.get('Pickit', 'pickit.dbj')
+	];
+	var scripts = [];
+
+	var title = new Text("Active Threads", 765, 100, 0, 5, 1);
+	for each(var thread in threads)
+	{
+		print('Loading: ' + thread);
+		load(thread);
+		scripts.push([thread.slice(0, -4), new Text(thread + ": ÿc1not running", 775, 120+(12*scripts.length), 0, 0, 1)]);
+	}
+
+	while(true) { update(scripts); delay(100); }
+}
+
+function update(scripts) {
+	for each(var script in scripts)
+	{
+		var s = getScript(script[0] + '.dbj');
+		if(s) script[1].text = script[0] + " (" + s.threadid + "): " + (s.running ? "ÿc2active" : "ÿc9inactive");
+		else  script[1].text = script[0] + ": ÿc1not running";
+	}
 }

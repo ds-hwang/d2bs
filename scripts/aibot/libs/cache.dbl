@@ -6,8 +6,8 @@ var Cache = {};
 dopen('cache');
 
 // number of days that items stay cached
-// set to 0 to disable cache
-var cacheTimeLength = 2;
+// set to -1 to disable cache
+var cacheTimeLength = -1;
 
 Cache.Save = function(name, obj)
 {
@@ -19,6 +19,9 @@ Cache.Save = function(name, obj)
 
 Cache.Load = function(name)
 {
+	if(cacheTimeLength < 0)
+		return undefined;
+
 	var fname = 'cache/' + name + '.json';
 
 	if(!FileTools.exists(fname))
@@ -38,7 +41,7 @@ Cache.Load = function(name)
 	return obj;
 };
 
-Cache.JSON = function() {
+Cache.JSON = (function() {
 	function f(n) {return n < 10 ? '0' + n : n;}
 	Date.prototype.toJSON = function () {
 		return this.getUTCFullYear()   + '-' +
@@ -119,4 +122,4 @@ Cache.JSON = function() {
 		stringify: stringify,
 		parse: parse
 	};
-};
+})();

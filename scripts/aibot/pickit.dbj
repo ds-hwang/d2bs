@@ -1,8 +1,25 @@
+js_strict(true);
+
+include('configuration.dbl');
+include('cache.dbl');
+
 function main()
 {
+	// init the config
 	addEventListener('scriptmsg', scriptmsg);
+	addEventListener('itemdrop', itemdrop);
+	addEventListener('golddrop', golddrop);
+	while(true) delay(10000); // low priority delay
 }
 
 function scriptmsg(msg)
+{
+}
+
+function itemdrop(gid, code, x, y, mode)
+{
+}
+
+function golddrop(gid, x, y, mode)
 {
 }
