@@ -41,7 +41,7 @@ function PXP_AttackPindle() {
 			DC_DoCast(78,0,10058,13242); 	// "Bone Wall"
 		}
 		DC_DoDel(20);
-		snagTarget = {x:target.x,y:target.y};
+		var snagTarget = {x:target.x,y:target.y};
 		if (XP_KillMinions)	{
 			XP_ClearPosition(30,target,ALIVE_MODE,440);
 			//DSN_PickItems(YAM_SafeCheck);

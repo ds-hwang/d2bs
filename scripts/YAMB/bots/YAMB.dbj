@@ -30,11 +30,9 @@ YAM_ClassToNameList[4] = "YAM_Config_Barb.dbl";
 YAM_ClassToNameList[5] = "YAM_Config_Druid.dbl";
 YAM_ClassToNameList[6] = "YAM_Config_Assassin.dbl";
 
-//var file = File.open("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl", FILE_READ);
 sendCopyData(null, "OOG", 0,"FileTools.exists config " );
 if (FileTools.exists("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl")) {
 	YAM_CharConfigFile = "YAMB/configs/YAM_Config_" + me.name + ".dbl";
-	//file.close();
 }
 else {
 	try{
@@ -42,10 +40,6 @@ else {
 		print("Character config file not found! Creating default config based on class");
 		if (!FileTools.exists("libs/YAMB/Templates/" + YAM_ClassToNameList[me.classid]))
 			throw "TemplateFile Not Available to copy from :: Error in CharacterConfig file creation!";
-		//var newCharFile = File.open("libs/YAMB/configs/YAM_Config_" + me.name + ".dbl", FILE_WRITE);
-		//if (!newCharFile)
-			//throw "Unable to create New Config File :: Error in CharacterConfig file creation!";
-		//newCharFile.close();
 		try{
 			FileTools.copy("libs/YAMB/Templates/" + YAM_ClassToNameList[me.classid], "libs/YAMB/configs/YAM_Config_" + me.name + ".dbl");
 		}
@@ -53,7 +47,6 @@ else {
 			print(" ");
 			print(ftException);
 			throw "Unable to create New Config File :: Error in CharacterConfig file creation!";
-			//stop();
 		}
 		YAM_CharConfigFile = "YAMB/configs/YAM_Config_" + me.name + ".dbl";
 		print(" ");
@@ -66,8 +59,6 @@ else {
 		print(fileException);
 		stop();
 	}
-	//print("Stopping script");
-	//stop();// added to test file creation - remove when working! 
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,7 +90,7 @@ function YAM_ShowCredits() {
 	}
 }
 
-function YAM_SetTitle() {	// Add the title screenhook -- Modded to accurately center text -TechnoHunter
+function YAM_SetTitle() {	// Add the version screenhook -- Modded to accurately center text -TechnoHunter
 	sendCopyData(null, "OOG", 0,"yam set title " );
 	var _shstring = "-- Yet-Another-MultiBot " + YAM_Version + " --";
 	var _width = getTextWidthHeight(_shstring,8);
@@ -111,7 +102,7 @@ function YAM_SetTitle() {	// Add the title screenhook -- Modded to accurately ce
 	_sh.color = 4;
 	_sh.text = _shstring;
 	_sh.x = parseInt((_screenszX - _width[0])/2,10);
-	_sh.y = _screenszY - 95; //	_sh.y = 35;
+	_sh.y = _screenszY - 95;
 	sendCopyData(null, "OOG", 0,"yam set title returned safely " );
 }
 

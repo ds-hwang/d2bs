@@ -612,6 +612,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 
 
 function ThroneMonsterChecking(monster) {
+	var n;
 	if (monster.classid == 23 || monster.classid == 62) { BossSpawned = true; }
 	else if (monster.classid == 381 || monster.classid == 105) {
 		if (!Mage) {

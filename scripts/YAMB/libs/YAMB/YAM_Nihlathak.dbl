@@ -29,8 +29,8 @@ function SafeNihlathak(target) {
 	_angle+=45;
 	//var _dist=DM_Dist(me.x,me.y,target.x,target.y);
 	var _dist=getDistance(me, target);
-	_dx=Math.round(_dist*Math.sin((225-_angle)*pi/180))+target.x;
-	_dy=Math.round(_dist*Math.cos((225-_angle)*pi/180))+target.y;
+	var _dx=Math.round(_dist*Math.sin((225-_angle)*pi/180))+target.x;
+	var _dy=Math.round(_dist*Math.cos((225-_angle)*pi/180))+target.y;
 	//var pos=BotOS.Pathing.GetSafeOffScreenXY(target.x,target.y,_dx,_dy,15);
 	var pos=commPather.GetSafeOffScreenXY(target.x,target.y,_dx,_dy,15);
 	Nihx = pos.x; Nihy = pos.y;

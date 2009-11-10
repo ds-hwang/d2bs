@@ -68,7 +68,7 @@ function PitXP_ClearPit() {
 	XP_ClearPosition(15);
 	DSN_PickItems(YAM_SafeCheck);
 	// Goto Pit Level 2 clearing the path and picking up items along the way.
-	_temp = commPather.StepActionflag;
+	var _temp = commPather.StepActionflag;
 	commPather.StepActionflag = DP_THROWWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_PICKDROPS;
 	// Ability to control the types of the monster you want to kill
 	commPather.StepActionflag |= (DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);

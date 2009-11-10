@@ -56,7 +56,7 @@ function YAM_NPCinteract4(npc) {
 				XP_DoCheckItems(npc); 
 			}
 			if (_YAM_NeedTP) {
-				_tptome = DT_GetTome(1);
+				var _tptome = DT_GetTome(1);
 				if (_tptome) { 
 					if (!DT_FillTome(npc,1) && _tptome.getStat(70) < 1) {
 						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!"); 

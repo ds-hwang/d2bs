@@ -45,7 +45,7 @@ function YAM_GoToDuriel() {
 		DM_MoveTo(pos.x, pos.y); // Go to safer position
 		if (XP_KillMinions) {
 			// Wait a while until we kill some minions
-			XP_ClearPosition(25,ATTACKING_MODE);
+			XP_ClearPosition(25, null, ATTACKING_MODE);
 			XP_ClearPosition(25);
 			DSN_PickItems(YAM_SafeCheck);
 		}
@@ -135,7 +135,7 @@ function YAM_Duriel() {
 	var fromtown = true;
 	var tome = getUnit(2, 357);
 	if (me.area == 74 && tome) {
-		summoner = DC_FindMonster(250);
+		var summoner = DC_FindMonster(250);
 		if (!summoner || summoner.mode == 12 || summoner.mode == 0) {
 			// Make sure Summoner is dead before proceeding
 			XP_ClearPosition(20);

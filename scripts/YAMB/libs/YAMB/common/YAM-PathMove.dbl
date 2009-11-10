@@ -1155,8 +1155,11 @@ function pathMove(_info) {
 		var Ox = Ax, Oy = Ay;
 		var dX = Math.abs(Bx-Ax)*_multi;
 		var dY = Math.abs(By-Ay)*_multi;
-		Xincr = (Ax > Bx) ? -1 : 1;
-		Yincr = (Ay > By) ? -1 : 1;
+		var Xincr = (Ax > Bx) ? -1 : 1;
+		var Yincr = (Ay > By) ? -1 : 1;
+		var dPr;
+		var dPru;
+		var P;
 		if(dX >= dY){
 			dPr 	= dY<<1;
 			dPru 	= dPr - (dX<<1);
