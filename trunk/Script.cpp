@@ -126,7 +126,7 @@ Script::~Script(void)
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
-	JS_DestroyContext(context);
+	JS_DestroyContextNoGC(context);
 
 	context = NULL;
 	scriptObject = NULL;

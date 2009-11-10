@@ -25,6 +25,7 @@ enum ScreenhookState { OOG, IG, Perm };
 class Genhook
 {
 private:
+	static bool init;
 	static HookList hooks;
 	static CRITICAL_SECTION globalSection;
 
@@ -53,8 +54,8 @@ public:
 	static HookIterator GetFirstHook(void);
 	static HookIterator GetLastHook(void);
 	static void Clean(Script* owner);
-	static void Initialize(void) { InitializeCriticalSection(&globalSection); }
-	static void Destroy(void) { DeleteCriticalSection(&globalSection); }
+	static void Initialize(void) { InitializeCriticalSection(&globalSection); init = true; }
+	static void Destroy(void) { init = false; DeleteCriticalSection(&globalSection); }
 
 protected:
 	virtual void Draw(void) = 0;

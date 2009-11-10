@@ -8,8 +8,9 @@
 
 #include "js32.h"
 #include "Script.h"
+#include "yasper.h"
 
-typedef std::map<std::string, Script*> ScriptMap;
+typedef std::map<std::string, ScriptPtr> ScriptMap;
 
 typedef bool (__fastcall *ScriptCallback)(Script*, void*, uint);
 
@@ -42,8 +43,8 @@ public:
 
 	static void FlushCache(void);
 
-	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
-	static Script* CompileCommand(const char* command);
+	static ScriptPtr CompileFile(const char* file, ScriptState state, bool recompile = false);
+	static ScriptPtr CompileCommand(const char* command);
 	static void DisposeScript(Script* script);
 
 	static void ForEachScript(ScriptCallback callback, void* argv, uint argc);
@@ -72,7 +73,6 @@ struct EventHelper
 };
 
 JSBool branchCallback(JSContext* cx, JSScript* script);
-JSBool eventBranchCallback(JSContext* cx, JSScript* script);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

@@ -4,6 +4,7 @@
 
 using namespace std;
 
+bool Genhook::init = false;
 HookList Genhook::hooks = HookList();
 CRITICAL_SECTION Genhook::globalSection = {0};
 
@@ -24,6 +25,9 @@ bool zOrderSort(Genhook* first, Genhook* second)
 
 void Genhook::DrawAll(ScreenhookState type)
 {
+	if(!init)
+		return;
+
 	EnterCriticalSection(&globalSection);
 	HookList currentHooks = GetHooks();
 	currentHooks.sort(zOrderSort);
@@ -48,6 +52,9 @@ HookIterator Genhook::GetLastHook()
 
 void Genhook::Clean(Script* owner)
 {
+	if(!init)
+		return;
+
 	EnterCriticalSection(&globalSection);
 	HookList currentHooks = GetHooks();
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)

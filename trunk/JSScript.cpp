@@ -18,6 +18,7 @@ JSAPI_PROP(script_getProperty)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
+	// TODO: make this check stronger
 	if(!script)
 		return JS_TRUE;
 

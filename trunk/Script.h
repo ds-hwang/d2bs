@@ -6,6 +6,7 @@
 #include <list>
 
 #include "js32.h"
+#include "yasper.h"
 
 enum ScriptState {
 	InGame,
@@ -21,6 +22,8 @@ static JSClass global_obj = {
 };
 
 class Script;
+
+typedef yasper::ptr<Script> ScriptPtr;
 
 class AutoRoot
 {
@@ -112,7 +115,7 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-
+	friend class yasper::ptr<Script>;
 };
 
 DWORD WINAPI ScriptThread(void* data);

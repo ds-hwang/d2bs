@@ -21,7 +21,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+ScriptPtr ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -46,7 +46,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, state);
+		ScriptPtr script = ScriptPtr(new Script(fileName, state));
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
@@ -61,7 +61,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 	}
 }
 
-Script* ScriptEngine::CompileCommand(const char* command)
+ScriptPtr ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -75,7 +75,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 				DisposeScript(scripts["Command Line"]);
 			}
 		}
-		Script* script = new Script(command, Command);
+		ScriptPtr script = ScriptPtr(new Script(command, Command));
 		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
 		return script;
@@ -94,7 +94,7 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	delete script;
+	//delete script;
 
 	LeaveCriticalSection(&lock);
 }
@@ -272,9 +272,14 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
-	if(!script->IsPaused())
-		list->push_back(script);
-	script->Pause();
+	// only pause running scripts
+	if(script->IsRunning())
+	{
+		// only resume scripts we paused
+		if(!script->IsPaused())
+			list->push_back(script);
+		script->Pause();
+	}
 	return true;
 }
 
@@ -299,12 +304,6 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	JS_ResumeRequest(cx, depth);
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
-}
-
-JSBool eventBranchCallback(JSContext* cx, JSScript* script)
-{
-	// TODO: What do events need in terms of the branch callback?
-	return JS_TRUE;
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
@@ -365,7 +364,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
-		EnterCriticalSection(&ScriptEngine::lock);
+//		EnterCriticalSection(&ScriptEngine::lock);
 		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 #ifdef DEBUG
@@ -379,7 +378,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
-		LeaveCriticalSection(&ScriptEngine::lock);
+//		LeaveCriticalSection(&ScriptEngine::lock);
 	}
 	return JS_TRUE;
 }
