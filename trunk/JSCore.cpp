@@ -88,7 +88,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!(lpszFileName && lpszFileName[0]))
 			THROW_ERROR(cx, obj, "Could not convert or empty string");
-
+		StringReplace(lpszFileName, '/', '\\');
 		if(strlen(lpszFileName) < _MAX_PATH)
 		{
 			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
