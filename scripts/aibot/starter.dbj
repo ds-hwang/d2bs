@@ -1,0 +1,31 @@
+include('pattern.dbl');
+include('cache.dbl');
+include('configuration.dbl');
+
+function main()
+{
+	var config = new Config();
+	config.Load();
+
+	// I'll come up with some better default later
+	var loginProfile = config.Get('loginProfile', 'n2ation');
+	print('Logging into profile ' + loginProfile);
+	login(config.Get('loginProfile', 'n2ation'));
+
+	// read the patterns this character wants to load
+	// for testing, we're going to hardcode the 'pit' pattern
+	var pattern = Cache.Load(me.name+'.pattern');
+	if(pattern === undefined)
+		var pattern = new Pattern(config.Get('pattern', 'pit'));
+
+	// cache the pattern for future loads
+	Cache.Save(me.name+'.pattern', pattern);
+
+	delay(rand(1,4)*1000); // let the game catch up if needed
+
+	// load our bot threads
+	load('goal.dbj');
+	load('attack.dbj');
+	load('lifewatch.dbj');
+	load('pickit.dbj');
+}

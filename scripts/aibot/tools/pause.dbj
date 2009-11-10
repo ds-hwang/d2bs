@@ -1,0 +1,20 @@
+function main() {
+	var self = getScript(true);
+	var paused = false;
+	addEventListener("keyup", function(k) {
+		switch(k)
+		{
+			case 19: // pause
+				paused = !paused;
+				var script = getScript();
+				do {
+					if(script.name != self.name)
+						if(paused == false)
+							script.resume();
+						else
+							script.pause();
+				} while(script.getNext());
+		}
+	});
+	while(true) delay(100000);
+}

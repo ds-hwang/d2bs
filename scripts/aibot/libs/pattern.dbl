@@ -39,21 +39,24 @@ function Pattern(file)
 
 		for each(var monster in area.monsters.*)
 		{
-			// TODO: process this into something more reasonable
-			var m = {};
-			for each(var attr in monster.@*)
-				m[attr.name()] = attr;
-			areaObj.monsters.push(m);
+			if(monster.name() != 'monster')
+				continue;
+			areaObj.monsters.push(attrToObj(monster));
 		}
 
 		for each(var object in area.objects.*)
 		{
-			// TODO: process this into something more reasonable
-			var o = {};
-			for each(var attr in object.@*)
-				o[attr.name()] = attr;
-			areaObj.objects.push(o);
+			if(object.name() != 'object')
+				continue;
+			areaObj.objects.push(attrToObj(object));
 		}
+	}
+
+	for each(var action in area.actions.*)
+	{
+		if(action.name() != 'action')
+			continue;
+		actions.push(attrToObj(action));
 	}
 
 	for each(var a in areas)
@@ -62,12 +65,21 @@ function Pattern(file)
 		for each(var m in a.monsters)
 			print('Found monster ' + m.id + ' with typeflag ' + m.typeflag + ' and mode ' + m.mode);
 		for each(var o in a.objects)
-			print('Found object ' + o.id + ' with mode ' + o.mode);
+			print('Found object ' + (o.hasOwnProperty('id') ? o.id : o['preset-id']) + ' with mode ' + o.mode);
 	}
 
 	function hasExt(file)
 	{
 		var lastDot = file.lastIndexOf('.');
 		return lastDot != -1 && file.substr(lastDot,  4) == '.xml';
+	}
+
+	function attrToObj(obj)
+	{
+		// TODO: process this into something more reasonable
+		var result = {};
+		for each(var attr in obj.@*)
+			result[attr.name()] = attr;
+		return result;
 	}
 }

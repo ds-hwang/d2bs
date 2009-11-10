@@ -1,8 +1,2 @@
-include('pattern.dbl');
-
-function main()
-{
-	// read the patterns this character wants to load
-	// for testing, we're going to hardcode meph.xml
-	var pattern = new Pattern('mephonly');
-}
+// nothing to do!
+function main(){if(getScript('starter.dbj') == undefined) load('starter.dbj');}

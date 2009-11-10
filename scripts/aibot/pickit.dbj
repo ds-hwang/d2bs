@@ -1,0 +1,8 @@
+function main()
+{
+	addEventListener('scriptmsg', scriptmsg);
+}
+
+function scriptmsg(msg)
+{
+}

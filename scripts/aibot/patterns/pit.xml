@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<pattern>
+	<areas>
+		<!-- pit level 1 -->
+		<area id="12">
+			<monsters>
+				<!-- skip all champions -->
+				<!-- <monster id="*" typeflag="2" mode="skip" /> -->
+				<!-- kill everything else -->
+				<monster id="*" typeflag="*" mode="kill" />
+			</monsters>
+		</area>
+		<area id="16">
+			<monsters>
+				<monster id="*" typeflag="*" mode="kill" />
+			</monsters>
+			<objects>
+				<object preset-id="55" mode="open" />
+			</objects>
+		</area>
+	</areas>
+</pattern>

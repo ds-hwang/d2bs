@@ -1,0 +1,75 @@
+js_strict(true);
+
+function Config()
+{
+	var db = {};
+
+	this.Load = function()
+	{
+		var cache = Cache.Load(me.name + '.config');
+		if(cache != undefined) {
+			db = cache;
+		} else {
+			loadXML('global');
+			loadXML(me.name);
+			Cache.Save(me.name + '.config', db);
+		}
+	};
+
+	function loadXML(name)
+	{
+		var file = 'configs/' + name + '.xml';
+		if(!FileTools.exists(file))
+			// don't worry about missing configs--we really don't care
+			//throw new Error('Configuration not found');
+			return;
+
+		var content = FileTools.readText(file);
+		// remove the xml declaration (bug 336551)
+		content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, "");
+		var config = new XML(content);
+
+		// verify that the config is sane
+		if(config.name() != 'config' || config.@name != name)
+			throw new Error('Configuration name did not match expected name!');
+
+		db['settings'][name] = [];
+
+		// iterate the settings and add them by key/value
+		for each(var value in config.settings.*)
+		{
+			if(value.name() == 'value')
+				db['settings'][name][value.@name] = value.toString();
+		}
+	}
+
+	this.Get = function(value, def)
+	{
+		if(db['settings'][me.name][value] !== undefined)
+			return db['settings'][me.name][value];
+		else if(db['settings']['global'][value] !== undefined)
+			return db['settings']['global'][value];
+		return def;
+	};
+
+	this.Set = function(name, value)
+	{
+		// you can only write to your own config, not the global one
+		db['settings'][me.name][name] = value;
+	};
+
+	this.Save = function()
+	{
+		var file = 'configs/' + me.name + '.xml';
+		// build the xml file
+		var xml = <config name={me.name}>
+			<settings>
+			</settings>
+		</config>;
+
+		for each(var value in db['settings'][me.name])
+			xml.settings += <value name={value}>{db['settings'][me.name][value]}</value>;
+
+			FileTools.writeText(file, xml.toXMLString());
+	}
+}
