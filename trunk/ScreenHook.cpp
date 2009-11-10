@@ -212,9 +212,9 @@ void Genhook::SetHoverHandler(jsval handler)
 
 void TextHook::Draw(void)
 {
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
+	Lock();
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && text)
 	{
-		Lock();
 		uint x = GetX(), y = GetY(), w = CalculateTextLen(text, font).x;
 		x -= (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
 		POINT loc = {x, y};
@@ -227,13 +227,15 @@ void TextHook::Draw(void)
 		EnterCriticalSection(&Vars.cTextHookSection);
 		myDrawText(text, loc.x, loc.y, color, font);
 		LeaveCriticalSection(&Vars.cTextHookSection);
-		Unlock();
 	}
+	Unlock();
 }
 
 bool TextHook::IsInRange(int dx, int dy)
 {
+	Lock();
 	POINT size = CalculateTextLen(text, font);
+	Unlock();
 	int x = GetX(), y = GetY(), w = size.x, h = size.y,
 		xp = x - (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
 	return (xp < dx && y > dy && (xp+w) > dx && (y-h) < dy);
@@ -252,11 +254,9 @@ void TextHook::SetText(const char* ntext)
 
 void ImageHook::Draw(void)
 {
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL)
+	Lock();
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL && !IsBadReadPtr(image, sizeof(CellFile)))
 	{
-		if (IsBadReadPtr(image, sizeof(CellFile)))
-			return;
-		Lock();
 		uint x = GetX(), y = GetY(), w = image->cells[0]->width;
 		x += (alignment != Left ? (alignment != Right ? 0 : -1*(w/2)) : w/2);
 		POINT loc = {x, y};
@@ -269,8 +269,8 @@ void ImageHook::Draw(void)
 		EnterCriticalSection(&Vars.cImageHookSection);
 		myDrawAutomapCell(image, loc.x, loc.y, (BYTE)color);
 		LeaveCriticalSection(&Vars.cImageHookSection);
-		Unlock();
 	}
+	Unlock();
 }
 
 bool ImageHook::IsInRange(int dx, int dy)
@@ -303,9 +303,9 @@ void ImageHook::SetImage(const char* nimage)
 
 void LineHook::Draw(void)
 {
+	Lock();
 	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
-		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetX2(), y2 = GetY2();
 		POINT loc = {x, y};
 		POINT sz = {x2, y2};
@@ -321,15 +321,15 @@ void LineHook::Draw(void)
 		EnterCriticalSection(&Vars.cLineHookSection);
 		D2GFX_DrawLine(loc.x, loc.y, sz.x, sz.y, color, 0xFF);
 		LeaveCriticalSection(&Vars.cLineHookSection);
-		Unlock();
 	}
+	Unlock();
 }
 
 void BoxHook::Draw(void)
 {
+	Lock();
 	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
-		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
 		if(alignment == Center)
 		{
@@ -353,8 +353,8 @@ void BoxHook::Draw(void)
 		EnterCriticalSection(&Vars.cBoxHookSection);
 		D2GFX_DrawRectangle(loc.x, loc.y, sz.x, sz.y, color, opacity);
 		LeaveCriticalSection(&Vars.cBoxHookSection);
-		Unlock();
 	}
+	Unlock();
 }
 
 bool BoxHook::IsInRange(int dx, int dy)
@@ -365,9 +365,9 @@ bool BoxHook::IsInRange(int dx, int dy)
 
 void FrameHook::Draw(void)
 {
+	Lock();
 	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
-		Lock();
 		uint x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
 		if(alignment == Center)
 		{
@@ -381,8 +381,8 @@ void FrameHook::Draw(void)
 		EnterCriticalSection(&Vars.cFrameHookSection);
 		D2GFX_DrawFrame(&rect);
 		LeaveCriticalSection(&Vars.cFrameHookSection);
-		Unlock();
 	}
+	Unlock();
 }
 
 bool FrameHook::IsInRange(int dx, int dy)
