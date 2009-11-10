@@ -6,26 +6,6 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#ifdef _MSVC_DEBUG
-
-#undef _DEBUG_NEW_REDEFINE_NEW
-#define _DEBUG_NEW_REDEFINE_NEW 1
-#undef _DEBUG_NEW_TAILCHECK
-#define _DEBUG_NEW_TAILCHECK 4
-#undef _DEBUG_NEW_PROGNAME
-#define _DEBUG_NEW_PROGNAME "D2BS"
-
-#else
-
-#undef _DEBUG_NEW_REDEFINE_NEW
-#define _DEBUG_NEW_REDEFINE_NEW 0
-#undef _DEBUG_NEW_TAILCHECK
-#define _DEBUG_NEW_TAILCHECK 0
-
-//#define new new (std::nothrow)
-
-#endif
-
 #define D2BS_VERSION "1.1.1"
 
 #include <windows.h>
@@ -59,6 +39,7 @@ struct Variables
 	BOOL	bDontCatchNextMsg;
 	BOOL	bClickAction;
 	BOOL	bNeedShutdown;
+	BOOL	bUseGamePrint;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bBlockMinimize;
@@ -84,7 +65,6 @@ struct Variables
 
 	CCollisionMap cCollisionMap;
 
-	// Critical Sections
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;
 	CRITICAL_SECTION	cScreenhookSection;

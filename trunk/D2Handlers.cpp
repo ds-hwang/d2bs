@@ -30,7 +30,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		 maxGameTime[6],
 		 startAtMenu[6],
 		 disableCache[6],
-		 memUsage[6];
+		 memUsage[6],
+		 gamePrint[6];
 
 	sprintf_s(path, sizeof(path), "%sd2bs-%d.log", Vars.szPath, GetProcessId(GetCurrentProcess()));
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
@@ -47,6 +48,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
+	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
 
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
@@ -58,6 +60,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	Vars.bQuitOnError = StringToBool(quitOnError);
 	Vars.bStartAtMenu = StringToBool(startAtMenu);
 	Vars.bDisableCache = StringToBool(disableCache);
+	Vars.bUseGamePrint = StringToBool(gamePrint);
 	Vars.dwMemUsage = atoi(memUsage);
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;

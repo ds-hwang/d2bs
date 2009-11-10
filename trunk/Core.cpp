@@ -11,14 +11,6 @@
 #include "CriticalSections.h"
 #include "Console.h"
 
-//! Splits a given string into lines trying not to cut words.
-//!
-//! @param str The string to split.
-//! @param maxlen The maximum length of a split line.
-//! @param delim Delimiter to attempt to split at
-//! Will split at the delimiter if possible or at max length itself.
-//! @param lst The list to insert the lines into.
-//! @return True for success False for no conversion or error
 bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst)
 {
 	using namespace std;
@@ -86,34 +78,27 @@ void Print(const char * szFormat, ...)
 		SplitLines(temp, maxlen, ' ', lines);
 
 	EnterCriticalSection(&Vars.cPrintSection);
-#ifdef _DONT_USE_CONSOLE_
-	if(GameReady())
+	if(Vars.bUseGamePrint)
 	{
-		// Convert and send every line.
-		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+		if(GameReady())
 		{
-			wchar_t * output = AnsiToUnicode(it->c_str());
-			D2CLIENT_PrintGameString(output, 0);
-			delete [] output;
+			// Convert and send every line.
+			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+			{
+				wchar_t * output = AnsiToUnicode(it->c_str());
+				D2CLIENT_PrintGameString(output, 0);
+				delete [] output;
+			}
+		}
+		else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
+		{
+			// TODO: Double check this function, make sure it is working as intended.
+			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+				D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
 		}
 	}
-	else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
-	{
-		// TODO: Double check this function, make sure it is working as intended.
-		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-			D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
-	}
-	else
-	{
-		// Print original string.
-		//MessageBox(0, str, "D2BS " D2BS_VERSION, 0);
-		for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-			Console::AddLine(*it);
-	}
-#else
 	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 			Console::AddLine(*it);
-#endif
 
 	LeaveCriticalSection(&Vars.cPrintSection);
 
