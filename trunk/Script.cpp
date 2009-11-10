@@ -14,7 +14,7 @@ using namespace std;
 AutoRoot::AutoRoot(jsval nvar) : var(nvar), count(0) { Take(); }
 AutoRoot::~AutoRoot()
 {
-	if(!(count--))
+	if(count < 0)
 	{
 		fprintf(stderr, "AutoRoot failed: Count is still %i, but the root is being destroyed", count);
 		DebugBreak();
@@ -211,16 +211,16 @@ bool Script::IsPaused(void)
 }
 
 void Script::Stop(bool force, bool reallyForce)
-{	
-	// Clear the events/hooks before aborting the script
-	// otherwise we can't clean up all the events in the context
+{
 	EnterCriticalSection(&lock);
-	ClearAllEvents();
-	Genhook::Clean(this);
 
+	// tell everyone else that the script is aborted FIRST
 	isAborted = true;
 	isPaused = false;
 	isReallyPaused = false;
+
+	ClearAllEvents();
+	Genhook::Clean(this);
 
 	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)

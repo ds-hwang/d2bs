@@ -73,9 +73,9 @@ Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutoma
 
 Genhook::~Genhook(void) {
 	Lock();
-	if(!JSVAL_IS_VOID(clicked))
+	if(owner && !JSVAL_IS_VOID(clicked))
 		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &clicked);
-	if(!JSVAL_IS_VOID(hovered))
+	if(owner && !JSVAL_IS_VOID(hovered))
 		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &hovered);
 
 	EnterCriticalSection(&globalSection);
@@ -172,6 +172,8 @@ void Genhook::Hover(POINT* loc)
 
 void Genhook::SetClickHandler(jsval handler)
 {
+	if(!owner)
+		return;
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(owner->GetContext(), &clicked);
@@ -190,6 +192,8 @@ void Genhook::SetClickHandler(jsval handler)
 
 void Genhook::SetHoverHandler(jsval handler)
 {
+	if(!owner)
+		return;
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))
 		JS_RemoveRoot(owner->GetContext(), &hovered);
