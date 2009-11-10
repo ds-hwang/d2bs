@@ -590,17 +590,21 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 
 VOID GameDraw(VOID)
 {
-	Console::Draw();
-	if(ClientState() != ClientStateMenu)
+	if(Vars.bActive && ClientState() == ClientStateInGame)
+	{
+		Console::Draw();
 		Genhook::DrawAll(IG);
+	}
 }
 
 VOID GameDrawOOG(VOID)
 {
 	D2WIN_DrawSprites();
-	Console::Draw();
-	if(ClientState() == ClientStateMenu)
+	if(Vars.bActive && ClientState() == ClientStateMenu)
+	{
+		Console::Draw();
 		Genhook::DrawAll(OOG);
+	}
 }
 
 VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText)
