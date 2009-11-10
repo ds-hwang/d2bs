@@ -7,8 +7,9 @@
 #include <string>
 
 #include "js32.h"
-#include "Script.h"
 #include "yasper.h"
+#include "AutoRoot.h"
+#include "Script.h"
 
 typedef std::map<std::string, ScriptPtr> ScriptMap;
 

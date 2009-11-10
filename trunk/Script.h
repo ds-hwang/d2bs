@@ -7,6 +7,7 @@
 
 #include "js32.h"
 #include "yasper.h"
+#include "AutoRoot.h"
 
 enum ScriptState {
 	InGame,
@@ -25,31 +26,12 @@ class Script;
 
 typedef yasper::ptr<Script> ScriptPtr;
 
-class AutoRoot
-{
-private:
-	jsval var;
-	uint count;
-
-	AutoRoot(const AutoRoot&);
-	AutoRoot& operator=(const AutoRoot&);
-public:
-	AutoRoot() {}
-	AutoRoot(jsval var);
-	~AutoRoot();
-	void Take();
-	void Release();
-	jsval value();
-	jsval operator* ();
-	bool operator==(AutoRoot& other);
-};
-
 // TODO: replace this with a std::set and use that
 // to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
-typedef std::list<AutoRoot*> FunctionList;
+typedef std::list<AutoRootPtr> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
-typedef std::list<Script*> ScriptList;
+typedef std::list<ScriptPtr> ScriptList;
 
 struct Event {
 	Script* owner;

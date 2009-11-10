@@ -18,10 +18,6 @@ typedef HookList::iterator HookIterator;
 enum Align { Left, Right, Center };
 enum ScreenhookState { OOG, IG, Perm };
 
-// TODO: Make a Screen class that holds various data about the screen's state
-// including a list of screenhooks, as well as functions for working with those
-// screenhooks.
-
 class Genhook
 {
 private:
