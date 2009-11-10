@@ -164,6 +164,10 @@ Level* GetLevel(DWORD dwLevelNo)
 POINT CalculateTextLen(CHAR* szwText, INT Font)
 {
 	POINT ret = {0,0};
+
+	if(!szwText)
+		return ret;
+
 	wchar_t* Buffer = AnsiToUnicode(szwText);
 
 	DWORD dwWidth, dwFileNo;

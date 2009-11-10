@@ -40,6 +40,7 @@ struct Variables
 	BOOL	bClickAction;
 	BOOL	bNeedShutdown;
 	BOOL	bUseGamePrint;
+	BOOL	bShutdownFromDllMain;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bBlockMinimize;

@@ -30,14 +30,17 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 			PathRemoveFileSpec(Vars.szPath);
 			strcat_s(Vars.szPath, MAX_PATH, "\\");
 #endif
-
+			Vars.bShutdownFromDllMain = FALSE;
 			if(!Startup())
 				return FALSE;
 		}
 		break;
 		case DLL_PROCESS_DETACH:
 			if(Vars.bNeedShutdown)
+			{
+				Vars.bShutdownFromDllMain = TRUE;
 				Shutdown();
+			}
 		break;
 	}
 
@@ -74,6 +77,10 @@ void Shutdown(void)
 {
 	if(!Vars.bNeedShutdown)
 		return;
+
+	Vars.bActive = FALSE;
+	if(!Vars.bShutdownFromDllMain)
+		WaitForSingleObject(hD2Thread, INFINITE);
 
 	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
