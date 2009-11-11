@@ -7,6 +7,7 @@
 
 #include "js32.h"
 #include "AutoRoot.h"
+#include "yasper.h"
 
 enum ScriptState {
 	InGame,
@@ -23,19 +24,21 @@ static JSClass global_obj = {
 
 class Script;
 
+typedef yasper::ptr<Script> ScriptPtr;
+
 // TODO: replace this with a std::set and use that
 // to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
-typedef std::list<AutoRoot*> FunctionList;
+typedef std::list<AutoRootPtr> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
-typedef std::list<Script*> ScriptList;
+typedef std::list<ScriptPtr> ScriptList;
 
 struct Event {
 	Script* owner;
 	JSContext* context;
 	JSObject* object;
 	FunctionList functions;
-	AutoRoot** argv;
+	AutoRootPtr* argv;
 	uintN argc;
 };
 
@@ -93,7 +96,8 @@ public:
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
 
-	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+	void ExecEventAsync(char* evtName, uintN argc, AutoRootPtr* argv);
+	friend class yasper::ptr<Script>;
 };
 
 DWORD WINAPI ScriptThread(void* data);

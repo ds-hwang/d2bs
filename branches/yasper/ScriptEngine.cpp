@@ -17,11 +17,11 @@ EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 
 // internal ForEachScript helpers
-bool __fastcall DisposeScript(Script* script, void*, uint);
-bool __fastcall StopScript(Script* script, void* argv, uint argc);
-bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
+bool __fastcall DisposeScript(ScriptPtr script, void*, uint);
+bool __fastcall StopScript(ScriptPtr script, void* argv, uint argc);
+bool __fastcall GCPauseScript(ScriptPtr script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+ScriptPtr ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -39,14 +39,14 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 			}
 			else if(scripts.count(fileName) > 0)
 			{
-				Script* ret = scripts[fileName];
+				ScriptPtr ret = scripts[fileName];
 				ret->Stop(true, true);
 				delete[] fileName;
 				LeaveCriticalSection(&lock);
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, state);
+		ScriptPtr script = ScriptPtr(new Script(fileName, state));
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
@@ -61,7 +61,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 	}
 }
 
-Script* ScriptEngine::CompileCommand(const char* command)
+ScriptPtr ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -75,7 +75,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 				DisposeScript(scripts["Command Line"]);
 			}
 		}
-		Script* script = new Script(command, Command);
+		ScriptPtr script = ScriptPtr(new Script(command, Command));
 		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
 		return script;
@@ -94,7 +94,6 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	//delete script;
 
 	LeaveCriticalSection(&lock);
 }
@@ -226,7 +225,7 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
+void ScriptEngine::ExecEventAsync(char* evtName, AutoRootPtr* argv, uintN argc)
 {
 	if(GetState() != Running)
 		return;
@@ -250,26 +249,26 @@ void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, co
 }
 
 // internal ForEachScript helper functions
-bool __fastcall DisposeScript(Script* script, void*, uint)
+bool __fastcall DisposeScript(ScriptPtr script, void*, uint)
 {
 	ScriptEngine::DisposeScript(script);
 	return true;
 }
 
-bool __fastcall StopScript(Script* script, void* argv, uint argc)
+bool __fastcall StopScript(ScriptPtr script, void* argv, uint argc)
 {
 	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
 	return true;
 }
 
-bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
+bool __fastcall ExecEventOnScript(ScriptPtr script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
 	script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
 	return true;
 }
 
-bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
+bool __fastcall GCPauseScript(ScriptPtr script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
 	// only pause running scripts

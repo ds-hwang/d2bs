@@ -422,6 +422,10 @@
 				RelativePath=".\sqlite3.h"
 				>
 			</File>
+			<File
+				RelativePath=".\yasper.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Spidermonkey Engine"

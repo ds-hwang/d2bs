@@ -10,8 +10,8 @@ struct FindHelper
 	Script* script;
 };
 
-bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc);
-bool __fastcall FindScriptByName(Script* script, void* argv, uint argc);
+bool __fastcall FindScriptByTid(ScriptPtr script, void* argv, uint argc);
+bool __fastcall FindScriptByName(ScriptPtr script, void* argv, uint argc);
 
 JSAPI_PROP(script_getProperty)
 {
@@ -97,8 +97,8 @@ JSAPI_FUNC(script_send)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
-	AutoRoot** args = new AutoRoot*[1];
-	args[0] = new AutoRoot(argv[0]);
+	AutoRootPtr* args = new AutoRootPtr[1];
+	args[0] = AutoRootPtr(new AutoRoot(argv[0]));
 
 	// this event has to occur as such because it's not a broadcasted event, just a local one
 	script->ExecEventAsync("scriptmsg", 1, args);
@@ -148,7 +148,7 @@ JSAPI_FUNC(my_getScript)
 	return JS_TRUE;
 }
 
-bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
+bool __fastcall FindScriptByName(ScriptPtr script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;
 	static uint pathlen = strlen(Vars.szScriptPath) + 1;
@@ -163,7 +163,7 @@ bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 	return true;
 }
 
-bool __fastcall FindScriptByTid(Script* script, void* argv, uint argc)
+bool __fastcall FindScriptByTid(ScriptPtr script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;
 	if(script->GetThreadId() == helper->tid)

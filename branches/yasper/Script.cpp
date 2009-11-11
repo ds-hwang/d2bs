@@ -338,20 +338,12 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 		}
 	}
 	functions[evtName].remove(func);
-	func->Release();
-	delete func;
 	LeaveCriticalSection(&lock);
 }
 
 void Script::ClearEvent(const char* evtName)
 {
 	EnterCriticalSection(&lock);
-	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
-	{
-		AutoRoot* func = *it;
-		func->Release();
-		delete func;
-	}
 	functions[evtName].clear();
 	LeaveCriticalSection(&lock);
 }
@@ -365,19 +357,16 @@ void Script::ClearAllEvents(void)
 	LeaveCriticalSection(&lock);
 }
 
-void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
+void Script::ExecEventAsync(char* evtName, uintN argc, AutoRootPtr* argv)
 {
 	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
 	{
 		// no event will happen, clean up the roots
-		for(uintN i = 0; i < argc; i++)
-			delete argv[i];
 		delete[] argv;
 		return;
 	}
 
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();	Event* evt = new Event;
+	Event* evt = new Event;
 	evt->owner = this;
 	evt->functions = functions[evtName];
 	evt->argc = argc;
@@ -423,8 +412,7 @@ DWORD WINAPI FuncThread(void* data)
 			args[i] = evt->argv[i]->value();
 			if(JS_AddRoot(&args[i]) == JS_FALSE)
 			{
-				if(evt->argv)
-					delete[] evt->argv;
+				delete args;
 				delete evt;
 				return NULL;
 			}
@@ -450,14 +438,6 @@ DWORD WINAPI FuncThread(void* data)
 
 	JS_DestroyContextNoGC(evt->context);
 	// we have to clean up the event
-	for(uintN i = 0; i < evt->argc; i++)
-	{
-		evt->argv[i]->Release();
-		if(evt->argv[i])
-			delete evt->argv[i];
-	}
-	if(evt->argv)
-		delete[] evt->argv;
 	delete evt;
 	
 	return 0;

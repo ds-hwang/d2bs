@@ -10,9 +10,9 @@
 #include "AutoRoot.h"
 #include "Script.h"
 
-typedef std::map<std::string, Script*> ScriptMap;
+typedef std::map<std::string, ScriptPtr> ScriptMap;
 
-typedef bool (__fastcall *ScriptCallback)(Script*, void*, uint);
+typedef bool (__fastcall *ScriptCallback)(ScriptPtr, void*, uint);
 
 enum EngineState {
 	Starting,
@@ -43,8 +43,8 @@ public:
 
 	static void FlushCache(void);
 
-	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
-	static Script* CompileCommand(const char* command);
+	static ScriptPtr CompileFile(const char* file, ScriptState state, bool recompile = false);
+	static ScriptPtr CompileCommand(const char* command);
 	static void DisposeScript(Script* script);
 
 	static void ForEachScript(ScriptCallback callback, void* argv, uint argc);
@@ -53,7 +53,7 @@ public:
 	static JSRuntime* GetRuntime(void) { return runtime; }
 
 	static void StopAll(bool forceStop = false);
-	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
+	static void ExecEventAsync(char* evtName, AutoRootPtr* argv, uintN argc);
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
 							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
@@ -63,11 +63,11 @@ public:
 };
 
 // this ForEachScript helper is exposed in case it can be of use somewhere
-bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc);
+bool __fastcall ExecEventOnScript(ScriptPtr script, void* argv, uint argc);
 struct EventHelper
 {
 	char* evtName;
-	AutoRoot** argv;
+	AutoRootPtr* argv;
 	uintN argc;
 	bool executed;
 };
