@@ -15,7 +15,7 @@ namespace D2BSLoader
 		private delegate void StatusCallback(string status, System.Drawing.Color color);
 		private delegate void LoadAction(int pid);
 
-		private string D2Path, D2Exe, D2Args;
+		private string D2Path, D2Exe, D2Args, D2BSDLL;
 		private BindingList<ProcessWrapper> processes = new BindingList<ProcessWrapper>();
 
 		public bool Autoclosed { get; set; }
@@ -27,18 +27,19 @@ namespace D2BSLoader
 			actions.Add("inject", Inject);
 			actions.Add("kill", Kill);
 			actions.Add("start", Start);
-			string action = "";
+			string action = "", dll = "";
 			int pid = -1;
 			for(int i = 0; i < args.Length; i++)
 			{
 				switch(args[i])
 				{
 					case "--pid": pid = Convert.ToInt32(args[i+1]); i++; break;
+					case "--dll": dll = args[i+1]; i++; break;
 					default: action = args[i].Substring(2); break;
 				}
 			}
 
-			if(action != "inject" && action != "kill")
+			if(action == "start" || String.IsNullOrEmpty(dll))
 			{
 				ReloadSettings();
 				if(String.IsNullOrEmpty(D2Path))
@@ -46,11 +47,15 @@ namespace D2BSLoader
 					Options_Click(null, null);
 					ReloadSettings();
 				}
-				if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe))
+				if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
+					!File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
 				{
 					MessageBox.Show("Diablo II Executable not found! Please click 'Options' and ensure that everything is correct.", "D2BS");
 				}
 			}
+			// copy the specified dll over to the "official" path if necessary
+			if(!String.IsNullOrEmpty(dll))
+				D2BSDLL = dll;
 
 			if(!String.IsNullOrEmpty(action))
 			{
@@ -110,15 +115,17 @@ namespace D2BSLoader
 			}
 		}
 
-		public static void SaveSettings(string path, string exe, string args)
+		public static void SaveSettings(string path, string exe, string args, string dll)
 		{
 			Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 			config.AppSettings.Settings.Remove("D2Path");
 			config.AppSettings.Settings.Remove("D2Exe");
 			config.AppSettings.Settings.Remove("D2Args");
+			config.AppSettings.Settings.Remove("D2BSDLL");
 			config.AppSettings.Settings.Add("D2Path", path);
 			config.AppSettings.Settings.Add("D2Exe", exe);
 			config.AppSettings.Settings.Add("D2Args", args);
+			config.AppSettings.Settings.Add("D2BSDLL", dll);
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
@@ -128,6 +135,7 @@ namespace D2BSLoader
 			D2Path = ConfigurationManager.AppSettings["D2Path"];
 			D2Exe = ConfigurationManager.AppSettings["D2Exe"];
 			D2Args = ConfigurationManager.AppSettings["D2Args"];
+			D2BSDLL = ConfigurationManager.AppSettings["D2BSDLL"];
 		}
 
 		private bool GetAutoload()
@@ -185,14 +193,10 @@ namespace D2BSLoader
 			string path = Application.StartupPath + Path.DirectorySeparatorChar;
 			return  File.Exists(path + "libnspr4.dll") &&
 					File.Exists(path + "js32.dll") &&
-					File.Exists(path + "cGuard.dll") &&
+					File.Exists(path + D2BSDLL) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "libnspr4.dll") &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "js32.dll") &&
-#if DEBUG
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "d2bs.dll");
-#else
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "cGuard.dll");
-#endif
+					PInvoke.Kernel32.LoadRemoteLibrary(p, path + D2BSDLL);
 		}
 
 		private void Attach(ProcessWrapper pw)
@@ -237,7 +241,7 @@ namespace D2BSLoader
 
 		private void Options_Click(object sender, EventArgs e)
 		{
-			Options o = new Options(D2Path, D2Exe, D2Args);
+			Options o = new Options(D2Path, D2Exe, D2Args, D2BSDLL);
 			o.ShowDialog();
 			ReloadSettings();
 		}

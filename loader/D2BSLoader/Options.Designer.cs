@@ -35,9 +35,12 @@
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.Button FindPath;
 			System.Windows.Forms.Button FindExe;
+			System.Windows.Forms.Label label4;
 			this.Exe = new System.Windows.Forms.TextBox();
 			this.Args = new System.Windows.Forms.TextBox();
 			this.Path = new System.Windows.Forms.TextBox();
+			this.DLL = new System.Windows.Forms.TextBox();
+			this.button1 = new System.Windows.Forms.Button();
 			OK = new System.Windows.Forms.Button();
 			Cancel = new System.Windows.Forms.Button();
 			label1 = new System.Windows.Forms.Label();
@@ -45,11 +48,12 @@
 			label3 = new System.Windows.Forms.Label();
 			FindPath = new System.Windows.Forms.Button();
 			FindExe = new System.Windows.Forms.Button();
+			label4 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// OK
 			// 
-			OK.Location = new System.Drawing.Point(12, 129);
+			OK.Location = new System.Drawing.Point(12, 168);
 			OK.Name = "OK";
 			OK.Size = new System.Drawing.Size(75, 23);
 			OK.TabIndex = 0;
@@ -60,7 +64,7 @@
 			// Cancel
 			// 
 			Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			Cancel.Location = new System.Drawing.Point(146, 129);
+			Cancel.Location = new System.Drawing.Point(146, 168);
 			Cancel.Name = "Cancel";
 			Cancel.Size = new System.Drawing.Size(75, 23);
 			Cancel.TabIndex = 1;
@@ -89,11 +93,32 @@
 			// label3
 			// 
 			label3.AutoSize = true;
-			label3.Location = new System.Drawing.Point(12, 87);
+			label3.Location = new System.Drawing.Point(12, 126);
 			label3.Name = "label3";
 			label3.Size = new System.Drawing.Size(57, 13);
 			label3.TabIndex = 4;
 			label3.Text = "Arguments";
+			// 
+			// FindPath
+			// 
+			FindPath.Location = new System.Drawing.Point(197, 24);
+			FindPath.Name = "FindPath";
+			FindPath.Size = new System.Drawing.Size(24, 21);
+			FindPath.TabIndex = 7;
+			FindPath.Text = "...";
+			FindPath.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+			FindPath.UseVisualStyleBackColor = true;
+			FindPath.Click += new System.EventHandler(this.FindPath_Click);
+			// 
+			// FindExe
+			// 
+			FindExe.Location = new System.Drawing.Point(197, 63);
+			FindExe.Name = "FindExe";
+			FindExe.Size = new System.Drawing.Size(24, 20);
+			FindExe.TabIndex = 9;
+			FindExe.Text = "...";
+			FindExe.UseVisualStyleBackColor = true;
+			FindExe.Click += new System.EventHandler(this.FindExe_Click);
 			// 
 			// Exe
 			// 
@@ -105,21 +130,10 @@
 			// 
 			// Args
 			// 
-			this.Args.Location = new System.Drawing.Point(12, 103);
+			this.Args.Location = new System.Drawing.Point(12, 142);
 			this.Args.Name = "Args";
 			this.Args.Size = new System.Drawing.Size(206, 20);
 			this.Args.TabIndex = 6;
-			// 
-			// FindPath
-			// 
-			FindPath.Location = new System.Drawing.Point(197, 25);
-			FindPath.Name = "FindPath";
-			FindPath.Size = new System.Drawing.Size(24, 21);
-			FindPath.TabIndex = 7;
-			FindPath.Text = "...";
-			FindPath.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-			FindPath.UseVisualStyleBackColor = true;
-			FindPath.Click += new System.EventHandler(this.FindPath_Click);
 			// 
 			// Path
 			// 
@@ -129,15 +143,32 @@
 			this.Path.Size = new System.Drawing.Size(179, 20);
 			this.Path.TabIndex = 8;
 			// 
-			// FindExe
+			// label4
 			// 
-			FindExe.Location = new System.Drawing.Point(197, 64);
-			FindExe.Name = "FindExe";
-			FindExe.Size = new System.Drawing.Size(24, 20);
-			FindExe.TabIndex = 9;
-			FindExe.Text = "...";
-			FindExe.UseVisualStyleBackColor = true;
-			FindExe.Click += new System.EventHandler(this.FindExe_Click);
+			label4.AutoSize = true;
+			label4.Location = new System.Drawing.Point(12, 87);
+			label4.Name = "label4";
+			label4.Size = new System.Drawing.Size(58, 13);
+			label4.TabIndex = 10;
+			label4.Text = "D2BS DLL";
+			// 
+			// DLL
+			// 
+			this.DLL.Location = new System.Drawing.Point(12, 103);
+			this.DLL.Name = "DLL";
+			this.DLL.ReadOnly = true;
+			this.DLL.Size = new System.Drawing.Size(179, 20);
+			this.DLL.TabIndex = 11;
+			// 
+			// button1
+			// 
+			this.button1.Location = new System.Drawing.Point(197, 102);
+			this.button1.Name = "button1";
+			this.button1.Size = new System.Drawing.Size(24, 20);
+			this.button1.TabIndex = 12;
+			this.button1.Text = "...";
+			this.button1.UseVisualStyleBackColor = true;
+			this.button1.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// Options
 			// 
@@ -145,7 +176,10 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = Cancel;
-			this.ClientSize = new System.Drawing.Size(230, 160);
+			this.ClientSize = new System.Drawing.Size(230, 202);
+			this.Controls.Add(this.button1);
+			this.Controls.Add(this.DLL);
+			this.Controls.Add(label4);
 			this.Controls.Add(FindExe);
 			this.Controls.Add(this.Path);
 			this.Controls.Add(FindPath);
@@ -174,5 +208,7 @@
 		private System.Windows.Forms.TextBox Exe;
 		private System.Windows.Forms.TextBox Args;
 		private System.Windows.Forms.TextBox Path;
+		private System.Windows.Forms.TextBox DLL;
+		private System.Windows.Forms.Button button1;
 	}
 }

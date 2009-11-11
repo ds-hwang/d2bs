@@ -12,20 +12,21 @@ namespace D2BSLoader
 {
 	public partial class Options : Form
 	{
-		public Options(string path, string exe, string args)
+		public Options(string path, string exe, string args, string dll)
 		{
 			InitializeComponent();
 
 			Path.Text = path;
 			Exe.Text = exe;
 			Args.Text = args;
+			DLL.Text = String.IsNullOrEmpty(dll) ? "cGuard.dll" : dll;
 		}
 
 		private void OK_Click(object sender, EventArgs e)
 		{
 			if(File.Exists(Path.Text + System.IO.Path.DirectorySeparatorChar + Exe.Text))
 			{
-				Main.SaveSettings(Path.Text, Exe.Text, Args.Text);
+				Main.SaveSettings(Path.Text, Exe.Text, Args.Text, DLL.Text);
 				Close();
 			}
 			else
@@ -51,10 +52,19 @@ namespace D2BSLoader
 			OpenFileDialog ofd = new OpenFileDialog();
 			ofd.Filter = "Executable Files|*.exe";
 			ofd.Multiselect = false;
-			ofd.AutoUpgradeEnabled = true;
 			ofd.InitialDirectory = Path.Text;
 			if(DialogResult.OK == ofd.ShowDialog())
 				Exe.Text = ofd.SafeFileName;
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			OpenFileDialog ofd = new OpenFileDialog();
+			ofd.Filter = "DLL Files|*.dll";
+			ofd.Multiselect = false;
+			ofd.InitialDirectory = Application.StartupPath;
+			if(DialogResult.OK == ofd.ShowDialog())
+				DLL.Text = ofd.SafeFileName;
 		}
 	}
 }
