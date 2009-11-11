@@ -94,7 +94,7 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	//delete script;
+	delete script;
 
 	LeaveCriticalSection(&lock);
 }

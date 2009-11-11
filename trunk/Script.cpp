@@ -377,7 +377,9 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	}
 
 	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();	Event* evt = new Event;
+		argv[i]->Take();
+
+	Event* evt = new Event;
 	evt->owner = this;
 	evt->functions = functions[evtName];
 	evt->argc = argc;
