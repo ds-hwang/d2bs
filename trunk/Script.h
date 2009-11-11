@@ -6,7 +6,6 @@
 #include <list>
 
 #include "js32.h"
-#include "yasper.h"
 #include "AutoRoot.h"
 
 enum ScriptState {
@@ -24,14 +23,12 @@ static JSClass global_obj = {
 
 class Script;
 
-typedef yasper::ptr<Script> ScriptPtr;
-
 // TODO: replace this with a std::set and use that
 // to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
-typedef std::list<AutoRootPtr> FunctionList;
+typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
-typedef std::list<ScriptPtr> ScriptList;
+typedef std::list<Script*> ScriptList;
 
 struct Event {
 	Script* owner;
@@ -97,7 +94,6 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-	friend class yasper::ptr<Script>;
 };
 
 DWORD WINAPI ScriptThread(void* data);

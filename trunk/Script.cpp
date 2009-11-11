@@ -298,7 +298,7 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 	EnterCriticalSection(&lock);
 	if(JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0)
 	{
-		AutoRootPtr root = AutoRootPtr(new AutoRoot(evtFunc));
+		AutoRoot* root = new AutoRoot(evtFunc);
 		functions[evtName].push_back(root);
 	}
 	LeaveCriticalSection(&lock);
@@ -338,12 +338,20 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 		}
 	}
 	functions[evtName].remove(func);
+	func->Release();
+	delete func;
 	LeaveCriticalSection(&lock);
 }
 
 void Script::ClearEvent(const char* evtName)
 {
 	EnterCriticalSection(&lock);
+	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
+	{
+		AutoRoot* func = *it;
+		func->Release();
+		delete func;
+	}
 	functions[evtName].clear();
 	LeaveCriticalSection(&lock);
 }
@@ -359,7 +367,17 @@ void Script::ClearAllEvents(void)
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	Event* evt = new Event;
+	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	{
+		// no event will happen, clean up the roots
+		for(uintN i = 0; i < argc; i++)
+			delete argv[i];
+		delete[] argv;
+		return;
+	}
+
+	for(uintN i = 0; i < argc; i++)
+		argv[i]->Take();	Event* evt = new Event;
 	evt->owner = this;
 	evt->functions = functions[evtName];
 	evt->argc = argc;
@@ -397,21 +415,30 @@ DWORD WINAPI FuncThread(void* data)
 	JS_SetContextThread(evt->context);
 	JS_BeginRequest(evt->context);
 
-	jsval* args = new jsval[evt->argc];
-	for(uintN i = 0; i < evt->argc; i++)
-	{
-		args[i] = evt->argv[i]->value();
-		JS_AddRoot(&args[i]);
-	}
-
 	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
 	{
+		jsval* args = new jsval[evt->argc];
+		for(uintN i = 0; i < evt->argc; i++)
+		{
+			args[i] = evt->argv[i]->value();
+			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			{
+				if(evt->argv)
+					delete[] evt->argv;
+				delete evt;
+				return NULL;
+			}
+		}
 		jsval dummy = JSVAL_VOID;
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
 		}
+
+		for(uintN i = 0; i < evt->argc; i++)
+			JS_RemoveRoot(&args[i]);
+		delete[] args;
 
 		// check if the caller stole the context thread
 		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
@@ -421,12 +448,16 @@ DWORD WINAPI FuncThread(void* data)
 		}
 	}
 
-	for(uintN i = 0; i < evt->argc; i++)
-		JS_RemoveRoot(&args[i]);
-	delete[] args;
-
 	JS_DestroyContextNoGC(evt->context);
 	// we have to clean up the event
+	for(uintN i = 0; i < evt->argc; i++)
+	{
+		evt->argv[i]->Release();
+		if(evt->argv[i])
+			delete evt->argv[i];
+	}
+	if(evt->argv)
+		delete[] evt->argv;
 	delete evt;
 	
 	return 0;

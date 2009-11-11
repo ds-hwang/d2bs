@@ -21,7 +21,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-ScriptPtr ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -46,7 +46,7 @@ ScriptPtr ScriptEngine::CompileFile(const char* file, ScriptState state, bool re
 				return ret;
 			}
 		}
-		ScriptPtr script = ScriptPtr(new Script(fileName, state));
+		Script* script = new Script(fileName, state);
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
@@ -61,7 +61,7 @@ ScriptPtr ScriptEngine::CompileFile(const char* file, ScriptState state, bool re
 	}
 }
 
-ScriptPtr ScriptEngine::CompileCommand(const char* command)
+Script* ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -75,7 +75,7 @@ ScriptPtr ScriptEngine::CompileCommand(const char* command)
 				DisposeScript(scripts["Command Line"]);
 			}
 		}
-		ScriptPtr script = ScriptPtr(new Script(command, Command));
+		Script* script = new Script(command, Command);
 		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
 		return script;
