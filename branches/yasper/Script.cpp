@@ -328,7 +328,7 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 		return;
 
 	EnterCriticalSection(&lock);
-	AutoRoot* func = NULL;
+	AutoRootPtr func = NULL;
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
 		if((*it)->value() == evtFunc)
@@ -374,6 +374,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRootPtr* argv)
 	evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 	if(!evt->context)
 	{
+		delete[] argv;
 		delete evt;
 		return;
 	}
@@ -438,6 +439,7 @@ DWORD WINAPI FuncThread(void* data)
 
 	JS_DestroyContextNoGC(evt->context);
 	// we have to clean up the event
+	delete[] evt->argv;
 	delete evt;
 	
 	return 0;

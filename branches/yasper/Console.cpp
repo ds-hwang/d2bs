@@ -111,7 +111,7 @@ void Console::ExecuteCommand(void)
 	{
 		char file[_MAX_PATH+_MAX_FNAME];
 		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-		Script* script = ScriptEngine::CompileFile(file, InGame);
+		ScriptPtr script = ScriptEngine::CompileFile(file, InGame);
 		if(script)
 		{
 			AddLine("ÿc2D2BSÿc0 :: Starting default.dbj");
@@ -147,7 +147,7 @@ void Console::ExecuteCommand(void)
 			char Path[_MAX_PATH+_MAX_FNAME] = "";
 			sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
 
-			Script* script = ScriptEngine::CompileFile(Path, InGame, true);
+			ScriptPtr script = ScriptEngine::CompileFile(Path, InGame, true);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
@@ -175,7 +175,7 @@ void Console::ExecuteCommand(void)
 		AddLine("ÿc2D2BSÿc0 :: Starting default.dbj...");
 		char file[_MAX_PATH+_MAX_FNAME];
 		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-		Script* script = ScriptEngine::CompileFile(file, InGame);
+		ScriptPtr script = ScriptEngine::CompileFile(file, InGame);
 		if(script)
 			CreateThread(0, 0, ScriptThread, script, 0, 0);
 		else
@@ -183,7 +183,7 @@ void Console::ExecuteCommand(void)
 	}
 	else
 	{
-		Script* script = ScriptEngine::CompileCommand(cmd);
+		ScriptPtr script = ScriptEngine::CompileCommand(cmd);
 		if(script)
 			CreateThread(0, 0, ScriptThread, script, 0, 0);
 	}

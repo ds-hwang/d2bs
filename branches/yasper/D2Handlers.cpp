@@ -125,7 +125,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				clickControl(*p_D2WIN_FirstControl);
 
 			Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
-			Script* script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
+			ScriptPtr script = ScriptEngine::CompileFile(starterdbj, OutOfGame);
 			if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
 				Print("ÿc2D2BSÿc0 :: starter.dbj running.");
 			else
@@ -162,7 +162,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					D2CLIENT_InitInventory();
 
 					Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-					Script* script = ScriptEngine::CompileFile(defaultdbj, InGame);
+					ScriptPtr script = ScriptEngine::CompileFile(defaultdbj, InGame);
 					if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
 						Print("ÿc2D2BSÿc0 :: default.dbj running.");
 					else
@@ -214,7 +214,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		{
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = ScriptEngine::CompileFile(file, InGame);
+			ScriptPtr script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 			{
 				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
@@ -247,7 +247,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			Print("ÿc2D2BSÿc0 :: Starting default.dbj...");
 			char file[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = ScriptEngine::CompileFile(file, InGame);
+			ScriptPtr script = ScriptEngine::CompileFile(file, InGame);
 			if(script)
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
 			else
@@ -268,7 +268,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 			char* arg = szBuffer+6;
 			if(strlen(arg) > 0)
 			{
-				Script* script = ScriptEngine::CompileCommand(arg);
+				ScriptPtr script = ScriptEngine::CompileCommand(arg);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 			}
@@ -285,7 +285,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 				char Path[_MAX_PATH+_MAX_FNAME] = "";
 				sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
 
-				Script* script = ScriptEngine::CompileFile(Path, InGame, true);
+				ScriptPtr script = ScriptEngine::CompileFile(Path, InGame, true);
 				if(script)
 					CreateThread(0, 0, ScriptThread, script, 0, 0);
 				else
@@ -418,7 +418,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if(pCopy->dwData == 0x1337) // 0x1337 = Execute Script
 				{
-					Script* script = ScriptEngine::CompileCommand((char*)pCopy->lpData);
+					ScriptPtr script = ScriptEngine::CompileCommand((char*)pCopy->lpData);
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
 				}
