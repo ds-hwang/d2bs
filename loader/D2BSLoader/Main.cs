@@ -188,7 +188,11 @@ namespace D2BSLoader
 					File.Exists(path + "cGuard.dll") &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "libnspr4.dll") &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "js32.dll") &&
+#if DEBUG
+					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "d2bs.dll");
+#else
 					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "cGuard.dll");
+#endif
 		}
 
 		private void Attach(ProcessWrapper pw)
