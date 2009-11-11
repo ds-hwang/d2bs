@@ -547,10 +547,10 @@ Properties:
 [[File.eof]]
 </pre>
 </div>
-<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911020006" changecount="5">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;FileTools.remove&quot; &quot;string name&quot; &quot;True if the file was removed, otherwise false.&quot; &quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; &quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
+<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911112037" changecount="8">
+<pre>&lt;&lt;function args:&quot;string name&quot; returnType:&quot;bool&quot; returns:&quot;True if the file was removed, otherwise false.&quot; remarks:&quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
 </div>
-<div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911012330" changecount="3">
+<div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911111957" changecount="6">
 <pre>Static Functions:
 [[FileTools.remove]]
 [[FileTools.rename]]
@@ -561,7 +561,29 @@ Properties:
 [[FileTools.appendText]]
 </pre>
 </div>
-<div title="GlobalFunctions" modifier="illmat" created="200911020914" modified="200911020916" changecount="3">
+<div title="FunctionPlugin" modifier="lord2800" created="200911112015" modified="200911112036" tags="systemConfig" changecount="10">
+<pre>//{{{
+
+config.macros.function = {
+	handler: function (place, macroName, params, wikifier, paramString, tiddler) {
+		var p = paramString.parseParams(null, null, true);
+		var name = getParam(p, &quot;name&quot;) || tiddler.title;
+		var args = getParam(p, &quot;args&quot;) || '';
+		var retVal = getParam(p, &quot;returnType&quot;) || '';
+		var ret = getParam(p, &quot;returns&quot;) || 'void';
+		var remarks = getParam(p, &quot;remarks&quot;) || 'none';
+		var example = getParam(p, &quot;example&quot;) || '';
+		wikify(&quot;!Function:\r\n{{{&quot; + retVal + &quot; &quot; + name + &quot;(&quot; + args + &quot;)}}}\r\n\r\n&quot; +
+			 &quot;''Returns:'' &quot; + ret + &quot;\r\n\r\n&quot; +
+			 &quot;!!!''Remarks:''\r\n&quot; + remarks + &quot;\r\n\r\n&quot; +
+			 &quot;!!!''Example:''\r\n{{{&quot; + example + &quot;}}}&quot;,
+			 place);
+	}
+};
+
+//}}}</pre>
+</div>
+<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="200911111943" changecount="3">
 <pre>[[getUnit]]
 [[getPath]]
 [[getCollision]]
@@ -587,14 +609,13 @@ Properties:
 [[getPlayerFlag]]
 [[getTickCount]]
 [[getInteractedNPC]]
-
 [[print]]
 [[delay]]
 [[load]]
 [[isIncluded]]
 [[include]]
 [[stop]]
-[[rnd]]
+[[rand]]
 [[sendCopyData]]
 [[sendDDE]]
 [[keystate]]
@@ -608,10 +629,8 @@ Properties:
 [[sqlite_version]]
 [[dopen]]
 [[debugLog]]
-[[iniread - DEPRECATED]]
-[[iniwrite - DEPRECATED]]
-[[runGC - DEPRECATED]]
-
+[[iniread]]
+[[iniwrite]]
 [[submitItem]]
 [[login]]
 [[getLocation]]
@@ -632,7 +651,6 @@ Properties:
 [[blockMinimize]]
 [[weaponSwitch]]
 [[transmute]]
-
 [[md5]]
 [[sha1]]
 [[sha256]]
@@ -642,8 +660,7 @@ Properties:
 [[sha1_file]]
 [[sha256_file]]
 [[sha384_file]]
-[[sha512_file]]
-</pre>
+[[sha512_file]]</pre>
 </div>
 <div title="MainMenu" modifier="lord2800" created="200910281257" modified="200911012304" changecount="2">
 <pre>GlobalFunctions
@@ -693,20 +710,14 @@ $4
 !!!''Example:''
 {{{$5}}}</pre>
 </div>
-<div title="delay" modifier="illmat" created="200911020917" modified="200911020957" changecount="3">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;delay&quot; &quot;int milliseconds&quot; &quot;Always returns void.&quot; &quot;Pauses the script execution.&quot; &quot;delay (1000); // script sleeps 1 second&quot;&gt;&gt;</pre>
+<div title="getSkillById" modifier="lord2800" created="200911111949" modified="200911112037" changecount="3">
+<pre>&lt;&lt;function args:&quot;int id&quot; returnType:&quot;string&quot; returns:&quot;The name of the specified skill ID.&quot; remarks:&quot;Looks up the name of the skill ID based on the internal table (this will be replaced with MPQ lookup at some point).&quot; example:&quot;var name = getSkillById(1);&quot;&gt;&gt;</pre>
+</div>
+<div title="getSkillByName" modifier="lord2800" created="200911111947" modified="200911112037" changecount="2">
+<pre>&lt;&lt;function args:&quot;string name&quot; returnType:&quot;int&quot; returns:&quot;The ID of the specified skill name.&quot; remarks:&quot;Looks up the ID of the skill name based on the internal table (this will be replaced with MPQ lookup at some point).&quot; example:&quot;var id = getSkillByName('kick');&quot;&gt;&gt;</pre>
 </div>
 <div title="lord2800" modifier="lord2800" created="200911012333" changecount="1">
 <pre>D2BS lead developer and all around awesome guy.</pre>
-</div>
-<div title="print" modifier="illmat" created="200911020916" modified="200911020952" changecount="6">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;print&quot; &quot;string message&quot; &quot;Always returns void.&quot; &quot;Prints a message to the console.&quot; &quot;print ('Hello World');&quot;&gt;&gt;</pre>
-</div>
-<div title="say" modifier="illmat" created="200911020915" modified="200911020953" changecount="5">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;say&quot; &quot;string message&quot; &quot;Returns true if successful, false if it fails.&quot; &quot;Sends a chatmessage to the game.&quot; &quot;say ('Hello World');&quot;&gt;&gt;</pre>
-</div>
-<div title="version" modifier="illmat" created="200911020936" modified="200911020957" changecount="7">
-<pre>&lt;&lt;tiddler TemplateFunction with:&quot;version&quot; &quot;void&quot; &quot;Returns a string with the d2bs version.&quot; &quot;&quot; &quot;var ver = version (); print (ver);&quot;&gt;&gt;</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
