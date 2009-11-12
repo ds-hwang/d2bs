@@ -517,49 +517,69 @@ Also see [[AdvancedOptions]]</pre>
 <div title="DefaultTiddlers" modifier="lord2800" created="200910281255" changecount="1">
 <pre></pre>
 </div>
-<div title="FileObject" modifier="lord2800" created="200911012318" modified="200911012320" changecount="2">
-<pre>Static Functions:
-[[File.open]]
+<div title="FileObject" modifier="lord2800" created="200911012318" modified="200911112255" changecount="3">
+<pre>&lt;&lt;functionList prefix:&quot;File&quot;
+	open
+	close
+	reopen
+	read
+	readLine
+	readAllLines
+	readAll
+	write
+	seek
+	flush
+	reset
+	end
+&gt;&gt;
 
-Functions:
-[[File.close]]
-[[File.reopen]]
-[[File.read]]
-[[File.readLine]]
-[[File.readAllLines]]
-[[File.readAll]]
-[[File.write]]
-[[File.seek]]
-[[File.flush]]
-[[File.reset]]
-[[File.end]]
-
-Properties:
-[[File.readable]]
-[[File.writable]]
-[[File.seekable]]
-[[File.mode]]
-[[File.binaryMode]]
-[[File.autoflush]]
-[[File.length]]
-[[File.path]]
-[[File.position]]
-[[File.eof]]
+&lt;&lt;propertyList prefix:&quot;File&quot;
+	readable
+	writable
+	seekable
+	mode
+	binaryMode
+	autoflush
+	length
+	path
+	position
+	eof
+&gt;&gt;
 </pre>
 </div>
 <div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911112037" changecount="8">
 <pre>&lt;&lt;function args:&quot;string name&quot; returnType:&quot;bool&quot; returns:&quot;True if the file was removed, otherwise false.&quot; remarks:&quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
 </div>
-<div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911111957" changecount="6">
-<pre>Static Functions:
-[[FileTools.remove]]
-[[FileTools.rename]]
-[[FileTools.copy]]
-[[FileTools.exists]]
-[[FileTools.readText]]
-[[FileTools.writeText]]
-[[FileTools.appendText]]
-</pre>
+<div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911112248" changecount="8">
+<pre>&lt;&lt;functionList prefix:&quot;FileTools&quot;
+	remove
+	rename
+	copy
+	exists
+	readText
+	writeText
+	appendText
+&gt;&gt;</pre>
+</div>
+<div title="FunctionListPlugin" modifier="lord2800" created="200911112154" modified="200911112247" tags="systemConfig" changecount="4">
+<pre>//{{{
+
+config.macros.functionList = {
+	handler: function (place, macroName, params, wikifier, paramString) {
+		var args = paramString.parseParams(null,null,true);
+		var prefix = getParam(args, &quot;prefix&quot;) || '';
+		if(prefix != '') prefix += '.';
+		var functions = '!Functions:\r\n\r\n';
+		var start = (prefix != '' ? 1 : 0);
+		for(var i = start; i &lt; params.length; i++)
+		{
+			functions += '[[' + prefix + params[i] + ']]\r\n';
+		}
+		wikify(functions, place);
+	}
+};
+
+//}}}</pre>
 </div>
 <div title="FunctionPlugin" modifier="lord2800" created="200911112015" modified="200911112036" tags="systemConfig" changecount="10">
 <pre>//{{{
@@ -583,84 +603,86 @@ config.macros.function = {
 
 //}}}</pre>
 </div>
-<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="200911111943" changecount="3">
-<pre>[[getUnit]]
-[[getPath]]
-[[getCollision]]
-[[getMercHP]]
-[[getCursorType]]
-[[getSkillByName]]
-[[getSkillById]]
-[[getLocaleString]]
-[[getTextWidthHeight]]
-[[getThreadPriority]]
-[[getUIFlag]]
-[[getTradeInfo]]
-[[getWaypoint]]
-[[getScript]]
-[[getRoom]]
-[[getParty]]
-[[getPresetUnit]]
-[[getPresetUnits]]
-[[getArea]]
-[[getExits]]
-[[getBaseStat]]
-[[getControl]]
-[[getPlayerFlag]]
-[[getTickCount]]
-[[getInteractedNPC]]
-[[print]]
-[[delay]]
-[[load]]
-[[isIncluded]]
-[[include]]
-[[stop]]
-[[rand]]
-[[sendCopyData]]
-[[sendDDE]]
-[[keystate]]
-[[addEventListener]]
-[[removeEventListener]]
-[[clearEvent]]
-[[clearAllEvents]]
-[[js_strict]]
-[[version]]
-[[scriptBroadcast]]
-[[sqlite_version]]
-[[dopen]]
-[[debugLog]]
-[[iniread]]
-[[iniwrite]]
-[[submitItem]]
-[[login]]
-[[getLocation]]
-[[getMouseCoords]]
-[[copyUnit]]
-[[clickMap]]
-[[acceptTrade]]
-[[beep]]
-[[clickItem]]
-[[getDistance]]
-[[gold]]
-[[checkCollision]]
-[[playSound]]
-[[quit]]
-[[quitGame]]
-[[say]]
-[[clickParty]]
-[[blockMinimize]]
-[[weaponSwitch]]
-[[transmute]]
-[[md5]]
-[[sha1]]
-[[sha256]]
-[[sha384]]
-[[sha512]]
-[[md5_file]]
-[[sha1_file]]
-[[sha256_file]]
-[[sha384_file]]
-[[sha512_file]]</pre>
+<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="200911112158" changecount="4">
+<pre>&lt;&lt;functionList
+	getUnit
+	getPath
+	getCollision
+	getMercHP
+	getCursorType
+	getSkillByName
+	getSkillById
+	getLocaleString
+	getTextWidthHeight
+	getThreadPriority
+	getUIFlag
+	getTradeInfo
+	getWaypoint
+	getScript
+	getRoom
+	getParty
+	getPresetUnit
+	getPresetUnits
+	getArea
+	getExits
+	getBaseStat
+	getControl
+	getPlayerFlag
+	getTickCount
+	getInteractedNPC
+	print
+	delay
+	load
+	isIncluded
+	include
+	stop
+	rand
+	sendCopyData
+	sendDDE
+	keystate
+	addEventListener
+	removeEventListener
+	clearEvent
+	clearAllEvents
+	js_strict
+	version
+	scriptBroadcast
+	sqlite_version
+	dopen
+	debugLog
+	iniread
+	iniwrite
+	submitItem
+	login
+	getLocation
+	getMouseCoords
+	copyUnit
+	clickMap
+	acceptTrade
+	beep
+	clickItem
+	getDistance
+	gold
+	checkCollision
+	playSound
+	quit
+	quitGame
+	say
+	clickParty
+	blockMinimize
+	weaponSwitch
+	transmute
+	md5
+	sha1
+	sha256
+	sha384
+	sha512
+	md5_file
+	sha1_file
+	sha256_file
+	sha384_file
+	sha512_file
+&gt;&gt;</pre>
 </div>
 <div title="MainMenu" modifier="lord2800" created="200910281257" modified="200911012304" changecount="2">
 <pre>GlobalFunctions
@@ -685,6 +707,45 @@ ExitObject
 DirectoryObject
 ControlObject
 AreaObject</pre>
+</div>
+<div title="PropertyListPlugin" modifier="lord2800" created="200911112248" tags="systemConfig" changecount="1">
+<pre>//{{{
+
+config.macros.propertyList = {
+	handler: function (place, macroName, params, wikifier, paramString) {
+		var args = paramString.parseParams(null,null,true);
+		var prefix = getParam(args, &quot;prefix&quot;) || '';
+		if(prefix != '') prefix += '.';
+		var functions = '!Properties:\r\n\r\n';
+		var start = (prefix != '' ? 1 : 0);
+		for(var i = start; i &lt; params.length; i++)
+		{
+			functions += '[[' + prefix + params[i] + ']]\r\n';
+		}
+		wikify(functions, place);
+	}
+};
+
+//}}}</pre>
+</div>
+<div title="PropertyPlugin" modifier="lord2800" created="200911112251" changecount="1">
+<pre>//{{{
+
+config.macros.property = {
+	handler: function (place, macroName, params, wikifier, paramString, tiddler) {
+		var p = paramString.parseParams(null, null, true);
+		var name = getParam(p, &quot;name&quot;) || tiddler.title;
+		var type = getParam(p, &quot;type&quot;) || '';
+		var remarks = getParam(p, &quot;remarks&quot;) || 'None.';
+		var example = getParam(p, &quot;example&quot;) || '';
+		wikify(&quot;!Property:\r\n{{{&quot; + type + &quot; &quot; + name + &quot;}}}\r\n\r\n&quot; +
+			 &quot;!!!''Remarks:''\r\n&quot; + remarks + &quot;\r\n\r\n&quot; +
+			 &quot;!!!''Example:''\r\n{{{&quot; + example + &quot;}}}&quot;,
+			 place);
+	}
+};
+
+//}}}</pre>
 </div>
 <div title="SiteSubtitle" modifier="lord2800" created="200910281259" changecount="1">
 <pre>everything you wanted to know about D2BS, but were afraid to ask</pre>
