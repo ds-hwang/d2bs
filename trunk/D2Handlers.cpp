@@ -37,7 +37,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
 	FILE* stream = NULL;
-	freopen_s(&stream, path, "a+t", stderr);
+	freopen_s(&stream, path, "a+tc", stderr);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
@@ -202,99 +202,11 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		return NULL;
 
 	char* szBuffer = UnicodeToAnsi(wMsg);
-	char* next_token1;
 	int result = 0;
 
 	if(szBuffer[0] == '.')
 	{
-		char* buf = _strdup(szBuffer);
-		char* cmd = strtok_s(buf+1, " ", &next_token1);
-
-		if(!_strcmpi(cmd, "start"))
-		{
-			char file[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = ScriptEngine::CompileFile(file, InGame);
-			if(script)
-			{
-				Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
-			}
-			else
-				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
-			result = -1;
-		}
-		else if(!_strcmpi(cmd, "stop"))
-		{
-			if(ScriptEngine::GetCount() > 0)
-				Print("ÿc2D2BSÿc0 :: Stopping all scripts!");
-
-			ScriptEngine::StopAll(true);
-			result = -1;
-		}
-		else if(!_strcmpi(cmd, "reload"))
-		{
-			if(ScriptEngine::GetCount() > 0)
-				Print("ÿc2D2BSÿc0 :: Stopping all scripts...");
-			ScriptEngine::StopAll(true);
-
-			if(!Vars.bDisableCache)
-			{
-				Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
-				ScriptEngine::FlushCache();
-			}
-
-			Print("ÿc2D2BSÿc0 :: Starting default.dbj...");
-			char file[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-			Script* script = ScriptEngine::CompileFile(file, InGame);
-			if(script)
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
-			else
-				Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
-			result = -1;
-		}
-		else if(!_strcmpi(cmd, "flush"))
-		{
-			if(!Vars.bDisableCache)
-			{
-				Print("ÿc2D2BSÿc0 :: Flushing the script cache...");
-				ScriptEngine::FlushCache();
-			}
-			result = -1;
-		}
-		else if(!_strcmpi(cmd, "exec"))
-		{
-			char* arg = szBuffer+6;
-			if(strlen(arg) > 0)
-			{
-				Script* script = ScriptEngine::CompileCommand(arg);
-				if(script)
-					CreateThread(0, 0, ScriptThread, script, 0, 0);
-			}
-
-			result = -1;
-		}
-		else if(!_strcmpi(cmd, "load"))
-		{
-			char* arg = szBuffer+6;
-			if(strlen(arg) > 0)
-			{
-				Print("ÿc2D2BSÿc0 :: Loading %s", arg);
-
-				char Path[_MAX_PATH+_MAX_FNAME] = "";
-				sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
-
-				Script* script = ScriptEngine::CompileFile(Path, InGame, true);
-				if(script)
-					CreateThread(0, 0, ScriptThread, script, 0, 0);
-				else
-					Print("ÿc2D2BSÿc0 :: Failed to load %s!", arg);
-			}
-
-			result = -1;
-			delete[] buf;
-		}
+		result = ProcessCommand(szBuffer+1, false);
 	}
 
 	delete[] szBuffer;
