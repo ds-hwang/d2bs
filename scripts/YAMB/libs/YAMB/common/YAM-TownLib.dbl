@@ -2103,6 +2103,7 @@ function DT_ShopIt(npc) {
 // Parameter :
 // -npc		NPC object where you want to gamble (must be a gambling npc)
 function DT_GambleIt(npc) {
+	DC_DPrint("DT_GambleIt() : Entering function");
 	var _newitem = null;
 	var _retval = false;
 	var _counter = 0;
@@ -2116,6 +2117,7 @@ function DT_GambleIt(npc) {
 		DC_DPrint("DT_GambleIt() : You tried to gamble at a non-gambling NPC!");
 		return false;
 	}
+	DC_DPrint("DT_GambleIt() : Gambling at " + npc.name);
 	// Firstly get all the items from the gamble window
 	var _gamblearray= new Array();
 	var _gambleitem = DC_getItem(null,0);
@@ -2123,34 +2125,43 @@ function DT_GambleIt(npc) {
 		do {
 			// If the item really come from the gamble window, add to the array
 			if(DC_CheckOwner(_gambleitem,npc.name) == true) {
+				DC_DPrint("DT_GambleIt() : adding " + _gambleitem.name + "(" + _gambleitem.gid + ") to the _gamblearray");
 				_gamblearray.push(_gambleitem.gid);
 			}
 		} while(_gambleitem.getNext(null,0));
 	}
 	// Loop into the gamble items array
 	for(var i=0; i<_gamblearray.length; i+=1) {
+		_gambleitem = null;// set to null incase getUnit borks -TESTING
 		// Get the gamble item object from the gid array
 		_gambleitem = getUnit(4,null,null,_gamblearray[i]);
 		DC_DoDel(DC_LagDelay);
 		// If a item fit a entry in the array, buy it
 		if(_gambleitem) {
+			DC_DPrint("DT_GambleIt() : item in npc gamble inventory and getUnit worked: " + _gambleitem.name + "(" + _gambleitem.gid + ")");
 			if(_DT_IsItemInGambleArray(_gambleitem.code)) {
+				DC_DPrint("DT_GambleIt() : item is in GambleArray: " + _gambleitem.name + "(" + _gambleitem.gid + ")");
 				// Create a list of items in inv who fit the item to be gambled
 				var _gambleitemcode = _gambleitem.code;
 				_DT_GetOldItems(_gambleitemcode);
 				_newitem = null;
 				// check if we have enough room to buy the item
 				if(DT_CheckSpace(DT_GetSizeX(_gambleitem),DT_GetSizeY(_gambleitem))) {
-					// Check if the item is bought successfully
+					DC_DPrint("DT_GambleIt() : we have room in inv to buy: " + _gambleitem.name + "(" + _gambleitem.gid + ")");
 					DC_DoDel(DC_LagDelay); // delay before interacting to buy the item, let the inv settle
+					// Check if the item is bought successfully
 					if(DT_BuyItem(_gambleitem,npc,2)) {
+						DC_DPrint("DT_GambleIt() : in buy item check");
 						var _newitemgid = _DT_GetGambledItem(_gambleitemcode);
 						if(_newitemgid) {
+							DC_DPrint("DT_GambleIt() : in buy item check -> got _newitemgid");
 							_newitem = getUnit(4,null,null,_newitemgid);
 							DC_DoDel(DC_LagDelay);
 							if(_newitem) {
 								DC_DPrint("DT_GambleIt() : Bought for gambling a " + _newitem.fname);
 							}
+							else
+								DC_DPrint("DT_GambleIt() : in buy item check -> getUnit failed to get item from _newitemgid!");
 						}
 					}
 					else {
@@ -2182,13 +2193,11 @@ function DT_GambleIt(npc) {
 						DC_DPrint("DT_GambleIt() : Attemping to sell the gambled item (" + _newitem.fname + ")");
 						_counter = 5;
 						while (DC_CheckOwner(_newitem,me.name) == true && _counter > 0) {
-							DC_DoDel(DC_LagDelay); // delay before interacting to sell the item, let the inv settle
+							DC_DoDel(DC_LagDelay); // delay before selling the item, let the inv settle
 							_retval = DT_BuyItem(_newitem,npc,1);
 							_counter -= 1;
 						}
-						if(_retval == false) {
-							DC_DPrint("DT_GambleIt() : Unable to resell the gambled item!");
-						}
+						DC_DPrint("DT_GambleIt() : " + ((_retval == false) ? "Unable to resell" : "Sold") + " the gambled item! (" + _newitem.fname + ")");
 					}
 				}
 				else {
@@ -2200,6 +2209,7 @@ function DT_GambleIt(npc) {
 	// also sell bad identified items- darkspirit
 	// Will add a 2 seconds DC_DoDel to this function though
 	DT_ClearInv(npc);
+	//stop(1);//TESTING
 	return true;
 }
 
@@ -2211,10 +2221,19 @@ function DT_GambleIt(npc) {
 
 // Function by Xizeta
 function _DT_IsItemInGambleArray(itemcode) {
+	DC_DPrint("_DT_IsItemInGambleArray() : Entering function.");
 	if(DT_GambleItem.length == 0) { 
+		DC_DPrint("_DT_IsItemInGambleArray() : DT_GambleItem array is empty! returning false");
 		return false; 
 	}
-	return ((itemcode in DT_GambleItem) ? true : false);
+	for (var _index = 0; _index < DT_GambleItem.length; _index += 1) {
+		if (itemcode == DT_GambleItem[_index]) { 
+			DC_DPrint("_DT_IsItemInGambleArray() : itemcode is in the DT_GambleItem array. returning true");
+			return true; 
+		}
+	}
+	DC_DPrint("_DT_IsItemInGambleArray() : itemcode is NOT in the DT_GambleItem array. returning false");
+	return false;
 }
 
 // Function by Aeternus, modified by Xizeta
