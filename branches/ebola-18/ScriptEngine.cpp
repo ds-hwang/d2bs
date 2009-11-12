@@ -135,8 +135,9 @@ BOOL ScriptEngine::Startup(void)
 			LeaveCriticalSection(&lock);
 			return FALSE;
 		}
+
 		//JS_SetContextCallback(runtime, contextCallback);
-		JS_SetGCCallbackRT(runtime, gcCallback);
+		//JS_SetGCCallbackRT(runtime, gcCallback);
 
 		state = Running;
 		LeaveCriticalSection(&lock);
@@ -146,6 +147,7 @@ BOOL ScriptEngine::Startup(void)
 
 void ScriptEngine::Shutdown(void)
 {
+	Vars.bActive = FALSE;
 	if(GetState() == Running)
 	{
 		// bring the engine down properly
@@ -169,6 +171,8 @@ void ScriptEngine::Shutdown(void)
 		DeleteCriticalSection(&lock);
 		state = Stopped;
 	}
+
+	Vars.bNeedShutdown = FALSE;
 }
 
 void ScriptEngine::StopAll(bool forceStop)

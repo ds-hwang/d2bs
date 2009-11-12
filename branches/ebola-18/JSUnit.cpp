@@ -859,29 +859,24 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit || !pUnit->pInventory || !pUnit->pInventory->pFirstItem)
 		return JS_TRUE;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, NULL, NULL);
-	
 	if(!pReturnArray)
-		return JS_TRUE;
+		return JS_FALSE;
+	*rval = OBJECT_TO_JSVAL(pReturnArray);
 
-	DWORD dwArrayCount = NULL;
-
+	DWORD dwArrayCount = 0;
 	for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
 	{
-
 		myUnit* pmyUnit = new myUnit;
-		
 		if(!pmyUnit)
-			continue;
+			return JS_FALSE;
 
 		pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 		pmyUnit->szName[0] = NULL;
@@ -891,11 +886,13 @@ INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		pmyUnit->dwType = UNIT_ITEM;
 
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-		if (!jsunit)
-			return JS_TRUE;
+		if(!jsunit)
+			return JS_FALSE;
+
 		jsval a = OBJECT_TO_JSVAL(jsunit);
-		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
-		dwArrayCount++;		
+		if(!JS_SetElement(cx, pReturnArray, dwArrayCount, &a))
+			return JS_FALSE;
+		dwArrayCount++;
 	}
 	
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
@@ -1021,7 +1018,7 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	DWORD dwMode = JSVAL_TO_INT(argv[argc - 1]);
 
 	//Check if we are interacted.
-	if (IsBadReadPtr(pNPC, sizeof(UnitAny)) || !pNPC)
+	if (!pNPC || IsBadReadPtr(pNPC, sizeof(UnitAny)))
 		return JS_TRUE;
 
 	//Check for proper mode.
@@ -1029,17 +1026,17 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	//	return JS_TRUE;
 
 	//Selling an Item 
-	if (dwMode == 1)
+	if(dwMode == 1)
 	{
 		//Check if we own the item!
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
+		if(pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
 			return JS_TRUE;
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
 	}
 	else
 	{
 		//Make sure the item is owned by the NPC interacted with.
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
+		if(pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			return JS_TRUE;
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
@@ -1058,12 +1055,10 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit)
 		return JS_TRUE;
 
@@ -1071,14 +1066,14 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
 		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, UNIT_PLAYER, (DWORD)-1, dwOwnerId);
-		if (!pMonster)
+		if(!pMonster)
 			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
-		if (!pMonster)
+		if(!pMonster)
 			return JS_TRUE;
 
 		myUnit* pmyUnit = new myUnit;
-			if(!pmyUnit)
-				return JS_TRUE;	
+		if(!pmyUnit)
+			return JS_FALSE;
 
 		pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 		pmyUnit->dwUnitId = pMonster->dwUnitId;
@@ -1088,10 +1083,10 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		pmyUnit->szName[0] = NULL;
 						
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-			if (!jsunit)
-				return JS_TRUE;
-		*rval = OBJECT_TO_JSVAL(jsunit);			
-			return JS_TRUE;
+		if(!jsunit)
+			return JS_FALSE;
+		*rval = OBJECT_TO_JSVAL(jsunit);
+		return JS_TRUE;
 	}
 	else if(pUnit->dwType == UNIT_OBJECT)
 	{
@@ -1108,7 +1103,6 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory->pOwner)
 		{
 			myUnit* pmyUnit = new myUnit; // leaks
-
 			if(!pmyUnit)
 				return JS_TRUE;
 
@@ -1127,19 +1121,17 @@ INT unit_getParent(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	return JS_TRUE;
 }
 
-// Works only on players sinces monsters _CANT_ have mercs!
+// Works only on players since monsters _CANNOT_ have mercs!
 INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
 	if(!GameReady())
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit || pUnit->dwType != UNIT_PLAYER)
 		return JS_TRUE;
 
@@ -1177,9 +1169,9 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 	}
 
-	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
+	if((*p_D2CLIENT_PlayerUnit) && (*p_D2CLIENT_PlayerUnit)->pAct)
 	{
-		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
+		for(Room1* pRoom = (*p_D2CLIENT_PlayerUnit)->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 		{
 			for(UnitAny* pMonster = pRoom->pUnitFirst; pMonster; pMonster = pMonster->pListNext)
 			{
@@ -1190,9 +1182,8 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 						if(D2CLIENT_GetMonsterOwner(pMonster->dwUnitId) == pUnit->dwUnitId)
 						{
 							myUnit* pmyUnit = new myUnit;
-
 							if(!pmyUnit)
-								return JS_TRUE;
+								return JS_FALSE;
 
 							pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 							pmyUnit->dwUnitId = pMonster->dwUnitId;
@@ -1202,17 +1193,17 @@ INT unit_getMerc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 							pmyUnit->szName[0] = NULL;
 
 							JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-							if (!jsunit)
-								return JS_TRUE;
+							if(!jsunit)
+								return JS_FALSE;
 
-							*rval = OBJECT_TO_JSVAL(jsunit);								
+							*rval = OBJECT_TO_JSVAL(jsunit);
 						}
 					}
 				}
 			}
 		}
 	}
-    
+
 	return JS_TRUE;
 }
 
@@ -1340,7 +1331,6 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		return JS_TRUE;
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
@@ -1355,7 +1345,6 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 
 	if(pUnit == pPlayer)
 	{
-
 		if(argc < 2) 
 			return JS_TRUE;
 
@@ -1374,6 +1363,7 @@ INT unit_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 	Sleep(50);
 	ClickMap(2, (WORD)x, (WORD)y, FALSE, NULL);
 //	D2CLIENT_Move((WORD)x, (WORD)y);
+
 	return JS_TRUE;
 }
 
@@ -1386,12 +1376,10 @@ INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
-
 	if(!pUnit || pUnit->dwType != UNIT_MONSTER)
 		return JS_TRUE;
 
@@ -1400,11 +1388,13 @@ INT unit_getEnchant(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	*rval = INT_TO_JSVAL(0);
 
 	for(INT i = 0; i < 9; i++)
+	{
 		if(pUnit->pMonsterData->anEnchants[i] == nEnchant)
 		{
 			*rval = JSVAL_TRUE;
 			break;
 		}
+	}
 
 	return JS_TRUE;
 }
@@ -1436,12 +1426,10 @@ INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, j
 	jsint nType = JSVAL_TO_INT(argv[0]);
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
-
 	if(!pUnit || (pUnit->dwType != UNIT_MONSTER && pUnit->dwType != UNIT_PLAYER))
 		return JS_TRUE;
 
@@ -1449,4 +1437,3 @@ INT unit_getMinionCount(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, j
 	
 	return JS_TRUE;
 }
-

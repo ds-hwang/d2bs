@@ -77,6 +77,7 @@ Script::Script(const char* file, ScriptState state) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
+		JS_SetGCZeal(context, 1);
 		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
@@ -487,6 +488,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 
 	Event* evt = new Event;
 	evt->owner = this;
+	evt->dwConsume = GetTickCount();
 	evt->functions = functions[evtName];
 	evt->argc = argc;
 	evt->argv = argv;
@@ -525,13 +527,12 @@ DWORD WINAPI FuncThread(void* data)
 	if(!evt)
 		return 0;
 
-	JS_SetContextThread(evt->context);
-	JS_BeginRequest(evt->context);
-
 #ifdef DEBUG
 	if(!evt->owner)
 		DebugBreak();
 #endif
+
+	evt->dwConsume = GetTickCount();
 
 	// TODO see what happens with console command if it spawns an event .. if it can
 	if(!evt->owner->IsAborted() && evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
@@ -551,6 +552,9 @@ DWORD WINAPI FuncThread(void* data)
 			}
 		}
 
+		JS_SetContextThread(evt->context);
+		JS_BeginRequest(evt->context);
+
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
 			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
@@ -561,15 +565,15 @@ DWORD WINAPI FuncThread(void* data)
 		delete[] args;
 
 		// check if the caller stole the context thread
-		DWORD cxTid = (DWORD)JS_GetContextThread(evt->context);
-		if (cxTid != evt->owner->GetThreadId())
+		if(!JS_GetContextThread(evt->context))
 		{
 			JS_ClearContextThread(evt->context);
-			JS_SetContextThread(evt->context);	
+			JS_SetContextThread(evt->context);
 		}
+		JS_EndRequest(evt->context);
+		JS_DestroyContextNoGC(evt->context);
 	}
 
-	JS_DestroyContextNoGC(evt->context);
 	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
 	{

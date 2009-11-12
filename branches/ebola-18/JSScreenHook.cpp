@@ -460,7 +460,7 @@ JSAPI_FUNC(text_ctor)
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		szText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!szText)
-			return JS_TRUE;
+			THROW_ERROR(cx, obj, "Could not convert value to string");
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		x = JSVAL_TO_INT(argv[1]);
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
@@ -483,8 +483,10 @@ JSAPI_FUNC(text_ctor)
 	if(!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");
 
-	pTextHook->SetClickHandler(click);
-	pTextHook->SetHoverHandler(hover);
+	if(click != JSVAL_VOID)
+		pTextHook->SetClickHandler(click);
+	if(hover != JSVAL_VOID)
+		pTextHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props, pTextHook);
 	if(!hook)

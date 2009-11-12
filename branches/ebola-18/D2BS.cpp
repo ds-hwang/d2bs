@@ -49,6 +49,9 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 
 BOOL Startup(void)
 {
+	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, CREATE_SUSPENDED, NULL)) == INVALID_HANDLE_VALUE)
+		return FALSE;
+
 	InitializeCriticalSection(&Vars.cRoomSection);
 	InitializeCriticalSection(&Vars.cMiscSection);
 	InitializeCriticalSection(&Vars.cScreenhookSection);
@@ -61,14 +64,15 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 
-	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
+
+	Genhook::Initialize();
 	CreateDdeServer();
 
+	ResumeThread(hD2Thread);
+
 	Vars.bNeedShutdown = TRUE;
-	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == INVALID_HANDLE_VALUE)
-		return FALSE;
 
 	return TRUE;
 }
@@ -78,22 +82,23 @@ void Shutdown(void)
 	if(!Vars.bNeedShutdown)
 		return;
 
-	Vars.bActive = FALSE;
+	Vars.bActive = false;
 	if(!Vars.bShutdownFromDllMain)
 		WaitForSingleObject(hD2Thread, INFINITE);
 
-	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
+	ShutdownDdeServer();
 
 	delete Vars.image;
 	delete Vars.text;
 
-	RemovePatches();
 	Console::Destroy();
 	Genhook::Destroy();
-	ShutdownDdeServer();
 
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);
+	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
+
+	RemovePatches();
 
 	DeleteCriticalSection(&Vars.cRoomSection);
 	DeleteCriticalSection(&Vars.cMiscSection);
