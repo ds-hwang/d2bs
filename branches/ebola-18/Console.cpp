@@ -4,6 +4,7 @@
 #include "Console.h"
 #include "ScriptEngine.h"
 #include "Helpers.h"
+#include "Core.h"
 
 bool Console::visible = false;
 bool Console::enabled = false;
@@ -148,13 +149,10 @@ void Console::ExecuteCommand(void)
 			sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
 
 			Script* script = ScriptEngine::CompileFile(Path, InGame, true);
-			if(script)
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
+				Print("ÿc2D2BSÿc0 :: Loaded %s!", arg);
 			else
-			{
-				sprintf_s(msg, sizeof(msg), "ÿc2D2BSÿc0 :: Failed to load %s!", arg);
-				AddLine(msg);
-			}
+				Print("ÿc2D2BSÿc0 :: Failed to load %s!", arg);
 		}
 	}
 	else if(!_strcmpi(argv, "reload"))

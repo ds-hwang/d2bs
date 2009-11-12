@@ -8,12 +8,46 @@
 #include "Helpers.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
+#include "JSGlobalFuncs.h"
+#include "JSGlobalClasses.h"
 
 using namespace std;
 
+AutoRoot::AutoRoot(jsval nvar) : var(nvar), count(0) { Take(); }
+AutoRoot::~AutoRoot()
+{
+	if(!(count))
+	{
+		fprintf(stderr, "AutoRoot failed: Count is still %i, but the root is being destroyed", count);
+		DebugBreak();
+		exit(3);
+	}
+	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &var);
+}
+
+void AutoRoot::Take() 
+{ 
+	count++;
+	JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
+}
+
+void AutoRoot::Release()
+{
+	count--;
+	if(count < 0)
+	{
+		fprintf(stderr, "Improper AutoRoot usage: Count is less than 0");
+		DebugBreak();
+		exit(3);
+	}
+}
+jsval AutoRoot::operator* () { return var; }
+jsval AutoRoot::value() { return var; }
+bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
+
 Script::Script(const char* file, ScriptState state) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
-			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
+			isAborted(false), wantPause(false), isPaused(false), scriptState(state),
 			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	InitializeCriticalSection(&lock);
@@ -47,7 +81,47 @@ Script::Script(const char* file, ScriptState state) :
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
-		globalObject = JS_GetGlobalObject(context);
+		JS_SetErrorReporter(context, reportError);
+		JS_SetOperationCallback(context, (JSOperationCallback)operationCallback, 5000);
+		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
+		JS_SetVersion(context, JSVERSION_1_8);
+
+		JSObject* globalObject = JS_NewObject(context, &global_obj, NULL, NULL);
+		if(!globalObject)
+			throw std::exception("Couldn't create the global object");
+
+		if(JS_InitStandardClasses(context, globalObject) == JS_FALSE)
+			throw std::exception("Couldn't init global object classes");
+		if(JS_DefineFunctions(context, globalObject, global_funcs) == JS_FALSE)
+			throw std::exception("Couldn't define global object functions");
+
+		myUnit* lpUnit = new myUnit;
+		memset(lpUnit, NULL, sizeof(myUnit));
+
+		UnitAny* player = D2CLIENT_GetPlayerUnit();
+		lpUnit->dwMode = (DWORD)-1;
+		lpUnit->dwClassId = (DWORD)-1;
+		lpUnit->dwType = UNIT_PLAYER;
+		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
+		lpUnit->_dwPrivateType = PRIVATE_UNIT;
+
+		int i = 0;
+		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
+			ScriptEngine::InitClass(context, globalObject, entry.js_class, entry.class_ctor,
+			entry.funcs, entry.props, entry.static_funcs, entry.static_props);
+
+		JSObject* meObject = BuildObject(context, &unit_class, unit_methods, me_props, lpUnit);
+		if(!meObject)
+			throw std::exception("Couldn't build me object");
+
+		if(JS_DefineProperty(context, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
+			throw std::exception("Couldn't define me object properties");
+
+#define DEFCONST(vp) ScriptEngine::DefineConstant(context, globalObject, #vp, vp)
+		DEFCONST(FILE_READ);
+		DEFCONST(FILE_WRITE);
+		DEFCONST(FILE_APPEND);
+#undef DEFCONST
 
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
@@ -64,11 +138,12 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Couldn't add named root for scriptObject");
 
 		JS_EndRequest(context);
+		JS_ClearContextThread(context);
 
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
 		if(scriptObject)
-			JS_RemoveRoot(&scriptObject);
+			JS_RemoveRoot(context, &scriptObject);
 		if(script && !scriptObject)
 			JS_DestroyScript(context, script);
 		if(context)
@@ -86,7 +161,6 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
-	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
@@ -94,7 +168,7 @@ Script::~Script(void)
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
-	JS_DestroyContextNoGC(context);
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -106,6 +180,18 @@ Script::~Script(void)
 		CloseHandle(threadHandle);
 	LeaveCriticalSection(&lock);
 	DeleteCriticalSection(&lock);
+}
+
+const char* Script::GetFilename(void)
+{
+	const char* file = _strdup(fileName.c_str());
+
+#ifdef DEBUG
+	if(!file)
+		DebugBreak();
+#endif
+
+	return file;
 }
 
 int Script::GetExecutionCount(void)
@@ -129,20 +215,21 @@ void Script::Run(void)
 	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(&main);
+	JS_AddRoot(GetContext(), &main);
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
+	globalObject = JS_GetGlobalObject(GetContext());
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
 	{
-		JS_RemoveRoot(&main);
+		JS_RemoveRoot(GetContext(), &main);
 		JS_EndRequest(GetContext());
 		return;
 	}
 	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
-		JS_RemoveRoot(&main);
+		JS_RemoveRoot(GetContext(), &main);
 		JS_EndRequest(GetContext());
 		return;
 	}
@@ -150,18 +237,20 @@ void Script::Run(void)
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
 	JS_SetContextThread(GetContext());
-	JS_RemoveRoot(&main);
+	JS_RemoveRoot(GetContext(), &main);
 	JS_EndRequest(GetContext());	
 
 	execCount++;
-	Stop();
+	//Stop();
 }
 
 void Script::Pause(void)
 {
 	//EnterCriticalSection(&lock);
-	if(!IsAborted() && !IsPaused())
-		isPaused = true;
+	if(!IsAborted() && IsRunning())
+	{
+		wantPause = true;
+	}
 	//LeaveCriticalSection(&lock);
 }
 
@@ -169,26 +258,31 @@ void Script::Resume(void)
 {
 	//EnterCriticalSection(&lock);
 	if(!IsAborted() && IsPaused())
-		isPaused = false;
+	{
+		wantPause = false;
+	}
 	//LeaveCriticalSection(&lock);
 }
 
 bool Script::IsPaused(void)
 {
+	if(IsBadReadPtr(this, sizeof(this)))
+		DebugBreak();
+	if(!wantPause && isPaused)
+		isPaused = false;
+
 	return isPaused;
 }
 
 void Script::Stop(bool force, bool reallyForce)
-{
+{	
+	// Clear the events/hooks before aborting the script
+	// otherwise we can't clean up all the events in the context
 	EnterCriticalSection(&lock);
 
-	// tell everyone else that the script is aborted FIRST
 	isAborted = true;
+	wantPause = false;
 	isPaused = false;
-	isReallyPaused = false;
-
-	ClearAllEvents();
-	Genhook::Clean(this);
 
 	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)
@@ -198,6 +292,9 @@ void Script::Stop(bool force, bool reallyForce)
 			break;
 		Sleep(10);
 	}
+
+	ClearAllEvents();
+	Genhook::Clean(this);
 
 	if(threadHandle)
 		CloseHandle(threadHandle);
@@ -245,14 +342,14 @@ bool Script::Include(const char* file)
 	if(script)
 	{
 		JSObject* scriptObj = JS_NewScriptObject(GetContext(), script);
-		JS_AddRoot(&scriptObj);
+		JS_AddRoot(GetContext(), &scriptObj);
 		jsval dummy;
 		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(GetContext(), GetGlobalObject(), script, &dummy);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
-		JS_RemoveRoot(&scriptObj);
+		JS_RemoveRoot(GetContext(), &scriptObj);
 	}
 	else
 	{
@@ -273,11 +370,19 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
-	return context && !(!JS_IsRunning(context) || IsPaused());
+	if(IsBadReadPtr(this, sizeof(this)))
+		DebugBreak();
+	if(IsBadReadPtr(context, sizeof(context)))
+		DebugBreak();
+
+	return JS_IsRunning(context) && !IsPaused();
 }
 
 bool Script::IsAborted()
 {
+	if(IsBadReadPtr(this, sizeof(this)))
+		DebugBreak();
+
 	return isAborted;
 }
 
@@ -299,6 +404,7 @@ void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 	if(JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0)
 	{
 		AutoRoot* root = new AutoRoot(evtFunc);
+		root->Take();
 		functions[evtName].push_back(root);
 	}
 	LeaveCriticalSection(&lock);
@@ -390,8 +496,12 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		delete evt;
 		return;
 	}
+	JS_SetContextThread(evt->context);
+	JS_BeginRequest(evt->context);
 	evt->object = globalObject;
 	JS_SetContextPrivate(evt->context, this);
+	JS_EndRequest(evt->context);
+	JS_ClearContextThread(evt->context);
 
 	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
@@ -402,6 +512,7 @@ DWORD WINAPI ScriptThread(void* data)
 	if(script)
 	{
 		script->Run();
+		script->Stop();
 		if(Vars.bDisableCache)
 			ScriptEngine::DisposeScript(script);
 	}
@@ -417,13 +528,21 @@ DWORD WINAPI FuncThread(void* data)
 	JS_SetContextThread(evt->context);
 	JS_BeginRequest(evt->context);
 
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
+#ifdef DEBUG
+	if(!evt->owner)
+		DebugBreak();
+#endif
+
+	// TODO see what happens with console command if it spawns an event .. if it can
+	if(!evt->owner->IsAborted() && evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
 	{
+		jsval dummy = JSVAL_VOID;
+
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			if(JS_AddRoot(evt->context, &args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
 					delete[] evt->argv;
@@ -431,7 +550,6 @@ DWORD WINAPI FuncThread(void* data)
 				return NULL;
 			}
 		}
-		jsval dummy = JSVAL_VOID;
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
@@ -439,11 +557,12 @@ DWORD WINAPI FuncThread(void* data)
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
+			JS_RemoveRoot(evt->context, &args[i]);
 		delete[] args;
 
 		// check if the caller stole the context thread
-		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
+		DWORD cxTid = (DWORD)JS_GetContextThread(evt->context);
+		if (cxTid != evt->owner->GetThreadId())
 		{
 			JS_ClearContextThread(evt->context);
 			JS_SetContextThread(evt->context);	
@@ -451,7 +570,7 @@ DWORD WINAPI FuncThread(void* data)
 	}
 
 	JS_DestroyContextNoGC(evt->context);
-	// we have to clean up the event
+	// assume we have to clean up both the event and the args, and release autorooted vars
 	for(uintN i = 0; i < evt->argc; i++)
 	{
 		evt->argv[i]->Release();

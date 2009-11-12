@@ -29,7 +29,7 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
-	if(JS_AddRoot(&jsstr) == JS_FALSE)
+	if(JS_AddNamedRoot(cx, &jsstr, "errstr") == JS_FALSE)
 	{
 		JS_EndRequest(cx);
 		return JS_FALSE;
@@ -40,20 +40,20 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	JSFunction* func = JS_CompileFunction(cx, obj, NULL, 1, ccargs, body, strlen(body), NULL, 0);
 	if(!func)
 	{
-		JS_RemoveRoot(&jsstr);
+		JS_RemoveRoot(cx, &jsstr);
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
 	JSObject* funcObj = JS_GetFunctionObject(func);
 	if(!funcObj)
 	{
-		JS_RemoveRoot(&jsstr);
+		JS_RemoveRoot(cx, &jsstr);
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
-	if(JS_AddRoot(&funcObj) == JS_FALSE)
+	if(JS_AddNamedRoot(cx, &funcObj, "error function") == JS_FALSE)
 	{
-		JS_RemoveRoot(&jsstr);
+		JS_RemoveRoot(cx, &jsstr);
 		JS_EndRequest(cx);
 		return JS_FALSE;
 	}
@@ -62,8 +62,8 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	jsval jsargs[]={STRING_TO_JSVAL(jsstr)};
 	JS_CallFunction(cx, obj, func, 1, jsargs, &dummy);
 
-	JS_RemoveRoot(&jsstr);
-	JS_RemoveRoot(&funcObj);
+	JS_RemoveRoot(cx, &jsstr);
+	JS_RemoveRoot(cx, &funcObj);
 
 	JS_EndRequest(cx);
 
@@ -78,7 +78,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 	if(obj)
 	{
 		// add root to avoid newborn root problem
-		if(JS_AddRoot(&obj) == JS_FALSE)
+		if(JS_AddRoot(cx, &obj) == JS_FALSE)
 			return NULL;
 		if(obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
 			obj = NULL;
@@ -86,7 +86,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 			obj = NULL;
 		if(obj)
 			JS_SetPrivate(cx, obj, priv);
-		JS_RemoveRoot(&obj);
+		JS_RemoveRoot(cx, &obj);
 	}
 	return obj;
 }

@@ -271,12 +271,17 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 	ItemEventHelper* helper = (ItemEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("itemdrop"))
 	{
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+		if(!cx)
+			return false;
+		JS_BeginRequest(cx);
 		AutoRoot** argv = new AutoRoot*[5];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->id));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(script->GetContext(), helper->code)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->code)));
 		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->x));
 		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->y));
 		argv[4] = new AutoRoot(INT_TO_JSVAL(helper->mode));
+		JS_EndRequest(cx);
 		script->ExecEventAsync("itemdrop", 5, argv);
 	}
 	return true;

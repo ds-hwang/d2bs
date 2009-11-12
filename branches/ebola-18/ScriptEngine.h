@@ -7,7 +7,6 @@
 #include <string>
 
 #include "js32.h"
-#include "AutoRoot.h"
 #include "Script.h"
 
 typedef std::map<std::string, Script*> ScriptMap;
@@ -72,7 +71,8 @@ struct EventHelper
 	bool executed;
 };
 
-JSBool branchCallback(JSContext* cx, JSScript* script);
+JSBool operationCallback(JSContext* cx, JSScript* script);
+JSBool eventBranchCallback(JSContext* cx, JSScript* script);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);

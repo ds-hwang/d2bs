@@ -6,7 +6,6 @@
 #include <list>
 
 #include "js32.h"
-#include "AutoRoot.h"
 
 enum ScriptState {
 	InGame,
@@ -23,6 +22,25 @@ static JSClass global_obj = {
 
 class Script;
 
+class AutoRoot
+{
+private:
+	jsval var;
+	uint count;
+
+	AutoRoot(const AutoRoot&);
+	AutoRoot& operator=(const AutoRoot&);
+public:
+	AutoRoot() {}
+	AutoRoot(jsval var);
+	~AutoRoot();
+	void Take();
+	void Release();
+	jsval value();
+	jsval operator* ();
+	bool operator==(AutoRoot& other);
+};
+
 // TODO: replace this with a std::set and use that
 // to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
@@ -37,6 +55,8 @@ struct Event {
 	FunctionList functions;
 	AutoRoot** argv;
 	uintN argc;
+	DWORD dwProduce;
+	DWORD dwConsume;
 };
 
 class Script
@@ -49,7 +69,7 @@ private:
 	JSScript* script;
 
 	JSObject *globalObject, *scriptObject;
-	bool isLocked, isPaused, isReallyPaused, isAborted;
+	bool isLocked, wantPause, isPaused, isAborted;
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
@@ -67,12 +87,12 @@ public:
 	void Run(void);
 	void Pause(void);
 	void Resume(void);
+	void SetPauseState(bool PauseState) { isPaused = PauseState; }
 	bool IsPaused(void);
-	void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
-	bool IsReallyPaused(void) { return isReallyPaused; }
+	bool WantPause(void) { return wantPause; }
 	void Stop(bool force = false, bool reallyForce = false);
 
-	const char* GetFilename(void) { const char* file = _strdup(fileName.c_str()); return file; }
+	const char* GetFilename(void);
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
@@ -94,6 +114,7 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+
 };
 
 DWORD WINAPI ScriptThread(void* data);

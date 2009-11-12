@@ -32,7 +32,8 @@ void Genhook::DrawAll(ScreenhookState type)
 	HookList currentHooks = GetHooks();
 	currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
-		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
+		if((((*it)->GetGameState() == type && 
+				(*it)->owner && !(*it)->owner->IsAborted() && (*it)->owner->IsRunning()) || (!(*it)->owner && (*it)->GetGameState() == Perm)) && (*it)->GetIsVisible() &&
 			(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
 		{
 			(*it)->Draw();
@@ -107,23 +108,23 @@ bool Genhook::Click(int button, POINT* loc)
 	Lock();
 
 	jsval rval;
-	if(JS_AddRoot(&rval) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
 	{
 		Unlock();
 		return false;
 	}
 	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&args[0]) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
 	{
 		Unlock();
 		return false;
 	}
-	if(JS_AddRoot(&args[1]) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
 	{
 		Unlock();
 		return false;
 	}
-	if(JS_AddRoot(&args[2]) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &args[2]) == JS_FALSE)
 	{
 		Unlock();
 		return false;
@@ -131,10 +132,10 @@ bool Genhook::Click(int button, POINT* loc)
 
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
 
-	JS_RemoveRoot(&args[0]);
-	JS_RemoveRoot(&args[1]);
-	JS_RemoveRoot(&args[2]);
-	JS_RemoveRoot(&rval);
+	JS_RemoveRoot(owner->GetContext(), &args[0]);
+	JS_RemoveRoot(owner->GetContext(), &args[1]);
+	JS_RemoveRoot(owner->GetContext(), &args[2]);
+	JS_RemoveRoot(owner->GetContext(), &rval);
 
 	bool result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 	Unlock();
@@ -153,42 +154,48 @@ void Genhook::Hover(POINT* loc)
 	Lock();
 
 	jsval rval = JSVAL_VOID;
-	if(JS_AddRoot(&rval) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
 	{
 		Unlock();
 		return;
 	}
 	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&args[0]) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
 	{
 		Unlock();
 		return;
 	}
-	if(JS_AddRoot(&args[1]) == JS_FALSE)
+	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
 	{
 		Unlock();
 		return;
 	}
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
 
-	JS_RemoveRoot(&args[0]);
-	JS_RemoveRoot(&args[1]);
+	JS_RemoveRoot(owner->GetContext(), &args[0]);
+	JS_RemoveRoot(owner->GetContext(), &args[1]);
 
 	Unlock();
 }
 
 void Genhook::SetClickHandler(jsval handler)
 {
+#ifdef DEBUG
+	if(!owner)
+		DebugBreak();
+#endif
+
 	if(!owner)
 		return;
+
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(&clicked);
+		JS_RemoveRoot(owner->GetContext(), &clicked);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
 	{
-		if(JS_AddRoot(&clicked) == JS_FALSE)
+		if(JS_AddRoot(owner->GetContext(), &clicked) == JS_FALSE)
 		{
 			Unlock();
 			return;
@@ -203,12 +210,12 @@ void Genhook::SetHoverHandler(jsval handler)
 		return;
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))
-		JS_RemoveRoot(&hovered);
+		JS_RemoveRoot(owner->GetContext(), &hovered);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		hovered = handler;
 	if(!JSVAL_IS_VOID(hovered))
 	{
-		if(JS_AddRoot(&hovered) == JS_FALSE)
+		if(JS_AddRoot(owner->GetContext(), &hovered) == JS_FALSE)
 		{
 			Unlock();
 			return;
@@ -220,7 +227,7 @@ void Genhook::SetHoverHandler(jsval handler)
 void TextHook::Draw(void)
 {
 	Lock();
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && text)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1)
 	{
 		uint x = GetX(), y = GetY(), w = CalculateTextLen(text, font).x;
 		x -= (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
@@ -262,8 +269,10 @@ void TextHook::SetText(const char* ntext)
 void ImageHook::Draw(void)
 {
 	Lock();
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL && !IsBadReadPtr(image, sizeof(CellFile)))
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL)
 	{
+		if (IsBadReadPtr(image, sizeof(CellFile)))
+			DebugBreak();
 		uint x = GetX(), y = GetY(), w = image->cells[0]->width;
 		x += (alignment != Left ? (alignment != Right ? 0 : -1*(w/2)) : w/2);
 		POINT loc = {x, y};

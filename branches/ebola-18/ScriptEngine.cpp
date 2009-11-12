@@ -94,6 +94,9 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
+	else
+		DebugBreak();
+
 	delete script;
 
 	LeaveCriticalSection(&lock);
@@ -132,7 +135,7 @@ BOOL ScriptEngine::Startup(void)
 			LeaveCriticalSection(&lock);
 			return FALSE;
 		}
-		JS_SetContextCallback(runtime, contextCallback);
+		//JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
 		state = Running;
@@ -272,114 +275,68 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
-	// only pause running scripts
-	if(script->IsRunning())
+	if(!script->IsAborted() && script->IsRunning())
 	{
-		// only resume scripts we paused
-		if(!script->IsPaused())
+		if(find(list->begin(), list->end(), script) == list->end())
+		{
 			list->push_back(script);
-		script->Pause();
+			script->Pause();
+		}
 	}
 	return true;
 }
 
-JSBool branchCallback(JSContext* cx, JSScript*)
+JSBool operationCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
-
-	bool pause = script->IsPaused();
-
-	if(pause)
-		script->SetPauseState(true);
-	while(script->IsPaused())
+	if(script->WantPause())
 	{
-		Sleep(50);
-		JS_MaybeGC(cx);
-	}
-	if(pause)
-		script->SetPauseState(false);
+		script->SetPauseState(true);
 
-	JS_ResumeRequest(cx, depth);
+		jsrefcount depth = JS_SuspendRequest(cx);
+		JS_GC(cx);
+
+		while(script->IsPaused())
+			Sleep(50);
+
+		//script->SetPauseState(false);
+
+		JS_ResumeRequest(cx, depth);
+	}
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
 
-JSBool contextCallback(JSContext* cx, uintN contextOp)
+JSBool eventBranchCallback(JSContext* cx, JSScript* script)
 {
-	if(contextOp == JSCONTEXT_NEW)
-	{
-		JS_BeginRequest(cx);
-
-		JS_SetErrorReporter(cx, reportError);
-		JS_SetBranchCallback(cx, branchCallback);
-		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(cx, JSVERSION_1_7);
-
-		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
-		if(!globalObject)
-			return JS_FALSE;
-
-		if(JS_InitStandardClasses(cx, globalObject) == JS_FALSE)
-			return JS_FALSE;
-		if(JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)
-			return JS_FALSE;
-
-		myUnit* lpUnit = new myUnit;
-		memset(lpUnit, NULL, sizeof(myUnit));
-
-		UnitAny* player = D2CLIENT_GetPlayerUnit();
-		lpUnit->dwMode = (DWORD)-1;
-		lpUnit->dwClassId = (DWORD)-1;
-		lpUnit->dwType = UNIT_PLAYER;
-		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
-		lpUnit->_dwPrivateType = PRIVATE_UNIT;
-
-		int i = 0;
-		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
-			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.class_ctor,
-							entry.funcs, entry.props, entry.static_funcs, entry.static_props);
-
-		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
-		if(!meObject)
-			return JS_FALSE;
-
-		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
-			return JS_FALSE;
-
-#define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
-		DEFCONST(FILE_READ);
-		DEFCONST(FILE_WRITE);
-		DEFCONST(FILE_APPEND);
-#undef DEFCONST
-
-		JS_EndRequest(cx);
-	}
+	// TODO: What do events need in terms of the branch callback?
 	return JS_TRUE;
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-	static ScriptList pausedList = ScriptList();
+	//EnterCriticalSection(&ScriptEngine::lock);
+	//static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
-//		EnterCriticalSection(&ScriptEngine::lock);
-		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
+		//ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 #ifdef DEBUG
-		Log("*** ENTERING GC ***");
+			Log("*** ENTERING GC ***");
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
-		Log("*** LEAVING GC ***");
+			Log("*** LEAVING GC ***");
 #endif
-		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
-			(*it)->Resume();
-//		LeaveCriticalSection(&ScriptEngine::lock);
+		//for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
+		//	if((*it)->IsPaused())
+		//		(*it)->Resume();
+		//pausedList.clear();
 	}
+	//LeaveCriticalSection(&ScriptEngine::lock);
 	return JS_TRUE;
 }
 

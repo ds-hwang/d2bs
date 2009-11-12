@@ -5,9 +5,6 @@
 
 #include "js32/jsapi.h"
 //#include "js32/jsdbgapi.h"
-// this should be included, but can't be due to compiler include cycles
-// however, every file that includes this one includes ScriptEngine.h first anyway
-//#include "ScriptEngine.h"
 
 #define JSAPI_FUNC(fName) JSBool fName (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 #define JSAPI_PROP(fName) JSBool fName (JSContext *cx, JSObject *obj, jsval id, jsval *vp)
@@ -20,8 +17,7 @@
 
 #define NUM(x) #x
 #define NAME(line, v) (__FILE__ "@" NUM(line) ": " #v)
-#define JS_AddRoot(vp) JS_AddNamedRootRT(ScriptEngine::GetRuntime(), (vp), NAME(__LINE__, vp))
-#define JS_RemoveRoot(vp) JS_RemoveRootRT(ScriptEngine::GetRuntime(), (vp));
+#define JS_AddRoot(cx, vp) JS_AddNamedRootRT(ScriptEngine::GetRuntime(), (vp), NAME(__LINE__, vp))
 
 #define DEPRECATED JS_ReportWarning(cx, "This function has been deprecated, and will be removed from future releases.")
 

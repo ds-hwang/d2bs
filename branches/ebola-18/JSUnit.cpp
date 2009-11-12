@@ -633,10 +633,12 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		*rval = JSVAL_TRUE;
 		return JS_TRUE;
 	}
+#if 0
 	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
 	{
 		// Accept Trade
 	}
+#endif
 	else
 	{
 		*rval = JSVAL_TRUE;
