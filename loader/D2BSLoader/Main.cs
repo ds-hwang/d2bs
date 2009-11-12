@@ -39,7 +39,7 @@ namespace D2BSLoader
 				}
 			}
 
-			if(action == "start" || String.IsNullOrEmpty(dll))
+			if(action == "start" || (action == "inject" && String.IsNullOrEmpty(dll)))
 			{
 				ReloadSettings();
 				if(String.IsNullOrEmpty(D2Path))
