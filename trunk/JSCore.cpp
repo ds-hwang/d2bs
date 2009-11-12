@@ -1138,7 +1138,7 @@ INT my_getWaypoint(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(nWaypointId > 40)
 		nWaypointId = NULL;
 
-	*rval = BOOLEAN_TO_JSVAL(D2COMMON_CheckWaypoint((*p_D2CLIENT_WaypointTable), nWaypointId));
+	*rval = BOOLEAN_TO_JSVAL(!!D2COMMON_CheckWaypoint((*p_D2CLIENT_WaypointTable), nWaypointId));
 
 	return JS_TRUE;
 }

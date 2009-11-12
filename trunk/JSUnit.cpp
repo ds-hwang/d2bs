@@ -797,7 +797,7 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 	jsint nFlag = JSVAL_TO_INT(argv[0]);
 
-	*rval = BOOLEAN_TO_JSVAL((nFlag & pUnit->pItemData->dwFlags));
+	*rval = BOOLEAN_TO_JSVAL(!!(nFlag & pUnit->pItemData->dwFlags));
 
 	return JS_TRUE;
 }
