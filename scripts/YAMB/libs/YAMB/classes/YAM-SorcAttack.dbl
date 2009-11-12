@@ -320,7 +320,7 @@ function XP_CastStatic(target) {
 	// Set the range from target
 	var _r = 1.0 + 0.668 * me.getSkill(42,1);
 
-	_XP_EndStaticPosition = new XP_Coord(me.x,me.y);
+	var _XP_EndStaticPosition = new XP_Coord(me.x,me.y);
 
 	// Compute delta-x and delta-y
 	var _dx = me.x - target.x;
@@ -346,7 +346,7 @@ function XP_CastStatic(target) {
 		_tDist = getDistance(me,target);
 		_iTry++;
 	}
-	for (n = 1; n <= XP_Static && target.hp >= _MaxStaticHP; n+=1) {
+	for (var n = 1; n <= XP_Static && target.hp >= _MaxStaticHP; n+=1) {
 		DC_DPrint("Casting Static Field # " + n);
 		DC_DoCast(42,0,target);   // "Static Field"
 	}
