@@ -436,8 +436,8 @@ DT_BeltColMin[3] = 3;
 //--------------------------------------------------------------------
 
 YAM_ShopIt           = false;
-YAM_GambleIt         = false;
-YAM_AlwaysGamble     = false;
+YAM_GambleIt         = true;//false;
+YAM_AlwaysGamble     = true;//false;
 YAM_GambleMinGold    = 250000;
 YAM_RandomNPC        = false;
 YAM_AlwaysGoToHealer = false;

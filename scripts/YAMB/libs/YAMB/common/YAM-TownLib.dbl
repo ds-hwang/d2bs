@@ -250,7 +250,7 @@ wpIDArray[539]=16;
 // -npc		NPC or object to interact (can be a NPC, stash, cube, or wp)
 // Return value : Success of the function
 function DT_DoInteract(npc) {
-	delay(250);
+	DC_PingDel(DT_NPCDelay);
 	// If we called this function without assigning a NPC object, warn the user
 	if(!npc) {
 		DC_DPrint("DT_DoInteract() : No NPC object is entered");
@@ -1779,7 +1779,7 @@ function DT_BuyItem(item,npc,mode) {
 	var _mygold = DC_MyGold();
 	// If we buy, check if we have enough gold to buy the item
 	if(mode == 2 || mode == 3) {
-		if(item.getPrice(npc, 0) > _mygold) { // change for D2BS core - hope it works the same - passing a value of 0 causes core crash
+		if(item.getPrice(npc, 0) > _mygold) {
 			DC_DPrint("DT_BuyItem() : Not enough gold to buy the item");
 			return false;
 		}
@@ -1845,7 +1845,9 @@ function DT_BuyItem(item,npc,mode) {
 			// Loop while the item is not sold
 			do {
 				// For each second, retry to buy/sell
-				if((_timer % 1000) == 0) { item.shop(npc,1); }
+				if((_timer % 1000) == 0) { 
+					item.shop(npc,1); 
+				}
 				// Wait 50 ms
 				delay(50);
 				// Decrease the timer
@@ -1863,9 +1865,7 @@ function DT_BuyItem(item,npc,mode) {
 	DC_PingDel(DT_NPCDelay);
 
 	// Return the success of the buying/selling
-	if(_mygold != DC_MyGold()) { return true; }
-
-	return false;
+	return (_mygold != DC_MyGold()) ? true : false;
 }
 
 // Function by Muellsammler, modified by Xizeta
@@ -2142,6 +2142,7 @@ function DT_GambleIt(npc) {
 				// check if we have enough room to buy the item
 				if(DT_CheckSpace(DT_GetSizeX(_gambleitem),DT_GetSizeY(_gambleitem))) {
 					// Check if the item is bought successfully
+					DC_DoDel(DC_LagDelay); // delay before interacting to buy the item, let the inv settle
 					if(DT_BuyItem(_gambleitem,npc,2)) {
 						var _newitemgid = _DT_GetGambledItem(_gambleitemcode);
 						if(_newitemgid) {
@@ -2164,7 +2165,7 @@ function DT_GambleIt(npc) {
 				// Check if the bought item fit an entry in the item parser files
 				if(_newitem) {
 					// While the item is still unidentified, wait
-					if(_newitem.getFlag(0x10) == 0) {
+					while(_newitem.getFlag(0x10) == 0) {
 						DC_DoDel(20);
 					}
 					// if the item is a keeper, log it
@@ -2181,6 +2182,7 @@ function DT_GambleIt(npc) {
 						DC_DPrint("DT_GambleIt() : Attemping to sell the gambled item (" + _newitem.fname + ")");
 						_counter = 5;
 						while (DC_CheckOwner(_newitem,me.name) == true && _counter > 0) {
+							DC_DoDel(DC_LagDelay); // delay before interacting to sell the item, let the inv settle
 							_retval = DT_BuyItem(_newitem,npc,1);
 							_counter -= 1;
 						}
@@ -2209,11 +2211,10 @@ function DT_GambleIt(npc) {
 
 // Function by Xizeta
 function _DT_IsItemInGambleArray(itemcode) {
-	if(DT_GambleItem.length == 0) { return false; }
-	for(var _index = 0; _index < DT_GambleItem.length; _index += 1) {
-		if(itemcode == DT_GambleItem[_index]) { return true; }
+	if(DT_GambleItem.length == 0) { 
+		return false; 
 	}
-	return false;
+	return ((itemcode in DT_GambleItem) ? true : false);
 }
 
 // Function by Aeternus, modified by Xizeta
