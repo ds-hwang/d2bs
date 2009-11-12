@@ -4,7 +4,7 @@
 #define XP_WIN
 
 #include "js32/jsapi.h"
-#include "js32/jsdbgapi.h"
+//#include "js32/jsdbgapi.h"
 // this should be included, but can't be due to compiler include cycles
 // however, every file that includes this one includes ScriptEngine.h first anyway
 //#include "ScriptEngine.h"
