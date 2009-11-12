@@ -2103,6 +2103,7 @@ function DT_ShopIt(npc) {
 function DT_GambleIt(npc) {
 	var _newitem = null;
 	var _retval = false;
+	var _counter = 0;
 	// If no npc object is entered, abort
 	if(!npc) {
 		DC_DPrint("DT_GambleIt() : No NPC object is entered!");
