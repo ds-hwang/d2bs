@@ -474,7 +474,7 @@ void Script::ClearAllEvents(void)
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	if(IsAborted() || IsPaused() || !functions.count(evtName))
 	{
 		// no event will happen, clean up the roots
 		for(uintN i = 0; i < argc; i++)
@@ -488,22 +488,10 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 
 	Event* evt = new Event;
 	evt->owner = this;
-	evt->dwConsume = GetTickCount();
+	evt->dwProduce = GetTickCount();
 	evt->functions = functions[evtName];
 	evt->argc = argc;
 	evt->argv = argv;
-	evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
-	if(!evt->context)
-	{
-		delete evt;
-		return;
-	}
-	JS_SetContextThread(evt->context);
-	JS_BeginRequest(evt->context);
-	evt->object = globalObject;
-	JS_SetContextPrivate(evt->context, this);
-	JS_EndRequest(evt->context);
-	JS_ClearContextThread(evt->context);
 
 	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
@@ -548,30 +536,50 @@ DWORD WINAPI FuncThread(void* data)
 				if(evt->argv)
 					delete[] evt->argv;
 				delete evt;
-				return NULL;
+				return 0;
 			}
 		}
 
-		JS_SetContextThread(evt->context);
-		JS_BeginRequest(evt->context);
-
-		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+		JSContext* context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+		if(!context)
 		{
-			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			if(evt->argv)
+				delete[] evt->argv;
+			delete evt;
+			return 0;
 		}
 
-		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(evt->context, &args[i]);
+		JSObject* object = evt->owner->GetGlobalObject();
+		JS_SetContextPrivate(context, evt->owner);
+		JS_BeginRequest(context);
+
+		uintN i = 0;
+		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
+		{
+			if(!JS_CallFunctionValue(context, object, (*it)->value(), evt->argc, args, &dummy))
+				return 0;
+			JS_RemoveRoot(context, &args[i]);
+			i++;
+		}
+
 		delete[] args;
 
+#if 0
 		// check if the caller stole the context thread
 		if(!JS_GetContextThread(evt->context))
 		{
 			JS_ClearContextThread(evt->context);
 			JS_SetContextThread(evt->context);
 		}
-		JS_EndRequest(evt->context);
-		JS_DestroyContextNoGC(evt->context);
+#endif
+
+#ifdef DEBUG
+		if(!JS_GetContextThread(context))
+			DebugBreak();
+#endif
+
+		JS_EndRequest(context);
+		JS_DestroyContextNoGC(context);
 	}
 
 	// assume we have to clean up both the event and the args, and release autorooted vars

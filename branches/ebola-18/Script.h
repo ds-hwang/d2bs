@@ -50,8 +50,6 @@ typedef std::list<Script*> ScriptList;
 
 struct Event {
 	Script* owner;
-	JSContext* context;
-	JSObject* object;
 	FunctionList functions;
 	AutoRoot** argv;
 	uintN argc;
