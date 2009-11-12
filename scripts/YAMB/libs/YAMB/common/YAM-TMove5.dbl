@@ -91,7 +91,7 @@ function YAM_NPCinteract5(npc) {
 					DT_DoTrade(npc,1);
 					DT_GambleIt(npc);
 					DT_MenuCancel(npc,1);
-					DT_DoInteract(npc);
+					//DT_DoInteract(npc);
 				}
 			} 
 			break;

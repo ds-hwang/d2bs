@@ -44,9 +44,9 @@ function YAM_NPCinteract4(npc) {
 				if (DC_MyGold() > YAM_GambleMinGold) {
 					DT_DoTrade(npc,1);
 					DT_GambleIt(npc);
-					DT_MenuCancel(npc,1);
-					DT_DoInteract(npc);
-					DT_MenuCancel(npc,1);
+					//DT_MenuCancel(npc,1);
+					//DT_DoInteract(npc);
+					//DT_MenuCancel(npc,1);
 				}
 			}
 			if (_XP_GetNumUnId > 0 || YAM_UseBeltManager || _YAM_NeedTP || _YAM_NeedKeys) { 
