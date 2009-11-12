@@ -250,6 +250,7 @@ wpIDArray[539]=16;
 // -npc		NPC or object to interact (can be a NPC, stash, cube, or wp)
 // Return value : Success of the function
 function DT_DoInteract(npc) {
+	delay(250);
 	// If we called this function without assigning a NPC object, warn the user
 	if(!npc) {
 		DC_DPrint("DT_DoInteract() : No NPC object is entered");
@@ -395,17 +396,18 @@ function DT_MenuCancel(npcObj,type) {
 		_timer -= 25;
 		delay(25);
 		_uiflagstatus = _DT_CheckUI();
-	}while(_uiflagstatus && _timer > 0);
+	} while(_uiflagstatus && _timer > 0);
+
 	// Check if the cancel is correctly done
-	if(!_uiflagstatus) {
+	if(!_uiflagstatus)
 		DC_DPrint("DT_MenuCancel() : Menus cancel done!");
-		return false;
-	}
-	else {
+	else
 		DC_DPrint("DT_MenuCancel() : Unable to cancel the menus!");
-		return true;
-	}
-	return true;
+
+	// Wait a certain delay before returning to the caller
+	DC_PingDel(DT_NPCDelay);
+
+	return _uiflagstatus;
 }
 
 
@@ -1844,10 +1846,10 @@ function DT_BuyItem(item,npc,mode) {
 			do {
 				// For each second, retry to buy/sell
 				if((_timer % 1000) == 0) { item.shop(npc,1); }
-				// Wait 20 ms
-				delay(20);
+				// Wait 50 ms
+				delay(50);
 				// Decrease the timer
-				_timer -= 20;
+				_timer -= 50;
 			} while(_mygold == DC_MyGold() && _timer > 0);
 		}
 		else {
@@ -1893,8 +1895,8 @@ function DT_IdItem(scroll,uniditem) {
 		if((_timer % 500) == 0) { 
 			clickItem(1,scroll); 
 		}
-		_timer -= 25;
-		delay(25);
+		_timer -= 50;
+		delay(50);
 	} while(getCursorType() != 6 && _timer > 0);
 	// If the cursor is still not changed, return false
 	if(getCursorType() != 6) {
@@ -1910,8 +1912,8 @@ function DT_IdItem(scroll,uniditem) {
 		if((_timer % 500) == 0) { 
 			clickItem(0,uniditem); 
 		}
-		_timer -= 25;
-		delay(25);
+		_timer -= 50;
+		delay(50);
 	} while(uniditem.getFlag(0x10) == 0 && _timer > 0);
 	// If the item is identified, return true
 	return (uniditem.getFlag(0x10) != 0) ? true : false;
@@ -2022,6 +2024,7 @@ function DT_GetMaxStackSize(item) { return getBaseStat(0,item.classid,D2JSP_BASE
 // -npc		NPC object to shop
 // Return value : success of the function
 function DT_ShopIt(npc) {
+	var checkResults = false;
 	DC_DPrint("DT_ShopIt() : Entering Function.");
 	ShopArray = new Array();
 	_shopitem = DC_getItem(null,0);
@@ -2099,6 +2102,7 @@ function DT_ShopIt(npc) {
 // -npc		NPC object where you want to gamble (must be a gambling npc)
 function DT_GambleIt(npc) {
 	var _newitem = null;
+	var _retval = false;
 	// If no npc object is entered, abort
 	if(!npc) {
 		DC_DPrint("DT_GambleIt() : No NPC object is entered!");
