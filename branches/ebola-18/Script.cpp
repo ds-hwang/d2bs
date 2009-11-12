@@ -553,30 +553,22 @@ DWORD WINAPI FuncThread(void* data)
 		JS_SetContextPrivate(context, evt->owner);
 		JS_BeginRequest(context);
 
-		uintN i = 0;
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
 			if(!JS_CallFunctionValue(context, object, (*it)->value(), evt->argc, args, &dummy))
 				return 0;
-			JS_RemoveRoot(context, &args[i]);
-			i++;
 		}
 
+		for(uintN i = 0; i < evt->argc; i++)
+			JS_RemoveRoot(context, &args[i]);
 		delete[] args;
 
-#if 0
 		// check if the caller stole the context thread
-		if(!JS_GetContextThread(evt->context))
-		{
-			JS_ClearContextThread(evt->context);
-			JS_SetContextThread(evt->context);
-		}
-#endif
-
-#ifdef DEBUG
 		if(!JS_GetContextThread(context))
-			DebugBreak();
-#endif
+		{
+			JS_ClearContextThread(context);
+			JS_SetContextThread(context);
+		}
 
 		JS_EndRequest(context);
 		JS_DestroyContextNoGC(context);
