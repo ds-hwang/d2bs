@@ -554,13 +554,13 @@ function _DSN_Item(_p, _item, _snagini) {
 	// ToDo : Add a possibility to call a function to do a comparison and keep the best one
 	if((_retval != 0) && (this.ClassID == 603 || this.ClassID == 605) && this.Quality == D2JSP_ITEM_QUALITY_UNIQUE) {
 		// Check the inventory for another one
-		_uniquecharm = DC_getItem(this.Code, 100);
+		var _uniquecharm = DC_getItem(this.Code, 100);
 		// Loop thru the charms with the same code in inventory
 		if(_uniquecharm) { 
 			do {
 				// If we find another one, log it as ignored with a special reason
 				if(_uniquecharm.quality == D2JSP_ITEM_QUALITY_UNIQUE) {
-					_uniquecharmname = DL_GetItemName(this.Item);
+					var _uniquecharmname = DL_GetItemName(this.Item);
 					DL_LogItem(_uniquecharmname, this.Item.quality, "[Ignored, already have one]", _DSN_AreaLog + this.FromWhere);
 					return true;
 				}
