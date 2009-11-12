@@ -2028,14 +2028,14 @@ function DT_ShopIt(npc) {
 	var _result = false;
 	
 	DC_DPrint("DT_ShopIt() : Entering Function.");
-	ShopArray = new Array();
-	_shopitem = DC_getItem(null,0);
+	var ShopArray = new Array();
+	var _shopitem = DC_getItem(null,0);
 	do {
 		if(DC_CheckOwner(_shopitem,npc.name)) {
 			ShopArray.push(copyUnit(_shopitem));
 		}
 	}while(_shopitem && _shopitem.getNext(null,0));
-	itemnum = 0;
+	var itemnum = 0;
 	DC_DPrint("DT_ShopIt() : "+ShopArray.length+"# items found in shop.");
 	if(ShopArray.length > 0) {
 		do {
