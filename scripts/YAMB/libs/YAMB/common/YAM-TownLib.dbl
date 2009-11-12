@@ -2025,6 +2025,8 @@ function DT_GetMaxStackSize(item) { return getBaseStat(0,item.classid,D2JSP_BASE
 // Return value : success of the function
 function DT_ShopIt(npc) {
 	var checkResults = false;
+	var _result = false;
+	
 	DC_DPrint("DT_ShopIt() : Entering Function.");
 	ShopArray = new Array();
 	_shopitem = DC_getItem(null,0);
