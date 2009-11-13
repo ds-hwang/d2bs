@@ -3,6 +3,8 @@
 #include "Script.h"
 #include "ScriptEngine.h"
 #include "string.h"
+#include "D2Handlers.h"
+#include "Control.h"
 
 wchar_t* AnsiToUnicode(const char* str)
 {
@@ -38,6 +40,112 @@ void StringReplace(char* str, const char find, const char replace)
 	char* ptr = NULL;
 	while((ptr = strchr(str, find)) != NULL)
 		*ptr = replace;
+}
+
+void InitSettings(void)
+{
+	char path[_MAX_FNAME+MAX_PATH],
+		 fname[_MAX_FNAME+MAX_PATH],
+		 scriptPath[_MAX_FNAME+MAX_PATH],
+		 debug[6],
+		 blockMinimize[6],
+		 quitOnHostile[6],
+		 quitOnError[6],
+		 maxGameTime[6],
+		 startAtMenu[6],
+		 disableCache[6],
+		 memUsage[6],
+		 gamePrint[6];
+
+	sprintf_s(path, sizeof(path), "%sd2bs-%d.log", Vars.szPath, GetProcessId(GetCurrentProcess()));
+	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
+
+	FILE* stream = NULL;
+	freopen_s(&stream, path, "a+tc", stderr);
+
+	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
+	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
+	GetPrivateProfileString("settings", "Debug", "false", debug, 6, fname);
+	GetPrivateProfileString("settings", "BlockMinimize", "false", blockMinimize, 6, fname);
+	GetPrivateProfileString("settings", "QuitOnHostile", "false", quitOnHostile, 6, fname);
+	GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
+	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
+	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
+	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
+	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
+
+	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
+
+	Vars.dwGameTime = GetTickCount();
+	Vars.dwMaxGameTime = atoi(maxGameTime);
+	Vars.bBlockMinimize = StringToBool(blockMinimize);
+	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
+	Vars.bQuitOnError = StringToBool(quitOnError);
+	Vars.bStartAtMenu = StringToBool(startAtMenu);
+	Vars.bDisableCache = StringToBool(disableCache);
+	Vars.bUseGamePrint = StringToBool(gamePrint);
+	Vars.dwMemUsage = atoi(memUsage);
+	if(Vars.dwMemUsage < 1)
+		Vars.dwMemUsage = 50;
+	Vars.dwMemUsage *= 1024*1024;
+	Vars.oldWNDPROC = NULL;
+	Vars.image = NULL;
+	Vars.text = NULL;
+}
+
+bool InitHooks(void)
+{
+	int i = 0;
+	while(!Vars.bActive)
+	{
+		if(i >= 300)
+		{
+			MessageBox(0, "Failed to set hooks, exiting!", "D2BS", 0);
+			return false;
+		}
+
+		if(D2WIN_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
+		{
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			if(!Vars.oldWNDPROC)
+				continue;
+
+			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+			if(mainThread)
+			{
+				if(!Vars.hKeybHook)
+					Vars.hKeybHook = SetWindowsHookEx(WH_KEYBOARD, KeyPress, NULL, mainThread);
+				if(!Vars.hMouseHook)
+					Vars.hMouseHook = SetWindowsHookEx(WH_MOUSE, MouseMove, NULL, mainThread);
+			}
+		}
+		else
+			continue;
+
+		if(ClientState() == ClientStateMenu || ClientState() == ClientStateInGame)
+		{
+			char versionimg[_MAX_PATH+_MAX_FNAME];
+			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
+			if(!Vars.image)
+				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm, false);
+			if(!Vars.text)
+				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
+		}
+
+		if(Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
+		{
+			if(!ScriptEngine::Startup())
+				return false;
+
+			Vars.bActive = TRUE;
+
+			if(ClientState() == ClientStateMenu && Vars.bStartAtMenu)
+				clickControl(*p_D2WIN_FirstControl);
+		}
+		Sleep(50);
+		i++;
+	}
+	return true;
 }
 
 const char* GetStarterScriptName(void)
@@ -144,4 +252,25 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 		result = true;
 	}
 	return result;
+}
+
+void GameJoined(void)
+{
+	Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+	if(StartScript(GetStarterScriptName(), GetStarterScriptState()))
+		Print("ÿc2D2BSÿc0 :: default.dbj running.");
+	else
+		Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
+}
+
+void MenuEntered(bool beginStarter)
+{
+	if(beginStarter)
+	{
+		Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
+		if(StartScript(GetStarterScriptName(), GetStarterScriptState()))
+			Print("ÿc2D2BSÿc0 :: starter.dbj running.");
+		else
+			Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
+	}
 }
