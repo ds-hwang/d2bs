@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib js32/js32d.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib js32/js32d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -358,7 +358,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\D2Loader.cpp"
+				RelativePath=".\D2Loader.h"
 				>
 			</File>
 			<File

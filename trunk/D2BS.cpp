@@ -1,6 +1,4 @@
 // Diablo II Botting System Core
-#include <shlwapi.h>
-
 #include "dde.h"
 #include "Offset.h"
 #include "ScriptEngine.h"
@@ -8,6 +6,13 @@
 #include "D2Handlers.h"
 #include "Console.h"
 #include "D2BS.h"
+
+#include <shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+
+#ifdef _MSVC_DEBUG
+#include "D2Loader.h"
+#endif
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 
