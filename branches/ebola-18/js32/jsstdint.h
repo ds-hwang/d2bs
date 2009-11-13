@@ -1,4 +1,5 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 4 -*-
+ * vim: set ts=8 sw=4 et tw=78:
  *
  * ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -13,12 +14,11 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is Mozilla Communicator client code, released
- * March 31, 1998.
+ * The Original Code is mozilla.org code.
  *
  * The Initial Developer of the Original Code is
- * Netscape Communications Corporation.
- * Portions created by the Initial Developer are Copyright (C) 1998
+ * Jim Blandy
+ * Portions created by the Initial Developer are Copyright (C) 2008
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -37,55 +37,60 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-#ifndef js_cpucfg___
-#define js_cpucfg___
+/* This header provides definitions for the <stdint.h> types we use,
+   even on systems that lack <stdint.h>.  */
 
-#define JS_HAVE_LONG_LONG
+#ifndef jsstdint_h___
+#define jsstdint_h___
 
-#if defined(XP_WIN) || defined(XP_OS2) || defined(WINCE)
+#include "js-config.h"
 
-#if defined(_WIN64)
+/* If we have a working stdint.h, use it.  */
+#if defined(JS_HAVE_STDINT_H)
+#include <stdint.h>
 
-#if defined(_M_X64) || defined(_M_AMD64) || defined(_AMD64_)
-#define IS_LITTLE_ENDIAN 1
-#undef  IS_BIG_ENDIAN
-#define JS_BYTES_PER_DOUBLE 8L
-#define JS_BYTES_PER_WORD   8L
-#define JS_BITS_PER_WORD_LOG2   6
-#define JS_ALIGN_OF_POINTER 8L
-#else  /* !(defined(_M_X64) || defined(_M_AMD64) || defined(_AMD64_)) */
-#error "CPU type is unknown"
-#endif /* !(defined(_M_X64) || defined(_M_AMD64) || defined(_AMD64_)) */
+/* If the configure script was able to find appropriate types for us,
+   use those.  */
+#elif defined(JS_INT8_TYPE)
 
-#elif defined(_WIN32) || defined(XP_OS2) || defined(WINCE)
+typedef signed   JS_INT8_TYPE   int8_t;
+typedef signed   JS_INT16_TYPE  int16_t;
+typedef signed   JS_INT32_TYPE  int32_t;
+typedef signed   JS_INT64_TYPE  int64_t;
+typedef signed   JS_INTPTR_TYPE intptr_t;
 
-#ifdef __WATCOMC__
-#define HAVE_VA_LIST_AS_ARRAY 1
-#endif
-
-#define IS_LITTLE_ENDIAN 1
-#undef  IS_BIG_ENDIAN
-#define JS_BYTES_PER_DOUBLE 8L
-#define JS_BYTES_PER_WORD   4L
-#define JS_BITS_PER_WORD_LOG2   5
-#define JS_ALIGN_OF_POINTER 4L
-
-#endif /* _WIN32 || XP_OS2 || WINCE*/
-
-#elif defined(XP_UNIX) || defined(XP_BEOS)
-
-#error "This file is supposed to be auto-generated on UNIX platforms, but the"
-#error "static version for Mac and Windows platforms is being used."
-#error "Something's probably wrong with paths/headers/dependencies/Makefiles."
+typedef unsigned JS_INT8_TYPE   uint8_t;
+typedef unsigned JS_INT16_TYPE  uint16_t;
+typedef unsigned JS_INT32_TYPE  uint32_t;
+typedef unsigned JS_INT64_TYPE  uint64_t;
+typedef unsigned JS_INTPTR_TYPE uintptr_t;
 
 #else
 
-#error "Must define one of XP_BEOS, XP_OS2, XP_WIN, or XP_UNIX"
+/* Microsoft Visual C/C++ has built-in __intN types.  */
+#if defined(JS_HAVE___INTN)
 
+typedef __int8 int8_t;
+typedef __int16 int16_t;
+typedef __int32 int32_t;
+typedef __int64 int64_t;
+
+typedef unsigned __int8 uint8_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int64 uint64_t;
+
+#else
+#error "couldn't find exact-width integer types"
 #endif
 
-#ifndef JS_STACK_GROWTH_DIRECTION
-#define JS_STACK_GROWTH_DIRECTION (-1)
+/* Microsoft Visual C/C++ defines intptr_t and uintptr_t in <stddef.h>.  */
+#if defined(JS_STDDEF_H_HAS_INTPTR_T)
+#include <stddef.h>
+#else
+#error "couldn't find definitions for intptr_t, uintptr_t"
 #endif
 
-#endif /* js_cpucfg___ */
+#endif /* JS_HAVE_STDINT_H */
+
+#endif /* jsstdint_h___ */

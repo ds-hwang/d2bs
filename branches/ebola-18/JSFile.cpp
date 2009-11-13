@@ -88,7 +88,7 @@ JSAPI_PROP(file_getProperty)
 				else *vp = JSVAL_ZERO;
 				break;
 			case FILE_EOF:
-				if(fdata->fptr) *vp = BOOLEAN_TO_JSVAL(feof(fdata->fptr));
+				if(fdata->fptr) *vp = BOOLEAN_TO_JSVAL(!!feof(fdata->fptr));
 				else *vp = JSVAL_TRUE;
 				break;
 			case FILE_AUTOFLUSH:

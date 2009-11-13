@@ -77,13 +77,13 @@ Script::Script(const char* file, ScriptState state) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
-		JS_SetGCZeal(context, 1);
+		//JS_SetGCZeal(context, 1);
 		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
 		JS_SetErrorReporter(context, reportError);
-		JS_SetOperationCallback(context, (JSOperationCallback)operationCallback, 5000);
+		//JS_SetOperationCallback(context, operationCallback);
 		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
 		JS_SetVersion(context, JSVERSION_1_8);
 
@@ -162,6 +162,8 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
+	if(!JS_GetContextThread(context))
+		JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
@@ -237,12 +239,14 @@ void Script::Run(void)
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
-	JS_SetContextThread(GetContext());
+	if(!JS_GetContextThread(GetContext()))
+		JS_SetContextThread(GetContext());
+
 	JS_RemoveRoot(GetContext(), &main);
-	JS_EndRequest(GetContext());	
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
 
 	execCount++;
-	//Stop();
 }
 
 void Script::Pause(void)
@@ -362,7 +366,7 @@ bool Script::Include(const char* file)
 	}
 
 	// HACK: assume we have to reclaim ownership
-	JS_SetContextThread(GetContext());
+	//JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
 	LeaveCriticalSection(&lock);
 	free(fname);
@@ -371,20 +375,32 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
+#ifdef DEBUG
 	if(IsBadReadPtr(this, sizeof(this)))
 		DebugBreak();
 	if(IsBadReadPtr(context, sizeof(context)))
 		DebugBreak();
+#endif
 
-	return JS_IsRunning(context) && !IsPaused();
+	bool ret = false;
+
+	if(!JS_GetContextThread(context))
+		JS_SetContextThread(context);
+	if(JS_IsRunning(context))
+		ret = true;
+
+	return ret && !IsPaused();
 }
 
 bool Script::IsAborted()
 {
+#ifdef DEBUG
 	if(IsBadReadPtr(this, sizeof(this)))
 		DebugBreak();
-
-	return isAborted;
+	if(IsBadReadPtr(context, sizeof(context)))
+		DebugBreak();
+#endif
+	return !JS_IsRunning(context) || isAborted;
 }
 
 bool Script::IsListenerRegistered(const char* evtName)

@@ -1,6 +1,5 @@
 #pragma once
 
-#define JS_THREADSAFE
 #define XP_WIN
 
 #include "js32/jsapi.h"

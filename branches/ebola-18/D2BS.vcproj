@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib js32/js32d.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib shlwapi.lib js32/js3250d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -430,15 +430,15 @@
 				Name="Engine Imports"
 				>
 				<File
+					RelativePath=".\js32\js-config.h"
+					>
+				</File>
+				<File
 					RelativePath=".\js32\jsapi.h"
 					>
 				</File>
 				<File
 					RelativePath=".\js32\jscompat.h"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsconfig.h"
 					>
 				</File>
 				<File
@@ -474,11 +474,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\js32\jsstdint.h"
+					>
+				</File>
+				<File
 					RelativePath=".\js32\jstypes.h"
 					>
 				</File>
 				<File
 					RelativePath=".\js32\jsutil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\js32\jsversion.h"
 					>
 				</File>
 			</Filter>

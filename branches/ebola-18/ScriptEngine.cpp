@@ -290,7 +290,7 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-JSBool operationCallback(JSContext* cx, JSScript*)
+JSBool operationCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
@@ -310,12 +310,6 @@ JSBool operationCallback(JSContext* cx, JSScript*)
 	}
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
-}
-
-JSBool eventBranchCallback(JSContext* cx, JSScript* script)
-{
-	// TODO: What do events need in terms of the branch callback?
-	return JS_TRUE;
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)

@@ -71,8 +71,7 @@ struct EventHelper
 	bool executed;
 };
 
-JSBool operationCallback(JSContext* cx, JSScript* script);
-JSBool eventBranchCallback(JSContext* cx, JSScript* script);
+JSBool operationCallback(JSContext* cx);
 JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
