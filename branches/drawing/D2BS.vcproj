@@ -422,6 +422,14 @@
 				RelativePath=".\sqlite3.h"
 				>
 			</File>
+			<File
+				RelativePath=".\stringhash.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stringhash.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Spidermonkey Engine"
@@ -573,6 +581,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\JSDraw.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\JSExits.cpp"
 						>
 					</File>
@@ -670,6 +682,10 @@
 					</File>
 					<File
 						RelativePath=".\JSDirectory.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSDraw.h"
 						>
 					</File>
 					<File

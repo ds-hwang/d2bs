@@ -413,6 +413,7 @@ VOID GameDraw(VOID)
 	{
 		Console::Draw();
 		Genhook::DrawAll(IG);
+		DrawEvent();
 	}
 }
 
@@ -423,6 +424,7 @@ VOID GameDrawOOG(VOID)
 	{
 		Console::Draw();
 		Genhook::DrawAll(OOG);
+		DrawOOGEvent();
 	}
 }
 

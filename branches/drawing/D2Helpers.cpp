@@ -8,6 +8,7 @@
 #include "D2Skills.h"
 #include "D2Intercepts.h"
 #include "D2BS.h"
+#include "stringhash.h"
 
 void Log(char* szFormat, ...)
 {
@@ -591,13 +592,12 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 
 // TODO: Rewrite this and split it into two functions
 
-CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
+CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 {
 	// AutoDetect the Cell File
 	if(bMPQ == 3)
 	{
 		// Check in our directory first
-
 		HANDLE hFile = OpenFileRead(lpszPath);
 
 		if(hFile != INVALID_HANDLE_VALUE)
@@ -609,19 +609,27 @@ CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
 		{
 			return LoadCellFile(lpszPath, TRUE);
 		}
-
-		//return NULL;
 	}
+
+	unsigned __int32 hash = sfh(lpszPath, (int)strlen(lpszPath));
+	if(Vars.mCachedCellFiles.count(hash) > 0)
+		return Vars.mCachedCellFiles[hash];
 
 	if(bMPQ == TRUE)
 	{
-		return (CellFile*)D2CLIENT_LoadUIImage_ASM(lpszPath);
+		CellFile* result = (CellFile*)D2CLIENT_LoadUIImage_ASM(lpszPath);
+		Vars.mCachedCellFiles[hash] = result;
+		return result;
 	}
 	else if(bMPQ == FALSE)
 	{
 		// see if the file exists first
 		if(!(_access(lpszPath, 0) != 0 && errno == ENOENT))
+		{
+			CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+			Vars.mCachedCellFiles[hash] = result;
 			return myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+		}
 	}
 
 	return NULL;

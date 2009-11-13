@@ -15,5 +15,5 @@ void MouseMoveEvent(POINT pt);
 void ScriptBroadcastEvent(uintN argc, jsval* argv);
 void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode);
 void ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode);
-
-
+void DrawEvent(void);
+void DrawOOGEvent(void);

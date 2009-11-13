@@ -9,6 +9,7 @@
 #define D2BS_VERSION "1.1.1"
 
 #include <windows.h>
+#include <map>
 
 #include "CollisionMap.h"
 #include "ScreenHook.h"
@@ -65,6 +66,7 @@ struct Variables
 	TextHook  *text;
 
 	CCollisionMap cCollisionMap;
+	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;

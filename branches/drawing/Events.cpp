@@ -287,3 +287,13 @@ void ItemDropEvent(DWORD GID, char* Code, WORD itemX, WORD itemY, WORD Mode)
 	ItemEventHelper helper = {GID, Code, itemX, itemY, Mode};
 	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 1);
 }
+
+void DrawEvent(void)
+{
+	ScriptEngine::ExecEventAsync("draw", NULL, 0);
+}
+
+void DrawOOGEvent(void)
+{
+	ScriptEngine::ExecEventAsync("drawoog", NULL, 0);
+}
