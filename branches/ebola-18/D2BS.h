@@ -3,8 +3,6 @@
 
 #pragma once
 
-#define XP_WIN
-
 #define D2BS_VERSION "1.1.1"
 
 #include <windows.h>
