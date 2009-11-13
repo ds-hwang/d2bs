@@ -27,7 +27,7 @@ void Log(char* szFormat, ...)
 	strftime(szTime, sizeof(szTime), "%x %X", &time);
 
 	fprintf(stderr, "[%s] %s\r\n", szTime, szString);
-	fflush(stderr);
+	_fflush_nolock(stderr);
 	delete[] szString;
 }
 

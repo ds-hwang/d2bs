@@ -18,18 +18,21 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 		case DLL_PROCESS_ATTACH:
 		{
 			DisableThreadLibraryCalls(hDll);
-#ifndef _MSVC_DEBUG
-			Vars.pModule = (Module*)lpReserved;
+			if(lpReserved != NULL)
+			{
+				Vars.pModule = (Module*)lpReserved;
 
-			if(!Vars.pModule)
-				return FALSE;
+				if(!Vars.pModule)
+					return FALSE;
 
-			strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
-#else 	
-			GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
-			PathRemoveFileSpec(Vars.szPath);
-			strcat_s(Vars.szPath, MAX_PATH, "\\");
-#endif
+				strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
+			}
+			else
+			{
+				GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
+				PathRemoveFileSpec(Vars.szPath);
+				strcat_s(Vars.szPath, MAX_PATH, "\\");
+			}
 			Vars.bShutdownFromDllMain = FALSE;
 			if(!Startup())
 				return FALSE;

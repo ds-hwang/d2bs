@@ -336,7 +336,8 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
-	BOOL UseTele = IsTownLevel(Area);
+	// CWalkPath is fucking retarded. :(
+	BOOL UseTele = true;// IsTownLevel(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
@@ -1137,7 +1138,7 @@ INT my_getWaypoint(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 	if(nWaypointId > 40)
 		nWaypointId = NULL;
 
-	*rval = BOOLEAN_TO_JSVAL(D2COMMON_CheckWaypoint((*p_D2CLIENT_WaypointTable), nWaypointId));
+	*rval = BOOLEAN_TO_JSVAL(!!D2COMMON_CheckWaypoint((*p_D2CLIENT_WaypointTable), nWaypointId));
 
 	return JS_TRUE;
 }
