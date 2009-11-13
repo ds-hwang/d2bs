@@ -95,96 +95,10 @@ void Console::ExecuteCommand(void)
 	if(strlen(cmd) < 1)
 		return;
 
-	char* buf = _strdup(cmd);
-	char* next_token1;
-	char* argv = strtok_s(buf, " ", &next_token1);
-
 	commands.push_back(std::string(cmd));
 	commandPos = commands.size();
 
-	if(argv == NULL)
-	{
-		text->SetText("");
-		return;
-	}
-
-	if(!_strcmpi(argv, "start"))
-	{
-		char file[_MAX_PATH+_MAX_FNAME];
-		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-		Script* script = ScriptEngine::CompileFile(file, InGame);
-		if(script)
-		{
-			AddLine("ÿc2D2BSÿc0 :: Starting default.dbj");
-			CreateThread(0, 0, ScriptThread, script, 0, 0);
-		}
-		else
-			AddLine("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
-	}
-	else if(!_strcmpi(argv, "stop"))
-	{
-		if(ScriptEngine::GetCount() > 0)
-			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts!");
-
-		ScriptEngine::StopAll(true);
-	}
-	else if(!_strcmpi(argv, "flush"))
-	{
-		if(!Vars.bDisableCache)
-		{
-			AddLine("ÿc2D2BSÿc0 :: Flushing the script cache...");
-			ScriptEngine::FlushCache();
-		}
-	}
-	else if(!_strcmpi(argv, "load"))
-	{
-		const char* arg = cmd+5;
-		if(strlen(arg) > 0)
-		{
-			char msg[256];
-			sprintf_s(msg, sizeof(msg), "ÿc2D2BSÿc0 :: Loading %s", arg);
-			AddLine(msg);
-
-			char Path[_MAX_PATH+_MAX_FNAME] = "";
-			sprintf_s(Path, sizeof(Path), "%s\\%s", Vars.szScriptPath, arg);
-
-			Script* script = ScriptEngine::CompileFile(Path, InGame, true);
-			if(script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE)
-				Print("ÿc2D2BSÿc0 :: Loaded %s!", arg);
-			else
-				Print("ÿc2D2BSÿc0 :: Failed to load %s!", arg);
-		}
-	}
-	else if(!_strcmpi(argv, "reload"))
-	{
-		if(ScriptEngine::GetCount() > 0)
-		{
-			AddLine("ÿc2D2BSÿc0 :: Stopping all scripts...");
-			ScriptEngine::StopAll(true);
-		}
-
-		if(!Vars.bDisableCache)
-		{
-			AddLine("ÿc2D2BSÿc0 :: Flushing the script cache...");
-			ScriptEngine::FlushCache();
-		}
-		Sleep(1000); // wait for things to catch up
-
-		AddLine("ÿc2D2BSÿc0 :: Starting default.dbj...");
-		char file[_MAX_PATH+_MAX_FNAME];
-		sprintf_s(file, sizeof(file), "%s\\default.dbj", Vars.szScriptPath);
-		Script* script = ScriptEngine::CompileFile(file, InGame);
-		if(script)
-			CreateThread(0, 0, ScriptThread, script, 0, 0);
-		else
-			AddLine("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
-	}
-	else
-	{
-		Script* script = ScriptEngine::CompileCommand(cmd);
-		if(script)
-			CreateThread(0, 0, ScriptThread, script, 0, 0);
-	}
+	ProcessCommand(cmd, true);
 	text->SetText("");
 }
 
