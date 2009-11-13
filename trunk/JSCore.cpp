@@ -336,8 +336,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
-	// CWalkPath is fucking retarded. :(
-	BOOL UseTele = true;// IsTownLevel(Area);
+	BOOL UseTele = !IsTownLevel(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
