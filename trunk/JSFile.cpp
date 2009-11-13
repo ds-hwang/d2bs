@@ -292,7 +292,7 @@ JSAPI_FUNC(file_readLine)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
-		const char* line = readLine(fdata->fptr);
+		const char* line = readLine(fdata->fptr, fdata->locked);
 		if(strlen(line) == 0)
 			return JS_TRUE;
 		if(!line)
@@ -310,7 +310,7 @@ JSAPI_FUNC(file_readAllLines)
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		int i = 0;
 		while(!feof(fdata->fptr)) {
-			const char* line = readLine(fdata->fptr);
+			const char* line = readLine(fdata->fptr, fdata->locked);
 			if(!line)
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
 			jsval val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
@@ -347,7 +347,7 @@ JSAPI_FUNC(file_write)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		for(uintN i = 0; i < argc; i++)
-			writeValue(fdata->fptr, cx, argv[i], !!(fdata->mode > 2));
+			writeValue(fdata->fptr, cx, argv[i], !!(fdata->mode > 2), fdata->locked);
 
 		if(fdata->autoflush)
 			fflush(fdata->fptr);
@@ -373,7 +373,7 @@ JSAPI_FUNC(file_seek)
 				fromStart = !!JSVAL_TO_BOOLEAN(argv[1]);
 			if(!isLines)
 			{
-				if(fdata->locked && _fseek_nolock(fdata->fptr, ftell(fdata->fptr)+bytes, SEEK_CUR))
+				if(fdata->locked && _fseek_nolock(fdata->fptr, _ftell_nolock(fdata->fptr)+bytes, SEEK_CUR))
 					THROW_ERROR(cx, obj, _strerror("Seek failed"));
 				else if(fseek(fdata->fptr, ftell(fdata->fptr)+bytes, SEEK_CUR))
 					THROW_ERROR(cx, obj, _strerror("Seek failed"));
@@ -385,7 +385,7 @@ JSAPI_FUNC(file_seek)
 				// semi-ugly hack to seek to the specified line
 				// if I were unlazy I wouldn't be allocating/deallocating all this memory, but for now it's ok
 				while(bytes--)
-					delete[] readLine(fdata->fptr);
+					delete[] readLine(fdata->fptr, fdata->locked);
 			}
 		}
 		else
@@ -399,7 +399,10 @@ JSAPI_FUNC(file_flush)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
-		fflush(fdata->fptr);
+		if(fdata->locked)
+			fflush(fdata->fptr);
+		else
+			_fflush_nolock(fdata->fptr);
 
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -438,10 +441,12 @@ void file_finalize(JSContext *cx, JSObject *obj)
 	if(fdata)
 	{
 		free(fdata->path);
-		if(fdata->locked && fdata->fptr)
-			_unlock_file(fdata->fptr);
 		if(fdata->fptr)
+		{
+			if(fdata->locked)
+				_unlock_file(fdata->fptr);
 			fclose(fdata->fptr);
+		}
 		delete fdata;
 	}
 }
