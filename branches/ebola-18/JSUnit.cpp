@@ -406,6 +406,9 @@ INT unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 
 INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	if(!GameReady())
+		return JS_TRUE;
+
 	if(argc < 1)
 		return JS_TRUE;
 
@@ -472,15 +475,19 @@ INT unit_getUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
 INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+	if(!GameReady())
+		return JS_TRUE;
 
+	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit)
+	{
+		*rval = INT_TO_JSVAL(0);
 		return JS_TRUE;
+	}
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
@@ -492,7 +499,6 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		lpUnit->dwMode = JSVAL_TO_INT(argv[1]);
 
 	pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
-
 	if(!pUnit)
 	{
 		JS_ClearScope(cx, obj);
@@ -511,7 +517,7 @@ INT unit_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 }
 
 INT unit_cancel(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{	
+{
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -790,12 +796,10 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit || pUnit->dwType != UNIT_ITEM)
 		return JS_TRUE;
 
@@ -817,26 +821,22 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	INT NPCID = 148;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit)
 		return JS_TRUE;
 
-	if(argc>0)
+	if(argc > 0)
 	{
 		if(JSVAL_IS_OBJECT(argv[0]))
 		{
 			myUnit* pmyNpc = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
-			
 			if(!pmyNpc || IsBadReadPtr(pmyNpc, sizeof(myUnit)) || pmyNpc->_dwPrivateType != PRIVATE_UNIT)
 				return JS_TRUE;
 
 			UnitAny* pNpc = D2CLIENT_FindUnit(pmyNpc->dwUnitId, pmyNpc->dwType);
-
 			if(!pNpc)
 				return JS_TRUE;
 
@@ -845,9 +845,9 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		else if(JSVAL_IS_INT(argv[0]))
 			NPCID = JSVAL_TO_INT(argv[0]);
 	}
-	if(argc>1)
+	if(argc > 1)
 		buysell = JSVAL_TO_INT(argv[1]);
-	if(argc>2)
+	if(argc > 2)
 		diff = JSVAL_TO_INT(argv[2]);
 
 	*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell));
@@ -975,8 +975,8 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	else if(argc == 2)
 	{
 		if(D2CLIENT_GetPlayerUnit() &&
-			D2CLIENT_GetPlayerUnit()->pInfo &&
-			D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill)
+				D2CLIENT_GetPlayerUnit()->pInfo &&
+				D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill)
 		{
 			for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 			{
@@ -987,11 +987,9 @@ INT unit_getSkill(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 				}
 			}
 		}
-
 	}
 
 	*rval = INT_TO_JSVAL(NULL);
-
 	return JS_TRUE;
 }
 
@@ -1001,12 +999,10 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		return JS_TRUE;
 
 	myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!lpItem || IsBadReadPtr(lpItem, sizeof(myUnit)) || lpItem->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pItem = D2CLIENT_FindUnit(lpItem->dwUnitId, lpItem->dwType);
-
 	if(!pItem || pItem->dwType != UNIT_ITEM)
 		return JS_TRUE;
 
@@ -1040,14 +1036,12 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		//Make sure the item is owned by the NPC interacted with.
 		if(pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			return JS_TRUE;
-
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
 	}
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 
 	*rval = JSVAL_TRUE;
-
 	return JS_TRUE;
 }
 
@@ -1246,12 +1240,10 @@ INT my_overhead(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		return JS_TRUE;
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
-
 	if(!pUnit)
 		return JS_TRUE;
 
@@ -1279,12 +1271,10 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)) || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
-
 	if(!pUnit || !pUnit->pInventory)
 		return JS_TRUE;
 
@@ -1292,36 +1282,30 @@ INT unit_getItem(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 		return JS_TRUE;
 
 	INT nLoc = JSVAL_TO_INT(argv[0]);
+	if(!nLoc)
+		return JS_TRUE;
 
-	if(nLoc)
+	for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
 	{
-		for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+		if(pItem->pItemData && pItem->pItemData->BodyLocation == nLoc)
 		{
-			if(pItem->pItemData)
-			{
-				if(pItem->pItemData->BodyLocation == nLoc)
-				{
-					pmyUnit = new myUnit;
+			pmyUnit = new myUnit;
+			if(!pmyUnit)
+				return JS_FALSE;
 
-					if(!pmyUnit || IsBadReadPtr(pmyUnit, sizeof(myUnit)))
-						return JS_TRUE;
+			pmyUnit->_dwPrivateType = PRIVATE_UNIT;
+			pmyUnit->dwUnitId = pItem->dwUnitId;
+			pmyUnit->dwClassId = pItem->dwTxtFileNo;
+			pmyUnit->dwMode = NULL;
+			pmyUnit->dwType = UNIT_ITEM;
+			pmyUnit->szName[0] = NULL;
 
-					pmyUnit->_dwPrivateType = PRIVATE_UNIT;
-					pmyUnit->dwUnitId = pItem->dwUnitId;
-					pmyUnit->dwClassId = pItem->dwTxtFileNo;
-					pmyUnit->dwMode = NULL;
-					pmyUnit->dwType = UNIT_ITEM;
-					pmyUnit->szName[0] = NULL;
+			JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+			if(!jsunit)
+				return JS_FALSE;
 
-					JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-					if (!jsunit)
-						return JS_TRUE;
-
-					*rval = OBJECT_TO_JSVAL(jsunit);
-
-					return JS_TRUE;
-				}
-			}
+			*rval = OBJECT_TO_JSVAL(jsunit);
+			return JS_TRUE;
 		}
 	}
 	return JS_TRUE;

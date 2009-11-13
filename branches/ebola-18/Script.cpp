@@ -45,15 +45,16 @@ jsval AutoRoot::operator* () { return var; }
 jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
-Script::Script(const char* file, ScriptState state) :
+Script::Script(const char* file, ScriptType scripttype) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
-			isAborted(false), wantPause(false), isPaused(false), scriptState(state),
+			isAborted(false), wantPause(false), isPaused(false), scriptState(Unexecuted),
 			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
-	if(scriptState == Command)
+	scriptType = scripttype;
+	if(scripttype == Command)
 	{
 		fileName = string("Command Line");
 	}
@@ -83,7 +84,7 @@ Script::Script(const char* file, ScriptState state) :
 		JS_BeginRequest(context);
 
 		JS_SetErrorReporter(context, reportError);
-		//JS_SetOperationCallback(context, operationCallback);
+		JS_SetOperationCallback(context, operationCallback);
 		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
 		JS_SetVersion(context, JSVERSION_1_8);
 
@@ -124,7 +125,7 @@ Script::Script(const char* file, ScriptState state) :
 		DEFCONST(FILE_APPEND);
 #undef DEFCONST
 
-		if(state == Command)
+		if(scriptType == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
@@ -171,6 +172,7 @@ Script::~Script(void)
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
 	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
 
+	JS_EndRequest(context);
 	JS_DestroyContext(context);
 
 	context = NULL;
@@ -207,20 +209,30 @@ DWORD Script::GetThreadId(void)
 	return (threadHandle == NULL ? -1 : threadId);
 }
 
+void Script::SetScriptState(ScriptExecState state)
+{
+	scriptState = state;
+	JS_TriggerOperationCallback(context);
+}
+
 void Script::Run(void)
 {
-	// only let the script run if it's not already running
-	if(IsRunning())
+	if(GetScriptState() != Unexecuted)
 		return;
 
-	isAborted = false;
+	SetScriptState(Running);
+
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &threadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 	threadId = GetCurrentThreadId();
+
+	if(threadHandle == INVALID_HANDLE_VALUE)
+		DebugBreak();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
 	JS_AddRoot(GetContext(), &main);
 
-	JS_SetContextThread(GetContext());
+	if(!JS_GetContextThread(GetContext()))
+		JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	globalObject = JS_GetGlobalObject(GetContext());
@@ -252,9 +264,10 @@ void Script::Run(void)
 void Script::Pause(void)
 {
 	//EnterCriticalSection(&lock);
-	if(!IsAborted() && IsRunning())
+	if(GetScriptState() == Running)
 	{
 		wantPause = true;
+		JS_TriggerOperationCallback(context);
 	}
 	//LeaveCriticalSection(&lock);
 }
@@ -262,21 +275,12 @@ void Script::Pause(void)
 void Script::Resume(void)
 {
 	//EnterCriticalSection(&lock);
-	if(!IsAborted() && IsPaused())
+	if(GetScriptState() == Paused)
 	{
 		wantPause = false;
+		JS_TriggerOperationCallback(context);
 	}
 	//LeaveCriticalSection(&lock);
-}
-
-bool Script::IsPaused(void)
-{
-	if(IsBadReadPtr(this, sizeof(this)))
-		DebugBreak();
-	if(!wantPause && isPaused)
-		isPaused = false;
-
-	return isPaused;
 }
 
 void Script::Stop(bool force, bool reallyForce)
@@ -285,10 +289,14 @@ void Script::Stop(bool force, bool reallyForce)
 	// otherwise we can't clean up all the events in the context
 	EnterCriticalSection(&lock);
 
-	isAborted = true;
-	wantPause = false;
-	isPaused = false;
+	ClearAllEvents();
+	Genhook::Clean(this);
 
+	SetScriptState(Stopped);
+
+	wantPause = false;
+
+#if 0
 	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)
 	{
@@ -297,9 +305,7 @@ void Script::Stop(bool force, bool reallyForce)
 			break;
 		Sleep(10);
 	}
-
-	ClearAllEvents();
-	Genhook::Clean(this);
+#endif
 
 	if(threadHandle)
 		CloseHandle(threadHandle);
@@ -338,6 +344,7 @@ bool Script::Include(const char* file)
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
+		fname = NULL;
 		return true;
 	}
 	bool rval = false;
@@ -373,36 +380,6 @@ bool Script::Include(const char* file)
 	return rval;
 }
 
-bool Script::IsRunning(void)
-{
-#ifdef DEBUG
-	if(IsBadReadPtr(this, sizeof(this)))
-		DebugBreak();
-	if(IsBadReadPtr(context, sizeof(context)))
-		DebugBreak();
-#endif
-
-	bool ret = false;
-
-	if(!JS_GetContextThread(context))
-		JS_SetContextThread(context);
-	if(JS_IsRunning(context))
-		ret = true;
-
-	return ret && !IsPaused();
-}
-
-bool Script::IsAborted()
-{
-#ifdef DEBUG
-	if(IsBadReadPtr(this, sizeof(this)))
-		DebugBreak();
-	if(IsBadReadPtr(context, sizeof(context)))
-		DebugBreak();
-#endif
-	return !JS_IsRunning(context) || isAborted;
-}
-
 bool Script::IsListenerRegistered(const char* evtName)
 {
 	// nothing can be registered under an empty name
@@ -417,6 +394,11 @@ bool Script::IsListenerRegistered(const char* evtName)
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
 {
+	if(strlen(evtName) < 1)
+		return;
+	if(!evtFunc)
+		return;
+
 	EnterCriticalSection(&lock);
 	if(JSVAL_IS_FUNCTION(context, evtFunc) && strlen(evtName) > 0)
 	{
@@ -490,7 +472,7 @@ void Script::ClearAllEvents(void)
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 {
-	if(IsAborted() || IsPaused() || !functions.count(evtName))
+	if(GetScriptState() != Running || !functions.count(evtName))
 	{
 		// no event will happen, clean up the roots
 		for(uintN i = 0; i < argc; i++)
@@ -537,9 +519,16 @@ DWORD WINAPI FuncThread(void* data)
 #endif
 
 	evt->dwConsume = GetTickCount();
+	static DWORD EvtLFStart = 0;
+	DWORD EvtFStart = evt->dwConsume - evt->dwProduce;
+	if(EvtFStart > EvtLFStart)
+	{
+		EvtLFStart = EvtFStart;
+		Print("Longest event took %lu ms to get to functhread.", EvtLFStart);
+	}
 
 	// TODO see what happens with console command if it spawns an event .. if it can
-	if(!evt->owner->IsAborted() && evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
+	if(evt->owner->GetScriptState() == Running && !(evt->owner->GetScriptType() == InGame && !GameReady()))
 	{
 		jsval dummy = JSVAL_VOID;
 
@@ -550,8 +539,12 @@ DWORD WINAPI FuncThread(void* data)
 			if(JS_AddRoot(evt->context, &args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
+				{
 					delete[] evt->argv;
+					evt->argv = NULL;
+				}
 				delete evt;
+				evt = NULL;
 				return 0;
 			}
 		}
@@ -560,8 +553,12 @@ DWORD WINAPI FuncThread(void* data)
 		if(!context)
 		{
 			if(evt->argv)
+			{
 				delete[] evt->argv;
+				evt->argv = NULL;
+			}
 			delete evt;
+			evt = NULL;
 			return 0;
 		}
 
@@ -575,19 +572,21 @@ DWORD WINAPI FuncThread(void* data)
 				return 0;
 		}
 
+		static DWORD EvtLFEnd = 0;
+		DWORD EvtFEnd = GetTickCount() - evt->dwProduce;
+		if(EvtFEnd > EvtLFEnd)
+		{
+			EvtLFEnd = EvtFEnd;
+			Print("Longest event took %lu ms to get to complete.", EvtLFEnd);
+		}
+
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(context, &args[i]);
 		delete[] args;
-
-		// check if the caller stole the context thread
-		if(!JS_GetContextThread(context))
-		{
-			JS_ClearContextThread(context);
-			JS_SetContextThread(context);
-		}
+		args = NULL;
 
 		JS_EndRequest(context);
-		JS_DestroyContextNoGC(context);
+		JS_DestroyContext(context);
 	}
 
 	// assume we have to clean up both the event and the args, and release autorooted vars
@@ -595,11 +594,18 @@ DWORD WINAPI FuncThread(void* data)
 	{
 		evt->argv[i]->Release();
 		if(evt->argv[i])
+		{
 			delete evt->argv[i];
+			evt->argv[i] = NULL;
+		}
 	}
 	if(evt->argv)
+	{
 		delete[] evt->argv;
+		evt->argv = NULL;
+	}
 	delete evt;
-	
+	evt = NULL;
+
 	return 0;
 }

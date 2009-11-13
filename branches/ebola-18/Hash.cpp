@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include "D2Helpers.h"
 #include "Hash.h"
 
 using namespace std;
@@ -11,7 +12,7 @@ char* HashString(char* dataIn, ALG_ID algo)
 	HCRYPTHASH hash;
 	DWORD lenOut = 0;
 
-	if(!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, 0))
+	if(!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
 		return NULL;
 	if(!CryptCreateHash(provider, algo, 0, 0, &hash))
 	{

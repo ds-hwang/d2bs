@@ -177,7 +177,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib js32/js3250d.lib"
-				OutputFile="$(OutDir)\$(ProjectName).bin"
+				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -197,6 +197,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="true"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -358,7 +359,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\D2Loader.cpp"
+				RelativePath=".\D2Loader.h"
 				>
 			</File>
 			<File

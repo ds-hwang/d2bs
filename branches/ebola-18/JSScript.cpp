@@ -1,7 +1,7 @@
-#include "JSScript.h"
-#include "Script.h"
-#include "ScriptEngine.h"
 #include "D2BS.h"
+#include "ScriptEngine.h"
+#include "Script.h"
+#include "JSScript.h"
 
 struct FindHelper
 {
@@ -31,10 +31,10 @@ JSAPI_PROP(script_getProperty)
 			}
 			break;
 		case SCRIPT_GAMETYPE:
-			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
+			*vp = script->GetScriptType() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
 			break;
 		case SCRIPT_RUNNING:
-			*vp = BOOLEAN_TO_JSVAL(script->IsRunning());
+			*vp = BOOLEAN_TO_JSVAL(script->GetScriptState() == Running);
 			break;
 		case SCRIPT_THREADID:
 			*vp = INT_TO_JSVAL(script->GetThreadId());
@@ -64,7 +64,7 @@ JSAPI_FUNC(script_stop)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-	if(script->IsRunning())
+	if(script->GetScriptState() == Running || script->GetScriptState() == Paused)
 		script->Stop();
 
 	return JS_TRUE;
@@ -75,7 +75,7 @@ JSAPI_FUNC(script_pause)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
-	if(script->IsRunning())
+	if(script->GetScriptState() == Running)
 		script->Pause();
 
 	return JS_TRUE;
@@ -86,7 +86,7 @@ JSAPI_FUNC(script_resume)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
-	if(script->IsPaused())
+	if(script->GetScriptState() == Paused)
 		script->Resume();
 
 	return JS_TRUE;	

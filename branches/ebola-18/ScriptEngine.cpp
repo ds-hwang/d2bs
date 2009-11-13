@@ -13,7 +13,7 @@ using namespace std;
 
 JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
-EngineState ScriptEngine::state = Stopped;
+EngineState ScriptEngine::state = EngineStopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 
 // internal ForEachScript helpers
@@ -21,9 +21,9 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+Script* ScriptEngine::CompileFile(const char* file, ScriptType type, bool recompile)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return NULL;
 	char* fileName = _strdup(file);
 	_strlwr_s(fileName, strlen(file)+1);
@@ -46,7 +46,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, state);
+		Script* script = new Script(fileName, type);
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
@@ -63,7 +63,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 
 Script* ScriptEngine::CompileCommand(const char* command)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return NULL;
 	try
 	{
@@ -90,6 +90,9 @@ Script* ScriptEngine::CompileCommand(const char* command)
 
 void ScriptEngine::DisposeScript(Script* script)
 {
+	if(GetState() != EngineRunning)
+		return;
+
 	EnterCriticalSection(&lock);
 
 	if(scripts.count(script->GetFilename()))
@@ -98,22 +101,23 @@ void ScriptEngine::DisposeScript(Script* script)
 		DebugBreak();
 
 	delete script;
+	script = NULL;
 
 	LeaveCriticalSection(&lock);
 }
 
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return 0;
 
 	EnterCriticalSection(&lock);
 	int count = scripts.size();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!active && it->second->IsRunning() && !it->second->IsAborted())
+		if(!active && it->second->GetScriptState() == Running)
 			count--;
-		if(!unexecuted && it->second->GetExecutionCount() == 0 && !it->second->IsRunning())
+		if(!unexecuted && it->second->GetExecutionCount() == 0 && it->second->GetScriptState() != Running)
 			count--;
 	}
 	assert(count >= 0);
@@ -123,9 +127,9 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 
 BOOL ScriptEngine::Startup(void)
 {
-	if(GetState() == Stopped)
+	if(GetState() == EngineStopped)
 	{
-		state = Starting;
+		state = EngineStarting;
 		InitializeCriticalSection(&lock);
 		EnterCriticalSection(&lock);
 		// create the runtime with the requested memory limit
@@ -139,7 +143,7 @@ BOOL ScriptEngine::Startup(void)
 		//JS_SetContextCallback(runtime, contextCallback);
 		//JS_SetGCCallbackRT(runtime, gcCallback);
 
-		state = Running;
+		state = EngineRunning;
 		LeaveCriticalSection(&lock);
 	}
 	return TRUE;
@@ -148,11 +152,11 @@ BOOL ScriptEngine::Startup(void)
 void ScriptEngine::Shutdown(void)
 {
 	Vars.bActive = FALSE;
-	if(GetState() == Running)
+	if(GetState() == EngineRunning)
 	{
 		// bring the engine down properly
 		EnterCriticalSection(&lock);
-		state = Stopping;
+		state = EngineStopping;
 		StopAll(true);
 
 		// clear all scripts now that they're stopped
@@ -169,7 +173,7 @@ void ScriptEngine::Shutdown(void)
 
 		LeaveCriticalSection(&lock);
 		DeleteCriticalSection(&lock);
-		state = Stopped;
+		state = EngineStopped;
 	}
 
 	Vars.bNeedShutdown = FALSE;
@@ -177,7 +181,7 @@ void ScriptEngine::Shutdown(void)
 
 void ScriptEngine::StopAll(bool forceStop)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return;
 
 	EnterCriticalSection(&lock);
@@ -189,7 +193,7 @@ void ScriptEngine::StopAll(bool forceStop)
 
 void ScriptEngine::FlushCache(void)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return;
 
 	static bool isFlushing = false;
@@ -235,7 +239,7 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 
 void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 {
-	if(GetState() != Running)
+	if(GetState() != EngineRunning)
 		return;
 
 	EventHelper helper = {evtName, argv, argc};
@@ -265,7 +269,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
+	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == EngineStopping);
 	return true;
 }
 
@@ -279,7 +283,7 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
-	if(!script->IsAborted() && script->IsRunning())
+	if(script->GetScriptState() == Running)
 	{
 		if(find(list->begin(), list->end(), script) == list->end())
 		{
@@ -293,23 +297,38 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 JSBool operationCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
-
-	if(script->WantPause())
+	if(!script)
 	{
-		script->SetPauseState(true);
-
-		jsrefcount depth = JS_SuspendRequest(cx);
-		JS_GC(cx);
-
-		while(script->IsPaused())
-			Sleep(50);
-
-		//script->SetPauseState(false);
-
-		JS_ResumeRequest(cx, depth);
+		DebugBreak();
+		return JS_FALSE;
 	}
 
-	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
+	switch(script->GetScriptState())
+	{
+		case Paused:
+			{
+				Print("%s pause.", script->GetFilename());
+				jsrefcount depth = JS_SuspendRequest(cx);
+				JS_GC(cx);
+				while(script->GetScriptState() == Paused)
+					Sleep(100);
+				JS_ResumeRequest(cx, depth);
+			}
+			break;
+		case Stopped:
+			{
+				Print("%s stopped.", script->GetFilename());
+			}
+			break;
+	}
+
+	if(script->GetScriptState() == Stopped || 
+			(ClientState() != ClientStateInGame && script->GetScriptType() == InGame))
+	{
+		return JS_FALSE;
+	}
+
+	return JS_TRUE;
 }
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
@@ -341,6 +360,9 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 {
 	bool warn = JSREPORT_IS_WARNING(report->flags);
+	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !warn)
+		D2CLIENT_ExitGame();
+
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
@@ -354,8 +376,8 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 			(warn ? 9 : 1), strict, type, report->errorNumber, filename, report->lineno, message);
 
 	if(filename)
+	{
 		free(filename);
-
-	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
-		D2CLIENT_ExitGame();
+		filename = NULL;
+	}
 }

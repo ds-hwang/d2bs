@@ -1,13 +1,20 @@
 #pragma once
 
-#include <windows.h>
 #include <string>
 #include <map>
 #include <list>
+#include <windows.h>
 
 #include "js32.h"
 
-enum ScriptState {
+enum ScriptExecState {
+	Unexecuted,
+	Running,
+	Paused,
+	Stopped
+};
+
+enum ScriptType {
 	InGame,
 	OutOfGame,
 	Command
@@ -62,7 +69,8 @@ class Script
 private:
 	std::string fileName;
 	int execCount;
-	ScriptState scriptState;
+	ScriptType scriptType;
+	ScriptExecState scriptState;
 	JSContext* context;
 	JSScript* script;
 
@@ -75,7 +83,7 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
-	Script(const char* file, ScriptState state);
+	Script(const char* file,ScriptType scripttype);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
@@ -85,21 +93,21 @@ public:
 	void Run(void);
 	void Pause(void);
 	void Resume(void);
-	void SetPauseState(bool PauseState) { isPaused = PauseState; }
-	bool IsPaused(void);
-	bool WantPause(void) { return wantPause; }
 	void Stop(bool force = false, bool reallyForce = false);
+
+	void SetPauseState(bool PauseState) { isPaused = PauseState; }
+	bool WantPause(void) { return wantPause; }
+
+	ScriptExecState GetScriptState(void) { return scriptState; }
+	void SetScriptState(ScriptExecState state);
+	ScriptType GetScriptType(void) { return scriptType; }
 
 	const char* GetFilename(void);
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
-	ScriptState GetState(void) { return scriptState; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
-
-	bool IsRunning(void);
-	bool IsAborted(void);
 
 	bool IsIncluded(const char* file);
 	bool Include(const char* file);

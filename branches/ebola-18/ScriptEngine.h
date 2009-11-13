@@ -14,11 +14,11 @@ typedef std::map<std::string, Script*> ScriptMap;
 typedef bool (__fastcall *ScriptCallback)(Script*, void*, uint);
 
 enum EngineState {
-	Starting,
-	Running,
-	Paused,
-	Stopping,
-	Stopped
+	EngineStarting,
+	EngineRunning,
+	EnginePaused,
+	EngineStopping,
+	EngineStopped
 };
 
 class ScriptEngine
@@ -42,7 +42,7 @@ public:
 
 	static void FlushCache(void);
 
-	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
+	static Script* CompileFile(const char* file, ScriptType type, bool recompile = false);
 	static Script* CompileCommand(const char* command);
 	static void DisposeScript(Script* script);
 
@@ -72,7 +72,7 @@ struct EventHelper
 };
 
 JSBool operationCallback(JSContext* cx);
-JSBool contextCallback(JSContext* cx, uintN contextOp);
+//JSBool contextCallback(JSContext* cx, uintN contextOp);
 JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
 

@@ -154,7 +154,7 @@ const char* GetStarterScriptName(void)
 	return (ClientState() == ClientStateInGame ? "default.dbj" : ClientState() == ClientStateMenu ? "starter.dbj" : NULL);
 }
 
-ScriptState GetStarterScriptState(void)
+ScriptType GetStarterScriptType(void)
 {
 	// the default return is InGame because that's the least harmful of the options
 	return (ClientState() == ClientStateInGame ? InGame : ClientState() == ClientStateMenu ? OutOfGame : InGame);
@@ -166,11 +166,11 @@ bool ExecCommand(const char* command)
 	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
 }
 
-bool StartScript(const char* scriptname, ScriptState state)
+bool StartScript(const char* scriptname, ScriptType scripttype)
 {
 	char file[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(file, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, scriptname);
-	Script* script = ScriptEngine::CompileFile(file, state);
+	Script* script = ScriptEngine::CompileFile(file, scripttype);
 	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
 }
 
@@ -188,7 +188,7 @@ void Reload(void)
 	Sleep(500);
 
 	const char* script = GetStarterScriptName();
-	if(StartScript(script, GetStarterScriptState()))
+	if(StartScript(script, GetStarterScriptType()))
 		Print("ÿc2D2BSÿc0 :: Started %s", script);
 	else
 		Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
@@ -208,7 +208,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	if(_strcmpi(argv, "start") == 0)
 	{
 		const char* script = GetStarterScriptName();
-		if(StartScript(script, GetStarterScriptState()))
+		if(StartScript(script, GetStarterScriptType()))
 			Print("ÿc2D2BSÿc0 :: Started %s", script);
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
@@ -231,7 +231,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	else if(_strcmpi(argv, "load") == 0)
 	{
 		const char* script = command+5;
-		if(StartScript(script, GetStarterScriptState()))
+		if(StartScript(script, GetStarterScriptType()))
 			Print("ÿc2D2BSÿc0 :: Started %s", script);
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
@@ -258,7 +258,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 void GameJoined(void)
 {
 	Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-	if(StartScript(GetStarterScriptName(), GetStarterScriptState()))
+	if(StartScript(GetStarterScriptName(), GetStarterScriptType()))
 		Print("ÿc2D2BSÿc0 :: default.dbj running.");
 	else
 		Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
@@ -269,7 +269,7 @@ void MenuEntered(bool bStarterActive)
 	if(!bStarterActive)
 	{
 		Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
-		if(StartScript(GetStarterScriptName(), GetStarterScriptState()))
+		if(StartScript(GetStarterScriptName(), GetStarterScriptType()))
 			Print("ÿc2D2BSÿc0 :: starter.dbj running.");
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");

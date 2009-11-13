@@ -33,8 +33,8 @@ void Genhook::DrawAll(ScreenhookState type)
 	currentHooks.sort(zOrderSort);
 	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
 		if((((*it)->GetGameState() == type && 
-				(*it)->owner && !(*it)->owner->IsAborted() && (*it)->owner->IsRunning()) || (!(*it)->owner && (*it)->GetGameState() == Perm)) && (*it)->GetIsVisible() &&
-			(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
+				(*it)->owner && (*it)->owner->GetScriptState() == Running) || (!(*it)->owner && (*it)->GetGameState() == Perm)) && (*it)->GetIsVisible() &&
+				(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
 		{
 			(*it)->Draw();
 		}

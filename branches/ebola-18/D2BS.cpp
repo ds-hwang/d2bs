@@ -1,6 +1,6 @@
 // Diablo II Botting System Core
 
-//#define RELDEBUG
+#define RELDEBUG
 #ifdef RELDEBUG
 #define _MSVC_DEBUG
 #pragma comment(lib, "shlwapi")
@@ -8,6 +8,7 @@
 
 #ifdef _MSVC_DEBUG
 #include <shlwapi.h>
+#include "D2Loader.h"
 #endif
 
 #include "dde.h"

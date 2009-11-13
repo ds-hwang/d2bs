@@ -12,7 +12,7 @@ void StringReplace(char* str, const char find, const char replace);
 void InitSettings(void);
 bool InitHooks(void);
 bool ExecCommand(const char* command);
-bool StartScript(const char* script, ScriptState state);
+bool StartScript(const char* script, ScriptType scripttype);
 void Reload(void);
 bool ProcessCommand(const char* command, bool unprocessedIsCommand);
 

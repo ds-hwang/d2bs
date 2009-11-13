@@ -59,19 +59,19 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 JSAPI_FUNC(my_delay)
 {
+	int nDelay = 0;
 	if(argc == 1 && JSVAL_IS_INT(argv[0]))
+		nDelay = JSVAL_TO_INT(argv[0]);
+
+	if(!nDelay)
 	{
-		int nDelay = JSVAL_TO_INT(argv[0]);
-		if(nDelay)
-		{
-			jsrefcount depth = JS_SuspendRequest(cx);
-			Sleep(nDelay);
-			JS_ResumeRequest(cx, depth);
-		}
-		else
-			JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-			//THROW_ERROR(cx, obj, "delay(0) called, argument must be >= 1");
+		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1 setting to 1!");
+		nDelay = 1;
 	}
+
+	jsrefcount depth = JS_SuspendRequest(cx);
+	Sleep(nDelay);
+	JS_ResumeRequest(cx, depth);
 
 	return JS_TRUE;
 }
@@ -81,9 +81,10 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
 		Script* execScript = (Script*)JS_GetContextPrivate(cx);
-		ScriptState scriptState = execScript->GetState();
-		if(scriptState == Command)
-			scriptState = (GameReady() ? InGame : OutOfGame);
+		ScriptType scriptType = execScript->GetScriptType();
+		// TODO Clean up this state handling
+		if(scriptType == Command)
+			scriptType = (GameReady() ? InGame : OutOfGame);
 
 		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!(lpszFileName && lpszFileName[0]))
@@ -93,7 +94,7 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		{
 			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
-			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
+			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptType);
 			if(script)
 			{
 				CreateThread(0, 0, ScriptThread, script, 0, 0);
@@ -133,6 +134,8 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			else
 				*rval = JSVAL_FALSE;
 		}
+		else
+			DebugBreak();
 	}
 	else
 		*rval = JSVAL_FALSE;
@@ -148,6 +151,8 @@ INT my_stop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 		if(script)
 			script->Stop();
+		else
+			DebugBreak();
 	}
 	else
 		ScriptEngine::StopAll();
@@ -213,12 +218,10 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
-
 		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || mypUnit->_dwPrivateType != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
 			return JS_TRUE;
 
 		UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
-
 		if(!pUnit)
 			return JS_TRUE;
 
@@ -228,9 +231,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, pUnit));
 	}
 	else if(argc > 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
-	{
 		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, NULL));
-	}
 
 	return JS_TRUE;
 }
@@ -336,8 +337,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
-	// CWalkPath is fucking retarded. :(
-	BOOL UseTele = true; //IsTownLevel(Area);
+	BOOL UseTele = !IsTownLevel(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
@@ -352,30 +352,36 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	DWORD nAreas[64] = {0};
 	INT nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
 
-	if (JSVAL_IS_OBJECT(argv[0])) {
-		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
+	if (JSVAL_IS_OBJECT(argv[0]))
+	{
+		if (!g_collisionMap.CreateMap(AreaIds, dwLength))
+		{
 			*rval = JSVAL_FALSE;
 			return JS_TRUE;
 		}
-	} else {
+	}
+	else
+	{
 		if(nLen)
 		{
 			if(!g_collisionMap.CreateMap(nAreas, nLen))
 			{
 				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
-			}			
+				return JS_TRUE;
+			}
 		}
 		else
+		{
 			if(!g_collisionMap.CreateMap(Area))
 			{
 				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
+				return JS_TRUE;
 			}
+		}
 	}
 
 	if (!g_collisionMap.IsValidAbsLocation(ptStart.x, ptStart.y) ||
-		!g_collisionMap.IsValidAbsLocation(ptEnd.x, ptEnd.y))
+			!g_collisionMap.IsValidAbsLocation(ptEnd.x, ptEnd.y))
 		return JS_TRUE;
 
 	g_collisionMap.AbsToRelative(ptStart);
@@ -800,7 +806,7 @@ JSAPI_FUNC(my_rand)
 }
 
 INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{	
+{
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1009,11 +1015,13 @@ INT my_getSkillById(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	for(UINT i = 0; i < ArraySize(Game_Skills); i++)
+	{
 		if(Game_Skills[i].skillID == nId)
 		{
 			*rval =  STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[i].name));
 			return JS_TRUE;
 		}
+	}
 
 	return JS_TRUE;
 }
@@ -1081,7 +1089,6 @@ INT my_getTradeInfo(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	}
 
 	jsint nMode = JSVAL_TO_INT(argv[0]);
-	
 	if(nMode == 0)
 	{
 		*rval = INT_TO_JSVAL((*p_D2CLIENT_TradeFlag));
@@ -1711,7 +1718,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		if(bAddedRoom)
 		{
 			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-			bAddedRoom = FALSE;			
+			bAddedRoom = FALSE;
 		}
 	}
 
@@ -1735,7 +1742,6 @@ JSAPI_FUNC(my_getPresetUnit)
 	}
 
 	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
-
 	if(!pLevel)
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
 
@@ -1752,8 +1758,8 @@ JSAPI_FUNC(my_getPresetUnit)
 
 	bool bAddedRoom = FALSE;
 
-	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next) {
-
+	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
+	{
 		bAddedRoom = FALSE;
 
 		if(!pRoom->pRoom1)
@@ -1792,7 +1798,7 @@ JSAPI_FUNC(my_getPresetUnit)
 		if(bAddedRoom)
 		{
 			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-			bAddedRoom = FALSE;			
+			bAddedRoom = FALSE;
 		}
 	}
 
@@ -1809,9 +1815,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	jsint nArea = GetPlayerArea();
 
 	if(argc == 1 && JSVAL_IS_INT(argv[0]))
-	{
 		nArea = JSVAL_TO_INT(argv[0]); 
-	}
 	else
 		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	
@@ -2035,10 +2039,10 @@ INT my_scriptBroadcast(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-//  IniRead(filename, sectionname, keyname, default)                         //                                     
+//  IniRead(filename, sectionname, keyname, default)                         //
 //                                                                           //
 //  Oringal Credits: Jonathan Bennett <jon@hiddensoft.com>                   //
-//  Embedded by: Glorfindel and Insolence                                    //              
+//  Embedded by: Glorfindel and Insolence                                    //
 ///////////////////////////////////////////////////////////////////////////////
 int my_iniread(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -2258,7 +2262,7 @@ JSAPI_FUNC(my_login)
 		if(_strcmpi(errorMsg, ""))
 		{
 			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
-			THROW_ERROR(cx, obj, errorMsg);						
+			THROW_ERROR(cx, obj, errorMsg);
 			break;
 		}
 

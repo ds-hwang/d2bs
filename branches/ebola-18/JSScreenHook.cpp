@@ -168,7 +168,7 @@ JSAPI_FUNC(box_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState showtype = (script->GetScriptType() == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0, x2 = 0, y2 = 0;
 	ushort color = 0, opacity = 0;
 	Align align = Left;
@@ -196,7 +196,7 @@ JSAPI_FUNC(box_ctor)
 	if(argc > 9 && JSVAL_IS_FUNCTION(cx, argv[9]))
 		hover = argv[9];
 
-	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, state);
+	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, showtype);
 
 	if (!pBoxHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a box class.");
@@ -317,7 +317,7 @@ JSAPI_FUNC(line_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState showtype = (script->GetScriptType() == OutOfGame) ? OOG : IG;
 	int x = 0, y = 0, x2 = 0, y2 = 0;
 	ushort color = 0;
 	bool automap = false;
@@ -340,7 +340,7 @@ JSAPI_FUNC(line_ctor)
 	if(argc > 7 && JSVAL_IS_FUNCTION(cx, argv[7]))
 		hover = argv[7];
 
-	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, color, automap, Left, state);
+	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, color, automap, Left, showtype);
 
 	if (!pLineHook)
 		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
@@ -449,7 +449,7 @@ JSAPI_FUNC(text_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState showtype = (script->GetScriptType() == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0;
 	ushort color = 0, font = 0;
 	Align align = Left;
@@ -478,7 +478,7 @@ JSAPI_FUNC(text_ctor)
 	if(argc > 8 && JSVAL_IS_FUNCTION(cx, argv[8]))
 		hover = argv[8];
 
-	TextHook* pTextHook = new TextHook(script, szText, x, y, font, color, automap, align, state);
+	TextHook* pTextHook = new TextHook(script, szText, x, y, font, color, automap, align, showtype);
 
 	if(!pTextHook)
 		THROW_ERROR(cx, obj, "Failed to create texthook");
@@ -600,7 +600,7 @@ JSAPI_FUNC(image_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState showtype = (script->GetScriptType() == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0;
 	ushort color = 0;
 	Align align = Left;
@@ -632,7 +632,7 @@ JSAPI_FUNC(image_ctor)
 		THROW_ERROR(cx, obj, "Invalid image file path");
 
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, szText);
-	ImageHook* pImageHook = new ImageHook(script, path, x, y, color, automap, align, state);
+	ImageHook* pImageHook = new ImageHook(script, path, x, y, color, automap, align, showtype);
 
 	if(!pImageHook)
 		THROW_ERROR(cx, obj, "Failed to create ImageHook");

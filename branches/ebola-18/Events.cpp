@@ -55,7 +55,9 @@ struct BCastEventHelper
 bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 {
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("melife"))
+	if(script->GetScriptState() == Running && 
+			script->GetScriptType() == InGame && 
+			script->IsListenerRegistered("melife"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -73,7 +75,9 @@ void LifeEvent(DWORD dwLife)
 bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 {
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("memana"))
+	if(script->GetScriptState() == Running && 
+			script->GetScriptType() == InGame && 
+			script->IsListenerRegistered("memana"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -92,7 +96,9 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 {
 	KeyEventHelper* helper = (KeyEventHelper*)argv;
 	char* event = (helper->up ? "keyup" : "keydown");
-	if(script->IsRunning() && script->IsListenerRegistered(event))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) && 
+			script->IsListenerRegistered(event))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->key));
@@ -110,7 +116,9 @@ void KeyDownUpEvent(WPARAM key, BYTE bUp)
 bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
 {
 	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("playerassign"))
+	if(script->GetScriptState() == Running && 
+			script->GetScriptType() == InGame && 
+			script->IsListenerRegistered("playerassign"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -128,7 +136,9 @@ void PlayerAssignEvent(DWORD dwUnitId)
 bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
 {
 	TripleArgHelper* helper = (TripleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("mouseclick"))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered("mouseclick"))
 	{
 		AutoRoot** argv = new AutoRoot*[3];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -148,7 +158,9 @@ void MouseClickEvent(int button, POINT pt, bool bUp)
 bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
 {
 	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("mousemove"))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered("mousemove"))
 	{
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -167,7 +179,9 @@ void MouseMoveEvent(POINT pt)
 bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
 {
 	BCastEventHelper* helper = (BCastEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered("scriptmsg"))
 	{
 		AutoRoot** argv = new AutoRoot*[helper->argc];
 		for(uintN i = 0; i < argc; i++)
@@ -186,7 +200,9 @@ void ScriptBroadcastEvent(uintN argc, jsval* args)
 bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
 {
 	QuadArgHelper* helper = (QuadArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("golddrop"))
+	if(script->GetScriptState() == Running && 
+			script->GetScriptType() == InGame &&
+			script->IsListenerRegistered("golddrop"))
 	{
 		AutoRoot** argv = new AutoRoot*[4];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
@@ -207,7 +223,9 @@ void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode)
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 {
 	ChatEventHelper* helper = (ChatEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered(helper->event))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered(helper->event))
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
@@ -233,7 +251,9 @@ void WhisperEvent(char* lpszNick, char* lpszMsg)
 bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 {
 	CopyDataHelper* helper = (CopyDataHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("copydata"))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered("copydata"))
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
@@ -252,7 +272,9 @@ void CopyDataEvent(DWORD dwMode, char* lpszMsg)
 
 bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
 {
-	if(script->IsRunning() && script->IsListenerRegistered("gamemsg"))
+	if(script->GetScriptState() == Running && 
+			(script->GetScriptType() == InGame || script->GetScriptType() == OutOfGame) &&
+			script->IsListenerRegistered("gamemsg"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(script->GetContext(), (char*)argv)));
@@ -269,7 +291,9 @@ void GameMsgEvent(char* lpszMsg)
 bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 {
 	ItemEventHelper* helper = (ItemEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("itemdrop"))
+	if(script->GetScriptState() == Running && 
+			script->GetScriptType() == InGame &&
+			script->IsListenerRegistered("itemdrop"))
 	{
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!cx)
