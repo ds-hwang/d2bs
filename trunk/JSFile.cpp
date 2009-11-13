@@ -231,6 +231,8 @@ JSAPI_FUNC(file_reopen)
 			fopen_s(&fdata->fptr, fdata->path, modes[fdata->mode]);
 			if(!fdata->fptr)
 				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
+			if(fdata->locked)
+				_lock_file(fdata->fptr);
 		} else THROW_ERROR(cx, obj, "File is not closed");
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
