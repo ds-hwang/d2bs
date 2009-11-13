@@ -264,9 +264,9 @@ void GameJoined(void)
 		Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 }
 
-void MenuEntered(bool beginStarter)
+void MenuEntered(bool bStarterActive)
 {
-	if(beginStarter)
+	if(!bStarterActive)
 	{
 		Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
 		if(StartScript(GetStarterScriptName(), GetStarterScriptState()))

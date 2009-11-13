@@ -19,7 +19,7 @@ Variables Vars;
 
 DWORD WINAPI D2Thread(LPVOID lpParam)
 {
-	bool beginStarter = true;
+	bool bStarterActive = false;
 	bool bInGame = false;
 	InitSettings();
 	if(InitHooks())
@@ -81,13 +81,16 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					Vars.text->SetX(x/2);
 				}
 
+				if(!bStarterActive)
+				{
+					MenuEntered(bStarterActive);
+					bStarterActive = true;
+				}
+
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
 					bInGame = false;
-
-					MenuEntered(beginStarter);
-					beginStarter = false;
 				}
 				break;
 			}
