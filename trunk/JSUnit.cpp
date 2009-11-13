@@ -628,6 +628,8 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
 		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
+		if(!D2CLIENT_GetUIState(UI_GAME))
+			D2CLIENT_CloseInteract();
 		D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
