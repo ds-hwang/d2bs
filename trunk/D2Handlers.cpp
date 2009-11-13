@@ -35,6 +35,8 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 	}
 
 	static int x = D2GetScreenSizeX();
+	Vars.image->SetX(x/2);
+	Vars.text->SetX(x/2);
 
 	while(Vars.bActive)
 	{
