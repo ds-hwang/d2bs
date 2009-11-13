@@ -18,7 +18,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)/Intermediate/"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -85,6 +85,7 @@
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
+				GenerateMapFile="false"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -116,7 +117,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)/Intermediate/"
 			ConfigurationType="2"
 			CharacterSet="2"
 			>
@@ -143,9 +144,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				UseUnicodeResponseFiles="false"
 				Optimization="0"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
+				MinimalRebuild="true"
+				SmallerTypeCheck="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				RuntimeTypeInfo="false"
@@ -178,11 +182,12 @@
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(ConfigurationName)/$(ProjectName).pdb"
+				ProgramDatabaseFile="$(OutDir)/$(ProjectName).pdb"
 				GenerateMapFile="false"
+				SubSystem="2"
 				OptimizeReferences="2"
 				SetChecksum="true"
-				RandomizedBaseAddress="0"
+				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary="$(ConfigurationName)/$(ProjectName).lib"
 				TargetMachine="1"
