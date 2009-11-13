@@ -82,12 +82,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 					Vars.text->SetX(x/2);
 				}
 
+				MenuEntered(beginStarter);
+				beginStarter = false;
 				if(bInGame)
 				{
 					Vars.dwGameTime = NULL;
 					bInGame = false;
-					MenuEntered(beginStarter);
-					beginStarter = false;
 				}
 				break;
 			}
