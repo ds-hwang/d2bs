@@ -116,7 +116,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 	delete[] szBuffer;
 
-	return result;
+	return result == true ? 0 : -1;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
