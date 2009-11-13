@@ -95,6 +95,11 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	EnterCriticalSection(&lock);
 
+#ifdef DEBUG
+	if(scripts.count(script->GetFilename() > 1))
+		DebugBreak();
+#endif
+
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
 	else
@@ -307,9 +312,8 @@ JSBool operationCallback(JSContext* cx)
 	{
 		case Paused:
 			{
-				Print("%s pause.", script->GetFilename());
+				Print("OP %s pause.", script->GetFilename());
 				jsrefcount depth = JS_SuspendRequest(cx);
-				JS_GC(cx);
 				while(script->GetScriptState() == Paused)
 					Sleep(100);
 				JS_ResumeRequest(cx, depth);
@@ -317,7 +321,12 @@ JSBool operationCallback(JSContext* cx)
 			break;
 		case Stopped:
 			{
-				Print("%s stopped.", script->GetFilename());
+				Print("OP %s stopped.", script->GetFilename());
+			}
+			break;
+		case Running:
+			{
+				Print("OP %s Running.", script->GetFilename());
 			}
 			break;
 	}

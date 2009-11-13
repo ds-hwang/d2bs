@@ -95,9 +95,6 @@ public:
 	void Resume(void);
 	void Stop(bool force = false, bool reallyForce = false);
 
-	void SetPauseState(bool PauseState) { isPaused = PauseState; }
-	bool WantPause(void) { return wantPause; }
-
 	ScriptExecState GetScriptState(void) { return scriptState; }
 	void SetScriptState(ScriptExecState state);
 	ScriptType GetScriptType(void) { return scriptType; }

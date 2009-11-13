@@ -324,6 +324,7 @@ bool Script::IsIncluded(const char* file)
 	StringReplace(fname, '/', '\\');
 	count = includes.count(string(fname));
 	free(fname);
+	fname = NULL;
 
 	return !!count;
 }
