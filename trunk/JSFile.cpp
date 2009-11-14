@@ -230,7 +230,12 @@ JSAPI_FUNC(file_close)
 		{
 			if(fdata->locked)
 				_unlock_file(fdata->fptr);
-			if((fdata->locked && !!fclose(fdata->fptr)) || !!_fclose_nolock(fdata->fptr))
+			if(fdata->locked)
+			{
+				if(!!fclose(fdata->fptr))
+					THROW_ERROR(cx, obj, _strerror("Close failed"));
+			}
+			else if(!!_fclose_nolock(fdata->fptr))
 				THROW_ERROR(cx, obj, _strerror("Close failed"));
 			fdata->fptr = NULL;
 		}
