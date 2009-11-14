@@ -1,4 +1,8 @@
 // Diablo II Botting System Core
+
+#include <shlwapi.h>
+#pragma comment(lib, "shlwapi.lib")
+
 #include "dde.h"
 #include "Offset.h"
 #include "ScriptEngine.h"
@@ -7,8 +11,6 @@
 #include "Console.h"
 #include "D2BS.h"
 
-#include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
 
 #ifdef _MSVC_DEBUG
 #include "D2Loader.h"
