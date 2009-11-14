@@ -206,9 +206,7 @@ void ScriptEngine::FlushCache(void)
 
 void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
-	if(callback == NULL)
-		return;
-	if(scripts.size() < 1)
+	if(callback == NULL || scripts.size() < 1)
 		return;
 
 	EnterCriticalSection(&lock);
