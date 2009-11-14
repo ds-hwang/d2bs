@@ -208,6 +208,8 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
 	if(callback == NULL)
 		return;
+	if(scripts.size() < 1)
+		return;
 
 	EnterCriticalSection(&lock);
 
