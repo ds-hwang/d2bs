@@ -66,7 +66,7 @@ struct Event {
 
 class Script
 {
-private:
+protected:
 	std::string fileName;
 	int execCount;
 	ScriptType scriptType;
@@ -75,7 +75,7 @@ private:
 	JSScript* script;
 
 	JSObject *globalObject, *scriptObject;
-	bool isLocked, wantPause, isPaused, isAborted;
+	bool isLocked;
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
@@ -83,17 +83,19 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
+private:
 	Script(const char* file,ScriptType scripttype);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
+
 public:
 	friend class ScriptEngine;
 
 	void Run(void);
 	void Pause(void);
 	void Resume(void);
-	void Stop(bool force = false, bool reallyForce = false);
+	void Stop(void);
 
 	ScriptExecState GetScriptState(void) { return scriptState; }
 	void SetScriptState(ScriptExecState state);
@@ -117,7 +119,6 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
-
 };
 
 DWORD WINAPI ScriptThread(void* data);

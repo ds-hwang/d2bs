@@ -101,9 +101,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		Sleep(50);
 	}
 
-	ScriptEngine::Shutdown();
-
-	return NULL;
+	return 0;
 }
 
 DWORD __fastcall GameInput(wchar_t* wMsg)
@@ -111,17 +109,29 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 	if(Vars.bDontCatchNextMsg)
 		return NULL;
 
-	char* szBuffer = UnicodeToAnsi(wMsg);
-	bool result = false;
+#ifdef DEBUG
+	if(!wMsg || !wcslen(wMsg))
+		DebugBreak();
+#endif
 
-	if(szBuffer[0] == '.')
+	bool result = false;
+	char* szBuffer = UnicodeToAnsi(wMsg);
+	if(szBuffer)
 	{
-		result = ProcessCommand(szBuffer+1, false);
+		if(szBuffer[0] == '.')
+			result = ProcessCommand(szBuffer+1, false);
+		delete[] szBuffer;
+		szBuffer = NULL;
+	}
+	else
+	{
+		Print("UnicodeToAnsi failed?");
+#ifdef DEBUG
+		DebugBreak();
+#endif
 	}
 
-	delete[] szBuffer;
-
-	return result == true ? 0 : -1;
+	return result == true ? -1 : 0;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
@@ -212,11 +222,13 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 
 		}
 	}
-	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
-		if (pPacket[1] == 0x11){ //stones
+	else if(pPacket[0] == 0x5a)
+	{ // SOJ and Walks Msg by bobite
+		if (pPacket[1] == 0x11)
+		{ //stones
 			DWORD soj = *(DWORD*)&pPacket[3];
 			char mess[256]; 
-			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
+			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);
 			GameMsgEvent(mess);
 		}
 		if (pPacket[1] == 0x12){ //diablo walks

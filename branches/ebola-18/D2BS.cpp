@@ -3,6 +3,7 @@
 #define RELDEBUG
 #ifdef RELDEBUG
 #define _MSVC_DEBUG
+#define DEBUG
 #pragma comment(lib, "shlwapi")
 #endif
 
@@ -11,13 +12,13 @@
 #include "D2Loader.h"
 #endif
 
+#include "D2BS.h"
 #include "dde.h"
 #include "Offset.h"
 #include "ScriptEngine.h"
 #include "Helpers.h"
 #include "D2Handlers.h"
 #include "Console.h"
-#include "D2BS.h"
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 

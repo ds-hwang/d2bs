@@ -25,38 +25,61 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptType type, bool recomp
 {
 	if(GetState() != EngineRunning)
 		return NULL;
+
+	EnterCriticalSection(&lock);
+
+	if(!file)
+		DebugBreak();
+
 	char* fileName = _strdup(file);
-	_strlwr_s(fileName, strlen(file)+1);
+	if(!fileName)
+		DebugBreak();
+
+	_strlwr_s(fileName, strlen(fileName)+1);
+
+	Script* script = NULL;
+
 	try
 	{
-		EnterCriticalSection(&lock);
-		if(!Vars.bDisableCache)
+		if(scripts.count(fileName) == 0)
 		{
-			if(recompile && scripts.count(fileName) > 0)
+			script = new Script(fileName, type);
+			if(!script)
+				throw std::exception("Unable to create script object");
+			scripts[fileName] = script;
+		}
+		else
+		{
+			if(Vars.bDisableCache)
 			{
-				scripts[fileName]->Stop(true, true);
-				DisposeScript(scripts[fileName]);
-			}
-			else if(scripts.count(fileName) > 0)
-			{
-				Script* ret = scripts[fileName];
-				ret->Stop(true, true);
 				delete[] fileName;
+				fileName = NULL;
 				LeaveCriticalSection(&lock);
-				return ret;
+				return NULL;
+			}
+
+			if(recompile)
+			{
+				scripts[fileName]->Stop();
+				DisposeScript(scripts[fileName]);
+
+				script = new Script(fileName, type);
+				if(!script)
+					throw std::exception("Unable to create script object");
+				scripts[fileName] = script;
 			}
 		}
-		Script* script = new Script(fileName, type);
-		scripts[fileName] = script;
-		LeaveCriticalSection(&lock);
+
 		delete[] fileName;
+		fileName = NULL;
+		LeaveCriticalSection(&lock);
 		return script;
 	}
 	catch(std::exception e)
 	{
-		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
 		delete[] fileName;
+		LeaveCriticalSection(&lock);
 		return NULL;
 	}
 }
@@ -65,6 +88,7 @@ Script* ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != EngineRunning)
 		return NULL;
+
 	try
 	{
 		EnterCriticalSection(&lock);
@@ -222,7 +246,7 @@ void ScriptEngine::FlushCache(void)
 
 void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
-	if(callback == NULL)
+	if(callback == NULL || scripts.size() < 1)
 		return;
 
 	EnterCriticalSection(&lock);
@@ -274,7 +298,8 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == EngineStopping);
+	if(script->GetScriptState() == Running || script->GetScriptState() == Paused)
+		script->Stop();
 	return true;
 }
 
@@ -308,6 +333,8 @@ JSBool operationCallback(JSContext* cx)
 		return JS_FALSE;
 	}
 
+	//JS_SetOperationCallback(cx, NULL);
+
 	switch(script->GetScriptState())
 	{
 		case Paused:
@@ -322,20 +349,20 @@ JSBool operationCallback(JSContext* cx)
 		case Stopped:
 			{
 				Print("OP %s stopped.", script->GetFilename());
+				return JS_FALSE;
 			}
 			break;
 		case Running:
 			{
-				Print("OP %s Running.", script->GetFilename());
+				Print("OP %s running.", script->GetFilename());
 			}
 			break;
 	}
 
-	if(script->GetScriptState() == Stopped || 
-			(ClientState() != ClientStateInGame && script->GetScriptType() == InGame))
-	{
+	//JS_SetOperationCallback(cx, operationCallback);
+
+	if(ClientState() != ClientStateInGame && script->GetScriptType() == InGame)
 		return JS_FALSE;
-	}
 
 	return JS_TRUE;
 }

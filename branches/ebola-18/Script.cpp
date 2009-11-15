@@ -1,15 +1,15 @@
 #include <io.h>
 #include <algorithm>
 
+#include "D2BS.h"
+#include "JSGlobalFuncs.h"
+#include "JSGlobalClasses.h"
+#include "ScriptEngine.h"
 #include "Script.h"
 #include "Core.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
 #include "Helpers.h"
-#include "ScriptEngine.h"
-#include "D2BS.h"
-#include "JSGlobalFuncs.h"
-#include "JSGlobalClasses.h"
 
 using namespace std;
 
@@ -46,9 +46,8 @@ jsval AutoRoot::value() { return var; }
 bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
 
 Script::Script(const char* file, ScriptType scripttype) :
-			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
-			isAborted(false), wantPause(false), isPaused(false), scriptState(Unexecuted),
-			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
+		context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
+		scriptState(Unexecuted), threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
@@ -60,7 +59,7 @@ Script::Script(const char* file, ScriptType scripttype) :
 	}
 	else
 	{
-		if(_access(file, 0) != 0)
+		if(!!_access(file, 0))
 			throw std::exception("File not found");
 
 		char* tmpName = _strdup(file);
@@ -78,9 +77,12 @@ Script::Script(const char* file, ScriptType scripttype) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
-		//JS_SetGCZeal(context, 1);
-		JS_SetContextThread(context);
+#ifdef DEBUG
+		JS_SetGCZeal(context, 1);
+#endif
+
 		JS_SetContextPrivate(context, this);
+		JS_SetContextThread(context);
 		JS_BeginRequest(context);
 
 		JS_SetErrorReporter(context, reportError);
@@ -161,7 +163,8 @@ Script::Script(const char* file, ScriptType scripttype) :
 Script::~Script(void)
 {
 	EnterCriticalSection(&lock);
-	Stop(true, true);
+	if(GetScriptState() == Running)
+		Stop();
 
 	if(!JS_GetContextThread(context))
 		JS_SetContextThread(context);
@@ -217,8 +220,8 @@ void Script::SetScriptState(ScriptExecState state)
 
 void Script::Run(void)
 {
-	if(GetScriptState() != Unexecuted)
-		return;
+	if(GetScriptState() == Running)
+		DebugBreak();
 
 	SetScriptState(Running);
 
@@ -265,10 +268,7 @@ void Script::Pause(void)
 {
 	//EnterCriticalSection(&lock);
 	if(GetScriptState() == Running)
-	{
-		wantPause = true;
-		JS_TriggerOperationCallback(context);
-	}
+		SetScriptState(Paused);
 	//LeaveCriticalSection(&lock);
 }
 
@@ -276,26 +276,12 @@ void Script::Resume(void)
 {
 	//EnterCriticalSection(&lock);
 	if(GetScriptState() == Paused)
-	{
-		wantPause = false;
-		JS_TriggerOperationCallback(context);
-	}
+		SetScriptState(Running);
 	//LeaveCriticalSection(&lock);
 }
 
-void Script::Stop(bool force, bool reallyForce)
-{	
-	// Clear the events/hooks before aborting the script
-	// otherwise we can't clean up all the events in the context
-	EnterCriticalSection(&lock);
-
-	ClearAllEvents();
-	Genhook::Clean(this);
-
-	SetScriptState(Stopped);
-
-	wantPause = false;
-
+void Script::Stop(void)
+{
 #if 0
 	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
 	for(int i = 0; IsRunning(); i++)
@@ -307,9 +293,26 @@ void Script::Stop(bool force, bool reallyForce)
 	}
 #endif
 
-	if(threadHandle)
-		CloseHandle(threadHandle);
-	threadHandle = NULL;
+	EnterCriticalSection(&lock);
+
+	if(GetScriptState() == Running)
+	{
+		SetScriptState(Stopped);
+
+		ClearAllEvents();
+		Genhook::Clean(this);
+
+		if(threadHandle != INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(threadHandle);
+			threadHandle = INVALID_HANDLE_VALUE;
+		}
+		else
+			DebugBreak();
+
+		threadId = 0;
+	}
+
 	LeaveCriticalSection(&lock);
 }
 
@@ -339,9 +342,7 @@ bool Script::Include(const char* file)
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\');
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(!!includes.count(string(fname)) ||
-	   !!inProgress.count(string(fname)) ||
-	    (fileName == string(fname)))
+	if(!!includes.count(string(fname)) || !!inProgress.count(string(fname)) || (fileName == string(fname)))
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
@@ -364,20 +365,11 @@ bool Script::Include(const char* file)
 		inProgress.erase(fname);
 		JS_RemoveRoot(GetContext(), &scriptObj);
 	}
-	else
-	{
-		JS_SetContextThread(GetContext());
-		JS_EndRequest(GetContext());
-		LeaveCriticalSection(&lock);
-		free(fname);
-		return false;
-	}
 
-	// HACK: assume we have to reclaim ownership
-	//JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
 	LeaveCriticalSection(&lock);
 	free(fname);
+	fname = NULL;
 	return rval;
 }
 
@@ -570,7 +562,7 @@ DWORD WINAPI FuncThread(void* data)
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
 			if(!JS_CallFunctionValue(context, object, (*it)->value(), evt->argc, args, &dummy))
-				return 0;
+				break;
 		}
 
 		static DWORD EvtLFEnd = 0;

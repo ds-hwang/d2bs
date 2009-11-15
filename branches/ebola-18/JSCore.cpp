@@ -4,6 +4,7 @@
 #include <ddeml.h>
 #include <cmath>
 
+#include "D2BS.h"
 #include "js32.h"
 #include "Script.h"
 #include "JSCore.h"
@@ -28,7 +29,6 @@
 #include "mpqstats.h"
 #include "AreaLinker.h"
 #include "ScriptEngine.h"
-#include "D2BS.h"
 
 INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -68,9 +68,28 @@ JSAPI_FUNC(my_delay)
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1 setting to 1!");
 		nDelay = 1;
 	}
-
+#ifdef DEBUG
+	else if(nDelay > 1000000)
+	{
+		JS_ReportWarning(cx, "excessively high delay value(>= 1000000) called!");
+	}
+#endif
 	jsrefcount depth = JS_SuspendRequest(cx);
-	Sleep(nDelay);
+	if(nDelay < 50)
+		Sleep(nDelay);
+	else
+	{
+		DWORD dwStart = GetTickCount();
+		while(dwStart+nDelay > GetTickCount())
+		{
+			Sleep(10);
+		}
+#ifdef DEBUG
+		DWORD dwEnd = GetTickCount;
+		if(dwEnd - dwStart > nDelay + 10)
+			Print("Delay took too long");
+#endif
+	}
 	JS_ResumeRequest(cx, depth);
 
 	return JS_TRUE;
@@ -86,26 +105,28 @@ INT my_load(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 		if(scriptType == Command)
 			scriptType = (GameReady() ? InGame : OutOfGame);
 
-		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(!(lpszFileName && lpszFileName[0]))
+		char* FileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		if(!(FileName && FileName[0]))
 			THROW_ERROR(cx, obj, "Could not convert or empty string");
-		StringReplace(lpszFileName, '/', '\\');
-		if(strlen(lpszFileName) < _MAX_PATH)
+		StringReplace(FileName, '/', '\\');
+		if(strlen(FileName) < _MAX_PATH)
 		{
-			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
-			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptType);
-			if(script)
+			char Buf[_MAX_PATH+_MAX_FNAME];
+			sprintf_s(Buf, sizeof(Buf), "%s\\%s", Vars.szScriptPath, FileName);
+			Script* script = ScriptEngine::CompileFile(Buf, scriptType);
+			if(!script)
 			{
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
-				*rval = JSVAL_TRUE;
-			}
-			else
-			{
-				// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
-				Print("File \"%s\" not found.", lpszFileName);
+				Print("Could not find or compile '%s'.", FileName);
 				*rval = JSVAL_FALSE;
+				return JS_TRUE;
 			}
+			if(CreateThread(0, 0, ScriptThread, script, 0, 0) == INVALID_HANDLE_VALUE)
+			{
+				Print("Could not create thread for '%s'.", FileName);
+				*rval = JSVAL_FALSE;
+				return JS_TRUE;
+			}
+			*rval = JSVAL_TRUE;
 		}
 		else
 			THROW_ERROR(cx, obj, "File name exceeds _MAX_PATH characters");
@@ -953,10 +974,9 @@ INT my_getMercHP(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 			for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pListNext)
 			{
 				if(pUnit->dwType == UNIT_MONSTER &&
-					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
-					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)									
-
+						(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
+						pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
+						D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)
 				{
 					*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId)));
 					return JS_TRUE;
