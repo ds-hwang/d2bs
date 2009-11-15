@@ -34,23 +34,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
-	static int x = D2GetScreenSizeX();
-	Vars.image->SetX(x/2);
-	Vars.text->SetX(x/2);
-
 	while(Vars.bActive)
 	{
 		switch(ClientState())
 		{
 			case ClientStateInGame:
 			{
-				if(x != D2GetScreenSizeX())
-				{
-					x = D2GetScreenSizeX();
-					Vars.image->SetX(x/2);
-					Vars.text->SetX(x/2);
-				}
-
 				if(bInGame)
 				{
 					if((Vars.dwMaxGameTime && Vars.dwGameTime && 
@@ -62,10 +51,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				}
 				else
 				{
-					Vars.dwGameTime = GetTickCount();
-					D2CLIENT_InitInventory();
 					Sleep(1000);
 					GameJoined();
+					Vars.dwGameTime = GetTickCount();
+					D2CLIENT_InitInventory();
 
 					bInGame = true;
 				}
@@ -73,13 +62,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			}
 			case ClientStateMenu:
 			{
-				if(x != D2GetScreenSizeX())
-				{
-					x = D2GetScreenSizeX();
-					Vars.image->SetX(x/2);
-					Vars.text->SetX(x/2);
-				}
-
 				if(!bStarterActive)
 				{
 					MenuEntered(bStarterActive);

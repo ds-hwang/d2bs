@@ -96,14 +96,17 @@ void InitSettings(void)
 
 bool InitHooks(void)
 {
-	int i = 0;
+	DWORD InitHookStart = GetTickCount();
 	while(!Vars.bActive)
 	{
-		if(i >= 300)
+		if(GetTickCount()-InitHookStart > 2000)
 		{
 			MessageBox(0, "Failed to set hooks, exiting!", "D2BS", 0);
 			return false;
 		}
+
+		// Sleep now so we aren't spamming as much until things are setup
+		Sleep(50);
 
 		if(D2WIN_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
 		{
@@ -143,8 +146,6 @@ bool InitHooks(void)
 			if(ClientState() == ClientStateMenu && Vars.bStartAtMenu)
 				clickControl(*p_D2WIN_FirstControl);
 		}
-		Sleep(50);
-		i++;
 	}
 	return true;
 }

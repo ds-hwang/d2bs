@@ -1,5 +1,4 @@
 #include "ScreenHook.h"
-#include "JSScreenHook.h"
 #include "D2BS.h"
 
 using namespace std;
@@ -27,6 +26,15 @@ void Genhook::DrawAll(ScreenhookState type)
 {
 	if(!init)
 		return;
+
+	static int x = -1;
+	int CurrentX = D2GetScreenSizeX();
+	if(x != CurrentX)
+	{
+		x = CurrentX;
+		Vars.image->SetX(x/2);
+		Vars.text->SetX(x/2);
+	}
 
 	EnterCriticalSection(&globalSection);
 	HookList currentHooks = GetHooks();
