@@ -29,6 +29,10 @@ struct FileData {
 	char* path;
 	bool autoflush, locked;
 	FILE* fptr;
+#if DEBUG
+	char* lockLocation;
+	int line;
+#endif
 };
 
 JSAPI_FUNC(file_ctor)
@@ -205,7 +209,13 @@ JSAPI_FUNC(file_open)
 	fdata->locked = lockFile;
 	fdata->fptr = fptr;
 	if(lockFile)
+	{
 		_lock_file(fptr);
+#if DEBUG
+		fdata->lockLocation = __FILE__;
+		fdata->line = __LINE__;
+#endif
+	}
 
 	JSObject* res = BuildObject(cx, &file_class_ex.base, file_methods, file_props, fdata);
 	if(!res)
@@ -229,9 +239,12 @@ JSAPI_FUNC(file_close)
 		if(fdata->fptr)
 		{
 			if(fdata->locked)
-				_unlock_file(fdata->fptr);
-			if(fdata->locked)
 			{
+				_unlock_file(fdata->fptr);
+#if DEBUG
+				fdata->lockLocation = __FILE__;
+				fdata->line = __LINE__;
+#endif
 				if(!!fclose(fdata->fptr))
 					THROW_ERROR(cx, obj, _strerror("Close failed"));
 			}
@@ -257,7 +270,13 @@ JSAPI_FUNC(file_reopen)
 			if(!fdata->fptr)
 				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
 			if(fdata->locked)
+			{
 				_lock_file(fdata->fptr);
+#if DEBUG
+				fdata->lockLocation = __FILE__;
+				fdata->line = __LINE__;
+#endif
+			}
 		} else THROW_ERROR(cx, obj, "File is not closed");
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -507,6 +526,10 @@ void file_finalize(JSContext *cx, JSObject *obj)
 			if(fdata->locked)
 			{
 				_unlock_file(fdata->fptr);
+#if DEBUG
+				fdata->lockLocation = __FILE__;
+				fdata->line = __LINE__;
+#endif
 				fclose(fdata->fptr);
 			}
 			else
