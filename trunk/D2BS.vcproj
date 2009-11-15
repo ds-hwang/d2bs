@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib js32/js32d.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -176,7 +176,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib js32/js32.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -275,7 +275,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib advapi32.lib js32/js32.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -310,7 +310,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description=""
 				CommandLine="RMDIR /S /Q &quot;$(OutDir)\release-pkg&quot;&#x0D;&#x0A;MKDIR &quot;$(OutDir)\release-pkg&quot;&#x0D;&#x0A;COPY /B &quot;$(OutDir)\$(TargetFileName)&quot; /B &quot;$(OutDir)\release-pkg\$(TargetName).bin&quot; /Y /V&#x0D;&#x0A;XCOPY &quot;$(ProjectDir)resources&quot; &quot;$(OutDir)\release-pkg&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>

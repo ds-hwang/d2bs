@@ -1,7 +1,6 @@
 // Diablo II Botting System Core
 
 #include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
 
 #include "dde.h"
 #include "Offset.h"
