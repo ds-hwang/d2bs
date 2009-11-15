@@ -184,9 +184,6 @@ void Reload(void)
 		Print("ÿc2D2BSÿc0 :: Flushing the script cache");
 	ScriptEngine::FlushCache();
 
-	// wait for things to catch up
-	Sleep(500);
-
 	const char* script = GetStarterScriptName();
 	if(StartScript(script, GetStarterScriptType()))
 		Print("ÿc2D2BSÿc0 :: Started %s", script);
@@ -196,7 +193,6 @@ void Reload(void)
 
 bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 {
-	bool result = false;
 	char* buf = _strdup(command);
 	char* next_token1;
 	char* argv = strtok_s(buf, " ", &next_token1);
@@ -205,6 +201,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	if(argv == NULL)
 		return false;
 
+	bool result = true;
 	if(_strcmpi(argv, "start") == 0)
 	{
 		const char* script = GetStarterScriptName();
@@ -212,21 +209,18 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 			Print("ÿc2D2BSÿc0 :: Started %s", script);
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
-		result = true;
 	}
 	else if(_strcmpi(argv, "stop") == 0)
 	{
 		if(ScriptEngine::GetCount() > 0)
 			Print("ÿc2D2BSÿc0 :: Stopping all scripts");
 		ScriptEngine::StopAll();
-		result = true;
 	}
 	else if(_strcmpi(argv, "flush") == 0)
 	{
 		if(Vars.bDisableCache != TRUE)
 			Print("ÿc2D2BSÿc0 :: Flushing the script cache");
 		ScriptEngine::FlushCache();
-		result = true;
 	}
 	else if(_strcmpi(argv, "load") == 0)
 	{
@@ -235,23 +229,16 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 			Print("ÿc2D2BSÿc0 :: Started %s", script);
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
-		result = true;
 	}
 	else if(_strcmpi(argv, "reload") == 0)
-	{
 		Reload();
-		result = true;
-	}
-	else if(_strcmpi(argv, "exec") == 0 && !unprocessedIsCommand)
-	{
+	else if(_strcmpi(argv, "exec") == 0 && !unprocessedIsCommand && strlen(command+5))
 		ExecCommand(command+5);
-		result = true;
-	}
 	else if(unprocessedIsCommand)
-	{
 		ExecCommand(command);
-		result = true;
-	}
+	else
+		result = false;
+
 	return result;
 }
 

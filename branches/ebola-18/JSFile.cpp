@@ -85,10 +85,12 @@ JSAPI_PROP(file_getProperty)
 				break;
 			case FILE_POSITION:
 				if(fdata->fptr)
+				{
 					if(fdata->locked)
 						*vp = INT_TO_JSVAL(ftell(fdata->fptr));
 					else
 						*vp = INT_TO_JSVAL(_ftell_nolock(fdata->fptr));
+				}
 				else *vp = JSVAL_ZERO;
 				break;
 			case FILE_EOF:
@@ -231,7 +233,12 @@ JSAPI_FUNC(file_close)
 		{
 			if(fdata->locked)
 				_unlock_file(fdata->fptr);
-			if((fdata->locked && !!fclose(fdata->fptr)) || !!_fclose_nolock(fdata->fptr))
+			if(fdata->locked)
+			{
+				if(!!fclose(fdata->fptr))
+					THROW_ERROR(cx, obj, _strerror("Close failed"));
+			}
+			else if(!!_fclose_nolock(fdata->fptr))
 				THROW_ERROR(cx, obj, _strerror("Close failed"));
 			fdata->fptr = NULL;
 		}
@@ -246,7 +253,9 @@ JSAPI_FUNC(file_reopen)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata)
-		if(!fdata->fptr) {
+	{
+		if(!fdata->fptr)
+		{
 			static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
 			fdata->fptr = NULL;
 			fopen_s(&fdata->fptr, fdata->path, modes[fdata->mode]);
@@ -254,7 +263,10 @@ JSAPI_FUNC(file_reopen)
 				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
 			if(fdata->locked)
 				_lock_file(fdata->fptr);
-		} else THROW_ERROR(cx, obj, "File is not closed");
+		}
+		else
+			THROW_ERROR(cx, obj, "File is not closed");
+	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
 }
@@ -328,7 +340,8 @@ JSAPI_FUNC(file_read)
 JSAPI_FUNC(file_readLine)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata && fdata->fptr)
+	{
 		const char* line = readLine(fdata->fptr, fdata->locked);
 		if(!line)
 			THROW_ERROR(cx, obj, _strerror("Read failed"));
@@ -341,10 +354,12 @@ JSAPI_FUNC(file_readLine)
 JSAPI_FUNC(file_readAllLines)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata && fdata->fptr)
+	{
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		int i = 0;
-		while(!feof(fdata->fptr)) {
+		while(!feof(fdata->fptr))
+		{
 			const char* line = readLine(fdata->fptr, fdata->locked);
 			if(!line)
 				THROW_ERROR(cx, obj, _strerror("Read failed"));
@@ -360,7 +375,8 @@ JSAPI_FUNC(file_readAllLines)
 JSAPI_FUNC(file_readAll)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata && fdata->fptr)
+	{
 		if(fdata->locked)
 			fseek(fdata->fptr, 0, SEEK_END);
 		else
@@ -399,15 +415,18 @@ JSAPI_FUNC(file_readAll)
 JSAPI_FUNC(file_write)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata && fdata->fptr)
+	{
 		for(uintN i = 0; i < argc; i++)
 			writeValue(fdata->fptr, cx, argv[i], !!(fdata->mode > 2), fdata->locked);
 
 		if(fdata->autoflush)
+		{
 			if(fdata->locked)
 				fflush(fdata->fptr);
 			else
 				_fflush_nolock(fdata->fptr);
+		}
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -468,7 +487,8 @@ JSAPI_FUNC(file_flush)
 JSAPI_FUNC(file_reset)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata && fdata->fptr)
+	{
 		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_SET))
 			THROW_ERROR(cx, obj, _strerror("Seek failed"));
 		else if(_fseek_nolock(fdata->fptr, 0L, SEEK_SET))

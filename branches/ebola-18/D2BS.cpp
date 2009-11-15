@@ -1,15 +1,10 @@
 // Diablo II Botting System Core
+#include <shlwapi.h>
 
 #define RELDEBUG
 #ifdef RELDEBUG
 #define _MSVC_DEBUG
 #define DEBUG
-#pragma comment(lib, "shlwapi")
-#endif
-
-#ifdef _MSVC_DEBUG
-#include <shlwapi.h>
-#include "D2Loader.h"
 #endif
 
 #include "D2BS.h"
@@ -19,6 +14,10 @@
 #include "Helpers.h"
 #include "D2Handlers.h"
 #include "Console.h"
+
+#ifdef _MSVC_DEBUG
+#include "D2Loader.h"
+#endif
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 

@@ -149,11 +149,10 @@ bool clickControl(Control* pControl, int x, int y)
 		if(y == -1)
 			y = pControl->dwPosY - (pControl->dwSizeY / 2);
 		
-		Sleep(100);
 		SendMouseClick(x, y, 0);
-		Sleep(100);
+		Sleep(250);
 		SendMouseClick(x, y, 1);
-		Sleep(100);
+		Sleep(250);
 		
 		return true;
 	}
@@ -221,6 +220,7 @@ void SetControlText(Control* pControl, char* Text)
 		D2WIN_SetControlText(pControl, szwText);
 		delete[] szwText;
 	}
+	Sleep(250);
 }
 
 BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
@@ -228,10 +228,11 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 	if(ClientState() != ClientStateMenu)
 		return FALSE;
 
-	if(strstr(szGateway,"ERROR"))
+	if(!strcmp(szGateway, "ERROR"))
 		return FALSE;
+
 	// Select the gateway control.
-	Control* pControl = findControl(6, (char *)NULL, -1, 264, 391, 272, 25);
+	Control* pControl = findControl(6, (char*)NULL, -1, 264, 391, 272, 25);
 
 	// if the control exists and has the text label, check if it matches the selected gateway
 	if(pControl && pControl->wText2)
@@ -242,7 +243,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 
 		_strlwr_s(szLine, strlen(szLine)+1);
 		_strlwr_s(szGateway, strSize);
-		if(strstr(szLine, szGateway))
+		if(strcmp(szLine, szGateway))
 		{
 			// gateway is correct, do nothing and return true
 			delete[] szLine;
@@ -306,36 +307,39 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 	}
 	return FALSE;
 }
+
 int OOG_GetLocation()
 {
 	if(ClientState() != ClientStateMenu)
 		return OOG_NONE;
 
 	if(findControl(6, 5103, -1, 330, 416, 128, 35))
-		return OOG_MAIN_MENU_CONNECTING;					//21 Connecting to Battle.net	
+		return OOG_MAIN_MENU_CONNECTING;
+	//10 Login Error
 	else if(findControl(6, 5102, -1, 335, 412, 128, 35))
-		return OOG_LOGIN_ERROR;								//10 Login Error	
+		return OOG_LOGIN_ERROR;
 	else if(findControl(6, 5103, -1, 433, 433, 96, 32))
 	{ 
 		if (findControl(4, (char *)NULL, -1, 427,234,300,100))
-			return OOG_INLINE;								//2 waiting in line	
+			return OOG_INLINE;
 		else if(findControl(4, 10018, -1, 459, 380, 150, 12))
-			return OOG_CREATE;								//4 Create game
+			return OOG_CREATE;
 		else if(findControl(6, 5119, -1, 594, 433, 172, 32))
-			return OOG_JOIN;								// 5 Join Game
+			return OOG_JOIN;
 		else if(findControl(6, 5102, -1, 671, 433, 96, 32))
-			return OOG_CHANNEL;								//7 "Channel List"
+			return OOG_CHANNEL;
 		else
-			return OOG_LADDER;								//6 "Ladder"		
-	}	
-	else if(findControl(6, 5103, -1, 351,337,96,32))		//5103 = CANCEL
+			return OOG_LADDER;
+	}
+	else if(findControl(6, 5103, -1, 351,337,96,32))
+	//5103 = CANCEL
 	{
 		if(findControl(4, 5243, -1, 268, 300, 264, 100))
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(4, (char *)NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
 	}
-		else if (findControl(6, 5102, -1, 351,337,96,32))	//5102 =OK
+	else if (findControl(6, 5102, -1, 351,337,96,32))	//5102 =OK
 	{
 		if (findControl(4, 5131, -1, 268,320,264,120))	
 			return OOG_LOST_CONNECTION;						//17 lost connection	
@@ -421,6 +425,6 @@ int OOG_GetLocation()
 		return OOG_ENTER_IP_ADDRESS;						//41 enter ip	
 	else if (findControl(6, 5118, -1,265,206,272,35))
 		return	OOG_TCP_IP;									//40 tcp-ip
-	
+
 	return OOG_NONE;
 }

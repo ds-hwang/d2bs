@@ -142,13 +142,13 @@ INT my_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 		if(script)
 		{
-			CHAR * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
+			char* FileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+			if(FileName && strlen(FileName) <= _MAX_FNAME)
 			{
-				CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
-				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
-				if(_access(lpszBuf, 0) == 0)
-					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
+				CHAR Buf[_MAX_PATH+_MAX_FNAME];
+				sprintf_s(Buf, sizeof(Buf), "%s\\libs\\%s", Vars.szScriptPath, FileName);
+				if(_access(Buf, 0) == 0)
+					*rval = BOOLEAN_TO_JSVAL(script->Include(Buf));
 				else
 					*rval = JSVAL_FALSE;
 			}

@@ -62,10 +62,9 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				}
 				else
 				{
-					Sleep(1000);
-
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
+					Sleep(1000);
 					GameJoined();
 
 					bInGame = true;

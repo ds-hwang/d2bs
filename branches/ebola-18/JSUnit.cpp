@@ -592,21 +592,19 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(!GameReady())
 		return JS_TRUE;
 
-	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-
 	*rval = JSVAL_FALSE;
 
+	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 	if(!lpUnit || IsBadReadPtr(lpUnit, sizeof(myUnit)) || lpUnit->_dwPrivateType != PRIVATE_UNIT)
 		return JS_TRUE;
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-
 	if(!pUnit || pUnit == (*p_D2CLIENT_PlayerUnit))
 		return JS_TRUE;
 
 	if(pUnit->dwType == UNIT_ITEM && pUnit->dwMode != ITEM_MODE_ON_GROUND && pUnit->dwMode != ITEM_MODE_BEING_DROPPED)
 	{
-			INT nLocation = GetItemLocation(pUnit);					
+			INT nLocation = GetItemLocation(pUnit);
 			
 			BYTE aPacket[13] = {NULL};
 
@@ -634,12 +632,14 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
 		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
-		if(!D2CLIENT_GetUIState(UI_GAME))
-			D2CLIENT_CloseInteract();
+		if(!D2CLIENT_GetUIState(UI_WPMENU))
+		{
+			*rval = JSVAL_FALSE;
+			return JS_TRUE;
+		}
 		D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
-		return JS_TRUE;
 	}
 #if 0
 	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
@@ -649,9 +649,9 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 #endif
 	else
 	{
-		*rval = JSVAL_TRUE;
 		ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
 		//D2CLIENT_Interact(pUnit, 0x45);
+		*rval = JSVAL_TRUE;
 	}
 
 	return JS_TRUE;

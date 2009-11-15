@@ -200,19 +200,20 @@ enum OOG_Locations {
 ///////////////////////////////////////////////////
 // Body Locations
 ///////////////////////////////////////////////////
-enum {  EQUIP_NONE = 0,			// Not equipped
-EQUIP_HEAD,				// Head
-EQUIP_AMULET,			// Amulet
-EQUIP_BODY,				// Body armor
-EQUIP_RIGHT_PRIMARY,	// Right primary slot
-EQUIP_LEFT_PRIMARY,		// Left primary slot
-EQUIP_RIGHT_RING,		// Right ring
-EQUIP_LEFT_RING,		// Left ring
-EQUIP_BELT,				// Belt
-EQUIP_FEET,				// Feet
-EQUIP_GLOVES,			// Gloves
-EQUIP_RIGHT_SECONDARY,	// Right secondary slot
-EQUIP_LEFT_SECONDARY,	// Left secondary slot
+enum {
+	EQUIP_NONE = 0,			// Not equipped
+	EQUIP_HEAD,				// Head
+	EQUIP_AMULET,			// Amulet
+	EQUIP_BODY,				// Body armor
+	EQUIP_RIGHT_PRIMARY,	// Right primary slot
+	EQUIP_LEFT_PRIMARY,		// Left primary slot
+	EQUIP_RIGHT_RING,		// Right ring
+	EQUIP_LEFT_RING,		// Left ring
+	EQUIP_BELT,				// Belt
+	EQUIP_FEET,				// Feet
+	EQUIP_GLOVES,			// Gloves
+	EQUIP_RIGHT_SECONDARY,	// Right secondary slot
+	EQUIP_LEFT_SECONDARY,	// Left secondary slot
 };
 
 ///////////////////////////////////////////////////
@@ -348,7 +349,8 @@ enum {
 	CLASS_BAR,
 	CLASS_DRU,
 	CLASS_ASN,
-	CLASS_NA};
+	CLASS_NA
+};
 
 	///////////////////////////////////////////////////
 	// Common Spells

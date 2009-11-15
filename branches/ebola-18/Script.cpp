@@ -52,6 +52,8 @@ Script::Script(const char* file, ScriptType scripttype) :
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
+	//if(ScriptEngine::GetCount(file)))
+
 	scriptType = scripttype;
 	if(scripttype == Command)
 	{

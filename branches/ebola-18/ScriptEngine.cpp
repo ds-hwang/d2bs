@@ -141,16 +141,21 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 		return 0;
 
 	EnterCriticalSection(&lock);
+
 	int count = scripts.size();
-	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
+	if(count)
 	{
-		if(!active && it->second->GetScriptState() == Running)
-			count--;
-		if(!unexecuted && it->second->GetExecutionCount() == 0 && it->second->GetScriptState() != Running)
-			count--;
+		for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
+		{
+			if(!active && it->second->GetScriptState() == Running)
+				count--;
+			if(!unexecuted && it->second->GetExecutionCount() == 0 && it->second->GetScriptState() != Running)
+				count--;
+		}
 	}
 	assert(count >= 0);
 	LeaveCriticalSection(&lock);
+
 	return count;
 }
 
@@ -186,12 +191,16 @@ void ScriptEngine::Shutdown(void)
 		// bring the engine down properly
 		EnterCriticalSection(&lock);
 		state = EngineStopping;
-		StopAll(true);
 
-		// clear all scripts now that they're stopped
-		ForEachScript(::DisposeScript, NULL, 0);
+		if(scripts.size())
+		{
+			StopAll(true);
 
-		scripts.clear();
+			// clear all scripts now that they're stopped
+			ForEachScript(::DisposeScript, NULL, 0);
+
+			scripts.clear();
+		}
 
 		if(runtime)
 		{
@@ -200,17 +209,18 @@ void ScriptEngine::Shutdown(void)
 			runtime = NULL;
 		}
 
+		state = EngineStopped;
 		LeaveCriticalSection(&lock);
 		DeleteCriticalSection(&lock);
-		state = EngineStopped;
 	}
-
-	Vars.bNeedShutdown = FALSE;
 }
 
 void ScriptEngine::StopAll(bool forceStop)
 {
 	if(GetState() != EngineRunning)
+		return;
+
+	if(scripts.size() < 1)
 		return;
 
 	EnterCriticalSection(&lock);
@@ -223,6 +233,9 @@ void ScriptEngine::StopAll(bool forceStop)
 void ScriptEngine::FlushCache(void)
 {
 	if(GetState() != EngineRunning)
+		return;
+
+	if(scripts.size() < 1)
 		return;
 
 	static bool isFlushing = false;
@@ -362,7 +375,10 @@ JSBool operationCallback(JSContext* cx)
 	//JS_SetOperationCallback(cx, operationCallback);
 
 	if(ClientState() != ClientStateInGame && script->GetScriptType() == InGame)
+	{
+		Print("OP %s in game script stopped.", script->GetFilename());
 		return JS_FALSE;
+	}
 
 	return JS_TRUE;
 }
