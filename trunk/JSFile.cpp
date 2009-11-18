@@ -88,11 +88,14 @@ JSAPI_PROP(file_getProperty)
 				break;
 			case FILE_POSITION:
 				if(fdata->fptr)
+				{
 					if(fdata->locked)
 						*vp = INT_TO_JSVAL(ftell(fdata->fptr));
 					else
 						*vp = INT_TO_JSVAL(_ftell_nolock(fdata->fptr));
-				else *vp = JSVAL_ZERO;
+				}
+				else 
+					*vp = JSVAL_ZERO;
 				break;
 			case FILE_EOF:
 				if(fdata->fptr)
@@ -427,10 +430,12 @@ JSAPI_FUNC(file_write)
 			writeValue(fdata->fptr, cx, argv[i], !!(fdata->mode > 2), fdata->locked);
 
 		if(fdata->autoflush)
+		{
 			if(fdata->locked)
 				fflush(fdata->fptr);
 			else
 				_fflush_nolock(fdata->fptr);
+		}
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

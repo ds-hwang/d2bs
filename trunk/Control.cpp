@@ -388,7 +388,7 @@ int OOG_GetLocation()
 			return OOG_INVALID_CDKEY;						//22 invalid CD-KEY 		
 	}	
 	else if (findControl(4, 5159, -1, 438, 300, 326, 150)) 
-		return OOG_GAME_DOES_NOT_EXIST;						//28 game dosent exist
+		return OOG_GAME_DOES_NOT_EXIST;						//28 game doesn't exist
 	else if (findControl(4, 5161, -1, 438, 300, 326, 150)) 
 		return OOG_GAME_IS_FULL;							//38 Game is full
 	else if (findControl(4, 5138, -1, 438, 300, 326, 150)) 

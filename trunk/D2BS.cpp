@@ -10,7 +10,7 @@
 #include "Console.h"
 #include "D2BS.h"
 
-
+//#define _MSVC_DEBUG // Un-comment for debug release testing
 #ifdef _MSVC_DEBUG
 #include "D2Loader.h"
 #endif

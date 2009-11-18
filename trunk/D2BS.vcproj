@@ -211,6 +211,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="COPY /B &quot;$(OutDir)\$(TargetFileName)&quot; /B &quot;$(OutDir)\$(TargetName).bin&quot; /Y /V&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
