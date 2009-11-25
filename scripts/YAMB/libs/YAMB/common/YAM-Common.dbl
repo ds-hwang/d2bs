@@ -1139,7 +1139,7 @@ function DC_ExtractStats(item,intrade) {
 	var _desclines = _itemdesc.split( "\n" );
 	// Loop thru the array and trim any line with ÿc other than ÿc3
 	var _desclinesnocolor = new Array();
-	for(_line = _desclines.length; _line > 0; _line-=1) {
+	for(var _line = _desclines.length; _line > 0; _line-=1) {
 		// If the line is not empty
 		if(_desclines[_line - 1] != "") {
 			// If there is a ÿc in the line, remove it excepted ÿc3
@@ -1572,7 +1572,8 @@ function DC_DPrint(message) {
 	// If level is 2 or more, print the msg on screen
 	if(DC_DebugLevel >= 2) {
 		print("ÿc2debug print : " + message);
-		delay(DC_DebugPrintDel);
+		if(DC_DebugPrintDel)
+			delay(DC_DebugPrintDel);
 	}
 	// If level is 1 or 3, print the same msg on debug log file too
 	if((DC_DebugLevel == 1 || DC_DebugLevel == 3 ) && message.indexOf("DC_WriteLogEntry") == -1) {

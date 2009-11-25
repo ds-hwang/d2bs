@@ -49,16 +49,16 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //YAMXXP.push("HOTIP");
-YAMXXP.push("Pindle");
+//YAMXXP.push("Pindle");
 //YAMXXP.push("Nihlathak");
-YAMXXP.push("Eldritch");
+//YAMXXP.push("Eldritch");
 //YAMXXP.push("Shenk");
 //YAMXXP.push("ThreshSocket");
 //YAMXXP.push("BloodRaven");
 //YAMXXP.push("Countess");
-YAMXXP.push("Andy");
-YAMXXP.push("Summoner");
-YAMXXP.push("Duriel");
+//YAMXXP.push("Andy");
+//YAMXXP.push("Summoner");
+//YAMXXP.push("Duriel");
 //YAMXXP.push("Trav");
 YAMXXP.push("Meph");
 //YAMXXP.push("Izual");
@@ -68,7 +68,7 @@ YAMXXP.push("Meph");
 //YAMXXP.push("Ancients");  // Works, converted to rush bot format, added checks for PublicMode
 //YAMXXP.push("Diablo");    // Works
 //YAMXXP.push("Tunnels");   // WTF? need to look at script.. BADLY
-YAMXXP.push("Baal");
+//YAMXXP.push("Baal");
 // Leecher module.
 //YAMXXP.push("Parasite");
 // Follower, enchanter, bo script
@@ -159,7 +159,7 @@ XP_DropItems         = false;
 XP_BossLOS           = true;
 XP_ImmuneQuit        = 4;
 DA_LogChickens       = true;
-DL_LogMode           = 1;
+DL_LogMode           = 2;//1;
 YAM_MustIdle         = false;
 YAM_LifeWatchPath    = "tools/YAM-LifeWatch.dbj";
 YAM_MonsterWatchPath = "tools/YAM-MonsterWatch.dbj";
@@ -319,7 +319,11 @@ DT_GambleItem.push("rin");	// Rings
 DT_GambleItem.push("amu");	// Amulets
 DT_GambleItem.push("ci0");	// Circlet
 DT_GambleItem.push("ci1");	// Coronet
-
+DT_GambleItem.push("lgl"); // Leather Glove
+DT_GambleItem.push("vgl"); // Heavy Gloves
+DT_GambleItem.push("mgl"); // Chain Gloves
+DT_GambleItem.push("tgl"); // Light Gauntlets
+DT_GambleItem.push("hgl"); // Gauntlets 
 //////////////////////////////////////////////////////////////////////
 // Cubing settings
 //====================================================================
@@ -474,7 +478,7 @@ DM_RandomMoveDel = false;
 //--------------------------------------------------------------------
 
 DC_DebugLevel        = 1;
-DC_DebugPrintDel     = 0;
+DC_DebugPrintDel     = 10;
 DC_AbortPrintDel     = 2000;
 DA_DisplayImmunities = true;
 

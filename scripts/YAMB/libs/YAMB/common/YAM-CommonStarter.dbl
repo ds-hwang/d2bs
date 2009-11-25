@@ -28,9 +28,9 @@ switch(Lang) {
 // [1] = command
 // [2] = rest of message
 function YAM_parseGameMsg (msg, c) {
-	parsedMsg = new Array();
-	msg1      = null;
-	Firstword = msg.substring(0,msg.indexOf(" "));
+	var parsedMsg = new Array();
+	var msg1      = null;
+	var Firstword = msg.substring(0,msg.indexOf(" "));
 	if(c == 2) { // color green
 		if(Firstword == MsgStrings["From"]) { // sent with /f m 
 			parsedMsg[0] = msg.substring(MsgStrings["From"].length+1, msg.indexOf(" ", MsgStrings["From"].length+1)); // modified

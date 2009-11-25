@@ -209,9 +209,9 @@ function YAM_gamemsgHandler(msg, c) {
 		if(GoldMsgHandler(msg))
 			YAM_MustIdle = true;
 	}
-	myGame=null;
-	myPass=null;
-	parsed = YAM_parseGameMsg(msg, c);
+	var myGame=null;
+	var myPass=null;
+	var parsed = YAM_parseGameMsg(msg, c);
 	if (PublicMode) {
 		if(YAM_isMyLeader(parsed[0])==true) {
 			if (parsed[1] == "Join") {

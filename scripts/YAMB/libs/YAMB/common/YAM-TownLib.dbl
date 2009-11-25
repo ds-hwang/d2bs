@@ -1085,23 +1085,29 @@ function DT_GetTome(type, name, code) {
 // -type	Type of tome to check (0 = id, 1 = tp) (facultative, id book by default)
 // Return value : Success of the function
 function DT_FillTome(npc,type) {
-	DC_DPrint("DT_FillTome() ");
+	DC_DPrint("DT_FillTome() : Entered function");
 	// If no arguments is entered, use 0 by default
 	if(arguments.length < 1) {
 		DC_DPrint("DT_FillTome() : There is no npc object entered!");
 		return false;
 	}
 	// If no type is passed, use 0 by default
-	if(arguments.length < 2) { type = 0; }
+	if(arguments.length < 2) { 
+		type = 0;
+	}
 	// Get the book in inventory
 	var _tome = DT_GetTome(type);
 	// If we have the tome, refill it
 	if(_tome) {
 		// If the book is already full, return true
-		if(_tome.getStat(70) == 20) { return true; }
+		if(_tome.getStat(70) == 20) { 
+			return true; 
+		}
 		var _scroll = (type == 0) ? DC_getItem("isc",103) : DC_getItem("tsc",103);
 		if(_scroll) {
-			if(DT_BuyItem(_scroll,npc,3)) { return true; }
+			if(DT_BuyItem(_scroll,npc,3)) { 
+				return true; 
+			}
 			else {
 				DC_DPrint("DT_FillTome() : Unable to refill the tome!");
 				return false;
@@ -1126,7 +1132,7 @@ function DT_FillTome(npc,type) {
 			}
 		}
 		else {
-			DC_DPrint("DT_FillTome() : Unable to get a tome from the npc!");
+			DC_DPrint("DT_FillTome() : Unable to get a Tome of " + (type == 0 ? "Identify" : "Teleport") + " from the npc!");
 			return false;
 		}
 	}
@@ -1790,21 +1796,22 @@ function DT_BuyItem(item,npc,mode) {
 		var _havespace=false;
 		// Check if the item to buy is a scroll
 		if(item.code == "isc" || item.code == "tsc") {
-			var _book;
 			// As it is a scroll, check if we have a book with space inside
-			if(item.code == "isc") { _book = DC_getItem("ibk",100); }
-			else { _book = DC_getItem("tbk",100); }
+			var _book = (item.code == "isc") ? DC_getItem("ibk",100) : DC_getItem("tbk",100);
 			// If there is a book, check for available space
-			if(_book && _book.getStat(70) < 20) { _havespace = true; }
+			if(_book && _book.getStat(70) < 20) { 
+				_havespace = true; 
+			}
 		}
 		// Check if it is a throwing potion
 		else if(item.code == "gps" || item.code == "ops" || item.code == "gpm" ||
 			 item.code == "opm" || item.code == "gpl" || item.code == "opl") {
-			var _throwing;
-			// As it is a scroll, check if we have a book with space inside
-			_throwing = DC_getItem(_item.code,100);
-			// If there is a book, check for available space
-			if(_throwing && _throwing.getStat(70) < 25) { _havespace = true; }
+			// Check if we have a potion already that more can fit in (amount of potions)
+			var _throwing = DC_getItem(_item.code,100);
+			// If there is a potion in inv, check for available space
+			if(_throwing && _throwing.getStat(70) < 25) { 
+				_havespace = true; 
+			}
 		}
 		// Check if it is a key
 		else if(item.code == "key") {
@@ -1825,7 +1832,7 @@ function DT_BuyItem(item,npc,mode) {
 			do {
 				// For each second, retry to buy/sell
 				if((_timer % 1000) == 0) { 
-					DC_DPrint("shoping for :" + item.name + " at NPC: " + npc.name + " with mode: " + mode); 
+					DC_DPrint("DT_BuyItem() :" + ((mode > 2) ? " shift " : " ") + "buying " + item.name + " at NPC: " + npc.name ); 
 					item.shop(mode > 2 ? 6 : 2); 
 				}
 				// Wait 50 ms
@@ -2104,9 +2111,6 @@ function DT_ShopIt(npc) {
 // -npc		NPC object where you want to gamble (must be a gambling npc)
 function DT_GambleIt(npc) {
 	DC_DPrint("DT_GambleIt() : Entering function");
-	var _newitem = null;
-	var _retval = false;
-	var _counter = 0;
 	// If no npc object is entered, abort
 	if(!npc) {
 		DC_DPrint("DT_GambleIt() : No NPC object is entered!");
@@ -2117,6 +2121,12 @@ function DT_GambleIt(npc) {
 		DC_DPrint("DT_GambleIt() : You tried to gamble at a non-gambling NPC!");
 		return false;
 	}
+	// add variables after bailouts, no need to init them if they aren't going to be used
+	var _newitem = null;
+	var _retval  = false;
+	var _counter = 0;
+	var _result  = false;
+
 	DC_DPrint("DT_GambleIt() : Gambling at " + npc.name);
 	// Firstly get all the items from the gamble window
 	var _gamblearray= new Array();
@@ -2179,25 +2189,29 @@ function DT_GambleIt(npc) {
 					while(_newitem.getFlag(0x10) == 0) {
 						DC_DoDel(20);
 					}
+					// Get the item name
+					var _itemgambledname = DL_GetItemName(_newitem);
+					var _itemgambledquality = _newitem.quality;
 					// if the item is a keeper, log it
 					if(DT_NiceItem(_newitem) == true) {
 						if(YAM_UseNJIP == true){
 						_result = njipCheckGoodItem(_newitem, DT_ReportMode)
 						}
-						_reportstring = (DT_ReportMode == true && YAM_UseNJIP == true) ? " [line #" + _result.lineno + " in " + _result.file + "]" : "";
-						DL_LogItem(DL_GetItemName(_newitem),_newitem.quality,"[Gambled]" + _reportstring);
-						DC_DPrint("DT_GambleIt() : Gambled a " + DL_GetItemName(_newitem) + _reportstring);
+						var _reportstring = (DT_ReportMode == true && YAM_UseNJIP == true) ? " [line #" + _result.lineno + " in " + _result.file + "]" : "";
+						DL_LogItem(_itemgambledname, _itemgambledquality,"[Gambled]", _reportstring);
+						DC_DPrint("DT_GambleIt() : Gambled a " + _itemgambledname + _reportstring);
 					}
 					// If not, sell the item back to the npc
 					else {
-						DC_DPrint("DT_GambleIt() : Attemping to sell the gambled item (" + _newitem.fname + ")");
+						DC_DPrint("DT_GambleIt() : Attemping to sell the gambled item (" + _itemgambledname + ")");
 						_counter = 5;
 						while (DC_CheckOwner(_newitem,me.name) == true && _counter > 0) {
 							DC_DoDel(DC_LagDelay); // delay before selling the item, let the inv settle
 							_retval = DT_BuyItem(_newitem,npc,1);
 							_counter -= 1;
 						}
-						DC_DPrint("DT_GambleIt() : " + ((_retval == false) ? "Unable to resell" : "Sold") + " the gambled item! (" + _newitem.fname + ")");
+						DL_LogItem(_itemgambledname, _itemgambledquality, "[Gambled->Sold]");
+						DC_DPrint("DT_GambleIt() : " + ((_retval == false) ? "Unable to resell" : "Sold") + " the gambled item! (" + _itemgambledname + ")");
 					}
 				}
 				else {
@@ -2209,7 +2223,6 @@ function DT_GambleIt(npc) {
 	// also sell bad identified items- darkspirit
 	// Will add a 2 seconds DC_DoDel to this function though
 	DT_ClearInv(npc);
-	//stop(1);//TESTING
 	return true;
 }
 
