@@ -176,14 +176,12 @@ void CCollisionMap::Search(Room2 *ro, UnitAny* pPlayer, DwordArray &aSkip, DWORD
 	}
 
 	aSkip.Add((DWORD)ro);
-	aSkip.Sort();	
-
+	aSkip.Sort();
 
 	if (ro->pRoom1)
 	{
 		AddCollisionData(ro->pRoom1->Coll);
 	}
-
 	
 	Room2 **n = ro->pRoom2Near;
 	for(UINT i=0; i < ro->dwRoomsNear; i++)

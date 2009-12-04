@@ -1807,12 +1807,13 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	jsint nArea = GetPlayerArea();
 
-	if(argc == 1 && JSVAL_IS_INT(argv[0]))
+	if(argc == 1)
 	{
-		nArea = JSVAL_TO_INT(argv[0]); 
+		if(JSVAL_IS_INT(argv[0]))
+			nArea = JSVAL_TO_INT(argv[0]); 
+		else
+			THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	}
-	else
-		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	
 	Level* pLevel = GetLevel(nArea);
 	if(!pLevel)
@@ -2148,7 +2149,7 @@ JSAPI_FUNC(my_login)
 				break;
 			case OOG_CHAR_SELECT:
 				if (!OOG_SelectCharacter(charname))
-					 errorMsg = "invalid charactor name";
+					 errorMsg = "invalid character name";
 				break;
 			case OOG_MAIN_MENU:
 				if (tolower(mode[0])== 's')
