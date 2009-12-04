@@ -2116,7 +2116,7 @@ JSAPI_FUNC(my_login)
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!profile)
 		THROW_ERROR(cx, obj, "Could not convert string (profile)");
-	
+
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
@@ -2276,6 +2276,53 @@ JSAPI_FUNC(my_login)
 	}
 	Vars.bBlockKeys = 0; Vars.bBlockMouse = 0;
 
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_addProfile)
+{
+	// validate the args...
+	char *profile, *mode, *gateway, *username, *password, *charname;
+	if(argc != 6)
+		THROW_ERROR(cx, obj, "Invalid arguments passed to addProfile");
+
+	for(uintN i = 0; i < argc; i++)
+		if(!JSVAL_IS_STRING(argv[i]))
+			THROW_ERROR(cx, obj, "All arguments to addProfile must be strings!");
+
+	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	mode = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	gateway = JS_GetStringBytes(JSVAL_TO_STRING(argv[2]));
+	username = JS_GetStringBytes(JSVAL_TO_STRING(argv[3]));
+	password = JS_GetStringBytes(JSVAL_TO_STRING(argv[4]));
+	charname = JS_GetStringBytes(JSVAL_TO_STRING(argv[5]));
+	if(!profile || !mode || !gateway || !username || !password || !charname)
+		THROW_ERROR(cx, obj, "Failed to convert string");
+
+	char file[_MAX_FNAME+_MAX_PATH];
+
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+	// check if the profile exists
+	{
+		// keep this local to this section of code so we don't cause the stack to grossly explode
+		char profiles[65535];
+		int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
+		int i = 0;
+		while(i < count)
+		{
+			if(_strcmpi(profiles+i, profile) == 0)
+				THROW_ERROR(cx, obj, "Profile already exists!");
+			i += strlen(profiles+i)+2;
+		}
+	}
+
+	char settings[600];
+	// nope, write the new one
+	sprintf_s(settings, sizeof(settings),
+				"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
+				mode, gateway, username, password, charname);
+
+	WritePrivateProfileSection(profile, settings, file);
 	return JS_TRUE;
 }
 
