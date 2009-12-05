@@ -2,13 +2,20 @@ include('pattern.dbl');
 include('cache.dbl');
 include('configuration.dbl');
 
+var config = new Config();
+
+var threads = [
+	config.get('GameCreator', 'creategame.dbj'),
+	config.get('Goal', 'goal.dbj'),
+	config.get('Attack', 'attack.dbj'),
+	config.get('LifeWatch', 'lifewatch.dbj'),
+	config.get('Pickit', 'pickit.dbj'),
+	config.get('Dodge', 'dodge.dbj')
+];
+
 function main()
 {
-	print('Loading the config');
-	var config = new Config();
-
-	// read the patterns this character wants to load
-	// for testing, we're going to hardcode the 'pit' pattern
+	// read the patterns this character wants to load for caching purposes
 	print('Loading the pattern');
 	var pname = config.get('BasePattern', '');
 	if(pname == '')
@@ -41,16 +48,10 @@ function main()
 	delay(rand(1,4)*1000);
 
 	// load our bot threads
-	var threads = [
-		config.get('GameCreator', 'creategame.dbj'),
-		config.get('Goal', 'goal.dbj'),
-		config.get('Attack', 'attack.dbj'),
-		config.get('LifeWatch', 'lifewatch.dbj'),
-		config.get('Pickit', 'pickit.dbj')
-	];
 	var scripts = [];
 
-	var title = new Text("Active Threads", 765, 100, 0, 5, 1);
+	var title = new Text("Threads", 765, 100, 0, 5, 1);
+
 	for each(var thread in threads)
 	{
 		print('Loading: ' + thread);
@@ -58,14 +59,30 @@ function main()
 		scripts.push([thread.slice(0, -4), new Text(thread + ": ÿc1not running", 775, 120+(12*scripts.length), 0, 0, 1)]);
 	}
 
+	// load the pause script
+	// the reason this isn't in the threads array is because it shouldn't
+	// be displayed in the 'threads' window
+	load(config.get('Pause', 'tools/pause.dbj'));
+	addEventListener('scriptmsg', scriptmsg);
+
 	while(true) { update(scripts); delay(100); }
+}
+
+function scriptmsg(script, msg)
+{
+	switch(msg)
+	{
+		case 'threads':
+			script.send.apply(null, threads);
+			break;
+	}
 }
 
 function update(scripts) {
 	for each(var script in scripts)
 	{
 		var s = getScript(script[0] + '.dbj');
-		if(s) script[1].text = script[0] + " (" + s.threadid + "): " + (s.running ? "ÿc2active" : "ÿc9inactive");
+		if(s) script[1].text = script[0] + " (" + s.threadid + "): " + (s.running ? "ÿc2active" : "ÿc9paused");
 		else  script[1].text = script[0] + ": ÿc1not running";
 	}
 }

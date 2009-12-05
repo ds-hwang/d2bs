@@ -1,9 +1,7 @@
 // data structures
 // standard programming data structures that don't exist in javascript
-// last update: $Date: 2008-03-01 19:57:09 -0800 (Sat, 01 Mar 2008) $
 
-if(js_strict)
-	js_strict(true);
+js_strict(true);
 
 function isPoint(pt) {
 	return (pt != undefined && pt.hasOwnProperty('x') &&

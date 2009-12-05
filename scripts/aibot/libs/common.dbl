@@ -1,0 +1,183 @@
+js_strict(true);
+
+include('config.dbl');
+include('pause.dbl');
+include('constants.dbl');
+
+function isUnit(obj) {
+	return obj != null && obj != undefined &&
+		typeof(obj) != 'undefined' && obj.hasOwnProperty('type') &&
+		(obj.hasOwnProperty('gid') || obj.hasOwnProperty('id'));
+}
+
+function isNPC(obj) {
+	return isUnit(obj) && obj.type == TYPE_UNIT && isInTown(obj) && obj.hasOwnProperty('name');
+}
+
+function isMonster(obj) {
+	return isUnit(obj) && obj.type == TYPE_UNIT &&
+			!isInTown(obj) && obj.hasOwnProperty('name');
+}
+
+function isObject(obj) {
+	return isUnit(obj) && obj.type == TYPE_OBJECT &&
+			obj.hasOwnProperty('x') && obj.hasOwnProperty('y');
+}
+
+function isItem(obj) {
+	return isUnit(obj) && obj.type == TYPE_ITEM &&
+			obj.hasOwnProperty('location') &&
+			obj.hasOwnProperty('name');
+}
+
+function isMissile(obj) {
+	return isUnit(obj) && obj.type == TYPE_MISSILE;
+}
+
+function isPreset(obj) {
+	return isUnit(obj) && obj.hasOwnProperty('roomx') && obj.hasOwnProperty('roomy');
+}
+
+function isArea(obj) {
+	return typeof(obj) == 'object' &&
+			obj.hasOwnProperty('id') &&
+			obj.hasOwnProperty('name') &&
+			obj.hasOwnProperty('exits');
+
+function isNumber(obj) { return (typeof(obj) == 'number'); }
+function isString(obj) { return (typeof(obj) == 'string'); }
+function isBoolean(obj) { return (typeof(obj) == 'boolean'); }
+function isError(obj) { return obj instanceof Error; }
+
+function isArray(obj) {
+	// arrays have a push and pop method, as well as a length and
+	// are a typeof object (but not undefined... stupid ECMA spec!)
+	return	typeof(obj) == 'object' && obj != undefined &&
+			obj.hasOwnProperty('length') && isFunction(obj.push) &&
+			isFunction(obj.pop);
+}
+
+function isFunction(obj) {
+	return	typeof(obj) == 'function' &&
+			typeof(obj.call) == 'function' &&
+			typeof(obj.apply) == 'function';
+}
+
+function hasFlag(num, flag) { return ((num & flag) == flag); }
+function setFlag(num, flag) { return num | flag; }
+function clearFlag(num, flag) { return num & flag; }
+
+function sleep(milliseconds) {
+	// assumptions:
+	// ping/2 plus the original delay length should be sufficient
+	// TODO: fps doesn't exist yet; when it gets added, add it here
+	milliseconds = milliseconds > 0 ? milliseconds : 1;
+	delay(milliseconds+(me.ping/2));
+	// if we're paused, just keep waiting
+	while(Pause.state == 0) delay(10);
+}
+
+function moveDelay() { modeDelay([2, 3, 6]); }
+function castDelay() { modeDelay([10]); }
+function neutralDelay() {
+	doDelay(function(){return me.mode != 1;});
+}
+
+function UIDelay(type) {
+	doDelay(function(){return !getUIFlag(type);});
+}
+
+function modeDelay(modes) {
+	if(!isArray(modes))
+		throw new TypeError("modes must be an array of modes!");
+	doDelay(function() {
+		return modes.some(function(e) {
+			return me.mode==e;
+		});
+	});
+}
+
+function doDelay(predicate, delay, maxlen) {
+	delay = delay || 25;
+	maxlen = maxlen || -1;
+	if(!isFunction(predicate))
+		throw new TypeError("You must specify a predicate");
+	var i = 0;
+	do {
+		if(maxlen > 0 && i*delay >= maxlen) return;
+		i++;
+		sleep(delay);
+	} while(predicate(i) === true);
+}
+
+function isInTown(unit) {
+	// shamelessly stolen from botOS
+	// thanks mattlant!
+	unit = (!isUnit(unit) ? me : unit);
+	switch(unit.area) {
+		case 1: case 40: case 75: case 103: case 109:
+			return true;
+		default: return false;
+	}
+}
+
+function presetToReal(p) {
+	if(isPreset(p))
+		return [(p.roomx * 5 + p.x), (p.roomy * 5 + p.y)];
+	throw new Error("Invalid argument");
+}
+
+function zip(a, b) {
+	if(!(isArray(a) && isArray(b)))
+		throw new Error("Invalid argument");
+	// [[x, y] for each(let x in a) for each(let y in b)]
+	var result = [];
+	for(var i = 0; i < a.length && i < b.length; i++)
+		result.push([a[i], b[i]]);
+	return result;
+}
+
+function hasSkill(x) {
+	return getSkillLevel(x, 0) > 0;
+}
+
+function getSkillLevel(x) {
+	if(typeof(x) == 'string')
+		x = getSkillByName(x);
+	return me.getSkill(x, 0);
+}
+
+
+function moveTo(x, y, area, predicate) {
+	area = area||me.area;
+	predicate = isFunction(predicate) ? predicate : function() { return true; };
+	var path = generatePath(me.x, me.y, x, y, me.area, area);
+	var point = false;
+	while((point = path.next()) != false) {
+		moveToPlace(point);
+		// if the caller says to stop, we stop
+		if(!predicate(point))
+			break;
+	}
+	path.close();
+
+	function moveToPlace(point) {
+		if(!isArray(point) && !point.hasOwnProperty('UseWP'))
+			throw new Error('Invalid point');
+		if(point.UseWP)
+		{
+			// there is a waypoint, we need to simply use it
+		}
+		else
+		{
+			// this is a point, we need to move to it
+			var [x, y] = point,
+				tele = hasSkill('teleport') && !isInTown(),
+				dist = getDistance(me, x, y),
+				// will enable these when they're finished
+				movable = true, //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y),
+				range = (tele ? 30 : 15),
+				//moveFunc = 
+		}
+	}
+}

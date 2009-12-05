@@ -2,18 +2,15 @@ js_strict(true);
 
 include('configuration.dbl');
 include('cache.dbl');
+include('pause.dbl');
+include('common.dbl');
 
 function main()
 {
 	// init the config
-	addEventListener('scriptmsg', scriptmsg);
 	addEventListener('melife', life);
 	addEventListener('memana', mana);
 	while(true) delay(10000); // low priority delay
-}
-
-function scriptmsg(msg)
-{
 }
 
 function life(hp)

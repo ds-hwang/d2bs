@@ -1,0 +1,2212 @@
+// a portion of this code is credited to mattlant.
+// I've modified it where necessary to make it fit with my libraries,
+// and to make use of my own algorithms instead of his (not that his were
+// bad, just that I'm a pedantic asshole who has to use his own code :)
+
+js_strict(true);
+
+include('constants.dbl');
+include('datastructures.dbl');
+
+var AreaLinker = function () {};
+
+function AreaLink(start, objects, usewp) {
+	this.Start = start;
+	this.End = undefined;
+	this.Objects = objects;
+	this.UseWP = usewp;
+}
+
+function Area(area, links) {
+	this.Area = area;
+	this.AreaName = GetAreaName(area);
+	this.Links = links||[];
+	for(var i = 0; i < this.Links.length; i++) {
+		this.Links[i].End = this.Area;
+	}
+}
+
+function AreaNode(area, parent) {
+	this.LinkedArea = area;
+	this.Parent = parent;
+}
+
+AreaLinker.FindPath = function (start, dest) {
+	// helper functions for BFS
+	function isEnd(e) { return e.LinkedArea == dest; }
+	function key(e) { return e.LinkedArea; }
+	function getNeighbors(area) {
+		var node = AreaLinker.Areas[area.LinkedArea];
+		var areas = [];
+		for(var i = 0; i < node.Links.length; i++) {
+			areas.push(new AreaNode(AreaLinker.Areas[node.Links[i].Start].Area, area));
+		}
+		return areas;
+	}
+
+	// find the path to the destination
+	var path = BFS(new AreaNode(start, null), isEnd, getNeighbors, key);
+	if(!path)
+		throw new Error(AreaLinker.Areas[start].AreaName +
+					" does not link to " + AreaLinker.Areas[dest].AreaName);
+
+	// build the AreaLink path based on the BFS-generated path
+	var arealinks = [];
+	var ppath = path;
+	while(ppath.Parent != null) {
+		for each(var link in AreaLinker.Areas[ppath.LinkedArea].Links) {
+			if(link.Start == ppath.Parent.LinkedArea) {
+				arealinks.push(link);
+				break;
+			}
+		}
+		ppath = ppath.Parent;
+	}
+	return arealinks.reverse();
+};
+
+
+///////////////////////////////////////////////////////////////////////
+// DATA FOR LINKER
+///////////////////////////////////////////////////////////////////////
+
+AreaLinker.Areas = [];
+AreaLinker.Areas[AREA_NONE] = new Area(AREA_NONE, []);
+
+AreaLinker.Areas[AREA_ROGUE_ENCAMPMENT] = new Area(AREA_ROGUE_ENCAMPMENT, [
+	new AreaLink(AREA_MOO_MOO_FARM),
+	new AreaLink(AREA_BLOOD_MOOR),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_BLOOD_MOOR] = new Area(AREA_BLOOD_MOOR, [
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_DEN_OF_EVIL),
+	new AreaLink(AREA_COLD_PLAINS)
+]);
+
+AreaLinker.Areas[AREA_COLD_PLAINS] = new Area(AREA_COLD_PLAINS, [
+	new AreaLink(AREA_BLOOD_MOOR),
+	new AreaLink(AREA_BURIAL_GROUNDS),
+	new AreaLink(AREA_CAVE_LEVEL_1),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_STONY_FIELD] = new Area(AREA_STONY_FIELD, [
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_TRISTRAM),
+	new AreaLink(AREA_UNDERGROUND_PASSAGE_LEVEL_1),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_DARK_WOOD] = new Area(AREA_DARK_WOOD, [
+	new AreaLink(AREA_UNDERGROUND_PASSAGE_LEVEL_1),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_BLACK_MARSH] = new Area(AREA_BLACK_MARSH, [
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_TAMOE_HIGHLAND),
+	new AreaLink(AREA_HOLE_LEVEL_1),
+	new AreaLink(AREA_FORGOTTEN_TOWER),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_TAMOE_HIGHLAND] = new Area(AREA_TAMOE_HIGHLAND, [
+	new AreaLink(AREA_BLACK_MARSH), 
+	new AreaLink(AREA_MONASTERY_GATE),
+	new AreaLink(AREA_PIT_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_DEN_OF_EVIL] = new Area(AREA_DEN_OF_EVIL, [
+	new AreaLink(AREA_BLOOD_MOOR)
+]);
+
+AreaLinker.Areas[AREA_CAVE_LEVEL_1] = new Area(AREA_CAVE_LEVEL_1, [
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_CAVE_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_UNDERGROUND_PASSAGE_LEVEL_1] = new Area(AREA_UNDERGROUND_PASSAGE_LEVEL_1, [
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_UNDERGROUND_PASSAGE_LEVEL_2), 
+	new AreaLink(AREA_DARK_WOOD)
+]);
+
+AreaLinker.Areas[AREA_HOLE_LEVEL_1] = new Area(AREA_HOLE_LEVEL_1, [
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_HOLE_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_PIT_LEVEL_1] = new Area(AREA_PIT_LEVEL_1, [
+	new AreaLink(AREA_TAMOE_HIGHLAND),
+	new AreaLink(AREA_PIT_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CAVE_LEVEL_2] = new Area(AREA_CAVE_LEVEL_2, [
+	new AreaLink(AREA_CAVE_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_UNDERGROUND_PASSAGE_LEVEL_2] = new Area(AREA_UNDERGROUND_PASSAGE_LEVEL_2, [
+	new AreaLink(AREA_UNDERGROUND_PASSAGE_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_HOLE_LEVEL_2] = new Area(AREA_HOLE_LEVEL_2, [
+	new AreaLink(AREA_HOLE_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_PIT_LEVEL_2] = new Area(AREA_PIT_LEVEL_2, [
+	new AreaLink(AREA_PIT_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_BURIAL_GROUNDS] = new Area(AREA_BURIAL_GROUNDS, [
+	new AreaLink(AREA_COLD_PLAINS), 
+	new AreaLink(AREA_CRYPT), 
+	new AreaLink(AREA_MAUSOLEUM)
+]);
+
+AreaLinker.Areas[AREA_CRYPT] = new Area(AREA_CRYPT, [
+	new AreaLink(AREA_BURIAL_GROUNDS)
+]);
+
+AreaLinker.Areas[AREA_MAUSOLEUM] = new Area(AREA_MAUSOLEUM, [
+	new AreaLink(AREA_BURIAL_GROUNDS)
+]);
+
+AreaLinker.Areas[AREA_FORGOTTEN_TOWER] = new Area(AREA_FORGOTTEN_TOWER, [
+	new AreaLink(AREA_BLACK_MARSH), 
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_TOWER_CELLAR_LEVEL_1] = new Area(AREA_TOWER_CELLAR_LEVEL_1, [
+	new AreaLink(AREA_FORGOTTEN_TOWER), 
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_TOWER_CELLAR_LEVEL_2] = new Area(AREA_TOWER_CELLAR_LEVEL_2, [
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_1), 
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_TOWER_CELLAR_LEVEL_3] = new Area(AREA_TOWER_CELLAR_LEVEL_3, [
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_2), 
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_4)
+]);
+
+AreaLinker.Areas[AREA_TOWER_CELLAR_LEVEL_4] = new Area(AREA_TOWER_CELLAR_LEVEL_4, [
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_3), 
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_5)
+]);
+
+AreaLinker.Areas[AREA_TOWER_CELLAR_LEVEL_5] = new Area(AREA_TOWER_CELLAR_LEVEL_5, [
+	new AreaLink(AREA_TOWER_CELLAR_LEVEL_4)
+]);
+
+AreaLinker.Areas[AREA_MONASTERY_GATE] = new Area(AREA_MONASTERY_GATE, [
+	new AreaLink(AREA_TAMOE_HIGHLAND), 
+	new AreaLink(AREA_OUTER_CLOISTER)
+]);
+
+AreaLinker.Areas[AREA_OUTER_CLOISTER] = new Area(AREA_OUTER_CLOISTER, [
+	new AreaLink(AREA_MONASTERY_GATE), 
+	new AreaLink(AREA_BARRACKS),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_BARRACKS] = new Area(AREA_BARRACKS, [
+	new AreaLink(AREA_OUTER_CLOISTER), 
+	new AreaLink(AREA_JAIL_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_JAIL_LEVEL_1] = new Area(AREA_JAIL_LEVEL_1, [
+	new AreaLink(AREA_BARRACKS), 
+	new AreaLink(AREA_JAIL_LEVEL_2),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_JAIL_LEVEL_2] = new Area(AREA_JAIL_LEVEL_2, [
+	new AreaLink(AREA_JAIL_LEVEL_1), 
+	new AreaLink(AREA_JAIL_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_JAIL_LEVEL_3] = new Area(AREA_JAIL_LEVEL_3, [
+	new AreaLink(AREA_JAIL_LEVEL_2), 
+	new AreaLink(AREA_INNER_CLOISTER)
+]);
+
+AreaLinker.Areas[AREA_INNER_CLOISTER] = new Area(AREA_INNER_CLOISTER, [
+	new AreaLink(AREA_JAIL_LEVEL_3), 
+	new AreaLink(AREA_CATHEDRAL),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CATHEDRAL] = new Area(AREA_CATHEDRAL, [
+	new AreaLink(AREA_INNER_CLOISTER), 
+	new AreaLink(AREA_CATACOMBS_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_CATACOMBS_LEVEL_1] = new Area(AREA_CATACOMBS_LEVEL_1, [
+	new AreaLink(AREA_CATHEDRAL),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CATACOMBS_LEVEL_2] = new Area(AREA_CATACOMBS_LEVEL_2, [
+	new AreaLink(AREA_CATACOMBS_LEVEL_1), 
+	new AreaLink(AREA_CATACOMBS_LEVEL_3),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CATACOMBS_LEVEL_3] = new Area(AREA_CATACOMBS_LEVEL_3, [
+	new AreaLink(AREA_CATACOMBS_LEVEL_2), 
+	new AreaLink(AREA_CATACOMBS_LEVEL_4)
+]);
+
+AreaLinker.Areas[AREA_CATACOMBS_LEVEL_4] = new Area(AREA_CATACOMBS_LEVEL_4, [
+	new AreaLink(AREA_CATACOMBS_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_TRISTRAM] = new Area(AREA_TRISTRAM, [
+	new AreaLink(AREA_STONY_FIELD, {Portal:PORTAL})
+]);
+
+AreaLinker.Areas[AREA_MOO_MOO_FARM] = new Area(AREA_MOO_MOO_FARM, [
+	new AreaLink(AREA_ROGUE_ENCAMPMENT, {Portal:PORTAL})
+]); 
+
+// Act 2
+
+AreaLinker.Areas[AREA_LUT_GHOLEIN] = new Area(AREA_LUT_GHOLEIN, [
+	new AreaLink(AREA_A2_SEWERS_LEVEL_1), 
+	new AreaLink(AREA_HAREM_LEVEL_1), 
+	new AreaLink(AREA_ROCKY_WASTE),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_ROCKY_WASTE] = new Area(AREA_ROCKY_WASTE, [
+	new AreaLink(AREA_LUT_GHOLEIN), 
+	new AreaLink(AREA_STONY_TOMB_LEVEL_1), 
+	new AreaLink(AREA_DRY_HILLS)
+]);
+
+AreaLinker.Areas[AREA_DRY_HILLS] = new Area(AREA_DRY_HILLS, [
+	new AreaLink(AREA_ROCKY_WASTE), 
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_1), 
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_FAR_OASIS] = new Area(AREA_FAR_OASIS, [
+	new AreaLink(AREA_DRY_HILLS), 
+	new AreaLink(AREA_MAGGOT_LAIR_LEVEL_1), 
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_LOST_CITY] = new Area(AREA_LOST_CITY, [
+	new AreaLink(AREA_FAR_OASIS), 
+	new AreaLink(AREA_ANCIENT_TUNNELS, {InteractFirst:TRAP_DOOR}), 
+	new AreaLink(AREA_VALLEY_OF_SNAKES),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_VALLEY_OF_SNAKES] = new Area(AREA_VALLEY_OF_SNAKES, [
+	new AreaLink(AREA_LOST_CITY), 
+	new AreaLink(AREA_CLAW_VIPER_TEMPLE_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_CANYON_OF_THE_MAGI] = new Area(AREA_CANYON_OF_THE_MAGI, [
+	new AreaLink(AREA_ARCANE_SANCTUARY, {Portal:PORTAL}),
+	new AreaLink(AREA_TAL_RASHAS_TOMB_1),
+	new AreaLink(AREA_TAL_RASHAS_TOMB_2),
+	new AreaLink(AREA_TAL_RASHAS_TOMB_3),
+	new AreaLink(AREA_TAL_RASHAS_TOMB_4),
+	new AreaLink(AREA_TAL_RASHAS_TOMB_5), 
+	new AreaLink(AREA_TAL_RASHAS_TOMB_6), 
+	new AreaLink(AREA_TAL_RASHAS_TOMB_7),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_A2_SEWERS_LEVEL_1] = new Area(AREA_A2_SEWERS_LEVEL_1, [
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_A2_SEWERS_LEVEL_2] = new Area(AREA_A2_SEWERS_LEVEL_2, [
+	new AreaLink(AREA_A2_SEWERS_LEVEL_1),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_3),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_A2_SEWERS_LEVEL_3] = new Area(AREA_A2_SEWERS_LEVEL_3, [
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_HAREM_LEVEL_1] = new Area(AREA_HAREM_LEVEL_1, [
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_HAREM_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_HAREM_LEVEL_2] = new Area(AREA_HAREM_LEVEL_2, [
+	new AreaLink(AREA_HAREM_LEVEL_1),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_PALACE_CELLAR_LEVEL_1] = new Area(AREA_PALACE_CELLAR_LEVEL_1, [
+	new AreaLink(AREA_HAREM_LEVEL_2),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_2),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_PALACE_CELLAR_LEVEL_2] = new Area(AREA_PALACE_CELLAR_LEVEL_2, [
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_PALACE_CELLAR_LEVEL_3] = new Area(AREA_PALACE_CELLAR_LEVEL_3, [
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_2),
+	new AreaLink(AREA_ARCANE_SANCTUARY, {InteractFirst:ARCANEPORTAL, InteractSecond:ARCANEPORTAL})
+]);
+
+AreaLinker.Areas[AREA_STONY_TOMB_LEVEL_1] = new Area(AREA_STONY_TOMB_LEVEL_1, [
+	new AreaLink(AREA_ROCKY_WASTE),
+	new AreaLink(AREA_STONY_TOMB_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_THE_DEAD_LEVEL_1] = new Area(AREA_HALLS_OF_THE_DEAD_LEVEL_1, [
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_THE_DEAD_LEVEL_2] = new Area(AREA_HALLS_OF_THE_DEAD_LEVEL_2, [
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_1),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_3),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CLAW_VIPER_TEMPLE_LEVEL_1] = new Area(AREA_CLAW_VIPER_TEMPLE_LEVEL_1, [
+	new AreaLink(AREA_VALLEY_OF_SNAKES),
+	new AreaLink(AREA_CLAW_VIPER_TEMPLE_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_STONY_TOMB_LEVEL_2] = new Area(AREA_STONY_TOMB_LEVEL_2, [
+	new AreaLink(AREA_STONY_TOMB_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_THE_DEAD_LEVEL_3] = new Area(AREA_HALLS_OF_THE_DEAD_LEVEL_3, [
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CLAW_VIPER_TEMPLE_LEVEL_2] = new Area(AREA_CLAW_VIPER_TEMPLE_LEVEL_2, [
+	new AreaLink(AREA_CLAW_VIPER_TEMPLE_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_MAGGOT_LAIR_LEVEL_1] = new Area(AREA_MAGGOT_LAIR_LEVEL_1, [
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_MAGGOT_LAIR_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_MAGGOT_LAIR_LEVEL_2] = new Area(AREA_MAGGOT_LAIR_LEVEL_2, [
+	new AreaLink(AREA_MAGGOT_LAIR_LEVEL_1),
+	new AreaLink(AREA_MAGGOT_LAIR_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_MAGGOT_LAIR_LEVEL_3] = new Area(AREA_MAGGOT_LAIR_LEVEL_3, [
+	new AreaLink(AREA_MAGGOT_LAIR_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_ANCIENT_TUNNELS] = new Area(AREA_ANCIENT_TUNNELS, [
+	new AreaLink(AREA_LOST_CITY)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_1] = new Area(AREA_TAL_RASHAS_TOMB_1, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_2] = new Area(AREA_TAL_RASHAS_TOMB_2, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_3] = new Area(AREA_TAL_RASHAS_TOMB_3, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_4] = new Area(AREA_TAL_RASHAS_TOMB_4, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_5] = new Area(AREA_TAL_RASHAS_TOMB_5, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_6] = new Area(AREA_TAL_RASHAS_TOMB_6, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_TAL_RASHAS_TOMB_7] = new Area(AREA_TAL_RASHAS_TOMB_7, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI)
+]);
+
+AreaLinker.Areas[AREA_ARCANE_SANCTUARY] = new Area(AREA_ARCANE_SANCTUARY, [
+	new AreaLink(AREA_CANYON_OF_THE_MAGI, {InteractFirst:HORAZONSJOURNAL, Portal:CANYON_PORTAL}),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_3, {Portal:ARCANEPORTAL}),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+// TODO: This links to town IFF tyrael is there to open a portal
+AreaLinker.Areas[AREA_DURIELS_LAIR] = new Area(AREA_DURIELS_LAIR, []);
+
+// act3
+AreaLinker.Areas[AREA_KURAST_DOCKTOWN] = new Area(AREA_KURAST_DOCKTOWN, [
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_SPIDER_FOREST] = new Area(AREA_SPIDER_FOREST, [
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_SPIDER_CAVERN),
+	new AreaLink(AREA_SPIDER_CAVE),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_GREAT_MARSH] = new Area(AREA_GREAT_MARSH, [
+	new AreaLink(AREA_SPIDER_FOREST), 
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_FLAYER_JUNGLE] = new Area(AREA_FLAYER_JUNGLE, [
+	new AreaLink(AREA_GREAT_MARSH), 
+	new AreaLink(AREA_SWAMPY_PIT_LEVEL_1),
+	new AreaLink(AREA_FLAYER_DUNGEON_LEVEL_1),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_LOWER_KURAST] = new Area(AREA_LOWER_KURAST, [
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+// need to interact twice with the tiles of the two temples (first = open, second = use)
+AreaLinker.Areas[AREA_KURAST_BAZAAR] = new Area(AREA_KURAST_BAZAAR, [
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_A3_SEWERS_LEVEL_1),
+	new AreaLink(AREA_RUINED_TEMPLE),
+	new AreaLink(AREA_DISUSED_FANE),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+// need to interact twice with the tiles of the two temples (first = open, second = use)
+AreaLinker.Areas[AREA_UPPER_KURAST] = new Area(AREA_UPPER_KURAST, [
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_A3_SEWERS_LEVEL_1),
+	new AreaLink(AREA_FORGOTTEN_RELIQUARY),
+	new AreaLink(AREA_FORGOTTEN_TEMPLE),
+	new AreaLink(AREA_KURAST_CAUSEWAY),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_KURAST_CAUSEWAY] = new Area(AREA_KURAST_CAUSEWAY, [
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_RUINED_FANE),
+	new AreaLink(AREA_DISUSED_RELIQUARY),
+	new AreaLink(AREA_TRAVINCAL)
+]);
+
+AreaLinker.Areas[AREA_TRAVINCAL] = new Area(AREA_TRAVINCAL, [
+	new AreaLink(AREA_KURAST_CAUSEWAY),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_1),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_SPIDER_CAVE] = new Area(AREA_SPIDER_CAVE, [
+	new AreaLink(AREA_SPIDER_FOREST)
+]);
+
+AreaLinker.Areas[AREA_SPIDER_CAVERN] = new Area(AREA_SPIDER_CAVERN, [
+	new AreaLink(AREA_SPIDER_FOREST)
+]);
+
+AreaLinker.Areas[AREA_SWAMPY_PIT_LEVEL_1] = new Area(AREA_SWAMPY_PIT_LEVEL_1, [
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_SWAMPY_PIT_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_SWAMPY_PIT_LEVEL_2] = new Area(AREA_SWAMPY_PIT_LEVEL_2, [
+	new AreaLink(AREA_SWAMPY_PIT_LEVEL_1),
+	new AreaLink(AREA_SWAMPY_PIT_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_FLAYER_DUNGEON_LEVEL_1] = new Area(AREA_FLAYER_DUNGEON_LEVEL_1, [
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_FLAYER_DUNGEON_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_FLAYER_DUNGEON_LEVEL_2] = new Area(AREA_FLAYER_DUNGEON_LEVEL_2, [
+	new AreaLink(AREA_FLAYER_DUNGEON_LEVEL_1),
+	new AreaLink(AREA_FLAYER_DUNGEON_LEVEL_3)
+]);
+
+AreaLinker.Areas[AREA_SWAMPY_PIT_LEVEL_3] = new Area(AREA_SWAMPY_PIT_LEVEL_3, [
+	new AreaLink(AREA_SWAMPY_PIT_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_FLAYER_DUNGEON_LEVEL_3] = new Area(AREA_FLAYER_DUNGEON_LEVEL_3, [
+	new AreaLink(AREA_FLAYER_DUNGEON_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_A3_SEWERS_LEVEL_1] = new Area(AREA_A3_SEWERS_LEVEL_1, [
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_A3_SEWERS_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_A3_SEWERS_LEVEL_2] = new Area(AREA_A3_SEWERS_LEVEL_2, [
+	new AreaLink(AREA_A3_SEWERS_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_RUINED_TEMPLE] = new Area(AREA_RUINED_TEMPLE, [
+	new AreaLink(AREA_KURAST_BAZAAR)
+]);
+
+AreaLinker.Areas[AREA_DISUSED_FANE] = new Area(AREA_DISUSED_FANE, [
+	new AreaLink(AREA_KURAST_BAZAAR)
+]);
+
+AreaLinker.Areas[AREA_FORGOTTEN_RELIQUARY] = new Area(AREA_FORGOTTEN_RELIQUARY, [
+	new AreaLink(AREA_UPPER_KURAST)
+]);
+
+AreaLinker.Areas[AREA_FORGOTTEN_TEMPLE] = new Area(AREA_FORGOTTEN_TEMPLE, [
+	new AreaLink(AREA_UPPER_KURAST)
+]);
+
+AreaLinker.Areas[AREA_RUINED_FANE] = new Area(AREA_RUINED_FANE, [
+	new AreaLink(AREA_KURAST_CAUSEWAY)
+]);
+
+AreaLinker.Areas[AREA_DISUSED_RELIQUARY] = new Area(AREA_DISUSED_RELIQUARY, [
+	new AreaLink(AREA_KURAST_CAUSEWAY)
+]);
+
+AreaLinker.Areas[AREA_DURANCE_OF_HATE_LEVEL_1] = new Area(AREA_DURANCE_OF_HATE_LEVEL_1, [
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_DURANCE_OF_HATE_LEVEL_2] = new Area(AREA_DURANCE_OF_HATE_LEVEL_2, [
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_1),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_3),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_DURANCE_OF_HATE_LEVEL_3] = new Area(AREA_DURANCE_OF_HATE_LEVEL_3, [
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2)
+]);
+
+// act4
+AreaLinker.Areas[AREA_THE_PANDEMONIUM_FORTRESS] = new Area(AREA_THE_PANDEMONIUM_FORTRESS, [
+	new AreaLink(AREA_OUTER_STEPPES),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_OUTER_STEPPES] = new Area(AREA_OUTER_STEPPES, [
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_PLAINS_OF_DESPAIR)
+]);
+
+AreaLinker.Areas[AREA_PLAINS_OF_DESPAIR] = new Area(AREA_PLAINS_OF_DESPAIR, [
+	new AreaLink(AREA_OUTER_STEPPES),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED)
+]);
+
+AreaLinker.Areas[AREA_CITY_OF_THE_DAMNED] = new Area(AREA_CITY_OF_THE_DAMNED, [
+	new AreaLink(AREA_PLAINS_OF_DESPAIR),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_RIVER_OF_FLAME] = new Area(AREA_RIVER_OF_FLAME, [
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_CHAOS_SANCTUM),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CHAOS_SANCTUM] = new Area(AREA_CHAOS_SANCTUM, [
+	new AreaLink(AREA_RIVER_OF_FLAME)
+]);
+
+// act5
+AreaLinker.Areas[AREA_HARROGATH] = new Area(AREA_HARROGATH, [
+	new AreaLink(AREA_BLOODY_FOOTHILLS),
+	new AreaLink(AREA_NIHLATHAKS_TEMPLE),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_BLOODY_FOOTHILLS] = new Area(AREA_BLOODY_FOOTHILLS, [
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS)
+]);
+
+AreaLinker.Areas[AREA_FRIGID_HIGHLANDS] = new Area(AREA_FRIGID_HIGHLANDS, [
+	new AreaLink(AREA_BLOODY_FOOTHILLS),
+	new AreaLink(AREA_HELL1),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_ARREAT_PLATEAU] = new Area(AREA_ARREAT_PLATEAU, [
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_HELL2),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CRYSTALIZED_CAVERN_LEVEL_1] = new Area(AREA_CRYSTALIZED_CAVERN_LEVEL_1, [
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_CELLAR_OF_PITY),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_CELLAR_OF_PITY] = new Area(AREA_CELLAR_OF_PITY, [
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_CRYSTALIZED_CAVERN_LEVEL_2] = new Area(AREA_CRYSTALIZED_CAVERN_LEVEL_2, [
+	new AreaLink(AREA_ECHO_CHAMBER),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_ECHO_CHAMBER] = new Area(AREA_ECHO_CHAMBER, [
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_TUNDRA_WASTELANDS] = new Area(AREA_TUNDRA_WASTELANDS, [
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_1),
+	new AreaLink(AREA_HELL3),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_GLACIAL_CAVES_LEVEL_1] = new Area(AREA_GLACIAL_CAVES_LEVEL_1, [
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_ROCKY_SUMMIT),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_GLACIAL_CAVES_LEVEL_2] = new Area(AREA_GLACIAL_CAVES_LEVEL_2, [
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_1),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_ROCKY_SUMMIT] = new Area(AREA_ROCKY_SUMMIT, [
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_1),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_1)
+]);
+
+AreaLinker.Areas[AREA_HELL1] = new Area(AREA_HELL1, [
+	new AreaLink(AREA_FRIGID_HIGHLANDS)
+]);
+
+AreaLinker.Areas[AREA_HELL2] = new Area(AREA_HELL2, [
+	new AreaLink(AREA_ARREAT_PLATEAU)
+]);
+
+AreaLinker.Areas[AREA_HELL3] = new Area(AREA_HELL3, [
+	new AreaLink(AREA_TUNDRA_WASTELANDS)
+]);
+
+AreaLinker.Areas[AREA_THE_WORLDSTONE_KEEP_LEVEL_1] = new Area(AREA_THE_WORLDSTONE_KEEP_LEVEL_1, [
+	new AreaLink(AREA_ROCKY_SUMMIT),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_THE_WORLDSTONE_KEEP_LEVEL_2] = new Area(AREA_THE_WORLDSTONE_KEEP_LEVEL_2, [
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_1),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_3),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_HALLS_OF_PAIN),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_THE_WORLDSTONE_KEEP_LEVEL_3] = new Area(AREA_THE_WORLDSTONE_KEEP_LEVEL_3, [
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2),
+	new AreaLink(AREA_THRONE_OF_DESTRUCTION)
+]);
+
+AreaLinker.Areas[AREA_THRONE_OF_DESTRUCTION] = new Area(AREA_THRONE_OF_DESTRUCTION, [
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_3),
+	new AreaLink(AREA_THE_WORLDSTONE_CHAMBER)
+]);
+
+AreaLinker.Areas[AREA_THE_WORLDSTONE_CHAMBER] = new Area(AREA_THE_WORLDSTONE_CHAMBER, []);
+
+AreaLinker.Areas[AREA_NIHLATHAKS_TEMPLE] = new Area(AREA_NIHLATHAKS_TEMPLE, [
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_HALLS_OF_ANGUISH)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_ANGUISH] = new Area(AREA_HALLS_OF_ANGUISH, [
+	new AreaLink(AREA_NIHLATHAKS_TEMPLE),
+	new AreaLink(AREA_HALLS_OF_PAIN)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_PAIN] = new Area(AREA_HALLS_OF_PAIN, [
+	new AreaLink(AREA_HALLS_OF_ANGUISH),
+	new AreaLink(AREA_HALLS_OF_VAUGHT),
+	new AreaLink(AREA_ROGUE_ENCAMPMENT),
+	new AreaLink(AREA_COLD_PLAINS),
+	new AreaLink(AREA_STONY_FIELD),
+	new AreaLink(AREA_DARK_WOOD),
+	new AreaLink(AREA_BLACK_MARSH),
+	new AreaLink(AREA_OUTER_CLOISTER),
+	new AreaLink(AREA_JAIL_LEVEL_1),
+	new AreaLink(AREA_INNER_CLOISTER),
+	new AreaLink(AREA_CATACOMBS_LEVEL_2),
+	new AreaLink(AREA_LUT_GHOLEIN),
+	new AreaLink(AREA_A2_SEWERS_LEVEL_2),
+	new AreaLink(AREA_DRY_HILLS),
+	new AreaLink(AREA_HALLS_OF_THE_DEAD_LEVEL_2),
+	new AreaLink(AREA_FAR_OASIS),
+	new AreaLink(AREA_LOST_CITY),
+	new AreaLink(AREA_PALACE_CELLAR_LEVEL_1),
+	new AreaLink(AREA_ARCANE_SANCTUARY),
+	new AreaLink(AREA_CANYON_OF_THE_MAGI),
+	new AreaLink(AREA_KURAST_DOCKTOWN),
+	new AreaLink(AREA_SPIDER_FOREST),
+	new AreaLink(AREA_GREAT_MARSH),
+	new AreaLink(AREA_FLAYER_JUNGLE),
+	new AreaLink(AREA_LOWER_KURAST),
+	new AreaLink(AREA_KURAST_BAZAAR),
+	new AreaLink(AREA_UPPER_KURAST),
+	new AreaLink(AREA_TRAVINCAL),
+	new AreaLink(AREA_DURANCE_OF_HATE_LEVEL_2),
+	new AreaLink(AREA_THE_PANDEMONIUM_FORTRESS),
+	new AreaLink(AREA_CITY_OF_THE_DAMNED),
+	new AreaLink(AREA_RIVER_OF_FLAME),
+	new AreaLink(AREA_HARROGATH),
+	new AreaLink(AREA_FRIGID_HIGHLANDS),
+	new AreaLink(AREA_ARREAT_PLATEAU),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_1),
+	new AreaLink(AREA_CRYSTALIZED_CAVERN_LEVEL_2),
+	new AreaLink(AREA_TUNDRA_WASTELANDS),
+	new AreaLink(AREA_GLACIAL_CAVES_LEVEL_2),
+	new AreaLink(AREA_THE_WORLDSTONE_KEEP_LEVEL_2)
+]);
+
+AreaLinker.Areas[AREA_HALLS_OF_VAUGHT] = new Area(AREA_HALLS_OF_VAUGHT, [
+	new AreaLink(AREA_HALLS_OF_PAIN)
+]);

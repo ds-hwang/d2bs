@@ -2,11 +2,11 @@ js_strict(true);
 
 include('configuration.dbl');
 include('cache.dbl');
-include('pattern.dbl');
 include('pause.dbl');
 include('common.dbl');
 
 function main()
 {
+	// init the config
 	while(true) delay(10000); // low priority delay
 }
