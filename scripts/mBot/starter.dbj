@@ -1,0 +1,16 @@
+if (!isIncluded("common/Interface.js"))
+	include("common/Interface.js");
+if (!isIncluded("mBot/GameManager.js"))
+	include("mBot/GameManager.js");
+
+function main () {
+	blockMinimize(true);
+	Interface.Init();
+	GameManager.Init();
+	while(true) {
+		delay(100);
+		if (me.ingame)
+			continue;
+		GameManager.Tick();
+	}
+}

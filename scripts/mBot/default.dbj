@@ -1,0 +1,8 @@
+if (!isIncluded("mBot.js"))
+	include("mBot.js");
+
+function main () {
+	mBot.Init();
+	Sequencer.Go();
+	quit();
+}
