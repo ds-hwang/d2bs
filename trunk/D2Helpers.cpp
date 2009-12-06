@@ -1110,14 +1110,23 @@ VOID __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD 
 */
 }
 
-__declspec(naked) DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
+DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 {
+	DWORD dwResult;
+
 	__asm
 	{
-		MOV EAX, ECX
-		MOV ESI, EDX
-		JMP [D2CLIENT_GetMinionCount_I]
+		push eax
+		push esi
+		MOV EAX, pUnit
+		MOV ESI, dwType
+		call D2CLIENT_GetMinionCount_I
+		mov [dwResult], eax
+		pop esi
+		pop eax
 	}
+
+	return dwResult;
 }
 
 __declspec(naked) VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton)
