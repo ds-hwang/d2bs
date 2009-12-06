@@ -5,6 +5,7 @@
 
 JSAPI_FUNC(unit_getUnit);
 JSAPI_FUNC(unit_getNext);
+JSAPI_FUNC(unit_getInvNext);
 JSAPI_FUNC(unit_cancel);
 JSAPI_FUNC(unit_repair);
 JSAPI_FUNC(unit_useMenu);
@@ -28,8 +29,8 @@ JSAPI_FUNC(unit_getQuest);
 JSAPI_FUNC(unit_getMinionCount);
 
 void unit_finalize(JSContext *cx, JSObject *obj);
-JSBool unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
-JSBool unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(unit_getProperty);
+JSAPI_PROP(unit_setProperty);
 
 struct myUnit
 {
@@ -38,7 +39,19 @@ struct myUnit
 	DWORD dwClassId;
 	DWORD dwType;
 	DWORD dwMode;
-	CHAR szName[128];
+	char szName[128];
+};
+
+struct invUnit
+{
+	DWORD _dwPrivateType;
+	DWORD dwUnitId;
+	DWORD dwClassId;
+	DWORD dwType;
+	DWORD dwMode;
+	char szName[128];
+	DWORD dwOwnerId;
+	DWORD dwOwnerType;
 };
 
 enum unit_tinyid
@@ -209,10 +222,12 @@ static JSPropertySpec unit_props[] = {
 
 static JSFunctionSpec unit_methods[] = {
 	{"getNext",			unit_getNext,		0},
+	{"getInvNext",		unit_getInvNext,	2},
 	{"cancel",			unit_cancel,		0},
 	{"repair",			unit_repair,		0},
 	{"useMenu",			unit_useMenu,		0},
 	{"interact",		unit_interact,		0},
+	{"getItem",			unit_getItem,		3},
 	{"getItems",		unit_getItems,		0},
 	{"getMerc",			unit_getMerc,		0},
 	{"getSkill",		unit_getSkill,		0},
@@ -223,7 +238,6 @@ static JSFunctionSpec unit_methods[] = {
 	{"getStat",			unit_getStat,		1},
 	{"getState",		unit_getState,		1},
 	{"getPrice",		item_getPrice,		1},
-	{"getItem",			unit_getItem,		1},
 	{"getEnchant",		unit_getEnchant,	1},
 	{"shop",			item_shop,			2},
 	{"setSkill",		unit_setskill,		2},
