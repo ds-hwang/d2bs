@@ -133,13 +133,13 @@ function AnXP_AttackMadawc() {
 }
 
 function aAltar() {
-	var aAltar = getUnit(2, 546);
-	if (!aAltar)
+	var ancAltar = getUnit(2, 546);
+	if (!ancAltar)
 		DC_ThrowException("YAM_Ancients()", "Could not find location of Ancients Altar.");
-	if (getDistance(me, aAltar) > 7)
+	if (getDistance(me, ancAltar) > 7)
 		DM_MoveTo(aAltar.x, aAltar.y - 2);
-	for (var x=0; x < 3 && aAltar.mode != 2; x++) {
-		DC_DoClick(0,0,aAltar);
+	for (var x=0; x < 3 && ancAltar.mode != 2; x++) {
+		DC_DoClick(0,0,ancAltar);
 		delay(500);
 	}
 }

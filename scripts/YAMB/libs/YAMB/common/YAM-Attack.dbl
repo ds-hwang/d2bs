@@ -32,7 +32,7 @@ function DA_BOSwitch(which) {
 	var _mainbo      = 0;
 	var _switchbo    = 0;
 	var _switchavail = false;
-	var _weapon      = DC_getItem(null, 1);
+	var _weapon      = DC_getMyItem(null, 1);
 	if(_weapon) { 
 		do {
 			if(DC_CheckOwner(_weapon)) {
@@ -97,7 +97,7 @@ function DA_BOSwitch(which) {
 					//_switchbo += _weapon.getStat(107, 149);
 				}
 			}
-		} while (_weapon.getNext(null, 1)); 
+		} while (_weapon.getInvNext(null, 1)); 
 	}
 	if(_switchavail) {
 		DC_DPrint("Your actual BO level is " + _mainbo + ", your weapon switch has level " + _switchbo + " BO !");

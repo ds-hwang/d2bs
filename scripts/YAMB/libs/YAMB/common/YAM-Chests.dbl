@@ -101,7 +101,9 @@ function YC_CheckForChests() {
 	if (chest) {
 		// loop over all the chests we can "see" (we know at least one from above)
 		do {
-			if (!YC_IsValidChest(chest.classid)) { continue; }
+			if (!YC_IsValidChest(chest.classid)) { 
+				continue; 
+			}
 			_chestfound = _chestfound || YC_CheckForChest(chest);
 		} while (chest && chest.getNext(null,0));
 	}

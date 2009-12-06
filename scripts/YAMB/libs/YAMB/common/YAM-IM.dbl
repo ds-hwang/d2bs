@@ -627,7 +627,7 @@ function CheckItem(item, inifile, snagqual) {
 
 function CheckItems(filename, mode) {
 	// Get the first item
-	var _invitem = DC_getItem(null,mode);
+	var _invitem = DC_getMyItem(null,mode);
 	// If there is a item, loop until all the stashed and inventory items are checked
 	if(_invitem) { do {
 		if(_invitem.mode < 2 && DC_CheckOwner(_invitem)) {
@@ -636,7 +636,7 @@ function CheckItems(filename, mode) {
 			CheckItem(_invitem, filename);
 			_DIM_INIFilePath = temp;
 		}
-	} while (_invitem.getNext(null,mode)); }
+	} while (_invitem.getInvNext(null,mode)); }
 }
 
 function SetNumbers(filename) {

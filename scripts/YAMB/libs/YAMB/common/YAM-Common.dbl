@@ -605,24 +605,30 @@ function DC_SelectTab(type) {
 	var _mainmf     = 0;
 	var _switchmf   = 0;
 	var _haveswitch = false;
-	var _weapontab  = DC_getItem();
+	var _weapontab  = DC_getMyItem();
 
 	// Get the info on the two weapon tabs
-	if(_weapontab) { do {
-		if(DC_CheckOwner(_weapontab)) {
-			// Calculating the mf total on the tab 1
-			if((_weapontab.bodylocation == 4 || _weapontab.bodylocation == 5) && _weapontab.mode == 1) {
-				_mainmf += _weapontab.getStat(80);
-				if(_weapontab.getStat(240) != 0) { _mainmf += me.getStat(12) * (_weapontab.getStat(240) / 8); }
+	if(_weapontab) { 
+		do {
+			if(DC_CheckOwner(_weapontab)) {
+				// Calculating the mf total on the tab 1
+				if((_weapontab.bodylocation == 4 || _weapontab.bodylocation == 5) && _weapontab.mode == 1) {
+					_mainmf += _weapontab.getStat(80);
+					if(_weapontab.getStat(240) != 0) { 
+						_mainmf += me.getStat(12) * (_weapontab.getStat(240) / 8); 
+					}
+				}
+				// Calculating the mf total on the tab 2
+				if((_weapontab.bodylocation == 11 || _weapontab.bodylocation == 12) && _weapontab.mode == 1) {
+					_haveswitch = true;
+					_switchmf += _weapontab.getStat(80);
+					if(_weapontab.getStat(240) != 0) { 
+						_switchmf += me.getStat(12) * (_weapontab.getStat(240) / 8); 
+					}
+				}
 			}
-			// Calculating the mf total on the tab 2
-			if((_weapontab.bodylocation == 11 || _weapontab.bodylocation == 12) && _weapontab.mode == 1) {
-				_haveswitch = true;
-				_switchmf += _weapontab.getStat(80);
-				if(_weapontab.getStat(240) != 0) { _switchmf += me.getStat(12) * (_weapontab.getStat(240) / 8); }
-			}
-		}
-	} while (_weapontab.getNext()); }
+		} while (_weapontab.getInvNext()); 
+	}
 	// If we have items on the 2nd tab, show a message to the user and do a switch depending on the parameter
 	if(_haveswitch) {
 		DC_DPrint("Your main magic find is: (" + _mainmf + ")   Your weapon switch has: (" + _switchmf + ") magic find");
@@ -644,44 +650,44 @@ function DC_CheckWeapons() {
 	var _thisright = 0;
 	var _otherleft = 0;
 	var _otherright = 0;
-	var _check = getUnit(4, null, 1);
-	// check all 4 weapon slots
-	if(_check) { do {
-		if(DC_CheckOwner(_check, me.name)) {
-			switch (_check.bodylocation) {
-				case 4: _thisleft = 1; break;
-				case 5: _thisright = 1; break;
-				case 11: _otherleft = 1; break;
-				case 12: _otherright = 1; break;
+
+	var myItemsCheck = me.getItems();
+	// do we have items?
+	if(myItemsCheck.length != 0){
+		// we do! check em all for being equiped
+		for(var i=0; i< myItemsCheck.length-1 ; i++){
+			switch (myItemsCheck[i].bodylocation) {
+				case 4: 
+					_thisleft = 1; 
+					break;
+				case 5: 
+					_thisright = 1; 
+					break;
+				case 11: 
+					_otherleft = 1; 
+					break;
+				case 12: 
+					if(getBaseStat(4, myItemsCheck[i].classid, 25) == 128) {
+						_otherleft = 1;
+						_otherright = 1;
+					}
+					_otherright = 1; 
+					break;
 			}
-		}
-	} while (_check.getNext(null,1)); }
-	// check for 2handed weapons in first tab
-	if(_thisleft + _thisright == 1) {
-		_check = getUnit(4, null, 1);
-		if(_check) { do {
-			if(DC_CheckOwner(_check, me.name) && (_check.bodylocation == 4 || _check.bodylocation == 5)) {
-				// 256=1h, 128=2h
-				if(getBaseStat(4, _check.classid, 25) == 128) {
+			// 256=1h, 128=2h
+			if(getBaseStat(4, myItemsCheck[i].classid, 25) == 128){
+				if(_check.bodylocation == 4 || _check.bodylocation == 5) {
 					_thisleft = 1;
 					_thisright = 1;
 				}
-			}
-		} while (_check.getNext(null,1)); }
-	}
-	// check for 2handed weapons in second tab
-	if(_otherleft + _otherright == 1) {
-		_check = getUnit(4, null, 1);
-		if(_check) { do {
-			if(DC_CheckOwner(_check, me.name) && (_check.bodylocation == 11 || _check.bodylocation == 12)) {
-				// 256=1h, 128=2h
-				if(getBaseStat(4, _check.classid, 25) == 128) {
+				if(_check.bodylocation == 11 || _check.bodylocation == 12) {
 					_otherleft = 1;
 					_otherright = 1;
 				}
 			}
-		} while (_check.getNext(null,1)); }
+		}
 	}
+
 	// Throw a exception when no useful set is found
 	if(_thisleft + _thisright != 2 && _otherleft + _otherright != 2) {
 		DC_ThrowException("DC_CheckWeapons()","Haven't found any weapon set equipped !");
@@ -689,7 +695,9 @@ function DC_CheckWeapons() {
 	// If there is at least a useful weapon switch tab
 	if(_thisleft + _thisright == 2 || _otherleft + _otherright == 2) {
 		// Switch tabs to get the most useful tab
-		if(_otherleft + _otherright > _thisleft + _thisright) { doWeaponSwitch(); }
+		if(_otherleft + _otherright > _thisleft + _thisright) { 
+			doWeaponSwitch(); 
+		}
 		// return true to indicate a valid weapon tab
 		return true;
 	}
@@ -707,7 +715,7 @@ function DC_CheckWeapons() {
 function DC_DoClick(button,shift,x,y) {
 	if( button != 0 ) {
 		button = 3;
-		}
+	}
 	switch( arguments.length ) {
 		case 0:
 			DC_DPrint("DC_DoClick() : There are no arguments entered!");
@@ -808,8 +816,7 @@ function DC_ClearCursor() {
 		return true; 
 	}
 	// Get the item on cursor
-	//var _cursoritem = DC_getItem(null,4);
-	var _cursoritem = getUnit(100); // use the core to get the item (faster than the getitemloop from DC_getItem)
+	var _cursoritem = getUnit(100);
 	// We found a item on cursor
 	if(_cursoritem)	{
 		// Init the timer
@@ -843,7 +850,7 @@ function DC_GetMerc() {
 	if(me.mercrevive) { return false; }
 	var _merc = me.getMerc();
 	DC_DPrint("DC_GetMerc() : using me.getMerc() -> Merc was" + ((_merc) ? " found!  merc gid = " : " not found!") + ((_merc) ? _merc.gid : " ")); //TESTING
-	
+
 	return (_merc && _merc.hp > 0 && _merc.mode != 12) ? _merc : false;
 }
 
@@ -868,15 +875,17 @@ function DC_CheckKeys() {
 // Return value : Stack of keys if it is found, or null if not
 function DC_GetKeys() {
 	// get the first item
-	var item = DC_getItem("key", 100);
+	var item = DC_getMyItem("key", 100);
 	// If we have a item, start the loop
-	if(item) { do {
-		// If the key is in inventory and is mine
-		if(item.mode == 0 && item.bodylocation == 0 && DC_CheckOwner(item)) {
-			// Return the key stack found
-			return item;
-		}
-	} while (item.getNext()); }
+	if(item) { 
+		do {
+			// If the key is in inventory and is mine
+			if(item.mode == 0 && item.bodylocation == 0 && DC_CheckOwner(item)) {
+				// Return the key stack found
+				return item;
+			}
+		} while (item.getInvNext()); 
+	}
 	// No item is found so return null
 	return null;
 }
@@ -1248,6 +1257,26 @@ function DC_getItem(iteminfo, mode) {
 }
 
 // Parameters :
+// -iteminfo	Info of the item to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Item object returned by getUnit()
+function DC_getMyItem(iteminfo, mode) {
+	var _item = me.getItem(iteminfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _item;
+}
+
+// Parameters :
+// -iteminfo	Info of the item to get
+// -mode	Mode (check getUnit info for the available modes)
+// Return value : Item object returned by getUnit()
+function DC_getGroundItem(iteminfo, mode) {
+	var _item = getUnit(4, iteminfo, mode);
+	DC_DoDel(DC_LagDelay);
+	return _item;
+}
+
+// Parameters :
 // -tileinfo	Info of the tile to get
 // -mode	Mode (check getUnit info for the available modes)
 // Return value : Tile object returned by getUnit()
@@ -1440,15 +1469,23 @@ function DC_StripQuotes(string,numline) {
 // Function by Aeternus, modified by Xizeta
 // Return value : Number of rows in a belt, IE 1 to 4.
 function DC_GetBeltSize(){ 
-	var _item = DC_getItem();
-	if(_item) { do {
-		// If the belt is equipped, check the amount depending on the item code
-		if(_item.bodylocation == 8 && DC_CheckOwner(_item)) {
-			if(_item.code == "lbl" || _item.code == "vbl") { return 2; }
-			if(_item.code == "mbl" || _item.code == "tbl") { return 3; }
-			else { return 4; }
-		}
-	} while(_item.getNext()); }
+	var _item = DC_getMyItem();
+	if(_item) { 
+		do {
+			// If the belt is equipped, check the amount depending on the item code
+			if(_item.bodylocation == 8 && DC_CheckOwner(_item)) {
+				if(_item.code == "lbl" || _item.code == "vbl") { 
+					return 2; 
+				}
+				if(_item.code == "mbl" || _item.code == "tbl") { 
+					return 3; 
+				}
+				else { 
+					return 4; 
+				}
+			}
+		} while(_item.getInvNext());
+	}
 	// If we have no belt, return 1 as row number
 	return 1;
 }
@@ -1460,7 +1497,7 @@ function DC_GetPotByClassID(classid) {
 		return null; 
 
 	var _altPot = null;
-	var _pot = DC_getItem(classid,2);
+	var _pot = DC_getMyItem(classid,2);
 	if(_pot) { 
 		do {
 			if(DC_CheckOwner(_pot)) {
@@ -1471,24 +1508,32 @@ function DC_GetPotByClassID(classid) {
 					_altPot = copyUnit(_pot); 
 				}
 			}
-		} while(_pot.getNext(classid,2)); 
+		} while(_pot.getInvNext(classid,2)); 
 	}
 	return _altPot;
 }
 
 // Function from darkspirit
 function _DC_GetFirstRowPotByClassID(classid,potcode) {
-	if(!classid) { return null; }
-	var _altPot=null;
-	var _pot=DC_getItem(classid,2);
-	if(_pot) { do {
-		if(DC_CheckOwner(_pot)) {
-			if(_pot.x<4 && (potcode.indexOf(DT_BeltColType[_pot.x]) != -1)) { 
-				if(_DT_BeltColNeeded[_pot.x] == 0) { return _pot; }
-				else if(!_altPot) { _altPot = copyUnit(_pot); }
+	if(!classid) { 
+		return null; 
+	}
+	var _altPot = null;
+	var _pot    = DC_getMyItem(classid,2);
+	if(_pot) { 
+		do {
+			if(DC_CheckOwner(_pot)) {
+				if(_pot.x<4 && (potcode.indexOf(DT_BeltColType[_pot.x]) != -1)) { 
+					if(_DT_BeltColNeeded[_pot.x] == 0) { 
+						return _pot; 
+					}
+					else if(!_altPot) { 
+						_altPot = copyUnit(_pot); 
+					}
+				}
 			}
-		}
-	} while(_pot.getNext(classid,2)); }
+		} while(_pot.getInvNext(classid,2)); 
+	}
 	return _altPot;
 }
 

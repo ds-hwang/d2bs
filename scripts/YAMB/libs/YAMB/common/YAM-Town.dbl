@@ -284,7 +284,8 @@ function XP_DoCheckItems(npc) {
 							var _stats = _uniditem.description;
 							DC_WriteLogEntry("output/fullstats.txt",_stats);
 							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]","[" + DC_ExtractStats(_uniditem,true) + "]");
-						} else {
+						} 
+						else {
 							DL_LogItem(DL_GetItemName(_uniditem),_uniditem.quality,"[Kept]");
 						}
 					}

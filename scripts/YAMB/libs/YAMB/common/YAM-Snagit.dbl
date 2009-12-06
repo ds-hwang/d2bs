@@ -339,6 +339,7 @@ function _DSN_ItemList(_items, _range, _snagini) {
 		// Gather all the items on ground or being dropped
 		if(_grounditem) { 
 			do {
+				DC_DPrint("_DSN_ItemList() : found " + _grounditem.name + " of mode : " + _grounditem.mode);// TESTING
 				// If the item is on the ground or being dropped, consider it
 				if(_grounditem.mode==3 || _grounditem.mode==5) {
 					// If the item is in the ignored list, skip it
@@ -554,7 +555,18 @@ function _DSN_Item(_p, _item, _snagini) {
 	// ToDo : Add a possibility to call a function to do a comparison and keep the best one
 	if((_retval != 0) && (this.ClassID == 603 || this.ClassID == 605) && this.Quality == D2JSP_ITEM_QUALITY_UNIQUE) {
 		// Check the inventory for another one
-		var _uniquecharm = DC_getItem(this.Code, 100);
+		var_charmsInInv = me.getItems();
+		if(_charmsInInv.length){
+			for(var iL = 0; iL < _charmsInInv.length-1; iL++){
+				if(_charmsInInv[iL].code == this.Code && _charmsInInv[iL].quality == D2JSP_ITEM_QUALITY_UNIQUE){
+					var _uniquecharmname = DL_GetItemName(this.Item);
+					DL_LogItem(_uniquecharmname, this.Item.quality, "[Ignored, already have one]", _DSN_AreaLog + this.FromWhere);
+					return true;
+				}
+			}
+		}
+		// REPLACED -TechnoHunter
+		/*var _uniquecharm = DC_getItem(this.Code, 100);
 		// Loop thru the charms with the same code in inventory
 		if(_uniquecharm) { 
 			do {
@@ -565,7 +577,7 @@ function _DSN_Item(_p, _item, _snagini) {
 					return true;
 				}
 			} while (_uniquecharm.getNext(_code, 100)); 
-		}
+		}*/
 	}
 	// The item is set to be picked
 	if(_retval != 0) {
@@ -802,16 +814,12 @@ function _DSN_getClass(item) {
 
 function _DSN_IsBeltFull() {
 	var _count = 0;
-	var _pots = DC_getItem(null,2);
-	if(_pots) { 
-		do	{
-			var _owner = _pots.getParent();
-			if(_owner) {
-				if(_pots.mode==2 && _owner.name==me.name) {
-					_count+=1;
-				}
-			}
-		} while (_pots.getNext(null,2)); 
+	var _pots = me.getItems();
+	if(_pots.length) { 
+		for(var iL = 0; iL < _pots.length-1; iL++){
+			if(_pots[iL].mode==2)
+			_count+=1;
+		}
 	}
 	// If the amount of pots is equal to the total slots of the belt, return true
 	return ((DC_GetBeltSize() * 4 <= _count) ? true : false);

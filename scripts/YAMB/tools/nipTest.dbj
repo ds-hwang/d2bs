@@ -5,9 +5,9 @@
 // File location: scripts\tools
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Methods of use : 
-//     1) open default.dbj, add the following line [code]load("bots/nipTest.dbj");[/code]
+//     1) open default.dbj, add the following line -> load("bots/nipTest.dbj");
 //        -> save/exit file start D2 manually and use d2bs.exe to attach
-//     3) while in a bot game (started with ad2bs) type .stop in the message box (hit enter to open message box)
+//     3) while in a bot game type .stop in the message box (hit enter to open message box)
 //        when bot stops, type .flush to flush the existing script cache, then type .exec 
 //        load("tools/nipTest.dbj"); (hit enter after each typed command, this will load nipTest.dbj manually)
 ////////////////////////////////////////////////////////////////////////////////////////////

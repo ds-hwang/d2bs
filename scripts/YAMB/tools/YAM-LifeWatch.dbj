@@ -248,8 +248,8 @@ function YAM_LifeWatch() {
 	}
 
 	// Set the core chickening values and enable core chickening logging
-	me.logchicken    = true;
-	me.logquit       = true;
+	//me.logchicken    = true;// NOT IN CORE
+	//me.logquit       = true;// NOT IN CORE
 	me.chickenhp     = LW_ChickenLife;
 	me.quitonhostile = LW_QuitOnHostile ?  1 : 0;
 	// Internal holder for current maxHP, used in while loop as control variable
@@ -521,8 +521,7 @@ function LW_CheckMerc() {
 	} 
 	else if (_result==0) {
 		var _potion=potion;
-		if (potion==1) { potion=2; }
-		else { potion=1; }
+		potion = (potion==1) ? 2 : 1;
 		_result = LW_DrinkPot(potion,true);
 		if (_result == 1) {
 			LW_Print("ÿc2 Gave mercenary a "+ LW_PotionName[potion] +" ÿc2potion because I'm out of "+ LW_PotionName[_potion]+"ÿc2 ones !!");
@@ -641,7 +640,7 @@ function LW_GetPotByClassID(classid) {
 		return null; 
 	}
 	var _altPot = null;
-	var _pot    = getUnit(4,classid,2);
+	var _pot    = me.getItem(classid,2);
 	if (_pot) { 
 		do {
 			if (DC_CheckOwner(_pot)) {
@@ -663,7 +662,7 @@ function LW_GetPotByClassID(classid) {
 					}
 				}
 			}
-		} while(_pot.getNext(classid,2)); 
+		} while(_pot.getInvNext(classid,2)); 
 	}
 	return _altPot;
 }

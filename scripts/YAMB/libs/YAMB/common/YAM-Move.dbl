@@ -375,10 +375,10 @@ function DM_MakeTP(from,dest) {
 	if(me.area == from) {
 		var _portal=null;
 		// Get the book or scroll object first
-		var _scroll= getUnit(4,"tbk",100);
+		var _scroll= me.getItem("tbk",100);
 		// If we don't have a book, check for a scroll
 		if(!_scroll || !_scroll.getStat(70)) {
-			_scroll= DC_getItem("tsc",100);
+			_scroll= DC_getMyItem("tsc",100);
 			if(!_scroll) {
 				DC_ThrowException("DM_MakeTP()","Cannot cast TP. No scrolls found !");
 				return false;
@@ -665,10 +665,10 @@ function _DM_UseScroll(scroll) {
 // Function from Muellsammler, modified by Xizeta
 function XP_OpenTP() {
 	// Get the book or scroll object first
-	var _scroll= getUnit(4,"tbk",100);
+	var _scroll= me.getItem("tbk",100);
 	// If we don't have a book, check for a scroll
 	if(!_scroll || !_scroll.getStat(70)) {
-		_scroll= DC_getItem("tsc",100);
+		_scroll= DC_getMyItem("tsc",100);
 		if(!_scroll) {
 			DC_ThrowException("MakeTP()","Cannot cast TP. No scrolls found !");
 			return false;
@@ -705,10 +705,19 @@ function XP_OpenTP() {
 				return false;
 			}
 		}
-		if(!_foundportal && !_scroll) { DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); return false; }
-		if(!_foundportal) { DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); return false; }
+		if(!_foundportal && !_scroll) { 
+			DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); 
+			return false; 
+		}
+		if(!_foundportal) { 
+			DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); 
+			return false; 
+		}
 	}
-	else { DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); return false; }
+	else { 
+		DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); 
+		return false; 
+	}
 	return true;
 }
 

@@ -49,26 +49,26 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //YAMXXP.push("HOTIP");
-//YAMXXP.push("Pindle");
+YAMXXP.push("Pindle");
 //YAMXXP.push("Nihlathak");
-//YAMXXP.push("Eldritch");
-//YAMXXP.push("Shenk");
-//YAMXXP.push("ThreshSocket");
+YAMXXP.push("Eldritch");
+YAMXXP.push("Shenk");
+YAMXXP.push("ThreshSocket");
 //YAMXXP.push("BloodRaven");
-//YAMXXP.push("Countess");
-//YAMXXP.push("Andy");
-//YAMXXP.push("Summoner");
-//YAMXXP.push("Duriel");
+YAMXXP.push("Countess");
+YAMXXP.push("Andy");
+YAMXXP.push("Summoner");
+YAMXXP.push("Duriel");
 //YAMXXP.push("Trav");
 YAMXXP.push("Meph");
-//YAMXXP.push("Izual");
-//YAMXXP.push("Hephasto");
-//YAMXXP.push("Pit");
+YAMXXP.push("Izual");
+YAMXXP.push("Hephasto");
+YAMXXP.push("Pit");
 //YAMXXP.push("Cow");
 //YAMXXP.push("Ancients");  // Works, converted to rush bot format, added checks for PublicMode
-//YAMXXP.push("Diablo");    // Works
+YAMXXP.push("Diablo");    // Works
 //YAMXXP.push("Tunnels");   // WTF? need to look at script.. BADLY
-//YAMXXP.push("Baal");
+YAMXXP.push("Baal");
 // Leecher module.
 //YAMXXP.push("Parasite");
 // Follower, enchanter, bo script

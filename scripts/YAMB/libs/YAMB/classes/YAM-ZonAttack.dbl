@@ -200,7 +200,7 @@ function XP_BossAttack(target) {
 
 		attempted = false;
 
-		var _weapon = DC_getItem();
+		var _weapon = DC_getMyItem();
 
 		if (_weapon) { do {
 
@@ -245,9 +245,7 @@ function XP_BossAttack(target) {
 					}
 				}
 			}
-
-
-		} while (_weapon.getNext()); }
+		} while (_weapon.getInvNext()); }
 
 		if (!attempted && XP_SwitchAdapt) {
 			DC_DoWeaponSwitch();
@@ -267,7 +265,7 @@ function XP_AmazonShield() {
 	// If we want to switch to a shield for protection, check if we have a shield
 	if (XP_PickupShield) {
 
-		_weapon = DC_getItem();
+		_weapon = DC_getMyItem();
 
 		if (_weapon) { do {
 
@@ -280,7 +278,7 @@ function XP_AmazonShield() {
 				}
 			}
 
-		} while (_weapon.getNext()); }
+		} while (_weapon.getInvNext()); }
 	}
 
 	// If we have a shield, switch
@@ -395,7 +393,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 		attempted = false;
 
-		var _weapon = DC_getItem();
+		var _weapon = DC_getMyItem();
 
 		if (_weapon) { do {
 
@@ -453,9 +451,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 					}
 				}
 			}
-
-
-		} while (_weapon.getNext()); }
+		} while (_weapon.getInvNext()); }
 
 		if (!attempted && XP_SwitchAdapt) {
 			DC_DoWeaponSwitch();
