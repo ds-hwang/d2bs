@@ -5,7 +5,7 @@
 
 JSAPI_FUNC(unit_getUnit);
 JSAPI_FUNC(unit_getNext);
-JSAPI_FUNC(unit_getInvNext);
+//JSAPI_FUNC(unit_getInvNext);
 JSAPI_FUNC(unit_cancel);
 JSAPI_FUNC(unit_repair);
 JSAPI_FUNC(unit_useMenu);
@@ -222,7 +222,7 @@ static JSPropertySpec unit_props[] = {
 
 static JSFunctionSpec unit_methods[] = {
 	{"getNext",			unit_getNext,		0},
-	{"getInvNext",		unit_getInvNext,	2},
+//	{"getInvNext",		unit_getInvNext,	2},
 	{"cancel",			unit_cancel,		0},
 	{"repair",			unit_repair,		0},
 	{"useMenu",			unit_useMenu,		0},

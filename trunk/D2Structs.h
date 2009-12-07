@@ -390,15 +390,26 @@ struct Stat {
 	DWORD dwStatValue;				//0x04
 };
 
+// Credits to SVR, http://phrozenkeep.hugelaser.com/forum/viewtopic.php?f=8&t=31458&p=224066
 struct StatList {
-	DWORD _1[9];					//0x00
+	DWORD _1;						//0x00
+	UnitAny* pUnit;					//0x04
+	DWORD dwUnitType;				//0x08
+	DWORD dwUnitId;					//0x0C
+	DWORD dwFlags;					//0x10
+	DWORD _2[4];					//0x14
 	Stat *pStat;					//0x24
 	WORD wStatCount1;				//0x28
-	WORD wStatCount2;				//0x2A
-	DWORD _2[2];					//0x2C
-	BYTE *_3;						//0x34
+	WORD wnSize;					//0x2A
+	StatList *pPrevLink;			//0x2C
+	DWORD _3;						//0x30
+	StatList *pPrev;				//0x34
 	DWORD _4;						//0x38
 	StatList *pNext;				//0x3C
+	StatList *pSetList;				//0x40
+	DWORD _5;						//0x44
+	Stat *pSetStat;					//0x48
+	WORD wSetStatCount;				//0x4C
 };
 
 struct Inventory {
