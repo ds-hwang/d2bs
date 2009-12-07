@@ -768,19 +768,79 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 
 void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 {
-	// find the array index, if it exists
-	jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
-	if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
-		return;
-	if(index == JSVAL_VOID)
+	if(pStat[nStat].wSubIndex > 0x200)
 	{
-		// the array index doesn't exist, make it
-		index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
-		if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+		// subindex is the skill id and level
+		int skill = pStat[nStat].wSubIndex >> 6,
+			level = pStat[nStat].wSubIndex & 0x3F,
+			charges = 0,
+			maxcharges = 0;
+		if(pStat[nStat].dwStatValue > 0x200)
+		{
+			charges = pStat[nStat].dwStatValue & 0xFF;
+			maxcharges = pStat[nStat].dwStatValue >> 8;
+		}
+		JSObject* val = BuildObject(cx, NULL);
+		jsval jsskill = INT_TO_JSVAL(skill),
+			  jslevel = INT_TO_JSVAL(level),
+			  jscharges = INT_TO_JSVAL(charges),
+			  jsmaxcharges = INT_TO_JSVAL(maxcharges);
+		// val is an anonymous object that holds properties
+		if(!JS_SetProperty(cx, val, "skill", &jsskill) ||
+		   !JS_SetProperty(cx, val, "level", &jslevel))
+		   return;
+		if(maxcharges > 0)
+		{
+			if(!JS_SetProperty(cx, val, "charges", &jscharges) ||
+			   !JS_SetProperty(cx, val, "maxcharges", &jsmaxcharges))
+			   return;
+		}
+		// find where we should put it
+		jsval index = JSVAL_VOID,
+			  obj = OBJECT_TO_JSVAL(val);
+		if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
 			return;
+		if(index != JSVAL_VOID)
+		{
+			// modify the existing object by stuffing it into an array
+			if(!JS_IsArrayObject(cx, JSVAL_TO_OBJECT(index)))
+			{
+				// it's not an array, build one
+				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+				JS_SetElement(cx, arr, 0, &index);
+				JS_SetElement(cx, arr, 1, &obj);
+				jsval arr2 = OBJECT_TO_JSVAL(arr);
+				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
+			}
+			else
+			{
+				// it is an array, append the new value
+				JSObject* arr = JSVAL_TO_OBJECT(index);
+				jsuint len = 0;
+				if(!JS_GetArrayLength(cx, arr, &len))
+					return;
+				len++;
+				JS_SetElement(cx, arr, len, &obj);
+			}
+		}
+		else
+			JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
 	}
-	// index now points to the correct array index
-	JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
+	else
+	{
+		jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
+		if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+			return;
+		if(index == JSVAL_VOID)
+		{
+			// the array index doesn't exist, make it
+			index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
+			if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+				return;
+		}
+		// index now points to the correct array index
+		JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
+	}
 }
 
 INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
