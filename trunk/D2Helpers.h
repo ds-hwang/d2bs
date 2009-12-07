@@ -89,7 +89,7 @@ VOID __fastcall DrawRectFrame_STUB(RECT* rect);
 VOID __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
 DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
 VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
-VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
+VOID __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
 
 double GetDistance(long x1, long y1, long x2, long y2, DistanceType type = Euclidean);
 

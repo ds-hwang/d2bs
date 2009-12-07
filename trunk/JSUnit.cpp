@@ -627,10 +627,10 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(pUnit->dwType == UNIT_OBJECT && argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
-		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
+		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
-		D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
+		// D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //crashes
 		
 		*rval = JSVAL_TRUE;
 		return JS_TRUE;
@@ -1140,25 +1140,56 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		return JS_TRUE;
 
 	//Check for proper mode.
-	//if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
-	//	return JS_TRUE;
+	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
+		return JS_TRUE;
 
-	//Selling an Item 
-	if (dwMode == 1)
+
+	////Selling an Item 
+	//if (dwMode == 1)
+	//{
+	//	//Check if we own the item!
+	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
+	//		return JS_TRUE;
+	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+	//}
+	//else
+	//{
+	//	//Make sure the item is owned by the NPC interacted with.
+	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
+	//		return JS_TRUE;
+
+	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
+	//}
+BYTE pPacket[17] = {NULL};
+
+	if(dwMode == 2 || dwMode == 6)
+		pPacket[0] = 0x32;
+	else pPacket[0] = 0x33;
+
+	*(DWORD*)&pPacket[1] = pNPC->dwUnitId;
+	*(DWORD*)&pPacket[5] = pItem->dwUnitId;
+
+   	if(dwMode == 1) // Sell
+	*(DWORD*)&pPacket[9] = 0x04;
+	else if(dwMode == 2) // Buy
 	{
-		//Check if we own the item!
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
-			return JS_TRUE;
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+		if(pItem->pItemData->dwFlags & 0x10)
+			*(DWORD*)&pPacket[9] = 0x00;
+		else
+			*(DWORD*)&pPacket[9] = 0x02;
 	}
 	else
-	{
-		//Make sure the item is owned by the NPC interacted with.
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
-			return JS_TRUE;
+		*(BYTE*)&pPacket[9+3] = 0x80;
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	}
+	INT nBuySell = NULL;
+
+	if(dwMode == 2 || dwMode == 6)
+		nBuySell = NULL;
+	else nBuySell = 1;
+
+	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
+
+	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 

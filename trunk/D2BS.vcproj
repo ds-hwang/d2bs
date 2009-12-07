@@ -510,6 +510,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						SmallerTypeCheck="false"
 						WarningLevel="3"
 					/>
 				</FileConfiguration>
@@ -519,6 +520,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						SmallerTypeCheck="false"
 						WarningLevel="3"
 					/>
 				</FileConfiguration>
@@ -528,6 +530,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+						SmallerTypeCheck="false"
 						WarningLevel="3"
 					/>
 				</FileConfiguration>
