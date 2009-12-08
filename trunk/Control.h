@@ -9,3 +9,5 @@ BOOL OOG_SelectCharacter(char * szCharacter);
 BOOL OOG_SelectGateway(char * szGateway, size_t strSize);
 void SetControlText(Control* pControl, char* Text);
 int OOG_GetLocation();
+bool OOG_CreateGame(const char* name, const char* pass, int difficulty);
+bool OOG_JoinGame(const char* name, const char* pass);

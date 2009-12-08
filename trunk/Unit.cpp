@@ -3,7 +3,7 @@
 #include "Constants.h"
 #include "D2Helpers.h"
 
-UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
+UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	if(!GameReady())
 		return NULL;
@@ -50,7 +50,7 @@ UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	return NULL;
 }
 
-UnitAny* GetNextUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
+UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
 {
 	if(!GameReady())
 		return NULL;

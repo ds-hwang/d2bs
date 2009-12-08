@@ -6,7 +6,7 @@ JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 {
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
-	if(!pUnit || IsBadReadPtr(pUnit, sizeof(RosterUnit)))
+	if(!pUnit)
 		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id))

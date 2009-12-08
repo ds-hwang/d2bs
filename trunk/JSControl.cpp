@@ -19,7 +19,7 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
@@ -85,7 +85,7 @@ JSAPI_PROP(control_setProperty)
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
@@ -141,7 +141,7 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
@@ -184,7 +184,7 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
@@ -213,7 +213,7 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
@@ -243,7 +243,7 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		return JS_TRUE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData || IsBadReadPtr(pData, sizeof(ControlData)))
+	if(!pData)
 		return JS_TRUE;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
