@@ -15,7 +15,7 @@ namespace D2BSLoader
 		private delegate void StatusCallback(string status, System.Drawing.Color color);
 		private delegate void LoadAction(int pid);
 
-		private string D2Path, D2Exe, D2Args, D2BSDLL;
+		private static string D2Path, D2Exe, D2Args, D2BSDLL;
 		private BindingList<ProcessWrapper> processes = new BindingList<ProcessWrapper>();
 
 		public bool Autoclosed { get; set; }
@@ -27,40 +27,70 @@ namespace D2BSLoader
 			actions.Add("inject", Inject);
 			actions.Add("kill", Kill);
 			actions.Add("start", Start);
-			string action = "", dll = "";
+			actions.Add("save", Save);
+
+			string action = String.Empty,
+				   path = String.Empty,
+				   exe = String.Empty,
+				   param = String.Empty,
+				   dll = "cGuard.dll";
+
 			int pid = -1;
+
 			for(int i = 0; i < args.Length; i++)
 			{
 				switch(args[i])
 				{
 					case "--pid": pid = Convert.ToInt32(args[i+1]); i++; break;
 					case "--dll": dll = args[i+1]; i++; break;
+					case "--path": path = args[i+1]; i++; break;
+					case "--exe": exe = args[i+1]; i++; break;
+					case "--params":
+						// treat the rest of the command line as if it were params directly to d2
+						string[] args2 = new string[args.Length-i-1];
+						Array.Copy(args, i+1, args2, 0, args.Length-i-1);
+						param = " " + String.Join(" ", args2);
+						i = args.Length;
+						break;
 					default: action = args[i].Substring(2); break;
 				}
 			}
 
-			if(action == "start" || (action == "inject" && String.IsNullOrEmpty(dll)))
+			// copy over the specified path, exe, and dll if necessary
+			if(!String.IsNullOrEmpty(path))
+				D2Path = path;
+			if(!String.IsNullOrEmpty(exe))
+				D2Exe = exe;
+			if(!String.IsNullOrEmpty(dll))
+				D2BSDLL = dll;
+
+			// merge the specified args with the official args
+			D2Args = String.Join(" ", new string[] { D2Args, param });
+
+			if((String.IsNullOrEmpty(action)) ||
+			   (action == "start" && (String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))))
 			{
-				ReloadSettings();
+				// if the path or exe is empty, load settings
+				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))
+					ReloadSettings();
+				// if the path is still empty, open the settings dialog
 				if(String.IsNullOrEmpty(D2Path))
 				{
 					Options_Click(null, null);
 					ReloadSettings();
 				}
-				if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
-					!File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
-				{
-					MessageBox.Show("Diablo II Executable not found! Please click 'Options' and ensure that everything is correct.", "D2BS");
-				}
 			}
-			// copy the specified dll over to the "official" path if necessary
-			if(!String.IsNullOrEmpty(dll))
-				D2BSDLL = dll;
+
+			if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
+			   !File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
+			{
+				MessageBox.Show("Diablo II Executable or D2BS not found.", "D2BS");
+			}
 
 			if(!String.IsNullOrEmpty(action))
 			{
-				actions[action](pid);
 				Autoclosed = true;
+				actions[action](pid);
 				Close();
 				return;
 			}
@@ -129,7 +159,7 @@ namespace D2BSLoader
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
-		private void ReloadSettings()
+		private static void ReloadSettings()
 		{
 			ConfigurationManager.RefreshSection("appSettings");
 			D2Path = ConfigurationManager.AppSettings["D2Path"];
@@ -164,8 +194,8 @@ namespace D2BSLoader
 			Status.Text = status;
 		}
 
-		private string GetLCClassName(Process p) { return PInvoke.User32.GetClassNameFromProcess(p).ToLowerInvariant(); }
-		private Process GetProcessById(int pid)
+		private static string GetLCClassName(Process p) { return PInvoke.User32.GetClassNameFromProcess(p).ToLowerInvariant(); }
+		private static Process GetProcessById(int pid)
 		{
 			try { return Process.GetProcessById(pid); }
 			catch(ArgumentException) { return null; }
@@ -173,22 +203,29 @@ namespace D2BSLoader
 
 		private void Start(int pid)
 		{
-			Inject(Start());
+			int id = Start();
+			Inject(id);
+			if(Autoclosed)
+				Console.WriteLine(pid);
 		}
-		private void Inject(int pid)
+		public static void Inject(int pid)
 		{
 			Process p = GetProcessById(pid);
 			if(p != null && GetLCClassName(p) == "diablo ii")
 				Attach(p);
 		}
-		private void Kill(int pid)
+		public static void Kill(int pid)
 		{
 			Process p = GetProcessById(pid);
 			if(p != null && GetLCClassName(p) == "diablo ii")
 				p.Kill();
 		}
+		private void Save(int pid)
+		{
+			SaveSettings(D2Path, D2Exe, D2Args, D2BSDLL);
+		}
 
-		private bool Attach(Process p)
+		private static bool Attach(Process p)
 		{
 			string path = Application.StartupPath + Path.DirectorySeparatorChar;
 			return  File.Exists(path + "libnspr4.dll") &&
@@ -212,9 +249,26 @@ namespace D2BSLoader
 				SetStatus("Failed!", Color.Red);
 		}
 
-		private int Start()
+		public static int Start(string path, string exe, string param, string dll)
 		{
-			if(String.IsNullOrEmpty(D2Exe))
+			D2Path = path;
+			D2Exe = exe;
+			D2Args = param;
+			D2BSDLL = dll;
+			return Start();
+		}
+
+		public static int Start(params string[] args)
+		{
+			ReloadSettings();
+			D2Args = String.Join(" ", args);
+			return Start();
+		}
+
+		private static int Start()
+		{
+			if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
+			   !File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
 				return -1;
 
 			ProcessStartInfo psi = new ProcessStartInfo(D2Path + Path.DirectorySeparatorChar + D2Exe, D2Args);

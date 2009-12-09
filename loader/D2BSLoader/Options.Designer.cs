@@ -36,11 +36,11 @@
 			System.Windows.Forms.Button FindPath;
 			System.Windows.Forms.Button FindExe;
 			System.Windows.Forms.Label label4;
+			System.Windows.Forms.Button FindDll;
 			this.Exe = new System.Windows.Forms.TextBox();
 			this.Args = new System.Windows.Forms.TextBox();
 			this.Path = new System.Windows.Forms.TextBox();
 			this.DLL = new System.Windows.Forms.TextBox();
-			this.button1 = new System.Windows.Forms.Button();
 			OK = new System.Windows.Forms.Button();
 			Cancel = new System.Windows.Forms.Button();
 			label1 = new System.Windows.Forms.Label();
@@ -49,6 +49,7 @@
 			FindPath = new System.Windows.Forms.Button();
 			FindExe = new System.Windows.Forms.Button();
 			label4 = new System.Windows.Forms.Label();
+			FindDll = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// OK
@@ -120,6 +121,15 @@
 			FindExe.UseVisualStyleBackColor = true;
 			FindExe.Click += new System.EventHandler(this.FindExe_Click);
 			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.Location = new System.Drawing.Point(12, 87);
+			label4.Name = "label4";
+			label4.Size = new System.Drawing.Size(58, 13);
+			label4.TabIndex = 10;
+			label4.Text = "D2BS DLL";
+			// 
 			// Exe
 			// 
 			this.Exe.Location = new System.Drawing.Point(12, 64);
@@ -143,15 +153,6 @@
 			this.Path.Size = new System.Drawing.Size(179, 20);
 			this.Path.TabIndex = 8;
 			// 
-			// label4
-			// 
-			label4.AutoSize = true;
-			label4.Location = new System.Drawing.Point(12, 87);
-			label4.Name = "label4";
-			label4.Size = new System.Drawing.Size(58, 13);
-			label4.TabIndex = 10;
-			label4.Text = "D2BS DLL";
-			// 
 			// DLL
 			// 
 			this.DLL.Location = new System.Drawing.Point(12, 103);
@@ -160,15 +161,15 @@
 			this.DLL.Size = new System.Drawing.Size(179, 20);
 			this.DLL.TabIndex = 11;
 			// 
-			// button1
+			// FindDll
 			// 
-			this.button1.Location = new System.Drawing.Point(197, 102);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(24, 20);
-			this.button1.TabIndex = 12;
-			this.button1.Text = "...";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			FindDll.Location = new System.Drawing.Point(197, 102);
+			FindDll.Name = "FindDll";
+			FindDll.Size = new System.Drawing.Size(24, 20);
+			FindDll.TabIndex = 12;
+			FindDll.Text = "...";
+			FindDll.UseVisualStyleBackColor = true;
+			FindDll.Click += new System.EventHandler(this.FindDll_Click);
 			// 
 			// Options
 			// 
@@ -177,7 +178,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = Cancel;
 			this.ClientSize = new System.Drawing.Size(230, 202);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(FindDll);
 			this.Controls.Add(this.DLL);
 			this.Controls.Add(label4);
 			this.Controls.Add(FindExe);
@@ -209,6 +210,5 @@
 		private System.Windows.Forms.TextBox Args;
 		private System.Windows.Forms.TextBox Path;
 		private System.Windows.Forms.TextBox DLL;
-		private System.Windows.Forms.Button button1;
 	}
 }

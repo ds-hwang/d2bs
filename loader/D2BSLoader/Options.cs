@@ -57,7 +57,7 @@ namespace D2BSLoader
 				Exe.Text = ofd.SafeFileName;
 		}
 
-		private void button1_Click(object sender, EventArgs e)
+		private void FindDll_Click(object sender, EventArgs e)
 		{
 			OpenFileDialog ofd = new OpenFileDialog();
 			ofd.Filter = "DLL Files|*.dll";
