@@ -2,8 +2,6 @@
 
 #include "js32.h"
 
-struct Private { DWORD dwPrivateType; };
-
 JSAPI_FUNC(my_getDistance);
 JSAPI_FUNC(my_getPath);
 JSAPI_FUNC(my_getCollision);

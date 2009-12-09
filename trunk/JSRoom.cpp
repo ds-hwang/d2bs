@@ -385,4 +385,3 @@ JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	return JS_TRUE;
 }
-

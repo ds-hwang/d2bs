@@ -187,7 +187,7 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 				*rval = OBJECT_TO_JSVAL(jsunit);
 			}
 		}
-/*		else if(myPrivate->dwPrivateType == PRIVATE_ITEM)
+		else if(myPrivate->dwPrivateType == PRIVATE_ITEM)
 		{
 			invUnit* lpOldUnit = (invUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 			invUnit* lpUnit = new invUnit;
@@ -205,7 +205,7 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 				*rval = OBJECT_TO_JSVAL(jsunit);
 			}
-		}*/
+		}
 	}
 
 	return JS_TRUE;

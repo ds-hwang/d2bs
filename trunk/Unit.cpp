@@ -8,43 +8,22 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	if(!GameReady())
 		return NULL;
 
-	// First off all, check for near units
-	Room2* ptRoomOther = NULL;
-
+	// First off, check for near units
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
-	if(player && player->pPath && player->pPath->pRoom1 &&
-			player->pPath->pRoom1->pRoom2 && 
-			player->pPath->pRoom1->pRoom2->pLevel)
-		ptRoomOther = player->pPath->pRoom1->pRoom2->pLevel->pRoom2First;
-	else
-		return NULL;
-
-	for(;ptRoomOther; ptRoomOther = ptRoomOther->pRoom2Next)
+	if(player && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && 
+		player->pPath->pRoom1->pRoom2->pLevel)
 	{
-		if(!ptRoomOther->pRoom1)
-			continue;
-		for(UnitAny* lpUnit = ptRoomOther->pRoom1->pUnitFirst; lpUnit; lpUnit = lpUnit->pListNext)
+		Room2* ptRoomOther = player->pPath->pRoom1->pRoom2->pLevel->pRoom2First;
+
+		for(;ptRoomOther; ptRoomOther = ptRoomOther->pRoom2Next)
 		{
-			if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, dwUnitId))
-				return lpUnit;
-		}
-	}
-
-	// We couldn't find it, let's check our Inventory
-	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(player->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-	{
-		if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, dwUnitId))
-			return pItem;
-	}
-
-	// No match, check the inventory of the unit we are currently interacted with
-	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
-	if(D2CLIENT_GetUIState(UI_NPCSHOP) && npc)
-	{
-		for(UnitAny* pItem = D2COMMON_GetItemFromInventory(npc->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-		{
-			if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, dwUnitId))
-				return pItem;
+			if(!ptRoomOther->pRoom1)
+				continue;
+			for(UnitAny* lpUnit = ptRoomOther->pRoom1->pUnitFirst; lpUnit; lpUnit = lpUnit->pListNext)
+			{
+				if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, dwUnitId))
+					return lpUnit;
+			}
 		}
 	}
 	return NULL;
@@ -58,34 +37,6 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	if(!pUnit)
 		return NULL;
 
-	if(pUnit->dwType == dwType && dwType == UNIT_ITEM) // Yep, it's an item. Check first if it belongs to a person..!
-	{
-		if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory)
-		{
-			for(UnitAny* pItem = D2COMMON_GetNextItemFromInventory(pUnit); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-			{
-				if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
-					return pItem;
-			}
-			//return NULL;
-		}
-		//Check if the last item was from our inventory
-		if (pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory == D2CLIENT_GetPlayerUnit()->pInventory)
-		{
-			UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
-			if(pNPC)
-			{
-				for(UnitAny* pItem = D2COMMON_GetItemFromInventory(pNPC->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-				{
-					if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
-						return pItem;
-				}
-			}
-		}
-	}
-
-	// OKAY, it's not located in an inventory, lets scan throught the rooms..
-	
 	UnitAny* lpUnit = pUnit->pListNext;
 	Room1* ptRoom = D2COMMON_GetRoomFromUnit(pUnit);
 	Room2* ptRoomOther = NULL;
@@ -113,26 +64,40 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 		}
 	}
 
-#if 0
-	// Item wasn't found on the ground -> check the inventory again ..!
-	if(pUnit->dwType == UNIT_ITEM && (!pUnit->pItemData || !pUnit->pItemData->pOwnerInventory))
+	return NULL;
+}
+
+UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId)
+{
+	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(pOwner->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
 	{
-		UnitAny* pUnit = D2CLIENT_GetPlayerUnit();
-		if (pUnit)
-		{
-			for(UnitAny* pItem = D2COMMON_GetItemFromInventory(pUnit->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
-			{
-				if(CheckUnit(pItem, szName, dwClassId, dwType, dwMode, NULL))
-					return pItem;
-			}
-		}
+		if(CheckUnit(pItem, szName, dwClassId, 4, dwMode, dwUnitId))
+			return pItem;
 	}
-#endif
 
 	return NULL;
 }
 
-// Cuts down the code size :)
+UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode)
+{
+	if(pUnit->dwType == UNIT_ITEM)
+	{
+		// Check first if it belongs to a person
+		if(pUnit->pItemData && pUnit->pItemData->pOwnerInventory && pUnit->pItemData->pOwnerInventory == pOwner->pInventory)
+		{
+			// Get the next matching unit from the owner's inventory
+			for(UnitAny* pItem = D2COMMON_GetNextItemFromInventory(pUnit); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+			{
+				if(CheckUnit(pItem, szName, dwClassId, 4, dwMode, NULL))
+					return pItem;
+			}
+
+		}
+	}
+
+	return NULL;
+}
+
 BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	if(!GameReady())
