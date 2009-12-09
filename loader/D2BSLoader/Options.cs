@@ -24,7 +24,7 @@ namespace D2BSLoader
 
 		private void OK_Click(object sender, EventArgs e)
 		{
-			if(File.Exists(Path.Text + System.IO.Path.DirectorySeparatorChar + Exe.Text))
+			if(File.Exists(System.IO.Path.Combine(Path.Text, Exe.Text)))
 			{
 				Main.SaveSettings(Path.Text, Exe.Text, Args.Text, DLL.Text);
 				Close();

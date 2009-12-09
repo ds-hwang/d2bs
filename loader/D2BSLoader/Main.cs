@@ -81,8 +81,8 @@ namespace D2BSLoader
 				}
 			}
 
-			if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
-			   !File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
+			if(!File.Exists(Path.Combine(D2Path, D2Exe)) ||
+			   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
 			{
 				MessageBox.Show("Diablo II Executable or D2BS not found.", "D2BS");
 			}
@@ -159,13 +159,24 @@ namespace D2BSLoader
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
-		private static void ReloadSettings()
+		private void ReloadSettings()
 		{
 			ConfigurationManager.RefreshSection("appSettings");
 			D2Path = ConfigurationManager.AppSettings["D2Path"];
 			D2Exe = ConfigurationManager.AppSettings["D2Exe"];
 			D2Args = ConfigurationManager.AppSettings["D2Args"];
 			D2BSDLL = ConfigurationManager.AppSettings["D2BSDLL"];
+		}
+
+		private static void LoadSettings()
+		{
+			try {
+				Configuration config = ConfigurationManager.OpenExeConfiguration("D2BS.exe");
+				D2Path = config.AppSettings.Settings["D2Path"].Value;
+				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
+				D2Args = config.AppSettings.Settings["D2Args"].Value;
+				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
+			} catch {}
 		}
 
 		private bool GetAutoload()
@@ -227,13 +238,13 @@ namespace D2BSLoader
 
 		private static bool Attach(Process p)
 		{
-			string path = Application.StartupPath + Path.DirectorySeparatorChar;
-			return  File.Exists(path + "libnspr4.dll") &&
-					File.Exists(path + "js32.dll") &&
-					File.Exists(path + D2BSDLL) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "libnspr4.dll") &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + "js32.dll") &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, path + D2BSDLL);
+			string js32 = Path.Combine(Application.StartupPath, "js32.dll"),
+				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
+				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
+			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, js32) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs);
 		}
 
 		private void Attach(ProcessWrapper pw)
@@ -260,18 +271,18 @@ namespace D2BSLoader
 
 		public static int Start(params string[] args)
 		{
-			ReloadSettings();
+			LoadSettings();
 			D2Args = String.Join(" ", args);
 			return Start();
 		}
 
 		private static int Start()
 		{
-			if(!File.Exists(D2Path + Path.DirectorySeparatorChar + D2Exe) ||
-			   !File.Exists(Application.StartupPath + Path.DirectorySeparatorChar + D2BSDLL))
+			if(!File.Exists(Path.Combine(D2Path, D2Exe)) ||
+			   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
 				return -1;
 
-			ProcessStartInfo psi = new ProcessStartInfo(D2Path + Path.DirectorySeparatorChar + D2Exe, D2Args);
+			ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(D2Path, D2Exe), D2Args);
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
@@ -307,7 +318,9 @@ namespace D2BSLoader
 		public Process Process { get; internal set; }
 		public string ProcessName {
 			get {
-				if(Process.HasExited)
+				bool exited = false;
+				try { exited = Process.HasExited; } catch {}
+				if(exited)
 					return "Exited...";
 				return Process.MainWindowTitle + " [" + Process.Id + "]" + (Loaded ? " *" : "");
 			}
