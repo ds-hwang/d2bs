@@ -15,7 +15,10 @@ namespace D2BSLoader
 		private delegate void StatusCallback(string status, System.Drawing.Color color);
 		private delegate void LoadAction(int pid);
 
-		private static string D2Path, D2Exe, D2Args, D2BSDLL;
+		private static string D2Path = String.Empty,
+							  D2Exe = String.Empty,
+							  D2Args = String.Empty,
+							  D2BSDLL = String.Empty;
 		private BindingList<ProcessWrapper> processes = new BindingList<ProcessWrapper>();
 
 		public bool Autoclosed { get; set; }
@@ -72,7 +75,7 @@ namespace D2BSLoader
 			{
 				// if the path or exe is empty, load settings
 				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))
-					ReloadSettings();
+					LoadSettings();
 				// if the path is still empty, open the settings dialog
 				if(String.IsNullOrEmpty(D2Path))
 				{
@@ -159,6 +162,19 @@ namespace D2BSLoader
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
+		public static void LoadSettings()
+		{
+			try
+			{
+				Configuration config = ConfigurationManager.OpenExeConfiguration("D2BS.exe");
+				D2Path = config.AppSettings.Settings["D2Path"].Value;
+				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
+				D2Args = config.AppSettings.Settings["D2Args"].Value;
+				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
+			}
+			catch { }
+		}
+
 		private void ReloadSettings()
 		{
 			ConfigurationManager.RefreshSection("appSettings");
@@ -168,15 +184,16 @@ namespace D2BSLoader
 			D2BSDLL = ConfigurationManager.AppSettings["D2BSDLL"];
 		}
 
-		private static void LoadSettings()
+		public static void SetSettings(string path, string exe, string args, string dll)
 		{
-			try {
-				Configuration config = ConfigurationManager.OpenExeConfiguration("D2BS.exe");
-				D2Path = config.AppSettings.Settings["D2Path"].Value;
-				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
-				D2Args = config.AppSettings.Settings["D2Args"].Value;
-				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
-			} catch {}
+			if(!String.IsNullOrEmpty(path))
+				D2Path = path;
+			if(!String.IsNullOrEmpty(exe))
+				D2Exe = exe;
+			if(!String.IsNullOrEmpty(args))
+				D2Args = args;
+			if(!String.IsNullOrEmpty(dll))
+				D2BSDLL = dll;
 		}
 
 		private bool GetAutoload()
