@@ -673,7 +673,7 @@ JSAPI_FUNC(unit_interact)
 		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
-		// D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //crashes
+		//D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
 		return JS_TRUE;
@@ -1184,8 +1184,7 @@ JSAPI_FUNC(item_shop)
 	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
 		return JS_TRUE;
 
-
-	////Selling an Item 
+	//Selling an Item 
 	//if (dwMode == 1)
 	//{
 	//	//Check if we own the item!
