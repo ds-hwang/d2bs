@@ -50,7 +50,7 @@
 			label1.Location = new System.Drawing.Point(12, 9);
 			label1.Name = "label1";
 			label1.Size = new System.Drawing.Size(141, 13);
-			label1.TabIndex = 1;
+			label1.TabIndex = 5;
 			label1.Text = "Available Diablo II Instances";
 			// 
 			// Load
@@ -79,7 +79,7 @@
 			label2.Location = new System.Drawing.Point(12, 123);
 			label2.Name = "label2";
 			label2.Size = new System.Drawing.Size(87, 13);
-			label2.TabIndex = 4;
+			label2.TabIndex = 6;
 			label2.Text = "Last Load Status";
 			// 
 			// Options
@@ -87,7 +87,7 @@
 			Options.Location = new System.Drawing.Point(154, 1);
 			Options.Name = "Options";
 			Options.Size = new System.Drawing.Size(56, 21);
-			Options.TabIndex = 7;
+			Options.TabIndex = 4;
 			Options.Text = "Options";
 			Options.UseVisualStyleBackColor = true;
 			Options.Click += new System.EventHandler(this.Options_Click);
@@ -107,7 +107,7 @@
 			this.Status.Location = new System.Drawing.Point(28, 136);
 			this.Status.Name = "Status";
 			this.Status.Size = new System.Drawing.Size(33, 13);
-			this.Status.TabIndex = 5;
+			this.Status.TabIndex = 7;
 			this.Status.Text = "None";
 			// 
 			// Autoload
@@ -116,7 +116,7 @@
 			this.Autoload.Location = new System.Drawing.Point(142, 123);
 			this.Autoload.Name = "Autoload";
 			this.Autoload.Size = new System.Drawing.Size(68, 17);
-			this.Autoload.TabIndex = 6;
+			this.Autoload.TabIndex = 1;
 			this.Autoload.Text = "Autoload";
 			this.Autoload.UseVisualStyleBackColor = true;
 			// 
