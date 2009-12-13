@@ -181,8 +181,8 @@ function dumpItemStats(){
 		}
 		print("ÿc3===========================================================");
 		print("Outputting stats for item -> " + ImproveFName(unit.fname));
-		var statList = unit.getStat(-1);
-//		var statList = unit.getStat(-2); // re-enable, when Shepp adds to the core
+		//var statList = unit.getStat(-1);
+		var statList = unit.getStat(-2); // re-enable, when Shepp adds to the core
 		if(statList) {
 			for( var stat in statList ) {
 				for( var substat in statList[stat] ) {

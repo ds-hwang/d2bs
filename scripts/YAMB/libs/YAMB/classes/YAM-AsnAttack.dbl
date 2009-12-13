@@ -426,7 +426,7 @@ function DA_ShadowSwitch(which) {
 				if (_adder) { _switchbo += _adder; }
 			}
 		}
-	} while (_weapon.getInvNext(null, 1)); }
+	} while (_weapon.getNext(null, 1)); }
 
 	if (_switchavail) {
 		DC_DPrint("Your actual Shadow level is " + _mainbo + ", your weapon switch has level " + _switchbo + " Shadow !");

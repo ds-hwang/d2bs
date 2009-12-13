@@ -245,7 +245,7 @@ function XP_BossAttack(target) {
 					}
 				}
 			}
-		} while (_weapon.getInvNext()); }
+		} while (_weapon.getNext()); }
 
 		if (!attempted && XP_SwitchAdapt) {
 			DC_DoWeaponSwitch();
@@ -278,7 +278,7 @@ function XP_AmazonShield() {
 				}
 			}
 
-		} while (_weapon.getInvNext()); }
+		} while (_weapon.getNext()); }
 	}
 
 	// If we have a shield, switch
@@ -451,7 +451,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 					}
 				}
 			}
-		} while (_weapon.getInvNext()); }
+		} while (_weapon.getNext()); }
 
 		if (!attempted && XP_SwitchAdapt) {
 			DC_DoWeaponSwitch();

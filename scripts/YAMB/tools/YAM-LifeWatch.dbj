@@ -662,7 +662,7 @@ function LW_GetPotByClassID(classid) {
 					}
 				}
 			}
-		} while(_pot.getInvNext(classid,2)); 
+		} while(_pot.getNext(classid,2)); 
 	}
 	return _altPot;
 }

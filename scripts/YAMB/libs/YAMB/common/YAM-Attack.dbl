@@ -97,7 +97,7 @@ function DA_BOSwitch(which) {
 					//_switchbo += _weapon.getStat(107, 149);
 				}
 			}
-		} while (_weapon.getInvNext(null, 1)); 
+		} while (_weapon.getNext(null, 1)); 
 	}
 	if(_switchavail) {
 		DC_DPrint("Your actual BO level is " + _mainbo + ", your weapon switch has level " + _switchbo + " BO !");

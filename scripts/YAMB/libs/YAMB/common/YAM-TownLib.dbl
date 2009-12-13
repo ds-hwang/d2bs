@@ -572,7 +572,7 @@ function DT_CheckRepair(repairpercent) {
 					if(_max_dur && _percent <= repairpercent) { _needrepair = true; }
 				}
 			}
-		} while(_item.getInvNext() && !_needrepair); 
+		} while(_item.getNext() && !_needrepair); 
 	}
 	// Checking if the char got enough gold to pay the entire repair all cost 
 	// commented out till core supports getRepairCost - TechnoHunter
@@ -642,7 +642,7 @@ function DT_CheckRecharge() {
 				if(_percent < DT_ThrowPercent) { _needrecharge=true; }
 			}
 		}
-	} while(_check.getInvNext(null,1)); }
+	} while(_check.getNext(null,1)); }
 	return _needrecharge;
 }
 
@@ -676,7 +676,7 @@ function DT_CheckAmmo() {
 				_DT_AmmoArray.push(new _DT_AmmoObject(_weapon));
 			}
 		}
-	} while(_weapon.getInvNext(null,1)); }
+	} while(_weapon.getNext(null,1)); }
 	var _ammo = DC_getMyItem(null,1);
 	if(_ammo) { do {
 		// If the ammo is in one of the weapon tabs
@@ -694,7 +694,7 @@ function DT_CheckAmmo() {
 				}
 			}
 		}
-	} while (_ammo.getInvNext(null,1)); }
+	} while (_ammo.getNext(null,1)); }
 	// Check if we need to refill the ammo
 	var _needammo = false;
 	for(zx=0; zx<_DT_AmmoArray.length; zx+=1) {
@@ -760,7 +760,7 @@ function DT_BuyAmmo(npc) {
 						DT_BuyItem(_ammo,npc,1);
 						break;
 					}
-			} while(_ammo.getInvNext(_DT_AmmoArray[zx].CheckCode,1)); }
+			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,1)); }
 			// Get the ammo object from the npc window
 			_ammo = DC_getMyItem(_DT_AmmoArray[zx].CheckCode,0);
 			// If we found ammo on the trade window,
@@ -770,7 +770,7 @@ function DT_BuyAmmo(npc) {
 						DT_BuyItem(_ammo,npc,2);
 						break;
 					}
-			} while(_ammo.getInvNext(_DT_AmmoArray[zx].CheckCode,0));}
+			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,0));}
 			// If it is switched, switch back to the original tab
 			if(SwitchedWeapons) { DC_DoWeaponSwitch(); }
 		}
@@ -822,7 +822,7 @@ function DT_CheckInventory() {
 				}
 			}
 		}
-	} while (_invitem.getInvNext(null,100)); }
+	} while (_invitem.getNext(null,100)); }
 	// Create a array of free columns and set all to 0
 	var _freecols = new Array(10);
 	for(var x = 0; x < 10; x+=1) {
@@ -887,7 +887,7 @@ function DT_CheckStash() {
 					_stashspace[y + _sitem.y][x + _sitem.x] = 1; // full
 				}
 			}
-		} while (_sitem.getInvNext(null,104)); } // 104 == stash
+		} while (_sitem.getNext(null,104)); } // 104 == stash
 
 	for(y = 0; y < _DT_StashHeight; y+=1) {
 		for(x = 0; x < 6; x+=1) {
@@ -946,7 +946,7 @@ function DT_ManageStash() {
 				_stashspace[y + _sitem.y][x + _sitem.x] = 1; // full
 			}
 		}
-	} while (_sitem.getInvNext(null,104)); } // 104 == stash
+	} while (_sitem.getNext(null,104)); } // 104 == stash
 	// Get the first item in inventory
 	var _invitem = DC_getMyItem(null,100); // 100 == inventory
 	// If there is a item, loop until all is stashed or ignored
@@ -1041,7 +1041,7 @@ function DT_ManageStash() {
 				DC_DPrint("DT_ManageStash() : Not enough room to stash your " + D2JSP_ITEM_QUALITY_QualityToNameList[_invitem.quality] + " " + _invitem.name + "!");
 			}
 		}
-	} while (_invitem.getInvNext(null,100)); }
+	} while (_invitem.getNext(null,100)); }
 	return true;
 }
 
@@ -1076,7 +1076,7 @@ function DT_GetTome(type, name, code) {
 		if(_tome && DC_CheckOwner(_tome,name) == true) {
 			return _tome;
 		}
-	} while(_tome && _tome.getInvNext(type, code));
+	} while(_tome && _tome.getNext(type, code));
 
 	return false;
 }
@@ -1337,7 +1337,7 @@ function DT_FillBelt(npc) {
 						_DT_FitPotsToBelt();
 					}
 				}
-			} while(_potion.getInvNext(null, 100));
+			} while(_potion.getNext(null, 100));
 		}
 	}
 
@@ -1420,7 +1420,7 @@ function DT_CheckSpace( itemX, itemY ){
 			}
 					}
 			}
-		}while(item && item.getInvNext(null,100));
+		}while(item && item.getNext(null,100));
 	}
 	for(j=0;j<5-itemY;j+=1) {
 		invloop2: for(i=0;i<11-itemX;i+=1) {
@@ -1454,7 +1454,7 @@ function DT_CountFreeSpaces() {
 					}
 				}
 			}
-		} while (_invitem.getInvNext(null,100));
+		} while (_invitem.getNext(null,100));
 	}
 	// Return the amount of free spaces
 	return _freespaces;
@@ -1538,7 +1538,7 @@ function DT_CleanPotions() {
 					DC_ClearCursor();
 				}
 			}
-		} while(_potion.getInvNext(null, 100));
+		} while(_potion.getNext(null, 100));
 	}
 	_DT_FitPotsToBelt();
 	var _drinkArray = new Array();
@@ -1548,7 +1548,7 @@ function DT_CleanPotions() {
 			if(_potion.itemType==76 || _potion.itemType==77) {
 				_drinkArray.push(_potion.gid);
 			}
-		} while(_potion.getInvNext(null, 100));
+		} while(_potion.getNext(null, 100));
 	}
 	for(var i = 0; i < _drinkArray.length; i+=1) {
 		_potion = me.getItem(null,100,_drinkArray[i]);
@@ -1588,7 +1588,7 @@ function _DT_FitPotsToBelt() {
 			//clickItem(2,_potion);  //bob fixed (core doesn't check click 2,item) // Put potion in belt if there is a suitable space
 			DC_PingDel(DT_NPCDelay);
 		}
-	} while(_potion.getInvNext(null, 100)); }
+	} while(_potion.getNext(null, 100)); }
 }
 
 // Function by DarkSpirit // TESTING -- TECHNOHUNTER
@@ -1668,7 +1668,7 @@ function DT_ClearInv(npc) {
 				}
 			}
 		}
-		} while (_invitem.getInvNext(null,100));
+		} while (_invitem.getNext(null,100));
 	}
 	if(YAM_UseNJIP == false && (_found || (arguments.length > 0 && npc))) {
 		// Refresh the snagit.ini file
@@ -1705,7 +1705,7 @@ function DT_ClearBelt() {
 				// Drop the item
 				DT_DropItem(_locitem);
 			}
-		} while(_locitem.getInvNext(null,2));
+		} while(_locitem.getNext(null,2));
 	}
 	return true;
 }
@@ -1732,7 +1732,7 @@ function DT_TossItem(where,itemcode) {
 				// Drop the item
 				DT_DropItem(_locitem);
 			}
-		} while (_locitem.getInvNext(itemcode,where)); 
+		} while (_locitem.getNext(itemcode,where)); 
 	}
 
 	return true;
@@ -1769,7 +1769,7 @@ function DT_SellItem(where,itemcode,npc) {
 			DT_BuyItem(_locitem,npc,1);
 		}
 
-	} while (_locitem.getInvNext(itemcode,where)); }
+	} while (_locitem.getNext(itemcode,where)); }
 
 	return true;
 }
@@ -1952,7 +1952,7 @@ function DT_CheckUnids() {
 					_unidcount+=1;
 				}
 			}
-		} while(_uniditem.getInvNext(null,100));
+		} while(_uniditem.getNext(null,100));
 	}
 	if(YAM_Debug && _unidcount) {
 		print ("DT_CheckUnids: "+_unidcount+" unid items in inventory!");
@@ -1985,7 +1985,7 @@ function DT_GetUnidItem() {
 					return _uniditem;
 				}
 			}
-		} while(_uniditem.getInvNext(null,100));
+		} while(_uniditem.getNext(null,100));
 	}
 	// If we didn't find any unid item, return false
 	return false;
@@ -2434,7 +2434,7 @@ function _DT_GetNeededPotionsCol(type,column) {
 						}
 					}
 				}
-		} while(_pot.getInvNext(null,2)); }
+		} while(_pot.getNext(null,2)); }
 		_restartloop=false;
 	} while (_restartloop);
 	DC_DPrint("_DT_GetNeededPotionsCol() : Testing column " + column + " for type " + type + " done. Needed: " + _amountneeded);
@@ -2465,7 +2465,7 @@ function DT_OutOfPots() {
 						_mpamt += 1;
 					}
 			}
-		} while(_pot.getInvNext(null,2));
+		} while(_pot.getNext(null,2));
 	}
 	DC_DPrint("DT_OutOfPots() : " + _rvamt + " rejuv, " + _hpamt + " healing, and " + _mpamt + " mana potions.");
 	return ((_rvamt==0) && ((_hpamt==0) || (_mpamt==0)));
@@ -2499,7 +2499,7 @@ function _DT_GetGambledItem(itemcode) {
 			if(_new_item) { 
 				return _newitem.gid; 
 			}
-		} while (_newitem.getInvNext(itemcode,100)); 
+		} while (_newitem.getNext(itemcode,100)); 
 	}
 	return false;
 }
@@ -2516,7 +2516,7 @@ function _DT_GetOldItems(itemcode) {
 			if(DC_CheckOwner(_olditem) == true) { 
 				_DT_OldItems.push(_olditem.gid); 
 			}
-		} while (_olditem.getInvNext(itemcode, 100)); 
+		} while (_olditem.getNext(itemcode, 100)); 
 	}
 }
 

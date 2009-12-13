@@ -376,7 +376,7 @@ function DCU_CheckJobs() {
 									continue nextRecipe;
 								}
 							}
-							while (loopitem2 && loopitem2.getInvNext(DCU_Codes[i][3],0));
+							while (loopitem2 && loopitem2.getNext(DCU_Codes[i][3],0));
 						if(needseconditem) //increase counter in ini-file
 							DCU_iniUpdateItems.push([DCU_Codes[i][3], DCU_Codes[i][5]-DCU_Codes[i][4]]);
 					}
@@ -387,7 +387,7 @@ function DCU_CheckJobs() {
 					}
 				}
 			}
-			while (loopitem1 && loopitem1.getInvNext(DCU_Codes[i][0],0));
+			while (loopitem1 && loopitem1.getNext(DCU_Codes[i][0],0));
 		}
 	}
 	DCU_debugmessage("ÿc0DCU_CheckJobs ->  Exiting function.");
@@ -418,7 +418,7 @@ function DCU_CubeLooper() {
 							delay(1000);//TESTING
 							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
-						cubeitem.getInvNext(DCU_Jobs[done][0],0);
+						cubeitem.getNext(DCU_Jobs[done][0],0);
 					}
 				}
 				break;
@@ -431,7 +431,7 @@ function DCU_CubeLooper() {
 							DCU_MoveItemToCube(cubeitem, 0, y); //item, coordinate in cube
 							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
-						cubeitem.getInvNext(DCU_Jobs[done][0],0);
+						cubeitem.getNext(DCU_Jobs[done][0],0);
 					}
 				}
 				cubeitem = DCU_getItem(DCU_Jobs[done][3],0);
@@ -441,9 +441,9 @@ function DCU_CubeLooper() {
 							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
 							DCU_MoveItemToCube(cubeitem, 1, y); //item, coordinate in cube
 							if(y!=DCU_Jobs[done][5]-1)
-								cubeitem.getInvNext();
+								cubeitem.getNext();
 						}
-						cubeitem.getInvNext(DCU_Jobs[done][3],0);
+						cubeitem.getNext(DCU_Jobs[done][3],0);
 					}
 				}
 				break;
@@ -479,7 +479,7 @@ function DCU_ClearCube() {
 				DCU_CloseStash();
 				DCU_AntiIdleWhenFull();
 			}
-		} while (_cubeitem.getInvNext(null,103));
+		} while (_cubeitem.getNext(null,103));
 	}
 	DCU_debugmessage("ÿc0DCU_ClearCube ->  Exiting function.");
 	return true;
@@ -682,7 +682,7 @@ function DCU_CheckInventory() {
 					}
 				}
 			}
-		} while (invitem.getInvNext(null,100));
+		} while (invitem.getNext(null,100));
 
 	for(var x=0; x < DCU_StashX; x++) {
 		DCU_Stash[x] = new Array(DCU_StashY);
@@ -703,7 +703,7 @@ function DCU_CheckInventory() {
 					}
 				}
 			}
-		} while (invitem.getInvNext(null,104));
+		} while (invitem.getNext(null,104));
 	DCU_debugmessage("ÿc0DCU_CheckInventory ->  Exiting function.");
 }
 
@@ -771,7 +771,7 @@ function DCU_CheckInvTempSpace(_checkitem) {
 					}
 				}
 			}
-		} while (_invitem.getInvNext(null, 100));
+		} while (_invitem.getNext(null, 100));
 		*/
 
 	// dumping inventory 2 screen
@@ -997,7 +997,7 @@ function DCU_UseCube() {
 		do {
 			cubeitemsbefore++;
 		}
-		while(cubeitems.getInvNext(null, 103));
+		while(cubeitems.getNext(null, 103));
 	if(cubeitemsbefore<2){
 		DCU_debugmessage("ÿc0DCU_UseCube -> Not enough items in cube, Exiting function.");
 		return false;
@@ -1011,7 +1011,7 @@ function DCU_UseCube() {
 			do {
 				cubeitemsafter++;
 			}
-			while (cubeitems.getInvNext(null, 103));
+			while (cubeitems.getNext(null, 103));
 		if(cubeitemsafter < cubeitemsbefore) {
 			if(cubeitemsafter == 1) {
 				var newitem = DCU_getItem(null, 103);

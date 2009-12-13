@@ -312,10 +312,16 @@ function XP_CastStatic(target) {
 		if (_XP_TimedSpells[_XP_CurrentTimed]==56) {
 			DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y); // was XP_DropMeteor function.
 		}
-		else { DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y); }
+		else { 
+			DC_DoCast(_XP_TimedSpells[_XP_CurrentTimed],0,target.x,target.y); 
+		}
 		_XP_CurrentTimed+=1;
-		if (_XP_CurrentTimed == _XP_TimedSpells.length) { _XP_CurrentTimed = 0; }
-		if (XP_CheckUtil(target)) { return; }
+		if (_XP_CurrentTimed == _XP_TimedSpells.length) { 
+			_XP_CurrentTimed = 0; 
+		}
+		if (XP_CheckUtil(target)) { 
+			return; 
+		}
 	}
 	// Set the range from target
 	var _r = 1.0 + 0.668 * me.getSkill(42,1);

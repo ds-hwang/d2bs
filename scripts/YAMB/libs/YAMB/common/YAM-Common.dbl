@@ -627,7 +627,7 @@ function DC_SelectTab(type) {
 					}
 				}
 			}
-		} while (_weapontab.getInvNext()); 
+		} while (_weapontab.getNext()); 
 	}
 	// If we have items on the 2nd tab, show a message to the user and do a switch depending on the parameter
 	if(_haveswitch) {
@@ -884,7 +884,7 @@ function DC_GetKeys() {
 				// Return the key stack found
 				return item;
 			}
-		} while (item.getInvNext()); 
+		} while (item.getNext()); 
 	}
 	// No item is found so return null
 	return null;
@@ -1484,7 +1484,7 @@ function DC_GetBeltSize(){
 					return 4; 
 				}
 			}
-		} while(_item.getInvNext());
+		} while(_item.getNext());
 	}
 	// If we have no belt, return 1 as row number
 	return 1;
@@ -1508,7 +1508,7 @@ function DC_GetPotByClassID(classid) {
 					_altPot = copyUnit(_pot); 
 				}
 			}
-		} while(_pot.getInvNext(classid,2)); 
+		} while(_pot.getNext(classid,2)); 
 	}
 	return _altPot;
 }
@@ -1532,7 +1532,7 @@ function _DC_GetFirstRowPotByClassID(classid,potcode) {
 					}
 				}
 			}
-		} while(_pot.getInvNext(classid,2)); 
+		} while(_pot.getNext(classid,2)); 
 	}
 	return _altPot;
 }

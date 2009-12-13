@@ -636,7 +636,7 @@ function CheckItems(filename, mode) {
 			CheckItem(_invitem, filename);
 			_DIM_INIFilePath = temp;
 		}
-	} while (_invitem.getInvNext(null,mode)); }
+	} while (_invitem.getNext(null,mode)); }
 }
 
 function SetNumbers(filename) {
