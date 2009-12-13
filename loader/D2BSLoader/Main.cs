@@ -186,7 +186,7 @@ namespace D2BSLoader
 				D2Args = config.AppSettings.Settings["D2Args"].Value;
 				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
 			} catch {
-				MessageBox.Show("Settings failed to load!", "D2BS");
+				MessageBox.Show("Configuration not found.", "D2BS");
 			}
 		}
 
