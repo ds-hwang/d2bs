@@ -14,4 +14,5 @@ PatchHook pHooks[] = {
 	{PatchCall,	GetDllOffset("D2Client.dll", 0x5B050),	(DWORD)GameAttack_STUB,5},
 	{PatchCall,	GetDllOffset("D2CMP.dll", 0x10DA5),		(DWORD)GameCrashFix_STUB, 10},
 	{PatchJmp,	GetDllOffset("D2Client.dll", 0x66487),	(DWORD)PlayerAssignment_STUB, 5},
+	{PatchBytes,GetDllOffset("D2Client.dll", 0x9ECD0),	(DWORD)0xc3, 1}
 };
