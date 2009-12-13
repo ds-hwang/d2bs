@@ -1024,17 +1024,17 @@ JSAPI_FUNC(unit_getItems)
 	if(!pUnit || !pUnit->pInventory || !pUnit->pInventory->pFirstItem)
 		return JS_TRUE;
 
-	JSObject* pReturnArray = JS_NewArrayObject(cx, NULL, NULL);
-	
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
 	if(!pReturnArray)
 		return JS_TRUE;
+	JS_AddRoot(&pReturnArray);
 
-	DWORD dwArrayCount = NULL;
+	DWORD dwArrayCount = 0;
 
-	for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
+	for(UnitAny* pItem = pUnit->pInventory->pFirstItem; pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem), dwArrayCount++)
 	{
-
-		myUnit* pmyUnit = new myUnit;
+		invUnit* pmyUnit = new invUnit;
 		
 		if(!pmyUnit)
 			continue;
@@ -1045,16 +1045,22 @@ JSAPI_FUNC(unit_getItems)
 		pmyUnit->dwClassId = pItem->dwTxtFileNo;
 		pmyUnit->dwUnitId = pItem->dwUnitId;
 		pmyUnit->dwType = UNIT_ITEM;
+		pmyUnit->dwOwnerId = pUnit->dwUnitId;
+		pmyUnit->dwOwnerType = pUnit->dwType;
 
 		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
-		if (!jsunit)
-			return JS_TRUE;
+		if(!jsunit)
+		{
+			JS_RemoveRoot(&pReturnArray);
+			THROW_ERROR(cx, obj, "Failed to build item array");
+		}
+
 		jsval a = OBJECT_TO_JSVAL(jsunit);
 		JS_SetElement(cx, pReturnArray, dwArrayCount, &a);
-		dwArrayCount++;		
 	}
-	
+
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	JS_RemoveRoot(&pReturnArray);
 
 	return JS_TRUE;
 }

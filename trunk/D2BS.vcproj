@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="false"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN;_MSVC_DEBUG"
 				StringPooling="true"
 				MinimalRebuild="true"
 				SmallerTypeCheck="true"
