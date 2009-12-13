@@ -13,25 +13,50 @@ namespace D2BSLoader
 	public partial class Main : Form
 	{
 		private delegate void StatusCallback(string status, System.Drawing.Color color);
-		private delegate void LoadAction(int pid);
+		private delegate int LoadAction(int pid);
 
 		private static string D2Path = String.Empty,
 							  D2Exe = String.Empty,
 							  D2Args = String.Empty,
 							  D2BSDLL = String.Empty;
+		private static Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>() {
+				{"inject", Inject},
+				{"kill", Kill},
+				{"start", Start},
+				{"save", Save}
+			};
 		private BindingList<ProcessWrapper> processes = new BindingList<ProcessWrapper>();
 
 		public bool Autoclosed { get; set; }
 
 		public Main(string[] args)
 		{
-			// process command line args
-			Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>();
-			actions.Add("inject", Inject);
-			actions.Add("kill", Kill);
-			actions.Add("start", Start);
-			actions.Add("save", Save);
+			if(args.Length > 0)
+				ProcessCmdArgs(args);
+			else
+			{
+				InitializeComponent();
 
+				LoadSettings();
+				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe) ||
+				   !File.Exists(Path.Combine(D2Path, D2Exe)) ||
+				   String.IsNullOrEmpty(D2BSDLL) ||
+				   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
+				   Options_Click(null, null);
+
+				processes.RaiseListChangedEvents = true;
+				Processes.DataSource = processes;
+				Processes.DisplayMember = "ProcessName";
+				System.Threading.Thread t = new System.Threading.Thread(ListUpdateThread);
+
+				Shown += delegate { t.Start(); Process.EnterDebugMode(); };
+				FormClosing += delegate { t.Abort(); Process.LeaveDebugMode(); };
+			}
+		}
+
+		private void ProcessCmdArgs(string[] args)
+		{
+			// process command line args
 			string action = String.Empty,
 				   path = String.Empty,
 				   exe = String.Empty,
@@ -44,14 +69,14 @@ namespace D2BSLoader
 			{
 				switch(args[i])
 				{
-					case "--pid": pid = Convert.ToInt32(args[i+1]); i++; break;
-					case "--dll": dll = args[i+1]; i++; break;
-					case "--path": path = args[i+1]; i++; break;
-					case "--exe": exe = args[i+1]; i++; break;
+					case "--pid": pid = Convert.ToInt32(args[i + 1]); i++; break;
+					case "--dll": dll = args[i + 1]; i++; break;
+					case "--path": path = args[i + 1]; i++; break;
+					case "--exe": exe = args[i + 1]; i++; break;
 					case "--params":
 						// treat the rest of the command line as if it were params directly to d2
-						string[] args2 = new string[args.Length-i-1];
-						Array.Copy(args, i+1, args2, 0, args.Length-i-1);
+						string[] args2 = new string[args.Length - i - 1];
+						Array.Copy(args, i + 1, args2, 0, args.Length - i - 1);
 						param = " " + String.Join(" ", args2);
 						i = args.Length;
 						break;
@@ -70,43 +95,30 @@ namespace D2BSLoader
 			// merge the specified args with the official args
 			D2Args = String.Join(" ", new string[] { D2Args, param });
 
-			if((String.IsNullOrEmpty(action)) ||
-			   (action == "start" && (String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))))
+			if((action == "start" && (String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))))
 			{
 				// if the path or exe is empty, load settings
 				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))
 					LoadSettings();
-				// if the path is still empty, open the settings dialog
+				// if the path is still empty, die
 				if(String.IsNullOrEmpty(D2Path))
 				{
-					Options_Click(null, null);
-					ReloadSettings();
+					Autoclosed = true;
+					Console.WriteLine("-1");
+					Close();
+					return;
 				}
-			}
-
-			if(!File.Exists(Path.Combine(D2Path, D2Exe)) ||
-			   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
-			{
-				MessageBox.Show("Diablo II Executable or D2BS not found.", "D2BS");
 			}
 
 			if(!String.IsNullOrEmpty(action))
 			{
 				Autoclosed = true;
-				actions[action](pid);
+				int res = actions[action](pid);
+				if(action == "start")
+					Console.WriteLine(res);
 				Close();
 				return;
 			}
-
-			InitializeComponent();
-
-			processes.RaiseListChangedEvents = true;
-			Processes.DataSource = processes;
-			Processes.DisplayMember = "ProcessName";
-			System.Threading.Thread t = new System.Threading.Thread(ListUpdateThread);
-
-			Shown += delegate { Process.EnterDebugMode(); t.Start(); };
-			FormClosing += delegate { t.Abort(); Process.LeaveDebugMode(); };
 		}
 
 		private void ListUpdateThread()
@@ -115,8 +127,6 @@ namespace D2BSLoader
 			{
 				foreach(ProcessWrapper p in processes)
 					p.Process.Refresh();
-
-				processes.RemoveAll(x => x.Process.HasExited);
 
 				foreach(Process p in Process.GetProcesses())
 				{
@@ -134,6 +144,7 @@ namespace D2BSLoader
 					{
 						ProcessWrapper pw = new ProcessWrapper(p);
 						processes.Add(pw);
+						p.Exited += delegate { processes.Remove(pw); };
 						if(GetAutoload())
 						{
 							p.WaitForInputIdle();
@@ -166,22 +177,15 @@ namespace D2BSLoader
 		{
 			try
 			{
-				Configuration config = ConfigurationManager.OpenExeConfiguration("D2BS.exe");
+				string exeName = Path.GetFileName(Application.ExecutablePath);
+				Configuration config = ConfigurationManager.OpenExeConfiguration(exeName);
 				D2Path = config.AppSettings.Settings["D2Path"].Value;
 				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
 				D2Args = config.AppSettings.Settings["D2Args"].Value;
 				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
+			} catch {
+				MessageBox.Show("Settings failed to load!", "D2BS");
 			}
-			catch { }
-		}
-
-		private void ReloadSettings()
-		{
-			ConfigurationManager.RefreshSection("appSettings");
-			D2Path = ConfigurationManager.AppSettings["D2Path"];
-			D2Exe = ConfigurationManager.AppSettings["D2Exe"];
-			D2Args = ConfigurationManager.AppSettings["D2Args"];
-			D2BSDLL = ConfigurationManager.AppSettings["D2BSDLL"];
 		}
 
 		public static void SetSettings(string path, string exe, string args, string dll)
@@ -229,39 +233,51 @@ namespace D2BSLoader
 			catch(ArgumentException) { return null; }
 		}
 
-		private void Start(int pid)
+		private static int Start(int pid)
 		{
 			int id = Start();
+			GetProcessById(id).WaitForInputIdle();
 			Inject(id);
-			if(Autoclosed)
-				Console.WriteLine(pid);
+			return id;
 		}
-		public static void Inject(int pid)
+		public static int Inject(int pid)
 		{
 			Process p = GetProcessById(pid);
 			if(p != null && GetLCClassName(p) == "diablo ii")
+			{
 				Attach(p);
+				return pid;
+			}
+			return -1;
 		}
-		public static void Kill(int pid)
+		public static int Kill(int pid)
 		{
 			Process p = GetProcessById(pid);
 			if(p != null && GetLCClassName(p) == "diablo ii")
+			{
 				p.Kill();
+				return pid;
+			}
+			return -1;
 		}
-		private void Save(int pid)
+		private static int Save(int pid)
 		{
 			SaveSettings(D2Path, D2Exe, D2Args, D2BSDLL);
+			return -1;
 		}
 
 		private static bool Attach(Process p)
 		{
+			Process.EnterDebugMode();
 			string js32 = Path.Combine(Application.StartupPath, "js32.dll"),
 				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
 				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
-			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
+			bool result = File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, js32) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs);
+			Process.LeaveDebugMode();
+			return result;
 		}
 
 		private void Attach(ProcessWrapper pw)
@@ -288,7 +304,10 @@ namespace D2BSLoader
 
 		public static int Start(params string[] args)
 		{
-			LoadSettings();
+			if(String.IsNullOrEmpty(D2Path) ||
+			   String.IsNullOrEmpty(D2Exe) ||
+			   String.IsNullOrEmpty(D2BSDLL))
+				LoadSettings();
 			D2Args = String.Join(" ", args);
 			return Start();
 		}
@@ -325,11 +344,11 @@ namespace D2BSLoader
 		{
 			Options o = new Options(D2Path, D2Exe, D2Args, D2BSDLL);
 			o.ShowDialog();
-			ReloadSettings();
+			LoadSettings();
 		}
 	}
 
-	internal class ProcessWrapper
+	class ProcessWrapper
 	{
 		public bool Loaded { get; set; }
 		public Process Process { get; internal set; }
@@ -345,7 +364,7 @@ namespace D2BSLoader
 		public ProcessWrapper(Process p) { Process = p; }
 	}
 
-	public static class BindingListExtensions
+	static class BindingListExtensions
 	{
 		public static void RemoveAll<T>(this BindingList<T> list, Predicate<T> pred)
 		{
