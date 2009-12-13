@@ -28,6 +28,7 @@ namespace D2BSLoader
 		private BindingList<ProcessWrapper> processes = new BindingList<ProcessWrapper>();
 
 		public bool Autoclosed { get; set; }
+		private static bool IsInDebug { get; set; }
 
 		public Main(string[] args)
 		{
@@ -49,8 +50,8 @@ namespace D2BSLoader
 				Processes.DisplayMember = "ProcessName";
 				System.Threading.Thread t = new System.Threading.Thread(ListUpdateThread);
 
-				Shown += delegate { t.Start(); Process.EnterDebugMode(); };
-				FormClosing += delegate { t.Abort(); Process.LeaveDebugMode(); };
+				Shown += delegate { t.Start(); Process.EnterDebugMode(); IsInDebug = true; };
+				FormClosing += delegate { t.Abort(); Process.LeaveDebugMode(); IsInDebug = false; };
 			}
 		}
 
@@ -161,7 +162,8 @@ namespace D2BSLoader
 
 		public static void SaveSettings(string path, string exe, string args, string dll)
 		{
-			Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+			string exeName = Path.GetFileName(Application.ExecutablePath);
+			Configuration config = ConfigurationManager.OpenExeConfiguration(exeName);
 			config.AppSettings.Settings.Remove("D2Path");
 			config.AppSettings.Settings.Remove("D2Exe");
 			config.AppSettings.Settings.Remove("D2Args");
@@ -268,16 +270,15 @@ namespace D2BSLoader
 
 		private static bool Attach(Process p)
 		{
-			Process.EnterDebugMode();
+			if(!IsInDebug)
+				Process.EnterDebugMode();
 			string js32 = Path.Combine(Application.StartupPath, "js32.dll"),
 				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
 				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
-			bool result = File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
+			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, js32) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs);
-			Process.LeaveDebugMode();
-			return result;
 		}
 
 		private void Attach(ProcessWrapper pw)
