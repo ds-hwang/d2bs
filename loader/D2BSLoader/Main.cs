@@ -162,7 +162,7 @@ namespace D2BSLoader
 
 		public static void SaveSettings(string path, string exe, string args, string dll)
 		{
-			string exeName = Path.GetFileName(Application.ExecutablePath);
+			string exeName = Path.Combine(Application.StartupPath, "D2BS.exe");
 			Configuration config = ConfigurationManager.OpenExeConfiguration(exeName);
 			config.AppSettings.Settings.Remove("D2Path");
 			config.AppSettings.Settings.Remove("D2Exe");
@@ -179,7 +179,7 @@ namespace D2BSLoader
 		{
 			try
 			{
-				string exeName = Path.GetFileName(Application.ExecutablePath);
+				string exeName = Path.Combine(Application.StartupPath, "D2BS.exe");
 				Configuration config = ConfigurationManager.OpenExeConfiguration(exeName);
 				D2Path = config.AppSettings.Settings["D2Path"].Value;
 				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
