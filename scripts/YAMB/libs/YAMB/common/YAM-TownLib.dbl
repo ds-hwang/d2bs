@@ -1069,7 +1069,7 @@ function DT_GetTome(type, name, code) {
 	if(type == 0) { type = "ibk"; } else if(type == 1) { type = "tbk"; }
 
 	// Get the book
-	var _tome = DC_getMyItem(type, code);
+	var _tome = (name == me.name) ? DC_getMyItem(type, code) : me.getInteractedNPC().getItem(type, code);
 
 	// Loop availiable tomes checking owner and return the tome object if we found it
 	do {
@@ -1097,7 +1097,8 @@ function DT_FillTome(npc,type) {
 	if(arguments.length < 2) { 
 		type = 0;
 	}
-	// Get the book in inventory
+
+	// Get the book in our inventory
 	var _tome = DT_GetTome(type);
 	// If we have the tome, refill it
 	if(_tome) {
@@ -1105,7 +1106,7 @@ function DT_FillTome(npc,type) {
 		if(_tome.getStat(70) == 20) { 
 			return true; 
 		}
-		var _scroll = (type == 0) ? DC_getMyItem("isc",103) : DC_getMyItem("tsc",103);
+		var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
 		if(_scroll) {
 			if(DT_BuyItem(_scroll,npc,3)) { 
 				return true; 
@@ -1123,7 +1124,7 @@ function DT_FillTome(npc,type) {
 	// If not, display a error message and return false <--NO
 	// Darien Fix --> Buy the Damn Thing!!!
 	else {
-		_tome = (type == 0) ? npc.getItem("ibk",103) : npc.getItem("tbk",103);
+		_tome = (type == 0) ? npc.getItem("ibk") : npc.getItem("tbk");
 		if(_tome) {
 			if(DT_BuyItem(_tome,npc,3)) {
 				return true;
@@ -1164,18 +1165,21 @@ function DT_BuyScrolls(npc,type,amount) {
 	// If the user entered 0, return false because we didn't buy any scroll
 	if(amount == 0) { return false; }
 
-	var _scroll = (type == 0) ? npc.getItem("isc",103) : npc.getItem("tsc",103);
+	var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
 	if(_scroll) {
 
 		var _counter=0;
 
 		for(var _buyloop = 0; _buyloop < amount; _buyloop += 1) {
-
-			if(DT_BuyItem(_scroll,npc,2)) { _counter+=1; }
+			if(DT_BuyItem(_scroll,npc,2)) { 
+				_counter+=1; 
+			}
 		}
 
 		// If we bought no scroll, we got a problem
-		if(_counter > 0) { return true; }
+		if(_counter > 0) { 
+			return true; 
+		}
 		else {
 
 			DC_DPrint("DT_BuyScrolls() : Unable to buy a scroll!");
@@ -1210,8 +1214,7 @@ function DT_BuyKeys(npc) {
 	if(!_keys) {
 
 		// Get a key from the npc trade window
-		var _shopkey = npc.getItem("key",103);
-
+		var _shopkey = npc.getItem("key");
 		// If no key is found in the shop window, return false
 		if(!_shopkey) {
 
@@ -1231,8 +1234,7 @@ function DT_BuyKeys(npc) {
 	}
 
 	// Get a key from the npc trade window
-	_shopkey = npc.getItem("key",103);
-
+	_shopkey = npc.getItem("key");
 	// If no key is found in the shop window, return false
 	if(!_shopkey) {
 
@@ -1265,7 +1267,9 @@ function DT_CheckBelt() {
 		_DT_BeltColNeeded[i] = _DT_GetNeededPotionsCol(DT_BeltColType[i],i);
 
 		// If the column amount is less than the min amount and is not a rejuv col, we need potions
-		if((4-_DT_BeltColNeeded[i]) < DT_BeltColMin[i] && DT_BeltColType[i] != "rv" ) { _needpotions = true; }
+		if((4-_DT_BeltColNeeded[i]) < DT_BeltColMin[i] && DT_BeltColType[i] != "rv" ) { 
+			_needpotions = true; 
+		}
 		else if(DT_BeltColType[i] == "rv") {
 			DC_Print("ÿc1WARNING: You have reserved belt column "+(i+1)+" for \"rv\" potions in your char config file.ÿc0");
 			DC_Print("ÿc1Since YAMB supports potion-swapping there is no point in reserving a column for rejuvenations anymore!ÿc0");
