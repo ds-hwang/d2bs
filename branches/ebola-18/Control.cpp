@@ -308,7 +308,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 	return FALSE;
 }
 
-int OOG_GetLocation(void)
+OOG_Location OOG_GetLocation(void)
 {
 	if(ClientState() != ClientStateMenu)
 		return OOG_NONE;

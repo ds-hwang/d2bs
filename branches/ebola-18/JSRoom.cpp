@@ -318,7 +318,7 @@ JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameY);
 	else if(nStat == 15)
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomX);
-	else if(nStat == 15)
+	else if(nStat == 16)
 		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomY);
 
 	if(bAdded)

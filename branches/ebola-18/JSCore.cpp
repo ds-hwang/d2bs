@@ -1341,6 +1341,7 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 	}
 
+	// TODO: data can be null, and strlen(NULL) crashes
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1,data };
 
 	INT sz = SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2WIN_GetHwnd(), (LPARAM)&aCopy);
