@@ -631,14 +631,9 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	if(pUnit->dwType == UNIT_OBJECT && argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
-		//D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
-		//if(!D2CLIENT_GetUIState(UI_WPMENU))
-		//{
-		//	*rval = JSVAL_FALSE;
-		//	return JS_TRUE;
-		//}
 		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
+		// D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //crashes
 		*rval = JSVAL_TRUE;
 	}
 #if 0
@@ -773,19 +768,79 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 
 void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 {
-	// find the array index, if it exists
-	jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
-	if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
-		return;
-	if(index == JSVAL_VOID)
+	if(pStat[nStat].wSubIndex > 0x200)
 	{
-		// the array index doesn't exist, make it
-		index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
-		if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+		// subindex is the skill id and level
+		int skill = pStat[nStat].wSubIndex >> 6,
+			level = pStat[nStat].wSubIndex & 0x3F,
+			charges = 0,
+			maxcharges = 0;
+		if(pStat[nStat].dwStatValue > 0x200)
+		{
+			charges = pStat[nStat].dwStatValue & 0xFF;
+			maxcharges = pStat[nStat].dwStatValue >> 8;
+		}
+		JSObject* val = BuildObject(cx, NULL);
+		jsval jsskill = INT_TO_JSVAL(skill),
+			  jslevel = INT_TO_JSVAL(level),
+			  jscharges = INT_TO_JSVAL(charges),
+			  jsmaxcharges = INT_TO_JSVAL(maxcharges);
+		// val is an anonymous object that holds properties
+		if(!JS_SetProperty(cx, val, "skill", &jsskill) ||
+		   !JS_SetProperty(cx, val, "level", &jslevel))
+		   return;
+		if(maxcharges > 0)
+		{
+			if(!JS_SetProperty(cx, val, "charges", &jscharges) ||
+			   !JS_SetProperty(cx, val, "maxcharges", &jsmaxcharges))
+			   return;
+		}
+		// find where we should put it
+		jsval index = JSVAL_VOID,
+			  obj = OBJECT_TO_JSVAL(val);
+		if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
 			return;
+		if(index != JSVAL_VOID)
+		{
+			// modify the existing object by stuffing it into an array
+			if(!JS_IsArrayObject(cx, JSVAL_TO_OBJECT(index)))
+			{
+				// it's not an array, build one
+				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+				JS_SetElement(cx, arr, 0, &index);
+				JS_SetElement(cx, arr, 1, &obj);
+				jsval arr2 = OBJECT_TO_JSVAL(arr);
+				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
+			}
+			else
+			{
+				// it is an array, append the new value
+				JSObject* arr = JSVAL_TO_OBJECT(index);
+				jsuint len = 0;
+				if(!JS_GetArrayLength(cx, arr, &len))
+					return;
+				len++;
+				JS_SetElement(cx, arr, len, &obj);
+			}
+		}
+		else
+			JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &obj);
 	}
-	// index now points to the correct array index
-	JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
+	else
+	{
+		jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
+		if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+			return;
+		if(index == JSVAL_VOID)
+		{
+			// the array index doesn't exist, make it
+			index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
+			if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+				return;
+		}
+		// index now points to the correct array index
+		JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
+	}
 }
 
 INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -863,7 +918,7 @@ INT item_getFlag(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 }
 
 INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{	
+{
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -908,7 +963,7 @@ INT item_getPrice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 }
 
 INT unit_getItems(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
-{	
+{
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1072,28 +1127,61 @@ INT item_shop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval
 		return JS_TRUE;
 
 	//Check for proper mode.
-	//if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
-	//	return JS_TRUE;
+	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
+		return JS_TRUE;
 
-	//Selling an Item 
-	if(dwMode == 1)
+
+	////Selling an Item 
+	//if (dwMode == 1)
+	//{
+	//	//Check if we own the item!
+	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
+	//		return JS_TRUE;
+	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+	//}
+	//else
+	//{
+	//	//Make sure the item is owned by the NPC interacted with.
+	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
+	//		return JS_TRUE;
+
+	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
+	//}
+	BYTE pPacket[17] = {NULL};
+
+	if(dwMode == 2 || dwMode == 6)
+		pPacket[0] = 0x32;
+	else pPacket[0] = 0x33;
+
+	*(DWORD*)&pPacket[1] = pNPC->dwUnitId;
+	*(DWORD*)&pPacket[5] = pItem->dwUnitId;
+
+   	if(dwMode == 1) // Sell
+	*(DWORD*)&pPacket[9] = 0x04;
+	else if(dwMode == 2) // Buy
 	{
-		//Check if we own the item!
-		if(pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
-			return JS_TRUE;
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+		if(pItem->pItemData->dwFlags & 0x10)
+			*(DWORD*)&pPacket[9] = 0x00;
+		else
+			*(DWORD*)&pPacket[9] = 0x02;
 	}
 	else
-	{
-		//Make sure the item is owned by the NPC interacted with.
-		if(pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
-			return JS_TRUE;
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	}
+		*(BYTE*)&pPacket[9+3] = 0x80;
+
+	INT nBuySell = NULL;
+
+	if(dwMode == 2 || dwMode == 6)
+		nBuySell = NULL;
+	else nBuySell = 1;
+
+	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
+
+	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 
 	*rval = JSVAL_TRUE;
+
 	return JS_TRUE;
 }
 

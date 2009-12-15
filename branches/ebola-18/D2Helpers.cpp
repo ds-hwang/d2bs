@@ -972,18 +972,40 @@ VOID __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelI
 	}
 }
 
-__declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
+__declspec(naked) VOID __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
 {
 	__asm
 	{
 		PUSH EBP
+		MOV EBP, ESP
+		SUB ESP, 0x20
+		PUSH EBX
+		PUSH ESI
+		PUSH EDI
+		AND DWORD PTR SS:[EBP-0x20],0
+		PUSH 0
+		CALL _TakeWaypoint
+		JMP _Exit
+
+_TakeWaypoint:
+		PUSH EBP
 		PUSH ESI
 		PUSH EDI
 		PUSH EBX
-		XOR EDI,EDI
-		MOV EBX,1
+		XOR EDI, EDI
+		MOV EBX, 1
+		MOV ECX,DWORD PTR SS:[EBP+8]
+		MOV EDX,DWORD PTR SS:[EBP+0xC]
 		LEA EBP,DWORD PTR SS:[EBP-0x20]
 		JMP [D2CLIENT_TakeWaypoint_I]
+
+
+_Exit:
+		POP EDI
+		POP ESI
+		POP EBX
+		LEAVE
+		RETN 8
 	}
 }
 
