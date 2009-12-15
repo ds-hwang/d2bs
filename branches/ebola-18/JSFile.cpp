@@ -91,7 +91,8 @@ JSAPI_PROP(file_getProperty)
 					else
 						*vp = INT_TO_JSVAL(_ftell_nolock(fdata->fptr));
 				}
-				else *vp = JSVAL_ZERO;
+				else
+					*vp = JSVAL_ZERO;
 				break;
 			case FILE_EOF:
 				if(fdata->fptr)

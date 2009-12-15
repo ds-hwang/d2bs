@@ -79,6 +79,8 @@ FUNCPTR(D2CLIENT, Transmute, VOID __fastcall, (VOID), 0xA6560)
 
 VARPTR(D2CLIENT, MouseOffsetY, int, 0x1121CC) // Updated
 VARPTR(D2CLIENT, MouseOffsetX, int, 0x1121D0) // Updated
+VARPTR(D2CLIENT, CursorHoverX, DWORD, 0xDCAD8) // Added (12-5-09, Sheppard)
+VARPTR(D2CLIENT, CursorHoverY, DWORD, 0xDCADC) // Added (12-5-09, Sheppard)
 VARPTR(D2CLIENT, Divisor, int, 0xF3B98) // Updated
 VARPTR(D2CLIENT, yShake, int, 0xFD114) // Updated
 VARPTR(D2CLIENT, GameInfo, GameStructInfo *, 0x11B908) // Updated

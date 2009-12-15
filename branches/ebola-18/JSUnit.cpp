@@ -657,6 +657,9 @@ INT unit_interact(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	return JS_TRUE;
 }
 
+void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* pJSContext, JSObject* pGenericObject);
+void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray);
+
 INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {	
 	if(!GameReady())
@@ -683,13 +686,7 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	if(nStat >= 6 && nStat <= 11)
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex)>>8);
 	else if(nStat == 13)
-	{
 		JS_NewNumberValue(cx, D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
-		// testing new number code to allieviate this bad hack
-/*		CHAR szExp[32] = "";
-		sprintf(szExp, "%u", D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
-		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szExp)); */
-	}
 	else if(nStat == 92)
 		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 	else if(nStat == -1)
@@ -728,12 +725,67 @@ INT unit_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 				*rval = OBJECT_TO_JSVAL(pReturnArray);
 			}
 		}
+	}
+	else if(nStat == -2)
+	{
+		JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
 
+		InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
+		InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);
+		InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
+
+		*rval = OBJECT_TO_JSVAL(pArray);
 	}
 	else 
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
 
 	return JS_TRUE;
+}
+
+void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* cx, JSObject* pArray)
+{
+	Stat*	pStat;
+
+	for(; pStatList; pStatList = pStatList->pPrevLink)
+	{
+		if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
+		{
+			pStat = pStatList->pStat;
+
+			if(pStatList->wStatCount1)
+				for(int nStat = 0; nStat < pStatList->wStatCount1; nStat++)
+				{
+					InsertStatsNow(pStat, nStat, cx, pArray);
+				}
+		}
+		if((pStatList->dwFlags >> 24 & 0x80))
+		{
+			pStat = pStatList->pSetStat;
+
+			if(pStatList->wSetStatCount)
+				for(int nStat = 0; nStat < pStatList->wSetStatCount; nStat++)
+				{
+					InsertStatsNow(pStat, nStat, cx, pArray);
+				}
+		}
+	}
+}
+
+void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
+{
+	// find the array index, if it exists
+	jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
+	if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+		return;
+	if(index == JSVAL_VOID)
+	{
+		// the array index doesn't exist, make it
+		index = OBJECT_TO_JSVAL(JS_NewArrayObject(cx, 0, NULL));
+		if(!JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
+			return;
+	}
+	// index now points to the correct array index
+	JS_SetElement(cx, JSVAL_TO_OBJECT(index), pStat[nStat].wSubIndex, &val);
 }
 
 INT unit_getState(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)

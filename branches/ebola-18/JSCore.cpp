@@ -186,7 +186,10 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		*rval = JSVAL_VOID;
 		Private* myPrivate = (Private*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
-		if(myPrivate && myPrivate->dwPrivateType == PRIVATE_UNIT)
+		if(!myPrivate)
+			return JS_TRUE;
+
+		if(myPrivate->dwPrivateType == PRIVATE_UNIT)
 		{
 			myUnit* lpOldUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 			myUnit* lpUnit = new myUnit;
@@ -194,6 +197,25 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
+				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+				if(!jsunit)
+				{
+					delete lpUnit;
+					lpUnit = NULL;
+					THROW_ERROR(cx, obj, "Couldn't copy unit");
+				}
+
+				*rval = OBJECT_TO_JSVAL(jsunit);
+			}
+		}
+		else if(myPrivate->dwPrivateType == PRIVATE_ITEM)
+		{
+			invUnit* lpOldUnit = (invUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+			invUnit* lpUnit = new invUnit;
+
+			if(lpUnit)
+			{
+				memcpy(lpUnit, lpOldUnit, sizeof(invUnit));
 				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
@@ -234,7 +256,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
-		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || mypUnit->_dwPrivateType != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
+		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || (mypUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
 			return JS_TRUE;
 
 		UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
@@ -524,7 +546,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		
-		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
+		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
@@ -576,7 +598,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		
-		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
+		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
@@ -591,6 +613,9 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		INT x = pUnit->pItemPath->dwPosX;
 		INT y = pUnit->pItemPath->dwPosY;
 
+		*p_D2CLIENT_CursorHoverX = x;
+		*p_D2CLIENT_CursorHoverY = y;
+
 		InventoryLayout* pLayout = NULL;
 
 		if(nClickType == 4)
@@ -600,9 +625,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			if(pMerc)
 				if(pUnit->pItemData && pUnit->pItemData->pOwner)
 					if(pUnit->pItemData->pOwner->dwUnitId == pMerc->dwUnitId)
-					{
 						D2CLIENT_MercItemAction(0x61, pUnit->pItemData->BodyLocation);
-					}
 
 			return JS_TRUE;
 		}
@@ -674,6 +697,9 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 			InventoryLayout* pLayout = NULL;
 
+			*p_D2CLIENT_CursorHoverX = nX;
+			*p_D2CLIENT_CursorHoverY = nY;
+
 			// Fixing the location - so Diablo can handle it!
 			if(nLoc != 5)
 			{
@@ -726,7 +752,6 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			}
 			else if(nLoc == 5) // Belt
 			{
-
 				int z = -1;
 
 				for(UINT i = 0; i < ArraySize(Belt); i++)
@@ -837,10 +862,10 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		myUnit* pUnit2 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 
-		if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnit1 || pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
-		if(!pUnit2 || pUnit2->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnit2 || (pUnit2->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
@@ -861,8 +886,8 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
-			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
-				return JS_TRUE;	
+			if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+				return JS_TRUE;
 
 			UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
 
@@ -878,8 +903,8 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
-			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
-				return JS_TRUE;	
+			if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+				return JS_TRUE;
 
 			UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
 
@@ -941,7 +966,7 @@ INT my_checkCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		myUnit*	pUnitB = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		jsint			nBitMask = JSVAL_TO_INT(argv[2]);
 
-		if(!pUnitA || pUnitA->_dwPrivateType != PRIVATE_UNIT || !pUnitB || pUnitB->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnitA || (pUnitA->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT || !pUnitB || (pUnitB->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnit1 = D2CLIENT_FindUnit(pUnitA->dwUnitId, pUnitA->dwType);
