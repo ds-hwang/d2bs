@@ -6,6 +6,7 @@
 #include <windows.h>
 
 #include "js32.h"
+#include "AutoRoot.h"
 
 enum ScriptExecState {
 	Unexecuted,
@@ -28,25 +29,6 @@ static JSClass global_obj = {
 };
 
 class Script;
-
-class AutoRoot
-{
-private:
-	jsval var;
-	uint count;
-
-	AutoRoot(const AutoRoot&);
-	AutoRoot& operator=(const AutoRoot&);
-public:
-	AutoRoot() {}
-	AutoRoot(jsval var);
-	~AutoRoot();
-	void Take();
-	void Release();
-	jsval value();
-	jsval operator* ();
-	bool operator==(AutoRoot& other);
-};
 
 // TODO: replace this with a std::set and use that
 // to ensure include compliance, faster/less code

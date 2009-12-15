@@ -1,7 +1,9 @@
 #pragma once
 
-UnitAny* GetUnit(CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId);
+UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId);
 UnitAny* GetNextUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode);
-BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId);
+UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId);
+UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode);
+BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId);
 INT GetUnitHP(UnitAny* pUnit);
 INT GetUnitMP(UnitAny* pUnit);

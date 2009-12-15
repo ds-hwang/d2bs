@@ -15,7 +15,9 @@ struct Variables;
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 
 #define PRIVATE_UNIT		1
-#define PRIVATE_CONTROL		3
+#define PRIVATE_ITEM		3
+
+struct Private { DWORD dwPrivateType; };
 
 struct Module
 {	

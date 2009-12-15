@@ -2,8 +2,6 @@
 
 #include "js32.h"
 
-struct Private { DWORD dwPrivateType; };
-
 JSAPI_FUNC(my_getDistance);
 JSAPI_FUNC(my_getPath);
 JSAPI_FUNC(my_getCollision);
@@ -65,9 +63,10 @@ JSAPI_FUNC(my_scriptBroadcast);
 JSAPI_FUNC(my_iniread);
 JSAPI_FUNC(my_iniwrite);
 JSAPI_FUNC(my_login);
+JSAPI_FUNC(my_createGame);
+JSAPI_FUNC(my_joinGame);
 JSAPI_FUNC(my_addProfile);
 JSAPI_FUNC(my_getOOGLocation);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_submitItem);
 JSAPI_FUNC(my_getInteractedNPC);
-

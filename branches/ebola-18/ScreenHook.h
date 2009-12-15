@@ -44,8 +44,7 @@ public:
 	~Genhook(void);
 
 	static void DrawAll(ScreenhookState type);
-	// TODO: refactor these away, make GetHooks take a HookList& and return nothing
-	// and use that instead (a la ScriptEngine)
+	// TODO: refactor these away, a la ScriptEngine with ForEachHook
 	static HookList GetHooks(void);
 	static HookIterator GetFirstHook(void);
 	static HookIterator GetLastHook(void);

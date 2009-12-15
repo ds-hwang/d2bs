@@ -256,7 +256,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
-		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || (mypUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
+		if(!mypUnit || (mypUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
@@ -862,7 +862,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		myUnit* pUnit2 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 
-		if(!pUnit1 || pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+		if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		if(!pUnit2 || (pUnit2->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
@@ -2322,6 +2322,57 @@ JSAPI_FUNC(my_login)
 		Sleep(100);
 	}
 	Vars.bBlockKeys = 0; Vars.bBlockMouse = 0;
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_createGame)
+{
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
+	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
+	   (argc > 1 && !JSVAL_IS_STRING(argv[1])) ||
+	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
+		THROW_ERROR(cx, obj, "Invalid parameters specified to createGame");
+
+	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
+		 *pass = NULL;
+	if(argc > 1)
+		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+
+	int diff = 3;
+	if(argc > 2)
+		diff = JSVAL_TO_INT(argv[2]);
+
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		THROW_ERROR(cx, obj, "Invalid game name or password length");
+
+	if(!OOG_CreateGame(name, pass, diff))
+		THROW_ERROR(cx, obj, "createGame failed");
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_joinGame)
+{
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
+	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
+	   (argc > 1 && !JSVAL_IS_STRING(argv[1])))
+		THROW_ERROR(cx, obj, "Invalid parameters specified to joinGame");
+
+	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
+		 *pass = NULL;
+	if(argc > 1)
+		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		THROW_ERROR(cx, obj, "Invalid game name or password length");
+
+	if(!OOG_JoinGame(name, pass))
+		THROW_ERROR(cx, obj, "joinGame failed");
 
 	return JS_TRUE;
 }

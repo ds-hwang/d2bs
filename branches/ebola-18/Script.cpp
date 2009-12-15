@@ -13,38 +13,6 @@
 
 using namespace std;
 
-AutoRoot::AutoRoot(jsval nvar) : var(nvar), count(0) { Take(); }
-AutoRoot::~AutoRoot()
-{
-	if(!(count))
-	{
-		fprintf(stderr, "AutoRoot failed: Count is still %i, but the root is being destroyed", count);
-		DebugBreak();
-		exit(3);
-	}
-	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &var);
-}
-
-void AutoRoot::Take() 
-{ 
-	count++;
-	JS_AddNamedRootRT(ScriptEngine::GetRuntime(), &var, "AutoRoot");
-}
-
-void AutoRoot::Release()
-{
-	count--;
-	if(count < 0)
-	{
-		fprintf(stderr, "Improper AutoRoot usage: Count is less than 0");
-		DebugBreak();
-		exit(3);
-	}
-}
-jsval AutoRoot::operator* () { return var; }
-jsval AutoRoot::value() { return var; }
-bool AutoRoot::operator==(AutoRoot& other) { return other.value() == var; }
-
 Script::Script(const char* file, ScriptType scripttype) :
 		context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 		scriptState(Unexecuted), threadHandle(INVALID_HANDLE_VALUE), threadId(0)
@@ -149,7 +117,7 @@ Script::Script(const char* file, ScriptType scripttype) :
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
 		if(scriptObject)
-			JS_RemoveRoot(context, &scriptObject);
+			JS_RemoveRoot(&scriptObject);
 		if(script && !scriptObject)
 			JS_DestroyScript(context, script);
 		if(context)
@@ -234,7 +202,7 @@ void Script::Run(void)
 		DebugBreak();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(GetContext(), &main);
+	JS_AddRoot(&main);
 
 	if(!JS_GetContextThread(GetContext()))
 		JS_SetContextThread(GetContext());
@@ -243,13 +211,13 @@ void Script::Run(void)
 	globalObject = JS_GetGlobalObject(GetContext());
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
 	{
-		JS_RemoveRoot(GetContext(), &main);
+		JS_RemoveRoot(&main);
 		JS_EndRequest(GetContext());
 		return;
 	}
 	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
-		JS_RemoveRoot(GetContext(), &main);
+		JS_RemoveRoot(&main);
 		JS_EndRequest(GetContext());
 		return;
 	}
@@ -259,7 +227,7 @@ void Script::Run(void)
 	if(!JS_GetContextThread(GetContext()))
 		JS_SetContextThread(GetContext());
 
-	JS_RemoveRoot(GetContext(), &main);
+	JS_RemoveRoot(&main);
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
@@ -358,14 +326,14 @@ bool Script::Include(const char* file)
 	if(script)
 	{
 		JSObject* scriptObj = JS_NewScriptObject(GetContext(), script);
-		JS_AddRoot(GetContext(), &scriptObj);
+		JS_AddRoot(&scriptObj);
 		jsval dummy;
 		inProgress[fname] = true;
 		rval = !!JS_ExecuteScript(GetContext(), GetGlobalObject(), script, &dummy);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
-		JS_RemoveRoot(GetContext(), &scriptObj);
+		JS_RemoveRoot(&scriptObj);
 	}
 
 	JS_EndRequest(GetContext());
@@ -531,7 +499,7 @@ DWORD WINAPI FuncThread(void* data)
 		for(uintN i = 0; i < evt->argc; i++)
 		{
 			args[i] = evt->argv[i]->value();
-			if(JS_AddRoot(evt->context, &args[i]) == JS_FALSE)
+			if(JS_AddRoot(&args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
 				{
@@ -576,7 +544,7 @@ DWORD WINAPI FuncThread(void* data)
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(context, &args[i]);
+			JS_RemoveRoot(&args[i]);
 		delete[] args;
 		args = NULL;
 

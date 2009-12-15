@@ -308,7 +308,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 	return FALSE;
 }
 
-int OOG_GetLocation()
+int OOG_GetLocation(void)
 {
 	if(ClientState() != ClientStateMenu)
 		return OOG_NONE;
@@ -427,4 +427,149 @@ int OOG_GetLocation()
 		return	OOG_TCP_IP;									//40 tcp-ip
 
 	return OOG_NONE;
+}
+
+bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
+{		
+	if(ClientState() != ClientStateMenu)
+		return FALSE;
+
+	// reject name/password combinations over 15 characters
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		return FALSE;
+
+	Control* pControl = NULL;
+
+	// Battle.net/open game creation
+	// TODO: single player game creation
+	if(!(OOG_GetLocation() == OOG_LOBBY || OOG_GetLocation() == OOG_CHAT))
+		return FALSE;
+
+	// Create button
+	pControl = findControl(6, (char *)NULL, -1, 533,469,120,20);
+	if(!pControl || !clickControl(pControl))
+		return FALSE;
+	Sleep(100);
+
+	if(OOG_GetLocation() == OOG_CREATE)
+	{
+		// Game name edit box
+		if(name)
+		{
+			wchar_t* wcname = AnsiToUnicode(name);
+			pControl = findControl(1, (char *)NULL, -1, 432,162,158,20);
+			if(pControl)
+				D2WIN_SetControlText(pControl, wcname);
+			delete[] wcname;
+		}
+		else
+			return FALSE;
+		Sleep(100);
+
+		// Password edit box
+		if(pass)
+		{
+			wchar_t* wcpass = AnsiToUnicode(pass);
+			pControl = findControl(1, (char *)NULL, -1, 432,217,158,20);
+			if(pControl && pass)
+				D2WIN_SetControlText(pControl, wcpass);
+			delete[] wcpass;
+		}
+		else
+			return FALSE;
+		Sleep(100);
+
+		switch(difficulty)
+		{
+			case 0: // normal button
+				if(!clickControl(findControl(6, (char *)NULL, -1, 430,381,16,16)))
+					return FALSE;
+				break;
+			case 1: // nightmare button
+				if(!clickControl(findControl(6, (char *)NULL, -1, 555,381,16,16)))
+					return FALSE;
+				break;
+			case 2: // hell button
+				if(!clickControl(findControl(6, (char *)NULL, -1, 698,381,16,16)))
+					return FALSE;
+				break;
+			case 3: //hardest difficulty available 
+				if(!clickControl(findControl(6, (char *)NULL, -1, 430,381,16,16)))
+					return FALSE;
+				
+				Sleep(100);
+				if(!clickControl(findControl(6, (char *)NULL, -1, 555,381,16,16)))
+					return FALSE;
+				
+				Sleep(100);
+				if(!clickControl(findControl(6, (char *)NULL, -1, 698,381,16,16)))
+					return FALSE;
+
+				break;
+			default:
+				return FALSE;
+		}
+
+		//CreateGameButton
+		pControl = findControl(6, (char *)NULL, -1, 594,433,172,32);
+		if(!pControl || !clickControl(pControl))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+bool OOG_JoinGame(const char* name, const char* pass)
+{		
+	if(ClientState() != ClientStateMenu)
+		return FALSE;
+
+	// reject name/password combinations over 15 characters
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		return FALSE;
+
+	Control* pControl = NULL;
+
+	// Battle.net/open lobby/chat area
+	if(!(OOG_GetLocation() == OOG_LOBBY || OOG_GetLocation() == OOG_CHAT))
+		return FALSE;
+
+	// JOIN button
+	pControl = findControl(6, (char *)NULL, -1, 652,469,120,20);
+	if(!pControl || !clickControl(pControl))
+			return FALSE;
+	Sleep(100);
+
+	if(OOG_GetLocation() == OOG_JOIN)
+	{
+		// Game name edit box
+		if(name)
+		{
+			wchar_t* wcname = AnsiToUnicode(name);
+			pControl = findControl(1, (char *)NULL, -1, 432,148,155,20);
+			if(pControl)
+				D2WIN_SetControlText(pControl, AnsiToUnicode(name));
+			delete[] wcname;
+		}
+		else
+			return FALSE;
+		// Password edit box
+		if(pass)
+		{
+			wchar_t* wcpass = AnsiToUnicode(pass);
+			pControl = findControl(1, (char *)NULL, -1, 606,148,155,20);
+			if(pControl)
+				D2WIN_SetControlText(pControl, wcpass);
+			delete[] wcpass;
+		}
+		else
+			return FALSE;
+
+		// Join Game Button
+		pControl = findControl(6, (char *)NULL, -1, 594,433,172,32);
+		if(!pControl || !clickControl(pControl))
+			return FALSE;
+	}
+
+	return TRUE;
 }

@@ -115,24 +115,12 @@ bool Genhook::Click(int button, POINT* loc)
 
 	Lock();
 
-	jsval rval;
-	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
+	jsval rval = JSVAL_VOID;
 	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
-	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
-	if(JS_AddRoot(owner->GetContext(), &args[2]) == JS_FALSE)
+	if(JS_AddRoot(&rval) == JS_FALSE ||
+		JS_AddRoot(&args[0]) == JS_FALSE ||
+		JS_AddRoot(&args[1]) == JS_FALSE ||
+		JS_AddRoot(&args[2]) == JS_FALSE)
 	{
 		Unlock();
 		return false;
@@ -140,10 +128,10 @@ bool Genhook::Click(int button, POINT* loc)
 
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
 
-	JS_RemoveRoot(owner->GetContext(), &args[0]);
-	JS_RemoveRoot(owner->GetContext(), &args[1]);
-	JS_RemoveRoot(owner->GetContext(), &args[2]);
-	JS_RemoveRoot(owner->GetContext(), &rval);
+	JS_RemoveRoot(&args[0]);
+	JS_RemoveRoot(&args[1]);
+	JS_RemoveRoot(&args[2]);
+	JS_RemoveRoot(&rval);
 
 	bool result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 	Unlock();
@@ -162,26 +150,19 @@ void Genhook::Hover(POINT* loc)
 	Lock();
 
 	jsval rval = JSVAL_VOID;
-	if(JS_AddRoot(owner->GetContext(), &rval) == JS_FALSE)
-	{
-		Unlock();
-		return;
-	}
 	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(owner->GetContext(), &args[0]) == JS_FALSE)
-	{
-		Unlock();
-		return;
-	}
-	if(JS_AddRoot(owner->GetContext(), &args[1]) == JS_FALSE)
+	if(JS_AddRoot(&rval) == JS_FALSE ||
+		JS_AddRoot(&args[0]) == JS_FALSE ||
+		JS_AddRoot(&args[1]) == JS_FALSE)
 	{
 		Unlock();
 		return;
 	}
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
 
-	JS_RemoveRoot(owner->GetContext(), &args[0]);
-	JS_RemoveRoot(owner->GetContext(), &args[1]);
+	JS_RemoveRoot(&args[0]);
+	JS_RemoveRoot(&args[1]);
+	JS_RemoveRoot(&rval);
 
 	Unlock();
 }
@@ -198,12 +179,12 @@ void Genhook::SetClickHandler(jsval handler)
 
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(owner->GetContext(), &clicked);
+		JS_RemoveRoot(&clicked);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
 	{
-		if(JS_AddRoot(owner->GetContext(), &clicked) == JS_FALSE)
+		if(JS_AddRoot(&clicked) == JS_FALSE)
 		{
 			Unlock();
 			return;
@@ -218,12 +199,12 @@ void Genhook::SetHoverHandler(jsval handler)
 		return;
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))
-		JS_RemoveRoot(owner->GetContext(), &hovered);
+		JS_RemoveRoot(&hovered);
 	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
 		hovered = handler;
 	if(!JSVAL_IS_VOID(hovered))
 	{
-		if(JS_AddRoot(owner->GetContext(), &hovered) == JS_FALSE)
+		if(JS_AddRoot(&hovered) == JS_FALSE)
 		{
 			Unlock();
 			return;
@@ -257,9 +238,9 @@ bool TextHook::IsInRange(int dx, int dy)
 {
 	Lock();
 	POINT size = CalculateTextLen(text, font);
-	Unlock();
 	int x = GetX(), y = GetY(), w = size.x, h = size.y,
 		xp = x - (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
+	Unlock();
 	return (xp < dx && y > dy && (xp+w) > dx && (y-h) < dy);
 }
 
@@ -301,12 +282,14 @@ bool ImageHook::IsInRange(int dx, int dy)
 {
 	if(image)
 	{
+		Lock();
 		int x = GetX();
 		int y = GetY();
 		int w = image->cells[0]->width;
 		int h = image->cells[0]->height;
 		int xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w);
 		int yp = y - (h/2);
+		Unlock();
 		return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
 	}
 
@@ -383,7 +366,9 @@ void BoxHook::Draw(void)
 
 bool BoxHook::IsInRange(int dx, int dy)
 {
+	Lock();
 	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	Unlock();
 	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }
 
@@ -411,6 +396,8 @@ void FrameHook::Draw(void)
 
 bool FrameHook::IsInRange(int dx, int dy)
 {
+	Lock();
 	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	Unlock();
 	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }
