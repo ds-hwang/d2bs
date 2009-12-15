@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////
 // Out of Game Locations (From ControlInfo.dbl)
 ///////////////////////////////////////////////////
-enum OOG_Locations {
+enum OOG_Location {
 	OOG_NONE = 0,
 	OOG_LOBBY,
 	OOG_INLINE,
