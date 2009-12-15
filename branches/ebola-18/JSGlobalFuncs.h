@@ -67,6 +67,7 @@ static JSFunctionSpec global_funcs[] = {
 	// game functions that don't have anything to do with gathering data
 	{"submitItem",			my_submitItem,			0},
 	{"login",				my_login,				1},
+	{"addProfile",			my_addProfile,			6},
 	{"getLocation",			my_getOOGLocation,		0},
 	{"getMouseCoords",		my_getMouseCoords,		1},
 	{"copyUnit",			my_copyUnit,			1},
