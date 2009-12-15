@@ -531,7 +531,7 @@ struct MonsterData {
 		BYTE fBoss:1;
 		BYTE fMinion:1;
 	};				//0x16
-	BYTE _2[6];
+	BYTE _2[5];
 	BYTE anEnchants[9];				//0x1C
 	WORD wUniqueNo;					//0x26
 	DWORD _5;						//0x28
