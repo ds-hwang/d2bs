@@ -976,9 +976,6 @@ __declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWOR
 {
 	__asm
 	{
-		POP EAX
-		PUSH 0
-		PUSH EAX
 		PUSH EBP
 		PUSH ESI
 		PUSH EDI

@@ -120,14 +120,12 @@ void ScriptEngine::DisposeScript(Script* script)
 	EnterCriticalSection(&lock);
 
 #ifdef DEBUG
-	if(scripts.count(script->GetFilename() > 1))
+	if(scripts.count(script->GetFilename()) > 1 || scripts.count(script->GetFilename()) == 0)
 		DebugBreak();
 #endif
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	else
-		DebugBreak();
 
 	delete script;
 	script = NULL;

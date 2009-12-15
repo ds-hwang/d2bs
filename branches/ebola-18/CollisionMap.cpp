@@ -176,25 +176,17 @@ void CCollisionMap::Search(Room2 *ro, UnitAny* pPlayer, DwordArray &aSkip, DWORD
 	}
 
 	aSkip.Add((DWORD)ro);
-	aSkip.Sort();	
-
+	aSkip.Sort();
 
 	if (ro->pRoom1)
-	{
 		AddCollisionData(ro->pRoom1->Coll);
-	}
 
-	
 	Room2 **n = ro->pRoom2Near;
 	for(UINT i=0; i < ro->dwRoomsNear; i++)
-	{
 		Search(n[i], pPlayer, aSkip, dwScanArea);
-	}
 	
 	if(add_room)
-	{
 		D2COMMON_RemoveRoomData(pPlayer->pAct,ro->pLevel->dwLevelNo, ro->dwPosX, ro->dwPosY, pPlayer->pPath->pRoom1);
-	}
 }
 
 BOOL CCollisionMap::CreateMap(DWORD AreaId[], int nSize)

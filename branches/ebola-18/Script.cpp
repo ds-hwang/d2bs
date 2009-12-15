@@ -80,7 +80,7 @@ Script::Script(const char* file, ScriptType scripttype) :
 			throw std::exception("Couldn't create the context");
 
 #ifdef DEBUG
-		JS_SetGCZeal(context, 1);
+		//JS_SetGCZeal(context, 1);
 #endif
 
 		JS_SetContextPrivate(context, this);

@@ -1,7 +1,7 @@
 // Diablo II Botting System Core
 #include <shlwapi.h>
 
-#define RELDEBUG
+//#define RELDEBUG
 #ifdef RELDEBUG
 #define _MSVC_DEBUG
 #define DEBUG
