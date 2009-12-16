@@ -2,26 +2,76 @@ js_strict(true);
 
 include('configuration.dbl');
 include('cache.dbl');
+include('gamemanager.dbl');
 
 // TODO: make this smarter, more configurable, etc
 function main()
 {
 	var config = new Config();
+
+	var profile = config.get('LoginProfile', '');
+	var difficulty = parseInt(config.get('Difficulty', '3'));
+	var gamename = config.get('GameName', 'random');
+	var password = config.get('Password', 'random');
+	var mode = config.get('Mode', 'create');
+
+	var gameCount = 1;
+
+	if(profile == '')
+	{
+		GameManager.sendMessage('Invalid login profile specified!');
+		print('Invalid login profile specified!');
+		stop();
+	}
+
 	while(true)
 	{
 		// wake up and check every 1 second for out of game
 		while(me.ingame) delay(1000);
-		// make a game
 		switch(getLocation())
 		{
 			case 1: // lobby
 			case 3: // chat
-				delay(1000);
-
-				createGame(makerand(), makerand(), parseInt(config.get('Difficulty', '3')));
+				switch(mode)
+				{
+					case 'create':
+						delay(1000);
+						print('Creating a game');
+						var name = (gamename == 'random' ? makerand() : gamename + '-' + gameCount);
+						var pass = (password == 'random' ? makerand() : password);
+						GameManager.sendMessage('Creating game ' + name + '/' + pass);
+						createGame(name, pass, difficulty);
+						gameCount++;
+						break;
+					case 'follow':
+						print('Waiting for a game to join');
+						addEventListener("scriptmsg", function (check, game, pass) {
+							if(check != 'joingame' &&
+							   game != undefined && typeof(game) == 'string' &&
+							   pass != undefined && typeof(pass) == 'string')
+							{
+								joinGame(game, pass);
+								removeEventListener("scriptmsg", arguments.callee);
+							}
+						});
+						while(!me.ingame) delay(1000);
+						break;
+					default:
+						GameManager.sendMessage('Invalid mode!');
+						break;
+				}
+				break;
+			case 8: // main menu
+				print('Logging into profile ' + profile);
+				login(profile);
+				break;
+			default: // anywhere that's not lobby or chat
+				GameManager.sendMessage('We got lost? OOG location is ' + getLocation() +
+										', first control is ' + getControl().toSource());
 				break;
 		}
 	}
+	function makerand() {
+		return md5(getTickCount()).substr(rand(0, 17), rand(5, 15));
+	}
 }
-
-function makerand() { return md5(getTickCount()).substr(rand(0, 17), rand(5, 15)); }

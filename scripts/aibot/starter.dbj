@@ -26,22 +26,11 @@ function main()
 
 	var pattern = Cache.Load(pname+'.pattern');
 	if(pattern === undefined)
+	{
 		var pattern = new Pattern(pname);
 
-	// cache the pattern for future loads
-	Cache.Save(pname+'.pattern', pattern);
-
-	// find the profile they want to log into
-	var loginProfile = config.get('LoginProfile', '');
-	if(loginProfile == '')
-	{
-		print('Invalid login profile specified!');
-		stop();
-	}
-	else
-	{
-		print('Logging into profile ' + loginProfile);
-		login(loginProfile);
+		// cache the pattern for future loads
+		Cache.Save(pname+'.pattern', pattern);
 	}
 
 	// let the game catch up if needed
