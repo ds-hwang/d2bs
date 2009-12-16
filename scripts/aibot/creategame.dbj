@@ -4,10 +4,11 @@ include('configuration.dbl');
 include('cache.dbl');
 include('gamemanager.dbl');
 
-// TODO: make this smarter, more configurable, etc
 function main()
 {
 	var config = new Config();
+	var statsDB = new SQLite('stats.sqlite');
+	var didRun = statsDB.query('insert into runs () values ()');
 
 	var profile = config.get('LoginProfile', '');
 	var difficulty = parseInt(config.get('Difficulty', '3'));
@@ -59,6 +60,26 @@ function main()
 					default:
 						GameManager.sendMessage('Invalid mode!');
 						break;
+				}
+
+				// wait for the potential line
+				while(getLocation() == 2)
+					delay(500);
+
+				// wait for game join
+				for(let i = 0; i < 30; i++)
+				{
+					delay(1000)
+					if(me.ingame)
+					{
+						GameManager.sendMessage('Game joined successfully');
+						break;
+					}
+				}
+				if(!me.ingame)
+				{
+					GameManager.sendMessage('Failed to join game?');
+					// TODO: what to do here?
 				}
 				break;
 			case 8: // main menu
