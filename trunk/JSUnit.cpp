@@ -1206,7 +1206,7 @@ JSAPI_FUNC(item_shop)
 
 	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
 	//}
-BYTE pPacket[17] = {NULL};
+	BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
 		pPacket[0] = 0x32;
@@ -1216,7 +1216,11 @@ BYTE pPacket[17] = {NULL};
 	*(DWORD*)&pPacket[5] = pItem->dwUnitId;
 
    	if(dwMode == 1) // Sell
-	*(DWORD*)&pPacket[9] = 0x04;
+	{
+		if(D2CLIENT_GetCursorItem() && D2CLIENT_GetCursorItem() == pItem)
+			*(DWORD*)&pPacket[9] = 0x04;
+		else *(DWORD*)&pPacket[9] = 0;
+	}
 	else if(dwMode == 2) // Buy
 	{
 		if(pItem->pItemData->dwFlags & 0x10)
