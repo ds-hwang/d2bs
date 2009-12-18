@@ -57,13 +57,12 @@ BlockIt:
 	}
 }
 
-VOID __declspec(naked) GameMinimize_Interception()
+BOOL GameMinimize_Interception()
 {
-	__asm
-	{
-		xor eax, eax
-		retn
-	}
+	if(D2CLIENT_GetPlayerUnit() && GetForegroundWindow() != D2GFX_GetHwnd())
+		return 1;
+
+	return 0;
 }
 
 

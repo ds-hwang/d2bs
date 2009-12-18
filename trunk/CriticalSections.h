@@ -12,13 +12,15 @@ public:
 	~CriticalRoom() { LeaveSection(); }
 
 	void EnterSection() {
-		EnterCriticalSection(&Vars.cRoomSection);
+//		EnterCriticalSection(&Vars.cRoomSection);
+		EnterCriticalSection(*p_D2COMMON_CriticalRoomSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
-			LeaveCriticalSection(&Vars.cRoomSection);
+			LeaveCriticalSection(*p_D2COMMON_CriticalRoomSection);
+//			LeaveCriticalSection(&Vars.cRoomSection);
 			bEnteredCriticalSection = false;
 		}
 	}
@@ -34,13 +36,15 @@ public:
 	~CriticalMisc()  { LeaveSection(); }
 
 	void EnterSection() {
-		EnterCriticalSection(&Vars.cMiscSection);
+		EnterCriticalSection(p_D2NET_CriticalPacketSection);
+//		EnterCriticalSection(&Vars.cMiscSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
-			LeaveCriticalSection(&Vars.cMiscSection);
+			LeaveCriticalSection(p_D2NET_CriticalPacketSection);
+//			LeaveCriticalSection(&Vars.cMiscSection);
 			bEnteredCriticalSection = false;
 		}
 	}

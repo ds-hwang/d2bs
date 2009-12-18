@@ -214,12 +214,14 @@ FUNCPTR(D2COMMON, GetUnitMaxHP, DWORD __stdcall, (UnitAny* pUnit), -10445) // Up
 FUNCPTR(D2COMMON, CheckUnitSlot, DWORD __stdcall, (Inventory* pInventory, DWORD dwSlot), -10099)
 
 VARPTR(D2COMMON, sqptDataTable,DWORD, 0x9B500) // Updated
+VARPTR(D2COMMON, CriticalRoomSection, CRITICAL_SECTION*, 0xA1440)
 ASMPTR(D2COMMON, DisplayOverheadMsg_I, -10375) // Updated
 ASMPTR(D2COMMON, checkCollision_I, 0x58370) // Updated
 
 FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10036) // Updated
 FUNCPTR(D2NET, ReceivePacket, void __stdcall, (BYTE *aPacket, DWORD aLen), 0x6510) // Updated
 FUNCPTR(D2NET, ReceivePacket_I, void __stdcall, (BYTE *aPacket, DWORD aLen), -10002) // Updated
+VARPTR(D2NET, CriticalPacketSection, CRITICAL_SECTION, 0xB400)
 
 FUNCPTR(D2GFX, DrawAutomapCell, void __stdcall, (CellContext *context, DWORD xpos, DWORD ypos, RECT *cliprect, DWORD bright), -10061)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext *context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10024) 
