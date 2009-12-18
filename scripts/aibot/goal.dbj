@@ -8,5 +8,6 @@ include('common.dbl');
 
 function main()
 {
-	while(true) delay(10000); // low priority delay
+	// TODO: walk the pattern, visiting each area
+	// and listening for attack, dodge, or pickit to tell us to wait
 }

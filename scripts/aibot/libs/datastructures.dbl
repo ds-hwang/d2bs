@@ -40,10 +40,10 @@ function Size(w, h) {
 function Rectangle(x, y, w, h) {
 	var loc, sz;
 
-	this.__defineGetter__("location", function () { return loc; });
 	this.__defineSetter__("location", function (e) { if(isPoint(e)) loc = e; });
-	this.__defineGetter__("size", function () { return sz; });
 	this.__defineSetter__("size", function (e) { if(isSize(e)) sz = e; });
+	this.__defineGetter__("location", function () { return loc; });
+	this.__defineGetter__("size", function () { return sz; });
 	this.__defineGetter__("x", function () { return loc.x; });
 	this.__defineGetter__("y", function () { return loc.y; });
 	this.__defineGetter__("width", function () { return sz.width; });

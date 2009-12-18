@@ -8,7 +8,7 @@ function main()
 {
 	var config = new Config();
 	var statsDB = new SQLite('stats.sqlite');
-	var didRun = statsDB.query('insert into runs () values ()');
+	var runSQL = statsDB.query('INSERT INTO runs (start, end, status, date) VALUES (:start, :end, :status, :date)');
 
 	var profile = config.get('LoginProfile', '');
 	var difficulty = parseInt(config.get('Difficulty', '3'));
@@ -43,6 +43,11 @@ function main()
 						GameManager.sendMessage('Creating game ' + name + '/' + pass);
 						createGame(name, pass, difficulty);
 						gameCount++;
+						runSQL.bind(':start', Date.now().getTime());
+						runSQL.bind(':end', Date.now().getTime());
+						runSQL.bind(':status', 'in progress');
+						runSQL.bind(':date', Date.now().toDateString());
+						runSQL.go();
 						break;
 					case 'follow':
 						print('Waiting for a game to join');
@@ -92,6 +97,9 @@ function main()
 				break;
 		}
 	}
+
+	statsDB.close();
+
 	function makerand() {
 		return md5(getTickCount()).substr(rand(0, 17), rand(5, 15));
 	}
