@@ -766,7 +766,7 @@ JSAPI_FUNC(unit_getStat)
 	{
 		JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
 
-		InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
+	//	InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
 
@@ -1008,7 +1008,6 @@ JSAPI_FUNC(item_getPrice)
 
 	return JS_TRUE;
 }
-
 JSAPI_FUNC(unit_getItems)
 {	
 	if(!GameReady())
@@ -1064,6 +1063,7 @@ JSAPI_FUNC(unit_getItems)
 
 	return JS_TRUE;
 }
+
 
 JSAPI_FUNC(unit_getSkill)
 {
