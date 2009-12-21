@@ -323,7 +323,7 @@ namespace D2BSLoader
 			   String.IsNullOrEmpty(D2Exe) ||
 			   String.IsNullOrEmpty(D2BSDLL))
 				LoadSettings();
-			D2Args = String.Join(" ", args);
+			D2Args += String.Join(" ", args);
 			return Start();
 		}
 
