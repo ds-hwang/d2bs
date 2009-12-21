@@ -352,10 +352,6 @@ JSAPI_PROP(unit_getProperty)
 				break;
 			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 			break;
-		case ITEM_REPAIRCOST:
-			if(pUnit->dwType == UNIT_ITEM)
-				*vp = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0x9A, 3));
-			break;
 		case UNIT_DIRECTION:
 			if(pUnit->pPath)
 				*vp = INT_TO_JSVAL(pUnit->pPath->bDirection);
@@ -966,6 +962,8 @@ JSAPI_FUNC(item_getFlag)
 
 JSAPI_FUNC(item_getPrice)
 {	
+	DEPRECATED;
+
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1012,6 +1010,53 @@ JSAPI_FUNC(item_getPrice)
 
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(item_getItemCost)
+{
+	if(!GameReady())
+		return JS_TRUE;
+
+	jsint nMode;
+	jsint nNpcClassId = 0x9A;
+	jsint nDifficulty = D2CLIENT_GetDifficulty();
+
+	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
+		return JS_TRUE;
+	
+	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+
+	if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+		return JS_TRUE;
+
+	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+
+	if(!pUnit || pUnit->dwType != UNIT_ITEM)
+		return JS_TRUE;
+
+	nMode = JSVAL_TO_INT(argv[0]);
+
+	if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		nNpcClassId = INT_TO_JSVAL(argv[1]);
+
+	if(argc > 2 && JSVAL_IS_INT(argv[2]))
+		nDifficulty = INT_TO_JSVAL(argv[2]);
+
+	switch(nMode)
+	{
+		case 0: // Buy
+		case 1: // Sell
+			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, nMode));
+			break;
+		case 2: // Repair
+			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, 3));
+			break;
+		default:
+			break;
+	}
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(unit_getItems)
 {	
 	if(!GameReady())
@@ -1654,5 +1699,22 @@ JSAPI_FUNC(unit_getMinionCount)
 
 	*rval = INT_TO_JSVAL(D2CLIENT_GetMinionCount(pUnit, (DWORD)nType));
 	
+	return JS_TRUE;
+}
+
+
+
+JSAPI_FUNC(me_getRepairCost)
+{
+	if(!GameReady())
+		return JS_TRUE;
+
+	jsint nNpcClassId = 0x9A;
+
+	if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		nNpcClassId = JSVAL_TO_INT(argv[0]);
+
+	*rval = INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, D2CLIENT_GetPlayerUnit(), nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0));
+
 	return JS_TRUE;
 }

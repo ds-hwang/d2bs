@@ -26,6 +26,8 @@ JSAPI_FUNC(my_overhead);
 JSAPI_FUNC(unit_getEnchant);
 JSAPI_FUNC(unit_getQuest);
 JSAPI_FUNC(unit_getMinionCount);
+JSAPI_FUNC(me_getRepairCost);
+JSAPI_FUNC(item_getItemCost);
 
 void unit_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(unit_getProperty);
@@ -63,7 +65,7 @@ enum unit_tinyid
 	ITEM_SIZEY, ITEM_TYPE, MISSILE_DIR, MISSILE_VEL, ITEM_CLASS, 
 	UNIT_SPECTYPE, ITEM_DESC, ITEM_BODYLOCATION, UNIT_ITEMCOUNT, ITEM_LEVELREQ,
 	UNIT_OWNER, UNIT_OWNERTYPE, UNIT_UNIQUEID, ITEM_LEVEL, UNIT_DIRECTION, 
-	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, OBJECT_TYPE, OBJECT_LOCKED, ITEM_REPAIRCOST,
+	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, OBJECT_TYPE, OBJECT_LOCKED,
 };
 
 static JSClass unit_class = {
@@ -210,7 +212,6 @@ static JSPropertySpec unit_props[] = {
 	{"bodylocation",ITEM_BODYLOCATION,	JSPROP_PERMANENT_VAR},
 	{"ilvl",		ITEM_LEVEL,			JSPROP_PERMANENT_VAR},
 	{"lvlreq",		ITEM_LEVELREQ,		JSPROP_PERMANENT_VAR},
-	{"repaircost",	ITEM_REPAIRCOST,	JSPROP_PERMANENT_VAR},
 
 	{"runwalk",		ME_RUNWALK,			JSPROP_PERMANENT_VAR},
 	{"weaponswitch",ME_WSWITCH,			JSPROP_PERMANENT_VAR},
@@ -243,5 +244,7 @@ static JSFunctionSpec unit_methods[] = {
 	{"move",			unit_move,			2},
 	{"getQuest",		unit_getQuest,		2},
 	{"getMinionCount",	unit_getMinionCount, 1},
+	{"getRepairCost",	me_getRepairCost,	1},
+	{"getItemCost",		item_getItemCost,	1},
 	{0},
 };

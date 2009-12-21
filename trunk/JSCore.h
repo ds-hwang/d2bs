@@ -70,5 +70,4 @@ JSAPI_FUNC(my_getOOGLocation);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_submitItem);
 JSAPI_FUNC(my_getInteractedNPC);
-JSAPI_FUNC(my_getRepairCost);
 

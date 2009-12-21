@@ -2511,18 +2511,3 @@ JSAPI_FUNC(my_getInteractedNPC)
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
-
-JSAPI_FUNC(my_getRepairCost)
-{
-	if(!GameReady())
-		return JS_TRUE;
-
-	jsint nNpcClassId = 0x9A;
-
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		nNpcClassId = JSVAL_TO_INT(argv[0]);
-
-	*rval = INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, D2CLIENT_GetPlayerUnit(), nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0));
-
-	return JS_TRUE;
-}
