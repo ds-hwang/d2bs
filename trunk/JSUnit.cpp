@@ -1268,7 +1268,8 @@ JSAPI_FUNC(item_shop)
 	{
 		if(D2CLIENT_GetCursorItem() && D2CLIENT_GetCursorItem() == pItem)
 			*(DWORD*)&pPacket[9] = 0x04;
-		else *(DWORD*)&pPacket[9] = 0;
+		else 
+			*(DWORD*)&pPacket[9] = 0;
 	}
 	else if(dwMode == 2) // Buy
 	{
