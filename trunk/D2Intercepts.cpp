@@ -153,3 +153,25 @@ VOID GameDraw_Interception(VOID)
 {
 	GameDrawOOG();
 }
+
+void __declspec(naked) GameActChange_STUB(void)
+{
+	__asm
+	{
+		POP EAX
+		PUSH EDI
+		XOR EDI, EDI
+		CMP [Vars.bChangedAct], 0
+		MOV [Vars.bChangedAct], 0
+		JMP EAX
+	}
+}
+
+void __declspec(naked) GameActChange2_STUB(void)
+{
+	__asm
+	{
+		MOV [Vars.bChangedAct], 1
+		retn 4
+	}
+}

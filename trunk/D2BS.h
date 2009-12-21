@@ -43,6 +43,8 @@ struct Variables
 	BOOL	bNeedShutdown;
 	BOOL	bUseGamePrint;
 	BOOL	bShutdownFromDllMain;
+	BOOL	bChangedAct;
+	BOOL	bGameLoopEntered;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bBlockMinimize;
@@ -79,6 +81,7 @@ struct Variables
 	CRITICAL_SECTION	cLineHookSection;
 	CRITICAL_SECTION	cFlushCacheSection;
 	CRITICAL_SECTION	cConsoleSection;
+	CRITICAL_SECTION	cGameLoopSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;

@@ -68,13 +68,17 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cTextHookSection);
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
+	InitializeCriticalSection(&Vars.cGameLoopSection);
 
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
 
-	Vars.bNeedShutdown = TRUE;
+	Vars.bNeedShutdown = TRUE;	
+	Vars.bChangedAct = FALSE;
+	Vars.bGameLoopEntered = FALSE;
+
 	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == INVALID_HANDLE_VALUE)
 		return FALSE;
 
@@ -114,6 +118,7 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cTextHookSection);
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
+	DeleteCriticalSection(&Vars.cGameLoopSection);
 
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;

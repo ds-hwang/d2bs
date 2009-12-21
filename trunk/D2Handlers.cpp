@@ -453,3 +453,15 @@ VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
 
+BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+{
+	if(Vars.bGameLoopEntered)
+	{
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+	}
+	else Vars.bGameLoopEntered = true;
+
+	EnterCriticalSection(&Vars.cGameLoopSection);
+
+	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
+}

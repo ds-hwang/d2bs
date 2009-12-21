@@ -13,5 +13,7 @@ void GameAttack_STUB();
 void PlayerAssignment_STUB();
 void GameCrashFix_STUB();
 void GameDraw_Interception(VOID);
+void GameActChange_STUB(void);
+void GameActChange2_STUB(void);
 
 #endif
