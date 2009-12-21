@@ -352,6 +352,10 @@ JSAPI_PROP(unit_getProperty)
 				break;
 			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 			break;
+		case ITEM_REPAIRCOST:
+			if(pUnit->dwType == UNIT_ITEM)
+				*vp = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0x9A, 3));
+			break;
 		case UNIT_DIRECTION:
 			if(pUnit->pPath)
 				*vp = INT_TO_JSVAL(pUnit->pPath->bDirection);
