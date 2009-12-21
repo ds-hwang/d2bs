@@ -202,6 +202,20 @@ namespace D2BSLoader
 				D2BSDLL = dll;
 		}
 
+		public static void GetSettings(out string path, out string exe, out string args, out string dll)
+		{
+			try {
+				string exeName = Path.Combine(Application.StartupPath, "D2BS.exe");
+				Configuration config = ConfigurationManager.OpenExeConfiguration(exeName);
+				path = config.AppSettings.Settings["D2Path"].Value;
+				exe = config.AppSettings.Settings["D2Exe"].Value;
+				args = config.AppSettings.Settings["D2Args"].Value;
+				dll = config.AppSettings.Settings["D2BSDLL"].Value;
+			} catch {
+				path = exe = args = dll = null;
+			}
+		}
+
 		private bool GetAutoload()
 		{
 			bool autoload = false;
