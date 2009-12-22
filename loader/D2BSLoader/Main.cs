@@ -339,14 +339,17 @@ namespace D2BSLoader
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
-			p.WaitForInputIdle();
 			Process[] children = p.GetChildProcesses();
 			if(children.Length > 0)
 			{
 				foreach(Process child in children)
 					if(IsD2Window(child))
+					{
+						child.WaitForInputIdle();
 						return child.Id;
+					}
 			}
+			p.WaitForInputIdle();
 			return p.Id;
 		}
 
