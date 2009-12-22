@@ -134,14 +134,7 @@ namespace D2BSLoader
 					if(processes.Exists(x => p.Id == x.Process.Id))
 						continue;
 
-					string moduleName = "";
-					try {
-						moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant();
-					} catch { }
-					string classname = GetLCClassName(p);
-					if(!String.IsNullOrEmpty(classname) && classname == "diablo ii" &&
-						(moduleName == "game.exe" || moduleName.Contains("d2loader") ||
-						 moduleName.Contains("d2launcher")))
+					if(IsD2Window(p))
 					{
 						ProcessWrapper pw = new ProcessWrapper(p);
 						processes.Add(pw);
@@ -158,6 +151,16 @@ namespace D2BSLoader
 				});
 				System.Threading.Thread.Sleep(400);
 			}
+		}
+
+		private static bool IsD2Window(Process p)
+		{
+			string classname = GetLCClassName(p);
+			string moduleName = "";
+			try { moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant(); } catch { }
+			return !String.IsNullOrEmpty(classname) && classname == "diablo ii" &&
+						(moduleName == "game.exe" || moduleName.Contains("d2loader") ||
+						 moduleName.Contains("d2launcher"));
 		}
 
 		public static void SaveSettings(string path, string exe, string args, string dll)
@@ -252,7 +255,6 @@ namespace D2BSLoader
 		private static int Start(int pid)
 		{
 			int id = Start();
-			GetProcessById(id).WaitForInputIdle();
 			Inject(id);
 			return id;
 		}
@@ -337,6 +339,14 @@ namespace D2BSLoader
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
+			p.WaitForInputIdle();
+			Process[] children = p.GetChildProcesses();
+			if(children.Length > 0)
+			{
+				foreach(Process child in children)
+					if(IsD2Window(child))
+						return child.Id;
+			}
 			return p.Id;
 		}
 
@@ -397,5 +407,18 @@ namespace D2BSLoader
 			return false;
 		}
 	}
-
+	static class ProcessExtensions
+	{
+		public static Process[] GetChildProcesses(this Process process)
+		{
+			List<Process> children = new List<Process>();
+			Process[] processes = Process.GetProcesses();
+			foreach(Process p in processes)
+			{
+				if(PInvoke.NTDll.ProcessIsChildOf(process, p))
+					children.Add(p);
+			}
+			return children.ToArray();
+		}
+	}
 }

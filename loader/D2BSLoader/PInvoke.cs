@@ -72,6 +72,33 @@
 		LoadAsExclusiveDataFile = 0x00000040
 	}
 
+	[StructLayout(LayoutKind.Sequential)]
+	public struct PROCESS_BASIC_INFORMATION
+	{
+		public int ExitStatus;
+		public int PebBaseAddress;
+		public int AffinityMask;
+		public int BasePriority;
+		public uint UniqueProcessId;
+		public uint InheritedFromUniqueProcessId;
+	}
+	public static class NTDll
+	{
+		[DllImport("ntdll.dll")]
+		private static extern int NtQueryInformationProcess(IntPtr hProcess, int processInformationClass, ref PROCESS_BASIC_INFORMATION processBasicInformation, uint processInformationLength, out uint returnLength);
+		public static bool ProcessIsChildOf(Process parent, Process child)
+		{
+			PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
+			try {
+				uint bytesWritten;
+				NtQueryInformationProcess(child.Handle, 0, ref pbi, (uint)Marshal.SizeOf(pbi), out bytesWritten);
+				if(pbi.InheritedFromUniqueProcessId == parent.Id)
+					return true;
+			} catch { return false; }
+			return false;
+		}
+	}
+
 	public static class User32
 	{
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
