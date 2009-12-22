@@ -476,7 +476,7 @@ void GameLeave(void)
 
 	// Stop ingame scripts at this point ..
 	// otherwise we deadlock ...
-	//ScriptEngine::StopAll();
+	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }

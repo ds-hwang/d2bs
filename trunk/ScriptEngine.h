@@ -62,7 +62,8 @@ public:
 	friend JSBool gcCallback(JSContext* cx, JSGCStatus status);
 };
 
-// this ForEachScript helper is exposed in case it can be of use somewhere
+// these ForEachScript helpers are exposed in case they can be of use somewhere
+bool __fastcall StopIngameScript(Script* script, void*, uint);
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc);
 struct EventHelper
 {

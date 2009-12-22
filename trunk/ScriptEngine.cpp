@@ -262,6 +262,13 @@ bool __fastcall StopScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
+bool __fastcall StopIngameScript(Script* script, void*, uint)
+{
+	if(script->GetState() == InGame)
+		script->Stop(true);
+	return true;
+}
+
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
