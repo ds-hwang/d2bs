@@ -17,3 +17,4 @@ VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText);
 DWORD __fastcall GameAttack(AttackStruct* pAttack);
 VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer);
 BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
+void GameLeave(void);

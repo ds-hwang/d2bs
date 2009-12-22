@@ -15,5 +15,6 @@ void GameCrashFix_STUB();
 void GameDraw_Interception(VOID);
 void GameActChange_STUB(void);
 void GameActChange2_STUB(void);
+void GameLeave_STUB(void);
 
 #endif

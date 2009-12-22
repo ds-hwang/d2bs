@@ -465,3 +465,18 @@ BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFil
 
 	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
 }
+
+void GameLeave(void)
+{
+	if(Vars.bGameLoopEntered)
+	{
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+	}
+	else Vars.bGameLoopEntered = true;
+
+	// Stop ingame scripts at this point ..
+	// otherwise we deadlock ...
+	//ScriptEngine::StopAll();
+
+	EnterCriticalSection(&Vars.cGameLoopSection);
+}

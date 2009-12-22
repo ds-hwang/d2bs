@@ -39,7 +39,7 @@ public:
 
 	void EnterSection() {
 		EnterCriticalSection(&Vars.cGameLoopSection);
-		EnterCriticalSection(p_D2NET_CriticalPacketSection);
+//		EnterCriticalSection(p_D2NET_CriticalPacketSection);
 //		EnterCriticalSection(&Vars.cMiscSection);
 		bEnteredCriticalSection = true;
 	}
@@ -47,7 +47,7 @@ public:
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
 			LeaveCriticalSection(&Vars.cGameLoopSection);
-			LeaveCriticalSection(p_D2NET_CriticalPacketSection);
+//			LeaveCriticalSection(p_D2NET_CriticalPacketSection);
 //			LeaveCriticalSection(&Vars.cMiscSection);
 			bEnteredCriticalSection = false;
 		}

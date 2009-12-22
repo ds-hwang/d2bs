@@ -175,3 +175,12 @@ void __declspec(naked) GameActChange2_STUB(void)
 		retn 4
 	}
 }
+
+void __declspec(naked) GameLeave_STUB(void)
+{
+	__asm
+	{
+		call GameLeave
+		jmp D2CLIENT_GameLeave_I
+	}
+}

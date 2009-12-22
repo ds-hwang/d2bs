@@ -218,6 +218,7 @@ VARPTR(D2COMMON, sqptDataTable,DWORD, 0x9B500) // Updated
 VARPTR(D2COMMON, CriticalRoomSection, CRITICAL_SECTION*, 0xA1440)
 ASMPTR(D2COMMON, DisplayOverheadMsg_I, -10375) // Updated
 ASMPTR(D2COMMON, checkCollision_I, 0x58370) // Updated
+ASMPTR(D2CLIENT, GameLeave_I, 0x7E0F0)
 
 FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10036) // Updated
 FUNCPTR(D2NET, ReceivePacket, void __stdcall, (BYTE *aPacket, DWORD aLen), 0x6510) // Updated
