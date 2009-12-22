@@ -19,6 +19,7 @@ namespace D2BSLoader
 							  D2Exe = String.Empty,
 							  D2Args = String.Empty,
 							  D2BSDLL = String.Empty;
+		private static int LoadDelay = 500;
 		private static Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>() {
 				{"inject", Inject},
 				{"kill", Kill},
@@ -155,6 +156,8 @@ namespace D2BSLoader
 
 		private static bool IsD2Window(Process p)
 		{
+			if(p == null)
+				return false;
 			string classname = GetLCClassName(p);
 			string moduleName = "";
 			try { moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant(); } catch { }
@@ -188,6 +191,9 @@ namespace D2BSLoader
 				D2Exe = config.AppSettings.Settings["D2Exe"].Value;
 				D2Args = config.AppSettings.Settings["D2Args"].Value;
 				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
+				try {
+					LoadDelay = Convert.ToInt32(config.AppSettings.Settings["LoadDelay"].Value);
+				} catch { LoadDelay = 500; }
 			} catch {
 				MessageBox.Show("Configuration not found.", "D2BS");
 			}
@@ -261,7 +267,7 @@ namespace D2BSLoader
 		public static int Inject(int pid)
 		{
 			Process p = GetProcessById(pid);
-			if(p != null && GetLCClassName(p) == "diablo ii")
+			if(IsD2Window(p))
 			{
 				Attach(p);
 				return pid;
@@ -271,7 +277,7 @@ namespace D2BSLoader
 		public static int Kill(int pid)
 		{
 			Process p = GetProcessById(pid);
-			if(p != null && GetLCClassName(p) == "diablo ii")
+			if(IsD2Window(p))
 			{
 				p.Kill();
 				return pid;
@@ -339,6 +345,7 @@ namespace D2BSLoader
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
+			System.Threading.Thread.Sleep(LoadDelay);
 			Process[] children = p.GetChildProcesses();
 			if(children.Length > 0)
 			{
@@ -349,7 +356,6 @@ namespace D2BSLoader
 						return child.Id;
 					}
 			}
-			p.WaitForInputIdle();
 			return p.Id;
 		}
 
