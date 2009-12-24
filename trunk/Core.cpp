@@ -134,7 +134,7 @@ void Say(const char *szMessage, ...)
 	if(*p_D2CLIENT_PlayerUnit)
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
-		memcpy((wchar_t*)p_D2CLIENT_ChatTextBuffer, wBuffer, wcslen(wBuffer)*2+1);
+		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
 		delete[] wBuffer;
 		wBuffer = NULL;
 
