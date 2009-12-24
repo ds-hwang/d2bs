@@ -59,7 +59,6 @@ FUNCPTR(D2CLIENT, GetQuestInfo, VOID* __stdcall, (VOID), 0x17D00) // Updated
 FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x20010) // Updated
 FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1C0) // Updated
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1A0) // Updated
-FUNCPTR(D2CLIENT, SetUIVar, DWORD __fastcall, (DWORD varno, DWORD howset, DWORD unknown1), 0x8EF00) // Updated
 FUNCPTR(D2CLIENT, clickMap, VOID __stdcall, (DWORD MouseFlag, DWORD x, DWORD y, DWORD Type), 0x5CE80) // Updated
 FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (VOID), 0x9EB40) // Updated
 FUNCPTR(D2CLIENT, LeftClickItem, VOID __stdcall, (UnitAny* pPlayer, Inventory* pInventory, INT x, INT y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0xB0900) // Updated
@@ -124,7 +123,7 @@ VARPTR(D2CLIENT, StoreLayout, InventoryLayout*, 0x100CA0) // Updated
 VARPTR(D2CLIENT, CubeLayout, InventoryLayout*, 0x100CB8) // Updated
 VARPTR(D2CLIENT, TradeLayout, InventoryLayout*, 0x100B78) // Updated
 VARPTR(D2CLIENT, MercLayout, InventoryLayout*, 0x11BB5C) // Updated
-VARPTR(D2CLIENT, StoreTable, DWORD, 0x101638) // Updated
+//VARPTR(D2CLIENT, StoreTable, DWORD, 0x101638) // This is unreferenced and shadowd MouseX, commented until it is corrected at least
 VARPTR(D2CLIENT, RegularCursorType, DWORD, 0x101674) // Updated
 VARPTR(D2CLIENT, ShopCursorType, DWORD, 0x11B9F8) // Updated
 VARPTR(D2CLIENT, OverheadTrigger, DWORD, 0x1054F6) // Updated
