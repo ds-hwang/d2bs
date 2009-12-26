@@ -1216,11 +1216,17 @@ JSAPI_FUNC(unit_getSkill)
 
 JSAPI_FUNC(item_shop)
 {	
-//	CriticalMisc myMisc;
-//	myMisc.EnterSection();
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
 
 	if(!GameReady())
 		return JS_TRUE;
+
+	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
 
 	myUnit* lpItem = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1245,7 +1251,7 @@ JSAPI_FUNC(item_shop)
 	//Check for proper mode.
 	if ((dwMode != 1) && (dwMode != 2) && (dwMode != 6))
 		return JS_TRUE;
-/*
+
 	//Selling an Item 
 	if (dwMode == 1)
 	{
@@ -1263,7 +1269,7 @@ JSAPI_FUNC(item_shop)
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
 	}
-	*/
+	/*
 	BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
@@ -1301,7 +1307,7 @@ JSAPI_FUNC(item_shop)
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
-
+*/
 	
 	*rval = JSVAL_TRUE;
 

@@ -1843,6 +1843,9 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		else
 			THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	}
+
+	if(nArea < 0)
+		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	
 	Level* pLevel = GetLevel(nArea);
 	if(!pLevel)
