@@ -1043,10 +1043,10 @@ JSAPI_FUNC(item_getItemCost)
 	nMode = JSVAL_TO_INT(argv[0]);
 
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
-		nNpcClassId = INT_TO_JSVAL(argv[1]);
+		nNpcClassId = JSVAL_TO_INT(argv[1]);
 
 	if(argc > 2 && JSVAL_IS_INT(argv[2]))
-		nDifficulty = INT_TO_JSVAL(argv[2]);
+		nDifficulty = JSVAL_TO_INT(argv[2]);
 
 	switch(nMode)
 	{
