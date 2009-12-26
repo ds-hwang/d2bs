@@ -128,11 +128,6 @@ JSAPI_PROP(unit_getProperty)
 			break;
 	}
 
-/*
-	// TODO: Properly fix this...
-	if ((JSVAL_TO_INT(id) < OOG_WINDOWTITLE) && !GameReady())
-			return JS_TRUE;
-*/
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -413,6 +408,18 @@ JSAPI_PROP(unit_setProperty)
 			if(JSVAL_IS_BOOLEAN(*vp))
 				Vars.bBlockMouse = JSVAL_TO_BOOLEAN(*vp);
 			break;
+		case ME_RUNWALK:
+			myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+			if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+				return JS_TRUE;
+
+			UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+			if(!pUnit)
+				return JS_TRUE;
+			if(pUnit == (*p_D2CLIENT_PlayerUnit))
+				*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+			break;
+
 	}
 	return JS_TRUE;
 }

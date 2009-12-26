@@ -118,7 +118,7 @@ static JSPropertySpec me_props[] = {
 	{"realm",			ME_REALM,			JSPROP_PERMANENT_VAR},
 	{"realmshort",		ME_REALMSHORT,		JSPROP_PERMANENT_VAR},
 	{"mercrevivecost",	ME_MERCREVIVECOST,	JSPROP_PERMANENT_VAR},
-	{"runwalk",			ME_RUNWALK,			JSPROP_PERMANENT_VAR},
+	{"runwalk",			ME_RUNWALK,			JSPROP_STATIC_VAR},
 	{"weaponswitch",	ME_WSWITCH,			JSPROP_PERMANENT_VAR},
 	{"chickenhp",		ME_CHICKENHP,		JSPROP_STATIC_VAR},
 	{"chickenmp",		ME_CHICKENMP,		JSPROP_STATIC_VAR},
