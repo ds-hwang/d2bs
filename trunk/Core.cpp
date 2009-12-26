@@ -172,8 +172,6 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 		dwUnitType = pUnit->dwType;
 	}
 
-	CriticalMisc cMisc;
-	cMisc.EnterSection();
 
 	if(dwUnitId)
 	{
