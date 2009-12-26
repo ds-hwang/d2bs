@@ -1216,6 +1216,9 @@ JSAPI_FUNC(unit_getSkill)
 
 JSAPI_FUNC(item_shop)
 {	
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
 	if(!GameReady())
 		return JS_TRUE;
 
@@ -1232,9 +1235,6 @@ JSAPI_FUNC(item_shop)
 	if(!D2CLIENT_GetUIState(UI_NPCSHOP))
 		return JS_TRUE;
 
-	CriticalMisc myMisc;
-	myMisc.EnterSection();
-
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	DWORD dwMode = JSVAL_TO_INT(argv[argc - 1]);
 
@@ -1247,21 +1247,23 @@ JSAPI_FUNC(item_shop)
 		return JS_TRUE;
 
 	//Selling an Item 
-	//if (dwMode == 1)
-	//{
-	//	//Check if we own the item!
-	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
-	//		return JS_TRUE;
-	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
-	//}
-	//else
-	//{
-	//	//Make sure the item is owned by the NPC interacted with.
-	//	if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
-	//		return JS_TRUE;
+	if (dwMode == 1)
+	{
+		//Check if we own the item!
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
+			return JS_TRUE;
 
-	//	D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	//}
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+	}
+	else
+	{
+		//Make sure the item is owned by the NPC interacted with.
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
+			return JS_TRUE;
+
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
+	}
+	/*
 	BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
@@ -1300,6 +1302,7 @@ JSAPI_FUNC(item_shop)
 
 	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 
+	*/
 	*rval = JSVAL_TRUE;
 
 	return JS_TRUE;
