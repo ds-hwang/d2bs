@@ -1222,7 +1222,7 @@ JSAPI_FUNC(item_shop)
 	if(!GameReady())
 		return JS_TRUE;
 
-	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0)
+	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
 		*rval = JSVAL_FALSE;
 		return JS_TRUE;

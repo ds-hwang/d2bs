@@ -488,8 +488,17 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 typedef VOID __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
 INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
 	if(!GameReady())
 		return JS_TRUE;
+
+	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
 
 	myUnit* pmyUnit = NULL;
 	UnitAny* pUnit = NULL;
@@ -518,6 +527,9 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		{2,3}, // 14
 		{3,3}, // 15
 	};
+
+	*p_D2CLIENT_CursorHoverX = 0xFFFFFFFF;
+	*p_D2CLIENT_CursorHoverY = 0xFFFFFFFF;
 	
 	if(argc == 1 && JSVAL_IS_OBJECT(argv[0]))
 	{
