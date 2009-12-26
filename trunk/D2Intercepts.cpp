@@ -118,7 +118,7 @@ VOID __declspec(naked) GameAttack_STUB()
 		mov [esp+0x0C], 1
 
 OldCode:
-		mov eax, [D2CLIENT_Attack_I]
+		mov eax, [p_D2CLIENT_ScreenSizeY]
 		mov eax, [eax]
 		retn
 	}

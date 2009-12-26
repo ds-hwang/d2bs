@@ -13,16 +13,12 @@ public:
 
 	void EnterSection() {
 		EnterCriticalSection(&Vars.cGameLoopSection);
-//		EnterCriticalSection(&Vars.cRoomSection);
-		EnterCriticalSection(*p_D2COMMON_CriticalRoomSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
 			LeaveCriticalSection(&Vars.cGameLoopSection);
-			LeaveCriticalSection(*p_D2COMMON_CriticalRoomSection);
-//			LeaveCriticalSection(&Vars.cRoomSection);
 			bEnteredCriticalSection = false;
 		}
 	}
@@ -39,16 +35,12 @@ public:
 
 	void EnterSection() {
 		EnterCriticalSection(&Vars.cGameLoopSection);
-//		EnterCriticalSection(p_D2NET_CriticalPacketSection);
-//		EnterCriticalSection(&Vars.cMiscSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
 			LeaveCriticalSection(&Vars.cGameLoopSection);
-//			LeaveCriticalSection(p_D2NET_CriticalPacketSection);
-//			LeaveCriticalSection(&Vars.cMiscSection);
 			bEnteredCriticalSection = false;
 		}
 	}

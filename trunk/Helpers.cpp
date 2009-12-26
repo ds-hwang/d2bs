@@ -256,6 +256,17 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 
 void GameJoined(void)
 {
+#ifdef PATCH113
+	MSG aMsg;
+	memset(&aMsg, 0, sizeof(MSG));
+
+	if(GetForegroundWindow() != D2GFX_GetHwnd())
+	{
+		D2CLIENT_HandleMinimize(&aMsg);
+		SendMessage(D2GFX_GetHwnd(), WM_SYSCOMMAND, SC_MINIMIZE, 0);
+	}
+#endif
+
 	Print("ÿc2D2BSÿc0 :: Starting default.dbj");
 	if(StartScript(GetStarterScriptName(), GetStarterScriptState()))
 		Print("ÿc2D2BSÿc0 :: default.dbj running.");
