@@ -1411,7 +1411,12 @@ njipClassId["pk3"]=649;
 njipClassId["dhn"]=650;
 njipClassId["bey"]=651;
 njipClassId["mbr"]=652;
-njipClassId["std"]=653;
+njipClassId["toa"]=653;
+njipClassId["tes"]=654;
+njipClassId["ceh"]=655;
+njipClassId["bet"]=656;
+njipClassId["fed"]=657;
+njipClassId["std"]=658;
 
 njipClassId["handaxe"]=0;
 njipClassId["axe"]=1;
@@ -2058,7 +2063,12 @@ njipClassId["keyofdestruction"]=649;
 njipClassId["diablo'shorn"]=650;
 njipClassId["baal'seye"]=651;
 njipClassId["mephisto'sbrain"]=652;
-njipClassId["standardofheroes"]=653;
+njipClassId["tokenofabsolution"]=653;
+njipClassId["twistedessenceofsuffering"]=654;
+njipClassId["chargedessenseofhatred"]=655;
+njipClassId["burningessenceofterror"]=656;
+njipClassId["festeringessenceofdestruction"]=657;
+njipClassId["standardofheroes"]=658;
 
 
 var STAT_LEVEL_REQ			= 1000;

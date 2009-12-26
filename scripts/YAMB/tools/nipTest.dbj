@@ -170,25 +170,29 @@ function traverse_items() {
  * @param none
  * @returns none
  */
-function dumpItemStats(){
+function dumpItemStats(dumpType){
 	var unit = getUnit(101); // item hovered over
+	var statType = dumpType ? -2 : -1;
 	if(unit && unit.type == 4) {
 		var statFile = File.open("output/" + me.name + "-ItemStatDump.htm", FILE_APPEND);
 		if(statFile){
 			statFile.write("<HTML><HEAD><TITLE>" + (me.account ? me.account : "SINGLEPLAYER") + " - " + me.name + "'s Item Stat Dump File" + "</TITLE></HEAD><BODY TEXT=BLACK>\n");
 			statFile.write("===========================================================<br>\n");
-			statFile.write("Outputting stats for item -> " + ImproveFName(unit.fname) + "<br>\n");
+			statFile.write("Outputting stats for item -> " + ImproveFName(unit.fname) + " using getStat(" + statType + ")<br>\n");
 		}
 		print("ÿc3===========================================================");
-		print("Outputting stats for item -> " + ImproveFName(unit.fname));
-		//var statList = unit.getStat(-1);
-		var statList = unit.getStat(-2); // re-enable, when Shepp adds to the core
+		print("Outputting stats for item -> " + ImproveFName(unit.fname) + " using getStat(" + statType + ")");
+		var statList = unit.getStat(statType);
+		//var statList = unit.getStat(-2); // re-enable, when Shepp adds to the core
 		if(statList) {
 			for( var stat in statList ) {
 				for( var substat in statList[stat] ) {
-					print( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] );
+					var statLine = "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat];
+					//print( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] );
+					print(statLine);
 					if(statFile){
-						statFile.write( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] + "<br>" + "\n");
+						//statFile.write( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] + "<br>" + "\n");
+						statFile.write( statLine + "<br>" + "\n");
 						delay(50);
 					}
 				}
@@ -226,21 +230,21 @@ function nipTestSingle(){
  */
 function keyUpHandler(key){
 	switch(key){
-		case 123:
-			traverse_items();
-			break;
 		case 119:// f8 key to test while using debugger (f12 causes break in vis studio)
-			traverse_items();
+			dumpItemStats(true);
+			break;
+		case 120: 
+			dumpItemStats(false);
+			break;
+		case 121: 
+			nipTestSingle();
 			break;
 		case 122: 
 			print("ALLSTOP!");
 			shouldRun = false;
 			break;
-		case 121: 
-			nipTestSingle();
-			break;
-		case 120: 
-			dumpItemStats();
+		case 123:
+			traverse_items();
 			break;
 	}
 }
