@@ -117,7 +117,7 @@ VARPTR(D2CLIENT, RecentInteractId, DWORD, 0x11B625) // Updated
 VARPTR(D2CLIENT, NPCMenu, NPCMenu*, 0xF8300) // Updated
 VARPTR(D2CLIENT, NPCMenuAmount, DWORD, 0xF8A50) // Updated
 VARPTR(D2CLIENT, TransactionDialog, void*, 0x11B663)
-VARPTR(D2CLIENT, TransactionDialogs, DWORD, 0x105578)
+VARPTR(D2CLIENT, TransactionDialogs, DWORD, 0x11C194)
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x11C1D0) // Updated
 VARPTR(D2CLIENT, InventoryLayout, InventoryLayout*, 0x100CD0) // Updated
 VARPTR(D2CLIENT, StashLayout, InventoryLayout*, 0x100BC0) // Updated 100BC0 100BC0
