@@ -59,7 +59,6 @@ void close_db_stmt(DBStmt* stmt) {
 		sqlite3_finalize(stmt->stmt);
 		stmt->stmt = NULL;
 		stmt->open = false;
-		stmt->assoc_db->stmts.erase(stmt);
 	}
 }
 
