@@ -3,6 +3,8 @@
 #include "Constants.h"
 #include "D2Helpers.h"
 
+#define HAS_BIT(value, bit) ((((value) >> (bit)) & 0x1) == 0x1)
+
 UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	if(!GameReady())
@@ -106,16 +108,26 @@ BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWOR
 	if(pUnit->dwType != dwType)
 		return FALSE;
 
-	if(dwMode != -1 && pUnit->dwType == UNIT_ITEM)
+	if(dwMode != -1)
 	{
-		if(dwMode >= 100)
+		if(dwMode >= 100 && pUnit->dwType == UNIT_ITEM)
 		{
 			if(pUnit->pItemData && dwMode-100 != pUnit->pItemData->ItemLocation)
 				return FALSE;
 		}
 		else
 		{
-			if(pUnit->dwMode != dwMode)
+			if(HAS_BIT(dwMode, 29))
+			{
+				bool result = false;
+				// mode is a mask
+				for(unsigned int i = 0; i < 28; i++)
+					if(HAS_BIT(dwMode, i) && pUnit->dwMode == i)
+						result = true;
+				if(!result)
+					return FALSE;
+			}
+			else if(pUnit->dwMode != dwMode)
 				return FALSE;
 		}
 	}
