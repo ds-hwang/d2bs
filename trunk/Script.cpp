@@ -134,13 +134,8 @@ void Script::Run(void)
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
-	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
-	{
-		JS_RemoveRoot(&main);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
+	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE ||
+	   JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
 		JS_RemoveRoot(&main);
 		JS_EndRequest(GetContext());

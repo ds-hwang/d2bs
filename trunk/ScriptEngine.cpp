@@ -153,7 +153,8 @@ void ScriptEngine::Shutdown(void)
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);
 
-		scripts.clear();
+		if(!scripts.empty())
+			scripts.clear();
 
 		if(runtime)
 		{

@@ -169,10 +169,10 @@ bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
 	BCastEventHelper* helper = (BCastEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
 	{
-		AutoRoot** argv = new AutoRoot*[helper->argc];
-		for(uintN i = 0; i < argc; i++)
-			argv[i] = new AutoRoot(helper->argv[i]);
-		script->ExecEventAsync("scriptmsg", helper->argc, argv);
+		AutoRoot** args = new AutoRoot*[helper->argc];
+		for(uintN i = 0; i < helper->argc; i++)
+			args[i] = new AutoRoot(helper->argv[i]);
+		script->ExecEventAsync("scriptmsg", helper->argc, args);
 	}
 	return true;
 }
