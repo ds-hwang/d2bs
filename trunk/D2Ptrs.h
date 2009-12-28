@@ -118,6 +118,7 @@ VARPTR(D2CLIENT, NPCMenu, NPCMenu*, 0xF8300) // Updated
 VARPTR(D2CLIENT, NPCMenuAmount, DWORD, 0xF8A50) // Updated
 VARPTR(D2CLIENT, TransactionDialog, void*, 0x11B663)
 VARPTR(D2CLIENT, TransactionDialogs, DWORD, 0x11C194)
+VARPTR(D2CLIENT, TransactionDialogs_2, DWORD, 0x11C190)
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x11C1D0) // Updated
 VARPTR(D2CLIENT, InventoryLayout, InventoryLayout*, 0x100CD0) // Updated
 VARPTR(D2CLIENT, StashLayout, InventoryLayout*, 0x100BC0) // Updated 100BC0 100BC0
@@ -160,7 +161,6 @@ ASMPTR(D2CLIENT, MercItemAction_I, 0x798E0) // Updated
 ASMPTR(D2CLIENT, Attack_I, 0xDC6E4) // Updated
 ASMPTR(D2CLIENT, AssignPlayer_I, 0x20D60)
 ASMPTR(D2CLIENT, TakeWaypoint_I, 0x112F3)
-VARPTR(D2CLIENT, TransactionDialogs_2, DWORD, 0x11C190)
 
 //6FB37206   > B9 40FCBC6F    MOV ECX,D2Client.6FBCFC40
 ASMPTR(D2CLIENT, Say_I, 0x87206)
