@@ -1790,7 +1790,7 @@ function DT_BuyItem(item,npc,mode) {
 	var _mygold = DC_MyGold();
 	// If we buy, check if we have enough gold to buy the item
 	if(mode == 2 || mode == 3) {
-		if(item.getItemCost(npc, 0) > _mygold) {
+		if(item.getItemCost(0, npc) > _mygold) {
 			DC_DPrint("DT_BuyItem() : Not enough gold to buy the item");
 			return false;
 		}
