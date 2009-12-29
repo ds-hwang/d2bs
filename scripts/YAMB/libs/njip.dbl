@@ -33,7 +33,7 @@ njipKeywords["quality"]		= [-4,	njipQuality,	1,	9];			// item quality, normal = 
 njipKeywords["flag"]		= [-5,	njipItemFlag,	0,	0];			// item flags
 njipKeywords["levelreq"]	= [-6,	-1,				0,	255];		// item.lvlreq
 njipKeywords["ilvl"]		= [-7,	-1,				0,	255];		// item.ilvl
-njipKeywords["sellvalue"]	= [-8,	-1,				0,	10000000];	// item.getPrice(1);
+njipKeywords["sellvalue"]	= [-8,	-1,				0,	10000000];	// item.getItemCost(1);
 
 njipKeywords["category"] = njipKeywords["type"]; // alias
 
@@ -171,7 +171,7 @@ function njipCheckGoodItem(item_, mode_) {
 						cv = item_.ilvl;
 						break;
 					case -8:
-						cv = item_.getPrice(1);
+						cv = item_.getItemCost(1);
 						break;
 					default:
 						// using a stat, so if unidentified, 'maybe' pick up this item, unless another matches
