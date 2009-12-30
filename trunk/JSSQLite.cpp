@@ -315,7 +315,8 @@ JSAPI_FUNC(sqlite_stmt_getobject)
 		const char* colnam = sqlite3_column_name(stmt, i);
 		switch(sqlite3_column_type(stmt, i)) {
 			case SQLITE_INTEGER:
-				JS_NewNumberValue(cx, sqlite3_column_int(stmt, i), &val);
+				// jsdouble == double, so this conversion is no problem
+				JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), &val);
 				if(!JS_SetProperty(cx, obj2, colnam, &val))
 					THROW_ERROR(cx, obj, "Failed to add column to row results");
 				break;
@@ -372,21 +373,22 @@ JSAPI_FUNC(sqlite_stmt_colval)
 	int i = JSVAL_TO_INT(argv[0]);
 	switch(sqlite3_column_type(stmt, i)) {
 		case SQLITE_INTEGER:
-				JS_NewNumberValue(cx, sqlite3_column_int(stmt, i), rval);
-				break;
-			case SQLITE_FLOAT:
-				JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), rval);
-				break;
-			case SQLITE_TEXT:
-				*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
-				break;
-			case SQLITE_BLOB:
-				// currently not supported
-				THROW_ERROR(cx, obj, "Blob type not supported (yet)");
-				break;
-			case SQLITE_NULL:
-				*rval = JSVAL_NULL;
-				break;
+			// jsdouble == double, so this conversion is no problem
+			JS_NewNumberValue(cx, (jsdouble)sqlite3_column_int64(stmt, i), rval);
+			break;
+		case SQLITE_FLOAT:
+			JS_NewNumberValue(cx, sqlite3_column_double(stmt, i), rval);
+			break;
+		case SQLITE_TEXT:
+			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, reinterpret_cast<const char*>(sqlite3_column_text(stmt, i))));
+			break;
+		case SQLITE_BLOB:
+			// currently not supported
+			THROW_ERROR(cx, obj, "Blob type not supported (yet)");
+			break;
+		case SQLITE_NULL:
+			*rval = JSVAL_NULL;
+			break;
 	}
 	return JS_TRUE;
 }

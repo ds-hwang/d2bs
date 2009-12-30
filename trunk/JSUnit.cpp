@@ -106,6 +106,9 @@ JSAPI_PROP(unit_getProperty)
 		case ME_PING:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_Ping);
 			break;
+		case ME_FPS:
+			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
+			break;
 		case OOG_INGAME:
 			*vp = BOOLEAN_TO_JSVAL(ClientState() == ClientStateMenu ? FALSE : TRUE);
 			break;
@@ -1024,7 +1027,8 @@ JSAPI_FUNC(item_getItemCost)
 		return JS_TRUE;
 
 	jsint nMode;
-	jsint nNpcClassId = 0x9A;
+	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
+	jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A);
 	jsint nDifficulty = D2CLIENT_GetDifficulty();
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
@@ -1726,7 +1730,8 @@ JSAPI_FUNC(me_getRepairCost)
 	if(!GameReady())
 		return JS_TRUE;
 
-	jsint nNpcClassId = 0x9A;
+	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
+	jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A);
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nNpcClassId = JSVAL_TO_INT(argv[0]);
