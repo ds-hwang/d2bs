@@ -369,7 +369,7 @@ OOG_Location OOG_GetLocation(void)
 		if(findControl(6, 5101, -1, 33, 572, 128, 35))		//5101=Exit
 		{
 			if (findControl(6, 5102, 0, 627,572,128,35))			//5102=ok
-				return OOG_GATEWAY;							//27 char create screen with char selected
+				return OOG_CHARACTER_CREATE;				//29 char create screen with char selected
 			else
 			{
 				if(findControl(4, 5226, -1, 321, 448, 300, 32))
