@@ -650,7 +650,7 @@ struct BnetData
 	BYTE _4[273];				//0xD8
 	BYTE nCharClass;			//0x1E9
 	BYTE nCharFlags;			//0x1EA
-	BYTE nMaxDiff;				//0x1EB
+	BYTE nMaxLvlDifference;		//0x1EB
 	BYTE _5[31];				//0x1EC
 	BYTE nDifficulty;			//0x20B
 	void *_6;					//0x20C

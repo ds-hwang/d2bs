@@ -79,6 +79,10 @@ JSAPI_PROP(unit_getProperty)
 		case ME_GAMETYPE:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_ExpCharFlag);
 			break;
+		case ME_PLAYERTYPE:
+			if(pData)
+				*vp = INT_TO_JSVAL(((pData->nCharFlags & PLAYER_TYPE_HARDCORE) == TRUE));
+			break;
 		case ME_ITEMONCURSOR:
 			*vp = BOOLEAN_TO_JSVAL(!!D2CLIENT_GetCursorItem());
 			break;
