@@ -1,5 +1,55 @@
 Version History:
 
+Version 1.1.2 -
+
+	.	Changed item.getPrice to item.getItemCost, getPrice is still there but marked as deprecated
+
+	.	Added me.fps -- returns the current FPS (obviously)
+
+	.	Added item.getItemCost(mode[, classid[, difficulty ] ])
+		mode: 0 = buy, 1 = sell, 2 = repair
+		classid: any npc classid (default is the current npc)
+		difficulty: 0 = normal, 1 = nightmare, 2 = hell (default is the current difficulty)
+
+	.	Added me.getRepairCost([ classid ]) -- again, the classid is any npc classid with the default
+		being the current npc
+
+	.	getUnit() now accepts a mask for the mode parameter.
+		To use it, set bit 30 (0x20000000) to on, and then every bit from 1-28 is
+		treated as a mode bit--the unit must match at least one of the modes specified
+		i.e.:
+		getUnit(1, null, null, 0x2000001F); // finds monsters with any mode from 0-4
+
+	.	Corrected item.getStat(-2) output (was adding a bunch of invalid properties)
+
+	.	Made me.runwalk able to be set--now you can toggle run/walk from a script
+
+	.	Loader changes:
+		- Made it take a guess where the Diablo II directory is
+		- Made it able to find the child process of Diablo II.exe--you no longer have to specify game.exe!
+
+	.	Fixed a race condition where D2BS was racing with the game in various places
+		- This means you no longer get corrupted graphics occasionally, and D2BS is much more stable
+		- Additionally, switched to the internal method of buying/selling instead of using packet-based
+		  as it no longer crashes!
+
+	.	Fixed room.reveal to not be quite as buggy or crash-happy as before (all you maphackers, this
+		means game on!)
+
+	.	Fixed a (relatively stupid) crash with scriptBroadcast and more than 1 argument
+
+	.	Fixed SQLite crash when closing the DB when there were open queries (d'oh... stupid iterators...)
+
+	.	Fixed script.send to handle multiple arguments correctly (d'oh!)
+
+	.	Corrected bug with monster enchantments not being correctly detected
+
+	.	Corrected types for integer values from SQLite--was causing a wraparound for values over ~2 billion
+
+	.	Known issues:
+		- Certain item stats are still not correctly handled, which means you have to sort out the value
+		  on your own (most are just value >> 8)
+
 Version 1.1.1 -
 
 	.	Included in this release is a build for the 1.13 PTR. To use it:
