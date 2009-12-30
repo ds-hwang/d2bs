@@ -3,6 +3,7 @@ Version History:
 Version 1.1.2 -
 
 	.	Changed item.getPrice to item.getItemCost, getPrice is still there but marked as deprecated
+		- you can ignore warnings about it, it doesn't harm anything
 
 	.	Added me.fps -- returns the current FPS (obviously)
 
