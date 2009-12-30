@@ -596,7 +596,7 @@ config.macros.functionList = {
 
 //}}}</pre>
 </div>
-<div title="FunctionPlugin" modifier="lord2800" created="200911112015" modified="200912102115" tags="systemConfig" changecount="17">
+<div title="FunctionPlugin" modifier="lord2800" created="200911112015" modified="200912301700" tags="systemConfig" changecount="18">
 <pre>//{{{
 
 config.macros.func = {
@@ -604,7 +604,7 @@ config.macros.func = {
 		var p = paramString.parseParams(null, null, true);
 		var name = getParam(p, &quot;name&quot;) || tiddler.title.slice(tiddler.title.indexOf('.')+1);
 		var args = getParam(p, &quot;args&quot;) || '';
-		var retVal = getParam(p, &quot;returnType&quot;) || '';
+		var retVal = getParam(p, &quot;returnType&quot;) || 'void';
 		var ret = getParam(p, &quot;returns&quot;) || 'void';
 		var remarks = getParam(p, &quot;remarks&quot;) || 'none';
 		var example = getParam(p, &quot;example&quot;) || '';
@@ -702,11 +702,15 @@ config.macros.func = {
 	sha512_file
 &gt;&gt;</pre>
 </div>
-<div title="MainMenu" modifier="lord2800" created="200910281257" modified="200911012304" changecount="2">
+<div title="GlobalObjects" modifier="lord2800" created="200912301531" changecount="1">
+<pre>[[me]]</pre>
+</div>
+<div title="MainMenu" modifier="lord2800" created="200910281257" modified="200912301531" changecount="3">
 <pre>GlobalFunctions
+GlobalObjects
 [[Objects]]</pre>
 </div>
-<div title="Objects" modifier="lord2800" created="200911012315" changecount="1">
+<div title="Objects" modifier="lord2800" created="200911012315" modified="200912301852" changecount="2">
 <pre>SQLiteObject
 DBStatementObject
 FileObject
@@ -724,7 +728,8 @@ PartyObject
 ExitObject
 DirectoryObject
 ControlObject
-AreaObject</pre>
+AreaObject
+UnitObject</pre>
 </div>
 <div title="PropertyListPlugin" modifier="lord2800" created="200911112248" tags="systemConfig" changecount="1">
 <pre>//{{{
@@ -746,17 +751,18 @@ config.macros.propertyList = {
 
 //}}}</pre>
 </div>
-<div title="PropertyPlugin" modifier="lord2800" created="200911112251" changecount="1">
+<div title="PropertyPlugin" modifier="lord2800" created="200911112251" modified="200912301550" tags="systemConfig" changecount="5">
 <pre>//{{{
 
 config.macros.property = {
 	handler: function (place, macroName, params, wikifier, paramString, tiddler) {
 		var p = paramString.parseParams(null, null, true);
-		var name = getParam(p, &quot;name&quot;) || tiddler.title;
+		var name = getParam(p, &quot;name&quot;) || tiddler.title.slice(tiddler.title.indexOf('.')+1);
 		var type = getParam(p, &quot;type&quot;) || '';
-		var remarks = getParam(p, &quot;remarks&quot;) || 'None.';
+		var remarks = getParam(p, &quot;remarks&quot;) || 'none';
 		var example = getParam(p, &quot;example&quot;) || '';
-		wikify(&quot;!Property:\r\n{{{&quot; + type + &quot; &quot; + name + &quot;}}}\r\n\r\n&quot; +
+		var prefix = getParam(p, &quot;prefix&quot;) || '';
+		wikify(&quot;!Property:\r\n{{{&quot; + type + &quot; &quot; + (prefix != '' ? prefix + '.' : '') + name +&quot;;}}}\r\n\r\n&quot; +
 			 &quot;!!!''Remarks:''\r\n&quot; + remarks + &quot;\r\n\r\n&quot; +
 			 &quot;!!!''Example:''\r\n{{{&quot; + example + &quot;}}}&quot;,
 			 place);
@@ -789,114 +795,223 @@ $4
 !!!''Example:''
 {{{$5}}}</pre>
 </div>
-<div title="Welcome" modifier="lord2800" created="200911120145" modified="200911120145" changecount="2">
-<pre>Welcome to the D2BS API Document. Things are still being documented.
+<div title="Welcome" modifier="lord2800" created="200911120145" modified="200912132208" changecount="3">
+<pre>Welcome to the D2BS API Documentation.
 
 Online support is available [[via forums|http://www.edgeofnowhere.cc/index.php?c=22]] and [[via irc|irc://irc.synirc.net/d2bs]].
 
-The Assembla project page is available [[here|http://www.assembla.com/wiki/show/d2bs/]], and the latest release can be downloaded from the [[files section|http://www.assembla.com/spaces/d2bs/documents]].</pre>
+The Assembla project page is available [[here|http://www.assembla.com/wiki/show/d2bs/]], and the latest release can be downloaded from the [[files section|http://www.assembla.com/spaces/d2bs/documents]].
+
+This document is not complete! A lot of things are still missing, a lot of things have just stubs, and a lot of things need to be double checked to ensure accuracy! If you want to help with this, please contact any member of the D2BS team via forums or irc (linked above).</pre>
 </div>
-<div title="acceptTrade" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="acceptTrade" modifier="lord2800" created="200912092232" modified="200912301755" changecount="2">
+<pre>&lt;&lt;func args:&quot;[ int mode ]&quot; returnType:&quot;int&quot; returns:&quot;If you pass a mode, the return value varies based on what mode. If you do not pass a mode, the return value is true if the trade action was not blocked, otherwise false&quot; remarks:&quot;Modes:
+1 - Whether or not you have accepted trade
+2 - Returns the trade flags (Not documented yet)
+3 - Whether or not the 'checkbox' is red (unable to trade)&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="addEventListener" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="addEventListener" modifier="lord2800" created="200912092234" modified="200912301859" changecount="2">
+<pre>&lt;&lt;func args:&quot;string event, Function listener&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Registers listener to listen to events of the specified type&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="beep" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="beep" modifier="lord2800" created="200912092232" modified="200912301748" changecount="2">
+<pre>&lt;&lt;func args:&quot;uint type&quot; remarks:&quot;This function is the equivalent of the ~WinAPI function [[MessageBeep|http://msdn.microsoft.com/en-us/library/ms680356%28VS.85%29.aspx]].&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="blockMinimize" modifier="lord2800" created="200911120140" modified="200911120453" changecount="2">
 <pre>&lt;&lt;func args:&quot;bool enabled&quot; returnType:&quot;void&quot; returns:&quot;Nothing.&quot; remarks:&quot;Enables or disables minimize blocking.&quot; example:&quot;blockMinimize(true);&quot;&gt;&gt;</pre>
 </div>
-<div title="checkCollision" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="checkCollision" modifier="lord2800" created="200912092232" modified="200912301719" changecount="3">
+<pre>&lt;&lt;func args:&quot;Unit a, Unit b, int collisionFlag&quot; returnType:&quot;bool&quot; returns:&quot;True if the collision values between Units a and b match the flag, otherwise false&quot; remarks:&quot;Uses the internal game's collision checking function&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clearAllEvents" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="clearAllEvents" modifier="lord2800" created="200912092234" modified="200912301857" changecount="2">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Clears all registered event handlers for all events on the current script&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clearEvent" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="clearEvent" modifier="lord2800" created="200912092234" modified="200912301857" changecount="2">
+<pre>&lt;&lt;func args:&quot;string event&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Clears all registered event handlers for the specified event on the current script&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clickItem" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="clickItem" modifier="lord2800" created="200912092232" modified="200912301745" changecount="2">
+<pre>&lt;&lt;func args:&quot;pick one: Unit item OR int clickType, Unit item OR int clickType, int location OR int clickType, int x, int y, int location&quot; remarks:&quot;This function's parameters vary based on the desired functionality.
+Locations:
+0 - Inventory
+2 - Trade Window
+3 - Cube
+4 - Stash
+5 - Belt
+
+Click Types:
+0 - Left
+1 - Right
+2 - Shift-left (put to belt)
+3 - Mercenary Item (see below)
+
+Mercenary Body Locations:
+1 - Helmet
+3 - Armor
+4 - Weapon&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clickMap" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="clickMap" modifier="lord2800" created="200912092232" modified="200912301812" changecount="2">
+<pre>&lt;&lt;func args:&quot;int type, bool shift, [Unit a OR int x, int y]&quot; returnType:&quot;bool&quot; returns:&quot;True if the click succeeded, otherwise false&quot; remarks:&quot;If you specify a unit, that unit will be selected prior to clicking. If shift is true, the character will stand in place while clicking.
+Click types:
+0 - Left down
+1 - Left held
+2 - Left up
+3 - Right down
+4 - Right held
+5 - Right up&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clickParty" modifier="lord2800" created="200912092231" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="clickParty" modifier="lord2800" created="200912092231" modified="200912301713" changecount="2">
+<pre>&lt;&lt;func args:&quot;Party obj, int mode&quot; remarks:&quot;The Party object comes from the [[getParty]] function
+Modes:
+0 - Loot player
+1 - Hostile player
+2 - Party with player
+3 - Leave current party&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="copyUnit" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="copyUnit" modifier="lord2800" created="200912092232" modified="200912301922" changecount="6">
+<pre>&lt;&lt;func args:&quot;Unit a&quot; returnType:&quot;Unit&quot; returns:&quot;A copy of the Unit passed in&quot; remarks:&quot;Because Unit.getNext modifies the underlying unit instead of returning the new unit, this function is necessary to keep a copy of the old unit before working with it.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="createGame" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="createGame" modifier="lord2800" created="200912092233" modified="200912301843" changecount="2">
+<pre>&lt;&lt;func args:&quot;string name[, string pass[, int difficulty ] ]&quot; returns:&quot;&quot; remarks:&quot;Attempts to create a game with the specified name and password in the specified difficulty.
+Difficulties:
+0 - Normal
+1 - Nightmare
+2 - Hell
+3 - Pick the hardest available&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="debugLog" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="debugLog" modifier="lord2800" created="200912092233" modified="200912301850" changecount="2">
+<pre>&lt;&lt;func args:&quot;string message&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Writes the specified message to the D2BS log&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="delay" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="delay" modifier="lord2800" created="200912092235" modified="200912301914" changecount="2">
+<pre>&lt;&lt;func args:&quot;int milliseconds&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Delays for the specified number of milliseconds. Milliseconds must be greater than 0.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="dopen" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="dopen" modifier="lord2800" created="200912092233" modified="200912301853" changecount="2">
+<pre>&lt;&lt;func args:&quot;string path&quot; returnType:&quot;Directory&quot; returns:&quot;A [[Directory|DirectoryObject]] object representing the specified directory&quot; remarks:&quot;If the directory does not exist, it is created.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getArea" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getArea" modifier="lord2800" created="200912092235" modified="200912301926" changecount="2">
+<pre>&lt;&lt;func args:&quot;[ int id ]&quot; returnType:&quot;Area&quot; returns:&quot;An Area object representing the specified area, if no area specified then the current one is assumed&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getBaseStat" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getBaseStat" modifier="lord2800" created="200912092235" modified="200912301802" changecount="3">
+<pre>&lt;&lt;func args:&quot;int table, int row, int column OR string columnName&quot; returnType:&quot;string/int&quot; returns:&quot;The MPQ value for the specified row/column in the specified table&quot; remarks:&quot;Tables:
+0 - items
+1 - monstats
+2 - skilldesc
+3 - skills
+4 - objects
+5 - missiles
+6 - monstats2
+7 - itemstatcost
+8 - levels
+9 - leveldefs
+10 - lvlmaze
+11 - lvlsub
+12 - lvlwarp
+13 - lvlprest
+14 - lvltypes
+15 - charstats
+16 - setitems
+17 - uniqueitems
+18 - sets
+19 - itemtypes
+20 - runes
+21 - cubemain
+22 - gems 
+23 - experience
+24 - pettype
+25 - ~SuperUniques&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getCollision" modifier="lord2800" created="200912092236" modified="200912102124" changecount="2">
 <pre>&lt;&lt;func args:&quot;int area, int x, int y&quot; returnType:&quot;int&quot; returns:&quot;The collision data for the specified (x, y) in the specified area&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getControl" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getControl" modifier="lord2800" created="200912092235" modified="200912301924" changecount="2">
+<pre>&lt;&lt;func args:&quot;[ int type[, int x[, int y[, int xsize[, int ysize ] ] ] ] ]&quot; returnType:&quot;Control&quot; returns:&quot;A Control object matching the specified (if any) parameters&quot; remarks:&quot;All parameters are optional.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getCursorType" modifier="lord2800" created="200912092236" modified="200912102127" changecount="5">
 <pre>&lt;&lt;func args:&quot;[ bool shopType ]&quot; returnType:&quot;int&quot; returns:&quot;The type of cursor currently selected (possible values to be filled in later)&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getDistance" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getDistance" modifier="lord2800" created="200912092232" modified="200912301729" changecount="3">
+<pre>&lt;&lt;func args:&quot;pick one: Unit a, Unit b OR int x, int y, Unit a OR Unit a, int x, int y OR int x, int y, int x2, int y2&quot; returnType:&quot;int&quot; returns:&quot;The distance between the specified points (Unit parameters use their x/y positions)&quot; remarks:&quot;This function has a complicated set of parameters for a reason: nearly anything can be passed to it.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getExits" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getExits" modifier="lord2800" created="200912092235" modified="200912301926" changecount="2">
+<pre>&lt;&lt;func args:&quot;Area area&quot; returnType:&quot;Exit[]&quot; returns:&quot;An array of exits leading from the specified area&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getInteractedNPC" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getInteractedNPC" modifier="lord2800" created="200912092235" modified="200912301916" changecount="2">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;Unit&quot; returns:&quot;A [[Unit|UnitObject]] representing the current NPC you are interacted with; if not interacted, returns undefined&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getLocaleString" modifier="lord2800" created="200912092236" modified="200912102128" changecount="2">
 <pre>&lt;&lt;func args:&quot;int id&quot; returnType:&quot;string&quot; returns:&quot;A string from the locale table representing the specified id&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getLocation" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getLocation" modifier="lord2800" created="200912092233" modified="200912301839" changecount="3">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;int&quot; returns:&quot;The current 'location' in the game menu.&quot; remarks:&quot;Locations:
+0 - None
+1 - Lobby
+2 - In line
+3 - Chat channel
+4 - Create game screen
+5 - Join game screen
+6 - Ladder screen
+7 - Channel menu
+8 - Main menu
+9 - Login screen
+10 - Login error screen
+11 - Unable to Connect
+12 - Character select screen
+13 - Realm down
+14 - Disconnected
+15 - New Character (no character type selected) screen
+16 - Please Wait for Character Select
+17 - Lost connection screen
+18 - Diablo II Splash screen (prior to main menu)
+19 - CD Key in use screen
+20 - Single player difficulty selection screen
+21 - 'Connecting' screen (main menu)
+22 - Invalid CD Key screen
+23 - Some other 'Connecting' screen (need more documentation)
+24 - Server is Down screen
+25 - Please Wait screen
+26 - Game Exists screen
+27 - Gateway select screen
+28 - Game Does Not Exist message
+29 - New Character (character type selected) screen
+30 - Character Already Exists
+31 - 'Agree to terms' screen
+32 - New Account screen
+33 - 'Please read' screen
+34 - Register email screen
+35 - Credits screen
+36 - Cinematics list
+37 - Switch Realm (on character select) screen
+38 - Game is full message
+39 - Other Multiplayer screen
+40 - TCP/IP screen
+41 - 'Enter IP address' screen
+42 - Character select screen -- no characters are displayed
+43 - Change realm on character select screen (...? need more documentation here too)&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getMercHP" modifier="lord2800" created="200912092236" modified="200912102125" changecount="2">
 <pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;int&quot; returns:&quot;The HP value (in percentage form) of your mercenary&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getMouseCoords" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getMouseCoords" modifier="lord2800" created="200912092233" modified="200912301819" changecount="3">
+<pre>&lt;&lt;func args:&quot;[ bool mapCoords[, bool returnObject ] ]&quot; returnType:&quot;Array/Object&quot; returns:&quot;The current mouse coordinates.&quot; remarks:&quot;If mapCoords is true, the coordinates are converted to map coordinates first. If returnObject is true, an object with an x/y property is returned instead of an array.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getParty" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getParty" modifier="lord2800" created="200912092235" modified="200912301931" changecount="2">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;Party&quot; returns:&quot;A Party object representing the first roster in the list&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getPath" modifier="lord2800" created="200912092236" modified="200912102123" changecount="2">
 <pre>&lt;&lt;func args:&quot;int area or int[] areas, int startX, int startY, int endX, int endY [, bool useTeleportPathing [, int radius [, bool useReduction ] ] ]&quot; returnType:&quot;int[]&quot; returns:&quot;A path representing the points needed to travel in order to get from (startX, startY) to (endX, endY) with the specified parameters&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getPlayerFlag" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getPlayerFlag" modifier="lord2800" created="200912092235" modified="200912301922" changecount="3">
+<pre>&lt;&lt;func args:&quot;int unitid, int unitid, int flag&quot; returnType:&quot;bool&quot; returns:&quot;True if the specified flag is set, otherwise false&quot; remarks:&quot;The units must be specified by gid. Need documentation on what flags are available.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getPresetUnit" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getPresetUnit" modifier="lord2800" created="200912092235" modified="200912301929" changecount="2">
+<pre>&lt;&lt;func args:&quot;int area[, int type[, int classid ] ]&quot; returnType:&quot;PresetUnit&quot; returns:&quot;The first preset unit matching the specified type and classid in the specified area&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getPresetUnits" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getPresetUnits" modifier="lord2800" created="200912092235" modified="200912301929" changecount="2">
+<pre>&lt;&lt;func args:&quot;int area[, int type[, int classid ] ]&quot; returnType:&quot;PresetUnit[]&quot; returns:&quot;An array of all preset units matching the specified type and classid in the specified area&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getRoom" modifier="lord2800" created="200912092236" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getRoom" modifier="lord2800" created="200912092236" modified="200912301934" changecount="2">
+<pre>&lt;&lt;func args:&quot;[ int area OR int x, int y OR int area, int x, int y ]&quot; returnType:&quot;Room&quot; returns:&quot;A Room object matching the specified parameters&quot; remarks:&quot;If area is 0, then the current area is assumed&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getScript" modifier="lord2800" created="200912092236" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getScript" modifier="lord2800" created="200912092236" modified="200912301935" changecount="3">
+<pre>&lt;&lt;func args:&quot;[ bool current OR string name OR int threadId ]&quot; returnType:&quot;D2BSScript&quot; returns:&quot;A ~D2BSScript object matching either the name or the thread id (or the current script, if true is passed instead).&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getSkillById" modifier="lord2800" created="200911111949" modified="200911120452" changecount="4">
 <pre>&lt;&lt;func args:&quot;int id&quot; returnType:&quot;string&quot; returns:&quot;The name of the specified skill ID.&quot; remarks:&quot;Looks up the name of the skill ID based on the internal table (this will be replaced with MPQ lookup at some point).&quot; example:&quot;var name = getSkillById(1);&quot;&gt;&gt;</pre>
@@ -904,56 +1019,96 @@ The Assembla project page is available [[here|http://www.assembla.com/wiki/show/
 <div title="getSkillByName" modifier="lord2800" created="200911111947" modified="200911120452" changecount="3">
 <pre>&lt;&lt;func args:&quot;string name&quot; returnType:&quot;int&quot; returns:&quot;The ID of the specified skill name.&quot; remarks:&quot;Looks up the ID of the skill name based on the internal table (this will be replaced with MPQ lookup at some point).&quot; example:&quot;var id = getSkillByName('kick');&quot;&gt;&gt;</pre>
 </div>
-<div title="getTextWidthHeight" modifier="lord2800" created="200912092236" modified="200912120122" changecount="2">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getTextWidthHeight" modifier="lord2800" created="200912092236" modified="200912301955" changecount="3">
+<pre>&lt;&lt;func args:&quot;string text[, bool returnObject ]&quot; returnType:&quot;Array/Object&quot; returns:&quot;The width and height of the specified text&quot; remarks:&quot;If returnObject is true, an object with a width/height property is returned instead of an array&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getThreadPriority" modifier="lord2800" created="200911120116" modified="200911120452" changecount="2">
 <pre>&lt;&lt;func returnType:&quot;int&quot; returns:&quot;The priority of the current script's execution thread.&quot; remarks:&quot;This function is the equivalent of the ~WinAPI function [[of the same name|http://msdn.microsoft.com/en-us/library/ms683235%28VS.85%29.aspx]].&quot; example:&quot;print('My thread priority is ' + getThreadPriority());&quot;&gt;&gt;</pre>
 </div>
-<div title="getTickCount" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getTickCount" modifier="lord2800" created="200912092235" modified="200912301816" changecount="2">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;int&quot; returns:&quot;The current system tick count&quot; remarks:&quot;This function is identical to the ~WinAPI function [[of the same name|http://msdn.microsoft.com/en-us/library/ms724408%28VS.85%29.aspx]].&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getTradeInfo" modifier="lord2800" created="200912092236" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getTradeInfo" modifier="lord2800" created="200912092236" modified="200912301943" changecount="2">
+<pre>&lt;&lt;func args:&quot;int mode&quot; returnType:&quot;int&quot; returns:&quot;If mode is 0, returns the current trade flags. If mode is 1, returns the name of the most recent trading partner. If mode is 2, returns the gid of the most recent trading partner.&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getUIFlag" modifier="lord2800" created="200912092236" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getUIFlag" modifier="lord2800" created="200912092236" modified="200912301952" changecount="2">
+<pre>&lt;&lt;func args:&quot;int flag&quot; returnType:&quot;bool&quot; returns:&quot;True if the specified flag is on, otherwise false&quot; remarks:&quot;Flags:
+0 - Nothing
+1 - Inventory screen
+2 - Character screen
+3 - Skill speedbar
+4 - Skill tree
+5 - Chat box
+6 - Unknown
+7 - Unknown
+8 - NPC menu
+9 - NPC dialog (NPC talking at you)
+10 - Main ESC menu
+11 - Automap
+12 - Hotkey configuration
+13 - NPC shop menu
+14 - ALT held
+15 - Anvil (...? Need more documentation)
+16 - Quest button visible
+17 - Bark scroll (...? Need more documentation)
+18 - Quest screen
+19 - Status area (...? Need more documentation)
+20 - ESC menu extras (...? Need more documentation)
+21 - Waypoint screen
+22 - Mini-panel visible
+23 - Party screen
+24 - Trade screen (which one? Need more documentation)
+25 - Message log
+26 - Stash screen
+27 - Cube screen
+28 - Inventory extras (...? Need more documentation)
+29 - Inventory extras 2 (...? Need more documentation)
+30 - Belt open
+31 - Help screen
+32 - Help button visible
+33 - ESC menu (unused?)
+34 - Mercenary screen
+35 - Scroll (...? Need more documentation)&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getUnit" modifier="lord2800" created="200912092228" modified="200912102117" changecount="2">
-<pre>&lt;&lt;func args:&quot;int type [, string localizedName or int classid [, int mode [, int globalid ] ] ]&quot; returnType:&quot;Unit&quot; returns:&quot;A Unit object representing the specified unit, or undefined&quot; remarks:&quot;This function scans the local rooms for units matching the specified criteria&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getUnit" modifier="lord2800" created="200912092228" modified="200912301851" changecount="4">
+<pre>&lt;&lt;func args:&quot;int type [, string localizedName or int classid [, int mode [, int globalid ] ] ]&quot; returnType:&quot;Unit&quot; returns:&quot;A [[Unit|UnitObject]] object representing the specified unit, or undefined&quot; remarks:&quot;This function scans the local rooms for units matching the specified criteria.
+If bit 30 of mode is on, then mode is treated as a bitmask, where the number of the bit corresponds to the mode to check, and any unit matching any of the specified modes is returned.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getWaypoint" modifier="lord2800" created="200912092236" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="getWaypoint" modifier="lord2800" created="200912092236" modified="200912301941" changecount="2">
+<pre>&lt;&lt;func args:&quot;int waypoint&quot; returnType:&quot;bool&quot; returns:&quot;True if the player has the specified waypoint, otherwise false&quot; remarks:&quot;You must interact with a waypoint before you can call this function, otherwise it will always return false. Waypoints are ordered by their actual number on the waypoint page (i.e. Rogue Encampment is 0, Lut Gholein is 10)&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="gold" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="gold" modifier="lord2800" created="200912092232" modified="200912301721" changecount="2">
+<pre>&lt;&lt;func args:&quot;int amount, int mode&quot; remarks:&quot;Performs the requested gold transaction with the specified amount
+Modes:
+Currently unknown (needs to be documented)&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="include" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="include" modifier="lord2800" created="200912092234" modified="200912301913" changecount="2">
+<pre>&lt;&lt;func args:&quot;string file&quot; returnType:&quot;bool&quot; returns:&quot;True if the file successfully included, otherwise false&quot; remarks:&quot;The file path is relative to the &lt;scripts&gt;\libs folder.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="iniread" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="iniread" modifier="lord2800" created="200912092233" modified="200912301849" changecount="2">
+<pre>&lt;&lt;func args:&quot;string file, string section, string key, string default&quot; returnType:&quot;string&quot; returns:&quot;The specified key in the specified section of the specified INI file&quot; remarks:&quot;''THIS FUNCTION IS DEPRECATED.'' It will be removed in future releases.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="iniwrite" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="iniwrite" modifier="lord2800" created="200912092233" modified="200912301849" changecount="4">
+<pre>&lt;&lt;func args:&quot;string file, string section, string key, string value&quot; returnType:&quot;void&quot; returns:&quot;&quot; remarks:&quot;''THIS FUNCTION IS DEPRECATED.'' It will be removed in future releases.
+Writes the specified key with the specified value to the specified section of the specified file.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="isIncluded" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="isIncluded" modifier="lord2800" created="200912092234" modified="200912301913" changecount="2">
+<pre>&lt;&lt;func args:&quot;string file&quot; returnType:&quot;bool&quot; returns:&quot;True if the file is included, otherwise false&quot; remarks:&quot;The file path is relative to the &lt;scripts&gt;\libs folder.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="joinGame" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="joinGame" modifier="lord2800" created="200912092233" modified="200912301841" changecount="3">
+<pre>&lt;&lt;func args:&quot;string name[, string password]&quot; returns:&quot;&quot; remarks:&quot;Attempts to join the specified game&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="js_strict" modifier="lord2800" created="200911120138" modified="200911120452" changecount="4">
 <pre>&lt;&lt;func args:&quot;[bool enabled]&quot; returnType:&quot;bool&quot; returns:&quot;If no parameter is passed, returns the current strict setting. Otherwise, no return value.&quot; remarks:&quot;Enables or disables strict evaluation for the current script. Defaults to disabled, but highly recommended to enable&quot; example:&quot;js_strict(true);&quot;&gt;&gt;</pre>
 </div>
-<div title="keystate" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="keystate" modifier="lord2800" created="200912092234" modified="200912301901" changecount="3">
+<pre>&lt;&lt;func args:&quot;int vKey&quot; returnType:&quot;bool&quot; returns:&quot;True if the key is currently pressed, otherwise false&quot; remarks:&quot;This function is identical to the ~WinAPI function [[GetAsyncKeyState|http://msdn.microsoft.com/en-us/library/ms646293%28VS.85%29.aspx]].&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="load" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="load" modifier="lord2800" created="200912092234" modified="200912301913" changecount="2">
+<pre>&lt;&lt;func args:&quot;string file&quot; returnType:&quot;bool&quot; returns:&quot;True if the script successfully loaded, otherwise false&quot; remarks:&quot;The file path is relative to the &lt;scripts&gt; folder.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="login" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="login" modifier="lord2800" created="200912092233" modified="200912301844" changecount="2">
+<pre>&lt;&lt;func args:&quot;string profileName&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Attempts to log into the specified profileName. The profileName comes from the section inside d2bs.ini.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="lord2800" modifier="lord2800" created="200911012333" changecount="1">
 <pre>D2BS lead developer and all around awesome guy.</pre>
@@ -964,35 +1119,172 @@ The Assembla project page is available [[here|http://www.assembla.com/wiki/show/
 <div title="md5_file" modifier="lord2800" created="200911120105" modified="200911120451" changecount="4">
 <pre>&lt;&lt;func args:&quot;string fileName&quot; returnType:&quot;string&quot; returns:&quot;The ~MD5 value of the file specified as input.&quot; remarks:&quot;This function implements the algorithm described [[here|http://en.wikipedia.org/wiki/Md5]]. All paths are relative to the script folder.&quot; example:&quot;var result = md5_file('Hello.txt');&quot;&gt;&gt;</pre>
 </div>
-<div title="playSound" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me" modifier="lord2800" created="200912301536" modified="200912301652" changecount="3">
+<pre>&lt;&lt;functionList prefix:&quot;me&quot;
+	getRepairCost
+&gt;&gt;
+
+&lt;&lt;propertyList prefix:&quot;me&quot;
+	account
+	charname
+	diff
+	gamename
+	gamepassword
+	gameserverip
+	gamestarttime
+	gametype
+	itemoncursor
+	ladder
+	ping
+	fps
+	playertype
+	realm
+	realmshort
+	mercrevivecost
+	runwalk
+	weaponswitch
+	chickenhp
+	chickenmp
+	quitonhostile
+	blockKeys
+	blockMouse
+	screensize
+	windowtitle
+	ingame
+	quitonerror
+	maxgametime
+&gt;&gt;</pre>
 </div>
-<div title="print" modifier="lord2800" created="200912092235" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.account" modifier="lord2800" created="200912301539" modified="200912301548" changecount="3">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current account name, or undefined if not logged into Battle.net&quot; example:&quot;print('I am currently logged into ' + me.account);&quot;&gt;&gt;</pre>
 </div>
-<div title="quit" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.blockKeys" modifier="lord2800" created="200912301642" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current keystroke block setting (can be toggled, true to enable key blocking, false to disable)&quot; example:&quot;me.blockKeys = true; /* block incoming keystrokes from reaching the client */&quot;&gt;&gt;</pre>
 </div>
-<div title="quitGame" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.blockMouse" modifier="lord2800" created="200912301642" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current mouse block setting (can be toggled, true to enable mouse blocking, false to disable)&quot; example:&quot;me.blockMouse = true; /* block mouse moves/clicks from reaching the client */&quot;&gt;&gt;</pre>
 </div>
-<div title="rand" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.charname" modifier="lord2800" created="200912301552" modified="200912301602" changecount="2">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current character name, or an empty string if not in a game&quot; example:&quot;print('I am ' + me.charname);&quot;&gt;&gt;</pre>
 </div>
-<div title="removeEventListener" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.chickenhp" modifier="lord2800" created="200912301637" modified="200912301639" changecount="4">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current HP chicken setting (can be set to change the current HP chicken setting, 0 to disable)&quot; example:&quot;me.chickenhp = parseInt(me.hpmax * .1, 10); /* set to chicken at 10% health */&quot;&gt;&gt;</pre>
 </div>
-<div title="say" modifier="lord2800" created="200912092232" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.chickenmp" modifier="lord2800" created="200912301639" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current MP chicken setting (can be set to change the current MP chicken setting, 0 to disable)&quot; example:&quot;me.chickenmp = parseInt(me.mpmax * .2, 10); /* set to chicken at 20% mana */&quot;&gt;&gt;</pre>
 </div>
-<div title="scriptBroadcast" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.diff" modifier="lord2800" created="200912301600" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the difficulty of the current game, or 0 if not in a game.
+0 - Normal
+1 - Nightmare
+2 - Hell&quot;
+example:&quot;print('I am in ' + ['normal', 'nightmare', 'hell'][me.diff] + ' difficulty');&quot;&gt;&gt;</pre>
 </div>
-<div title="sendCopyData" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.fps" modifier="lord2800" created="200912301613" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current frames-per-second (as measured by the client)&quot; example:&quot;print('The current fps is ' + me.fps);&quot;&gt;&gt;</pre>
 </div>
-<div title="sendDDE" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="me.gamename" modifier="lord2800" created="200912301602" modified="200912301602" changecount="2">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current game name, or an empty string if not in a game or in a single player game&quot; example:&quot;print('The current game is ' + me.gamename);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.gamepassword" modifier="lord2800" created="200912301602" modified="200912301603" changecount="2">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current game password, or an empty string if not in a game or in a single player game&quot; example:&quot;print('The current game's password is ' + me.gamepassword);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.gameserverip" modifier="lord2800" created="200912301604" changecount="1">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current game's ip address&quot; example:&quot;print('The current game server is ' + me.gameserverip);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.gamestarttime" modifier="lord2800" created="200912301606" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the start time (in ticks) of the current game&quot; example:&quot;print('I entered this game ' + me.gamestarttime + ' ticks ago');&quot;&gt;&gt;</pre>
+</div>
+<div title="me.gametype" modifier="lord2800" created="200912301609" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current game type
+0 - Classic
+1 - Expansion&quot; example:&quot;print('The current game type is ' + ['Classic', 'Expansion'][me.gametype]);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.getRepairCost" modifier="lord2800" created="200912301656" changecount="1">
+<pre>&lt;&lt;func prefix:&quot;me&quot; args:&quot;[ int classid ]&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;The classid parameter is any NPC classid with (defaults to the current NPC)&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="me.ingame" modifier="lord2800" created="200912301649" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns false if at the menu, otherwise true&quot; example:&quot;print('I am' + (me.ingame ? ' ' : ' not ') + 'in a game');&quot;&gt;&gt;</pre>
+</div>
+<div title="me.itemoncursor" modifier="lord2800" created="200912301610" modified="200912301612" changecount="2">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns true if you have an item on the cursor, false if not&quot; example:&quot;print('I ' + (me.itemoncursor ? 'do' : 'do not') +' have an item on my cursor');&quot;&gt;&gt;</pre>
+</div>
+<div title="me.ladder" modifier="lord2800" created="200912301611" modified="200912301612" changecount="2">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns true if the character is a ladder character, false if not&quot; example:&quot;print('I am' + (me.ladder ? ' ' : ' not ') + 'a ladder character');&quot;&gt;&gt;</pre>
+</div>
+<div title="me.maxgametime" modifier="lord2800" created="200912301651" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current maximum game time (in seconds, 0 to disable)&quot; example:&quot;me.maxgametime = 300; /* quit after 300 seconds */&quot;&gt;&gt;</pre>
+</div>
+<div title="me.mercrevivecost" modifier="lord2800" created="200912301631" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the cost to revive your merc (0 if already alive)&quot; example:&quot;print('My merc is ' + (me.mercrevivecost &gt; 0 ? 'dead' : 'alive'));&quot;&gt;&gt;</pre>
+</div>
+<div title="me.ping" modifier="lord2800" created="200912301612" modified="200912301613" changecount="2">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current ping (as measured by the client)&quot; example:&quot;print('The current ping is ' + me.ping);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.playertype" modifier="lord2800" created="200912301622" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current player type
+0 - Softcore
+1 - Hardcore&quot; example:&quot;print('I am a ' + ['softcore', 'hardcore'][me.playertype] + ' character');&quot;&gt;&gt;</pre>
+</div>
+<div title="me.quitonerror" modifier="lord2800" created="200912301650" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current error chicken setting (can be set to change the current error chicken setting, false to disable)&quot; example:&quot;me.quitonerror = true; /* quit if my script has an error */&quot;&gt;&gt;</pre>
+</div>
+<div title="me.quitonhostile" modifier="lord2800" created="200912301640" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current hostile chicken setting (can be set to change the current hostile chicken setting, false to disable)&quot; example:&quot;me.quitonhostile = true; /* set to chicken on hostile */&quot;&gt;&gt;</pre>
+</div>
+<div title="me.realm" modifier="lord2800" created="200912301627" changecount="1">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current realm (long name)&quot; example:&quot;print('The current realm is ' + me.realm);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.realmshort" modifier="lord2800" created="200912301628" changecount="1">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current realm (short name)&quot; example:&quot;print('The (shorter) current realm is ' + me.realmshort);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.runwalk" modifier="lord2800" created="200912301634" changecount="1">
+<pre>&lt;&lt;property type:&quot;bool&quot; prefix:&quot;me&quot; remarks:&quot;Returns true if run/walk is set to run, false if not (can also be set to enable/disable run/walk)&quot; example:&quot;print('I am currently ' + ['walking', 'running'][parseInt(me.runwalk, 10)]);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.screensize" modifier="lord2800" created="200912301647" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current screen size
+0 - 640x480
+1 - 800x600&quot; example:&quot;print('I am running at ' + ['640x480', '800x600'][me.screensize]);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.weaponswitch" modifier="lord2800" created="200912301636" changecount="1">
+<pre>&lt;&lt;property type:&quot;int&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current weapon switch (can also be set to toggle the weapon switch)&quot; example:&quot;print('My current weapon switch is ' + me.weaponswitch);&quot;&gt;&gt;</pre>
+</div>
+<div title="me.windowtitle" modifier="lord2800" created="200912301648" changecount="1">
+<pre>&lt;&lt;property type:&quot;string&quot; prefix:&quot;me&quot; remarks:&quot;Returns the current window title&quot; example:&quot;print('The window title is ' + me.windowtitle);&quot;&gt;&gt;</pre>
+</div>
+<div title="playSound" modifier="lord2800" created="200912092232" modified="200912301717" changecount="2">
+<pre>&lt;&lt;func args:&quot;int soundId&quot; remarks:&quot;Plays the sound based on the id you pass in (the id can be found in the sounds.txt file in patch_d2.mpq)&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="print" modifier="lord2800" created="200912092235" modified="200912301915" changecount="3">
+<pre>&lt;&lt;func args:&quot;string message, ...&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Writes the specified messages to the console and (optionally, based on the d2bs.ini setting) the screen&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="quit" modifier="lord2800" created="200912092232" modified="200912301715" changecount="3">
+<pre>&lt;&lt;func remarks:&quot;Quits the current game&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="quitGame" modifier="lord2800" created="200912092232" modified="200912301715" changecount="2">
+<pre>&lt;&lt;func remarks:&quot;Quits the entire Diablo II process&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="rand" modifier="lord2800" created="200912092234" modified="200912301911" changecount="2">
+<pre>&lt;&lt;func args:&quot;int min, int max&quot; returnType:&quot;int&quot; returns:&quot;A number between min and max&quot; remarks:&quot;Uses C [[rand|http://www.cppreference.com/wiki/c/other/rand]] (seeded with the current time) when out of game, and Diablo II's internal RNG when in game.&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="removeEventListener" modifier="lord2800" created="200912092234" modified="200912301858" changecount="2">
+<pre>&lt;&lt;func args:&quot;string event, Function listener&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;If listener is registered for event, it is removed&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="say" modifier="lord2800" created="200912092232" modified="200912301714" changecount="2">
+<pre>&lt;&lt;func args:&quot;string message&quot; remarks:&quot;Sends a message to the other players in the game&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="scriptBroadcast" modifier="lord2800" created="200912092233" modified="200912301854" changecount="2">
+<pre>&lt;&lt;func args:&quot;...&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Takes any number of arguments and broadcasts them as-is to all scripts currently running.&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="sendCopyData" modifier="lord2800" created="200912092234" modified="200912301909" changecount="2">
+<pre>&lt;&lt;func args:&quot;string windowClass, string windowName, int mode, string data&quot; returnType:&quot;int&quot; returns:&quot;False if the window is not found, otherwise true or false depending on if the window processed the message&quot; remarks:&quot;This function sends a [[WM_COPYDATA|http://msdn.microsoft.com/en-us/library/ms649011%28VS.85%29.aspx]] event to the target window.&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="sendDDE" modifier="lord2800" created="200912092234" modified="200912301904" changecount="3">
+<pre>&lt;&lt;func args:&quot;int mode, string server, string topic, string item, string data&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;For more information, see [[here|http://msdn.microsoft.com/en-us/library/ms648774%28VS.85%29.aspx]].
+Modes:
+0 - ~XTYP_REQUEST
+1 - ~XTYP_POKE
+2 - ~XTYP_EXECUTE&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="sha1" modifier="lord2800" created="200911120107" modified="200911120451" changecount="3">
 <pre>&lt;&lt;func args:&quot;string value&quot; returnType:&quot;string&quot; returns:&quot;The ~SHA-1 value of the input.&quot; remarks:&quot;This function implements the algorithm for ~SHA-1 described [[here|http://en.wikipedia.org/wiki/SHA_hash_functions]].&quot; example:&quot;var result = sha1('Hello');&quot;&gt;&gt;</pre>
@@ -1018,23 +1310,23 @@ The Assembla project page is available [[here|http://www.assembla.com/wiki/show/
 <div title="sha512_file" modifier="lord2800" created="200911120112" modified="200911120450" changecount="2">
 <pre>&lt;&lt;func args:&quot;string fileName&quot; returnType:&quot;string&quot; returns:&quot;The ~SHA-512 value of the file specified as input.&quot; remarks:&quot;This function implements the ~SHA-512 algorithm described [[here|http://en.wikipedia.org/wiki/SHA_hash_functions]]. All paths are relative to the script folder.&quot; example:&quot;var result = sha512_file('Hello.txt');&quot;&gt;&gt;</pre>
 </div>
-<div title="sqlite_version" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="sqlite_version" modifier="lord2800" created="200912092233" modified="200912301853" changecount="3">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;string&quot; returns:&quot;The ~SQLite library version&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="stop" modifier="lord2800" created="200912092234" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="stop" modifier="lord2800" created="200912092234" modified="200912301912" changecount="2">
+<pre>&lt;&lt;func args:&quot;[ bool stopAll ]&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Stops the current script, if stopAll is true then it stops all scripts.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="submitItem" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="submitItem" modifier="lord2800" created="200912092233" modified="200912301846" changecount="2">
+<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Submits the item on the cursor.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="transmute" modifier="lord2800" created="200912092231" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="transmute" modifier="lord2800" created="200912092231" modified="200912301705" changecount="2">
+<pre>&lt;&lt;func remarks:&quot;Transmutes the current contents of the Horadric Cube&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="version" modifier="lord2800" created="200912092233" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="version" modifier="lord2800" created="200912092233" modified="200912301856" changecount="3">
+<pre>&lt;&lt;func args:&quot;[ bool returnAsWell ]&quot; returnType:&quot;string&quot; returns:&quot;The current version&quot; remarks:&quot;Prints the current version, and if returnAsWell is true, returns it&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="weaponSwitch" modifier="lord2800" created="200912092231" changecount="1">
-<pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="weaponSwitch" modifier="lord2800" created="200912092231" modified="200912301708" changecount="4">
+<pre>&lt;&lt;func args:&quot;[ bool switch ]&quot; returnType:&quot;int&quot; returns:&quot;True if switch is specified, otherwise the current weapon switch&quot; remarks:&quot;The return value varies depending on the arguments passed in; if you pass true, the return value is always true, otherwise the return value is an int representing the current weapon switch.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 </div>
 <!--POST-STOREAREA-->
