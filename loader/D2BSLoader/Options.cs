@@ -18,11 +18,17 @@ namespace D2BSLoader
 
 			Path.Text = path;
 			if(String.IsNullOrEmpty(Path.Text))
-				Path.Text = Microsoft.Win32.Registry.CurrentUser.
-								OpenSubKey("Software").
-								OpenSubKey("Blizzard Entertainment").
-								OpenSubKey("Diablo II").
-								GetValue("InstallPath", String.Empty).ToString();
+			{
+				Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser;
+				if(key != null)
+					key = key.OpenSubKey("Software");
+				if(key != null)
+					key = key.OpenSubKey("Blizzard Entertainment");
+				if(key != null)
+					key = key.OpenSubKey("Diablo II");
+				if(key != null)
+					Path.Text = key.GetValue("InstallPath", String.Empty).ToString();
+			}
 			Exe.Text = exe;
 			Args.Text = args;
 			DLL.Text = String.IsNullOrEmpty(dll) ? "cGuard.dll" : dll;
