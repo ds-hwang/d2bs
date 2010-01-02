@@ -4,89 +4,17 @@ include('config.dbl');
 include('pause.dbl');
 include('constants.dbl');
 
-function isUnit(obj) {
-	return obj != null && obj != undefined &&
-		typeof(obj) != 'undefined' && obj.hasOwnProperty('type') &&
-		(obj.hasOwnProperty('gid') || obj.hasOwnProperty('id'));
-}
-
-function isNPC(obj) {
-	return isUnit(obj) && obj.type == TYPE_UNIT && isInTown(obj) && obj.hasOwnProperty('name');
-}
-
-function isMonster(obj) {
-	return isUnit(obj) && obj.type == TYPE_UNIT &&
-			!isInTown(obj) && obj.hasOwnProperty('name');
-}
-
-function isObject(obj) {
-	return isUnit(obj) && obj.type == TYPE_OBJECT &&
-			obj.hasOwnProperty('x') && obj.hasOwnProperty('y');
-}
-
-function isItem(obj) {
-	return isUnit(obj) && obj.type == TYPE_ITEM &&
-			obj.hasOwnProperty('location') &&
-			obj.hasOwnProperty('name');
-}
-
-function isMissile(obj) {
-	return isUnit(obj) && obj.type == TYPE_MISSILE;
-}
-
-function isPreset(obj) {
-	return isUnit(obj) && obj.hasOwnProperty('roomx') && obj.hasOwnProperty('roomy');
-}
-
-function isArea(obj) {
-	return typeof(obj) == 'object' &&
-			obj.hasOwnProperty('id') &&
-			obj.hasOwnProperty('name') &&
-			obj.hasOwnProperty('exits');
-
-function isNumber(obj) { return (typeof(obj) == 'number'); }
-function isString(obj) { return (typeof(obj) == 'string'); }
-function isBoolean(obj) { return (typeof(obj) == 'boolean'); }
-function isError(obj) { return obj instanceof Error; }
-
-function isArray(obj) {
-	// arrays have a push and pop method, as well as a length and
-	// are a typeof object (but not undefined... stupid ECMA spec!)
-	return	typeof(obj) == 'object' && obj != undefined &&
-			obj.hasOwnProperty('length') && isFunction(obj.push) &&
-			isFunction(obj.pop);
-}
-
-function isFunction(obj) {
-	return	typeof(obj) == 'function' &&
-			typeof(obj.call) == 'function' &&
-			typeof(obj.apply) == 'function';
-}
-
-function hasFlag(num, flag) { return ((num & flag) == flag); }
-function setFlag(num, flag) { return num | flag; }
-function clearFlag(num, flag) { return num & flag; }
-
-function sleep(milliseconds) {
-	// assumptions:
-	// ping/2 plus the original delay length should be sufficient
-	// TODO: fps doesn't exist yet; when it gets added, add it here
-	milliseconds = milliseconds > 0 ? milliseconds : 1;
-	delay(milliseconds+(me.ping/2));
-	// if we're paused, just keep waiting
-	while(Pause.state == 0) delay(10);
-}
+const CLICK_DOWN	= 0x1;
+const CLICK_UP		= 0x2;
+const CLICK_HOLD	= 0x8;
+const CLICK_SINGLE	= CLICK_DOWN|CLICK_UP;
+const HAND_RIGHT	= 0x10;
+const HAND_LEFT		= 0x20;
 
 function moveDelay() { modeDelay([2, 3, 6]); }
 function castDelay() { modeDelay([10]); }
-function neutralDelay() {
-	doDelay(function(){return me.mode != 1;});
-}
-
-function UIDelay(type) {
-	doDelay(function(){return !getUIFlag(type);});
-}
-
+function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
+function UIDelay(type) { doDelay(function(){return !getUIFlag(type);}); }
 function modeDelay(modes) {
 	if(!isArray(modes))
 		throw new TypeError("modes must be an array of modes!");
@@ -96,7 +24,6 @@ function modeDelay(modes) {
 		});
 	});
 }
-
 function doDelay(predicate, delay, maxlen) {
 	delay = delay || 25;
 	maxlen = maxlen || -1;
@@ -110,22 +37,158 @@ function doDelay(predicate, delay, maxlen) {
 	} while(predicate(i) === true);
 }
 
-function isInTown(unit) {
-	// shamelessly stolen from botOS
-	// thanks mattlant!
-	unit = (!isUnit(unit) ? me : unit);
-	switch(unit.area) {
-		case 1: case 40: case 75: case 103: case 109:
-			return true;
+Unit.prototype.__defineGetter__("isInTown", function() {
+	switch(this.area) {
+		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;
+	}
+});
+
+PresetUnit.prototype.__defineGetter__("realx", function() {
+	return this.roomx * 5 + this.x;
+};
+PresetUnit.prototype.__defineGetter__("realy", function() {
+	return this.roomy * 5 + this.y;
+};
+
+me.hasSkill = function (x) {
+	return getSkillLevel(x, 0) > 0;
+};
+me.getSkillLvl = function (x) {
+	if(isString(x))
+		x = getSkillByName(x);
+	return me.getSkill(x, 0);
+};
+me.useSkill = function(hand, shift, x, y, id) {
+	if(!me.hasSkill(id)) throw new Error('Invalid skill');
+	if(isString(id)) id = getSkillByName(id);
+
+	var which = (hand == HAND_LEFT ? 1 : 0);
+	if(me.getSkill(2+which) != id) me.setSkill(id, which);
+	click(CLICK_SINGLE|hand, shift, x, y);
+	castDelay();
+};
+
+function click(mode, shift) {
+	var point = null;
+	var hasUnit = isUnit(arguments[1]);
+	var shift = false;
+	if(arguments.length >= 2 && hasUnit)
+		point = {x: arguments[1], y: arguments[2]};
+	else if(arguments.length >= 3 && isNumber(arguments[1]) && isNumber(arguments[2]))
+		point = unit;
+	else
+		throw new Error('Invalid click point');
+
+	// pull apart the mode
+	var down	= hasBit(mode, CLICK_DOWN),
+		up		= hasBit(mode, CLICK_UP),
+		held	= hasBit(mode, CLICK_HOLD),
+		left	= hasBit(mode, HAND_LEFT),
+		right	= hasBit(mode, HAND_RIGHT);
+	if(left && right)
+		throw new Error('Invalid hand selection');
+	if(down && held && up)
+		throw new Error('Invalid click selection');
+
+	if(down)
+	{
+		var clickMode = (left ? 0 : (right ? 3 : -1));
+		if(clickMode == -1)
+			throw new Error('Invalid click mode');
+		var args = [(clickMode + (held ? 1 : 0)), shift,
+					(hasUnit ? point : point.x),
+					(hasUnit ? undefined : point.y)];
+
+		clickMap.apply(null, args);
+		sleep(100);
+	}
+	if(up)
+	{
+		var clickMode = (left ? 2 : (right ? 5 : -1));
+		if(clickMode == -1)
+			throw new Error('Invalid click mode');
+		var args = [clickMode, shift,
+					(hasUnit ? point : point.x),
+					(hasUnit ? undefined : point.y)];
+
+		clickMap.apply(null, args);
+		sleep(100);
 	}
 }
 
-function presetToReal(p) {
-	if(isPreset(p))
-		return [(p.roomx * 5 + p.x), (p.roomy * 5 + p.y)];
-	throw new Error("Invalid argument");
-}
+me.__defineGetter("isInTown", function() {
+	switch(me.area) {
+		case 1: case 40: case 75: case 103: case 109: return true;
+		default: return false;
+	}
+});
+
+Unit.prototype.moveTo = function(callback) {
+	if(this.charname != me.charname)
+		// only moveTo the object if it's not me!
+		me.moveTo(this.x, this.y, callback, this.area);
+};
+PresetUnit.prototype.moveTo = function(area, callback) {
+	// PresetUnits will never be me
+	// TODO: make this understand what area the preset unit is in
+	me.moveTo(this.realx, this.realy, callback, area);
+};
+Room.prototype.moveTo = function(callback) {
+	me.moveTo(this.x, this.y, callback, this.area);
+};
+Exit.prototype.moveTo = function(area, callback) {
+	// TODO: make this understand what area the exit is in
+	me.moveTo(this.x, this.y, callback, area);
+};
+Area.prototype.moveTo = function(callback) {
+	me.moveTo(this.x, this.y, callback, this.id);
+};
+
+me.moveTo = function(x, y, callback, area) {
+	callback = isFunction(callback) ? callback : function(){return true;};
+	var path = generatePath(me.x, me.y, x, y, me.area, area);
+	var point = false;
+	while((point = path.next()) != false)
+		moveTo(point);
+	point.close();
+
+	function moveTo(point) {
+		if(!(isArray(point) || point.hasOwnProperty('UseWP')))
+			throw new Error('Invalid point');
+		if(point.UseWP)
+			throw new Error('Not implemented');
+		var [x, y] = point,
+			tele = me.hasSkill('teleport') && me.isInTown,
+			dist = getDistance(me, x, y),
+			movable = true, //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y)),
+			maxRange = (tele ? 30 : 15),
+			moveFunc = (tele ? useSkill : click),
+			delayFunc = (tele ? castDelay : moveDelay);
+
+		do {
+			if(dist > maxRange || !movable) {
+				// generate a path and walk that instead
+				throw new Error('Path not walkable!');
+			}
+
+			tele = me.hasSkill('teleport') && me.isInTown;
+			dist = getDistance(me, x, y);
+			movable = true; //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y));
+			maxRange = (tele ? 30 : 15);
+			moveFunc = (tele ? function(h, x, y) { me.useSkill(h, x, y, getSkillById('teleport')); } : click);
+			delayFunc = (tele ? castDelay : moveDelay);
+
+			var args = [(tele ? HAND_RIGHT : CLICK_SINGLE|HAND_LEFT), false, x, y];
+			moveFunc.apply(this, args);
+			delayFunc();
+
+			if(!callback(point))
+				break;
+
+		} while(dist > 4);
+	}
+};
 
 function zip(a, b) {
 	if(!(isArray(a) && isArray(b)))
@@ -137,47 +200,73 @@ function zip(a, b) {
 	return result;
 }
 
-function hasSkill(x) {
-	return getSkillLevel(x, 0) > 0;
+function isUnit(obj) {
+	return obj != null && obj != undefined &&
+		typeof(obj) != 'undefined' && obj.hasOwnProperty('type') &&
+		(obj.hasOwnProperty('gid') || obj.hasOwnProperty('id'));
+}
+function isNPC(obj) {
+	return isUnit(obj) && obj.type == TYPE_UNIT && obj.isInTown && obj.hasOwnProperty('name');
+}
+function isMonster(obj) {
+	return isUnit(obj) && obj.type == TYPE_UNIT &&
+			!obj.isInTown && obj.hasOwnProperty('name');
+}
+function isObject(obj) {
+	return isUnit(obj) && obj.type == TYPE_OBJECT &&
+			obj.hasOwnProperty('x') && obj.hasOwnProperty('y');
+}
+function isItem(obj) {
+	return isUnit(obj) && obj.type == TYPE_ITEM &&
+			obj.hasOwnProperty('location') &&
+			obj.hasOwnProperty('name');
+}
+function isMissile(obj) {
+	return isUnit(obj) && obj.type == TYPE_MISSILE;
+}
+function isPreset(obj) {
+	return isUnit(obj) && obj.hasOwnProperty('roomx') && obj.hasOwnProperty('roomy');
+}
+function isArea(obj) {
+	return typeof(obj) == 'object' &&
+			obj.hasOwnProperty('id') &&
+			obj.hasOwnProperty('name') &&
+			obj.hasOwnProperty('exits');
 }
 
-function getSkillLevel(x) {
-	if(typeof(x) == 'string')
-		x = getSkillByName(x);
-	return me.getSkill(x, 0);
+function isNumber(obj) { return (typeof(obj) == 'number'); }
+function isString(obj) { return (typeof(obj) == 'string'); }
+function isBoolean(obj) { return (typeof(obj) == 'boolean'); }
+function isError(obj) { return obj instanceof Error; }
+function isArray(obj) {
+	// arrays have a push and pop method, as well as a length and are a
+	// typeof object
+	// (undefined is also a typeof object... stupid ECMA spec!)
+	return	typeof(obj) == 'object' && obj != undefined &&
+			obj.hasOwnProperty('length') && isFunction(obj.push) &&
+			isFunction(obj.pop);
+}
+function isFunction(obj) {
+	return	typeof(obj) == 'function' &&
+			typeof(obj.call) == 'function' &&
+			typeof(obj.apply) == 'function';
 }
 
+function hasBit(num, bit) { return !!hasFlag((num >> bit), 0x1); }
+function hasFlag(num, flag) { return !!((num & flag) == flag); }
 
-function moveTo(x, y, area, predicate) {
-	area = area||me.area;
-	predicate = isFunction(predicate) ? predicate : function() { return true; };
-	var path = generatePath(me.x, me.y, x, y, me.area, area);
-	var point = false;
-	while((point = path.next()) != false) {
-		moveToPlace(point);
-		// if the caller says to stop, we stop
-		if(!predicate(point))
-			break;
-	}
-	path.close();
+function setBit(num, bit) { return setFlag(num, (1 << bit)); }
+function setFlag(num, flag) { return (num | flag); }
 
-	function moveToPlace(point) {
-		if(!isArray(point) && !point.hasOwnProperty('UseWP'))
-			throw new Error('Invalid point');
-		if(point.UseWP)
-		{
-			// there is a waypoint, we need to simply use it
-		}
-		else
-		{
-			// this is a point, we need to move to it
-			var [x, y] = point,
-				tele = hasSkill('teleport') && !isInTown(),
-				dist = getDistance(me, x, y),
-				// will enable these when they're finished
-				movable = true, //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y),
-				range = (tele ? 30 : 15),
-				//moveFunc = 
-		}
-	}
+function clearBit(num, bit) { return clearFlag(num, (1 << bit)); }
+function clearFlag(num, flag) { return (num & flag); }
+
+function sleep(milliseconds) {
+	// assumptions:
+	// ping/2 + fps*10 (10 ms for each game loop) plus the original delay
+	// length should be sufficient
+	milliseconds = milliseconds > 0 ? milliseconds : 1;
+	delay(milliseconds+(me.ping/2)+(me.fps*10));
+	// if we're paused, just keep waiting
+	while(Pause.state == 0) delay(10);
 }

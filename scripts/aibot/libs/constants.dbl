@@ -1,9 +1,4 @@
-// constants library
-// provides names to commonly used stats, skills, etc.
-// last update: $Date: 2008-03-01 19:57:09 -0800 (Sat, 01 Mar 2008) $
-
-if(js_strict)
-	js_strict(true);
+js_strict(true);
 
 /** Unit types
 Base Game Unit: 

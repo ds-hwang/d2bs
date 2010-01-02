@@ -92,8 +92,10 @@ function main()
 				login(profile);
 				break;
 			default: // anywhere that's not lobby or chat
-				GameManager.sendMessage('We got lost? OOG location is ' + getLocation() +
-										', first control is ' + getControl().toSource());
+				var control = getControl();
+				GameManager.sendMessage('We got lost? OOG location is ' + getLocation() + ', first control is ' +
+										(control == undefined ? 'undefined' : control.toSource()));
+				quitGame();
 				break;
 		}
 	}
