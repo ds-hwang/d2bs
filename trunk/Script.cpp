@@ -5,6 +5,7 @@
 #include "Core.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
+#include "JSUnit.h"
 #include "Helpers.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
@@ -133,6 +134,31 @@ void Script::Run(void)
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
+
+	// UGLY HACK: fix up the gid for 'me'
+	jsval me = JSVAL_VOID;
+	JSObject* meObject = NULL;
+	JS_AddRoot(&me);
+
+	if(JS_GetProperty(GetContext(), globalObject, "me", &me) == JS_FALSE)
+	{
+		JS_RemoveRoot(&main);
+		JS_RemoveRoot(&me);
+		JS_EndRequest(GetContext());
+		return;
+	}
+	meObject = JSVAL_TO_OBJECT(me);
+	myUnit* meUnit = JS_GetPrivate(GetContext, meObject);
+	if(!meUnit)
+	{
+		JS_RemoveRoot(&main);
+		JS_RemoveRoot(&me);
+		JS_EndRequest(GetContext());
+		return;
+	}
+	meUnit->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
+	JS_SetPrivate(GetContext(), meObject, meUnit);
+	// END UGLY HACK
 
 	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE ||
 	   JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
