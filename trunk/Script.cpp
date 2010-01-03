@@ -148,7 +148,7 @@ void Script::Run(void)
 		return;
 	}
 	meObject = JSVAL_TO_OBJECT(me);
-	myUnit* meUnit = JS_GetPrivate(GetContext, meObject);
+	myUnit* meUnit = JS_GetPrivate(GetContext(), meObject);
 	if(!meUnit)
 	{
 		JS_RemoveRoot(&main);
