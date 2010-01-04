@@ -1,64 +1,29 @@
 js_strict(true);
 
-var Pause = {
-	self: getScript(true),
-	threads: {},
-	state: 1
-};
+var Lock = function() {
+	var held = false;
+	var owner = null;
+	this.lock = function lock() {
+		if(owner.name != getScript(true).name)
+			while(this.isLocked)
+				delay(100);
 
-const STATE_PAUSED = 0;
-const STATE_RUNNING = 1;
+		held = true;
+		owner = getScript(true);
+	};
 
-addEventListener('scriptmsg', function (script, msg) {
-	// ignore our own broadcasts
-	if(script.name == Pause.self.name)
-		return;
+	this.unlock = function unlock() {
+		owner = null;
+		held = true;
+	}
 
-	switch(msg)
-	{
-		case 'suspend':
-			script.send('ok');
-			Pause.state = STATE_PAUSED;
-			break;
-		case 'resume':
-			script.send('ok');
-			Pause.state = STATE_RUNNING;
-			break;
-		case 'ok':
-			Pause.threads[script.name].state = STATE_PAUSED;
-			break;
+	this.__defineGetter("isLocked", function () { return held; });
+}
+
+var GlobalLock = new Lock();
+
+addEventListener("scriptmsg", function(who, param) {
+	switch(param) {
+		case "get-lock": who.send("lock", GlobalLock); break;
 	}
 });
-
-addEventListener('scriptmsg', function (script, msg) {
-	if(msg == 'threads' && script.name == 'starter.dbj')
-	{
-		// push all the threads onto our list
-		for(var i = 2; i < arguments.length; i++)
-		{
-			// don't add our script to the array, we don't care
-			if(arguments[i].name != Pause.self.name)
-				Pause.threads[arguments[i].name] = {'script': arguments[i], 'state': -1};
-		}
-		// remove ourselves so we're not processing events constantly
-		removeEventListener('scriptmsg', arguments.callee);
-	}
-});
-getScript('starter.dbj').send('threads');
-
-function requestSuspend()
-{
-	for each(var thread in Pause.threads)
-		thread['state'] = STATE_PAUSED;
-	scriptBroadcast(getScript(true), 'suspend');
-}
-
-function allowResume()
-{
-	scriptBroadcast(getScript(true), 'resume');
-}
-
-function waitForSync()
-{
-	while(Pause.threads.every(function (x) { x.state == STATE_PAUSED; })) delay(10);
-}

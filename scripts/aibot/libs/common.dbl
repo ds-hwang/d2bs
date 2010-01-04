@@ -4,6 +4,17 @@ include('config.dbl');
 include('pause.dbl');
 include('constants.dbl');
 
+var _CommonGlobalLock = null;
+
+addEventListener("scriptmsg", function(check, obj) {
+	if(check == "lock")
+	{
+		_CommonGlobalLock = obj;
+		removeEventListener("scriptmsg", arguments.callee);
+	}
+});
+getScript(true).send(getScript(true), "get-lock");
+
 const CLICK_DOWN	= 0x1;
 const CLICK_UP		= 0x2;
 const CLICK_HOLD	= 0x8;
@@ -11,13 +22,34 @@ const CLICK_SINGLE	= CLICK_DOWN|CLICK_UP;
 const HAND_RIGHT	= 0x10;
 const HAND_LEFT		= 0x20;
 
+function require(requirements, args) {
+	for(var i = 0; i < requirements.length; i++)
+	{
+		let requirement = requirements[i];
+		let argument = args[i];
+		if(requirement.hasOwnProperty('valid') &&
+		   isFunction(requirement.valid)
+		{
+			if(requirement.hasOwnProperty('optional') &&
+			   requirement.optional &&
+			   argument === undefined)
+				continue;
+			if(!requirement.valid(argument))
+			{
+				throw new Error("Argument " + i + (requirement.optional ? " (optional)" : "") +
+					" of function " + require.caller.name +
+					" violates the requirement " + requirement.valid.name + "!");
+			}
+		}
+	}
+}
+
 function moveDelay() { modeDelay([2, 3, 6]); }
 function castDelay() { modeDelay([10]); }
 function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
 function UIDelay(type) { doDelay(function(){return !getUIFlag(type);}); }
 function modeDelay(modes) {
-	if(!isArray(modes))
-		throw new TypeError("modes must be an array of modes!");
+	require([{valid: isArray}], arguments);
 	doDelay(function() {
 		return modes.some(function(e) {
 			return me.mode==e;
@@ -27,8 +59,7 @@ function modeDelay(modes) {
 function doDelay(predicate, delay, maxlen) {
 	delay = delay || 25;
 	maxlen = maxlen || -1;
-	if(!isFunction(predicate))
-		throw new TypeError("You must specify a predicate");
+	require([{valid: isFunction}], arguments);
 	var i = 0;
 	do {
 		if(maxlen > 0 && i*delay >= maxlen) return;
@@ -37,17 +68,17 @@ function doDelay(predicate, delay, maxlen) {
 	} while(predicate(i) === true);
 }
 
-Unit.prototype.__defineGetter__("isInTown", function() {
+Unit.__defineGetter__("isInTown", function() {
 	switch(this.area) {
 		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;
 	}
 });
 
-PresetUnit.prototype.__defineGetter__("realx", function() {
+PresetUnit.__defineGetter__("realx", function() {
 	return this.roomx * 5 + this.x;
 };
-PresetUnit.prototype.__defineGetter__("realy", function() {
+PresetUnit.__defineGetter__("realy", function() {
 	return this.roomy * 5 + this.y;
 };
 
@@ -80,7 +111,6 @@ function click(mode, shift) {
 	else
 		throw new Error('Invalid click point');
 
-	// pull apart the mode
 	var down	= hasBit(mode, CLICK_DOWN),
 		up		= hasBit(mode, CLICK_UP),
 		held	= hasBit(mode, CLICK_HOLD),
@@ -91,6 +121,7 @@ function click(mode, shift) {
 	if(down && held && up)
 		throw new Error('Invalid click selection');
 
+	_CommonGlobalLock.lock();
 	if(down)
 	{
 		var clickMode = (left ? 0 : (right ? 3 : -1));
@@ -115,6 +146,7 @@ function click(mode, shift) {
 		clickMap.apply(null, args);
 		sleep(100);
 	}
+	_CommonGlobalLock.unlock();
 }
 
 me.__defineGetter("isInTown", function() {
@@ -124,24 +156,24 @@ me.__defineGetter("isInTown", function() {
 	}
 });
 
-Unit.prototype.moveTo = function(callback) {
+Unit.moveTo = function(callback) {
 	if(this.charname != me.charname)
 		// only moveTo the object if it's not me!
 		me.moveTo(this.x, this.y, callback, this.area);
 };
-PresetUnit.prototype.moveTo = function(area, callback) {
+PresetUnit.moveTo = function(area, callback) {
 	// PresetUnits will never be me
 	// TODO: make this understand what area the preset unit is in
 	me.moveTo(this.realx, this.realy, callback, area);
 };
-Room.prototype.moveTo = function(callback) {
+Room.moveTo = function(callback) {
 	me.moveTo(this.x, this.y, callback, this.area);
 };
-Exit.prototype.moveTo = function(area, callback) {
+Exit.moveTo = function(area, callback) {
 	// TODO: make this understand what area the exit is in
 	me.moveTo(this.x, this.y, callback, area);
 };
-Area.prototype.moveTo = function(callback) {
+Area.moveTo = function(callback) {
 	me.moveTo(this.x, this.y, callback, this.id);
 };
 
@@ -154,8 +186,8 @@ me.moveTo = function(x, y, callback, area) {
 	point.close();
 
 	function moveTo(point) {
-		if(!(isArray(point) || point.hasOwnProperty('UseWP')))
-			throw new Error('Invalid point');
+		require([{valid: function(x) { return isArray(x) || x.hasOwnProperty('UseWP'); }}], arguments);
+
 		if(point.UseWP)
 			throw new Error('Not implemented');
 		var [x, y] = point,
@@ -191,8 +223,7 @@ me.moveTo = function(x, y, callback, area) {
 };
 
 function zip(a, b) {
-	if(!(isArray(a) && isArray(b)))
-		throw new Error("Invalid argument");
+	require([{valid: isArray}, {valid: isArray}], arguments);
 	// [[x, y] for each(let x in a) for each(let y in b)]
 	var result = [];
 	for(var i = 0; i < a.length && i < b.length; i++)
@@ -262,11 +293,7 @@ function clearBit(num, bit) { return clearFlag(num, (1 << bit)); }
 function clearFlag(num, flag) { return (num & flag); }
 
 function sleep(milliseconds) {
-	// assumptions:
-	// ping/2 + fps*10 (10 ms for each game loop) plus the original delay
-	// length should be sufficient
+	// ping/2 + (fps > 30 ? 0 : 30-fps)*10  + delay should be sufficient
 	milliseconds = milliseconds > 0 ? milliseconds : 1;
-	delay(milliseconds+(me.ping/2)+(me.fps*10));
-	// if we're paused, just keep waiting
-	while(Pause.state == 0) delay(10);
+	delay(milliseconds + (me.ping/2) + ((me.fps > 30 ? 0 : 30 - me.fps) *10));
 }

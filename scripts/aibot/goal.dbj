@@ -8,6 +8,25 @@ include('common.dbl');
 
 function main()
 {
-	// TODO: walk the pattern, visiting each area
-	// and listening for attack, dodge, or pickit to tell us to wait
+	print('Loading the pattern');
+	var pname = config.get('BasePattern', '');
+	if(pname == '')
+	{
+		print('Invalid base pattern specified!');
+		stop();
+	}
+
+	var pattern = Cache.Load(pname+'.pattern');
+	if(pattern === undefined)
+	{
+		var pattern = new Pattern(pname);
+
+		// cache the pattern for future loads
+		Cache.Save(pname+'.pattern', pattern);
+	}
+
+	// let the game catch up if needed
+	delay(rand(1,4)*1000);
+
+	
 }
