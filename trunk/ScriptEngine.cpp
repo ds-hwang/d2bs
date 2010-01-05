@@ -309,6 +309,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 		script->SetPauseState(false);
 
+	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
