@@ -43,6 +43,7 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			if(Text == NULL)
 				THROW_ERROR(cx, obj, "Could not get string for value");
 
+			JS_ClearContextThread(cx);
 			jsrefcount depth = JS_SuspendRequest(cx);
 
 			char* c = 0;
@@ -50,7 +51,8 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 				*c = (unsigned char)0xFE;
 
 			Print(Text ? Text : "undefined");
-			
+
+			JS_SetContextThread(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -64,8 +66,12 @@ JSAPI_FUNC(my_delay)
 		int nDelay = JSVAL_TO_INT(argv[0]);
 		if(nDelay)
 		{
+			JS_ClearContextThread(cx);
 			jsrefcount depth = JS_SuspendRequest(cx);
+
 			Sleep(nDelay);
+
+			JS_SetContextThread(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 		else
