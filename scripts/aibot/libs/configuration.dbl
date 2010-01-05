@@ -1,5 +1,7 @@
 js_strict(true);
 
+include('cache.dbl');
+
 function Config(file)
 {
 	var db = {'settings': {'global': []}};

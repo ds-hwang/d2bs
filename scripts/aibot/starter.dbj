@@ -1,3 +1,5 @@
+js_strict(true);
+
 include('pattern.dbl');
 include('cache.dbl');
 include('configuration.dbl');

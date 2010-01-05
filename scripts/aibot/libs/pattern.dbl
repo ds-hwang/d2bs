@@ -8,7 +8,12 @@ function Pattern(file)
 	if(!FileTools.exists(filename))
 		throw new Error('Invalid pattern');
 
-	var content = FileTools.readText(filename);
+	var content = '';
+
+	var fhandle = File.open(filename, FILE_READ);
+	while(!fhandle.eof) content += fhandle.readLine();
+	fhandle.close();
+
 	// remove the xml declaration (bug 336551)
 	content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, "");
 	var pattern = new XML(content);
@@ -28,7 +33,9 @@ function Pattern(file)
 
 	var areas = [], actions = [];
 
-	print('Found ' + pattern.areas.length() + ' area' + pattern.areas.length() > 1 ? 's' : '');
+	this.__defineGetter__("areas", function () { return areas; });
+	this.__defineGetter__("actions", function () { return actions; });
+
 	for each(var area in pattern.areas.*)
 	{
 		// TODO: process this into an Area object that encapsulates what it
@@ -57,15 +64,6 @@ function Pattern(file)
 		if(action.name() != 'action')
 			continue;
 		actions.push(attrToObj(action));
-	}
-
-	for each(var a in areas)
-	{
-		print('Found ' + a.objects.length + ' objects and ' + a.monsters.length + ' monsters for area ' + a.id);
-		for each(var m in a.monsters)
-			print('Found monster ' + m.id + ' with typeflag ' + m.typeflag + ' and mode ' + m.mode);
-		for each(var o in a.objects)
-			print('Found object ' + (o.hasOwnProperty('id') ? o.id : o['preset-id']) + ' with mode ' + o.mode);
 	}
 
 	function hasExt(file)

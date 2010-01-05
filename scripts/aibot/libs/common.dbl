@@ -28,7 +28,7 @@ function require(requirements, args) {
 		let requirement = requirements[i];
 		let argument = args[i];
 		if(requirement.hasOwnProperty('valid') &&
-		   isFunction(requirement.valid)
+		   isFunction(requirement.valid))
 		{
 			if(requirement.hasOwnProperty('optional') &&
 			   requirement.optional &&
@@ -77,10 +77,10 @@ Unit.__defineGetter__("isInTown", function() {
 
 PresetUnit.__defineGetter__("realx", function() {
 	return this.roomx * 5 + this.x;
-};
+});
 PresetUnit.__defineGetter__("realy", function() {
 	return this.roomy * 5 + this.y;
-};
+});
 
 me.hasSkill = function (x) {
 	return getSkillLevel(x, 0) > 0;
@@ -103,7 +103,6 @@ me.useSkill = function(hand, shift, x, y, id) {
 function click(mode, shift) {
 	var point = null;
 	var hasUnit = isUnit(arguments[1]);
-	var shift = false;
 	if(arguments.length >= 2 && hasUnit)
 		point = {x: arguments[1], y: arguments[2]};
 	else if(arguments.length >= 3 && isNumber(arguments[1]) && isNumber(arguments[2]))
@@ -149,7 +148,7 @@ function click(mode, shift) {
 	_CommonGlobalLock.unlock();
 }
 
-me.__defineGetter("isInTown", function() {
+me.__defineGetter__("isInTown", function() {
 	switch(me.area) {
 		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;

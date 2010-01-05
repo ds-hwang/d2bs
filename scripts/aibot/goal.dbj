@@ -3,30 +3,48 @@ js_strict(true);
 include('configuration.dbl');
 include('cache.dbl');
 include('pattern.dbl');
-include('pause.dbl');
 include('common.dbl');
 
 function main()
 {
 	print('Loading the pattern');
+	var config = new Config();
 	var pname = config.get('BasePattern', '');
-	if(pname == '')
-	{
+	if(pname == '') {
 		print('Invalid base pattern specified!');
 		stop();
 	}
 
 	var pattern = Cache.Load(pname+'.pattern');
-	if(pattern === undefined)
-	{
+	if(pattern === undefined) {
 		var pattern = new Pattern(pname);
 
 		// cache the pattern for future loads
 		Cache.Save(pname+'.pattern', pattern);
 	}
 
-	// let the game catch up if needed
-	delay(rand(1,4)*1000);
+	while(true) {
+		// wait to join a game
+		while(!me.ingame) delay(100);
 
-	
+		// wait for the game to catch up
+		while(me.area == undefined) delay(10);
+
+		print('Game loaded');
+
+		// walk the pattern, moving to each area
+		for each(let area in pattern.areas) {
+			print('Moving to area ' + area.id);
+
+			// are we in the area?
+			if(me.area == area.id)
+				print('We are in the target area already');
+			else {
+				var a = getArea(parseInt(area.id, 10));
+			}
+		}
+
+		// wait to leave this game
+		while(me.ingame) delay(100);
+	}
 }

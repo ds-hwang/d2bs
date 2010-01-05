@@ -17,7 +17,7 @@ var Lock = function() {
 		held = true;
 	}
 
-	this.__defineGetter("isLocked", function () { return held; });
+	this.__defineGetter__("isLocked", function () { return held; });
 }
 
 var GlobalLock = new Lock();
