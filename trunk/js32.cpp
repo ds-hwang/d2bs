@@ -70,9 +70,10 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	return JS_FALSE;
 }
 
-// CALLERS: This must be called from within JSAPI_DO_REQUEST
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
+	if(JS_GetContextThread(cx) == 0)
+		JS_SetContextThread(cx);
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 
 	if(obj)
