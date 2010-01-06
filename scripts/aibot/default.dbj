@@ -27,13 +27,9 @@ function main() {
 function update(scripts) {
 	for each(var script in scripts)
 	{
-		if(script[2] == undefined)
-			script[2] = getScript(script[0] + '.dbj');
-
-		if(typeof(script[2]) == 'object')
-			script[1].text = script[0] + " (" + script[2].threadid + "): " +
-				(script[2].running ? "ÿc2active" : "ÿc9paused");
-		else
-			script[1].text = script[0] + ": ÿc1not running";
+		var s = getScript(script[0] + '.dbj');
+		if(s) script[1].text = script[0] + " (" + s.threadid + "): " + (s.running ? "ÿc2active" : "ÿc9paused");
+		else script[1].text = script[0] + ": ÿc1not running";
+		delete s;
 	}
 }
