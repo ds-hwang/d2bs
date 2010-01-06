@@ -34,13 +34,14 @@ function main()
 
 		// walk the pattern, moving to each area
 		for each(let area in pattern.areas) {
-			print('Moving to area ' + area.id);
 
 			// are we in the area?
 			if(me.area == area.id)
 				print('We are in the target area already');
 			else {
 				var a = getArea(parseInt(area.id, 10));
+				print('Moving to area ' + a.id);
+				a.moveTo();
 			}
 		}
 

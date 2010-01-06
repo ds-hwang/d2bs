@@ -5,12 +5,12 @@ include('configuration.dbl');
 var config = new Config();
 
 var threads = [
-	config.get('GameCreator', 'creategame.dbj'),
-	config.get('Goal', 'goal.dbj'),
-	config.get('Attack', 'attack.dbj'),
-	config.get('LifeWatch', 'lifewatch.dbj'),
-	config.get('Pickit', 'pickit.dbj'),
-	config.get('Dodge', 'dodge.dbj')
+	config.get('GameCreator',	'creategame.dbj'),
+	config.get('Goal',			'goal.dbj'),
+	config.get('Attack',		'attack.dbj'),
+	config.get('LifeWatch',		'lifewatch.dbj'),
+	config.get('Pickit',		'pickit.dbj'),
+	config.get('Dodge',			'dodge.dbj')
 ];
 
 function main() {
@@ -21,14 +21,19 @@ function main() {
 	for each(var thread in threads)
 		scripts.push([thread.slice(0, -4), new Text(thread + ": ÿc1not running", 775, 120+(12*scripts.length), 0, 0, 1)]);
 
-	while(true) { update(scripts); delay(100); }
+	while(true) { update(scripts); delay(500); }
 }
 
 function update(scripts) {
 	for each(var script in scripts)
 	{
-		var s = getScript(script[0] + '.dbj');
-		if(s) script[1].text = script[0] + " (" + s.threadid + "): " + (s.running ? "ÿc2active" : "ÿc9paused");
-		else  script[1].text = script[0] + ": ÿc1not running";
+		if(script[2] == undefined)
+			script[2] = getScript(script[0] + '.dbj');
+
+		if(typeof(script[2]) == 'object')
+			script[1].text = script[0] + " (" + script[2].threadid + "): " +
+				(script[2].running ? "ÿc2active" : "ÿc9paused");
+		else
+			script[1].text = script[0] + ": ÿc1not running";
 	}
 }

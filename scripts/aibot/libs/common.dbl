@@ -99,6 +99,12 @@ me.useSkill = function(hand, shift, x, y, id) {
 	click(CLICK_SINGLE|hand, shift, x, y);
 	castDelay();
 };
+me.__defineGetter__("isInTown", function() {
+	switch(me.area) {
+		case 1: case 40: case 75: case 103: case 109: return true;
+		default: return false;
+	}
+});
 
 function click(mode, shift) {
 	var point = null;
@@ -148,18 +154,12 @@ function click(mode, shift) {
 	_CommonGlobalLock.unlock();
 }
 
-me.__defineGetter__("isInTown", function() {
-	switch(me.area) {
-		case 1: case 40: case 75: case 103: case 109: return true;
-		default: return false;
-	}
-});
-
 Unit.moveTo = function(callback) {
 	if(this.charname != me.charname)
 		// only moveTo the object if it's not me!
 		me.moveTo(this.x, this.y, callback, this.area);
 };
+
 PresetUnit.moveTo = function(area, callback) {
 	// PresetUnits will never be me
 	// TODO: make this understand what area the preset unit is in
@@ -236,7 +236,8 @@ function isUnit(obj) {
 		(obj.hasOwnProperty('gid') || obj.hasOwnProperty('id'));
 }
 function isNPC(obj) {
-	return isUnit(obj) && obj.type == TYPE_UNIT && obj.isInTown && obj.hasOwnProperty('name');
+	return isUnit(obj) && obj.type == TYPE_UNIT &&
+			obj.isInTown && obj.hasOwnProperty('name');
 }
 function isMonster(obj) {
 	return isUnit(obj) && obj.type == TYPE_UNIT &&
@@ -292,7 +293,7 @@ function clearBit(num, bit) { return clearFlag(num, (1 << bit)); }
 function clearFlag(num, flag) { return (num & flag); }
 
 function sleep(milliseconds) {
-	// ping/2 + (fps > 30 ? 0 : 30-fps)*10  + delay should be sufficient
+	// ping/2 + (fps > 30 ? 0 : 30-fps)*10 + delay should be sufficient
 	milliseconds = milliseconds > 0 ? milliseconds : 1;
 	delay(milliseconds + (me.ping/2) + ((me.fps > 30 ? 0 : 30 - me.fps) *10));
 }

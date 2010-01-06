@@ -6,6 +6,7 @@ function main() {
 		{
 			case 19: // pause
 				paused = !paused;
+				print((paused ? "" : "un") + "pausing scripts...");
 				var script = getScript();
 				do {
 					if(script.name != self.name)
