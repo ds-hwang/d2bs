@@ -74,7 +74,8 @@ JSAPI_PROP(unit_getProperty)
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, pInfo->szGameServerIp));
 			break;
 		case ME_GAMESTARTTIME:
-			*vp = INT_TO_JSVAL(Vars.dwGameTime);
+			JS_NewNumberValue(cx, (jsdouble)Vars.dwGameTime, vp);
+			//*vp = INT_TO_JSVAL(Vars.dwGameTime);
 			break;
 		case ME_GAMETYPE:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_ExpCharFlag);
