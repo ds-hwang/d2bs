@@ -35,14 +35,13 @@ function DA_DoPrecasts() {
 	//XP_AmazonShield();
 
 	if (DC_CheckSkill(32) >= 1) {
-
 		var Valk = DC_getNPC(357);
-
 		// Valkyrie
 		if (!Valk||Valk.mode==0||!Valk.getParent()||Valk.getParent().name!=me.name) {
 			DC_DoCast(32,0);
 		}
 	}
+	return true;
 }
 
 
@@ -109,63 +108,37 @@ function DA_GetSkillDamageType(skill) {
 
 function ManaCost(skill) {
 	switch(skill) {
-
 		case 12: // Multiple Shot
 			return (4 + (DC_CheckSkill(12) - 1));
-			break;
-
 		case 14: // Power Strike
 			return (2 + (DC_CheckSkill(14) - 1) * 0.25);
-			break;
-
 		case 15: // Poison Javelin
 			return (4 + (DC_CheckSkill(15) - 1) * 0.25);
-			break;
-
 		case 16: // Exploding Arrow
 			return (5 + (DC_CheckSkill(16) - 1) * 0.5);
-			break;
-
 		case 20: // Lightning Bolt
 			return (6 + (DC_CheckSkill(20) - 1) * 0.25);
-			break;
-
 		case 21: // Ice Arrow
 			return (4 + (DC_CheckSkill(21) - 1) * 0.25);
-			break;
-
 		case 24: // Charged Strike
 			return (4 + (DC_CheckSkill(24) - 1) * 0.25);
-			break;
-
 		case 25: // Plauge Javelin
 			return (7 + (DC_CheckSkill(25) - 1) * 0.5);
-			break;
-
 		case 26: // Strafe
 			return 11;
-			break;
-
 		case 27: // Immolation Arrow
 			return (6 + (DC_CheckSkill(27) - 1) * 0.5);
-			break;
-
 		case 31: // Freezing Arrow
 			return (9 + (DC_CheckSkill(31) - 1) * 0.5);
-			break;
-
 		case 34: // Lightning Strike
 			return 9;
-			break;
-
 		case 35: // Lightning Fury
 			return (10 + (DC_CheckSkill(35) - 1) * 0.5);
 			break;
-
 		default: // Insignificant
 			return 0;
-			break;
 	}
+	return 0;
 }
 
 function CastDistract(target) {

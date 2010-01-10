@@ -1259,7 +1259,7 @@ function DC_getItem(iteminfo, mode) {
 // Parameters :
 // -iteminfo	Info of the item to get
 // -mode	Mode (check getUnit info for the available modes)
-// Return value : Item object returned by getUnit()
+// Return value : Item object returned by me.getItem()
 function DC_getMyItem(iteminfo, mode) {
 	var _item = me.getItem(iteminfo, mode);
 	DC_DoDel(DC_LagDelay);

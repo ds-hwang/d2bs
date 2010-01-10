@@ -215,6 +215,7 @@ function XP_ClearThrone() {
 							}
 							do{
 								delay(30);
+								hydmonster1 = hydmonster2 = hydmonster3 = null;
 								hydmonster1 = getUnit(1, 351, ALIVE_MODE);
 								hydmonster2 = getUnit(1, 352, ALIVE_MODE);
 								hydmonster3 = getUnit(1, 353, ALIVE_MODE);

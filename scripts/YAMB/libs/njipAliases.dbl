@@ -2067,7 +2067,7 @@ njipClassId["baal'seye"]=651;
 njipClassId["mephisto'sbrain"]=652;
 njipClassId["tokenofabsolution"]=653;
 njipClassId["twistedessenceofsuffering"]=654;
-njipClassId["chargedessenseofhatred"]=655;
+njipClassId["chargedessenceofhatred"]=655;
 njipClassId["burningessenceofterror"]=656;
 njipClassId["festeringessenceofdestruction"]=657;
 njipClassId["standardofheroes"]=658;
@@ -2103,3 +2103,4 @@ njipItemFlag["ethereal"]	= ITEM_FLAG_ISETHEREAL;
 njipItemFlag["eth"]			= ITEM_FLAG_ISETHEREAL;
 njipItemFlag["runeword"]	= ITEM_FLAG_ISRUNEWORD;
 njipItemFlag["socketed"]	= ITEM_FLAG_ISSOCKETED;
+

@@ -1,0 +1,46 @@
+/**
+ * @filename	YAM_Gamble.dbl
+ * @author		Insomniac
+ * @modified	12-28-2009
+ * @purpose		Gamble at Gheed and stash when full.
+ */
+ 
+entryFunc = Gamble;
+ 
+function Gamble() {
+	DC_DPrint("Setting Infinite Game Length!");
+	if(YAM_MaxGameLength){
+		YAM_MaxGameLength = 0;
+		me.gamelength = 0;
+	}
+	if (!YAM_GambleIt ) {
+		DC_DPrint("ÿc1Warning: Forcing YAM_GambleIt to TRUE for this module!ÿc0");
+		YAM_GambleIt  = true;
+	}
+	DC_DPrint("ÿc1Warning: This module runs in an infinite loop!ÿc0");
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	// Use the WP to Act 1 if need be
+	if (me.area != 1) { 
+		YAM_PathToWayPoint(); 
+		DM_UsePortal("Waypoint",0x1); 
+		YAM_InitCommTown(); 
+	}
+	var count = 0;
+	while (true) {
+		print("in loop, count is " + count);
+		while (DC_MyGoldCarry() != 990000) {
+			say("gold 990000");
+			delay(500);
+		}
+		// Do town stuff in the act we are in
+		YAM_TownManager();
+
+		if (YAM_VisitGheed) {
+			//print("in visit gheed");
+			commTown.GotoGheed();
+			YAM_NPCinteract(DC_getNPC(147));
+		}
+	count++;
+	}
+}

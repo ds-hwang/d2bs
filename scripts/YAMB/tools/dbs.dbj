@@ -32,9 +32,9 @@ include("baseStats/base_superuniques.dbl");
 
 
 
-var dumpBaseStats = false;
-var dumpRunewords = false;
-var dumpCubeRecipes = true;//false;
+var dumpBaseStats = true;
+var dumpRunewords = true;
+var dumpCubeRecipes = true;
 
 function main() {
 	delay(2000);
@@ -238,9 +238,11 @@ function dbs( bstat, txt, arr, min, max ) {
 					line+=(line=="" ? "" : "\t")+statval;
 				}
 			}
-			if(line!="") 
-				file.write(line + "\n");
-			file.flush();
+			if(line!="") {
+				file.write(line);
+				file.write("\n");
+			}
+			//file.flush();
 		}
 		file.close();
 	}

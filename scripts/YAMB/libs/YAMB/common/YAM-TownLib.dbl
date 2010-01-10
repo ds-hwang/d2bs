@@ -413,14 +413,6 @@ function DT_MenuCancel(npcObj,type) {
 }
 
 
-// Function by Xizeta
-// Wrapper for compatibility
-// Return value : Success of the function
-function DT_CheckBody() {
-	// Call the new function
-	DT_getCorpses();
-}
-
 // Function by njaguar, modified by Xizeta
 // Return value : None, it is a recursive function so it is hard to check if we got it or not
 //                Should loop forever until we get a body or game time out...
@@ -575,14 +567,13 @@ function DT_CheckRepair(repairpercent) {
 		} while(_item.getNext() && !_needrepair); 
 	}
 	// Checking if the char got enough gold to pay the entire repair all cost 
-	// commented out till core supports getRepairCost - TechnoHunter
-	//if(_needrepair) {
-	//	var _goldamount = DC_MyGold();
-	//	if(_goldamount < getRepairCost(0x9A)) {
-	//		DC_DPrint("DT_CheckRepair() : Not enough gold to repair");
-	//		return false;
-	//	}
-	//}
+	if(_needrepair) {
+		var _goldamount = DC_MyGold();
+		if(_goldamount < me.getRepairCost(0x9A)) {
+			DC_DPrint("DT_CheckRepair() : Not enough gold to repair");
+			return false;
+		}
+	}
 	if(YAM_Debug && _needrepair) {
 		print("DT_CheckRepair is TRUE!");
 	}
@@ -801,6 +792,7 @@ function DT_CheckInventory() {
 		}
 	}
 	// Start looping thru the inventory to mark the occupied space
+	var _invItems = me.getItems();
 	var _invitem = DC_getMyItem(null,100);
 	var _ignoreitem;
 	var _invitemy;
@@ -919,7 +911,7 @@ function DT_ManageStash() {
 		gold(me.getStat(14), 3);
 		// Loop until all gold is moved or is stash is full
 		for(var i=0; i<20; i+=1){
-			// If the gold amount on pocked changed, it is stashed
+			// If the gold amount on char changed, it is stashed
 			if(me.getStat(14)!=_mygold) { break; }
 			// Delay after stashing to let the game settle
 			DC_PingDel(DT_NPCDelay); // Delay after stashing gold
@@ -950,98 +942,100 @@ function DT_ManageStash() {
 	// Get the first item in inventory
 	var _invitem = DC_getMyItem(null,100); // 100 == inventory
 	// If there is a item, loop until all is stashed or ignored
-	if(_invitem) { do {
-		// Check if the item is inside the stashing area
-		var _ignoreitem = (DT_Columns[_invitem.y][_invitem.x]==0);
-		DC_DoDel(200);
-		// If the item is on the stashing area, check if it is not part of the ignored list
-		// darkspirit: added call to CheckItem
-		// If it is an unidentified item, dont stash if it sucks according to snagit ini
-		//  or if snagit says we need to validate it first
-		// ASSUMPTION: We don't pick up unidentified items that are not declared in snagit ini!
-		if(!_ignoreitem) {
-			var checkResults = false;
-			if(YAM_UseNJIP){
-				checkResults = (njipCheckGoodItem(_invitem) < 0) ? true : false;
-			}
-			else{
-				checkResults = ((!CheckItem(_invitem, "settings/"+DSN_SnagItINIFile) && !DIM_HasNumber) || DIM_Validate);
-			}
-			if(_ignorestring.indexOf(_invitem.code) != -1 || ( (!_invitem.getFlag(0x10) && DC_CheckOwner(_invitem) == true ) && checkResults )) {
-				_ignoreitem = true;
-			}
-		}
-		// Show debug info on the current item
-		if(DT_DebugStash) {
-			DC_DPrint("DT_ManageStash() : HaveItem X : " + _invitem.x + " Y : " + _invitem.y + " Stash : " + DT_Columns[_invitem.y][_invitem.x] + " " + _ignoreitem);
-		}
-		// If the item is not a ignored item, stash it if there is some space available
-		if(!_ignoreitem) {
-			// Loop until a space is found or if all the stash is scanned
-			var _itemdone = false;
-			var _itemfitx;
-			var _itemfity;
-			for(var y = 0; y < _DT_StashHeight; y+=1){
-				if(_itemdone) {
-					break;
+	if(_invitem) {
+		do {
+			// Check if the item is inside the stashing area
+			var _ignoreitem = (DT_Columns[_invitem.y][_invitem.x]==0);
+			DC_DoDel(200);
+			// If the item is on the stashing area, check if it is not part of the ignored list
+			// darkspirit: added call to CheckItem
+			// If it is an unidentified item, dont stash if it sucks according to snagit ini
+			//  or if snagit says we need to validate it first
+			// ASSUMPTION: We don't pick up unidentified items that are not declared in snagit ini!
+			if(!_ignoreitem) {
+				var checkResults = false;
+				if(YAM_UseNJIP){
+					checkResults = (njipCheckGoodItem(_invitem) < 0) ? true : false;
 				}
-				for(var x = 0; x < 6; x+=1){
+				else{
+					checkResults = ((!CheckItem(_invitem, "settings/"+DSN_SnagItINIFile) && !DIM_HasNumber) || DIM_Validate);
+				}
+				if(_ignorestring.indexOf(_invitem.code) != -1 || ( (!_invitem.getFlag(0x10) && DC_CheckOwner(_invitem) == true ) && checkResults )) {
+					_ignoreitem = true;
+				}
+			}
+			// Show debug info on the current item
+			if(DT_DebugStash) {
+				DC_DPrint("DT_ManageStash() : HaveItem X : " + _invitem.x + " Y : " + _invitem.y + " Stash : " + DT_Columns[_invitem.y][_invitem.x] + " " + _ignoreitem);
+			}
+			// If the item is not a ignored item, stash it if there is some space available
+			if(!_ignoreitem) {
+				// Loop until a space is found or if all the stash is scanned
+				var _itemdone = false;
+				var _itemfitx;
+				var _itemfity;
+				for(var y = 0; y < _DT_StashHeight; y+=1){
 					if(_itemdone) {
 						break;
 					}
-					if(_stashspace[y][x] == 0){ //empty?
-						// Get the item coords and size
-						_itemfitx = (_invitem.sizex-1) + x;
-						_itemfity = (_invitem.sizey-1) + y;
-						// If the item doesn't exceed the stash limits, process
-						if(_itemfitx < 6 && _itemfity < _DT_StashHeight) {
-							// Check if we have space available
-							var _havespace = true;
-							for(var m = 0; m < _invitem.sizey; m+=1) {
-								for(var n = 0; n < _invitem.sizex; n+=1) {
-									// If the item overlap a full space, mark as false
-									if(_stashspace[y + m][x + n] == 1) { _havespace = false; }
-								}
-							}
-							// If we have space
-							if(_havespace) {
-								// Mark the area as full in the stash matrix so no further item is put there
-								for(var m = 0; m < _invitem.sizey; m+=1){
-									for(var n=0;n<_invitem.sizex;n+=1){
-										_stashspace[y + m][x + n] = 1;
+					for(var x = 0; x < 6; x+=1){
+						if(_itemdone) {
+							break;
+						}
+						if(_stashspace[y][x] == 0){ //empty?
+							// Get the item coords and size
+							_itemfitx = (_invitem.sizex-1) + x;
+							_itemfity = (_invitem.sizey-1) + y;
+							// If the item doesn't exceed the stash limits, process
+							if(_itemfitx < 6 && _itemfity < _DT_StashHeight) {
+								// Check if we have space available
+								var _havespace = true;
+								for(var m = 0; m < _invitem.sizey; m+=1) {
+									for(var n = 0; n < _invitem.sizex; n+=1) {
+										// If the item overlap a full space, mark as false
+										if(_stashspace[y + m][x + n] == 1) { _havespace = false; }
 									}
 								}
-								// Pick the item
-								clickItem(0,_invitem);
-								// Loop until the item is picked
-								var _numtries = 0;
-								while (_invitem.mode != 4) {
-									DC_PingDel(DT_NPCDelay);
-									if(_numtries > 10) { break; }
-									_numtries+=1;
+								// If we have space
+								if(_havespace) {
+									// Mark the area as full in the stash matrix so no further item is put there
+									for(var m = 0; m < _invitem.sizey; m+=1){
+										for(var n=0;n<_invitem.sizex;n+=1){
+											_stashspace[y + m][x + n] = 1;
+										}
+									}
+									// Pick the item
+									clickItem(0,_invitem);
+									// Loop until the item is picked
+									var _numtries = 0;
+									while (_invitem.mode != 4) {
+										DC_PingDel(DT_NPCDelay);
+										if(_numtries > 10) { break; }
+										_numtries+=1;
+									}
+									// Put the item in the stash at the specified space
+									clickItem(0,x,y,4);
+									// Loop until the item is put in the stash
+									_numtries = 0;
+									while (_invitem.mode == 4) {
+										DC_PingDel(DT_NPCDelay);
+										if(_numtries > 10) { break; }
+										_numtries+=1;
+									}
+									// We are done with this item
+									_itemdone = true;
 								}
-								// Put the item in the stash at the specified space
-								clickItem(0,x,y,4);
-								// Loop until the item is put in the stash
-								_numtries = 0;
-								while (_invitem.mode == 4) {
-									DC_PingDel(DT_NPCDelay);
-									if(_numtries > 10) { break; }
-									_numtries+=1;
-								}
-								// We are done with this item
-								_itemdone = true;
 							}
 						}
 					}
 				}
+				// If there is no room, tell the user that this item is not stashed
+				if(!_havespace) {
+					DC_DPrint("DT_ManageStash() : Not enough room to stash your " + D2JSP_ITEM_QUALITY_QualityToNameList[_invitem.quality] + " " + _invitem.name + "!");
+				}
 			}
-			// If there is no room, tell the user that this item is not stashed
-			if(!_havespace) {
-				DC_DPrint("DT_ManageStash() : Not enough room to stash your " + D2JSP_ITEM_QUALITY_QualityToNameList[_invitem.quality] + " " + _invitem.name + "!");
-			}
-		}
-	} while (_invitem.getNext(null,100)); }
+		} while (_invitem.getNext(null,100)); 
+	}
 	return true;
 }
 

@@ -5,7 +5,7 @@
 // File location: scripts\tools
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Methods of use : 
-//     1) open default.dbj, add the following line -> load("bots/nipTest.dbj");
+//     1) open default.dbj, add the following line -> load("tools/nipTest.dbj");
 //        -> save/exit file start D2 manually and use d2bs.exe to attach
 //     3) while in a bot game type .stop in the message box (hit enter to open message box)
 //        when bot stops, type .flush to flush the existing script cache, then type .exec 
@@ -126,6 +126,15 @@ function ImproveFName(checkString) {
 	return checkString.replace(/ÿc(.)/g, "");
 }
 
+/*
+function statidToName(id, value) { 
+	return getLocaleString(getBaseStat(7, id, (value >= 0 ? "descstrpos" : "descstrneg"))); } 
+	
+	for each(var item in me.getItems()) 
+	for(var i = 0; i < 358; i++) 
+	print(statidToName(i, item.getStat(i)) + ' = ' + item.getStat(i));
+*/
+
 /**
  * @function
  * @desc Check all items currently in your possesion against loaded nip files, outputs to both screen and file
@@ -140,22 +149,23 @@ function traverse_items() {
 		print("outfile created");
 		outputFile.write("<HTML><HEAD><TITLE>" + (me.account ? me.account : "SINGLEPLAYER") + " - " + me.name + " - Nip file(s) test results" + "</TITLE></HEAD><BODY TEXT=BLACK>\n");
 	}
-	var _item = getUnit(4);
-	if(_item){
+	var _items = me.getItems();
+	if(_items.length){
+		var i = 0;
 		do {
-			var parent = _item.getParent();
-			if (parent && parent.name == me.name && !_item.getFlag(0x8)) { 
-				if(!(_item.classid in SkipItems)) {
-					var report = njipCheckGoodItem( _item, NJIP_CHECK_REPORT );
-					print("njipCheckGoodItem() Results for " + ImproveFName(_item.fname) + ": " + screenResults[report.result+1] + ( report.result ? " (line #" + report.lineno + " of '" + report.file + "')" : " (No Item Match in Files!)" ) );
+			if(!_items[i].getFlag(0x8)) { 
+				if(!(_items[i].classid in SkipItems)) {
+					var report = njipCheckGoodItem( _items[i], NJIP_CHECK_REPORT );
+					print("njipCheckGoodItem() Results for " + ImproveFName(_items[i].fname) + ": " + screenResults[report.result+1] + ( report.result ? " (line #" + report.lineno + " of '" + report.file + "')" : " (No Item Match in Files!)" ) );
 					if(outputFile){
-						outputFile.write("njipCheckGoodItem() Results for " + ImproveFName(_item.fname) + ": " + String(results[report.result+1]).replace(/ÿc(.)/g, "") + ( report.result ? " (line #" + report.lineno + " of '" + report.file + "')" : " (No Item Match in Files!)" ) + "<br>\n");
+						outputFile.write("njipCheckGoodItem() Results for " + ImproveFName(_items[i].fname) + ": " + String(results[report.result+1]).replace(/ÿc(.)/g, "") + ( report.result ? " (line #" + report.lineno + " of '" + report.file + "')" : " (No Item Match in Files!)" ) + "<br>\n");
 					}
 					delay(500);
 				}
 				delay(20);
 			}
-		} while(_item.getNext());
+			i++
+		} while(i < _items.length);
 	}
 	if(outputFile){
 		outputFile.write("<BR><CENTER>* Nip file test results created by nipTest.dbj *</CENTER></BODY></HTML><br>\n");
@@ -183,15 +193,12 @@ function dumpItemStats(dumpType){
 		print("ÿc3===========================================================");
 		print("Outputting stats for item -> " + ImproveFName(unit.fname) + " using getStat(" + statType + ")");
 		var statList = unit.getStat(statType);
-		//var statList = unit.getStat(-2); // re-enable, when Shepp adds to the core
 		if(statList) {
 			for( var stat in statList ) {
 				for( var substat in statList[stat] ) {
 					var statLine = "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat];
-					//print( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] );
 					print(statLine);
 					if(statFile){
-						//statFile.write( "Stat: [" + stat + ((substat!=0) ? (":" + substat) : "") + "] - Value: " + statList[stat][substat] + "<br>" + "\n");
 						statFile.write( statLine + "<br>" + "\n");
 						delay(50);
 					}
