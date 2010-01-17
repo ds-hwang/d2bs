@@ -213,16 +213,105 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		}
 	}
 	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
-		if (pPacket[1] == 0x11){ //stones
-			DWORD soj = *(DWORD*)&pPacket[3];
+		BYTE pram2 =pPacket[7]; //used for player death messages not impamented
+		DWORD pram1=pPacket[3];
+		CHAR* Name1 = (CHAR*)pPacket+8;
+		CHAR* Name2 = (CHAR*)pPacket+24;
+		char str[256];
+		UnitAny* pUnit = D2CLIENT_FindUnit(pram1, 0);
+		switch (pPacket[1])
+		{	
+		case 0x00: //droped due to timeout
+			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") dropped due to time out.");
+			GameMsgEvent(str);
+			break;
+		case 0x01: //droped due to errors
+			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") dropped due to errors.");
+			GameMsgEvent(str);
+			break;
+		case 0x02: //player joined  
+			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") joined our world. Diablo's minions grow stronger.");
+			GameMsgEvent(str);
+			break;
+		case 0x03:  //player left game
+			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") left our world. Diablo's minions weaken.");
+			GameMsgEvent(str);
+			break;
+		case 0x04:  
+			strcpy_s (str,Name1); strcat_s (str," is not in the game.");
+			GameMsgEvent(str);
+			break;
+		case 0x05:  
+			strcpy_s (str,Name1); strcat_s (str," is not logged in.");
+			GameMsgEvent(str);
+			break;
+		case 0x07:			
+			if(!pUnit)
+				break;			
+			switch (pram2)
+			{
+			case 0x01:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," permits you to loot his corpse.");	break;				
+			case 0x02:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," permits you to loot her corpse.");	break;
+			case 0x03:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has declared hostility towards you.");	break;				
+			case 0x04:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," is no longer hostile towards you.");	break;
+			case 0x05:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," invites you to ally against the forces of evil.");	break;
+			case 0x06:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has canceled party invite.");	break;
+			case 0x07:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," is no longer hostile towards you.");	break;
+			case 0x08:
+				strcpy_s (str,"You are now allied with "); strcat_s (str,pUnit->pPlayerData ->szName);	break;
+			case 0x09:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has left your party.");	break;
+			case 0x0a:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str,"  no longer allows you to access his corpse.");	break;
+			case 0x0b:
+				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str,"  no longer allows you to access her corpse.");	break;
+			}
+			GameMsgEvent(str);
+			break;
+		case 0x08:  
+			strcpy_s (str,Name1); strcat_s (str," is busy.");
+			GameMsgEvent(str);
+			break;
+		case 0x09:  
+			strcpy_s (str,"You must wait a short time to trade with that player.");
+			GameMsgEvent(str);
+			break;
+		case 0x0d:
+			strcpy_s (str,Name1); strcat_s (str," is not listening to you.");
+			GameMsgEvent(str);
+			break;
+		case 0x0e:
+			strcpy_s (str,"Not enough mana");
+			GameMsgEvent(str);
+			break;
+		case 0x10:
+			strcpy_s (str,"You must wait a short time to declare hostility with that player.");
+			GameMsgEvent(str);
+			break;
+		case 0x11 : //stones			
 			char mess[256]; 
-			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
+			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", pram1);				
 			GameMsgEvent(mess);
-		}
-		if (pPacket[1] == 0x12){ //diablo walks
-			char mess[] ="Diablo Walks the Earth";
-			GameMsgEvent(mess);
-		}
+			break;
+		case 0x12: //diablo walks
+			char message[] ="Diablo Walks the Earth";
+			GameMsgEvent(message);
+			break;
+		
+		
+		}		
+		
+		
+		
+			
+		
 	}
 
 	return TRUE;
