@@ -432,6 +432,14 @@
 					RelativePath=".\D2Handlers.h"
 					>
 				</File>
+				<File
+					RelativePath=".\D2NetHandlers.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\D2NetHandlers.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

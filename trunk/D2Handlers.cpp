@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "D2Handlers.h"
+#include "D2NetHandlers.h"
 #include "Script.h"
 #include "ScreenHook.h"
 #include "Unit.h"
@@ -14,8 +15,6 @@
 #include "D2BS.h"
 
 using namespace std;
-
-Variables Vars;
 
 bool __fastcall UpdatePlayerGid(Script* script, void*, uint) { script->UpdatePlayerGid(); return true; }
 
@@ -126,110 +125,17 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 {
-	if(pPacket[0] == 0x15)
+	switch(pPacket[0])
 	{
-		if(*(LPDWORD)&pPacket[2] == D2CLIENT_GetPlayerUnit()->dwUnitId)
-			pPacket[10] = NULL;	
-	}
-	if(pPacket[0] == 0x95 || pPacket[0] == 0x18)
-	{
-		WORD Life = *(WORD*)&pPacket[1];
-		WORD Mana = *(WORD*)&pPacket[3];
-
-		if((Life & 0x8000) == 0x8000)
-		{
-			Life ^= 0x8000;
-		}
-		if((Mana & 0x8000) == 0x8000)
-		{
-			Mana ^= 0x8000;
-		}
-		if((Mana & 0x4000) == 0x4000)
-		{
-			Mana ^= 0x4000;
-		}
-		Mana *= 2;
-
-		static WORD SaveLife = 0;
-		if(SaveLife != Life)
-		{
-			SaveLife = Life;
-			LifeEvent(Life);
-		}
-
-		static WORD SaveMana = 0;
-		if(SaveMana != Mana)
-		{
-			SaveMana = Mana;
-			ManaEvent(Mana);
-		}
-	}
-	else if(pPacket[0] == 0x26)
-	{
-		CHAR* pName = (CHAR*)pPacket+10;
-		CHAR* pMessage = (CHAR*)pPacket + strlen(pName) + 11;
-	
-		ChatEvent(pName, pMessage);
-	}
-	else if(pPacket[0] == 0x5a && pPacket[1] == 0x07 && pPacket[2] == 0x08)
-	{
-		if(Vars.bQuitOnHostile)
-		{
-			D2CLIENT_ExitGame();
-		}
-	}
-	else if(pPacket[0] == 0xA7)
-	{
-		if(pPacket[6] == AFFECT_JUST_PORTALED)
-			return FALSE;
-	}
-	else if(pPacket[0] == 0x9c || pPacket[0] == 0x9d)
-	{
-		INT64 icode   = 0;
-		CHAR code[5]  = "";
-		BYTE mode     = pPacket[1];
-		DWORD gid     = *(DWORD*)&pPacket[4];
-		BYTE dest     = ((pPacket[13] & 0x1C) >> 2);
-
-		switch(dest)
-		{
-			case 0: case 2:
-				icode = *(INT64 *)(pPacket+15)>>0x04;
-				break;
-			case 3: case 4: case 6:
-				if(!((mode == 0 || mode == 2) && dest == 3))
-				{
-					if(mode != 0xF && mode != 1)
-						icode = *(INT64 *)(pPacket+17) >> 0x1C;
-					else
-						icode = *(INT64 *)(pPacket+15) >> 0x04;
-				} else  icode = *(INT64 *)(pPacket+17) >> 0x05;
-				break;
-			default:
-				Log("Received invalid item destination...? mode = %d, gid = %d, dest = %d", mode, gid, dest);
-				break;
-		}
-
-		// Converting and Cleaning
-		memcpy(code, &icode, 4);
-		if(code[3] == ' ') code[3] = '\0';
-
-		if(strcmp(code, "gld") == 0)
-			GoldDropEvent(gid, mode);
-		else
-			ItemActionEvent(gid, code, mode, (pPacket[0] == 0x9d));
-	}
-	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
-		if (pPacket[1] == 0x11){ //stones
-			DWORD soj = *(DWORD*)&pPacket[3];
-			char mess[256]; 
-			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
-			GameMsgEvent(mess);
-		}
-		if (pPacket[1] == 0x12){ //diablo walks
-			char mess[] ="Diablo Walks the Earth";
-			GameMsgEvent(mess);
-		}
+		case 0x15: return ReassignPlayerHandler(pPacket, dwSize);
+		case 0x26: return ChatEventHandler(pPacket, dwSize);
+		case 0x2A: return NPCTransactionHandler(pPacket, dwSize);
+		case 0x5A: return EventMessagesHandler(pPacket, dwSize);
+		case 0x18:
+		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
+		case 0x9C:
+		case 0x9D: return ItemActionHandler(pPacket, dwSize);
+		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
 	}
 
 	return TRUE;
