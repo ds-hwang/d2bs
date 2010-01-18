@@ -43,8 +43,8 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			if(Text == NULL)
 				THROW_ERROR(cx, obj, "Could not get string for value");
 
-			JS_ClearContextThread(cx);
 			jsrefcount depth = JS_SuspendRequest(cx);
+			JS_ClearContextThread(cx);
 
 			char* c = 0;
 			while((c = strchr(Text, '%')) != 0)

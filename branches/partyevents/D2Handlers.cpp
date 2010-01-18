@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "D2Handlers.h"
+#include "D2NetHandlers.h"
 #include "Script.h"
 #include "ScreenHook.h"
 #include "Unit.h"
@@ -14,8 +15,6 @@
 #include "D2BS.h"
 
 using namespace std;
-
-Variables Vars;
 
 bool __fastcall UpdatePlayerGid(Script* script, void*, uint) { script->UpdatePlayerGid(); return true; }
 
@@ -126,192 +125,17 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 {
-	if(pPacket[0] == 0x15)
+	switch(pPacket[0])
 	{
-		if(*(LPDWORD)&pPacket[2] == D2CLIENT_GetPlayerUnit()->dwUnitId)
-			pPacket[10] = NULL;	
-	}
-	if(pPacket[0] == 0x95 || pPacket[0] == 0x18)
-	{
-		WORD Life = *(WORD*)&pPacket[1];
-		WORD Mana = *(WORD*)&pPacket[3];
-
-		if((Life & 0x8000) == 0x8000)
-		{
-			Life ^= 0x8000;
-		}
-		if((Mana & 0x8000) == 0x8000)
-		{
-			Mana ^= 0x8000;
-		}
-		if((Mana & 0x4000) == 0x4000)
-		{
-			Mana ^= 0x4000;
-		}
-		Mana *= 2;
-
-		static WORD SaveLife = 0;
-		if(SaveLife != Life)
-		{
-			SaveLife = Life;
-			LifeEvent(Life);
-		}
-
-		static WORD SaveMana = 0;
-		if(SaveMana != Mana)
-		{
-			SaveMana = Mana;
-			ManaEvent(Mana);
-		}
-	}
-	else if(pPacket[0] == 0x26)
-	{
-		CHAR* pName = (CHAR*)pPacket+10;
-		CHAR* pMessage = (CHAR*)pPacket + strlen(pName) + 11;
-	
-		ChatEvent(pName, pMessage);
-	}
-	else if(pPacket[0] == 0x5a && pPacket[1] == 0x07 && pPacket[2] == 0x08)
-	{
-		if(Vars.bQuitOnHostile)
-		{
-			D2CLIENT_ExitGame();
-		}
-	}
-	else if(pPacket[0] == 0xA7)
-	{
-		if(pPacket[6] == AFFECT_JUST_PORTALED)
-			return FALSE;
-	}
-	else if(pPacket[0] == 0x9c)	//itemDropEvent() by bobite, todo: sending all modes
-	{
-		if(pPacket[1] == 0x00 ||pPacket[1] == 0x02 ||pPacket[1] == 0x03 )
-		{			
-			char Code[5] = "";
-			WORD itemX;
-			WORD itemY;
-			//(data+pos/8)<<(64-len-(pos&7))>>(64-len)); taken from magnet and mousepad
-			//		date=packet, len= size of data being red, pos = where in the packet -1
-
-			Code[0]=(*(unsigned __int64 *)(pPacket+141/8)<<(64-8-(141&7))>>(64-8));		
-			Code[1]=(*(unsigned __int64 *)(pPacket+149/8)<<(64-8-(149&7))>>(64-8));	
-			Code[2]=(*(unsigned __int64 *)(pPacket+157/8)<<(64-8-(157&7))>>(64-8));	
-			Code[3]=(*(unsigned __int64 *)(pPacket+165/8)<<(64-8-(165&7))>>(64-8));	
-			Code[(Code[3] == ' ' ? 3 : 4)] = '\0';
-			itemX=(*(unsigned __int64 *)(pPacket+108/8)<<(64-16-(108&7))>>(64-16));	
-			itemY=(*(unsigned __int64 *)(pPacket+125/8)<<(64-16-(125&7))>>(64-16));	
-			itemX=itemX/2;
-			//itemY=itemY/2; //only x gets /2
-			WORD Mode = *(BYTE*)&pPacket[1];
-			DWORD GID = *(DWORD*)&pPacket[4];
-
-			if(strcmp(Code, "gld") == 0)
-				GoldDropEvent(GID, itemX, itemY, Mode);
-			else
-				ItemDropEvent(GID, Code, itemX, itemY, Mode);
-
-		}
-	}
-	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
-		BYTE pram2 =pPacket[7]; //used for player death messages not impamented
-		DWORD pram1=pPacket[3];
-		CHAR* Name1 = (CHAR*)pPacket+8;
-		CHAR* Name2 = (CHAR*)pPacket+24;
-		char str[256];
-		UnitAny* pUnit = D2CLIENT_FindUnit(pram1, 0);
-		switch (pPacket[1])
-		{	
-		case 0x00: //droped due to timeout
-			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") dropped due to time out.");
-			GameMsgEvent(str);
-			break;
-		case 0x01: //droped due to errors
-			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") dropped due to errors.");
-			GameMsgEvent(str);
-			break;
-		case 0x02: //player joined  
-			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") joined our world. Diablo's minions grow stronger.");
-			GameMsgEvent(str);
-			break;
-		case 0x03:  //player left game
-			strcpy_s (str,Name1); strcat_s (str,"("); strcat_s (str,Name2);	strcat_s (str,") left our world. Diablo's minions weaken.");
-			GameMsgEvent(str);
-			break;
-		case 0x04:  
-			strcpy_s (str,Name1); strcat_s (str," is not in the game.");
-			GameMsgEvent(str);
-			break;
-		case 0x05:  
-			strcpy_s (str,Name1); strcat_s (str," is not logged in.");
-			GameMsgEvent(str);
-			break;
-		case 0x07:			
-			if(!pUnit)
-				break;			
-			switch (pram2)
-			{
-			case 0x01:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," permits you to loot his corpse.");	break;				
-			case 0x02:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," permits you to loot her corpse.");	break;
-			case 0x03:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has declared hostility towards you.");	break;				
-			case 0x04:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," is no longer hostile towards you.");	break;
-			case 0x05:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," invites you to ally against the forces of evil.");	break;
-			case 0x06:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has canceled party invite.");	break;
-			case 0x07:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," is no longer hostile towards you.");	break;
-			case 0x08:
-				strcpy_s (str,"You are now allied with "); strcat_s (str,pUnit->pPlayerData ->szName);	break;
-			case 0x09:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str," has left your party.");	break;
-			case 0x0a:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str,"  no longer allows you to access his corpse.");	break;
-			case 0x0b:
-				strcpy_s (str,pUnit->pPlayerData ->szName); strcat_s (str,"  no longer allows you to access her corpse.");	break;
-			}
-			GameMsgEvent(str);
-			break;
-		case 0x08:  
-			strcpy_s (str,Name1); strcat_s (str," is busy.");
-			GameMsgEvent(str);
-			break;
-		case 0x09:  
-			strcpy_s (str,"You must wait a short time to trade with that player.");
-			GameMsgEvent(str);
-			break;
-		case 0x0d:
-			strcpy_s (str,Name1); strcat_s (str," is not listening to you.");
-			GameMsgEvent(str);
-			break;
-		case 0x0e:
-			strcpy_s (str,"Not enough mana");
-			GameMsgEvent(str);
-			break;
-		case 0x10:
-			strcpy_s (str,"You must wait a short time to declare hostility with that player.");
-			GameMsgEvent(str);
-			break;
-		case 0x11 : //stones			
-			char mess[256]; 
-			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", pram1);				
-			GameMsgEvent(mess);
-			break;
-		case 0x12: //diablo walks
-			char message[] ="Diablo Walks the Earth";
-			GameMsgEvent(message);
-			break;
-		
-		
-		}		
-		
-		
-		
-			
-		
+		case 0x15: return ReassignPlayerHandler(pPacket, dwSize);
+		case 0x26: return ChatEventHandler(pPacket, dwSize);
+		case 0x2A: return NPCTransactionHandler(pPacket, dwSize);
+		case 0x5A: return EventMessagesHandler(pPacket, dwSize);
+		case 0x18:
+		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
+		case 0x9C:
+		case 0x9D: return ItemActionHandler(pPacket, dwSize);
+		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
 	}
 
 	return TRUE;

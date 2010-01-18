@@ -15,15 +15,21 @@ struct ItemEventHelper
 {
 	DWORD id;
 	char* code;
-	WORD x;
-	WORD y;
 	WORD mode;
+	bool global;
 };
 
 struct KeyEventHelper
 {
 	BOOL up;
 	WPARAM key;
+};
+
+struct GameActionEventHelper
+{
+	BYTE mode;
+	DWORD param;
+	char *name1, *name2;
 };
 
 struct SingleArgHelper
@@ -185,22 +191,20 @@ void ScriptBroadcastEvent(uintN argc, jsval* args)
 
 bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
 {
-	QuadArgHelper* helper = (QuadArgHelper*)argv;
+	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("golddrop"))
 	{
-		AutoRoot** argv = new AutoRoot*[4];
+		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->arg1));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->arg2));
-		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->arg3));
-		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->arg4));
 		script->ExecEventAsync("golddrop", 2, argv);
 	}
 	return true;
 }
 
-void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode)
+void GoldDropEvent(DWORD GID, BYTE Mode)
 {
-	QuadArgHelper helper = {GID, itemX, itemY, Mode};
+	DoubleArgHelper helper = {GID, Mode};
 	ScriptEngine::ForEachScript(GoldDropCallback, &helper, 1);
 }
 
@@ -211,8 +215,10 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
+		JS_SetContextThread(cx);
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->nick)));
 		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
+		JS_ClearContextThread(cx);
 		script->ExecEventAsync(helper->event, 2, argv);
 	}
 	return true;
@@ -237,8 +243,10 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
+		JS_SetContextThread(cx);
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
 		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
+		JS_ClearContextThread(cx);
 		script->ExecEventAsync("copydata", 2, argv);
 	}
 	return true;
@@ -255,7 +263,10 @@ bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
 	if(script->IsRunning() && script->IsListenerRegistered("gamemsg"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(script->GetContext(), (char*)argv)));
+		JSContext* cx = script->GetContext();
+		JS_SetContextThread(cx);
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)argv)));
+		JS_ClearContextThread(cx);
 		script->ExecEventAsync("gamemsg", 1, argv);
 	}
 	return true;
@@ -269,21 +280,47 @@ void GameMsgEvent(char* lpszMsg)
 bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 {
 	ItemEventHelper* helper = (ItemEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("itemdrop"))
+	if(script->IsRunning() && script->IsListenerRegistered("itemaction"))
 	{
-		AutoRoot** argv = new AutoRoot*[5];
+		AutoRoot** argv = new AutoRoot*[4];
+		JSContext* cx = script->GetContext();
+		JS_SetContextThread(cx);
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->id));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(script->GetContext(), helper->code)));
-		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->x));
-		argv[3] = new AutoRoot(INT_TO_JSVAL(helper->y));
-		argv[4] = new AutoRoot(INT_TO_JSVAL(helper->mode));
-		script->ExecEventAsync("itemdrop", 5, argv);
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->mode));
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->code)));
+		argv[3] = new AutoRoot(BOOLEAN_TO_JSVAL(helper->global));
+		JS_ClearContextThread(cx);
+		script->ExecEventAsync("itemaction", 4, argv);
 	}
 	return true;
 }
 
-void ItemDropEvent(DWORD GID, char* Code, WORD itemX, WORD itemY, WORD Mode)
+void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global)
 {
-	ItemEventHelper helper = {GID, Code, itemX, itemY, Mode};
+	ItemEventHelper helper = {GID, Code, Mode, Global};
 	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 1);
+}
+
+bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
+{
+	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
+	{
+		AutoRoot** argv = new AutoRoot*[4];
+		JSContext* cx = script->GetContext();
+		JS_SetContextThread(cx);
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param));
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name1)));
+		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name2)));
+		JS_ClearContextThread(cx);
+		script->ExecEventAsync("gameevent", 4, argv);
+	}
+	return true;
+}
+
+void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2)
+{
+	GameActionEventHelper helper = {mode, param, name1, name2};
+	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
 }

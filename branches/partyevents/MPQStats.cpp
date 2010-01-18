@@ -64,17 +64,91 @@ DWORD GetBaseTable(INT nBaseStat, INT nClassId)
 	return dwResult;
 }
 
-
-DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber, CHAR* szStat)
+bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size)
 {
-	BinField* pTable = BaseStatTable[nBaseStat].pTable;
-	DWORD dwRetValue = GetBaseTable(nBaseStat, nClassId);
+	BinField* pTable = BaseStatTable[table].pTable;
+
+	INT nStatNumber = -1;
+	if(szStat)
+	{
+		for(int i = 0; i < BaseStatTable[table].wTableSize; i++)
+			if(!_strcmpi(szStat, pTable[i].szFieldName))
+				nStatNumber = i;
+
+		if(nStatNumber == -1)
+			return false;
+	}
+	return FillBaseStat(table, row, nStatNumber, result, size);
+}
+
+bool FillBaseStat(INT table, INT row, INT nStatNumber, void* result, size_t size)
+{
+	BinField* pTable = BaseStatTable[table].pTable;
+	DWORD dwRetValue = GetBaseTable(table, row);
+
+	if(dwRetValue)
+	{
+		if(nStatNumber > BaseStatTable[table].wTableSize)
+			return false;
+
+		DWORD dwHelperSize = pTable[nStatNumber+1].dwFieldOffset - pTable[nStatNumber].dwFieldOffset;
+		if(dwHelperSize > 4)
+			dwHelperSize = 4;
+		switch(pTable[nStatNumber].eFieldType)
+		{
+			case FIELDTYPE_DATA_ASCII:
+				if(size < pTable[nStatNumber].dwFieldLength)
+					return false;
+				memcpy_s(result, pTable[nStatNumber].dwFieldLength, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength);
+			case FIELDTYPE_DATA_DWORD:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+			case FIELDTYPE_CALC_TO_DWORD:
+			case FIELDTYPE_NAME_TO_DWORD:
+			case FIELDTYPE_DATA_DWORD_2:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+			case FIELDTYPE_UNKNOWN_11:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+			case FIELDTYPE_NAME_TO_INDEX_2:
+			case FIELDTYPE_NAME_TO_WORD_2:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
+				if(((WORD)result) >= 0xFFFF)
+					*(WORD*)result = (((WORD)result) - 0xFFFF) * -1;
+			case FIELDTYPE_NAME_TO_INDEX:
+			case FIELDTYPE_NAME_TO_WORD:
+			case FIELDTYPE_KEY_TO_WORD:
+			case FIELDTYPE_DATA_WORD:
+			case FIELDTYPE_CODE_TO_WORD:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
+			case FIELDTYPE_CODE_TO_BYTE:
+			case FIELDTYPE_DATA_BYTE_2:
+			case FIELDTYPE_DATA_BYTE:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), dwHelperSize);
+			case FIELDTYPE_DATA_BIT:
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				*(BOOL*)result = (*(BOOL*)result & (1 << pTable[nStatNumber].dwFieldLength)) ? 1 : 0;
+			case FIELDTYPE_ASCII_TO_CODE:
+			case FIELDTYPE_DATA_RAW:
+				if(size != 5)
+					return false;
+				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+			case FIELDTYPE_MONSTER_COMPS:
+				// ..? :E
+				return false;
+		}
+	}
+	return true;
+}
+
+DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT nStatNumber, CHAR* szStat)
+{
+	BinField* pTable = BaseStatTable[table].pTable;
+	DWORD dwRetValue = GetBaseTable(table, row);
 
 	if(szStat)
 	{
 		nStatNumber = -1;
 
-		for(INT i = 0; i < BaseStatTable[nBaseStat].wTableSize; i++)
+		for(INT i = 0; i < BaseStatTable[table].wTableSize; i++)
 		{
 			if(!_strcmpi(szStat, pTable[i].szFieldName))
 				nStatNumber = i;
@@ -86,7 +160,7 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT 
 
 	if(dwRetValue)
 	{
-		if(nStatNumber > BaseStatTable[nBaseStat].wTableSize)
+		if(nStatNumber > BaseStatTable[table].wTableSize)
 			return FALSE;
 
 		DWORD dwBuffer = 0;
