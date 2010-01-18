@@ -93,7 +93,9 @@ VARPTR(D2CLIENT, AutomapOn, DWORD, 0x102B80)
 VARPTR(D2CLIENT, FirstAutomapLayer, AutomapLayer *, 0x11C2B0) // Updated
 VARPTR(D2CLIENT, AutomapLayer, AutomapLayer *, 0x11C2B4) // Updated
 VARPTR(D2CLIENT, AutomapYPosition, int, 0x11C30C) // Updated
-VARPTR(D2CLIENT, PlayerUnit, UnitAny *, 0x11C3D0) // Updated
+VARPTR(D2CLIENT, PlayerUnit, UnitAny*, 0x11C3D0) // Updated
+VARPTR(D2CLIENT, ServerUnitList, UnitAny*, 0x11A960);
+VARPTR(D2CLIENT, ClientUnitList, UnitAny*, 0x119D60);
 VARPTR(D2CLIENT, PlayerUnitList, RosterUnit *, 0x11C080) // Updated
 VARPTR(D2CLIENT, QuestTab, DWORD, 0x11D50D) // Updated
 VARPTR(D2CLIENT, MouseX, DWORD, 0x101638)// Updated
