@@ -10,6 +10,7 @@
 #include "ScriptEngine.h"
 #include "Console.h"
 #include "D2BS.h"
+#include "MPQStats.h"
 
 using namespace std;
 
@@ -96,7 +97,12 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)*/
 			if(param2 == 1)
 			{
-				// TODO: param1 is supposed to be monster id... but it's not?
+				WORD localeId;
+				FillBaseStat("monstats", param1 >> 24, "NameStr", &localeId, sizeof(WORD));
+				wchar_t* str = D2LANG_GetLocaleText(localeId);
+				char* str2 = UnicodeToAnsi(str);
+				strcpy(name2, str2);
+				delete[] str2;
 			}
 			break;
 		case 0x07: // player relation
