@@ -183,34 +183,41 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		if(pPacket[6] == AFFECT_JUST_PORTALED)
 			return FALSE;
 	}
-	else if(pPacket[0] == 0x9c)	//itemDropEvent() by bobite, todo: sending all modes
+	else if(pPacket[0] == 0x9c || pPacket[0] == 0x9d)
 	{
-		if(pPacket[1] == 0x00 ||pPacket[1] == 0x02 ||pPacket[1] == 0x03 )
-		{			
-			char Code[5] = "";
-			WORD itemX;
-			WORD itemY;
-			//(data+pos/8)<<(64-len-(pos&7))>>(64-len)); taken from magnet and mousepad
-			//		date=packet, len= size of data being red, pos = where in the packet -1
+		INT64 icode   = 0;
+		CHAR code[5]  = "";
+		BYTE mode     = pPacket[1];
+		DWORD gid     = *(DWORD*)&pPacket[4];
+		BYTE dest     = ((pPacket[13] & 0x1C) >> 2);
 
-			Code[0]=(*(unsigned __int64 *)(pPacket+141/8)<<(64-8-(141&7))>>(64-8));		
-			Code[1]=(*(unsigned __int64 *)(pPacket+149/8)<<(64-8-(149&7))>>(64-8));	
-			Code[2]=(*(unsigned __int64 *)(pPacket+157/8)<<(64-8-(157&7))>>(64-8));	
-			Code[3]=(*(unsigned __int64 *)(pPacket+165/8)<<(64-8-(165&7))>>(64-8));	
-			Code[(Code[3] == ' ' ? 3 : 4)] = '\0';
-			itemX=(*(unsigned __int64 *)(pPacket+108/8)<<(64-16-(108&7))>>(64-16));	
-			itemY=(*(unsigned __int64 *)(pPacket+125/8)<<(64-16-(125&7))>>(64-16));	
-			itemX=itemX/2;
-			//itemY=itemY/2; //only x gets /2
-			WORD Mode = *(BYTE*)&pPacket[1];
-			DWORD GID = *(DWORD*)&pPacket[4];
-
-			if(strcmp(Code, "gld") == 0)
-				GoldDropEvent(GID, itemX, itemY, Mode);
-			else
-				ItemDropEvent(GID, Code, itemX, itemY, Mode);
-
+		switch(dest)
+		{
+			case 0: case 2:
+				icode = *(INT64 *)(pPacket+15)>>0x04;
+				break;
+			case 3: case 4: case 6:
+				if(!((mode == 0 || mode == 2) && dest == 3))
+				{
+					if(mode != 0xF && mode != 1)
+						icode = *(INT64 *)(pPacket+17) >> 0x1C;
+					else
+						icode = *(INT64 *)(pPacket+15) >> 0x04;
+				} else  icode = *(INT64 *)(pPacket+17) >> 0x05;
+				break;
+			default:
+				Log("Received invalid item destination...? mode = %d, gid = %d, dest = %d", mode, gid, dest);
+				break;
 		}
+
+		// Converting and Cleaning
+		memcpy(code, &icode, 4);
+		if(code[3] == ' ') code[3] = '\0';
+
+		if(strcmp(code, "gld") == 0)
+			GoldDropEvent(gid, mode);
+		else
+			ItemActionEvent(gid, code, mode, (pPacket[0] == 0x9d));
 	}
 	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
 		if (pPacket[1] == 0x11){ //stones

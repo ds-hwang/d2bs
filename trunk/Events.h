@@ -13,7 +13,7 @@ void PlayerAssignEvent(DWORD dwUnitId);
 void MouseClickEvent(int button, POINT pt, bool bUp);
 void MouseMoveEvent(POINT pt);
 void ScriptBroadcastEvent(uintN argc, jsval* argv);
-void GoldDropEvent(DWORD GID, WORD itemX, WORD itemY, WORD Mode);
-void ItemDropEvent(DWORD GID, CHAR* Code, WORD itemX, WORD itemY, WORD Mode);
+void GoldDropEvent(DWORD GID, BYTE Mode);
+void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global);
 
 
