@@ -95,14 +95,24 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 		case 0x06: // name1 slain by name2
 			/*BYTE Param2 = Unit Type of Slayer (0x00 = Player, 0x01 = NPC)
 			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)*/
-			if(param2 == 1)
+			if(param2 == UNIT_MONSTER)
 			{
 				WORD localeId;
 				// TODO: param1 >> 24 is wrong because there are more than 255 records in monstats
 				FillBaseStat("monstats", (param1 >> 24), "NameStr", &localeId, sizeof(WORD));
 				wchar_t* str = D2LANG_GetLocaleText(localeId);
 				char* str2 = UnicodeToAnsi(str);
-				strcpy(name2, str2);
+				strcpy_s(name2, 28, str2);
+				delete[] str2;
+			}
+			else if(param2 == UNIT_OBJECT)
+			{
+				WORD localeId;
+				// TODO: param1 >> 24 is wrong because there are more than 255 records in monstats
+				FillBaseStat("objects", (param1 >> 24), "Name", &localeId, sizeof(WORD));
+				wchar_t* str = D2LANG_GetLocaleText(localeId);
+				char* str2 = UnicodeToAnsi(str);
+				strcpy_s(name2, 28, str2);
 				delete[] str2;
 			}
 			break;
