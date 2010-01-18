@@ -56,7 +56,7 @@
 ///////////////////////////////////////////////////
 // Out of Game Locations (From ControlInfo.dbl)
 ///////////////////////////////////////////////////
-enum OOG_Locations {
+enum OOG_Location {
 	OOG_NONE = 0,
 	OOG_LOBBY,
 	OOG_INLINE,
@@ -80,7 +80,7 @@ enum OOG_Locations {
 	OOG_DIFFICULTY,
 	OOG_MAIN_MENU_CONNECTING,
 	OOG_INVALID_CDKEY,
-	OOG_CONNECTING,
+	OOG_CONNECTING, // not used. OOG_CHARACTER_SELECT_NO_CHARS with a connecting message
 	OOG_SERVER_DOWN,
 	OOG_PLEASE_WAIT,
 	OOG_GAME_EXIST,

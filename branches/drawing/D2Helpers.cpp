@@ -980,24 +980,42 @@ VOID __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelI
 	}
 }
 
-__declspec(naked) VOID __fastcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
+__declspec(naked) VOID __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
 {
 	__asm
 	{
-		POP EAX
+		PUSH EBP
+		MOV EBP, ESP
+		SUB ESP, 0x20
+		PUSH EBX
+		PUSH ESI
+		PUSH EDI
+		AND DWORD PTR SS:[EBP-0x20],0
 		PUSH 0
-		PUSH EAX
+		CALL _TakeWaypoint
+		JMP _Exit
+
+_TakeWaypoint:
 		PUSH EBP
 		PUSH ESI
 		PUSH EDI
 		PUSH EBX
-		XOR EDI,EDI
-		MOV EBX,1
+		XOR EDI, EDI
+		MOV EBX, 1
+		MOV ECX,DWORD PTR SS:[EBP+8]
+		MOV EDX,DWORD PTR SS:[EBP+0xC]
 		LEA EBP,DWORD PTR SS:[EBP-0x20]
 		JMP [D2CLIENT_TakeWaypoint_I]
+
+
+_Exit:
+		POP EDI
+		POP ESI
+		POP EBX
+		LEAVE
+		RETN 8
 	}
 }
-
 DWORD __declspec(naked) __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
 {
 	__asm 
@@ -1118,14 +1136,23 @@ VOID __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD 
 */
 }
 
-__declspec(naked) DWORD __fastcall D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
+DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 {
+	DWORD dwResult;
+
 	__asm
 	{
-		MOV EAX, ECX
-		MOV ESI, EDX
-		JMP [D2CLIENT_GetMinionCount_I]
+		push eax
+		push esi
+		MOV EAX, pUnit
+		MOV ESI, dwType
+		call D2CLIENT_GetMinionCount_I
+		mov [dwResult], eax
+		pop esi
+		pop eax
 	}
+
+	return dwResult;
 }
 
 __declspec(naked) VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton)

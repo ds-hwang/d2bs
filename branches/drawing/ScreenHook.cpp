@@ -106,24 +106,12 @@ bool Genhook::Click(int button, POINT* loc)
 
 	Lock();
 
-	jsval rval;
-	if(JS_AddRoot(&rval) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
+	jsval rval = JSVAL_VOID;
 	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&args[0]) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
-	if(JS_AddRoot(&args[1]) == JS_FALSE)
-	{
-		Unlock();
-		return false;
-	}
-	if(JS_AddRoot(&args[2]) == JS_FALSE)
+	if(JS_AddRoot(&rval) == JS_FALSE ||
+	   JS_AddRoot(&args[0]) == JS_FALSE ||
+	   JS_AddRoot(&args[1]) == JS_FALSE ||
+	   JS_AddRoot(&args[2]) == JS_FALSE)
 	{
 		Unlock();
 		return false;
@@ -153,26 +141,20 @@ void Genhook::Hover(POINT* loc)
 	Lock();
 
 	jsval rval = JSVAL_VOID;
-	if(JS_AddRoot(&rval) == JS_FALSE)
-	{
-		Unlock();
-		return;
-	}
 	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&args[0]) == JS_FALSE)
+	if(JS_AddRoot(&rval) == JS_FALSE ||
+	   JS_AddRoot(&args[0]) == JS_FALSE ||
+	   JS_AddRoot(&args[1]) == JS_FALSE)
 	{
 		Unlock();
 		return;
 	}
-	if(JS_AddRoot(&args[1]) == JS_FALSE)
-	{
-		Unlock();
-		return;
-	}
+
 	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
 
 	JS_RemoveRoot(&args[0]);
 	JS_RemoveRoot(&args[1]);
+	JS_RemoveRoot(&rval);
 
 	Unlock();
 }
@@ -242,9 +224,9 @@ bool TextHook::IsInRange(int dx, int dy)
 {
 	Lock();
 	POINT size = CalculateTextLen(text, font);
-	Unlock();
 	int x = GetX(), y = GetY(), w = size.x, h = size.y,
 		xp = x - (alignment != Center ? (alignment != Right ? 0 : w) : w/2);
+	Unlock();
 	return (xp < dx && y > dy && (xp+w) > dx && (y-h) < dy);
 }
 
@@ -262,7 +244,7 @@ void TextHook::SetText(const char* ntext)
 void ImageHook::Draw(void)
 {
 	Lock();
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL && !IsBadReadPtr(image, sizeof(CellFile)))
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL)
 	{
 		uint x = GetX(), y = GetY(), w = image->cells[0]->width;
 		x += (alignment != Left ? (alignment != Right ? 0 : -1*(w/2)) : w/2);
@@ -284,12 +266,14 @@ bool ImageHook::IsInRange(int dx, int dy)
 {
 	if(image)
 	{
+		Lock();
 		int x = GetX();
 		int y = GetY();
 		int w = image->cells[0]->width;
 		int h = image->cells[0]->height;
 		int xp = x - (alignment != Left ? (alignment != Right ? w/2 : w) : -1*w);
 		int yp = y - (h/2);
+		Unlock();
 		return (xp < dx && yp < dy && (xp+w) > dx && (yp+h) > dy);
 	}
 
@@ -366,7 +350,9 @@ void BoxHook::Draw(void)
 
 bool BoxHook::IsInRange(int dx, int dy)
 {
+	Lock();
 	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	Unlock();
 	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }
 
@@ -394,6 +380,8 @@ void FrameHook::Draw(void)
 
 bool FrameHook::IsInRange(int dx, int dy)
 {
+	Lock();
 	int x = GetX(), y = GetY(), x2 = GetXSize(), y2 = GetYSize();
+	Unlock();
 	return (x < dx && y < dy && (x+x2) > dx && (y+y2) > dy);
 }

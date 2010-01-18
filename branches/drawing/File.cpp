@@ -24,7 +24,7 @@
 
 using namespace std;
 
-const char* readLine(FILE* fptr)
+const char* readLine(FILE* fptr, bool locking)
 {
 	if(feof(fptr))
 		return NULL;
@@ -32,7 +32,10 @@ const char* readLine(FILE* fptr)
 	char c = 0;
 	// grab all the characters in this line
 	do {
-		c = (char)fgetc(fptr);
+		if(locking)
+			c = (char)fgetc(fptr);
+		else
+			c = (char)_fgetc_nolock(fptr);
 		// append the new character unless it's a carriage return
 		if(c != '\r' && c != '\n' && !feof(fptr))
 			buffer.append(1, c);
@@ -40,7 +43,7 @@ const char* readLine(FILE* fptr)
 	return _strdup(buffer.c_str());
 }
 
-bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
+bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool locking)
 {
 	char* str;
 	int len = 0, result;
@@ -52,28 +55,47 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 	switch(JS_TypeOfValue(cx, value))
 	{
 		case JSTYPE_VOID: case JSTYPE_NULL:
-			if(fwrite(&ival, sizeof(int), 1, fptr) == 1)
+			if(locking)
+				result = fwrite(&ival, sizeof(int), 1, fptr);
+			else
+				result = _fwrite_nolock(&ival, sizeof(int), 1, fptr);
+			if(result == 1)
 				return true;
 			break;
 		case JSTYPE_STRING:
 			str = JS_GetStringBytes(JSVAL_TO_STRING(value));
-			if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
-				return true;
+			if(locking)
+				result = fwrite(str, sizeof(char), strlen(str), fptr);
+			else
+				result = _fwrite_nolock(str, sizeof(char), strlen(str), fptr);
+			return (int)strlen(str) == result;
 			break;
 		case JSTYPE_NUMBER:
 			if(isBinary)
 			{
 				if(JSVAL_IS_DOUBLE(value))
 				{
-					if(JS_ValueToNumber(cx, value, &dval) && fwrite(&dval, sizeof(jsdouble), 1, fptr) == 1)
-						return true;
+					if(JS_ValueToNumber(cx, value, &dval))
+					{
+						if(locking)
+							result = fwrite(&dval, sizeof(jsdouble), 1, fptr);
+						else
+							result = _fwrite_nolock(&dval, sizeof(jsdouble), 1, fptr);
+						return result == 1;
+					}
 					else
 						return false;
 				}
 				else if(JSVAL_IS_INT(value))
 				{
-					if(JS_ValueToInt32(cx, value, &ival) && fwrite(&ival, sizeof(int32), 1, fptr) == 1)
-						return true;
+					if(JS_ValueToInt32(cx, value, &ival))
+					{
+						if(locking)
+							result = fwrite(&ival, sizeof(int32), 1, fptr);
+						else
+							result = _fwrite_nolock(&dval, sizeof(int32), 1, fptr);
+						return result == 1;
+					}
 					else
 						return false;
 				}
@@ -88,7 +110,10 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 					str = new char[64];
 					sprintf_s(str, 64, "%.16f", dval);
 					len = strlen(str);
-					result = fwrite(str, sizeof(char), len, fptr);
+					if(locking)
+						result = fwrite(str, sizeof(char), len, fptr);
+					else
+						result = _fwrite_nolock(str, sizeof(char), len, fptr);
 					delete[] str;
 					if(result == len)
 						return true;
@@ -100,7 +125,10 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 					str = new char[16];
 					_itoa_s(ival, str, 16, 10);
 					len = strlen(str);
-					result = fwrite(str, sizeof(char), len, fptr);
+					if(locking)
+						result = fwrite(str, sizeof(char), len, fptr);
+					else
+						result = _fwrite_nolock(str, sizeof(char), len, fptr);
 					delete[] str;
 					if(result == len)
 						return true;
@@ -112,14 +140,20 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 			{
 				bval = !!JSVAL_TO_BOOLEAN(value);
 				str = bval ? "true" : "false";
-				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
-					return true;
+				if(locking)
+					result = fwrite(str, sizeof(char), strlen(str), fptr);
+				else
+					result = _fwrite_nolock(str, sizeof(char), strlen(str), fptr);
+				return (int)strlen(str) == result;
 			}
 			else
 			{
 				bval = !!JSVAL_TO_BOOLEAN(value);
-				if(fwrite(&bval, sizeof(bool), 1, fptr) == 1)
-					return true;
+				if(locking)
+					result = fwrite(&bval, sizeof(bool), 1, fptr);
+				else
+					result = _fwrite_nolock(&bval, sizeof(bool), 1, fptr);
+				return result == 1;
 			}
 			break;
 /*		case JSTYPE_OBJECT:
@@ -139,8 +173,11 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary)
 			{
 				JSString* jsstr = JS_ValueToString(cx, value);
 				str = JS_GetStringBytes(jsstr);
-				if(fwrite(str, sizeof(char), strlen(str), fptr) == strlen(str))
-					return true;
+				if(locking)
+					result = fwrite(str, sizeof(char), strlen(str), fptr);
+				else
+					result = _fwrite_nolock(str, sizeof(char), strlen(str), fptr);
+				return strlen(str) == result;
 			}
 			break;
 */

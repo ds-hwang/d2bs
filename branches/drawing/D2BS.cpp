@@ -1,4 +1,5 @@
 // Diablo II Botting System Core
+
 #include <shlwapi.h>
 
 #include "dde.h"
@@ -8,6 +9,10 @@
 #include "D2Handlers.h"
 #include "Console.h"
 #include "D2BS.h"
+
+#ifdef _MSVC_DEBUG
+#include "D2Loader.h"
+#endif
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 
@@ -63,13 +68,17 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cTextHookSection);
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
+	InitializeCriticalSection(&Vars.cGameLoopSection);
+
+	Vars.bNeedShutdown = TRUE;	
+	Vars.bChangedAct = FALSE;
+	Vars.bGameLoopEntered = FALSE;
 
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
 
-	Vars.bNeedShutdown = TRUE;
 	if((hD2Thread = CreateThread(NULL, NULL, D2Thread, NULL, NULL, NULL)) == INVALID_HANDLE_VALUE)
 		return FALSE;
 
@@ -109,6 +118,7 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cTextHookSection);
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
+	DeleteCriticalSection(&Vars.cGameLoopSection);
 
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;

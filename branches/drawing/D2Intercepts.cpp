@@ -57,13 +57,12 @@ BlockIt:
 	}
 }
 
-VOID __declspec(naked) GameMinimize_Interception()
+BOOL GameMinimize_Interception()
 {
-	__asm
-	{
-		xor eax, eax
-		retn
-	}
+	if(D2CLIENT_GetPlayerUnit() && GetForegroundWindow() != D2GFX_GetHwnd())
+		return 1;
+
+	return 0;
 }
 
 
@@ -119,7 +118,7 @@ VOID __declspec(naked) GameAttack_STUB()
 		mov [esp+0x0C], 1
 
 OldCode:
-		mov eax, [D2CLIENT_Attack_I]
+		mov eax, [p_D2CLIENT_ScreenSizeY]
 		mov eax, [eax]
 		retn
 	}
@@ -153,4 +152,35 @@ Skip:
 VOID GameDraw_Interception(VOID)
 {
 	GameDrawOOG();
+}
+
+void __declspec(naked) GameActChange_STUB(void)
+{
+	__asm
+	{
+		POP EAX
+		PUSH EDI
+		XOR EDI, EDI
+		CMP [Vars.bChangedAct], 0
+		MOV [Vars.bChangedAct], 0
+		JMP EAX
+	}
+}
+
+void __declspec(naked) GameActChange2_STUB(void)
+{
+	__asm
+	{
+		MOV [Vars.bChangedAct], 1
+		retn 4
+	}
+}
+
+void __declspec(naked) GameLeave_STUB(void)
+{
+	__asm
+	{
+		call GameLeave
+		jmp D2CLIENT_GameLeave_I
+	}
 }

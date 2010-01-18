@@ -44,13 +44,15 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 				THROW_ERROR(cx, obj, "Could not get string for value");
 
 			jsrefcount depth = JS_SuspendRequest(cx);
+			JS_ClearContextThread(cx);
 
 			char* c = 0;
 			while((c = strchr(Text, '%')) != 0)
 				*c = (unsigned char)0xFE;
 
 			Print(Text ? Text : "undefined");
-			
+
+			JS_SetContextThread(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -64,13 +66,16 @@ JSAPI_FUNC(my_delay)
 		int nDelay = JSVAL_TO_INT(argv[0]);
 		if(nDelay)
 		{
+			JS_ClearContextThread(cx);
 			jsrefcount depth = JS_SuspendRequest(cx);
+
 			Sleep(nDelay);
+
+			JS_SetContextThread(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 		else
 			JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-			//THROW_ERROR(cx, obj, "delay(0) called, argument must be >= 1");
 	}
 
 	return JS_TRUE;
@@ -165,7 +170,10 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		*rval = JSVAL_VOID;
 		Private* myPrivate = (Private*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
-		if(myPrivate && myPrivate->dwPrivateType == PRIVATE_UNIT)
+		if(!myPrivate)
+			return JS_TRUE;
+
+		if(myPrivate->dwPrivateType == PRIVATE_UNIT)
 		{
 			myUnit* lpOldUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 			myUnit* lpUnit = new myUnit;
@@ -173,6 +181,25 @@ INT my_copyUnit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
+				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+				if(!jsunit)
+				{
+					delete lpUnit;
+					lpUnit = NULL;
+					THROW_ERROR(cx, obj, "Couldn't copy unit");
+				}
+
+				*rval = OBJECT_TO_JSVAL(jsunit);
+			}
+		}
+		else if(myPrivate->dwPrivateType == PRIVATE_ITEM)
+		{
+			invUnit* lpOldUnit = (invUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+			invUnit* lpUnit = new invUnit;
+
+			if(lpUnit)
+			{
+				memcpy(lpUnit, lpOldUnit, sizeof(invUnit));
 				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
@@ -214,7 +241,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
-		if(!mypUnit || IsBadReadPtr(mypUnit, sizeof(myUnit)) || mypUnit->_dwPrivateType != PRIVATE_UNIT) // Check if the object is valid and if it's a unit object
+		if(!mypUnit || (mypUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnit = D2CLIENT_FindUnit(mypUnit->dwUnitId, mypUnit->dwType);
@@ -336,8 +363,7 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	}
 	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
 	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
-	// CWalkPath is fucking retarded. :(
-	BOOL UseTele = true;// IsTownLevel(Area);
+	BOOL UseTele = !IsTownLevel(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
@@ -467,8 +493,17 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 typedef VOID __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
 INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
 	if(!GameReady())
 		return JS_TRUE;
+
+	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
 
 	myUnit* pmyUnit = NULL;
 	UnitAny* pUnit = NULL;
@@ -497,12 +532,15 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		{2,3}, // 14
 		{3,3}, // 15
 	};
+
+	*p_D2CLIENT_CursorHoverX = 0xFFFFFFFF;
+	*p_D2CLIENT_CursorHoverY = 0xFFFFFFFF;
 	
 	if(argc == 1 && JSVAL_IS_OBJECT(argv[0]))
 	{
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		
-		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
+		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
@@ -554,7 +592,7 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	{
 		pmyUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		
-		if(!pmyUnit || pmyUnit->_dwPrivateType != PRIVATE_UNIT)
+		if(!pmyUnit || (pmyUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
@@ -568,6 +606,9 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		
 		INT x = pUnit->pItemPath->dwPosX;
 		INT y = pUnit->pItemPath->dwPosY;
+
+		*p_D2CLIENT_CursorHoverX = x;
+		*p_D2CLIENT_CursorHoverY = y;
 
 		InventoryLayout* pLayout = NULL;
 
@@ -651,6 +692,9 @@ INT my_clickItem (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 			jsint nLoc = JSVAL_TO_INT(argv[3]);
 
 			InventoryLayout* pLayout = NULL;
+
+			*p_D2CLIENT_CursorHoverX = nX;
+			*p_D2CLIENT_CursorHoverY = nY;
 
 			// Fixing the location - so Diablo can handle it!
 			if(nLoc != 5)
@@ -815,10 +859,10 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		myUnit* pUnit2 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 
-		if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
-		if(!pUnit2 || pUnit2->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnit2 || (pUnit2->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
@@ -839,7 +883,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 
-			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
+			if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 				return JS_TRUE;	
 
 			UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
@@ -856,7 +900,7 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			myUnit* pUnit1 = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
-			if(!pUnit1 || pUnit1->_dwPrivateType != PRIVATE_UNIT)
+			if(!pUnit1 || (pUnit1->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 				return JS_TRUE;	
 
 			UnitAny* pUnitA = D2CLIENT_FindUnit(pUnit1->dwUnitId, pUnit1->dwType);
@@ -919,7 +963,7 @@ INT my_checkCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 		myUnit*	pUnitB = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
 		jsint			nBitMask = JSVAL_TO_INT(argv[2]);
 
-		if(!pUnitA || pUnitA->_dwPrivateType != PRIVATE_UNIT || !pUnitB || pUnitB->_dwPrivateType != PRIVATE_UNIT)
+		if(!pUnitA || (pUnitA->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT || !pUnitB || (pUnitB->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
 
 		UnitAny* pUnit1 = D2CLIENT_FindUnit(pUnitA->dwUnitId, pUnitA->dwType);
@@ -1294,10 +1338,12 @@ INT my_sendCopyData(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 		return JS_TRUE;
 	}
 
-	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1,data };
+	// if data is NULL, strlen crashes
+	if(data == NULL)
+		data = "";
 
-	INT sz = SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2WIN_GetHwnd(), (LPARAM)&aCopy);
-	*rval = INT_TO_JSVAL(sz);
+	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1,data };
+	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2WIN_GetHwnd(), (LPARAM)&aCopy));
 
 	return JS_TRUE;
 }
@@ -1808,14 +1854,19 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	jsint nArea = GetPlayerArea();
 
-	if(argc == 1 && JSVAL_IS_INT(argv[0]))
+	if(argc == 1)
 	{
-		nArea = JSVAL_TO_INT(argv[0]); 
+		if(JSVAL_IS_INT(argv[0]))
+			nArea = JSVAL_TO_INT(argv[0]); 
+		else
+			THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	}
-	else
+
+	if(nArea < 0)
 		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
 	
 	Level* pLevel = GetLevel(nArea);
+
 	if(!pLevel)
 	{
 		*rval = JSVAL_FALSE;
@@ -1905,13 +1956,20 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 {
 	if(argc > 2)
 	{
-		CHAR* szStatName = NULL;
+		char *szStatName = NULL, *szTableName = NULL;
 		jsint nBaseStat = 0;
 		jsint nClassId = 0;
 		jsint nStat = -1;
 
-		if(JSVAL_IS_INT(argv[0]))
+		if(JSVAL_IS_STRING(argv[0]))
+		{
+			szTableName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+			if(!szTableName)
+				return JS_TRUE;
+		}
+		else if(JSVAL_IS_INT(argv[0]))
 			nBaseStat = JSVAL_TO_INT(argv[0]);
+		
 		else
 			return JS_TRUE;
 
@@ -1931,7 +1989,7 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		else
 			return JS_TRUE;
 
-		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szStatName);
+		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
 	}
 
 	return JS_TRUE;
@@ -2116,7 +2174,7 @@ JSAPI_FUNC(my_login)
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!profile)
 		THROW_ERROR(cx, obj, "Could not convert string (profile)");
-	
+
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
 	GetPrivateProfileString(profile, "mode", "single", mode, sizeof(mode), file);
@@ -2149,7 +2207,7 @@ JSAPI_FUNC(my_login)
 				break;
 			case OOG_CHAR_SELECT:
 				if (!OOG_SelectCharacter(charname))
-					 errorMsg = "invalid charactor name";
+					 errorMsg = "invalid character name";
 				break;
 			case OOG_MAIN_MENU:
 				if (tolower(mode[0])== 's')
@@ -2279,6 +2337,104 @@ JSAPI_FUNC(my_login)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_createGame)
+{
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
+	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
+	   (argc > 1 && !JSVAL_IS_STRING(argv[1])) ||
+	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
+		THROW_ERROR(cx, obj, "Invalid parameters specified to createGame");
+
+	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
+		 *pass = NULL;
+	if(argc > 1)
+		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+
+	int diff = 3;
+	if(argc > 2)
+		diff = JSVAL_TO_INT(argv[2]);
+
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		THROW_ERROR(cx, obj, "Invalid game name or password length");
+
+	if(!OOG_CreateGame(name, pass, diff))
+		THROW_ERROR(cx, obj, "createGame failed");
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_joinGame)
+{
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
+	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
+	   (argc > 1 && !JSVAL_IS_STRING(argv[1])))
+		THROW_ERROR(cx, obj, "Invalid parameters specified to joinGame");
+
+	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
+		 *pass = NULL;
+	if(argc > 1)
+		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+
+	if(strlen(name) > 15 || strlen(pass) > 15)
+		THROW_ERROR(cx, obj, "Invalid game name or password length");
+
+	if(!OOG_JoinGame(name, pass))
+		THROW_ERROR(cx, obj, "joinGame failed");
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_addProfile)
+{
+	// validate the args...
+	char *profile, *mode, *gateway, *username, *password, *charname;
+	if(argc != 6)
+		THROW_ERROR(cx, obj, "Invalid arguments passed to addProfile");
+
+	for(uintN i = 0; i < argc; i++)
+		if(!JSVAL_IS_STRING(argv[i]))
+			THROW_ERROR(cx, obj, "All arguments to addProfile must be strings!");
+
+	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+	mode = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	gateway = JS_GetStringBytes(JSVAL_TO_STRING(argv[2]));
+	username = JS_GetStringBytes(JSVAL_TO_STRING(argv[3]));
+	password = JS_GetStringBytes(JSVAL_TO_STRING(argv[4]));
+	charname = JS_GetStringBytes(JSVAL_TO_STRING(argv[5]));
+	if(!profile || !mode || !gateway || !username || !password || !charname)
+		THROW_ERROR(cx, obj, "Failed to convert string");
+
+	char file[_MAX_FNAME+_MAX_PATH];
+
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+	// check if the profile exists
+	{
+		// keep this local to this section of code so we don't cause the stack to grossly explode
+		char profiles[65535];
+		int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
+		int i = 0;
+		while(i < count)
+		{
+			if(_strcmpi(profiles+i, profile) == 0)
+				THROW_ERROR(cx, obj, "Profile already exists!");
+			i += strlen(profiles+i)+2;
+		}
+	}
+
+	char settings[600];
+	// nope, write the new one
+	sprintf_s(settings, sizeof(settings),
+				"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
+				mode, gateway, username, password, charname);
+
+	WritePrivateProfileSection(profile, settings, file);
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_getOOGLocation)
 {
 	if(ClientState() != ClientStateMenu)
@@ -2384,3 +2540,4 @@ JSAPI_FUNC(my_getInteractedNPC)
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
+

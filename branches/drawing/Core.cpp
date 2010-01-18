@@ -130,11 +130,12 @@ void Say(const char *szMessage, ...)
 	va_start(vaArgs, szMessage);
 	vsprintf_s(szBuffer, sizeof(szBuffer), szMessage, vaArgs);
 	va_end(vaArgs);
+	Vars.bDontCatchNextMsg = TRUE;
 
 	if(*p_D2CLIENT_PlayerUnit)
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
-		memcpy((wchar_t*)p_D2CLIENT_ChatTextBuffer, wBuffer, wcslen(wBuffer)*2+1);
+		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
 		delete[] wBuffer;
 		wBuffer = NULL;
 
@@ -151,7 +152,7 @@ void Say(const char *szMessage, ...)
 		delete aMsg;
 		aMsg = NULL;
 	}
-	else
+	else if(OOG_GetLocation() == OOG_CHANNEL)
 	{
 		memcpy((CHAR*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
@@ -172,8 +173,6 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 		dwUnitType = pUnit->dwType;
 	}
 
-	CriticalMisc cMisc;
-	cMisc.EnterSection();
 
 	if(dwUnitId)
 	{

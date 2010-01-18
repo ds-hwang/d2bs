@@ -59,7 +59,6 @@ FUNCPTR(D2CLIENT, GetQuestInfo, VOID* __stdcall, (VOID), 0x17D00) // Updated
 FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x20010) // Updated
 FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1C0) // Updated
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1A0) // Updated
-FUNCPTR(D2CLIENT, SetUIVar, DWORD __fastcall, (DWORD varno, DWORD howset, DWORD unknown1), 0x8EF00) // Updated
 FUNCPTR(D2CLIENT, clickMap, VOID __stdcall, (DWORD MouseFlag, DWORD x, DWORD y, DWORD Type), 0x5CE80) // Updated
 FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (VOID), 0x9EB40) // Updated
 FUNCPTR(D2CLIENT, LeftClickItem, VOID __stdcall, (UnitAny* pPlayer, Inventory* pInventory, INT x, INT y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0xB0900) // Updated
@@ -79,6 +78,8 @@ FUNCPTR(D2CLIENT, Transmute, VOID __fastcall, (VOID), 0xA6560)
 
 VARPTR(D2CLIENT, MouseOffsetY, int, 0x1121CC) // Updated
 VARPTR(D2CLIENT, MouseOffsetX, int, 0x1121D0) // Updated
+VARPTR(D2CLIENT, CursorHoverX, DWORD, 0xDCAD8) // Added (12-5-09, Sheppard)
+VARPTR(D2CLIENT, CursorHoverY, DWORD, 0xDCADC) // Added (12-5-09, Sheppard)
 VARPTR(D2CLIENT, Divisor, int, 0xF3B98) // Updated
 VARPTR(D2CLIENT, yShake, int, 0xFD114) // Updated
 VARPTR(D2CLIENT, GameInfo, GameStructInfo *, 0x11B908) // Updated
@@ -92,7 +93,9 @@ VARPTR(D2CLIENT, AutomapOn, DWORD, 0x102B80)
 VARPTR(D2CLIENT, FirstAutomapLayer, AutomapLayer *, 0x11C2B0) // Updated
 VARPTR(D2CLIENT, AutomapLayer, AutomapLayer *, 0x11C2B4) // Updated
 VARPTR(D2CLIENT, AutomapYPosition, int, 0x11C30C) // Updated
-VARPTR(D2CLIENT, PlayerUnit, UnitAny *, 0x11C3D0) // Updated
+VARPTR(D2CLIENT, PlayerUnit, UnitAny*, 0x11C3D0) // Updated
+VARPTR(D2CLIENT, ServerUnitList, UnitAny*, 0x11A960);
+VARPTR(D2CLIENT, ClientUnitList, UnitAny*, 0x119D60);
 VARPTR(D2CLIENT, PlayerUnitList, RosterUnit *, 0x11C080) // Updated
 VARPTR(D2CLIENT, QuestTab, DWORD, 0x11D50D) // Updated
 VARPTR(D2CLIENT, MouseX, DWORD, 0x101638)// Updated
@@ -115,6 +118,9 @@ VARPTR(D2CLIENT, RepairCosts, DWORD, 0x11B67B) // Updated
 VARPTR(D2CLIENT, RecentInteractId, DWORD, 0x11B625) // Updated
 VARPTR(D2CLIENT, NPCMenu, NPCMenu*, 0xF8300) // Updated
 VARPTR(D2CLIENT, NPCMenuAmount, DWORD, 0xF8A50) // Updated
+VARPTR(D2CLIENT, TransactionDialog, void*, 0x11B663)
+VARPTR(D2CLIENT, TransactionDialogs, DWORD, 0x11C194)
+VARPTR(D2CLIENT, TransactionDialogs_2, DWORD, 0x11C190)
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x11C1D0) // Updated
 VARPTR(D2CLIENT, InventoryLayout, InventoryLayout*, 0x100CD0) // Updated
 VARPTR(D2CLIENT, StashLayout, InventoryLayout*, 0x100BC0) // Updated 100BC0 100BC0
@@ -122,8 +128,7 @@ VARPTR(D2CLIENT, StoreLayout, InventoryLayout*, 0x100CA0) // Updated
 VARPTR(D2CLIENT, CubeLayout, InventoryLayout*, 0x100CB8) // Updated
 VARPTR(D2CLIENT, TradeLayout, InventoryLayout*, 0x100B78) // Updated
 VARPTR(D2CLIENT, MercLayout, InventoryLayout*, 0x11BB5C) // Updated
-VARPTR(D2CLIENT, StoreTable, DWORD, 0x101638) // Updated
-VARPTR(D2CLIENT, ChatTextBuffer, wchar_t*, 0x11FC40) // Updated
+//VARPTR(D2CLIENT, StoreTable, DWORD, 0x101638) // This is unreferenced and shadowd MouseX, commented until it is corrected at least
 VARPTR(D2CLIENT, RegularCursorType, DWORD, 0x101674) // Updated
 VARPTR(D2CLIENT, ShopCursorType, DWORD, 0x11B9F8) // Updated
 VARPTR(D2CLIENT, OverheadTrigger, DWORD, 0x1054F6) // Updated
@@ -210,14 +215,18 @@ FUNCPTR(D2COMMON, FixOverheadMsg, VOID __stdcall, (OverheadMsg* pMsg, DWORD dwUn
 FUNCPTR(D2COMMON, CheckCollision, DWORD __stdcall, (Room1* pRoom, DWORD dwX, DWORD dwY, DWORD dwBitMask), -10493) // Updated
 FUNCPTR(D2COMMON, GetUnitMaxHP, DWORD __stdcall, (UnitAny* pUnit), -10445) // Updated
 FUNCPTR(D2COMMON, CheckUnitSlot, DWORD __stdcall, (Inventory* pInventory, DWORD dwSlot), -10099)
+FUNCPTR(D2COMMON, GetRepairCost, DWORD __stdcall, (DWORD _1, UnitAny* pUnit, DWORD dwNpcId, DWORD dwDifficulty, DWORD dwItemPriceList, DWORD _2), -10027)
 
 VARPTR(D2COMMON, sqptDataTable,DWORD, 0x9B500) // Updated
+VARPTR(D2COMMON, CriticalRoomSection, CRITICAL_SECTION*, 0xA1440)
 ASMPTR(D2COMMON, DisplayOverheadMsg_I, -10375) // Updated
 ASMPTR(D2COMMON, checkCollision_I, 0x58370) // Updated
+ASMPTR(D2CLIENT, GameLeave_I, 0x7E0F0)
 
 FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10036) // Updated
 FUNCPTR(D2NET, ReceivePacket, void __stdcall, (BYTE *aPacket, DWORD aLen), 0x6510) // Updated
 FUNCPTR(D2NET, ReceivePacket_I, void __stdcall, (BYTE *aPacket, DWORD aLen), -10002) // Updated
+VARPTR(D2NET, CriticalPacketSection, CRITICAL_SECTION, 0xB400)
 
 FUNCPTR(D2GFX, DrawAutomapCell, void __stdcall, (CellContext *context, DWORD xpos, DWORD ypos, RECT *cliprect, DWORD bright), -10061)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext *context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10024) 

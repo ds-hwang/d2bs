@@ -12,13 +12,13 @@ public:
 	~CriticalRoom() { LeaveSection(); }
 
 	void EnterSection() {
-		EnterCriticalSection(&Vars.cRoomSection);
+		EnterCriticalSection(&Vars.cGameLoopSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
-			LeaveCriticalSection(&Vars.cRoomSection);
+			LeaveCriticalSection(&Vars.cGameLoopSection);
 			bEnteredCriticalSection = false;
 		}
 	}
@@ -34,13 +34,13 @@ public:
 	~CriticalMisc()  { LeaveSection(); }
 
 	void EnterSection() {
-		EnterCriticalSection(&Vars.cMiscSection);
+		EnterCriticalSection(&Vars.cGameLoopSection);
 		bEnteredCriticalSection = true;
 	}
 
 	void LeaveSection() {
 		if(bEnteredCriticalSection) {
-			LeaveCriticalSection(&Vars.cMiscSection);
+			LeaveCriticalSection(&Vars.cGameLoopSection);
 			bEnteredCriticalSection = false;
 		}
 	}

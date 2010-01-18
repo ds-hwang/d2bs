@@ -5,6 +5,8 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	bool bAdded = false;
 	bool bInit = false;
 
+	DWORD dwLevelNo = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo;
+
 	CriticalRoom room;
 	room.EnterSection();
 	//Make sure we have the room.
@@ -12,9 +14,9 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 		return false;
 
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
-	//Check if we have Room1(Needed inorder to reveal)
+	//Check if we have Room1(Needed in order to reveal)
 	if (!(pRoom2 && pRoom2->pRoom1)) {
-		D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, player->pPath->pRoom1);
+		D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
 		bAdded = true;
 	}
 	if (!(pRoom2 && pRoom2->pRoom1)){// second check added to see if we DID indeed init the room!
@@ -30,15 +32,15 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	//Reveal this room!
 	D2CLIENT_RevealAutomapRoom(pRoom2->pRoom1, TRUE, (*p_D2CLIENT_AutomapLayer));
 
-	if (revealPresets)
-		DrawPresets (pRoom2);
+	if(revealPresets)
+		DrawPresets(pRoom2);
 
 	//Remove room data if we have added.
-	if (bAdded)
-		D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+	if(bAdded)
+		D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
 	
-	if (bInit)
-		InitAutomapLayer(D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo);
+	if(bInit)
+		InitAutomapLayer(dwLevelNo);
 	
 	return true;
 }

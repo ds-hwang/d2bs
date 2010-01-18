@@ -6,6 +6,12 @@
 #include "JSSandbox.h"
 #include "JSUnit.h"
 #include "JSScreenHook.h"
+#include "JSPresetUnit.h"
+#include "JSArea.h"
+#include "JSControl.h"
+#include "JSParty.h"
+#include "JSExits.h"
+#include "JSRoom.h"
 
 struct JSClassSpec {
 	JSClass* js_class;
@@ -29,5 +35,12 @@ static JSClassSpec global_classes[] = {
 	{&text_class,			text_ctor,		text_props,			text_methods,			NULL,			NULL},
 	{&image_class,			image_ctor,		image_props,		image_methods,			NULL,			NULL},
 	{&unit_class,			NULL,			unit_props,			unit_methods,			NULL,			NULL},
+	{&presetunit_class,		NULL,			presetunit_props,	NULL,					NULL,			NULL},
+	{&area_class,			NULL,			area_props,			NULL,					NULL,			NULL},
+	{&control_class,		NULL,			control_props,		control_funcs,			NULL,			NULL},
+	{&directory_class,		NULL,			dir_props,			dir_methods,			NULL,			NULL},
+	{&exit_class,			NULL,			exit_props,			NULL,					NULL,			NULL},
+	{&party_class,			NULL,			party_props,		party_methods,			NULL,			NULL},
+	{&room_class,			NULL,			room_props,			room_methods,			NULL,			NULL},
 	{0}
 };

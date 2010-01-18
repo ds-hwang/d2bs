@@ -79,6 +79,8 @@ public:
 	ScriptState GetState(void) { return scriptState; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
+	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
+	void UpdatePlayerGid(void);
 
 	bool IsRunning(void);
 	bool IsAborted(void);

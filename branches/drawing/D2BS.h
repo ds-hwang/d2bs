@@ -6,7 +6,7 @@
 #define XP_WIN
 #define JS_THREADSAFE
 
-#define D2BS_VERSION "1.1.1"
+#define D2BS_VERSION "1.1.2"
 
 #include <windows.h>
 #include <map>
@@ -19,7 +19,9 @@ struct Variables;
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 
 #define PRIVATE_UNIT		1
-#define PRIVATE_CONTROL		3
+#define PRIVATE_ITEM		3
+
+struct Private { DWORD dwPrivateType; };
 
 struct Module
 {	
@@ -42,6 +44,8 @@ struct Variables
 	BOOL	bNeedShutdown;
 	BOOL	bUseGamePrint;
 	BOOL	bShutdownFromDllMain;
+	BOOL	bChangedAct;
+	BOOL	bGameLoopEntered;
 
 	DWORD	dwMaxGameTime;
 	BOOL	bBlockMinimize;
@@ -79,6 +83,7 @@ struct Variables
 	CRITICAL_SECTION	cLineHookSection;
 	CRITICAL_SECTION	cFlushCacheSection;
 	CRITICAL_SECTION	cConsoleSection;
+	CRITICAL_SECTION	cGameLoopSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;

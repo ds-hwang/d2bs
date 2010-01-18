@@ -39,23 +39,28 @@ enum
 
 struct BinField
 {
-	CHAR szFieldName[64];
+	char szFieldName[64];
 	DWORD eFieldType;
 	DWORD dwFieldLength;
 	DWORD dwFieldOffset;
 };
 
-struct MPQTables
+struct MPQTable
 {
 	DWORD dwEntry; // if > 0xFFFF it is not located in the exported mpq data..
 	DWORD dwMaxEntriesOffset; // ""
 	BinField* pTable;
+	char szTableName[15];
 	WORD wTableSize;
 	WORD wUnknown;
 };
 
-extern DWORD GetBaseTable(INT nBaseStat, INT nClassId);
-extern DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber, CHAR* szStat);
+DWORD GetBaseTable(INT nBaseStat, INT nClassId);
+bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t size);
+bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size);
+bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size);
+bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size);
+DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT column, char* szTable, char* szStat);
 
 // Tables dumped by Sheppard
 

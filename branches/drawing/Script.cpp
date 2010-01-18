@@ -5,6 +5,7 @@
 #include "Core.h"
 #include "Constants.h"
 #include "D2Ptrs.h"
+#include "JSUnit.h"
 #include "Helpers.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
@@ -134,13 +135,8 @@ void Script::Run(void)
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
-	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE)
-	{
-		JS_RemoveRoot(&main);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	if(JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
+	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE ||
+	   JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
 	{
 		JS_RemoveRoot(&main);
 		JS_EndRequest(GetContext());
@@ -155,6 +151,35 @@ void Script::Run(void)
 
 	execCount++;
 	Stop();
+}
+
+void Script::UpdatePlayerGid(void)
+{
+	jsval me = JSVAL_VOID;
+	JSObject* meObject = NULL;
+	JS_AddRoot(&me);
+	JS_SetContextThread(GetContext());
+	JS_BeginRequest(GetContext());
+
+	if(JS_GetProperty(GetContext(), globalObject, "me", &me) == JS_FALSE)
+	{
+		JS_RemoveRoot(&me);
+		JS_EndRequest(GetContext());
+		return;
+	}
+	meObject = JSVAL_TO_OBJECT(me);
+	myUnit* meUnit = (myUnit*)JS_GetPrivate(GetContext(), meObject);
+	if(!meUnit)
+	{
+		JS_RemoveRoot(&me);
+		JS_EndRequest(GetContext());
+		return;
+	}
+	meUnit->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
+	JS_SetPrivate(GetContext(), meObject, meUnit);
+	JS_RemoveRoot(&me);
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
 }
 
 void Script::Pause(void)

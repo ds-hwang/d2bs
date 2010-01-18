@@ -26,10 +26,12 @@ JSAPI_FUNC(my_overhead);
 JSAPI_FUNC(unit_getEnchant);
 JSAPI_FUNC(unit_getQuest);
 JSAPI_FUNC(unit_getMinionCount);
+JSAPI_FUNC(me_getRepairCost);
+JSAPI_FUNC(item_getItemCost);
 
 void unit_finalize(JSContext *cx, JSObject *obj);
-JSBool unit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
-JSBool unit_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(unit_getProperty);
+JSAPI_PROP(unit_setProperty);
 
 struct myUnit
 {
@@ -38,7 +40,19 @@ struct myUnit
 	DWORD dwClassId;
 	DWORD dwType;
 	DWORD dwMode;
-	CHAR szName[128];
+	char szName[128];
+};
+
+struct invUnit
+{
+	DWORD _dwPrivateType;
+	DWORD dwUnitId;
+	DWORD dwClassId;
+	DWORD dwType;
+	DWORD dwMode;
+	char szName[128];
+	DWORD dwOwnerId;
+	DWORD dwOwnerType;
 };
 
 enum unit_tinyid
@@ -74,6 +88,7 @@ enum me_tinyid {
 	ME_ITEMONCURSOR,
 	ME_LADDER,
 	ME_PING,
+	ME_FPS,
 	ME_PLAYERTYPE,
 	ME_QUITONHOSTILE,
 	ME_REALM,
@@ -100,11 +115,12 @@ static JSPropertySpec me_props[] = {
 	{"itemoncursor",	ME_ITEMONCURSOR,	JSPROP_PERMANENT_VAR},
 	{"ladder",			ME_LADDER,			JSPROP_PERMANENT_VAR},
 	{"ping",			ME_PING,			JSPROP_PERMANENT_VAR},
+	{"fps",				ME_FPS,				JSPROP_PERMANENT_VAR},
 	{"playertype",		ME_PLAYERTYPE,		JSPROP_PERMANENT_VAR},
 	{"realm",			ME_REALM,			JSPROP_PERMANENT_VAR},
 	{"realmshort",		ME_REALMSHORT,		JSPROP_PERMANENT_VAR},
 	{"mercrevivecost",	ME_MERCREVIVECOST,	JSPROP_PERMANENT_VAR},
-	{"runwalk",			ME_RUNWALK,			JSPROP_PERMANENT_VAR},
+	{"runwalk",			ME_RUNWALK,			JSPROP_STATIC_VAR},
 	{"weaponswitch",	ME_WSWITCH,			JSPROP_PERMANENT_VAR},
 	{"chickenhp",		ME_CHICKENHP,		JSPROP_STATIC_VAR},
 	{"chickenmp",		ME_CHICKENMP,		JSPROP_STATIC_VAR},
@@ -213,6 +229,7 @@ static JSFunctionSpec unit_methods[] = {
 	{"repair",			unit_repair,		0},
 	{"useMenu",			unit_useMenu,		0},
 	{"interact",		unit_interact,		0},
+	{"getItem",			unit_getItem,		3},
 	{"getItems",		unit_getItems,		0},
 	{"getMerc",			unit_getMerc,		0},
 	{"getSkill",		unit_getSkill,		0},
@@ -223,12 +240,13 @@ static JSFunctionSpec unit_methods[] = {
 	{"getStat",			unit_getStat,		1},
 	{"getState",		unit_getState,		1},
 	{"getPrice",		item_getPrice,		1},
-	{"getItem",			unit_getItem,		1},
 	{"getEnchant",		unit_getEnchant,	1},
 	{"shop",			item_shop,			2},
 	{"setSkill",		unit_setskill,		2},
 	{"move",			unit_move,			2},
 	{"getQuest",		unit_getQuest,		2},
 	{"getMinionCount",	unit_getMinionCount, 1},
+	{"getRepairCost",	me_getRepairCost,	1},
+	{"getItemCost",		item_getItemCost,	1},
 	{0},
 };

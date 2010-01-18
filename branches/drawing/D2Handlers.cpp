@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "D2Handlers.h"
+#include "D2NetHandlers.h"
 #include "Script.h"
 #include "ScreenHook.h"
 #include "Unit.h"
@@ -15,7 +16,7 @@
 
 using namespace std;
 
-Variables Vars;
+bool __fastcall UpdatePlayerGid(Script* script, void*, uint) { script->UpdatePlayerGid(); return true; }
 
 DWORD WINAPI D2Thread(LPVOID lpParam)
 {
@@ -66,6 +67,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
+					ScriptEngine::ForEachScript(UpdatePlayerGid, NULL, 0);
 
 					GameJoined();
 
@@ -106,7 +108,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 DWORD __fastcall GameInput(wchar_t* wMsg)
 {
 	if(Vars.bDontCatchNextMsg)
+	{
+		Vars.bDontCatchNextMsg = FALSE;
 		return NULL;
+	}
 
 	char* szBuffer = UnicodeToAnsi(wMsg);
 	bool result = false;
@@ -118,108 +123,22 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 
 	delete[] szBuffer;
 
-	return result == true ? 0 : -1;
+	return result == true ? -1 : 0;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 {
-	if(pPacket[0] == 0x15)
+	switch(pPacket[0])
 	{
-		if(*(LPDWORD)&pPacket[2] == D2CLIENT_GetPlayerUnit()->dwUnitId)
-			pPacket[10] = NULL;	
-	}
-	if(pPacket[0] == 0x95 || pPacket[0] == 0x18)
-	{
-		WORD Life = *(WORD*)&pPacket[1];
-		WORD Mana = *(WORD*)&pPacket[3];
-
-		if((Life & 0x8000) == 0x8000)
-		{
-			Life ^= 0x8000;
-		}
-		if((Mana & 0x8000) == 0x8000)
-		{
-			Mana ^= 0x8000;
-		}
-		if((Mana & 0x4000) == 0x4000)
-		{
-			Mana ^= 0x4000;
-		}
-		Mana *= 2;
-
-		static WORD SaveLife = 0;
-		if(SaveLife != Life)
-		{
-			SaveLife = Life;
-			LifeEvent(Life);
-		}
-
-		static WORD SaveMana = 0;
-		if(SaveMana != Mana)
-		{
-			SaveMana = Mana;
-			ManaEvent(Mana);
-		}
-	}
-	else if(pPacket[0] == 0x26)
-	{
-		CHAR* pName = (CHAR*)pPacket+10;
-		CHAR* pMessage = (CHAR*)pPacket + strlen(pName) + 11;
-	
-		ChatEvent(pName, pMessage);
-	}
-	else if(pPacket[0] == 0x5a && pPacket[1] == 0x07 && pPacket[2] == 0x08)
-	{
-		if(Vars.bQuitOnHostile)
-		{
-			D2CLIENT_ExitGame();
-		}
-	}
-	else if(pPacket[0] == 0xA7)
-	{
-		if(pPacket[6] == AFFECT_JUST_PORTALED)
-			return FALSE;
-	}
-	else if(pPacket[0] == 0x9c)	//itemDropEvent() by bobite, todo: sending all modes
-	{
-		if(pPacket[1] == 0x00 ||pPacket[1] == 0x02 ||pPacket[1] == 0x03 )
-		{			
-			char Code[5] = "";
-			WORD itemX;
-			WORD itemY;
-			//(data+pos/8)<<(64-len-(pos&7))>>(64-len)); taken from magnet and mousepad
-			//		date=packet, len= size of data being red, pos = where in the packet -1
-
-			Code[0]=(*(unsigned __int64 *)(pPacket+141/8)<<(64-8-(141&7))>>(64-8));		
-			Code[1]=(*(unsigned __int64 *)(pPacket+149/8)<<(64-8-(149&7))>>(64-8));	
-			Code[2]=(*(unsigned __int64 *)(pPacket+157/8)<<(64-8-(157&7))>>(64-8));	
-			Code[3]=(*(unsigned __int64 *)(pPacket+165/8)<<(64-8-(165&7))>>(64-8));	
-			Code[(Code[3] == ' ' ? 3 : 4)] = '\0';
-			itemX=(*(unsigned __int64 *)(pPacket+108/8)<<(64-16-(108&7))>>(64-16));	
-			itemY=(*(unsigned __int64 *)(pPacket+125/8)<<(64-16-(125&7))>>(64-16));	
-			itemX=itemX/2;
-			//itemY=itemY/2; //only x gets /2
-			WORD Mode = *(BYTE*)&pPacket[1];
-			DWORD GID = *(DWORD*)&pPacket[4];
-
-			if(strcmp(Code, "gld") == 0)
-				GoldDropEvent(GID, itemX, itemY, Mode);
-			else
-				ItemDropEvent(GID, Code, itemX, itemY, Mode);
-
-		}
-	}
-	else if(pPacket[0] == 0x5a){ // SOJ and Walks Msg by bobite
-		if (pPacket[1] == 0x11){ //stones
-			DWORD soj = *(DWORD*)&pPacket[3];
-			char mess[256]; 
-			sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
-			GameMsgEvent(mess);
-		}
-		if (pPacket[1] == 0x12){ //diablo walks
-			char mess[] ="Diablo Walks the Earth";
-			GameMsgEvent(mess);
-		}
+		case 0x15: return ReassignPlayerHandler(pPacket, dwSize);
+		case 0x26: return ChatEventHandler(pPacket, dwSize);
+		case 0x2A: return NPCTransactionHandler(pPacket, dwSize);
+		case 0x5A: return EventMessagesHandler(pPacket, dwSize);
+		case 0x18:
+		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
+		case 0x9C:
+		case 0x9D: return ItemActionHandler(pPacket, dwSize);
+		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
 	}
 
 	return TRUE;
@@ -455,3 +374,30 @@ VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
 
+BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+{
+	if(Vars.bGameLoopEntered)
+	{
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+	}
+	else Vars.bGameLoopEntered = true;
+
+	EnterCriticalSection(&Vars.cGameLoopSection);
+
+	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
+}
+
+void GameLeave(void)
+{
+	if(Vars.bGameLoopEntered)
+	{
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+	}
+	else Vars.bGameLoopEntered = true;
+
+	// Stop ingame scripts at this point ..
+	// otherwise we deadlock ...
+	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
+
+	EnterCriticalSection(&Vars.cGameLoopSection);
+}

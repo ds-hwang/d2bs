@@ -153,7 +153,8 @@ void ScriptEngine::Shutdown(void)
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);
 
-		scripts.clear();
+		if(!scripts.empty())
+			scripts.clear();
 
 		if(runtime)
 		{
@@ -206,7 +207,7 @@ void ScriptEngine::FlushCache(void)
 
 void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 {
-	if(callback == NULL)
+	if(callback == NULL || scripts.size() < 1)
 		return;
 
 	EnterCriticalSection(&lock);
@@ -262,6 +263,13 @@ bool __fastcall StopScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
+bool __fastcall StopIngameScript(Script* script, void*, uint)
+{
+	if(script->GetState() == InGame)
+		script->Stop(true);
+	return true;
+}
+
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
@@ -301,6 +309,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 	if(pause)
 		script->SetPauseState(false);
 
+	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));

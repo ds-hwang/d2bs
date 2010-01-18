@@ -390,15 +390,26 @@ struct Stat {
 	DWORD dwStatValue;				//0x04
 };
 
+// Credits to SVR, http://phrozenkeep.hugelaser.com/forum/viewtopic.php?f=8&t=31458&p=224066
 struct StatList {
-	DWORD _1[9];					//0x00
+	DWORD _1;						//0x00
+	UnitAny* pUnit;					//0x04
+	DWORD dwUnitType;				//0x08
+	DWORD dwUnitId;					//0x0C
+	DWORD dwFlags;					//0x10
+	DWORD _2[4];					//0x14
 	Stat *pStat;					//0x24
 	WORD wStatCount1;				//0x28
-	WORD wStatCount2;				//0x2A
-	DWORD _2[2];					//0x2C
-	BYTE *_3;						//0x34
+	WORD wnSize;					//0x2A
+	StatList *pPrevLink;			//0x2C
+	DWORD _3;						//0x30
+	StatList *pPrev;				//0x34
 	DWORD _4;						//0x38
 	StatList *pNext;				//0x3C
+	StatList *pSetList;				//0x40
+	DWORD _5;						//0x44
+	Stat *pSetStat;					//0x48
+	WORD wSetStatCount;				//0x4C
 };
 
 struct Inventory {
@@ -520,7 +531,7 @@ struct MonsterData {
 		BYTE fBoss:1;
 		BYTE fMinion:1;
 	};				//0x16
-	BYTE _2[6];
+	BYTE _2[5];
 	BYTE anEnchants[9];				//0x1C
 	WORD wUniqueNo;					//0x26
 	DWORD _5;						//0x28
@@ -639,7 +650,7 @@ struct BnetData
 	BYTE _4[273];				//0xD8
 	BYTE nCharClass;			//0x1E9
 	BYTE nCharFlags;			//0x1EA
-	BYTE nMaxDiff;				//0x1EB
+	BYTE nMaxLvlDifference;		//0x1EB
 	BYTE _5[31];				//0x1EC
 	BYTE nDifficulty;			//0x20B
 	void *_6;					//0x20C
