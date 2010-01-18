@@ -84,7 +84,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 {
 	// packet breakdown: http://www.edgeofnowhere.cc/viewtopic.php?t=392307
 	BYTE mode = pPacket[1];
-	DWORD param1 = *(DWORD*)pPacket+3;
+	DWORD param1 = *(DWORD*)(pPacket+3);
 	BYTE param2 = pPacket[7];
 	char name1[16] = "", name2[28] = "";
 	strcpy_s(name1, 16, (char*)pPacket+8);
@@ -100,9 +100,8 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)*/
 			if(param2 == UNIT_MONSTER || param2 == UNIT_OBJECT)
 			{
-				// TODO: param2 >> 24 is wrong because there are more than 255 records in monstats
 				WORD localeId;
-				FillBaseStat(tables[param2], (param1 >> 24), columns[param2], &localeId, sizeof(WORD));
+				FillBaseStat(tables[param2], param1, columns[param2], &localeId, sizeof(WORD));
 				wchar_t* str = D2LANG_GetLocaleText(localeId);
 				char* str2 = UnicodeToAnsi(str);
 				strcpy_s(name2, 28, str2);
