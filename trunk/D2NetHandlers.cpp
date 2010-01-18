@@ -95,10 +95,10 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 	{
 		case 0x06: // name1 slain by name2
 			/*BYTE Param2 = Unit Type of Slayer (0x00 = Player, 0x01 = NPC)
-			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)
-			  if Type = NPC & Monster is Unique, %Name2 = Unique Monster Id*/
+			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)*/
 			if(param2 == 1)
 			{
+				// TODO: param1 is supposed to be monster id... but it's not?
 			}
 			break;
 		case 0x07: // player relation

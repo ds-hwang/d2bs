@@ -100,37 +100,46 @@ bool FillBaseStat(INT table, INT row, INT nStatNumber, void* result, size_t size
 				if(size < pTable[nStatNumber].dwFieldLength)
 					return false;
 				memcpy_s(result, pTable[nStatNumber].dwFieldLength, (BYTE*)(dwRetValue+pTable[nStatNumber].dwFieldOffset), pTable[nStatNumber].dwFieldLength);
+				break;
 			case FIELDTYPE_DATA_DWORD:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				break;
 			case FIELDTYPE_CALC_TO_DWORD:
 			case FIELDTYPE_NAME_TO_DWORD:
 			case FIELDTYPE_DATA_DWORD_2:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				break;
 			case FIELDTYPE_UNKNOWN_11:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				break;
 			case FIELDTYPE_NAME_TO_INDEX_2:
 			case FIELDTYPE_NAME_TO_WORD_2:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
 				if(((WORD)result) >= 0xFFFF)
 					*(WORD*)result = (((WORD)result) - 0xFFFF) * -1;
+				break;
 			case FIELDTYPE_NAME_TO_INDEX:
 			case FIELDTYPE_NAME_TO_WORD:
 			case FIELDTYPE_KEY_TO_WORD:
 			case FIELDTYPE_DATA_WORD:
 			case FIELDTYPE_CODE_TO_WORD:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(WORD));
+				break;
 			case FIELDTYPE_CODE_TO_BYTE:
 			case FIELDTYPE_DATA_BYTE_2:
 			case FIELDTYPE_DATA_BYTE:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), dwHelperSize);
+				break;
 			case FIELDTYPE_DATA_BIT:
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
 				*(BOOL*)result = (*(BOOL*)result & (1 << pTable[nStatNumber].dwFieldLength)) ? 1 : 0;
+				break;
 			case FIELDTYPE_ASCII_TO_CODE:
 			case FIELDTYPE_DATA_RAW:
 				if(size != 5)
 					return false;
 				memcpy(result, (LPVOID)(dwRetValue+pTable[nStatNumber].dwFieldOffset), sizeof(DWORD));
+				break;
 			case FIELDTYPE_MONSTER_COMPS:
 				// ..? :E
 				return false;
