@@ -90,8 +90,8 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 	strcpy_s(name1, 16, (char*)pPacket+8);
 	strcpy_s(name2, 16, (char*)pPacket+24);
 
-	char** tables = {"", "monstats", "objects"};
-	char** columns = {"", "NameStr", "Name"};
+	char* tables[3] = {"", "monstats", "objects"};
+	char* columns[3] = {"", "NameStr", "Name"};
 
 	switch(mode)
 	{
