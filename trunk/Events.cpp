@@ -25,6 +25,13 @@ struct KeyEventHelper
 	WPARAM key;
 };
 
+struct GameActionEventHelper
+{
+	BYTE mode;
+	DWORD param;
+	char *name1, *name2;
+};
+
 struct SingleArgHelper
 {
 	DWORD arg1;
@@ -293,3 +300,28 @@ void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global)
 	ItemEventHelper helper = {GID, Code, Mode, Global};
 	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 1);
 }
+
+bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
+{
+	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
+	{
+		AutoRoot** argv = new AutoRoot*[4];
+		JSContext* cx = script->GetContext();
+		JS_SetContextThread(cx);
+		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param));
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name1)));
+		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name2)));
+		JS_ClearContextThread(cx);
+		script->ExecEventAsync("gameevent", 4, argv);
+	}
+	return true;
+}
+
+void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2)
+{
+	GameActionEventHelper helper = {mode, param, name1, name2};
+	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
+}
+

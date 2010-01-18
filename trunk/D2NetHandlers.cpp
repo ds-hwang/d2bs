@@ -70,38 +70,53 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 
 DWORD NPCTransactionHandler(BYTE* pPacket, DWORD dwSize)
 {
+	CHAR  code[5]    = "";
+	BYTE  bTradeType = pPacket[0x01];							// [BYTE Trade Type]
+	BYTE  bMode      = pPacket[0x02];							// [BYTE Result? - 0x00 =  Purchased || 0x01 = Sold || 0x0c = Insuffecient Gold]
+	DWORD nGID       = *(DWORD *)(pPacket+0x07);				// [DWORD  Merchandise Id]
+	DWORD nGold      = *(DWORD *)(pPacket+0x0B);				// [DWORD Gold in Inventory]
+
+	ItemActionEvent(nGID, code, (100 + bMode), false);			// Item Action Event
+
 	return TRUE;
 }
 
 DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 {
-	switch (pPacket[1])
+	// packet breakdown: http://www.edgeofnowhere.cc/viewtopic.php?t=392307
+	BYTE mode = pPacket[1];
+	DWORD param1 = *(DWORD*)pPacket+3;
+	BYTE param2 = pPacket[7];
+	char name1[16] = "", name2[28] = "";
+	strcpy_s(name1, 16, (char*)pPacket+8);
+	strcpy_s(name2, 16, (char*)pPacket+24);
+
+	switch(mode)
 	{
-		case 0x07:
+		case 0x06: // name1 slain by name2
+			/*BYTE Param2 = Unit Type of Slayer (0x00 = Player, 0x01 = NPC)
+			  if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)
+			  if Type = NPC & Monster is Unique, %Name2 = Unique Monster Id*/
+			if(param2 == 1)
 			{
-				if( Vars.bQuitOnHostile && pPacket[2] == 0x08 )
-				{
-					D2CLIENT_ExitGame();
-				}
 			}
 			break;
-
-		case 0x11:
+		case 0x07: // player relation
+			strcpy_s(name1, 16, D2CLIENT_FindUnit(param1, UNIT_PLAYER)->pPlayerData->szName);
+			switch(param2)
 			{
-				DWORD soj = *(DWORD*)&pPacket[3];
-				char mess[256]; 
-				sprintf_s(mess, sizeof(mess), "%u Stones of Jordan Sold to Merchants", soj);				
-				GameMsgEvent(mess);
+				case 0x03: // hostile
+					if(Vars.bQuitOnHostile)
+						D2CLIENT_ExitGame();
+					break;
 			}
 			break;
-
-		case 0x12:
-			{
-				char mess[] ="Diablo Walks the Earth";
-				GameMsgEvent(mess);
-			}
+		case 0x0a: // name1 has items in his box
+			if(name1[0] == 0)
+				strcpy_s(name1, 16, "You");
 			break;
 	}
+	GameActionEvent(mode, param1, name1, name2);
 
 	return TRUE;
 }
@@ -116,17 +131,22 @@ DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 
 	switch(dest)
 	{
-		case 0: case 2:
+		case 0: 
+		case 2:
 			icode = *(INT64 *)(pPacket+15)>>0x04;
 			break;
-		case 3: case 4: case 6:
+		case 3: 
+		case 4: 
+		case 6:
 			if(!((mode == 0 || mode == 2) && dest == 3))
 			{
-				if(mode != 0xF && mode != 1)
+				if(mode != 0xF && mode != 1 && mode != 12)
 					icode = *(INT64 *)(pPacket+17) >> 0x1C;
 				else
 					icode = *(INT64 *)(pPacket+15) >> 0x04;
-			} else  icode = *(INT64 *)(pPacket+17) >> 0x05;
+			} 
+			else  
+				icode = *(INT64 *)(pPacket+17) >> 0x05;
 			break;
 		default:
 			Log("Received invalid item destination...? mode = %d, gid = %d, dest = %d", mode, gid, dest);

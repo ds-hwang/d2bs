@@ -54,8 +54,10 @@ struct MPQTables
 	WORD wUnknown;
 };
 
-extern DWORD GetBaseTable(INT nBaseStat, INT nClassId);
-extern DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber, CHAR* szStat);
+DWORD GetBaseTable(INT nBaseStat, INT nClassId);
+bool FillBaseStat(INT nBaseStat, INT nClassId, char* szStat, void* result, size_t size);
+bool FillBaseStat(INT nBaseStat, INT nClassId, INT nStatNumber, void* result, size_t size);
+DWORD FillBaseStat(JSContext* cx, jsval *argv, INT nBaseStat, INT nClassId, INT nStatNumber, CHAR* szStat);
 
 // Tables dumped by Sheppard
 
