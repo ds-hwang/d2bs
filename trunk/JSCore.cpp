@@ -1957,13 +1957,20 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 {
 	if(argc > 2)
 	{
-		CHAR* szStatName = NULL;
+		char *szStatName = NULL, *szTableName = NULL;
 		jsint nBaseStat = 0;
 		jsint nClassId = 0;
 		jsint nStat = -1;
 
-		if(JSVAL_IS_INT(argv[0]))
+		if(JSVAL_IS_STRING(argv[0]))
+		{
+			szTableName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+			if(!szTableName)
+				return JS_TRUE;
+		}
+		else if(JSVAL_IS_INT(argv[0]))
 			nBaseStat = JSVAL_TO_INT(argv[0]);
+		
 		else
 			return JS_TRUE;
 
@@ -1983,7 +1990,7 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		else
 			return JS_TRUE;
 
-		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szStatName);
+		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
 	}
 
 	return JS_TRUE;

@@ -70,13 +70,11 @@ DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 
 DWORD NPCTransactionHandler(BYTE* pPacket, DWORD dwSize)
 {
-	CHAR  code[5]    = "";
-	BYTE  bTradeType = pPacket[0x01];							// [BYTE Trade Type]
-	BYTE  bMode      = pPacket[0x02];							// [BYTE Result? - 0x00 =  Purchased || 0x01 = Sold || 0x0c = Insuffecient Gold]
-	DWORD nGID       = *(DWORD *)(pPacket+0x07);				// [DWORD  Merchandise Id]
-	DWORD nGold      = *(DWORD *)(pPacket+0x0B);				// [DWORD Gold in Inventory]
+	char code[5] = "";
+	BYTE mode = pPacket[0x02]; // [BYTE Result - 0x00 =  Purchased || 0x01 = Sold || 0x0c = Insuffecient Gold]
+	DWORD gid = *(DWORD *)(pPacket+0x07);
 
-	ItemActionEvent(nGID, code, (100 + bMode), false);			// Item Action Event
+	ItemActionEvent(gid, code, (100 + mode), false);
 
 	return TRUE;
 }
