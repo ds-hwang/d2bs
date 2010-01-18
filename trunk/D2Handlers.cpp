@@ -108,7 +108,10 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 DWORD __fastcall GameInput(wchar_t* wMsg)
 {
 	if(Vars.bDontCatchNextMsg)
+	{
+		Vars.bDontCatchNextMsg = FALSE;
 		return NULL;
+	}
 
 	char* szBuffer = UnicodeToAnsi(wMsg);
 	bool result = false;

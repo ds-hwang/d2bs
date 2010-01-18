@@ -130,6 +130,7 @@ void Say(const char *szMessage, ...)
 	va_start(vaArgs, szMessage);
 	vsprintf_s(szBuffer, sizeof(szBuffer), szMessage, vaArgs);
 	va_end(vaArgs);
+	Vars.bDontCatchNextMsg = TRUE;
 
 	if(*p_D2CLIENT_PlayerUnit)
 	{
@@ -151,7 +152,7 @@ void Say(const char *szMessage, ...)
 		delete aMsg;
 		aMsg = NULL;
 	}
-	else
+	else if(OOG_GetLocation() == OOG_CHANNEL)
 	{
 		memcpy((CHAR*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
