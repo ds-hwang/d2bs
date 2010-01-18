@@ -98,7 +98,8 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 			if(param2 == 1)
 			{
 				WORD localeId;
-				FillBaseStat("monstats", param1 >> 24, "NameStr", &localeId, sizeof(WORD));
+				// TODO: param1 >> 24 is wrong because there are more than 255 records in monstats
+				FillBaseStat("monstats", (param1 >> 24), "NameStr", &localeId, sizeof(WORD));
 				wchar_t* str = D2LANG_GetLocaleText(localeId);
 				char* str2 = UnicodeToAnsi(str);
 				strcpy(name2, str2);

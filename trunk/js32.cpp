@@ -9,6 +9,109 @@
 
 using namespace std;
 
+JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char* format, ...)
+{
+	int formatLen = strlen(format);
+	bool optional = false;
+	va_list args;
+	va_start(args, format);
+	JSBool result = JS_TRUE;
+
+	JS_EnterLocalRootScope(cx);
+	jsval* arg = argv;
+	int argPos = 0;
+
+#define CHECK(type, code) if(JS_TypeOfValue(cx, *arg) != type || !code) result = JS_FALSE;
+
+	for(int i = 0; i < formatLen; i++)
+	{
+		switch(format[i])
+		{
+			case '/':
+				optional = true;
+				continue;
+			case 'b':
+				CHECK(JSTYPE_BOOLEAN, JS_ValueToBoolean(cx, *arg, va_arg(args, JSBool*)))
+				break;
+			case 'c':
+				CHECK(JSTYPE_NUMBER, JS_ValueToUint16(cx, *arg, va_arg(args, uint16*)))
+				break;
+			case 'i':
+				CHECK(JSTYPE_NUMBER, JS_ValueToECMAInt32(cx, *arg, va_arg(args, int32*)))
+				break;
+			case 'u':
+				CHECK(JSTYPE_NUMBER, JS_ValueToECMAUint32(cx, *arg, va_arg(args, uint32*)))
+				break;
+			case 'd':
+				CHECK(JSTYPE_NUMBER, JS_ValueToNumber(cx, *arg, va_arg(args, jsdouble*)))
+				break;
+			case 's':
+			{
+				if(JS_TypeOfValue(cx, *arg) != JSTYPE_STRING)
+					result = JS_FALSE;
+				else
+				{
+					JSString* str = JS_ValueToString(cx, *arg);
+					if(str == NULL)
+						result = JS_FALSE;
+					else
+						va_arg(args, char*) = JS_GetStringBytes(str);
+				}
+			}
+				break;
+			case 'w':
+			{
+				if(JS_TypeOfValue(cx, *arg) != JSTYPE_STRING)
+					result = JS_FALSE;
+				else
+				{
+					JSString* str = JS_ValueToString(cx, *arg);
+					if(str == NULL)
+						result = JS_FALSE;
+					else
+						va_arg(args, jschar*) = JS_GetStringChars(str);
+				}
+			}
+				break;
+			case 'o':
+				CHECK(JSTYPE_OBJECT, JS_ValueToObject(cx, *arg, &(va_arg(args, JSObject*))))
+				break;
+			case 'O':
+			{
+				// only typecheck the object
+				if(!JS_TypeOfValue(cx, *arg) != JSTYPE_OBJECT)
+					result = JS_FALSE;
+				else
+					va_arg(args, jsval*) = arg;
+			}
+				break;
+			case 'n':
+				if(*arg != JSVAL_NULL)
+					result = JS_FALSE;
+				else
+					va_arg(args, jsval*) = arg;
+			case 'f':
+				CHECK(JSTYPE_FUNCTION, JS_ConvertValue(cx, *arg, JSTYPE_FUNCTION, va_arg(args, jsval*)))
+				break;
+		}
+		arg++;
+		argPos++;
+
+		if((uintN)argPos == argc)
+			if((i+1) != formatLen && !optional) result = JS_FALSE;
+			else break;
+
+		if(result == JS_FALSE)
+			break;
+	}
+
+#undef CHECK
+
+	JS_LeaveLocalRootScope(cx);
+	va_end(args);
+	return result;
+}
+
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 {
 	char msg[2048];

@@ -25,6 +25,7 @@
 
 #define DEPRECATED JS_ReportWarning(cx, "This function has been deprecated, and will be removed from future releases.")
 
+JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char* format, ...);
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)
