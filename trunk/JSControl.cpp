@@ -124,10 +124,9 @@ JSAPI_PROP(control_setProperty)
 		{
 			if (JSVAL_IS_INT(*vp))
 			{
-				DWORD dwPos = JSVAL_TO_INT(*vp);
-//				if (dwPos < 0 || dwPos > pControl->dwMaxLength)
-//					return JS_TRUE;
-				memset((VOID*)&pControl->dwCursorPos, dwPos, sizeof(DWORD));
+				DWORD dwPos = NULL;
+				if(JS_ValueToECMAUint32(cx, *vp, &dwPos))
+					memset((VOID*)&pControl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;
 		}
@@ -194,12 +193,12 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		return JS_TRUE;
 	}
 
-	jsint x=-1,y=-1;
+	uint32 x, y;
 
 	if(argc > 1 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 	{
-		x = JSVAL_TO_INT(argv[0]);
-		y = JSVAL_TO_INT(argv[1]);
+		JS_ValueToECMAUint32(cx, argv[0], &x);
+		JS_ValueToECMAUint32(cx, argv[1], &y);
 	}
 
 	clickControl(pControl, x, y);

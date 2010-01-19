@@ -38,8 +38,10 @@ INT presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case PUNIT_ID:
 			*vp = INT_TO_JSVAL(pUnit->dwId);
 			break;
+		case PUINT_LEVEL:
+			*vp = INT_TO_JSVAL(pUnit->dwLevel);
 		default:
 			break;
-	}	
+	}
 	return JS_TRUE;
 }

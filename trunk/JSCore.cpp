@@ -221,7 +221,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(!GameReady())
 		return JS_TRUE;
 
-	WORD nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
+	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
 	*rval = JSVAL_FALSE;
 	
@@ -229,13 +229,13 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		return JS_TRUE;
 
 	if(JSVAL_IS_INT(argv[0]))
-		nClickType = (WORD)JSVAL_TO_INT(argv[0]);
+		JS_ValueToUint16(cx, argv[0], &nClickType);
 	if(JSVAL_IS_INT(argv[1]))
-		nShift = (WORD)JSVAL_TO_INT(argv[1]);
+		JS_ValueToUint16(cx, argv[1], &nShift);
 	if(JSVAL_IS_INT(argv[2]))
-		nX = (WORD)JSVAL_TO_INT(argv[2]);
+		JS_ValueToUint16(cx, argv[2], &nX);
 	if(JSVAL_IS_INT(argv[3]))
-		nY = (WORD)JSVAL_TO_INT(argv[3]);
+		JS_ValueToUint16(cx, argv[3], &nY);
 
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
 	{
@@ -355,21 +355,27 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		jsval nVal;
 		for (int n = 0; n < (INT)dwLength; n++) {
 			JS_GetElement(cx, pObject, n, &nVal);
-			AreaIds[n] = JSVAL_TO_INT(nVal);
+			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
 		}
 		Area = AreaIds[0];
 	} else {
-		Area = JSVAL_TO_INT(argv[0]);
+		JS_ValueToECMAUint32(cx, argv[0], &Area);
 	}
-	POINT ptStart = { JSVAL_TO_INT(argv[1]),JSVAL_TO_INT(argv[2]) };
-	POINT ptEnd = { JSVAL_TO_INT(argv[3]),JSVAL_TO_INT(argv[4]) };
+
+	uint32 x, y, x2, y2;
+	JS_ValueToECMAUint32(cx, argv[1], &x);
+	JS_ValueToECMAUint32(cx, argv[1], &y);
+	JS_ValueToECMAUint32(cx, argv[1], &x2);
+	JS_ValueToECMAUint32(cx, argv[1], &y2);
+
+	POINT ptStart = {x, y}, ptEnd = {x2, y2};
 	BOOL UseTele = !IsTownLevel(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
 	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
 	if(argc >= 7)
-		Radius = JSVAL_TO_INT(argv[6]);
+		JS_ValueToECMAUint32(cx, argv[6], &Radius);
 	if(argc == 8)
 		Reduction = !!JSVAL_TO_BOOLEAN(argv[7]);
 
@@ -475,7 +481,8 @@ INT my_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	DWORD nLevelId = JSVAL_TO_INT(argv[0]);
+	DWORD nLevelId;
+	JS_ValueToECMAUint32(cx, argv[0], &nLevelId);
 	jsint nX = JSVAL_TO_INT(argv[1]);
 	jsint nY = JSVAL_TO_INT(argv[2]);
 	if (Vars.cCollisionMap.dwLevelId && Vars.cCollisionMap.dwLevelId != nLevelId)
@@ -799,7 +806,9 @@ INT my_getLocaleString(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
 
-	wchar_t* wString = D2LANG_GetLocaleText((WORD)JSVAL_TO_INT(argv[0]));
+	uint16 localeId;
+	JS_ValueToUint16(cx, argv[0], &localeId);
+	wchar_t* wString = D2LANG_GetLocaleText(localeId);
 	char* szTmp = UnicodeToAnsi(wString);
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTmp));
 	delete[] szTmp;
@@ -893,8 +902,8 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 			nX1 = GetUnitX(pUnitA);
 			nY1 = GetUnitY(pUnitA);
-			nX2 = JSVAL_TO_INT(argv[1]);
-			nY2 = JSVAL_TO_INT(argv[2]);
+			JS_ValueToECMAInt32(cx, argv[1], &nX2);
+			JS_ValueToECMAInt32(cx, argv[2], &nY2);
 		}
 		else if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_OBJECT(argv[2]))
 		{
@@ -910,18 +919,18 @@ INT my_getDistance(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 			nX1 = GetUnitX(pUnitA);
 			nY1 = GetUnitY(pUnitA);
-			nX2 = JSVAL_TO_INT(argv[0]);
-			nY2 = JSVAL_TO_INT(argv[1]);
+			JS_ValueToECMAInt32(cx, argv[0], &nX2);
+			JS_ValueToECMAInt32(cx, argv[1], &nY2);
 		}
 	}
 	else if(argc == 4)
 	{
 		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
 		{
-			nX1 = JSVAL_TO_INT(argv[0]);
-			nY1 = JSVAL_TO_INT(argv[1]);
-			nX2 = JSVAL_TO_INT(argv[2]);
-			nY2 = JSVAL_TO_INT(argv[3]);
+			JS_ValueToECMAInt32(cx, argv[0], &nX1);
+			JS_ValueToECMAInt32(cx, argv[1], &nY1);
+			JS_ValueToECMAInt32(cx, argv[2], &nX2);
+			JS_ValueToECMAInt32(cx, argv[3], &nY2);
 		}
 	}
 
@@ -961,7 +970,7 @@ INT my_checkCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 	{
 		myUnit*	pUnitA = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
 		myUnit*	pUnitB = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[1]));
-		jsint			nBitMask = JSVAL_TO_INT(argv[2]);
+		jsint nBitMask = JSVAL_TO_INT(argv[2]);
 
 		if(!pUnitA || (pUnitA->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT || !pUnitB || (pUnitB->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
 			return JS_TRUE;
@@ -1490,9 +1499,11 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	if(argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
-		if(JSVAL_TO_INT(argv[0]) != NULL) // 1 Parameter, AreaId
+		uint32 levelId;
+		JS_ValueToECMAUint32(cx, argv[0], &levelId);
+		if(levelId != 0) // 1 Parameter, AreaId
 		{
-			Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
+			Level* pLevel = GetLevel(levelId);
 
 			if(!pLevel || !pLevel->pRoom2First)
 				return JS_TRUE;
@@ -1505,7 +1516,7 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 			
 			return JS_TRUE;
 		}
-		else if(JSVAL_TO_INT(argv[0]) == NULL)
+		else if(levelId == 0)
 		{
 			Room1* pRoom1 = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit());
 
@@ -1524,8 +1535,11 @@ INT my_getRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	{
 		Level* pLevel = NULL;
 
+		uint32 levelId;
+		JS_ValueToECMAUint32(cx, argv[0], &levelId);
+
 		if(argc == 3)
-			pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
+			pLevel = GetLevel(levelId);
 		else if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pPath && D2CLIENT_GetPlayerUnit()->pPath->pRoom1 && D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2)
 			pLevel = D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel;
 
@@ -1697,7 +1711,9 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
-	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
+	uint32 levelId;
+	JS_ValueToECMAUint32(cx, argv[0], &levelId);
+	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
@@ -1739,6 +1755,7 @@ INT my_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 				mypUnit->dwRoomY = pRoom->dwPosY;
 				mypUnit->dwType = pUnit->dwType;
 				mypUnit->dwId = pUnit->dwTxtFileNo;
+				mypUnit->dwLevel = levelId;
 
 				JSObject* unit = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 				if(!unit)

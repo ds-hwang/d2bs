@@ -33,6 +33,9 @@ JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case EXIT_TILEID:
 			*vp = INT_TO_JSVAL(pExit->tileid);
 			break;
+		case EXIT_LEVELID:
+			*vp = INT_TO_JSVAL(pExit->level);
+			break;
 		default:
 			break;
 	}

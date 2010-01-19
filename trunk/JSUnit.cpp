@@ -449,13 +449,13 @@ JSAPI_FUNC(unit_getUnit)
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
-	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
 		JS_ValueToECMAUint32(cx, argv[1], &nClassId);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
+	if(argc > 2 && JSVAL_IS_NUMBER(argv[2]) && !JSVAL_IS_NULL(argv[2]))
 		JS_ValueToECMAUint32(cx, argv[2], &nMode);
 
-	if(argc > 3 && JSVAL_IS_INT(argv[3]) && !JSVAL_IS_NULL(argv[3]))
+	if(argc > 3 && JSVAL_IS_NUMBER(argv[3]) && !JSVAL_IS_NULL(argv[3]))
 		JS_ValueToECMAUint32(cx, argv[3], &nUnitId);
 
 	UnitAny* pUnit = NULL;
@@ -514,10 +514,10 @@ JSAPI_FUNC(unit_getNext)
 		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 			strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
-		if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]))
 			JS_ValueToECMAUint32(cx, argv[0], &(lpUnit->dwClassId));
 
-		if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]))
 			JS_ValueToECMAUint32(cx, argv[1], &(lpUnit->dwMode));
 
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
@@ -1581,13 +1581,13 @@ JSAPI_FUNC(unit_getItem)
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 	
-	if(argc > 0 && JSVAL_IS_INT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
+	if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 		JS_ValueToECMAUint32(cx, argv[0], &nClassId);
 
-	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
 		JS_ValueToECMAUint32(cx, argv[1], &nMode);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
+	if(argc > 2 && JSVAL_IS_NUMBER(argv[2]) && !JSVAL_IS_NULL(argv[2]))
 		JS_ValueToECMAUint32(cx, argv[2], &nUnitId);
 
 	UnitAny* pItem = GetInvUnit(pUnit, szName, nClassId, nMode, nUnitId);

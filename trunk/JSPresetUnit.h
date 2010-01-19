@@ -28,6 +28,7 @@ enum presetunit_tinyid {
 	PUNIT_X,			// 3
 	PUNIT_Y,			// 4
 	PUNIT_ID,			// 5
+	PUINT_LEVEL
 };
 
 
@@ -38,6 +39,7 @@ static JSPropertySpec presetunit_props[] = {
 	{"x",			PUNIT_X,			JSPROP_PERMANENT_VAR},
 	{"y",			PUNIT_Y,			JSPROP_PERMANENT_VAR},
 	{"id",			PUNIT_ID,			JSPROP_PERMANENT_VAR},
+	{"level",		PUINT_LEVEL,		JSPROP_PERMANENT_VAR},
 	{0},
 };
 
@@ -49,6 +51,7 @@ struct myPresetUnit
 	DWORD dwPosX;
 	DWORD dwPosY;
 	DWORD dwId;
+	DWORD dwLevel;
 };
 
 #endif
