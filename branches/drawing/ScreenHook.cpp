@@ -244,7 +244,8 @@ void TextHook::SetText(const char* ntext)
 void ImageHook::Draw(void)
 {
 	Lock();
-	if(GetIsVisible() && GetX() != -1 && GetY() != -1 && GetImage() != NULL)
+	if(GetIsVisible() && GetX() != -1 && GetY() != -1 &&
+		GetImage() != NULL && image != NULL)
 	{
 		uint x = GetX(), y = GetY(), w = image->cells[0]->width;
 		x += (alignment != Left ? (alignment != Right ? 0 : -1*(w/2)) : w/2);
