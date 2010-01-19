@@ -1,6 +1,7 @@
 js_strict(true);
 
 include('configuration.dbl');
+include('common.dbl');
 
 var config = new Config();
 

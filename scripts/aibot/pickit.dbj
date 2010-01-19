@@ -8,15 +8,15 @@ include('common.dbl');
 function main()
 {
 	// init the config
-	addEventListener('itemdrop', itemdrop);
+	addEventListener('itemaction', itemaction);
 	addEventListener('golddrop', golddrop);
 	while(true) delay(10000); // low priority delay
 }
 
-function itemdrop(gid, code, x, y, mode)
+function itemaction(gid, mode, code, global)
 {
 }
 
-function golddrop(gid, x, y, mode)
+function golddrop(gid, mode)
 {
 }

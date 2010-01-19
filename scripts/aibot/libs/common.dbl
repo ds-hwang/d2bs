@@ -22,6 +22,12 @@ const CLICK_SINGLE	= CLICK_DOWN|CLICK_UP;
 const HAND_RIGHT	= 0x10;
 const HAND_LEFT		= 0x20;
 
+function display() {
+	var msg = '';
+	for(var i = 0; i < arguments.length; i++) msg += ' ' + arguments[i];
+	var script = getScript(true).name.slice(0, -4);
+	print(script+':'+msg);
+}
 function require(requirements, args) {
 	for(var i = 0; i < requirements.length; i++)
 	{
@@ -42,6 +48,15 @@ function require(requirements, args) {
 			}
 		}
 	}
+}
+
+function zip(a, b) {
+	require([{valid: isArray}, {valid: isArray}], arguments);
+	// [[x, y] for each(let x in a) for each(let y in b)]
+	var result = [];
+	for(var i = 0; i < a.length && i < b.length; i++)
+		result.push([a[i], b[i]]);
+	return result;
 }
 
 function moveDelay() { modeDelay([2, 3, 6]); }
@@ -68,17 +83,17 @@ function doDelay(predicate, delay, maxlen) {
 	} while(predicate(i) === true);
 }
 
-Unit.__defineGetter__("isInTown", function() {
+Unit.prototype.__defineGetter__("isInTown", function() {
 	switch(this.area) {
 		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;
 	}
 });
 
-PresetUnit.__defineGetter__("realx", function() {
+PresetUnit.prototype.__defineGetter__("realx", function() {
 	return this.roomx * 5 + this.x;
 });
-PresetUnit.__defineGetter__("realy", function() {
+PresetUnit.prototype.__defineGetter__("realy", function() {
 	return this.roomy * 5 + this.y;
 });
 
@@ -154,25 +169,21 @@ function click(mode, shift) {
 	_CommonGlobalLock.unlock();
 }
 
-Unit.moveTo = function(callback) {
-	if(this.charname != me.charname)
+Unit.prototype.moveTo = function(callback) {
+	if(this.gid != me.gid)
 		// only moveTo the object if it's not me!
 		me.moveTo(this.x, this.y, callback, this.area);
 };
-
-PresetUnit.moveTo = function(area, callback) {
-	// PresetUnits will never be me
-	// TODO: make this understand what area the preset unit is in
-	me.moveTo(this.realx, this.realy, callback, area);
+PresetUnit.prototype.moveTo = function(callback) {
+	me.moveTo(this.realx, this.realy, callback, this.level);
 };
-Room.moveTo = function(callback) {
+Room.prototype.moveTo = function(callback) {
 	me.moveTo(this.x, this.y, callback, this.area);
 };
-Exit.moveTo = function(area, callback) {
-	// TODO: make this understand what area the exit is in
-	me.moveTo(this.x, this.y, callback, area);
+Exit.prototype.moveTo = function(callback) {
+	me.moveTo(this.x, this.y, callback, this.level);
 };
-Area.moveTo = function(callback) {
+Area.prototype.moveTo = function(callback) {
 	me.moveTo(this.x, this.y, callback, this.id);
 };
 
@@ -220,15 +231,6 @@ me.moveTo = function(x, y, callback, area) {
 		} while(dist > 4);
 	}
 };
-
-function zip(a, b) {
-	require([{valid: isArray}, {valid: isArray}], arguments);
-	// [[x, y] for each(let x in a) for each(let y in b)]
-	var result = [];
-	for(var i = 0; i < a.length && i < b.length; i++)
-		result.push([a[i], b[i]]);
-	return result;
-}
 
 function isUnit(obj) {
 	return obj != null && obj != undefined &&

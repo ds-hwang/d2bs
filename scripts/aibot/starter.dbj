@@ -3,6 +3,7 @@ js_strict(true);
 include('pattern.dbl');
 include('cache.dbl');
 include('configuration.dbl');
+include('common.dbl');
 
 var config = new Config();
 
@@ -18,11 +19,11 @@ var threads = [
 function main()
 {
 	// read the patterns this character wants to load for caching purposes
-	print('Loading the pattern');
+	display('Loading the pattern');
 	var pname = config.get('BasePattern', '');
 	if(pname == '')
 	{
-		print('Invalid base pattern specified!');
+		display('Invalid base pattern specified!');
 		stop();
 	}
 
@@ -47,7 +48,7 @@ function main()
 
 	for each(var thread in threads)
 	{
-		print('Loading: ' + thread);
+		display('Loading: ' + thread);
 		load(thread);
 		scripts.push([thread.slice(0, -4), new Text(thread + ": ÿc1not running", 775, 120+(12*scripts.length), 0, 0, 1)]);
 	}
