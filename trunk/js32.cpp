@@ -19,7 +19,7 @@ JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char*
 
 	JS_EnterLocalRootScope(cx);
 	jsval* arg = argv;
-	int argPos = 0;
+	uintN argPos = 0;
 
 #define CHECK(type, code) if(JS_TypeOfValue(cx, *arg) != type || !code) result = JS_FALSE;
 
@@ -97,7 +97,7 @@ JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char*
 		arg++;
 		argPos++;
 
-		if((uintN)argPos == argc)
+		if(argPos == argc)
 			if((i+1) != formatLen && !optional) result = JS_FALSE;
 			else break;
 
