@@ -89,6 +89,10 @@ static JSFunctionSpec global_funcs[] = {
 	{"weaponSwitch",		my_weaponSwitch,		0},
 	{"transmute",			my_transmute,			0},
 
+	// drawing functions
+	{"screenToAutomap",		screenToAutomap,		1},
+	{"automapToScreen",		automapToScreen,		1},
+	
 	// hash functions
 	{"md5",					my_md5,					1},
 	{"sha1",				my_sha1,				1},

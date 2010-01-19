@@ -231,4 +231,7 @@ static JSFunctionSpec image_methods[] = {
 	{0},
 };
 
+JSAPI_FUNC(screenToAutomap);
+JSAPI_FUNC(automapToScreen);
+
 #endif
