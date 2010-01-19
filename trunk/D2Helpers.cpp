@@ -74,6 +74,20 @@ const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp, size_t bufSize)
 	return szTmp;
 }
 
+// szBuf must be a 4-character string
+void GetItemCode(UnitAny* pUnit, char* szBuf)
+{
+	if(pUnit->dwType == UNIT_ITEM)
+	{
+		ItemTxt* pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
+		if(pTxt)
+		{
+			memcpy(szBuf, pTxt->szCode, 3);
+			szBuf[3] = 0x00;
+		}
+	}
+}
+
 WORD GetUnitX(UnitAny* pUnit)
 {
 	if(!pUnit)
