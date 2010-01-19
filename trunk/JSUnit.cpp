@@ -440,7 +440,7 @@ JSAPI_FUNC(unit_getUnit)
 	jsint nType = NULL;
 	jsint nClassId = -1;
 	jsint nMode = -1;
-	jsint nUnitId = NULL;
+	jsint nUnitId = -1;
 	CHAR szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
@@ -1568,7 +1568,7 @@ JSAPI_FUNC(unit_getItem)
 
 	jsint nClassId = -1;
 	jsint nMode = -1;
-	jsint nUnitId = NULL;
+	jsint nUnitId = -1;
 	CHAR szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
