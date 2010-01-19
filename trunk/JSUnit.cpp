@@ -514,10 +514,10 @@ JSAPI_FUNC(unit_getNext)
 		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 			strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
-		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]))
+		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[1]))
 			JS_ValueToECMAUint32(cx, argv[0], &(lpUnit->dwClassId));
 
-		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]))
+		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[2]))
 			JS_ValueToECMAUint32(cx, argv[1], &(lpUnit->dwMode));
 
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
@@ -550,10 +550,10 @@ JSAPI_FUNC(unit_getNext)
 		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 			strcpy_s(pmyUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
-		if(argc > 0 && JSVAL_IS_INT(argv[0]))
+		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[1]))
 			JS_ValueToECMAUint32(cx, argv[0], &(pmyUnit->dwClassId));
 
-		if(argc > 1 && JSVAL_IS_INT(argv[1]))
+		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[2]))
 			JS_ValueToECMAUint32(cx, argv[1], &(pmyUnit->dwMode));
 
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
