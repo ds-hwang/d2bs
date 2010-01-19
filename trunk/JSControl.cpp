@@ -193,7 +193,7 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		return JS_TRUE;
 	}
 
-	uint32 x, y;
+	uint32 x = (uint32)-1, y = (uint32)-1;
 
 	if(argc > 1 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 	{

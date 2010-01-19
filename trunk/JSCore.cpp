@@ -1797,7 +1797,9 @@ JSAPI_FUNC(my_getPresetUnit)
 		return JS_TRUE;
 	}
 
-	Level* pLevel = GetLevel(JSVAL_TO_INT(argv[0]));
+	uint32 levelId;
+	JS_ValueToECMAUint32(cx, argv[0], &levelId);
+	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
 		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
@@ -1839,6 +1841,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				mypUnit->dwRoomY = pRoom->dwPosY;
 				mypUnit->dwType = pUnit->dwType;
 				mypUnit->dwId = pUnit->dwTxtFileNo;
+				mypUnit->dwLevel = levelId;
 
 				JSObject* obj = BuildObject(cx, &presetunit_class, NULL, presetunit_props, mypUnit);
 				if(!obj)
@@ -1951,6 +1954,7 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		pExit->y	= pArea->ExitArray[i]->ptPos.y;
 		pExit->type	= pArea->ExitArray[i]->dwType;
 		pExit->tileid = pArea->ExitArray[i]->dwId;
+		pExit->level = pArea->AreaId;
 
 		JSObject* jsUnit = BuildObject(cx, &exit_class, NULL, exit_props, pExit);
 		if(!jsUnit)
