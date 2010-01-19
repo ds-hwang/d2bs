@@ -437,28 +437,26 @@ JSAPI_FUNC(unit_getUnit)
 	if(argc < 1)
 		return JS_TRUE;
 
-	jsint nType = NULL;
-	jsint nClassId = -1;
-	jsint nMode = -1;
-	jsint nUnitId = -1;
-	CHAR szName[128] = "";
+	int nType = -1;
+	uint32 nClassId = (uint32)-1;
+	uint32 nMode = (uint32)-1;
+	uint32 nUnitId = (uint32)-1;
+	char szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nType = JSVAL_TO_INT(argv[0]);
-	else
-		return JS_TRUE;
 
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
 	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
-		nClassId = JSVAL_TO_INT(argv[1]);
+		JS_ValueToECMAUint32(cx, argv[1], &nClassId);
 
 	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
-		nMode = JSVAL_TO_INT(argv[2]);
+		JS_ValueToECMAUint32(cx, argv[2], &nMode);
 
 	if(argc > 3 && JSVAL_IS_INT(argv[3]) && !JSVAL_IS_NULL(argv[3]))
-		nUnitId = JSVAL_TO_INT(argv[3]);
+		JS_ValueToECMAUint32(cx, argv[3], &nUnitId);
 
 	UnitAny* pUnit = NULL;
 	
@@ -517,10 +515,10 @@ JSAPI_FUNC(unit_getNext)
 			strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
 		if(argc > 0 && JSVAL_IS_INT(argv[0]))
-			lpUnit->dwClassId = JSVAL_TO_INT(argv[0]);
+			JS_ValueToECMAUint32(cx, argv[0], &(lpUnit->dwClassId));
 
 		if(argc > 1 && JSVAL_IS_INT(argv[1]))
-			lpUnit->dwMode = JSVAL_TO_INT(argv[1]);
+			JS_ValueToECMAUint32(cx, argv[1], &(lpUnit->dwMode));
 
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
 
@@ -548,6 +546,15 @@ JSAPI_FUNC(unit_getNext)
 		UnitAny* pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
 		if(!pUnit || !pOwner)
 			return JS_TRUE;
+
+		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
+			strcpy_s(pmyUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+		if(argc > 0 && JSVAL_IS_INT(argv[0]))
+			JS_ValueToECMAUint32(cx, argv[0], &(pmyUnit->dwClassId));
+
+		if(argc > 1 && JSVAL_IS_INT(argv[1]))
+			JS_ValueToECMAUint32(cx, argv[1], &(pmyUnit->dwMode));
 
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
@@ -1566,22 +1573,22 @@ JSAPI_FUNC(unit_getItem)
 	if(!pUnit || !pUnit->pInventory)
 		return JS_TRUE;
 
-	jsint nClassId = -1;
-	jsint nMode = -1;
-	jsint nUnitId = -1;
-	CHAR szName[128] = "";
+	uint32 nClassId = (uint32)-1;
+	uint32 nMode = (uint32)-1;
+	uint32 nUnitId = (uint32)-1;
+	char szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 	
 	if(argc > 0 && JSVAL_IS_INT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
-		nClassId = JSVAL_TO_INT(argv[0]);
+		JS_ValueToECMAUint32(cx, argv[0], &nClassId);
 
 	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
-		nMode = JSVAL_TO_INT(argv[1]);
+		JS_ValueToECMAUint32(cx, argv[1], &nMode);
 
 	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
-		nUnitId = JSVAL_TO_INT(argv[2]);
+		JS_ValueToECMAUint32(cx, argv[2], &nUnitId);
 
 	UnitAny* pItem = GetInvUnit(pUnit, szName, nClassId, nMode, nUnitId);
 
