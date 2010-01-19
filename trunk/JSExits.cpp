@@ -1,5 +1,7 @@
 #include "JSExits.h"
 
+EMPTY_CTOR(exit)
+
 void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
@@ -7,7 +9,7 @@ void exit_finalize(JSContext *cx, JSObject *obj)
 		delete pExit;
 }
 
-JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(exit_getProperty)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 

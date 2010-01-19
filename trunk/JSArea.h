@@ -4,8 +4,10 @@
 #include "js32.h"
 #include "CollisionMap.h"
 
+CLASS_CTOR(area);
+
 void area_finalize(JSContext *cx, JSObject *obj);
-JSBool area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(area_getProperty);
 
 /**********************************************************
 
@@ -17,7 +19,7 @@ static JSClass area_class = {
     "Area",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, area_getProperty, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, area_finalize,
-    NULL, NULL, 
+    NULL, NULL, NULL, area_ctor
 };
 
 enum area_tinyid {

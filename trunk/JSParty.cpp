@@ -2,7 +2,9 @@
 #include "D2Structs.h"
 #include "D2Helpers.h"
 
-JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+EMPTY_CTOR(party)
+
+JSAPI_PROP(party_getProperty)
 {
 	RosterUnit* pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
@@ -47,7 +49,7 @@ JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-JSBool party_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(party_getNext)
 {
 	if(!GameReady())
 		return JS_TRUE;

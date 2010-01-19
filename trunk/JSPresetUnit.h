@@ -4,8 +4,10 @@
 #include <windows.h>
 #include "js32.h"
 
+CLASS_CTOR(presetunit);
+
 void presetunit_finalize(JSContext *cx, JSObject *obj);
-JSBool presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(presetunit_getProperty);
 
 
 /**********************************************************
@@ -18,7 +20,7 @@ static JSClass presetunit_class = {
     "PresetUnit",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, presetunit_getProperty, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, presetunit_finalize,
-    NULL, NULL, 
+    NULL, NULL, NULL, presetunit_ctor
 };
 
 enum presetunit_tinyid {

@@ -15,7 +15,6 @@
 
 struct JSClassSpec {
 	JSClass* js_class;
-	JSNative class_ctor;
 	JSPropertySpec* props;
 	JSFunctionSpec* funcs;
 	JSPropertySpec* static_props;
@@ -23,24 +22,29 @@ struct JSClassSpec {
 };
 
 static JSClassSpec global_classes[] = {
-	/*JSClass*				ctor			properties			functions				static props	static funcs */
-	{&file_class_ex.base,	file_ctor,		file_props,			file_methods,			NULL,			file_s_methods},
-	{&sqlite_db_ex.base,	sqlite_ctor,	sqlite_props,		sqlite_methods,			NULL,			NULL},
-	{&sqlite_stmt,			NULL,			sqlite_stmt_props,	sqlite_stmt_methods,	NULL,			NULL},
-	{&filetools_class,		NULL,			NULL,				NULL,					NULL,			filetools_s_methods},
-	{&sandbox_class,		sandbox_ctor,	NULL,				sandbox_methods,		NULL,			NULL},
-	{&frame_class,			frame_ctor,		frame_props,		frame_methods,			NULL,			NULL},
-	{&box_class,			box_ctor,		box_props,			box_methods,			NULL,			NULL},
-	{&line_class,			line_ctor,		line_props,			line_methods,			NULL,			NULL},
-	{&text_class,			text_ctor,		text_props,			text_methods,			NULL,			NULL},
-	{&image_class,			image_ctor,		image_props,		image_methods,			NULL,			NULL},
-	{&unit_class,			NULL,			unit_props,			unit_methods,			NULL,			NULL},
-	{&presetunit_class,		NULL,			presetunit_props,	NULL,					NULL,			NULL},
-	{&area_class,			NULL,			area_props,			NULL,					NULL,			NULL},
-	{&control_class,		NULL,			control_props,		control_funcs,			NULL,			NULL},
-	{&directory_class,		NULL,			dir_props,			dir_methods,			NULL,			NULL},
-	{&exit_class,			NULL,			exit_props,			NULL,					NULL,			NULL},
-	{&party_class,			NULL,			party_props,		party_methods,			NULL,			NULL},
-	{&room_class,			NULL,			room_props,			room_methods,			NULL,			NULL},
+	/*JSClass*				properties			functions				static props	static funcs */
+	// game objects
+	{&unit_class,			unit_props,			unit_methods,			NULL,			NULL},
+	{&presetunit_class,		presetunit_props,	NULL,					NULL,			NULL},
+	{&area_class,			area_props,			NULL,					NULL,			NULL},
+	{&control_class,		control_props,		control_funcs,			NULL,			NULL},
+	{&directory_class,		dir_props,			dir_methods,			NULL,			NULL},
+	{&exit_class,			exit_props,			NULL,					NULL,			NULL},
+	{&party_class,			party_props,		party_methods,			NULL,			NULL},
+	{&room_class,			room_props,			room_methods,			NULL,			NULL},
+
+	// utility objects
+	{&file_class_ex.base,	file_props,			file_methods,			NULL,			file_s_methods},
+	{&sqlite_db_ex.base,	sqlite_props,		sqlite_methods,			NULL,			NULL},
+	{&sqlite_stmt,			sqlite_stmt_props,	sqlite_stmt_methods,	NULL,			NULL},
+	{&filetools_class,		NULL,				NULL,					NULL,			filetools_s_methods},
+	{&sandbox_class,		NULL,				sandbox_methods,		NULL,			NULL},
+
+	// screenhook objects
+	{&frame_class,			frame_props,		frame_methods,			NULL,			NULL},
+	{&box_class,			box_props,			box_methods,			NULL,			NULL},
+	{&line_class,			line_props,			line_methods,			NULL,			NULL},
+	{&text_class,			text_props,			text_methods,			NULL,			NULL},
+	{&image_class,			image_props,		image_methods,			NULL,			NULL},
 	{0}
 };

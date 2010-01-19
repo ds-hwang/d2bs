@@ -7,6 +7,8 @@
 #include "CriticalSections.h"
 #include "D2Skills.h"
 
+EMPTY_CTOR(unit);
+
 void unit_finalize(JSContext *cx, JSObject *obj)
 {
 	Private* lpUnit = (Private*)JS_GetPrivate(cx, obj);

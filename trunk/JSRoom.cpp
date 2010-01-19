@@ -1,4 +1,3 @@
-// Fixed, rewritten and cleaned up!
 #include "JSRoom.h"
 #include "CriticalSections.h"
 #include "JSPresetUnit.h"
@@ -6,7 +5,9 @@
 #include "D2Ptrs.h"
 #include "Room.h"
 
-JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+EMPTY_CTOR(room)
+
+JSAPI_PROP(room_getProperty)
 {
 	Room2 *pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 
@@ -50,7 +51,7 @@ JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_TRUE;
 }
 
-JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getNext)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)
@@ -76,7 +77,7 @@ JSBool room_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getPresetUnits)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)
@@ -139,7 +140,7 @@ JSBool room_getPresetUnits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv
 	return JS_TRUE;
 }
 
-JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getCollision)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)
@@ -229,7 +230,7 @@ JSBool room_getCollision(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 	return JS_TRUE;
 }
 
-JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getNearby)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)
@@ -261,7 +262,7 @@ JSBool room_getNearby(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsv
 }
 
 // Don't know whether it works or not
-JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getStat)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)
@@ -327,7 +328,7 @@ JSBool room_getStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-JSBool room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_getFirst)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2 || !pRoom2->pLevel || !pRoom2->pLevel->pRoom2First )
@@ -342,7 +343,7 @@ JSBool room_getFirst(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	return JS_TRUE;
 }
 
-JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_unitInRoom)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2 || argc < 1 || !JSVAL_IS_OBJECT(argv[0]))
@@ -368,7 +369,7 @@ JSBool room_unitInRoom(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-JSBool room_reveal(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(room_reveal)
 {
 	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
 	if(!pRoom2)

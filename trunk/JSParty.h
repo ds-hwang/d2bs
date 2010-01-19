@@ -3,13 +3,11 @@
 
 #include "js32.h"
 
-JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+CLASS_CTOR(party);
 
-#define DEFFNC(f) JSBool f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSAPI_PROP(party_getProperty);
 
-DEFFNC(party_getNext)
-
-#undef DEFFNC
+JSAPI_FUNC(party_getNext);
 
 /**********************************************************
 
@@ -21,7 +19,7 @@ static JSClass party_class = {
     "Party",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, party_getProperty, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, NULL, NULL, party_ctor
 };
 
 enum party_tinyid {

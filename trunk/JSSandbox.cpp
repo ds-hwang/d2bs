@@ -2,7 +2,7 @@
 #include "D2BS.h"
 #include "ScriptEngine.h"
 
-JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(sandbox_ctor)
 {
 	sandbox* box = new sandbox; // leaked?
 	box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
@@ -42,7 +42,7 @@ JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(sandbox_addProperty)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	JSContext* cxptr = (!box ? cx : box->context);
@@ -77,7 +77,7 @@ JSBool sandbox_addProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_FALSE;
 }
 
-JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(sandbox_delProperty)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
@@ -100,7 +100,7 @@ JSBool sandbox_delProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_FALSE;
 }
 
-JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(sandbox_getProperty)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
@@ -129,7 +129,7 @@ JSBool sandbox_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 	return JS_FALSE;
 }
 
-JSBool sandbox_setProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(sandbox_setProperty)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 
@@ -164,7 +164,7 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-JSBool sandbox_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(sandbox_eval)
 {
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
@@ -180,7 +180,7 @@ JSBool sandbox_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(sandbox_include)
 {
 	*rval = JSVAL_FALSE;
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
@@ -213,7 +213,7 @@ JSBool sandbox_include(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(sandbox_isIncluded)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]) && box)
@@ -226,7 +226,7 @@ JSBool sandbox_isIncluded(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	return JS_TRUE;
 }
 
-JSBool sandbox_clear(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(sandbox_clear)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box)

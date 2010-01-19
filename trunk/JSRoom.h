@@ -3,20 +3,18 @@
 
 #include "js32.h"
 
-JSBool room_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+CLASS_CTOR(room);
 
-#define DEFFNC(f) JSBool f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSAPI_PROP(room_getProperty);
 
-DEFFNC(room_getNext)
-DEFFNC(room_getPresetUnits)
-DEFFNC(room_getCollision)
-DEFFNC(room_getNearby)
-DEFFNC(room_getStat)
-DEFFNC(room_getFirst)
-DEFFNC(room_unitInRoom)
-DEFFNC(room_reveal)
-
-#undef DEFFNC
+JSAPI_FUNC(room_getNext);
+JSAPI_FUNC(room_getPresetUnits);
+JSAPI_FUNC(room_getCollision);
+JSAPI_FUNC(room_getNearby);
+JSAPI_FUNC(room_getStat);
+JSAPI_FUNC(room_getFirst);
+JSAPI_FUNC(room_unitInRoom);
+JSAPI_FUNC(room_reveal);
 
 /**********************************************************
 
@@ -65,7 +63,7 @@ static JSClass room_class = {
     "Room", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, room_getProperty, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, NULL, NULL, room_ctor
 };
 
 #endif

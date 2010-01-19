@@ -237,10 +237,10 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
-							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props)
 {
-	if(!JS_InitClass(context, globalObject, NULL, classp, ctor, 0, props, methods, s_props, s_methods))
+	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0, props, methods, s_props, s_methods))
 		throw std::exception("Couldn't initialize the class");
 }
 
@@ -348,8 +348,8 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 		int i = 0;
 		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
-			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.class_ctor,
-							entry.funcs, entry.props, entry.static_funcs, entry.static_props);
+			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.funcs, entry.props,
+										entry.static_funcs, entry.static_props);
 
 		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
 		if(!meObject)

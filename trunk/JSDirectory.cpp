@@ -30,7 +30,9 @@
 // Directory stuff
 ////////////////////////////////////////////////////////////////////////////////
 
-JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+EMPTY_CTOR(dir)
+
+JSAPI_FUNC(my_openDir)
 {
 	if(argc != 1)
 		return JS_TRUE;
@@ -66,7 +68,7 @@ JSBool my_openDir(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 // Added by lord2800
 ////////////////////////////////////////////////////////////////////////////////
 
-JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(dir_getFiles)
 {
 	if(argc > 1)
 		return JS_TRUE;
@@ -110,7 +112,7 @@ JSBool dir_getFiles(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	return JS_TRUE;
 }
 
-JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(dir_getDirectories)
 {
 	if(argc > 1)
 		return JS_TRUE;
@@ -153,7 +155,7 @@ JSBool dir_getDirectories(JSContext *cx, JSObject *obj, uintN argc, jsval *argv,
 	return JS_TRUE;
 }
 
-JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(dir_create)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char path[_MAX_PATH];
@@ -178,7 +180,8 @@ JSBool dir_create(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	return JS_TRUE;
 }
-JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+
+JSAPI_FUNC(dir_delete)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
@@ -198,7 +201,7 @@ JSBool dir_delete(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	return JS_TRUE;
 }
 
-JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(dir_getProperty)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 

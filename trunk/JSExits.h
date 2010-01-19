@@ -4,8 +4,10 @@
 #include "js32.h"
 #include <windows.h>
 
+CLASS_CTOR(exit);
+
 void exit_finalize(JSContext *cx, JSObject *obj);
-JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(exit_getProperty);
 
 
 /**********************************************************
@@ -18,7 +20,7 @@ static JSClass exit_class = {
     "Exit",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, exit_getProperty, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, exit_finalize,
-    NULL, NULL, 
+    NULL, NULL, NULL, exit_ctor
 };
 
 enum exit_tinyid {

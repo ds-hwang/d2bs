@@ -1,6 +1,8 @@
 #include "JSPresetUnit.h"
 
-VOID presetunit_finalize(JSContext *cx, JSObject *obj)
+EMPTY_CTOR(presetunit)
+
+void presetunit_finalize(JSContext *cx, JSObject *obj)
 {
 	myPresetUnit *pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 
@@ -11,7 +13,7 @@ VOID presetunit_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-INT presetunit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(presetunit_getProperty)
 {
 	myPresetUnit* pUnit = (myPresetUnit*)JS_GetPrivate(cx, obj);
 

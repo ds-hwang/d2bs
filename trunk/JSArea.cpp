@@ -2,7 +2,9 @@
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
 
-VOID area_finalize(JSContext *cx, JSObject *obj)
+EMPTY_CTOR(area)
+
+void area_finalize(JSContext *cx, JSObject *obj)
 {
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 
@@ -13,7 +15,7 @@ VOID area_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-INT area_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(area_getProperty)
 {
 	*vp = INT_TO_JSVAL(0);
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);

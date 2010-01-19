@@ -3,6 +3,8 @@
 #include "Helpers.h"
 #include "D2Helpers.h"
 
+EMPTY_CTOR(control)
+
 void control_finalize(JSContext *cx, JSObject *obj)
 {
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
@@ -13,7 +15,8 @@ void control_finalize(JSContext *cx, JSObject *obj)
 		delete pData;
 	}
 }
-JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+
+JSAPI_PROP(control_getProperty)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -134,7 +137,7 @@ JSAPI_PROP(control_setProperty)
 	return JS_TRUE;
 }
 
-JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_getNext)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -177,7 +180,7 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_click)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -206,7 +209,7 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	return JS_TRUE;
 }
 
-JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_setText)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -236,7 +239,7 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_getText)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;

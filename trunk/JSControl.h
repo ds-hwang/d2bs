@@ -4,6 +4,8 @@
 #include <windows.h>
 #include "D2Ptrs.h"
 
+CLASS_CTOR(control);
+
 void control_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(control_getProperty);
 JSAPI_PROP(control_setProperty);
@@ -34,7 +36,7 @@ static JSClass control_class = {
     "Control",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, control_getProperty, control_setProperty,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, control_finalize,
-    JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, NULL, NULL, control_ctor
 };
 
 enum control_tinyid {
