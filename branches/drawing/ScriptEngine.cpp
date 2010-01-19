@@ -273,7 +273,8 @@ bool __fastcall StopIngameScript(Script* script, void*, uint)
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
-	script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
+	if(script->IsListenerRegistered(helper->evtName))
+		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
 	return true;
 }
 

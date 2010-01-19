@@ -10,6 +10,7 @@
 #include "JSScreenHook.h"
 #include "JSUnit.h"
 #include "JSHash.h"
+#include "JSDraw.h"
 
 static JSFunctionSpec global_funcs[] = {
 	// "get" functions
@@ -88,6 +89,15 @@ static JSFunctionSpec global_funcs[] = {
 	{"blockMinimize",		my_blockMinimize,		0},
 	{"weaponSwitch",		my_weaponSwitch,		0},
 	{"transmute",			my_transmute,			0},
+
+	// drawing functions
+	{"drawFrame",			drawFrame,				4},
+	{"drawBox",				drawFrame,				6},
+	{"drawLine",			drawFrame,				5},
+	{"drawText",			drawFrame,				5},
+	{"drawImage",			drawFrame,				4},
+	{"screenToAutomap",		screenToAutomap,		1},
+	{"automapToScreen",		automapToScreen,		1},
 
 	// hash functions
 	{"md5",					my_md5,					1},

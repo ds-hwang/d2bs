@@ -4,7 +4,7 @@
 
 MPQTable BaseStatTable[] = {
 	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, CHAR szTableName, WORD wTableSize, WORD wUnknown
-	{0x6FDF0438,	0x6FDF0434,	itemTable,			"item",			ARRAYSIZE(itemTable),			0xFFFF},
+	{0x6FDF0438,	0x6FDF0434,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
 	{0xA78,			0xA80,		monstatsTable,		"monstats",		ARRAYSIZE(monstatsTable),		0xFFFF},
 	{0xB8C,			0xB94,		skilldescTable,		"skilldesc",	ARRAYSIZE(skilldescTable),		0xFFFF},
 	{0xB98,			0xBA0,		skillsTable,		"skills",		ARRAYSIZE(skillsTable),			0xFFFF},
@@ -171,7 +171,7 @@ bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size)
 			case FIELDTYPE_DATA_RAW:
 				if(size != 5)
 					return false;
-				memcpy(result, (LPVOID)(dwRetValue+pTable[column].dwFieldOffset), sizeof(DWORD));
+				memcpy(result, (LPVOID)(dwRetValue+pTable[column].dwFieldOffset), size);
 				break;
 			case FIELDTYPE_MONSTER_COMPS:
 				// ..? :E
@@ -279,7 +279,7 @@ DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT column, c
 		case FIELDTYPE_DATA_RAW:
 			szBuffer = new char[5];
 			memset(szBuffer, NULL, 5);
-			if(!FillBaseStat(table, row, column, szBuffer, sizeof(DWORD)))
+			if(!FillBaseStat(table, row, column, szBuffer, 5))
 				(*argv) = JSVAL_VOID;
 			else
 				(*argv) = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szBuffer));

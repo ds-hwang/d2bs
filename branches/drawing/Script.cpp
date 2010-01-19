@@ -308,14 +308,7 @@ bool Script::IsAborted()
 
 bool Script::IsListenerRegistered(const char* evtName)
 {
-	// nothing can be registered under an empty name
-	if(strlen(evtName) < 1)
-		return false;
-
-	if(functions.count(evtName) > 0)
-		return true;
-
-	return false;
+	return strlen(evtName) > 0 && functions.count(evtName) > 0;
 }
 
 void Script::RegisterEvent(const char* evtName, jsval evtFunc)
