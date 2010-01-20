@@ -179,7 +179,7 @@ void Script::UpdatePlayerGid(void)
 	JS_SetPrivate(GetContext(), meObject, meUnit);
 	JS_RemoveRoot(&me);
 	JS_EndRequest(GetContext());
-	JS_ClearContextThread(GetContext());
+	//JS_ClearContextThread(GetContext());
 }
 
 void Script::Pause(void)

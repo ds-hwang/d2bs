@@ -230,7 +230,7 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 	if(JSVAL_IS_INT(argv[0]))
 		JS_ValueToUint16(cx, argv[0], &nClickType);
-	if(JSVAL_IS_INT(argv[1]))
+	if(JSVAL_IS_INT(argv[1]) || JSVAL_IS_BOOLEAN(argv[1]))
 		JS_ValueToUint16(cx, argv[1], &nShift);
 	if(JSVAL_IS_INT(argv[2]))
 		JS_ValueToUint16(cx, argv[2], &nX);
@@ -254,7 +254,9 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, pUnit));
 	}
-	else if(argc > 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
+	else if(argc > 3 && JSVAL_IS_INT(argv[0]) &&
+			(JSVAL_IS_INT(argv[1]) || JSVAL_IS_BOOLEAN(argv[1])) &&
+			JSVAL_IS_INT(argv[2]) && JSVAL_IS_INT(argv[3]))
 	{
 		*rval = BOOLEAN_TO_JSVAL(ClickMap(nClickType, nX, nY, nShift, NULL));
 	}
@@ -1992,29 +1994,28 @@ INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 		{
 			szTableName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 			if(!szTableName)
-				return JS_TRUE;
+				THROW_ERROR(cx, obj, "Invalid table value");
 		}
-		else if(JSVAL_IS_INT(argv[0]))
-			nBaseStat = JSVAL_TO_INT(argv[0]);
-		
+		else if(JSVAL_IS_NUMBER(argv[0]))
+			JS_ValueToECMAInt32(cx, argv[0], &nBaseStat);
 		else
-			return JS_TRUE;
+			THROW_ERROR(cx, obj, "Invalid table value");
 
-		if(JSVAL_IS_INT(argv[1]))
-			nClassId = JSVAL_TO_INT(argv[1]);
+		if(JSVAL_IS_NUMBER(argv[1]))
+			JS_ValueToECMAInt32(cx, argv[1], &nClassId);
 		else
-			return JS_TRUE;
+			THROW_ERROR(cx, obj, "Invalid row value");
 
 		if(JSVAL_IS_STRING(argv[2]))
 		{
 			szStatName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 			if(!szStatName)
-				return JS_TRUE;
+				THROW_ERROR(cx, obj, "Invalid column value");
 		}
-		else if(JSVAL_IS_INT(argv[2]))
-			nStat = JSVAL_TO_INT(argv[2]);
+		else if(JSVAL_IS_NUMBER(argv[2]))
+			JS_ValueToECMAInt32(cx, argv[2], &nStat);
 		else
-			return JS_TRUE;
+			THROW_ERROR(cx, obj, "Invalid column value");
 
 		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
 	}
