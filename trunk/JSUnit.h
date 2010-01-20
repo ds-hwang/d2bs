@@ -3,7 +3,7 @@
 #include <windows.h>
 #include "js32.h"
 
-JSAPI_FUNC(unit_ctor);
+CLASS_CTOR(unit);
 
 JSAPI_FUNC(unit_getUnit);
 JSAPI_FUNC(unit_getNext);
@@ -71,7 +71,7 @@ enum unit_tinyid
 };
 
 static JSClass unit_class = {
-    "Unit",	JSCLASS_HAS_PRIVATE | JSCLASS_CONSTRUCT_PROTOTYPE,
+    "Unit",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, unit_getProperty, unit_setProperty,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize,
     NULL, NULL, NULL, unit_ctor

@@ -43,8 +43,8 @@ INT my_print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 			if(Text == NULL)
 				THROW_ERROR(cx, obj, "Could not get string for value");
 
-			jsrefcount depth = JS_SuspendRequest(cx);
 			JS_ClearContextThread(cx);
+			jsrefcount depth = JS_SuspendRequest(cx);
 
 			char* c = 0;
 			while((c = strchr(Text, '%')) != 0)
@@ -824,7 +824,13 @@ JSAPI_FUNC(my_rand)
 		return JS_TRUE;
 	}
 
-	srand(GetTickCount());
+	// only seed the rng once
+	static bool seeded = false;
+	if(!seeded)
+	{
+		srand(GetTickCount());
+		seeded = true;
+	}
 
 	long long seed = 0;
 	if(ClientState() == ClientStateInGame)

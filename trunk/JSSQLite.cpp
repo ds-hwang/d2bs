@@ -435,6 +435,9 @@ JSAPI_FUNC(sqlite_stmt_bind)
 	else
 		colnum = sqlite3_bind_parameter_index(stmt, JS_GetStringBytes(JSVAL_TO_STRING(argv[0])));
 
+	if(colnum == 0)
+		THROW_ERROR(cx, obj, "Invalid parameter number, parameters start at 1");
+
 	switch(JS_TypeOfValue(cx, argv[1])) {
 		case JSTYPE_VOID: 
 			sqlite3_bind_null(stmt, colnum);
