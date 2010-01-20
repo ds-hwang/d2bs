@@ -15,106 +15,44 @@ void area_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-JSAPI_PROP(area_exits)
+JSAPI_PROP(area_getProperty)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-		*vp = INT_TO_JSVAL(pArea->Exits);
-	else
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	if(!pArea)
 		return JS_FALSE;
-	return JS_TRUE;
-}
 
-JSAPI_PROP(area_name)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		LevelTxt* pTxt = D2COMMON_GetLevelTxt(pArea->AreaId);
-		if(pTxt)
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
-		else
-			return JS_FALSE;
-	}
-	else
+	Level* pLevel = GetLevel(pArea->AreaId);
+	if(!pLevel)
 		return JS_FALSE;
-	return JS_TRUE;
-}
 
-JSAPI_PROP(area_x)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
+	switch(JSVAL_TO_INT(id))
 	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		*vp = INT_TO_JSVAL(pLevel->dwPosX);
+		case AUNIT_EXITS:
+			*vp = INT_TO_JSVAL(pArea->Exits);
+			break;
+		case AUNIT_NAME:
+			{
+				LevelTxt* pTxt = D2COMMON_GetLevelTxt(pArea->AreaId);
+				if(pTxt)
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
+			}
+			break;
+		case AUNIT_X:
+			*vp = INT_TO_JSVAL(pLevel->dwPosX);
+			break;
+		case AUNIT_Y:
+			*vp = INT_TO_JSVAL(pLevel->dwPosY);
+			break;
+		case AUNIT_XSIZE:
+			*vp = INT_TO_JSVAL(pLevel->dwSizeX);
+			break;
+		case AUNIT_YSIZE:
+			*vp = INT_TO_JSVAL(pLevel->dwSizeY);
+			break;
+		case AUNIT_ID:
+			*vp = INT_TO_JSVAL(pLevel->dwLevelNo);
+			break;
 	}
-	else
-		return JS_FALSE;
-	return JS_TRUE;
-}
 
-JSAPI_PROP(area_y)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		*vp = INT_TO_JSVAL(pLevel->dwPosY);
-	}
-	else
-		return JS_FALSE;
-	return JS_TRUE;
-}
-
-JSAPI_PROP(area_xsize)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		*vp = INT_TO_JSVAL(pLevel->dwSizeX);
-	}
-	else
-		return JS_FALSE;
-	return JS_TRUE;
-}
-
-JSAPI_PROP(area_ysize)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		*vp = INT_TO_JSVAL(pLevel->dwSizeY);
-	}
-	else
-		return JS_FALSE;
-	return JS_TRUE;
-}
-
-JSAPI_PROP(area_id)
-{
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
-	if(pArea)
-	{
-		Level* pLevel = GetLevel(pArea->AreaId);
-		if(!pLevel)
-			return JS_FALSE;
-		*vp = INT_TO_JSVAL(pLevel->dwLevelNo);
-	}
-	else
-		return JS_FALSE;
 	return JS_TRUE;
 }
