@@ -36,14 +36,14 @@ function display() {
 function require(reqs, args) {
 	for(var i = 0; i < reqs.length; i++) {
 		let req = reqs[i];
-		let arg = i > args.length ? undefined : args[i];
+		let arg = i >= args.length ? undefined : args[i];
 		if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
 			if(req.hasOwnProperty('optional') && req.optional && arg === undefined)
 				continue;
 			Debug.Write(INFO, 'Checking requirement', req.valid.name);
 			if(!req.valid(arg)) {
 				Debug.Write(ERROR, 'Failed requirement', req.valid.name);
-				throw new Error('Argument ' + i + (req.optional ? ' (optional)' : '') +
+				throw new Error('Argument ' + (i+1) + (req.optional ? ' (optional)' : '') +
 					' of function ' + require.caller.name +
 					' violates the requirement ' + req.valid.name + '!');
 			}
@@ -76,7 +76,8 @@ function modeDelay(modes) {
 function doDelay(predicate, delay, maxlen) {
 	delay = delay || 25;
 	maxlen = maxlen || -1;
-	require([{valid:isFunction}, {valid:isNumber}, {valid:isNumber}], arguments);
+	require([{valid: isFunction}, {valid: isNumber, optional: true},
+			{valid: isNumber, optional: true}], arguments);
 	Debug.Write(INFO, 'Delaying for', delay, 'ms apiece until at most', maxlen, 'ms');
 	var i = 0;
 	do {
@@ -104,7 +105,7 @@ PresetUnit.prototype.__defineGetter__('realy', function() {
 });
 
 me.hasSkill = function (x) {
-	return getSkillLevel(x, 0) > 0;
+	return me.getSkillLvl(x, 0) > 0;
 };
 me.getSkillLvl = function (x) {
 	if(isString(x))
@@ -226,6 +227,13 @@ me.moveTo = function(x, y, callback, area) {
 	require([{valid: isNumber}, {valid: isNumber},
 			 {valid: isFunction, optional:true}, {valid: isNumber, optional:true}],
 		arguments);
+
+	// OPTIMIZATION: if the point is on the screen, just move to it
+	if(getDistance(me, x, y) < 20) {
+		moveTo([x, y]);
+		return;
+	}
+
 	Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
 	var path = generatePath(me.area, area, me.x, me.y, x, y);
 	var point = false;
