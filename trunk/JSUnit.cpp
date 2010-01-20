@@ -7,7 +7,10 @@
 #include "CriticalSections.h"
 #include "D2Skills.h"
 
-EMPTY_CTOR(unit);
+JSAPI_FUNC(unit_ctor)
+{
+	return JS_TRUE;
+}
 
 void unit_finalize(JSContext *cx, JSObject *obj)
 {
