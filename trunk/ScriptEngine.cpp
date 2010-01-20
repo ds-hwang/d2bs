@@ -246,7 +246,7 @@ void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass
 
 void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value)
 {
-	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_CONSTANT))
+	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_PERMANENT_VAR))
 		throw std::exception("Couldn't initialize the constant");
 }
 
@@ -355,7 +355,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		if(!meObject)
 			return JS_FALSE;
 
-		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
+		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_PERMANENT_VAR) == JS_FALSE)
 			return JS_FALSE;
 
 #define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
