@@ -49,7 +49,6 @@ bool writeValue(FILE* fptr, JSContext* cx, jsval value, bool isBinary, bool lock
 	int len = 0, result;
 	int32 ival = 0;
 	jsdouble dval = 0;
-	//jsuint uival = 0;
 	bool bval;
 
 	switch(JS_TypeOfValue(cx, value))
@@ -189,4 +188,3 @@ bool isValidPath(const char* name)
 {
 	return (!strstr(name, "..\\") && !strstr(name, "../") && (strcspn(name, "\":?*<>|") == strlen(name)));
 }
-
