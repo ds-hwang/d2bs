@@ -366,9 +366,9 @@ INT my_getPath(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	uint32 x, y, x2, y2;
 	JS_ValueToECMAUint32(cx, argv[1], &x);
-	JS_ValueToECMAUint32(cx, argv[1], &y);
-	JS_ValueToECMAUint32(cx, argv[1], &x2);
-	JS_ValueToECMAUint32(cx, argv[1], &y2);
+	JS_ValueToECMAUint32(cx, argv[2], &y);
+	JS_ValueToECMAUint32(cx, argv[3], &x2);
+	JS_ValueToECMAUint32(cx, argv[4], &y2);
 
 	POINT ptStart = {x, y}, ptEnd = {x2, y2};
 	BOOL UseTele = !IsTownLevel(Area);
