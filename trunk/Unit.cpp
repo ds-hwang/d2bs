@@ -169,8 +169,7 @@ BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWOR
 			GetItemCode(pUnit, szBuf);
 		else
 			GetUnitName(pUnit, szBuf, 512);
-
-		if(!!!strcmp(szBuf, szName))
+		if(!!_stricmp(szBuf, szName))
 			return FALSE;
 	}
 
