@@ -36,12 +36,12 @@ function display() {
 function require(reqs, args) {
 	for(var i = 0; i < reqs.length; i++) {
 		let req = reqs[i];
-		let argument = args[i];
+		let arg = i > args.length ? undefined : args[i];
 		if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
-			if(req.hasOwnProperty('optional') && req.optional && argument === undefined)
+			if(req.hasOwnProperty('optional') && req.optional && arg === undefined)
 				continue;
 			Debug.Write(INFO, 'Checking requirement', req.valid.name);
-			if(!req.valid(argument)) {
+			if(!req.valid(arg)) {
 				Debug.Write(ERROR, 'Failed requirement', req.valid.name);
 				throw new Error('Argument ' + i + (req.optional ? ' (optional)' : '') +
 					' of function ' + require.caller.name +
@@ -222,7 +222,10 @@ Area.prototype.moveTo = function(callback) {
 
 me.moveTo = function(x, y, callback, area) {
 	callback = isFunction(callback) ? callback : function(){return true;};
-	require([{valid:isNumber},{valid:isNumber},{valid:isFunction},{valid:isNumber}], arguments);
+	area = area || me.area;
+	require([{valid: isNumber}, {valid: isNumber},
+			 {valid: isFunction, optional:true}, {valid: isNumber, optional:true}],
+		arguments);
 	Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
 	var path = generatePath(me.area, area, me.x, me.y, x, y);
 	var point = false;
