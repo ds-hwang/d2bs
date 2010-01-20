@@ -765,7 +765,7 @@ JSAPI_FUNC(screenToAutomap)
 		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 		{
 			int32 ix, iy;
-			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy))
+			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
 			// convert the values
 			POINT result;
@@ -822,7 +822,7 @@ JSAPI_FUNC(automapToScreen)
 		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 		{
 			int32 ix, iy;
-			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy))
+			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
 			// convert the values
 			POINT result = {ix,iy};
