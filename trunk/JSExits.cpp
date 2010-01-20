@@ -13,7 +13,7 @@ JSAPI_PROP(exit_getProperty)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
-	*vp = JSVAL_FALSE;
+	*vp = JSVAL_VOID;
 
 	if(!pExit)
 		return JS_TRUE;
@@ -26,7 +26,7 @@ JSAPI_PROP(exit_getProperty)
 		case EXIT_Y:
 			*vp = INT_TO_JSVAL(pExit->y);
 			break;
-		case EXIT_ID:
+		case EXIT_TARGET:
 			*vp = INT_TO_JSVAL(pExit->id);
 			break;
 		case EXIT_TYPE:
