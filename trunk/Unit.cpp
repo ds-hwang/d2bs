@@ -10,6 +10,7 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	if(!GameReady())
 		return NULL;
 	// check the server list first, then the client list
+/*
 	for(UnitAny* unit = *p_D2CLIENT_ServerUnitList; unit != NULL; unit = unit->pListNext)
 	{
 		if(CheckUnit(unit, szName, dwClassId, dwType, dwMode, dwUnitId))
@@ -22,8 +23,8 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	}
 
 	return NULL;
+*/
 
-/*
 	// First off, check for near units
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	if(player && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && 
@@ -43,7 +44,6 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 		}
 	}
 	return NULL;
-*/
 }
 
 UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
@@ -54,6 +54,7 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	if(!pUnit)
 		return NULL;
 
+/*
 	// only check the list we got the unit from to prevent circular checking
 	for(UnitAny* lpUnit = pUnit->pListNext; lpUnit != NULL; lpUnit = lpUnit->pListNext)
 	{
@@ -62,8 +63,8 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	}
 
 	return NULL;
+*/
 
-/*
 	UnitAny* lpUnit = pUnit->pListNext;
 	Room1* ptRoom = D2COMMON_GetRoomFromUnit(pUnit);
 	Room2* ptRoomOther = NULL;
@@ -92,7 +93,6 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	}
 
 	return NULL;
-*/
 }
 
 UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId)
