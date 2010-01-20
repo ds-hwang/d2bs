@@ -30,7 +30,7 @@ enum presetunit_tinyid {
 	PUNIT_X,			// 3
 	PUNIT_Y,			// 4
 	PUNIT_ID,			// 5
-	PUINT_LEVEL
+	PUINT_LEVEL			// 6
 };
 
 

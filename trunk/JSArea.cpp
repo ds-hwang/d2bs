@@ -17,7 +17,7 @@ void area_finalize(JSContext *cx, JSObject *obj)
 
 JSAPI_PROP(area_exits)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 		*vp = INT_TO_JSVAL(pArea->Exits);
 	else
@@ -27,7 +27,7 @@ JSAPI_PROP(area_exits)
 
 JSAPI_PROP(area_name)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
@@ -46,7 +46,7 @@ JSAPI_PROP(area_name)
 
 JSAPI_PROP(area_x)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
@@ -61,7 +61,7 @@ JSAPI_PROP(area_x)
 
 JSAPI_PROP(area_y)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
@@ -76,7 +76,7 @@ JSAPI_PROP(area_y)
 
 JSAPI_PROP(area_xsize)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
@@ -91,7 +91,7 @@ JSAPI_PROP(area_xsize)
 
 JSAPI_PROP(area_ysize)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
@@ -106,7 +106,7 @@ JSAPI_PROP(area_ysize)
 
 JSAPI_PROP(area_id)
 {
-	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
+	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);
 	if(pArea)
 	{
 		Level* pLevel = GetLevel(pArea->AreaId);
