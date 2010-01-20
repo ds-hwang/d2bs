@@ -16,16 +16,9 @@ JSAPI_FUNC(script_send);
 JSAPI_FUNC(script_pause);
 JSAPI_FUNC(script_resume);
 
-/**********************************************************
-
-					Classes/Objects/Methods
-
- **********************************************************/
-
-
 static JSClass script_class = {
     "D2BSScript",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, script_getProperty, JS_PropertyStub,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
     NULL, NULL, NULL, script_ctor
 };
@@ -38,10 +31,10 @@ enum script_tinyid {
 };
 
 static JSPropertySpec script_props[] = {
-	{"name",			SCRIPT_FILENAME,		JSPROP_PERMANENT_VAR},
-	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR},
-	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR},
-	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR},
+	{"name",			SCRIPT_FILENAME,		JSPROP_PERMANENT_VAR,	script_getProperty},
+	{"type",			SCRIPT_GAMETYPE,		JSPROP_PERMANENT_VAR,	script_getProperty},
+	{"running",			SCRIPT_RUNNING,			JSPROP_PERMANENT_VAR,	script_getProperty},
+	{"threadid",		SCRIPT_THREADID,		JSPROP_PERMANENT_VAR,	script_getProperty},
 	{0},
 };
 

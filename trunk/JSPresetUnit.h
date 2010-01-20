@@ -18,7 +18,7 @@ JSAPI_PROP(presetunit_getProperty);
 
 static JSClass presetunit_class = {
     "PresetUnit",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, presetunit_getProperty, JS_PropertyStub,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, presetunit_finalize,
     NULL, NULL, NULL, presetunit_ctor
 };
@@ -35,13 +35,13 @@ enum presetunit_tinyid {
 
 
 static JSPropertySpec presetunit_props[] = {
-	{"type",		PUNIT_TYPE,			JSPROP_PERMANENT_VAR},
-	{"roomx",		PUNIT_ROOMX,		JSPROP_PERMANENT_VAR},
-	{"roomy",		PUNIT_ROOMY,		JSPROP_PERMANENT_VAR},
-	{"x",			PUNIT_X,			JSPROP_PERMANENT_VAR},
-	{"y",			PUNIT_Y,			JSPROP_PERMANENT_VAR},
-	{"id",			PUNIT_ID,			JSPROP_PERMANENT_VAR},
-	{"level",		PUINT_LEVEL,		JSPROP_PERMANENT_VAR},
+	{"type",		PUNIT_TYPE,			JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"roomx",		PUNIT_ROOMX,		JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"roomy",		PUNIT_ROOMY,		JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"x",			PUNIT_X,			JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"y",			PUNIT_Y,			JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"id",			PUNIT_ID,			JSPROP_PERMANENT_VAR,	presetunit_getProperty},
+	{"level",		PUINT_LEVEL,		JSPROP_PERMANENT_VAR,	presetunit_getProperty},
 	{0},
 };
 

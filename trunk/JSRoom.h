@@ -16,11 +16,12 @@ JSAPI_FUNC(room_getFirst);
 JSAPI_FUNC(room_unitInRoom);
 JSAPI_FUNC(room_reveal);
 
-/**********************************************************
-
-					Classes/Objects/Methods
-
- **********************************************************/
+static JSClass room_class = {
+    "Room", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    NULL, NULL, NULL, room_ctor
+};
 
 enum room_tinyid {
 	ROOM_NUM, 
@@ -35,15 +36,15 @@ enum room_tinyid {
 };
 
 static JSPropertySpec room_props[] = { 
-	{"number",		ROOM_NUM,			JSPROP_PERMANENT_VAR},
-	{"x",			ROOM_XPOS,			JSPROP_PERMANENT_VAR},
-	{"y",			ROOM_YPOS,			JSPROP_PERMANENT_VAR},
-	{"xsize",		ROOM_XSIZE,			JSPROP_PERMANENT_VAR},
-	{"ysize",		ROOM_YSIZE,			JSPROP_PERMANENT_VAR},
-	{"subnumber",	ROOM_SUBNUMBER,		JSPROP_PERMANENT_VAR},
-	{"area",		ROOM_AREA,			JSPROP_PERMANENT_VAR},
-	{"level",		ROOM_LEVEL,			JSPROP_PERMANENT_VAR},
-	{"correcttomb",	ROOM_CORRECTTOMB,	JSPROP_PERMANENT_VAR},
+	{"number",		ROOM_NUM,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"x",			ROOM_XPOS,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"y",			ROOM_YPOS,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"xsize",		ROOM_XSIZE,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"ysize",		ROOM_YSIZE,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"subnumber",	ROOM_SUBNUMBER,		JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"area",		ROOM_AREA,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"level",		ROOM_LEVEL,			JSPROP_PERMANENT_VAR,	room_getProperty},
+	{"correcttomb",	ROOM_CORRECTTOMB,	JSPROP_PERMANENT_VAR,	room_getProperty},
 	{0}
 };
 
@@ -57,13 +58,6 @@ static JSFunctionSpec room_methods[] = {
 	{"getFirst",		room_getFirst,			0},
 	{"unitInRoom",		room_unitInRoom,		1},
 	{0}
-};
-
-static JSClass room_class = {
-    "Room", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, room_getProperty, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    NULL, NULL, NULL, room_ctor
 };
 
 #endif
