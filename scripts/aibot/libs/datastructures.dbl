@@ -91,7 +91,6 @@ function Queue() {
 }
 function Stack() {
 	var stack = [];
-	var count = 0;
 	this.push = function (item) { stack.push(); };
 	this.pop = function () { return stack.pop() };
 	this.next = function () { return stack[0]; };
@@ -209,33 +208,6 @@ function BinaryTree(comparator) {
 	this.inorderTraverse = function (visit) { inorder(root, visit); };
 	this.preorderTraverse = function (visit) { preorder(root, visit); };
 	this.postorderTraverse = function (visit) { postorder(root, visit); };
-}
-
-function Iterator() {
-	this.index = 0;
-	function current() {
-		if(this.last())
-			return null;
-		return this.index;
-	}
-	function next() {
-		if(!this.last())
-			this.index++;
-		return this.last();
-	}
-	function last() { return this.index == Number.MAX_VALUE; }
-	function reset() { this.index = 0; }
-	function advance(distance) {
-		if(typeof(distance) == 'number')
-			while(distance-- > 0)
-				this.next();
-	}
-
-	this.current = current;
-	this.next = next;
-	this.last = last;
-	this.reset = reset;
-	this.advance = advance;
 }
 
 function OpenClosedListSearch(listtype, start, nodeIsGoal, expand, key) {

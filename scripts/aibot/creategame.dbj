@@ -1,9 +1,5 @@
 js_strict(true);
 
-include('configuration.dbl');
-include('cache.dbl');
-include('gamemanager.dbl');
-
 function main()
 {
 	print("Ordinarily there would be a lot of complicated game creation code here, but I'm going to rip " +

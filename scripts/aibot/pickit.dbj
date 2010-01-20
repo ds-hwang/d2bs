@@ -2,21 +2,16 @@ js_strict(true);
 
 include('configuration.dbl');
 include('cache.dbl');
-include('pause.dbl');
 include('common.dbl');
 
 function main()
 {
 	// init the config
-	addEventListener('itemaction', itemaction);
-	addEventListener('golddrop', golddrop);
+	addEventListener('itemaction', function (gid, mode, code, global) {
+	});
+
+	addEventListener('golddrop', function (gid, mode) {
+	});
+
 	while(true) delay(10000); // low priority delay
-}
-
-function itemaction(gid, mode, code, global)
-{
-}
-
-function golddrop(gid, mode)
-{
 }

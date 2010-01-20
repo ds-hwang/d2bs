@@ -2,7 +2,6 @@ js_strict(true);
 
 include('configuration.dbl');
 include('cache.dbl');
-include('pause.dbl');
 include('common.dbl');
 
 function main()

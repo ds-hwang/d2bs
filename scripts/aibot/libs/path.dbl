@@ -3,19 +3,16 @@ js_strict(true);
 include('arealinker.dbl');
 include('common.dbl');
 
-function generatePath(x, y, x2, y2, startArea, destArea)
-{
+function generatePath(startArea, destArea, x, y, x2, y2) {
 	var areaids = [];
 	startArea = startArea||me.area;
 	destArea = destArea||me.area;
 	// generate a path from (x, y) to (x2, y2) and return it as an iterator
-	if(startArea != destArea)
-	{
+	if(startArea != destArea) {
 		// find out the list of areas between here and there
 		var tmpids = [];
 		var areas = AreaLinker.FindPath(startArea, destArea);
-		for each(var area in areas)
-		{
+		for each(var area in areas) {
 			tmpids.push(area.End);
 			if(area.UseWP)
 				areaids.push(tmpids);
@@ -28,22 +25,21 @@ function generatePath(x, y, x2, y2, startArea, destArea)
 	else
 		areaids.push(startArea);
 
-	// areaids is now an array with all the correct ids (in some form) to traverse
 	if(!isArray(areaids[0]))
 		areaids = [areaids];
 
+	// areaids is now an array with all the correct ids (in some form) to traverse
 	return (function(x, y, x2, y2) {
-		for(var k = 0; k < areaids.length; k++)
-		{
+		for(var k = 0; k < areaids.length; k++) {
 			var areas = areaids[k];
-			for(var i = 0; i < areas.length; i++)
-			{
+			for(var i = 0; i < areas.length; i++) {
 				var exits = getExits(getArea(areas[i]));
 				for(var j = 0; j < exits.length; j++)
 					if(exits[j].id == areas[i+1].id)
 						break;
 				// exits[j] is now the exit leading to the next area
-				// find a path from our start point, which is the area prior to this (me.x, me.y if at the start) to the exit
+				// find a path from our start point, which is the area prior to this
+				// (me.x, me.y if at the start) to the exit
 				var dx = (i == 0 ? x : areas[i-1].x);
 				var dy = (i == 0 ? y : areas[i-1].y);
 				var dx2 = (i == areas.length ? x2 : exits[j].x);

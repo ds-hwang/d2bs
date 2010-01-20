@@ -7,11 +7,11 @@ include('common.dbl');
 
 function main()
 {
-	display('Loading the pattern');
+	Debug.Write(INFO, 'Loading the pattern');
 	var config = new Config();
 	var pname = config.get('BasePattern', '');
 	if(pname == '') {
-		display('Invalid base pattern specified!');
+		Debug.Write(INFO, 'Invalid base pattern specified!');
 		stop();
 	}
 
@@ -30,18 +30,20 @@ function main()
 		// wait for the game to catch up
 		while(me.area == undefined) delay(10);
 
-		display('Game loaded');
+		Debug.Write(INFO, 'Game loaded');
 
 		// walk the pattern, moving to each area
 		for each(let area in pattern.areas) {
-			var areaName = getBaseStat("levels", area.id, "LevelName");
+			var areaName = getBaseStat("levels", parseInt(area.id, 10), "LevelName");
 			// are we in the area?
 			if(me.area == area.id)
-				display('We are in', areaName, 'already');
+				Debug.Write(INFO, 'We are in', areaName, '(', area.id, ') already');
 			else {
 				var a = getArea(parseInt(area.id, 10));
-				display('Moving to', areaName);
-				a.moveTo(); // a.moveTo is not a function still?!
+				if(a === undefined)
+					throw new Error("We didn't get an area?!");
+				Debug.Write(INFO, 'Moving to', a.name);
+				a.moveTo();
 			}
 		}
 

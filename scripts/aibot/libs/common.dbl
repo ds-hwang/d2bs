@@ -1,19 +1,24 @@
 js_strict(true);
 
 include('config.dbl');
-include('pause.dbl');
 include('constants.dbl');
+include('path.dbl');
+include('datastructures.dbl');
+include('debug.dbl');
 
 var _CommonGlobalLock = null;
 
-addEventListener("scriptmsg", function(check, obj) {
-	if(check == "lock")
+addEventListener('scriptmsg', function(check, obj) {
+	if(check == 'lock')
 	{
 		_CommonGlobalLock = obj;
-		removeEventListener("scriptmsg", arguments.callee);
+		removeEventListener('scriptmsg', arguments.callee);
 	}
 });
-getScript(true).send(getScript(true), "get-lock");
+var starter = getScript('starter.dbj');
+if(starter != undefined)
+	starter.send(getScript(true), 'get-lock');
+delete starter;
 
 const CLICK_DOWN	= 0x1;
 const CLICK_UP		= 0x2;
@@ -28,30 +33,28 @@ function display() {
 	var script = getScript(true).name.slice(0, -4);
 	print(script+':'+msg);
 }
-function require(requirements, args) {
-	for(var i = 0; i < requirements.length; i++)
-	{
-		let requirement = requirements[i];
+function require(reqs, args) {
+	args = args || arguments.callee.caller.arguments;
+	for(var i = 0; i < reqs.length; i++) {
+		let req = reqs[i];
 		let argument = args[i];
-		if(requirement.hasOwnProperty('valid') &&
-		   isFunction(requirement.valid))
-		{
-			if(requirement.hasOwnProperty('optional') &&
-			   requirement.optional &&
-			   argument === undefined)
+		if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
+			if(req.hasOwnProperty('optional') && req.optional && argument === undefined)
 				continue;
-			if(!requirement.valid(argument))
-			{
-				throw new Error("Argument " + i + (requirement.optional ? " (optional)" : "") +
-					" of function " + require.caller.name +
-					" violates the requirement " + requirement.valid.name + "!");
+			Debug.Write(INFO, 'Checking requirement', req.valid.name);
+			if(!req.valid(argument)) {
+				Debug.Write(ERROR, 'Failed requirement', req.valid.name);
+				throw new Error('Argument ' + i + (req.optional ? ' (optional)' : '') +
+					' of function ' + require.caller.name +
+					' violates the requirement ' + req.valid.name + '!');
 			}
+			Debug.Write(INFO, 'Requirement', req.valid.name, 'passed!');
 		}
 	}
 }
 
 function zip(a, b) {
-	require([{valid: isArray}, {valid: isArray}], arguments);
+	require([{valid: isArray}, {valid: isArray}]);
 	// [[x, y] for each(let x in a) for each(let y in b)]
 	var result = [];
 	for(var i = 0; i < a.length && i < b.length; i++)
@@ -64,7 +67,7 @@ function castDelay() { modeDelay([10]); }
 function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
 function UIDelay(type) { doDelay(function(){return !getUIFlag(type);}); }
 function modeDelay(modes) {
-	require([{valid: isArray}], arguments);
+	require([{valid: isArray}]);
 	doDelay(function() {
 		return modes.some(function(e) {
 			return me.mode==e;
@@ -74,26 +77,30 @@ function modeDelay(modes) {
 function doDelay(predicate, delay, maxlen) {
 	delay = delay || 25;
 	maxlen = maxlen || -1;
-	require([{valid: isFunction}], arguments);
+	require([{valid:isFunction}, {valid:isNumber}, {valid:isNumber}]);
+	Debug.Write(INFO, 'Delaying for', delay, 'ms apiece until at most', maxlen, 'ms');
 	var i = 0;
 	do {
-		if(maxlen > 0 && i*delay >= maxlen) return;
+		if(maxlen > 0 && i*delay >= maxlen) {
+			Debug.Write(INFO, maxlen, 'ms reached, exiting');
+			return;
+		}
 		i++;
 		sleep(delay);
 	} while(predicate(i) === true);
 }
 
-Unit.prototype.__defineGetter__("isInTown", function() {
+Unit.prototype.__defineGetter__('isInTown', function() {
 	switch(this.area) {
 		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;
 	}
 });
 
-PresetUnit.prototype.__defineGetter__("realx", function() {
+PresetUnit.prototype.__defineGetter__('realx', function() {
 	return this.roomx * 5 + this.x;
 });
-PresetUnit.prototype.__defineGetter__("realy", function() {
+PresetUnit.prototype.__defineGetter__('realy', function() {
 	return this.roomy * 5 + this.y;
 });
 
@@ -105,16 +112,23 @@ me.getSkillLvl = function (x) {
 		x = getSkillByName(x);
 	return me.getSkill(x, 0);
 };
-me.useSkill = function(hand, shift, x, y, id) {
-	if(!me.hasSkill(id)) throw new Error('Invalid skill');
+me.cast = function(hand, shift, x, y, id) {
+	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
+			{valid: isBoolean},
+			{valid: function xdist(x) { return Math.abs(x-me.x) <= 35;}},
+			{valid: function ydist(y) { return Math.abs(y-me.y) <= 35;}},
+			{valid: function hasSkill(id) { return me.hasSkill(id); }}]);
+
 	if(isString(id)) id = getSkillByName(id);
 
 	var which = (hand == HAND_LEFT ? 1 : 0);
 	if(me.getSkill(2+which) != id) me.setSkill(id, which);
+	Debug.Write(INFO, 'Casting', getSkillById(id), 'at (', x, ',', y, ')',
+			(shift ? 'using' : 'not using'), 'shift');
 	click(CLICK_SINGLE|hand, shift, x, y);
 	castDelay();
 };
-me.__defineGetter__("isInTown", function() {
+me.__defineGetter__('isInTown', function() {
 	switch(me.area) {
 		case 1: case 40: case 75: case 103: case 109: return true;
 		default: return false;
@@ -123,10 +137,14 @@ me.__defineGetter__("isInTown", function() {
 
 function click(mode, shift) {
 	var point = null;
-	var hasUnit = isUnit(arguments[1]);
-	if(arguments.length >= 2 && hasUnit)
-		point = {x: arguments[1], y: arguments[2]};
-	else if(arguments.length >= 3 && isNumber(arguments[1]) && isNumber(arguments[2]))
+	var hasUnit = isUnit(arguments[2]);
+	var hasPoint = isPoint(arguments[2]);
+
+	if(arguments.length >= 2 && hasPoint)
+		point = arguments[2];
+	else if(arguments.length >= 2 && hasUnit)
+		point = {x: arguments[2], y: arguments[3]};
+	else if(arguments.length >= 3 && isNumber(arguments[2]) && isNumber(arguments[3]))
 		point = unit;
 	else
 		throw new Error('Invalid click point');
@@ -141,37 +159,47 @@ function click(mode, shift) {
 	if(down && held && up)
 		throw new Error('Invalid click selection');
 
-	_CommonGlobalLock.lock();
-	if(down)
-	{
+	if(_CommonGlobalLock != null)
+		_CommonGlobalLock.lock();
+	if(down) {
 		var clickMode = (left ? 0 : (right ? 3 : -1));
-		if(clickMode == -1)
+		if(clickMode == -1) {
+			if(_CommonGlobalLock != null)
+				_CommonGlobalLock.unlock();
 			throw new Error('Invalid click mode');
+		}
+
 		var args = [(clickMode + (held ? 1 : 0)), shift,
 					(hasUnit ? point : point.x),
 					(hasUnit ? undefined : point.y)];
 
+		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking at', point.toSource());
 		clickMap.apply(null, args);
-		sleep(100);
+		sleep(50);
 	}
 	if(up)
 	{
 		var clickMode = (left ? 2 : (right ? 5 : -1));
-		if(clickMode == -1)
+		if(clickMode == -1) {
+			if(_CommonGlobalLock != null)
+				_CommonGlobalLock.unlock();
 			throw new Error('Invalid click mode');
+		}
 		var args = [clickMode, shift,
 					(hasUnit ? point : point.x),
 					(hasUnit ? undefined : point.y)];
 
+		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'up-clicking at', point.toSource());
 		clickMap.apply(null, args);
-		sleep(100);
+		sleep(50);
 	}
-	_CommonGlobalLock.unlock();
+	if(_CommonGlobalLock != null)
+		_CommonGlobalLock.unlock();
 }
 
 Unit.prototype.moveTo = function(callback) {
+	// only moveTo the object if it's not me!
 	if(this.gid != me.gid)
-		// only moveTo the object if it's not me!
 		me.moveTo(this.x, this.y, callback, this.area);
 };
 PresetUnit.prototype.moveTo = function(callback) {
@@ -189,36 +217,43 @@ Area.prototype.moveTo = function(callback) {
 
 me.moveTo = function(x, y, callback, area) {
 	callback = isFunction(callback) ? callback : function(){return true;};
-	var path = generatePath(me.x, me.y, x, y, me.area, area);
+	require([{valid: isNumber}, {valid: isNumber}, {valid: isFunction}, {valid: isNumber}]);
+	Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
+	var path = generatePath(me.area, area, me.x, me.y, x, y);
 	var point = false;
 	while((point = path.next()) != false)
 		moveTo(point);
 	point.close();
 
 	function moveTo(point) {
-		require([{valid: function(x) { return isArray(x) || x.hasOwnProperty('UseWP'); }}], arguments);
+		require([{valid: function validPoint(x) {
+				return isArray(x) || x.hasOwnProperty('UseWP');
+			}}]);
+
+		Debug.Write(INFO, 'Moving to point', point.toSource());
 
 		if(point.UseWP)
 			throw new Error('Not implemented');
 		var [x, y] = point,
-			tele = me.hasSkill('teleport') && me.isInTown,
+			tele = me.hasSkill('teleport') && !me.isInTown,
 			dist = getDistance(me, x, y),
 			movable = true, //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y)),
 			maxRange = (tele ? 30 : 15),
 			moveFunc = (tele ? useSkill : click),
 			delayFunc = (tele ? castDelay : moveDelay);
 
+		Debug.Write(INFO, 'We', (tele ? 'are' : 'are not'),
+				'using teleport, the distance is', dist);
 		do {
 			if(dist > maxRange || !movable) {
 				// generate a path and walk that instead
 				throw new Error('Path not walkable!');
 			}
 
-			tele = me.hasSkill('teleport') && me.isInTown;
-			dist = getDistance(me, x, y);
+			tele = me.hasSkill('teleport') && !me.isInTown;
 			movable = true; //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y));
 			maxRange = (tele ? 30 : 15);
-			moveFunc = (tele ? function(h, x, y) { me.useSkill(h, x, y, getSkillById('teleport')); } : click);
+			moveFunc = (tele ? function(h,x,y){me.cast(h,x,y,SKILL_TELEPORT);} : click);
 			delayFunc = (tele ? castDelay : moveDelay);
 
 			var args = [(tele ? HAND_RIGHT : CLICK_SINGLE|HAND_LEFT), false, x, y];
@@ -228,6 +263,8 @@ me.moveTo = function(x, y, callback, area) {
 			if(!callback(point))
 				break;
 
+			dist = getDistance(me, x, y);
+			Debug.Write(INFO, 'The distance is now', dist);
 		} while(dist > 4);
 	}
 };
@@ -296,6 +333,6 @@ function clearFlag(num, flag) { return (num & flag); }
 
 function sleep(milliseconds) {
 	// ping/2 + (fps > 30 ? 0 : 30-fps)*10 + delay should be sufficient
-	milliseconds = milliseconds > 0 ? milliseconds : 1;
+	require([{valid: function greaterThanZero(x) { return x > 0; }]);
 	delay(milliseconds + (me.ping/2) + ((me.fps > 30 ? 0 : 30 - me.fps) *10));
 }
