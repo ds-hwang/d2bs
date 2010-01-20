@@ -15,7 +15,7 @@ JSAPI_FUNC(dir_create);
 JSAPI_FUNC(dir_delete);
 JSAPI_FUNC(my_openDir);
 
-JSAPI_PROP(dir_name);
+JSAPI_PROP(dir_getProperty);
 
 void dir_finalize(JSContext *cx, JSObject *obj);
 
@@ -34,7 +34,7 @@ static JSClass folder_class = {
 enum {DIR_NAME};
 
 static JSPropertySpec dir_props[] = {
-	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	dir_name},
+	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	dir_getProperty},
 	{0}
 };
 

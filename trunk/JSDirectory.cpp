@@ -103,7 +103,6 @@ JSAPI_FUNC(dir_getFiles)
 	_chdir(oldpath);
 
 	return JS_TRUE;
-	return JS_TRUE;
 }
 
 JSAPI_FUNC(dir_getFolders)
@@ -188,14 +187,18 @@ JSAPI_FUNC(dir_delete)
 	return JS_TRUE;
 }
 
-JSAPI_PROP(dir_name)
+JSAPI_PROP(dir_getProperty)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 
-	if(!d)
-		return JS_FALSE;
+	if(!d) return JS_FALSE;
 
-	*vp = STRING_TO_JSVAL(JS_InternString(cx, d->name));
+	switch(JSVAL_TO_INT(id))
+	{
+		case DIR_NAME:
+			*vp = STRING_TO_JSVAL(JS_InternString(cx, d->name));
+			break;
+	}
 	return JS_TRUE;
 }
 
