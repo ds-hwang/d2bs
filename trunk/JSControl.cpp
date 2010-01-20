@@ -16,123 +16,187 @@ void control_finalize(JSContext *cx, JSObject *obj)
 	}
 }
 
-JSAPI_PROP(control_getProperty)
+Control* CheckAndFind(JSContext* cx, JSObject* obj)
 {
 	if(ClientState() != ClientStateMenu)
-		return JS_TRUE;
+		return NULL;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData)
-		return JS_TRUE;
+		return NULL;
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
-		return JS_TRUE;
+		return NULL;
+	return pControl;
+}
 
-	char* tmp = NULL;
+JSAPI_PROP(control_x)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwPosX, vp);
+	return JS_TRUE;
+}
 
-	switch(JSVAL_TO_INT(id))
-	{
-		case CONTROL_TEXT:
-			if(pControl->dwIsCloaked == 33)
-				break;
-			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText));
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
-			break;
-		case CONTROL_X:
-			*vp = INT_TO_JSVAL(pControl->dwPosX);
-			break;
-		case CONTROL_Y:
-			*vp = INT_TO_JSVAL(pControl->dwPosY);
-			break;
-		case CONTROL_XSIZE:
-			*vp = INT_TO_JSVAL(pControl->dwSizeX);
-			break;
-		case CONTROL_YSIZE:
-			*vp = INT_TO_JSVAL(pControl->dwSizeY);
-			break;
-		case CONTROL_STATE:
-			*vp = INT_TO_JSVAL(pControl->dwDisabled - 2);
-			break;
-		case CONTROL_PASSWORD:
-			*vp = BOOLEAN_TO_JSVAL(pControl->dwIsCloaked == 33);
-			break;
-		case CONTROL_TYPE:
-			*vp = INT_TO_JSVAL(pControl->dwType);
-			break;
-		case CONTROL_CURSORPOS:
-			*vp = INT_TO_JSVAL(pControl->dwCursorPos);
-			break;
-//		case CONTROL_MAXLENGTH:
-//			*vp = INT_TO_JSVAL(pControl->dwMaxLength);
-//			break;
-		case CONTROL_SELECTSTART:
-			*vp = INT_TO_JSVAL(pControl->dwSelectStart);
-			break;
-		case CONTROL_SELECTEND:
-			*vp = INT_TO_JSVAL(pControl->dwSelectEnd);
-			break;
-		default:
-			break;
-	}
+JSAPI_PROP(control_y)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwPosY, vp);
+	return JS_TRUE;
+}
 
-	if(tmp)
-		delete[] tmp;
+JSAPI_PROP(control_xsize)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwSizeX, vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_ysize)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwSizeY, vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_pwd)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	*vp = BOOLEAN_TO_JSVAL(ctrl->dwIsCloaked == 33);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_maxlen)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+//	JS_NewNumberValue(cx, ctrl->dwMaxLength, vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_type)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwType, vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_visible)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
 
 	return JS_TRUE;
 }
 
-JSAPI_PROP(control_setProperty)
+JSAPI_PROP(control_selstart)
 {
-	if(ClientState() != ClientStateMenu)
-		return JS_TRUE;
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwSelectStart, vp);
+	return JS_TRUE;
+}
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-	if(!pData)
-		return JS_TRUE;
+JSAPI_PROP(control_selend)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwSelectEnd, vp);
+	return JS_TRUE;
+}
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-	if(!pControl)
-		return JS_TRUE;
 
-	switch(JSVAL_TO_INT(id))
+JSAPI_PROP(control_get_text)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	if(ctrl->dwIsCloaked != 33)
 	{
-		case CONTROL_TEXT: 
-		{
-			if (!(pControl->dwType == 1))
-				return JS_TRUE;
-			if(JSVAL_IS_STRING(*vp))
-			{
-				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
-				if(!pText)
-					return JS_TRUE;
-				wchar_t* szwText = AnsiToUnicode(pText);
-				D2WIN_SetControlText(pControl, szwText);
-				delete[] szwText;
-			}
-			break;
-		}
-		case CONTROL_STATE:
-		{
-			if (JSVAL_IS_INT(*vp))
-			{
-				int nState = JSVAL_TO_INT(*vp);
-				if (nState < 0 || nState > 3)
-					return JS_TRUE;
-				memset((VOID*)&pControl->dwDisabled, (nState + 2), sizeof(DWORD));
-			}
-			break;
-		}
-		case CONTROL_CURSORPOS:
-		{
-			if (JSVAL_IS_INT(*vp))
-			{
-				DWORD dwPos = NULL;
-				if(JS_ValueToECMAUint32(cx, *vp, &dwPos))
-					memset((VOID*)&pControl->dwCursorPos, dwPos, sizeof(DWORD));
-			}
-			break;
-		}
+		char* tmp = UnicodeToAnsi((ctrl->dwType == 6 ? ctrl->wText2 : ctrl->wText));
+		*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+		delete[] tmp;
+	}
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_get_state)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, (ctrl->dwDisabled - 2), vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_get_curpos)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	JS_NewNumberValue(cx, ctrl->dwCursorPos, vp);
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_set_text)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(ctrl && ctrl->dwType == 1 && JSVAL_IS_STRING(*vp))
+	{
+		char* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+		if(!pText)
+			return JS_TRUE;
+		wchar_t* szwText = AnsiToUnicode(pText);
+		D2WIN_SetControlText(ctrl, szwText);
+		delete[] szwText;
+	}
+	else
+		return JS_FALSE;
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_set_state)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	if(JSVAL_IS_INT(*vp))
+	{
+		int32 nState;
+		if(!JS_ValueToECMAInt32(cx, *vp, &nState) || nState < 0 || nState > 3)
+			THROW_ERROR(cx, obj, "Invalid state value");
+		memset((VOID*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
+	}
+	return JS_TRUE;
+}
+
+JSAPI_PROP(control_set_curpos)
+{
+	Control* ctrl = CheckAndFind(cx, obj);
+	if(!ctrl)
+		return JS_FALSE;
+	if(JSVAL_IS_INT(*vp))
+	{
+		DWORD dwPos;
+		if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
+			THROW_ERROR(cx, obj, "Invalid cursor position value");
+		memset((VOID*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
 	}
 	return JS_TRUE;
 }
@@ -280,12 +344,11 @@ JSAPI_FUNC(control_getText)
 }
 
 
-INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(my_getControl)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	Control* pControl = *p_D2WIN_FirstControl;
 	int nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
 	int *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
 
@@ -293,19 +356,7 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		if(JSVAL_IS_INT(argv[i]))
 			*args[i] = JSVAL_TO_INT(argv[i]);
 
-	if(argc > 0 && (nType != -1 || nX != -1 || nY != -1 || nXSize != -1 || nYSize != -1))
-	{
-		for(pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
-		{
-			if((nType != -1 && pControl->dwType == (DWORD)nType) &&
-					(nX != -1 && pControl->dwPosX == (DWORD)nX) &&
-					(nY != -1 && pControl->dwPosY == (DWORD)nY) &&
-					(nXSize != -1 && pControl->dwSizeX == (DWORD)nXSize) &&
-					(nYSize != -1 && pControl->dwSizeY == (DWORD)nYSize))
-				break;
-		}
-	}
-
+	Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
 	if(!pControl)
 		return JS_TRUE;
 
