@@ -28,7 +28,7 @@ static JSClassSpec global_classes[] = {
 	{&presetunit_class,		presetunit_props,	NULL,					NULL,			NULL},
 	{&area_class,			area_props,			NULL,					NULL,			NULL},
 	{&control_class,		control_props,		control_funcs,			NULL,			NULL},
-	{&directory_class,		dir_props,			dir_methods,			NULL,			NULL},
+	{&folder_class,			dir_props,			dir_methods,			NULL,			NULL},
 	{&exit_class,			exit_props,			NULL,					NULL,			NULL},
 	{&party_class,			party_props,		party_methods,			NULL,			NULL},
 	{&room_class,			room_props,			room_methods,			NULL,			NULL},

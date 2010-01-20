@@ -10,12 +10,13 @@
 CLASS_CTOR(dir);
 
 JSAPI_FUNC(dir_getFiles);
-JSAPI_FUNC(dir_getDirectories);
+JSAPI_FUNC(dir_getFolders);
 JSAPI_FUNC(dir_create);
 JSAPI_FUNC(dir_delete);
 JSAPI_FUNC(my_openDir);
 
-JSAPI_PROP(dir_getProperty);
+JSAPI_PROP(dir_name);
+
 void dir_finalize(JSContext *cx, JSObject *obj);
 
 
@@ -23,9 +24,9 @@ void dir_finalize(JSContext *cx, JSObject *obj);
 // directory stuff
 //////////////////////////////////////////////////////////////////
 
-static JSClass directory_class = {
-	"Directory", JSCLASS_HAS_PRIVATE,
-	JS_PropertyStub, JS_PropertyStub, dir_getProperty, JS_PropertyStub,
+static JSClass folder_class = {
+	"Folder", JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, dir_finalize,
     NULL, NULL, NULL, dir_ctor
 };
@@ -33,7 +34,7 @@ static JSClass directory_class = {
 enum {DIR_NAME};
 
 static JSPropertySpec dir_props[] = {
-	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR},
+	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	dir_name},
 	{0}
 };
 
@@ -41,7 +42,7 @@ static JSFunctionSpec dir_methods[] = {
 	{"create",			dir_create,			1},
 	{"remove",			dir_delete,			1},
 	{"getFiles",		dir_getFiles,		1},
-	{"getDirectories",	dir_getDirectories,	1},
+	{"getFolders",		dir_getFolders,		1},
 	{0}
 };
 
