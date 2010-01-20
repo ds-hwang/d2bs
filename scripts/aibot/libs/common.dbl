@@ -34,7 +34,6 @@ function display() {
 	print(script+':'+msg);
 }
 function require(reqs, args) {
-	args = args || arguments.callee.caller.arguments;
 	for(var i = 0; i < reqs.length; i++) {
 		let req = reqs[i];
 		let argument = args[i];
@@ -54,7 +53,7 @@ function require(reqs, args) {
 }
 
 function zip(a, b) {
-	require([{valid: isArray}, {valid: isArray}]);
+	require([{valid: isArray}, {valid: isArray}], arguments);
 	// [[x, y] for each(let x in a) for each(let y in b)]
 	var result = [];
 	for(var i = 0; i < a.length && i < b.length; i++)
@@ -67,7 +66,7 @@ function castDelay() { modeDelay([10]); }
 function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
 function UIDelay(type) { doDelay(function(){return !getUIFlag(type);}); }
 function modeDelay(modes) {
-	require([{valid: isArray}]);
+	require([{valid: isArray}], arguments);
 	doDelay(function() {
 		return modes.some(function(e) {
 			return me.mode==e;
@@ -77,7 +76,7 @@ function modeDelay(modes) {
 function doDelay(predicate, delay, maxlen) {
 	delay = delay || 25;
 	maxlen = maxlen || -1;
-	require([{valid:isFunction}, {valid:isNumber}, {valid:isNumber}]);
+	require([{valid:isFunction}, {valid:isNumber}, {valid:isNumber}], arguments);
 	Debug.Write(INFO, 'Delaying for', delay, 'ms apiece until at most', maxlen, 'ms');
 	var i = 0;
 	do {
@@ -117,7 +116,8 @@ me.cast = function(hand, shift, x, y, id) {
 			{valid: isBoolean},
 			{valid: function xdist(x) { return Math.abs(x-me.x) <= 35;}},
 			{valid: function ydist(y) { return Math.abs(y-me.y) <= 35;}},
-			{valid: function hasSkill(id) { return me.hasSkill(id); }}]);
+			{valid: function hasSkill(id) { return me.hasSkill(id); }}],
+		arguments);
 
 	if(isString(id)) id = getSkillByName(id);
 
@@ -140,25 +140,29 @@ function click(mode, shift) {
 	var hasUnit = isUnit(arguments[2]);
 	var hasPoint = isPoint(arguments[2]);
 
-	if(arguments.length >= 2 && hasPoint)
+	if(arguments.length == 3 && (hasPoint || hasUnit))
 		point = arguments[2];
-	else if(arguments.length >= 2 && hasUnit)
+	else if(arguments.length = 4 && isNumber(arguments[2]) && isNumber(arguments[3]))
 		point = {x: arguments[2], y: arguments[3]};
-	else if(arguments.length >= 3 && isNumber(arguments[2]) && isNumber(arguments[3]))
-		point = unit;
 	else
 		throw new Error('Invalid click point');
 
-	var down	= hasBit(mode, CLICK_DOWN),
-		up		= hasBit(mode, CLICK_UP),
-		held	= hasBit(mode, CLICK_HOLD),
-		left	= hasBit(mode, HAND_LEFT),
-		right	= hasBit(mode, HAND_RIGHT);
+	var down	= hasFlag(mode, CLICK_DOWN),
+		up		= hasFlag(mode, CLICK_UP),
+		held	= hasFlag(mode, CLICK_HOLD),
+		left	= hasFlag(mode, HAND_LEFT),
+		right	= hasFlag(mode, HAND_RIGHT);
 	if(left && right)
 		throw new Error('Invalid hand selection');
 	if(down && held && up)
 		throw new Error('Invalid click selection');
 
+	Debug.Write(INFO, 'We will be',
+			(down ? 'down' : 'not down'), 'and',
+			(up ? 'up' : 'not up'), 'clicking',
+			(held ? 'and holding' : 'and not holding'),
+			'while clicking at', point.x, ',', point.y,
+			(shift ? 'using' : 'not using'), 'shift');
 	if(_CommonGlobalLock != null)
 		_CommonGlobalLock.lock();
 	if(down) {
@@ -173,12 +177,12 @@ function click(mode, shift) {
 					(hasUnit ? point : point.x),
 					(hasUnit ? undefined : point.y)];
 
-		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking at', point.toSource());
-		clickMap.apply(null, args);
+		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking at', point.x, ',', point.y);
+		if(!clickMap.apply(null, args))
+			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
 	}
-	if(up)
-	{
+	if(up) {
 		var clickMode = (left ? 2 : (right ? 5 : -1));
 		if(clickMode == -1) {
 			if(_CommonGlobalLock != null)
@@ -190,7 +194,8 @@ function click(mode, shift) {
 					(hasUnit ? undefined : point.y)];
 
 		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'up-clicking at', point.toSource());
-		clickMap.apply(null, args);
+		if(!clickMap.apply(null, args))
+			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
 	}
 	if(_CommonGlobalLock != null)
@@ -217,7 +222,7 @@ Area.prototype.moveTo = function(callback) {
 
 me.moveTo = function(x, y, callback, area) {
 	callback = isFunction(callback) ? callback : function(){return true;};
-	require([{valid: isNumber}, {valid: isNumber}, {valid: isFunction}, {valid: isNumber}]);
+	require([{valid:isNumber},{valid:isNumber},{valid:isFunction},{valid:isNumber}], arguments);
 	Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
 	var path = generatePath(me.area, area, me.x, me.y, x, y);
 	var point = false;
@@ -228,7 +233,7 @@ me.moveTo = function(x, y, callback, area) {
 	function moveTo(point) {
 		require([{valid: function validPoint(x) {
 				return isArray(x) || x.hasOwnProperty('UseWP');
-			}}]);
+			}}], arguments);
 
 		Debug.Write(INFO, 'Moving to point', point.toSource());
 
@@ -333,6 +338,6 @@ function clearFlag(num, flag) { return (num & flag); }
 
 function sleep(milliseconds) {
 	// ping/2 + (fps > 30 ? 0 : 30-fps)*10 + delay should be sufficient
-	require([{valid: function greaterThanZero(x) { return x > 0; }]);
+	require([{valid: function greaterThanZero(x) { return x > 0; }}], arguments);
 	delay(milliseconds + (me.ping/2) + ((me.fps > 30 ? 0 : 30 - me.fps) *10));
 }

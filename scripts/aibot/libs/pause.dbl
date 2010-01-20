@@ -4,7 +4,7 @@ var Lock = function() {
 	var held = false;
 	var owner = null;
 	this.lock = function lock() {
-		if(owner.name != getScript(true).name)
+		if(owner != null && owner.name != getScript(true).name)
 			while(this.isLocked)
 				delay(100);
 
