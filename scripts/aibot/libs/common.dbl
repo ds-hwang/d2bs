@@ -27,6 +27,8 @@ const CLICK_SINGLE	= CLICK_DOWN|CLICK_UP;
 const HAND_RIGHT	= 0x10;
 const HAND_LEFT		= 0x20;
 
+const fastRequirements = false;
+
 function display() {
 	var msg = '';
 	for(var i = 0; i < arguments.length; i++) msg += ' ' + arguments[i];
@@ -34,20 +36,29 @@ function display() {
 	print(script+':'+msg);
 }
 function require(reqs, args) {
+	var fname = arguments.callee.caller.name;
+	fname = fname.length > 0 ? fname : '[anonymous]';
+	Debug.Write(INFO, 'Checking requirements for function', fname);
+	if(fastRequirements)
+	{
+		Debug.Write(INFO, 'Requirements assumed passed!');
+		return;
+	}
+
 	for(var i = 0; i < reqs.length; i++) {
-		let req = reqs[i];
-		let arg = i >= args.length ? undefined : args[i];
-		if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
-			if(req.hasOwnProperty('optional') && req.optional && arg === undefined)
-				continue;
-			Debug.Write(INFO, 'Checking requirement', req.valid.name);
-			if(!req.valid(arg)) {
-				Debug.Write(ERROR, 'Failed requirement', req.valid.name);
-				throw new Error('Argument ' + (i+1) + (req.optional ? ' (optional)' : '') +
-					' of function ' + require.caller.name +
-					' violates the requirement ' + req.valid.name + '!');
+		let (req = reqs[i], arg = i >= args.length ? undefined : args[i]) {
+			if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
+				if(req.hasOwnProperty('optional') && req.optional && arg === undefined)
+					continue;
+				Debug.Write(INFO, 'Checking requirement', req.valid.name);
+				if(!req.valid(arg)) {
+					Debug.Write(ERROR, 'Failed requirement', req.valid.name);
+					throw new Error('Argument ' + (i+1) + (req.optional ? ' (optional)' : '') +
+						' of function ' + fname + ' violates the requirement ' +
+						req.valid.name + '!');
+				}
+				Debug.Write(INFO, 'Requirement', req.valid.name, 'passed!');
 			}
-			Debug.Write(INFO, 'Requirement', req.valid.name, 'passed!');
 		}
 	}
 }
@@ -63,8 +74,14 @@ function zip(a, b) {
 
 function moveDelay() { modeDelay([2, 3, 6]); }
 function castDelay() { modeDelay([10]); }
+function areaDelay(area) { doDelay(function() { return me.area!=area; }); }
 function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
-function UIDelay(type) { doDelay(function(){return !getUIFlag(type);}); }
+function UIDelay(type, mode) {
+	mode = isBoolean(mode) ? mode : true;
+	doDelay(function() {
+		return mode ? !getUIFlag(type) : getUIFlag(type);
+	});
+}
 function modeDelay(modes) {
 	require([{valid: isArray}], arguments);
 	doDelay(function() {
@@ -104,19 +121,33 @@ PresetUnit.prototype.__defineGetter__('realy', function() {
 	return this.roomy * 5 + this.y;
 });
 
-me.hasSkill = function (x) {
+me.hasSkill = function hasSkill(x) {
 	return me.getSkillLvl(x, 0) > 0;
 };
-me.getSkillLvl = function (x) {
+me.getSkillLvl = function getSkillLvl(x) {
 	if(isString(x))
 		x = getSkillByName(x);
 	return me.getSkill(x, 0);
 };
-me.cast = function(hand, shift, x, y, id) {
+me.castOn = function castOn(hand, shift, unit, id) {
+	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
+			{valid: isBoolean}, {valid: isUnit},
+			{valid: function hasSkill(id) { return me.hasSkill(id); }}], arguments);
+
+	if(isString(id)) id = getSkillByName(id);
+
+	var which = (hand == HAND_LEFT ? 1 : 0);
+	if(me.getSkill(2+which) != id) me.setSkill(id, which);
+	Debug.Write(INFO, 'Casting', getSkillById(id), '(' + id + ')',
+			'on', unit.name, (shift ? 'using' : 'not using'), 'shift');
+	click(CLICK_SINGLE|hand, shift, unit);
+	castDelay();
+}
+me.cast = function cast(hand, shift, x, y, id) {
 	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
 			{valid: isBoolean},
-			{valid: function xdist(x) { return Math.abs(x-me.x) <= 35;}},
-			{valid: function ydist(y) { return Math.abs(y-me.y) <= 35;}},
+			{valid: function xdist(x) { return Math.abs(x-me.x) <= 40;}},
+			{valid: function ydist(y) { return Math.abs(y-me.y) <= 40;}},
 			{valid: function hasSkill(id) { return me.hasSkill(id); }}],
 		arguments);
 
@@ -124,8 +155,8 @@ me.cast = function(hand, shift, x, y, id) {
 
 	var which = (hand == HAND_LEFT ? 1 : 0);
 	if(me.getSkill(2+which) != id) me.setSkill(id, which);
-	Debug.Write(INFO, 'Casting', getSkillById(id), 'at (', x, ',', y, ')',
-			(shift ? 'using' : 'not using'), 'shift');
+	Debug.Write(INFO, 'Casting', getSkillById(id), '(' + id + ')',
+			'at (', x, ',', y, ')', (shift ? 'using' : 'not using'), 'shift');
 	click(CLICK_SINGLE|hand, shift, x, y);
 	castDelay();
 };
@@ -174,11 +205,12 @@ function click(mode, shift) {
 			throw new Error('Invalid click mode');
 		}
 
-		var args = [(clickMode + (held ? 1 : 0)), shift,
-					(hasUnit ? point : point.x),
-					(hasUnit ? undefined : point.y)];
+		var args = [(clickMode + (held ? 1 : 0)), shift];
+		if(hasUnit) args.push(point);
+		else args.push(point.x, point.y);
 
-		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking at', point.x, ',', point.y);
+		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking',
+				(hasUnit ? 'on ' + point.name : ''), 'at (', point.x, ',', point.y, ')');
 		if(!clickMap.apply(null, args))
 			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
@@ -190,11 +222,12 @@ function click(mode, shift) {
 				_CommonGlobalLock.unlock();
 			throw new Error('Invalid click mode');
 		}
-		var args = [clickMode, shift,
-					(hasUnit ? point : point.x),
-					(hasUnit ? undefined : point.y)];
+		var args = [clickMode, shift];
+		if(hasUnit) args.push(point);
+		else args.push(point.x, point.y);
 
-		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'up-clicking at', point.toSource());
+		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'up-clicking',
+				(hasUnit ? 'on ' + point.name : ''), 'at (', point.x, ',', point.y, ')');
 		if(!clickMap.apply(null, args))
 			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
@@ -203,25 +236,25 @@ function click(mode, shift) {
 		_CommonGlobalLock.unlock();
 }
 
-Unit.prototype.moveTo = function(callback) {
+Unit.prototype.moveTo = function moveToUnit(callback) {
 	// only moveTo the object if it's not me!
 	if(this.gid != me.gid)
 		me.moveTo(this.x, this.y, callback, this.area);
 };
-PresetUnit.prototype.moveTo = function(callback) {
+PresetUnit.prototype.moveTo = function moveToPreset(callback) {
 	me.moveTo(this.realx, this.realy, callback, this.level);
 };
-Room.prototype.moveTo = function(callback) {
+Room.prototype.moveTo = function moveToRoom(callback) {
 	me.moveTo(this.x, this.y, callback, this.area);
 };
-Exit.prototype.moveTo = function(callback) {
+Exit.prototype.moveTo = function moveToExit(callback) {
 	me.moveTo(this.x, this.y, callback, this.level);
 };
-Area.prototype.moveTo = function(callback) {
+Area.prototype.moveTo = function moveToArea(callback) {
 	me.moveTo(this.x, this.y, callback, this.id);
 };
 
-me.moveTo = function(x, y, callback, area) {
+me.moveTo = function moveTo(x, y, callback, area) {
 	callback = isFunction(callback) ? callback : function(){return true;};
 	area = area || me.area;
 	require([{valid: isNumber}, {valid: isNumber},
@@ -232,57 +265,116 @@ me.moveTo = function(x, y, callback, area) {
 	if(getDistance(me, x, y) < 20) {
 		moveTo([x, y]);
 		return;
+	} else {
+		Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
+		let (path = generatePath(me.area, area, me.x, me.y, x, y), point = false) {
+			while((point = path.next()) != false)
+				moveTo(point);
+			path.close();
+		}
 	}
 
-	Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
-	var path = generatePath(me.area, area, me.x, me.y, x, y);
-	var point = false;
-	while((point = path.next()) != false)
-		moveTo(point);
-	point.close();
+	function castHelper(h, s, xn, yn) { me.cast(h, s, xn, yn, SKILL_TELEPORT); }
 
-	function moveTo(point) {
+	function moveTo(point, force) {
+		force = force || false;
 		require([{valid: function validPoint(x) {
 				return isArray(x) || x.hasOwnProperty('UseWP');
-			}}], arguments);
+			}}, {valid: isBoolean, optional: true}], arguments);
 
 		Debug.Write(INFO, 'Moving to point', point.toSource());
 
-		if(point.UseWP)
-			throw new Error('Not implemented');
-		var [x, y] = point,
-			tele = me.hasSkill('teleport') && !me.isInTown,
-			dist = getDistance(me, x, y),
-			movable = true, //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y)),
-			maxRange = (tele ? 30 : 15),
-			moveFunc = (tele ? useSkill : click),
-			delayFunc = (tele ? castDelay : moveDelay);
+		if(point.WP)
+			me.useWaypoint(point.dest);
+		else if(point.Object)
+		{
+			me.useObject(point.classid);
+		} else {
+			var [dx, dy] = point,
+				tele = me.hasSkill('teleport') && !me.isInTown,
+				dist = Math.floor(getDistance(me, dx, dy)),
+				movable = true, //(tele ? hasLoS(me, dx, dy) : isWalkable(me, dx, dy)),
+				maxRange = (tele ? 30 : 15),
+				moveFunc = (tele ? castHelper : click),
+				delayFunc = (tele ? castDelay : moveDelay);
 
-		Debug.Write(INFO, 'We', (tele ? 'are' : 'are not'),
-				'using teleport, the distance is', dist);
-		do {
-			if(dist > maxRange || !movable) {
-				// generate a path and walk that instead
-				throw new Error('Path not walkable!');
-			}
+			Debug.Write(INFO, 'We', (tele ? 'are' : 'are not'),
+					'using teleport, the distance is', dist);
+			do {
+				if((dist > maxRange || !movable) && !force) {
+					// generate a path and walk that instead
+					Debug.Write(INFO, 'Distance too long, trying to recalculate path...');
+					let (path = getPath(me.area, me.x, me.y, dx, dy, tele, 5)) {
+						for each(let point in path)
+							moveTo(point, true);
+					}
+				}
 
-			tele = me.hasSkill('teleport') && !me.isInTown;
-			movable = true; //(tele ? hasLoS(me, x, y) : isWalkable(me, x, y));
-			maxRange = (tele ? 30 : 15);
-			moveFunc = (tele ? function(h,x,y){me.cast(h,x,y,SKILL_TELEPORT);} : click);
-			delayFunc = (tele ? castDelay : moveDelay);
+				tele = me.hasSkill('teleport') && !me.isInTown;
+				movable = true; //(tele ? hasLoS(me, dx, dy) : isWalkable(me, dx, dy));
+				maxRange = (tele ? 30 : 15);
+				moveFunc = (tele ? castHelper : click);
+				delayFunc = (tele ? castDelay : moveDelay);
 
-			var args = [(tele ? HAND_RIGHT : CLICK_SINGLE|HAND_LEFT), false, x, y];
-			moveFunc.apply(this, args);
-			delayFunc();
+				var args = [(tele ? HAND_RIGHT : CLICK_SINGLE|HAND_LEFT), false, dx, dy];
+				moveFunc.apply(this, args);
+				delayFunc();
 
-			if(!callback(point))
-				break;
+				if(!callback(point))
+					break;
 
-			dist = getDistance(me, x, y);
-			Debug.Write(INFO, 'The distance is now', dist);
-		} while(dist > 4);
+				dist = Math.floor(getDistance(me, dx, dy));
+				Debug.Write(INFO, 'The distance is now', dist);
+			} while(dist > 4);
+		}
 	}
+};
+
+me.useWaypoint = function useWaypoint(id) {
+	function areaToPage(id) {
+		var areas = [
+			[ACT_I,		3,		4,		5,		6,		27,		29,		32,		35],
+			[ACT_II,	48,		42,		57,		43,		44,		52,		74,		46],
+			[ACT_III,	76,		77,		78,		79,		80,		81,		83,		101],
+			[ACT_IV,	106,	107],
+			[ACT_V,		111,	112,	113,	115,	123,	117,	118,	129]
+		];
+
+		for(var i = 0; i < areas.length; i++)
+			for(var j = 0; j < areas[i].length; i++)
+				if(areas[i][j] == id)
+					return {page: i, button: j};
+		return null;
+	}
+	var wp = getWaypointUnit(me.area);
+	if(!isUnit(wp))
+		throw new Error('Failed to find waypoint');
+
+	var dest = areaToPage(id);
+	if(dest == null)
+		throw new Error('Failed to find page and button to click');
+
+	var area = ((dest.page-1)*9)-1+(dest.button) - (dest.page == 5 ? 6 : 0);
+
+	wp.interact();
+	UIDelay(UI_WAYPOINT);
+
+	if(!getWaypoint(area))
+		throw new Error('Waypoint not found');
+
+	wp.interact(id);
+	areaDelay(id);
+	me.cancel(0);
+	UIDelay(UI_WAYPOINT, false);
+	sleep(50);
+};
+
+me.useObject = function useObject(classid) {
+	var object = getUnit(TYPE_OBJECT, classid);
+	if(!isUnit(object))
+		throw new Error('Object not found');
+
+	object.interact();
 };
 
 function isUnit(obj) {
@@ -318,6 +410,70 @@ function isArea(obj) {
 			obj.hasOwnProperty('id') &&
 			obj.hasOwnProperty('name') &&
 			obj.hasOwnProperty('exits');
+}
+
+function getUnits() {
+	require([{valid: isNumber, optional: true},
+			{valid: function nameOrClassid(x) {
+				if(isArray(x))
+					require([{valid: nameOrClassid, optional: true}], x);
+				return isArray(x) || isString(x) || isNumber(x); }, optional: true},
+			{valid: isNumber, optional: true}, {valid: isNumber, optional: true}], arguments);
+
+	var type = arguments[0];
+	var names = arguments[1];
+	var mode = arguments[2];
+	var gid = arguments[3];
+	var results = [];
+
+	if(!isArray(names))
+		names = [names];
+
+	for each(let name in names)
+	{
+		var unit = getUnit(type, name, mode, gid);
+		do {
+			results.push(copyUnit(unit));
+		} while(unit.getNext() == true);
+	}
+	return results;
+}
+
+function getPresetUnitsEx(area, type, classids) {
+	require([{valid: isNumber}, {valid: isNumber, optional: true},
+		{valid: function numberOrArray(x) {
+			if(isArray(x))
+				require([{valid: numberOrArray}], x);
+			return isNumber(x) || isArray(x);
+			}, optional: true}], arguments);
+
+	var results = [];
+
+	if(!isArray(classids))
+		classids = [classids];
+
+	for each(let classid in classids)
+	{
+		var units = getPresetUnits(area, type, classid);
+		results = results.concat(units);
+	}
+	return results;
+}
+
+function getWaypointUnit(area) {
+	require([{valid: isNumber}], arguments);
+	const classids = [119,145,156,157,237,238,288,323,324,398,402,429,494,496,511,539];
+
+	// search our local area first
+	var wps = getUnits(TYPE_OBJECT, classids);
+	if(wps.length == 1)
+		return wps[0];
+
+	Debug.Write(INFO, 'No waypoint object found, checking presets');
+	wps = getPresetUnitsEx(area, TYPE_OBJECT, classids);
+	if(wps.length == 0)
+		throw new Error('No waypoint could be found!');
+	return wps[0];
 }
 
 function isNumber(obj) { return (typeof(obj) == 'number'); }

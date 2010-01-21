@@ -2,54 +2,93 @@ js_strict(true);
 
 include('arealinker.dbl');
 include('common.dbl');
+include('debug.dbl');
+include('constants.dbl');
 
-function generatePath(startArea, destArea, x, y, x2, y2) {
-	var areaids = [];
-	startArea = startArea||me.area;
-	destArea = destArea||me.area;
-	// generate a path from (x, y) to (x2, y2) and return it as an iterator
-	if(startArea != destArea) {
-		// find out the list of areas between here and there
-		var tmpids = [];
-		var areas = AreaLinker.FindPath(startArea, destArea);
-		for each(var area in areas) {
-			tmpids.push(area.End);
-			if(area.UseWP)
-				areaids.push(tmpids);
-		}
-		if(areaids.length == 0)
-			areaids = tmpids;
-		// the last area is our destination, so we ignore it
-		areaids.pop();
-	}
-	else
-		areaids.push(startArea);
-
-	if(!isArray(areaids[0]))
-		areaids = [areaids];
-
-	// areaids is now an array with all the correct ids (in some form) to traverse
-	return (function(x, y, x2, y2) {
-		for(var k = 0; k < areaids.length; k++) {
-			var areas = areaids[k];
-			for(var i = 0; i < areas.length; i++) {
-				var exits = getExits(getArea(areas[i]));
-				for(var j = 0; j < exits.length; j++)
-					if(exits[j].id == areas[i+1].id)
-						break;
-				// exits[j] is now the exit leading to the next area
-				// find a path from our start point, which is the area prior to this
-				// (me.x, me.y if at the start) to the exit
-				var dx = (i == 0 ? x : areas[i-1].x);
-				var dy = (i == 0 ? y : areas[i-1].y);
-				var dx2 = (i == areas.length ? x2 : exits[j].x);
-				var dy2 = (i == areas.length ? y2 : exits[j].y);
-				var path = getPath(areas[i].id, dx, dy, dx2, dy2);
-				for each(var point in path)
-					yield point;
+function generatePath(start, dest, x, y, x2, y2) {
+	var areas =[];
+	if(start != dest) {
+		// find the areas between start and dest
+		Debug.Write(INFO, 'Starting and destination areas are different,',
+				'generating a path...');
+		let (nodes = AreaLinker.FindPath(start, dest)) {
+			for each(let node in nodes) {
+				areas.push(node);
 			}
-			if(k != areaids.length)
-				yield {UseWP: true};
+		}
+	} else {
+		Debug.Write(INFO, 'Starting and destination areas are the same,',
+				'we only need to path between those two points');
+		let (node = new AreaLink(start)) {
+			node.End = dest;
+			areas.push(node);
+		}
+	}
+	Debug.Write(INFO, 'The area path generated was', areas.toSource());
+
+	function findPath(area, x, y) {
+		var path = getPath(area, me.x, me.y, x, y);
+		Debug.Write(INFO, 'Got path', path.toSource());
+		return path;
+	}
+
+	return (function() {
+		for each(let area in areas) {
+			if(area.End != dest) {
+				// find a path to the exit
+				if(area.UseWP) {
+					// this is a special case of the objects case
+					// find the waypoint
+					var wp = getWaypointUnit(area.Start);
+					if(isPreset(wp))
+					{
+						// if the waypoint is a preset, path to it
+						let (path = getPath(wp.level, wp.realx, wp.realy)) {
+							for each(let point in path)
+								yield point;
+						}
+						// yield a special "use waypoint" value
+						yield {WP: true, dest: area.End};
+					}
+				} else if(area.Objects.length > 0) {
+					// find the object
+					var objects = getPresetUnitsEx(area.Start, TYPE_OBJECT, area.Objects);
+					// path to it, yielding each point
+					for each(let object in objects)
+					{
+						let (path = getPath(object.level, object.realx, object.realy)) {
+							for each(let point in path)
+								yield point;
+						}
+						// yield a special "use object" value
+						yield {Object: true, classid: object.id};
+					}
+				} else {
+					// find the exit
+					let (exits = getExits(getArea(area.End))) {
+						Debug.Write(INFO, 'Got exits', exits.toSource(), 'looking',
+							'for exit with id', area.End);
+						var exit = null;
+						exits.forEach(function(x) {
+							if(x.target == area.End) exit = x;
+							return exit == null;
+						});
+						if(exit == null)
+							throw new Error('Failed to find exit for area id ' + area.End);
+						// path to it
+						let (path = findPath(exit.level, exit.x, exit.y)) {
+							for each(let point in path)
+								yield point;
+						}
+					}
+				}
+			} else {
+				// find a path to the caller's point
+				let (path = findPath(dest, x2, y2)) {
+					for each(let point in path)
+						yield point;
+				}
+			}
 		}
 		yield false;
 	})();

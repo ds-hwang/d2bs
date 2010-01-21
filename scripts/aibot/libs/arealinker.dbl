@@ -13,8 +13,8 @@ var AreaLinker = function () {};
 function AreaLink(start, objects, usewp) {
 	this.Start = start;
 	this.End = undefined;
-	this.Objects = objects;
-	this.UseWP = usewp;
+	this.Objects = objects||[];
+	this.UseWP = usewp||false;
 }
 
 function Area(area, links) {
