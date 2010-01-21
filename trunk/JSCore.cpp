@@ -237,7 +237,9 @@ INT my_clickMap(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 	if(JSVAL_IS_INT(argv[3]))
 		JS_ValueToUint16(cx, argv[3], &nY);
 
-	if(argc == 3 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[2]) && JSVAL_IS_OBJECT(argv[2]))
+	if(argc == 3 && JSVAL_IS_INT(argv[0]) &&
+		(JSVAL_IS_INT(argv[1]) || JSVAL_IS_BOOLEAN(argv[1])) &&
+		JSVAL_IS_OBJECT(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 

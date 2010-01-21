@@ -165,13 +165,18 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 		return false;
 
 	POINT Click = {wX, wY};
+	if(pUnit)
+	{
+		Click.x = GetUnitX(pUnit);
+		Click.y = GetUnitY(pUnit);
+	}
 
 	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
 
 	Click.x -= *p_D2CLIENT_MouseOffsetX;
 	Click.y -= *p_D2CLIENT_MouseOffsetY;
 
-	if(pUnit)
+	if(pUnit && pUnit != *p_D2CLIENT_PlayerUnit)
 	{
 		Vars.dwSelectedUnitId = pUnit->dwUnitId;
 		Vars.dwSelectedUnitType = pUnit->dwType;

@@ -379,12 +379,14 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
+		Print("*** ENTERING GC ***");
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
+		Print("*** LEAVING GC ***");
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
@@ -399,8 +401,9 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
-	char* filename = NULL;
-	filename = (report->filename ? _strdup(report->filename) : _strdup("<unknown>"));
+	char* filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
+	if(_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
+		filename = filename + strlen(Vars.szPath) + 1;
 
 	Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", 
 			strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
