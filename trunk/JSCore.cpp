@@ -2202,6 +2202,8 @@ JSAPI_FUNC(my_login)
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!profile)
 		THROW_ERROR(cx, obj, "Could not convert string (profile)");
+	if(!ProfileExists(profile))
+		THROW_ERROR(cx, obj, "Profile does not exist!");
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
@@ -2215,15 +2217,15 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString("settings", "MaxLoginTime", "5000", maxLoginTime, sizeof(maxLoginTime), file);
 	GetPrivateProfileString("settings", "MaxCharSelectTime", "5000", maxCharTime, sizeof(maxCharTime), file);
 
-	char* errorMsg ="";
+	char* errorMsg = "";
 	loginTime = atoi(maxLoginTime);
 	charTime = atoi(maxCharTime);
 	SPdifficulty = atoi(difficulty);
 	Control* pControl = NULL;
 	int location = 0;
-	int timeout =0;
-	bool loginComplete = FALSE,	skippedToBnet=TRUE;
-	Vars.bBlockKeys = Vars.bBlockMouse = 1;
+	int timeout = 0;
+	bool loginComplete = FALSE,	skippedToBnet = TRUE;
+	Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
 	while(!loginComplete)
 	{
@@ -2296,7 +2298,7 @@ JSAPI_FUNC(my_login)
 						errorMsg =  "Failed to click the 'Nightmare Difficulty' button?";
 					break;
 				case 2:
-					// hell button/
+					// hell button
 					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 383, 272, 35)))
 						errorMsg =  "Failed to click the 'Hell Difficulty' button?";
 					break;
@@ -2343,14 +2345,14 @@ JSAPI_FUNC(my_login)
 
 		if(_strcmpi(errorMsg, ""))
 		{
-			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
+			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
 			THROW_ERROR(cx, obj, errorMsg);						
 			break;
 		}
 
 		if((timeout*100) > loginTime)
 		{
-			Vars.bBlockKeys =0;  Vars.bBlockMouse = 0;
+			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
 			THROW_ERROR(cx, obj, "login time out");
 			break;
 		}
@@ -2360,8 +2362,24 @@ JSAPI_FUNC(my_login)
 		
 		Sleep(100);
 	}
-	Vars.bBlockKeys = 0; Vars.bBlockMouse = 0;
+	Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
 
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_selectChar)
+{
+	if(argc != 1 || !JSVAL_IS_STRING(argv[0]))
+		THROW_ERROR(cx, obj, "Invalid parameters specified to selectCharacter");
+
+	char* profile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if(!ProfileExists(profile))
+		THROW_ERROR(cx, obj, "Invalid profile specified");
+	char charname[24], file[_MAX_FNAME+MAX_PATH];
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
+
+	*rval = JSVAL_TO_BOOLEAN(OOG_SelectCharacter(charname));
 	return JS_TRUE;
 }
 
@@ -2371,13 +2389,13 @@ JSAPI_FUNC(my_createGame)
 		return JS_TRUE;
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
-	   (argc > 1 && !JSVAL_IS_STRING(argv[1])) ||
+	   (argc > 1 && !(JSVAL_IS_STRING(argv[1]) ||JSVAL_IS_NULL(argv[1]))) ||
 	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
 		THROW_ERROR(cx, obj, "Invalid parameters specified to createGame");
 
 	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
-		 *pass = NULL;
-	if(argc > 1)
+		 *pass = "";
+	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 
 	int diff = 3;
@@ -2439,27 +2457,15 @@ JSAPI_FUNC(my_addProfile)
 	char file[_MAX_FNAME+_MAX_PATH];
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
-	// check if the profile exists
+	if(!ProfileExists(profile))
 	{
-		// keep this local to this section of code so we don't cause the stack to grossly explode
-		char profiles[65535];
-		int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
-		int i = 0;
-		while(i < count)
-		{
-			if(_strcmpi(profiles+i, profile) == 0)
-				THROW_ERROR(cx, obj, "Profile already exists!");
-			i += strlen(profiles+i)+2;
-		}
+		char settings[600];
+		sprintf_s(settings, sizeof(settings),
+					"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
+					mode, gateway, username, password, charname);
+		WritePrivateProfileSection(profile, settings, file);
 	}
 
-	char settings[600];
-	// nope, write the new one
-	sprintf_s(settings, sizeof(settings),
-				"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
-				mode, gateway, username, password, charname);
-
-	WritePrivateProfileSection(profile, settings, file);
 	return JS_TRUE;
 }
 

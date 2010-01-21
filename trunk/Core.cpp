@@ -164,32 +164,18 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 	if(!GameReady())
 		return false;
 
-	DWORD dwUnitId = NULL;
-	DWORD dwUnitType = NULL;
+	POINT Click = {wX, wY};
+
+	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
+
+	Click.x -= *p_D2CLIENT_MouseOffsetX;
+	Click.y -= *p_D2CLIENT_MouseOffsetY;
 
 	if(pUnit)
 	{
-		dwUnitId = pUnit->dwUnitId;
-		dwUnitType = pUnit->dwType;
-	}
+		Vars.dwSelectedUnitId = pUnit->dwUnitId;
+		Vars.dwSelectedUnitType = pUnit->dwType;
 
-
-	if(dwUnitId)
-	{
-		pUnit = D2CLIENT_FindUnit(dwUnitId, dwUnitType);
-		if(!pUnit)
-			return FALSE;
-
-		Vars.dwSelectedUnitId = dwUnitId;
-		Vars.dwSelectedUnitType = dwUnitType;
-
-		POINT Click = {wX, wY};
-
-		D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
-
-		Click.x -= *p_D2CLIENT_MouseOffsetX;
-		Click.y -= *p_D2CLIENT_MouseOffsetY;
-		
 		Vars.bClickAction = TRUE;
 
 		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 0x08);
@@ -198,23 +184,16 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 		Vars.bClickAction = FALSE;
 		Vars.dwSelectedUnitId = NULL;
 		Vars.dwSelectedUnitType = NULL;
-
-		return TRUE;
 	}
+	else
+	{
+		Vars.dwSelectedUnitId = NULL;
+		Vars.dwSelectedUnitType = NULL;
 
-	Vars.dwSelectedUnitId = NULL;
-	Vars.dwSelectedUnitType = NULL;
-
-	POINT Click = {wX, wY};
-
-	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
-
-	Click.x -= *p_D2CLIENT_MouseOffsetX;
-	Click.y -= *p_D2CLIENT_MouseOffsetY;
-
-	Vars.bClickAction = TRUE;
-	D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
-	Vars.bClickAction = FALSE;
+		Vars.bClickAction = TRUE;
+		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
+		Vars.bClickAction = FALSE;
+	}
 
 	return TRUE;
 }

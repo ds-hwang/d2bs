@@ -26,8 +26,13 @@ void Log(char* szFormat, ...)
 	localtime_s(&time, &tTime);
 	strftime(szTime, sizeof(szTime), "%x %X", &time);
 
-	fprintf(stderr, "[%s] %s\r\n", szTime, szString);
-	_fflush_nolock(stderr);
+	char path[_MAX_PATH+_MAX_FNAME] = "";
+	sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
+
+	FILE* log = _fsopen(path, "a+", _SH_DENYNO);
+	fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
+	fflush(log);
+	fclose(log);
 	delete[] szString;
 }
 

@@ -75,6 +75,9 @@ JSAPI_PROP(control_getProperty)
 		case CONTROL_PASSWORD:
 			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwIsCloaked == 33));
 			break;
+		case CONTROL_DISABLED:
+			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwDisabled == 0x0d));
+			break;
 	}
 
 	return JS_TRUE;
@@ -122,6 +125,12 @@ JSAPI_PROP(control_setProperty)
 				if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
 					THROW_ERROR(cx, obj, "Invalid cursor position value");
 				memset((VOID*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
+			}
+			break;
+		case CONTROL_DISABLED:
+			if(JSVAL_IS_BOOLEAN(*vp))
+			{
+				memset((VOID*)&ctrl->dwDisabled, ((JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c), sizeof(DWORD));
 			}
 			break;
 	}

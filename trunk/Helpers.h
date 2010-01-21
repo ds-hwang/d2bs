@@ -9,6 +9,7 @@ wchar_t* AnsiToUnicode(const char* str);
 char* UnicodeToAnsi(const wchar_t* str);
 bool StringToBool(const char* str);
 void StringReplace(char* str, const char find, const char replace);
+bool ProfileExists(const char* profile);
 void InitSettings(void);
 bool InitHooks(void);
 bool ExecCommand(const char* command);

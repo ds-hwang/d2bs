@@ -48,6 +48,7 @@ enum control_tinyid {
 	CONTROL_SELECTSTART = -11,
 	CONTROL_SELECTEND = -12,
 	CONTROL_PASSWORD = -13,
+	CONTROL_DISABLED = -14
 };
 
 
@@ -65,6 +66,7 @@ static JSPropertySpec control_props[] = {
 	{"cursorpos",	CONTROL_CURSORPOS,		JSPROP_STATIC_VAR,		control_getProperty,	control_setProperty},
 	{"selectstart",	CONTROL_SELECTSTART,	JSPROP_PERMANENT_VAR,	control_getProperty},
 	{"selectend",	CONTROL_SELECTEND,		JSPROP_PERMANENT_VAR,	control_getProperty},
+	{"disabled",	CONTROL_DISABLED,		JSPROP_PERMANENT_VAR,	control_getProperty,	control_setProperty},
 	{0},
 };
 

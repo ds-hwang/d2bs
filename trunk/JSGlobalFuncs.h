@@ -64,13 +64,16 @@ static JSFunctionSpec global_funcs[] = {
 	{"iniread",				my_iniread,				4},
 	{"iniwrite",			my_iniwrite,			4},
 
-	// game functions that don't have anything to do with gathering data
-	{"submitItem",			my_submitItem,			0},
+	// out of game functions
 	{"login",				my_login,				1},
+	{"selectCharacter",		my_selectChar,			1},
 	{"createGame",			my_createGame,			3},
 	{"joinGame",			my_joinGame,			2},
 	{"addProfile",			my_addProfile,			6},
 	{"getLocation",			my_getOOGLocation,		0},
+
+	// game functions that don't have anything to do with gathering data
+	{"submitItem",			my_submitItem,			0},
 	{"getMouseCoords",		my_getMouseCoords,		1},
 	{"copyUnit",			my_copyUnit,			1},
 	{"clickMap",			my_clickMap,			3},

@@ -215,7 +215,8 @@ void Script::Stop(bool force, bool reallyForce)
 	ClearAllEvents();
 	Genhook::Clean(this);
 
-	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
+	// normal wait: 500ms, forced wait: 300ms, really forced wait: 100ms
+	int maxCount = (force ? (reallyForce ? 10 : 30) : 50);
 	for(int i = 0; IsRunning(); i++)
 	{
 		// if we pass the time frame, just ignore the wait because the thread will end forcefully anyway

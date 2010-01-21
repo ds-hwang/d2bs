@@ -28,7 +28,11 @@ JSAPI_PROP(script_getProperty)
 	{
 		case SCRIPT_FILENAME:
 			{
-				const char* relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
+				const char* relName = NULL;
+				if(strcmp(script->GetFilename(), "Command Line") == 0)
+					relName = script->GetFilename();
+				else
+					relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName));
 			}
 			break;

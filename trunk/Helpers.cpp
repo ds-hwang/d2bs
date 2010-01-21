@@ -42,10 +42,30 @@ void StringReplace(char* str, const char find, const char replace)
 		*ptr = replace;
 }
 
+bool ProfileExists(const char *profile)
+{
+	char file[_MAX_FNAME+_MAX_PATH];
+	char profiles[65535] = "";
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+
+	int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
+	if(count > 0)
+	{
+		int i = 0;
+		while(i < count)
+		{
+			if(_strcmpi(profiles+i, profile) == 0)
+				return true;
+
+			i += strlen(profiles+i)+1;
+		}
+	}
+	return false;
+}
+
 void InitSettings(void)
 {
-	char path[_MAX_FNAME+MAX_PATH],
-		 fname[_MAX_FNAME+MAX_PATH],
+	char fname[_MAX_FNAME+MAX_PATH],
 		 scriptPath[_MAX_FNAME+MAX_PATH],
 		 debug[6],
 		 blockMinimize[6],
@@ -57,11 +77,7 @@ void InitSettings(void)
 		 memUsage[6],
 		 gamePrint[6];
 
-	sprintf_s(path, sizeof(path), "%sd2bs-%d.log", Vars.szPath, GetProcessId(GetCurrentProcess()));
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
-
-	FILE* stream = NULL;
-	freopen_s(&stream, path, "a+tc", stderr);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
