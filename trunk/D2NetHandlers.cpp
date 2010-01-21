@@ -110,11 +110,9 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 			break;
 		case 0x07: // player relation
 			{
-				Unit* player = D2CLIENT_FindUnit(param1, UNIT_PLAYER);
-				if(player)
-					strcpy_s(name1, 16, player->pPlayerData->szName);
-				else
-					strcpy_s(name1, 16, "unknown");
+				for(RosterUnit* player = *p_D2CLIENT_PlayerUnitList; player != NULL; player = player->pNext)
+					if(player->dwUnitId == param1)
+						strcpy_s(name1, 16, player->szName);
 				switch(param2)
 				{
 					case 0x03: // hostile
