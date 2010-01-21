@@ -130,7 +130,8 @@ JSAPI_PROP(control_setProperty)
 		case CONTROL_DISABLED:
 			if(JSVAL_IS_BOOLEAN(*vp))
 			{
-				memset((VOID*)&ctrl->dwDisabled, ((JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c), sizeof(DWORD));
+				DWORD bEnabled = (JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c);
+				memset((VOID*)&ctrl->dwDisabled, bEnabled, sizeof(DWORD));
 			}
 			break;
 	}
