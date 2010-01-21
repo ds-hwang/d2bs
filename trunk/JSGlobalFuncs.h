@@ -2,14 +2,22 @@
 
 #include "js32.h"
 #include "JSCore.h"
+#include "JSGame.h"
+#include "JSMenu.h"
+#include "JSHash.h"
+
 #include "JSFile.h"
 #include "JSFileTools.h"
 #include "JSDirectory.h"
 #include "JSSQLite.h"
 #include "JSSandbox.h"
 #include "JSScreenHook.h"
+#include "JSParty.h"
+#include "JSArea.h"
+#include "JSPresetUnit.h"
 #include "JSUnit.h"
-#include "JSHash.h"
+#include "JSScript.h"
+#include "JSRoom.h"
 
 static JSFunctionSpec global_funcs[] = {
 	// "get" functions
@@ -32,7 +40,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"getPresetUnit",		my_getPresetUnit,		0},
 	{"getPresetUnits",		my_getPresetUnits,		0},
 	{"getArea",				my_getArea,				0},
-//	{"getExits",			my_getExits,			0},
 	{"getBaseStat",			my_getBaseStat,			0},
 	{"getControl",			my_getControl,			0},
 	{"getPlayerFlag",		my_getPlayerFlag,		2},
@@ -60,9 +67,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"sqlite_version",		my_sqlite_version,		0},
 	{"dopen",				my_openDir,				1},
 	{"debugLog",			my_debugLog,			1},
-	// TODO: deprecate these below here
-	{"iniread",				my_iniread,				4},
-	{"iniwrite",			my_iniwrite,			4},
 
 	// out of game functions
 	{"login",				my_login,				1},

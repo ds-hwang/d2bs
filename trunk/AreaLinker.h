@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Constants.h"
+
 #define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
 
 struct AreaNode

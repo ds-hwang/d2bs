@@ -16,6 +16,8 @@ JSAPI_FUNC(room_getFirst);
 JSAPI_FUNC(room_unitInRoom);
 JSAPI_FUNC(room_reveal);
 
+JSAPI_FUNC(my_getRoom);
+
 static JSClass room_class = {
     "Room", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,

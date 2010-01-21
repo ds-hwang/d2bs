@@ -100,3 +100,52 @@ JSAPI_PROP(area_getProperty)
 
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_getArea)
+{
+	if(!GameReady())
+		return JS_TRUE;
+
+	jsint nArea = GetPlayerArea();
+
+	if(argc == 1)
+	{
+		if(JSVAL_IS_INT(argv[0]))
+			nArea = JSVAL_TO_INT(argv[0]); 
+		else
+			THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
+	}
+
+	if(nArea < 0)
+		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
+	
+	Level* pLevel = GetLevel(nArea);
+
+	if(!pLevel)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
+
+	myArea* pArea = new myArea;
+	if(!pArea)
+	{
+		*rval = JSVAL_FALSE;
+		return JS_TRUE;
+	}
+
+	pArea->AreaId = nArea;
+	pArea->ExitArray = NULL;
+	
+	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
+	if(!unit)
+	{
+		delete pArea;
+		pArea = NULL;
+		THROW_ERROR(cx, obj, "Failed to build area unit!");
+	}
+
+	*rval = OBJECT_TO_JSVAL(unit);
+
+	return JS_TRUE;
+}

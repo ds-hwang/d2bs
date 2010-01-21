@@ -15,6 +15,7 @@ JSAPI_FUNC(script_stop);
 JSAPI_FUNC(script_send);
 JSAPI_FUNC(script_pause);
 JSAPI_FUNC(script_resume);
+JSAPI_FUNC(my_getScript);
 
 static JSClass script_class = {
     "D2BSScript",	JSCLASS_HAS_PRIVATE,

@@ -758,7 +758,15 @@
 						</FileConfiguration>
 					</File>
 					<File
+						RelativePath=".\JSGame.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\JSHash.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\JSMenu.cpp"
 						>
 					</File>
 					<File
@@ -826,6 +834,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\JSGame.h"
+						>
+					</File>
+					<File
 						RelativePath=".\JSGlobalClasses.h"
 						>
 					</File>
@@ -835,6 +847,10 @@
 					</File>
 					<File
 						RelativePath=".\JSHash.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSMenu.h"
 						>
 					</File>
 					<File

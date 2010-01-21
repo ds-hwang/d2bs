@@ -10,6 +10,8 @@ void area_finalize(JSContext *cx, JSObject *obj);
 
 JSAPI_PROP(area_getProperty);
 
+JSAPI_FUNC(my_getArea);
+
 static JSClass area_class = {
     "Area",	JSCLASS_HAS_PRIVATE,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,

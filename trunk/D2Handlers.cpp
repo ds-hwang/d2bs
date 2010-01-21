@@ -331,7 +331,7 @@ VOID GameDraw(VOID)
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
 		Console::Draw();
-		Genhook::DrawAll(IG);
+		//Genhook::DrawAll(IG);
 	}
 }
 
@@ -341,7 +341,7 @@ VOID GameDrawOOG(VOID)
 	if(Vars.bActive && ClientState() == ClientStateMenu)
 	{
 		Console::Draw();
-		Genhook::DrawAll(OOG);
+		//Genhook::DrawAll(OOG);
 	}
 }
 

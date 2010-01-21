@@ -9,11 +9,7 @@ JSAPI_PROP(party_getProperty);
 
 JSAPI_FUNC(party_getNext);
 
-/**********************************************************
-
-					Classes/Objects/Methods
-
- **********************************************************/
+JSAPI_FUNC(my_getParty);
 
 static JSClass party_class = {
     "Party",	JSCLASS_HAS_PRIVATE,

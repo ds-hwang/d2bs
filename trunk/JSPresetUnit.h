@@ -9,12 +9,8 @@ CLASS_CTOR(presetunit);
 void presetunit_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(presetunit_getProperty);
 
-
-/**********************************************************
-
-					Classes/Objects/Methods
-
- **********************************************************/
+JSAPI_FUNC(my_getPresetUnit);
+JSAPI_FUNC(my_getPresetUnits);
 
 static JSClass presetunit_class = {
     "PresetUnit",	JSCLASS_HAS_PRIVATE,

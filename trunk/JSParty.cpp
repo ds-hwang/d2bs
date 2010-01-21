@@ -1,6 +1,7 @@
 #include "JSParty.h"
 #include "D2Structs.h"
 #include "D2Helpers.h"
+#include "D2Ptrs.h"
 
 EMPTY_CTOR(party)
 
@@ -79,3 +80,21 @@ JSAPI_FUNC(party_getNext)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_getParty)
+{	
+	if(!GameReady())
+		return JS_TRUE;
+
+	RosterUnit* pUnit = *p_D2CLIENT_PlayerUnitList;
+
+	if(!pUnit)
+		return JS_TRUE;
+
+	JSObject* jsUnit = BuildObject(cx, &party_class, party_methods, party_props, pUnit);
+	if(!jsUnit)
+		return JS_TRUE;
+
+	*rval = OBJECT_TO_JSVAL(jsUnit);
+
+	return JS_TRUE;
+}
