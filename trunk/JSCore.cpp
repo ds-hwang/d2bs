@@ -1,4 +1,3 @@
-// Spidermonkey implementation of Core.cpp
 #include <io.h>
 #include <windows.h>
 #include <ddeml.h>
@@ -77,7 +76,7 @@ JSAPI_FUNC(my_load)
 		if(!(lpszFileName && lpszFileName[0]))
 			THROW_ERROR(cx, obj, "Could not convert or empty string");
 		StringReplace(lpszFileName, '/', '\\');
-		if(strlen(lpszFileName) < _MAX_PATH)
+		if(strlen(lpszFileName) < (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
 		{
 			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
@@ -95,7 +94,7 @@ JSAPI_FUNC(my_load)
 			}
 		}
 		else
-			THROW_ERROR(cx, obj, "File name exceeds _MAX_PATH characters");
+			THROW_ERROR(cx, obj, "File name exceeds max name length");
 	}
 
 	return JS_TRUE;
