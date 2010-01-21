@@ -32,7 +32,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getPresetUnit",		my_getPresetUnit,		0},
 	{"getPresetUnits",		my_getPresetUnits,		0},
 	{"getArea",				my_getArea,				0},
-	{"getExits",			my_getExits,			0},
+//	{"getExits",			my_getExits,			0},
 	{"getBaseStat",			my_getBaseStat,			0},
 	{"getControl",			my_getControl,			0},
 	{"getPlayerFlag",		my_getPlayerFlag,		2},

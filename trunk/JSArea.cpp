@@ -1,6 +1,8 @@
 #include "JSArea.h"
 #include "D2Ptrs.h"
 #include "D2Helpers.h"
+#include "JSExits.h"
+#include "CriticalSections.h"
 
 EMPTY_CTOR(area)
 
@@ -26,9 +28,51 @@ JSAPI_PROP(area_getProperty)
 		return JS_FALSE;
 
 	switch(JSVAL_TO_INT(id))
-	{
-		case AUNIT_EXITS:
-			*vp = INT_TO_JSVAL(pArea->Exits);
+		{
+			case AUNIT_EXITS:
+			{
+				if(pArea->ExitArray == NULL)
+				{
+					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
+
+					CriticalRoom cRoom;
+					cRoom.EnterSection();
+
+					CCollisionMap cMap;
+
+					if(!cMap.CreateMap(pArea->AreaId))
+					{
+						*vp = JSVAL_FALSE;
+						return JS_TRUE;
+					}
+
+					LevelExit* ExitArray[255];
+					int count = cMap.GetLevelExits(ExitArray);
+
+					for(int i = 0; i < count; i++)
+					{
+						myExit* pExit = new myExit;
+						pExit->id		= ExitArray[i]->dwTargetLevel;
+						pExit->x		= ExitArray[i]->ptPos.x;
+						pExit->y		= ExitArray[i]->ptPos.y;
+						pExit->type		= ExitArray[i]->dwType;
+						pExit->tileid	= ExitArray[i]->dwId;
+						pExit->level	= pArea->AreaId;
+
+						JSObject* jsUnit = BuildObject(cx, &exit_class, NULL, exit_props, pExit);
+						if(!jsUnit)
+						{
+							delete pExit;
+							pExit = NULL;
+							THROW_ERROR(cx, obj, "Failed to create exit object!");
+						}
+
+						jsval a = OBJECT_TO_JSVAL(jsUnit);
+						JS_SetElement(cx, pArea->ExitArray, i, &a);
+					}
+				}
+				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
+			}
 			break;
 		case AUNIT_NAME:
 			{

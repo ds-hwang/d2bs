@@ -42,7 +42,7 @@ static JSPropertySpec area_props[] = {
 struct myArea {
 	DWORD AreaId;
 	DWORD Exits;
-	LPLevelExit ExitArray[255];
+	JSObject* ExitArray;
 };
 
 #endif

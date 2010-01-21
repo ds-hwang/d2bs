@@ -1912,18 +1912,6 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 	pArea->AreaId = nArea;
 	
-	CriticalRoom cRoom;
-	cRoom.EnterSection();
-
-	CCollisionMap cMap;
-
-	if(!cMap.CreateMap(nArea))
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-	
-	pArea->Exits = cMap.GetLevelExits(pArea->ExitArray);
 	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
 	if(!unit)
 	{
@@ -1937,7 +1925,7 @@ INT my_getArea(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	return JS_TRUE;
 }
 
-INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+/*INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	if(!GameReady())
 		return JS_TRUE;
@@ -1954,17 +1942,16 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 		return JS_TRUE;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-	DWORD dwArrayCount = 0;
 
 	for(UINT i = 0; i < pArea->Exits; i++)
 	{		
 		myExit* pExit = new myExit;
-		pExit->id	= pArea->ExitArray[i]->dwTargetLevel;
-		pExit->x	= pArea->ExitArray[i]->ptPos.x;
-		pExit->y	= pArea->ExitArray[i]->ptPos.y;
-		pExit->type	= pArea->ExitArray[i]->dwType;
-		pExit->tileid = pArea->ExitArray[i]->dwId;
-		pExit->level = pArea->AreaId;
+		pExit->id		= pArea->ExitArray[i]->dwTargetLevel;
+		pExit->x		= pArea->ExitArray[i]->ptPos.x;
+		pExit->y		= pArea->ExitArray[i]->ptPos.y;
+		pExit->type		= pArea->ExitArray[i]->dwType;
+		pExit->tileid	= pArea->ExitArray[i]->dwId;
+		pExit->level	= pArea->AreaId;
 
 		JSObject* jsUnit = BuildObject(cx, &exit_class, NULL, exit_props, pExit);
 		if(!jsUnit)
@@ -1976,12 +1963,11 @@ INT my_getExits(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 
 		jsval a = OBJECT_TO_JSVAL(jsUnit);
 		JS_SetElement(cx, pReturnArray, i, &a);
-		dwArrayCount++;
 	}
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
 	return JS_TRUE;
-}
+}*/
 
 INT my_getBaseStat(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
