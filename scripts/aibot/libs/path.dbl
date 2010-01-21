@@ -65,7 +65,7 @@ function generatePath(start, dest, x, y, x2, y2) {
 					}
 				} else {
 					// find the exit
-					let (exits = getExits(getArea(area.End))) {
+					let (exits = getArea(area.End).exits) {
 						Debug.Write(INFO, 'Got exits', exits.toSource(), 'looking',
 							'for exit with id', area.End);
 						var exit = null;

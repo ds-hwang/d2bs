@@ -40,10 +40,11 @@ function main()
 				Debug.Write(INFO, 'We are in', areaName, '(', area.id, ') already');
 			else {
 				var a = getArea(parseInt(area.id, 10));
-				if(a === undefined)
+				if(a == undefined)
 					throw new Error("We didn't get an area?!");
 				Debug.Write(INFO, 'Moving to', a.name);
 				a.moveTo();
+				// TODO: move along the area, so attack.dbj can find monsters
 			}
 		}
 

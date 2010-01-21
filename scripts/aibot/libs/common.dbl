@@ -266,7 +266,8 @@ me.moveTo = function moveTo(x, y, callback, area) {
 		moveTo([x, y]);
 		return;
 	} else {
-		Debug.Write(INFO, 'Generating path to', x, y, 'in', getBaseStat('levels', area, 'LevelName'));
+		Debug.Write(INFO, 'Generating path from', me.x+','+me.y, 'to', x+','+y, 'in',
+			getBaseStat('levels', area, 'LevelName'));
 		let (path = generatePath(me.area, area, me.x, me.y, x, y), point = false) {
 			while((point = path.next()) != false)
 				moveTo(point);

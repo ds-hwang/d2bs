@@ -20,29 +20,10 @@ var threads = [
 
 function main()
 {
-	// read the patterns this character wants to load for caching purposes
-	Debug.Write(INFO, 'Loading the pattern');
-	var pname = config.get('BasePattern', '');
-	if(pname == '')
-	{
-		Debug.Write(INFO, 'Invalid base pattern specified!');
-		stop();
-	}
-
-	var pattern = Cache.Load(pname+'.pattern');
-	if(pattern === undefined)
-	{
-		var pattern = new Pattern(pname);
-
-		// cache the pattern for future loads
-		Cache.Save(pname+'.pattern', pattern);
-	}
-	delete pname;
-	delete pattern;
-
 	// let the game catch up if needed
 	delay(rand(1,4)*1000);
 
+	Debug.Write(INFO, 'Loading bot threads');
 	// load our bot threads
 	var scripts = [];
 
