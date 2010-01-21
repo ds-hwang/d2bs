@@ -154,7 +154,7 @@ void Say(const char *szMessage, ...)
 	}
 	else if(OOG_GetLocation() == OOG_CHANNEL)
 	{
-		memcpy((CHAR*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
+		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
 	}
 }

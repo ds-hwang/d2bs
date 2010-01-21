@@ -742,7 +742,7 @@ struct OverheadMsg {
 	DWORD _1;
 	DWORD dwTrigger;
 	DWORD _2[2];
-	CHAR Msg[232];
+	char Msg[232];
 };
 
 #pragma pack(pop)

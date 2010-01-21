@@ -2,7 +2,7 @@
 #include "D2Ptrs.h"
 #include "D2BS.h"
 
-VOID __declspec(naked) GamePacketReceived_STUB()
+void __declspec(naked) GamePacketReceived_STUB()
 {
 	__asm
 	{
@@ -25,7 +25,7 @@ OldCode:
 	}
 }
 
-VOID __declspec(naked) GameDraw_STUB()
+void __declspec(naked) GameDraw_STUB()
 {
 	__asm
 	{
@@ -38,7 +38,7 @@ VOID __declspec(naked) GameDraw_STUB()
 	}
 }
 
-VOID __declspec(naked) GameInput_Interception()
+void __declspec(naked) GameInput_Interception()
 {
 	__asm {
 	pushad
@@ -66,7 +66,7 @@ BOOL GameMinimize_Interception()
 }
 
 
-UnitAny* myGetSelectedUnit(VOID)
+UnitAny* myGetSelectedUnit(void)
 {
 	if(Vars.bClickAction)
 	{
@@ -83,7 +83,7 @@ UnitAny* myGetSelectedUnit(VOID)
 	return D2CLIENT_GetSelectedUnit();
 }
 
-VOID __declspec(naked) Whisper_Intercept()
+void __declspec(naked) Whisper_Intercept()
 {
 	__asm
 	{
@@ -98,7 +98,7 @@ VOID __declspec(naked) Whisper_Intercept()
 	}
 }
 
-VOID __declspec(naked) GameAttack_STUB()
+void __declspec(naked) GameAttack_STUB()
 {
 	__asm 
 	{
@@ -124,7 +124,7 @@ OldCode:
 	}
 }
 
-VOID __declspec(naked) PlayerAssignment_STUB()
+void __declspec(naked) PlayerAssignment_STUB()
 {
 	__asm
 	{
@@ -136,7 +136,7 @@ VOID __declspec(naked) PlayerAssignment_STUB()
 	}
 }
 
-VOID __declspec(naked) GameCrashFix_STUB()
+void __declspec(naked) GameCrashFix_STUB()
 {
 	__asm
 	{
@@ -149,7 +149,7 @@ Skip:
 	}
 }
 
-VOID GameDraw_Interception(VOID)
+void GameDraw_Interception(void)
 {
 	GameDrawOOG();
 }

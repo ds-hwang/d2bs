@@ -335,7 +335,7 @@ JSAPI_FUNC(my_getCollision)
 
 JSAPI_FUNC(my_clickItem)
 {
-typedef VOID __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
+typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
 
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
@@ -875,7 +875,7 @@ JSAPI_FUNC(my_getSkillByName)
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		return JS_TRUE;
 
-	CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!(lpszText && lpszText[0]))
 		THROW_ERROR(cx, obj, "Could not convert string");
 
@@ -922,7 +922,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 		return JS_TRUE;
 	}
 
-	CHAR* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pString)
 		THROW_ERROR(cx, obj, "Could not convert string");
 
@@ -1076,7 +1076,7 @@ JSAPI_FUNC(my_say)
 	{
 		if(!JSVAL_IS_NULL(argv[i]) && !JSVAL_IS_VOID(argv[i]))
 		{
-			CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			if(!lpszText)
 				THROW_ERROR(cx, obj, "Could not convert string");
 			Say(lpszText);
@@ -1331,7 +1331,7 @@ JSAPI_FUNC(my_getInteractedNPC)
 	if(!pmyUnit)
 		return JS_TRUE;
 
-	CHAR szName[256] = "";
+	char szName[256] = "";
 	pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 	pmyUnit->dwClassId = pNPC->dwTxtFileNo;
 	pmyUnit->dwMode = pNPC->dwMode;

@@ -326,7 +326,7 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
-VOID GameDraw(VOID)
+void GameDraw(void)
 {
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
@@ -335,7 +335,7 @@ VOID GameDraw(VOID)
 	}
 }
 
-VOID GameDrawOOG(VOID)
+void GameDrawOOG(void)
 {
 	D2WIN_DrawSprites();
 	if(Vars.bActive && ClientState() == ClientStateMenu)
@@ -345,7 +345,7 @@ VOID GameDrawOOG(VOID)
 	}
 }
 
-VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText)
+void __fastcall WhisperHandler(char* szAcc, char* szText)
 {
 	WhisperEvent(szAcc, szText);
 }
@@ -364,7 +364,7 @@ DWORD __fastcall GameAttack(AttackStruct* pAttack)
 	return NULL;
 }
 
-VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
+void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 {
 	if(!pPlayer)
 		return;

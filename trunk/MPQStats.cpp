@@ -3,7 +3,7 @@
 #include "Core.h"
 
 MPQTable BaseStatTable[] = {
-	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, CHAR szTableName, WORD wTableSize, WORD wUnknown
+	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, char szTableName, WORD wTableSize, WORD wUnknown
 	{0x6FDF0438,	0x6FDF0434,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
 	{0xA78,			0xA80,		monstatsTable,		"monstats",		ARRAYSIZE(monstatsTable),		0xFFFF},
 	{0xB8C,			0xB94,		skilldescTable,		"skilldesc",	ARRAYSIZE(skilldescTable),		0xFFFF},

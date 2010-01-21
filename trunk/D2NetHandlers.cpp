@@ -62,8 +62,8 @@ DWORD HPMPUpdateHandler(BYTE* pPacket, DWORD dwSize)
 
 DWORD ChatEventHandler(BYTE* pPacket, DWORD dwSize)
 {
-	CHAR* pName = (CHAR*)pPacket+10;
-	CHAR* pMessage = (CHAR*)pPacket + strlen(pName) + 11;
+	char* pName = (char*)pPacket+10;
+	char* pMessage = (char*)pPacket + strlen(pName) + 11;
 	ChatEvent(pName, pMessage);
 
 	return TRUE;
@@ -135,7 +135,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 {
 	INT64 icode   = 0;
-	CHAR code[5]  = "";
+	char code[5]  = "";
 	BYTE mode     = pPacket[1];
 	DWORD gid     = *(DWORD*)&pPacket[4];
 	BYTE dest     = ((pPacket[13] & 0x1C) >> 2);

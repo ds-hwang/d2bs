@@ -37,7 +37,7 @@ void Log(char* szFormat, ...)
 }
 
 // NOTE TO CALLERS: szTmp must be a PRE-INITIALIZED string.
-const char* GetUnitName(UnitAny* pUnit, CHAR* szTmp, size_t bufSize)
+const char* GetUnitName(UnitAny* pUnit, char* szTmp, size_t bufSize)
 {
 	if(!pUnit)
 	{
@@ -129,12 +129,12 @@ UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
 	return NULL;
 }
 
-VOID SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
+void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 {
 	*(DWORD*)&p_D2CLIENT_SelectedInvItem = (DWORD)FindItemByPosition(x, y, dwLocation);
 }
 
-ClientGameState ClientState(VOID)
+ClientGameState ClientState(void)
 {
 	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
 	{
@@ -160,12 +160,12 @@ ClientGameState ClientState(VOID)
 	return ClientStateNull;
 }
 
-BOOL GameReady(VOID)
+BOOL GameReady(void)
 {
 	return (ClientState() == ClientStateInGame ? true : false);
 }
 
-DWORD GetPlayerArea(VOID)
+DWORD GetPlayerArea(void)
 {
 	return (GameReady() ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
 }
@@ -180,7 +180,7 @@ Level* GetLevel(DWORD dwLevelNo)
 }
 
 // TODO: make this use SIZE for clarity
-POINT CalculateTextLen(CHAR* szwText, INT Font)
+POINT CalculateTextLen(char* szwText, INT Font)
 {
 	POINT ret = {0,0};
 
@@ -250,7 +250,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 }
 
 // Compare the skillname to the Game_Skills struct to find the right skill ID to return
-WORD GetSkillByName(CHAR* skillname)
+WORD GetSkillByName(char* skillname)
 {
 	for(int i = 0; i < 216; i++)
 		if(_stricmp(Game_Skills[i].name, skillname) == 0)
@@ -258,7 +258,7 @@ WORD GetSkillByName(CHAR* skillname)
 	return (WORD)-1;
 }
 
-CHAR* GetSkillByID(WORD id)
+char* GetSkillByID(WORD id)
 {
 	for(int i = 0; i < 216; i++)
 		if(id == Game_Skills[i].skillID)
@@ -266,7 +266,7 @@ CHAR* GetSkillByID(WORD id)
 	return NULL;
 }
 
-VOID ScreenSizeCheck(POINT* pPoint)
+void ScreenSizeCheck(POINT* pPoint)
 {
 	if(D2GFX_GetScreenSize() == 0)
 	{
@@ -278,7 +278,7 @@ VOID ScreenSizeCheck(POINT* pPoint)
 	}
 }
 
-VOID SendMouseClick(INT x, INT y, INT clicktype)
+void SendMouseClick(INT x, INT y, INT clicktype)
 {
 	LPARAM lp = x + (y << 16);
 	switch(clicktype)
@@ -316,14 +316,14 @@ AutomapLayer* InitAutomapLayer(DWORD levelno)
 	return D2CLIENT_InitAutomapLayer(pLayer->nLayerNo);
 }
 
-VOID MapToScreenCoords(POINT* pPos)
+void MapToScreenCoords(POINT* pPos)
 {
 	D2COMMON_MapToAbsScreen(&pPos->x, &pPos->y);
 	pPos->x -= D2CLIENT_GetMouseXOffset();
 	pPos->y -= D2CLIENT_GetMouseYOffset();
 }
 
-VOID ScreenToAutomap(POINT *ptPos, int x, int y)
+void ScreenToAutomap(POINT *ptPos, int x, int y)
 {
 	ptPos->x = ((x - y)/2/(*(INT*)p_D2CLIENT_Divisor))-(*p_D2CLIENT_Offset).x+8;
 	ptPos->y = ((x + y)/4/(*(INT*)p_D2CLIENT_Divisor))-(*p_D2CLIENT_Offset).y-8;
@@ -346,7 +346,7 @@ BOOL IsTownLevel(INT nLevel)
 }
 
 
-VOID myDrawText(char* szwText, int x, int y, int color, int font) 
+void myDrawText(char* szwText, int x, int y, int color, int font) 
 {
 	wchar_t* text = AnsiToUnicode(szwText);
 
@@ -358,7 +358,7 @@ VOID myDrawText(char* szwText, int x, int y, int color, int font)
 }
 
 
-VOID myDrawCenterText(char* szText, int x, int y, int color, int font, int div) 
+void myDrawCenterText(char* szText, int x, int y, int color, int font, int div) 
 {
 	DWORD dwWidth = NULL, dwFileNo = NULL, dwOldSize = NULL;
 	wchar_t* Buffer = AnsiToUnicode(szText);
@@ -371,7 +371,7 @@ VOID myDrawCenterText(char* szText, int x, int y, int color, int font, int div)
 	delete[] Buffer;
 }
 
-VOID D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
+void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 	
 	if(!pUnit)
 		return;
@@ -391,7 +391,7 @@ VOID D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 	D2CLIENT_Interact_(&pInteract);
 }
 
-typedef VOID (*fnClickEntry) (VOID);
+typedef void (*fnClickEntry) (void);
 
 BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 {
@@ -610,7 +610,7 @@ UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 
 // TODO: Rewrite this and split it into two functions
 
-CellFile* LoadCellFile(CHAR* lpszPath, DWORD bMPQ)
+CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 {
 	// AutoDetect the Cell File
 	if(bMPQ == 3)
@@ -689,7 +689,7 @@ INT D2GetScreenSizeY()
 	return GetScreenSize().y;
 }
 
-VOID myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col)
+void myDrawAutomapCell(CellFile *cellfile, int xpos, int ypos, BYTE col)
 {
 	if(!cellfile)return;
 	CellContext ct;
@@ -716,7 +716,7 @@ DWORD ReadFile(HANDLE hFile, void *buf, DWORD len)
 	ReadFile(hFile, buf, len, &numdone, NULL);
 	return numdone;
 }
-VOID *memcpy2(void *dest, const void *src, size_t count)
+void *memcpy2(void *dest, const void *src, size_t count)
 {
 	return (char *)memcpy(dest, src, count)+count;
 }
@@ -810,7 +810,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_GetUIVar_STUB(DWORD varno)
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny)
+void __declspec(naked) __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny)
 {
 	__asm
 	{
@@ -828,7 +828,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_LoadUIImage_ASM(char* Path)
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
+void __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
 {
 	__asm {
 		mov esi, ecx
@@ -865,7 +865,7 @@ DWORD __declspec(naked) __fastcall D2CLIENT_clickParty_ASM(DWORD RosterUnit, DWO
 
 // obsoleted - use D2CLIENT_ShopAction instead
 // This isn't finished anyway!
-VOID __declspec(naked) __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, DWORD BuyOrSell)
+void __declspec(naked) __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, DWORD BuyOrSell)
 {
 	__asm
 	{
@@ -880,14 +880,14 @@ VOID __declspec(naked) __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, D
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_ShopAction_ASM(DWORD pItem, DWORD pNpc, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/, DWORD dwMode, DWORD _2, DWORD _3)
+void __declspec(naked) __fastcall D2CLIENT_ShopAction_ASM(DWORD pItem, DWORD pNpc, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/, DWORD dwMode, DWORD _2, DWORD _3)
 {
 	__asm {
 		jmp D2CLIENT_ShopAction_I
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, DWORD IventoryData)
+void __declspec(naked) __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, DWORD IventoryData)
 {
 	__asm {
 		mov eax, edx
@@ -895,7 +895,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, DWORD Ive
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD Player, DWORD pUnitInventory)
+void __declspec(naked) __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD Player, DWORD pUnitInventory)
 {
 	__asm
 	{
@@ -912,7 +912,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, 
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_clickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos)
+void __declspec(naked) __fastcall D2CLIENT_clickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos)
 {
 	__asm
 	{
@@ -924,7 +924,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_clickBeltRight_ASM(DWORD pInventory, 
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t* pBuffer)
+void __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t* pBuffer)
 {
 	__asm 
 	{
@@ -939,7 +939,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t*
 	}
 }
 
-VOID __declspec(naked) __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit)
+void __declspec(naked) __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit)
 {
 	__asm
 	{
@@ -954,7 +954,7 @@ VOID __declspec(naked) __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit)
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType, DWORD dwSlot)
+void __declspec(naked) __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType, DWORD dwSlot)
 {
 	__asm 
 	{
@@ -964,7 +964,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType,
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_PlaySound(DWORD dwSoundId)
+void __declspec(naked) __fastcall D2CLIENT_PlaySound(DWORD dwSoundId)
 {
 	__asm
 	{
@@ -981,7 +981,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_PlaySound(DWORD dwSoundId)
 	}
 }
 
-VOID __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelId)
+void __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelId)
 {
 	__asm
 	{
@@ -991,7 +991,7 @@ VOID __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelI
 	}
 }
 
-__declspec(naked) VOID __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
+__declspec(naked) void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
 {
 	__asm
 	{
@@ -1041,7 +1041,7 @@ DWORD __declspec(naked) __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2
 	}
 }
 
-VOID __declspec(naked) __fastcall DrawRectFrame_STUB(RECT* rect)
+void __declspec(naked) __fastcall DrawRectFrame_STUB(RECT* rect)
 {
 	__asm
 	{
@@ -1051,7 +1051,7 @@ VOID __declspec(naked) __fastcall DrawRectFrame_STUB(RECT* rect)
 }
 
 
-VOID __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type)
+void __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type)
 {
 	__asm
 	{
@@ -1166,7 +1166,7 @@ DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 	return dwResult;
 }
 
-__declspec(naked) VOID __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton)
+__declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton)
 {
 	__asm
 	{

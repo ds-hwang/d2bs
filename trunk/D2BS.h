@@ -29,7 +29,7 @@ struct Module
 		DWORD dwBaseAddress;
 	};
 	DWORD _1;
-	CHAR szPath[MAX_PATH];
+	char szPath[MAX_PATH];
 };
 
 struct Variables

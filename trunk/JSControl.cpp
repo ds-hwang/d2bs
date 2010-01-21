@@ -115,7 +115,7 @@ JSAPI_PROP(control_setProperty)
 				int32 nState;
 				if(!JS_ValueToECMAInt32(cx, *vp, &nState) || nState < 0 || nState > 3)
 					THROW_ERROR(cx, obj, "Invalid state value");
-				memset((VOID*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
+				memset((void*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
 			}
 			break;
 		case CONTROL_CURSORPOS:
@@ -124,14 +124,14 @@ JSAPI_PROP(control_setProperty)
 				DWORD dwPos;
 				if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
 					THROW_ERROR(cx, obj, "Invalid cursor position value");
-				memset((VOID*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
+				memset((void*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;
 		case CONTROL_DISABLED:
 			if(JSVAL_IS_BOOLEAN(*vp))
 			{
 				DWORD bEnabled = (JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c);
-				memset((VOID*)&ctrl->dwDisabled, bEnabled, sizeof(DWORD));
+				memset((void*)&ctrl->dwDisabled, bEnabled, sizeof(DWORD));
 			}
 			break;
 	}

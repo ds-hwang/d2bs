@@ -72,13 +72,13 @@ JSAPI_FUNC(my_load)
 		if(scriptState == Command)
 			scriptState = (GameReady() ? InGame : OutOfGame);
 
-		CHAR* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		char* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(!(lpszFileName && lpszFileName[0]))
 			THROW_ERROR(cx, obj, "Could not convert or empty string");
 		StringReplace(lpszFileName, '/', '\\');
 		if(strlen(lpszFileName) < (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
 		{
-			CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
+			char lpszBuf[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
 			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
 			if(script)
@@ -107,10 +107,10 @@ JSAPI_FUNC(my_include)
 		Script* script = (Script*)JS_GetContextPrivate(cx);
 		if(script)
 		{
-			CHAR * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+			char * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
 			{
-				CHAR lpszBuf[_MAX_PATH+_MAX_FNAME];
+				char lpszBuf[_MAX_PATH+_MAX_FNAME];
 				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
 				if(_access(lpszBuf, 0) == 0)
 					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
@@ -182,7 +182,7 @@ JSAPI_FUNC(my_isIncluded)
 		return JS_TRUE;
 	}
 
-	CHAR* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	char* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!(szFile && szFile[0]))
 		THROW_ERROR(cx, obj, "Could not convert string");
 
@@ -228,7 +228,7 @@ JSAPI_FUNC(my_sendCopyData)
 		return JS_TRUE;
 	}
 
-	CHAR* windowClassName = NULL,* windowName = NULL,* data = NULL;
+	char* windowClassName = NULL,* windowName = NULL,* data = NULL;
 	jsint nModeId = NULL;
 
 	if(JSVAL_IS_STRING(argv[0]))

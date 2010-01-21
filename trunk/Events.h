@@ -5,7 +5,7 @@
 void ChatEvent(char* lpszNick, char* lpszMsg);
 void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
-void CopyDataEvent(DWORD dwMode, CHAR* lpszMsg);
+void CopyDataEvent(DWORD dwMode, char* lpszMsg);
 void GameMsgEvent(char* lpszMsg);
 void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2);
 void WhisperEvent(char* lpszNick, char* lpszMsg);

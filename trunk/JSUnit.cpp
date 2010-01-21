@@ -106,7 +106,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(D2GFX_GetScreenSize());
 			break;
 		case OOG_WINDOWTITLE:
-			CHAR szTitle[128];
+			char szTitle[128];
 			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
 			break;
@@ -245,7 +245,7 @@ JSAPI_PROP(unit_getProperty)
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, "Unknown"));
 				return JS_TRUE;
 			}
-			CHAR szCode[4];
+			char szCode[4];
 			memcpy(szCode, pTxt->szCode, 3);
 			szCode[3] = 0x00;
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, szCode));
@@ -1324,7 +1324,7 @@ JSAPI_FUNC(item_shop)
 
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 
-	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
+	//FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 */
 	
 	*rval = JSVAL_TRUE;
@@ -1377,7 +1377,7 @@ JSAPI_FUNC(unit_getParent)
 	{
 		if(pUnit->pObjectData)
 		{
-			CHAR szBuffer[128] = "";
+			char szBuffer[128] = "";
 			strcpy_s(szBuffer, sizeof(szBuffer), pUnit->pObjectData->szOwner);
 
 			*rval = STRING_TO_JSVAL(JS_InternString(cx, szBuffer));
@@ -1544,7 +1544,7 @@ JSAPI_FUNC(my_overhead)
 
 	if(!JSVAL_IS_NULL(argv[0]) && !JSVAL_IS_VOID(argv[0]))
 	{
-		CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(lpszText && lpszText[0])
 		{
 			OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, lpszText, *p_D2CLIENT_OverheadTrigger);
