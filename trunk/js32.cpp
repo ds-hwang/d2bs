@@ -188,7 +188,7 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 			obj = NULL;
 		if(obj && props && !JS_DefineProperties(cx, obj, props))
 			obj = NULL;
-		if(obj)
+		if(obj && priv)
 			JS_SetPrivate(cx, obj, priv);
 		JS_RemoveRoot(&obj);
 	}

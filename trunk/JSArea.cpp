@@ -12,6 +12,7 @@ void area_finalize(JSContext *cx, JSObject *obj)
 
 	if(pArea)
 	{
+		JS_RemoveRoot(&pArea->ExitArray);
 		JS_SetPrivate(cx, obj, NULL);
 		delete pArea;
 	}
@@ -34,6 +35,7 @@ JSAPI_PROP(area_getProperty)
 				if(pArea->ExitArray == NULL)
 				{
 					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
+					JS_AddRoot(&pArea->ExitArray);
 
 					CriticalRoom cRoom;
 					cRoom.EnterSection();
