@@ -5,6 +5,7 @@
 
 #pragma warning ( push )
 #pragma warning ( disable: 4201 )
+#pragma optimize ( "", off )
 
 struct UnitAny;
 struct Room1;
@@ -891,5 +892,7 @@ Layout of sgptDataTables
 */
 
 #pragma warning ( pop )
+
+#pragma optimize ( "", on )
 
 #endif

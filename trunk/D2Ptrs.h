@@ -1,9 +1,13 @@
 #pragma once
+#ifndef __D2PTRS_H__
+#define __D2PTRS_H__
 
 #include "D2Structs.h"
 
 #pragma warning ( push )
 #pragma warning ( disable: 4245 )
+
+#pragma optimize ( "", off )
 
 #ifdef _DEFINE_VARS
 
@@ -287,3 +291,7 @@ FUNCPTR(D2GAME, D2Rand, DWORD __fastcall, (DWORD* seed), 0x1080);
 #define D2GFX_DrawFrame(Rect)				DrawRectFrame_STUB(Rect)
 
 #pragma warning ( pop )
+
+#pragma optimize ( "", off )
+
+#endif
