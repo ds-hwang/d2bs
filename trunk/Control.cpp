@@ -477,7 +477,6 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 				break;
 			default:
 				return FALSE;
-				break;
 		}
 	}
 	else

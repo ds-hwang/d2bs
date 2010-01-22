@@ -103,6 +103,7 @@ JSAPI_FUNC(my_login)
 				if(pControl)
 					if(!clickControl(pControl))
 						errorMsg ="Failed to click the 'Log in' button?";
+				timeout++;
 				break;
 			case OOG_DIFFICULTY:
 				switch(SPdifficulty)
