@@ -142,22 +142,36 @@ me.castOn = function castOn(hand, shift, unit, id) {
 			'on', unit.name, (shift ? 'using' : 'not using'), 'shift');
 	click(CLICK_SINGLE|hand, shift, unit);
 	castDelay();
-}
+};
 me.cast = function cast(hand, shift, x, y, id) {
 	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
 			{valid: isBoolean},
-			{valid: function xdist(x) { return Math.abs(x-me.x) <= 40;}},
-			{valid: function ydist(y) { return Math.abs(y-me.y) <= 40;}},
-			{valid: function hasSkill(id) { return me.hasSkill(id); }}],
+			{valid: function xarg(dx) {
+					if(isUnit(dx)) return true;
+					else if(isNumber(dx)) return Math.abs(dx-me.x) <= 40;
+					return false;
+				}},
+			{valid: function yarg(y) {
+					if(isNumber(x)) return Math.abs(y-me.y) <= 40;
+					else if(isUnit(x)) return true;
+					return false;
+				}},
+			{valid: function hasSkill(id) { return me.hasSkill(id); }, optional: true}],
 		arguments);
 
+	if(isUnit(x)) id = y;
 	if(isString(id)) id = getSkillByName(id);
 
 	var which = (hand == HAND_LEFT ? 1 : 0);
 	if(me.getSkill(2+which) != id) me.setSkill(id, which);
 	Debug.Write(INFO, 'Casting', getSkillById(id), '(' + id + ')',
 			'at (', x, ',', y, ')', (shift ? 'using' : 'not using'), 'shift');
-	click(CLICK_SINGLE|hand, shift, x, y);
+	var args = [CLICK_SINGLE|hand, shift];
+	if(isUnit(x))
+		args.push(x);
+	else args.push(x, y);
+
+	click.apply(this, args);
 	castDelay();
 };
 me.__defineGetter__('isInTown', function() {
@@ -211,7 +225,7 @@ function click(mode, shift) {
 
 		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'down-clicking',
 				(hasUnit ? 'on ' + point.name : ''), 'at (', point.x, ',', point.y, ')');
-		if(!clickMap.apply(null, args))
+		if(!clickMap.apply(this, args))
 			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
 	}
@@ -228,7 +242,7 @@ function click(mode, shift) {
 
 		Debug.Write(INFO, (left ? 'Left' : 'Right'), 'up-clicking',
 				(hasUnit ? 'on ' + point.name : ''), 'at (', point.x, ',', point.y, ')');
-		if(!clickMap.apply(null, args))
+		if(!clickMap.apply(this, args))
 			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
 	}

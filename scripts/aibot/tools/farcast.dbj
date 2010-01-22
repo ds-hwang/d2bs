@@ -8,7 +8,7 @@ function main() {
 		var pos = screenToAutomap(x, y);
 		var cast = keystate(0x12); // alt key
 		if(hand && cast)
-			click(CLICK_SINGLE|hand, (hand == HAND_LEFT), pos.x, pos.y);
+			me.cast(hand, (hand == HAND_LEFT), pos.x, pos.y);
 	});
 
 	while(me.ingame) delay(1000);
