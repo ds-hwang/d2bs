@@ -292,6 +292,6 @@ FUNCPTR(D2GAME, D2Rand, DWORD __fastcall, (DWORD* seed), 0x1080);
 
 #pragma warning ( pop )
 
-#pragma optimize ( "", off )
+#pragma optimize ( "", on )
 
 #endif
