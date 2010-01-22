@@ -68,6 +68,8 @@ JSAPI_FUNC(my_sqlite_version)
 	return JS_TRUE;
 }
 
+EMPTY_CTOR(sqlite_stmt)
+
 JSAPI_FUNC(sqlite_ctor)
 {
 	if(argc > 0 && !JSVAL_IS_STRING(argv[0]))

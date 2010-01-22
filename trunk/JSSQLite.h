@@ -15,6 +15,8 @@ JSAPI_PROP(sqlite_getProperty);
 void sqlite_finalize(JSContext *cx, JSObject *obj);
 JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
+CLASS_CTOR(sqlite_stmt);
+
 JSAPI_FUNC(sqlite_stmt_getobject);
 JSAPI_FUNC(sqlite_stmt_colcount);
 JSAPI_FUNC(sqlite_stmt_colval);
@@ -75,7 +77,7 @@ static JSClass sqlite_stmt = {
 	JSCLASS_HAS_PRIVATE,
 	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_stmt_finalize,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+	NULL, NULL, NULL, sqlite_stmt_ctor
 };
 
 static JSFunctionSpec sqlite_stmt_methods[] = {
