@@ -6,6 +6,7 @@
 #include "Core.h"
 #include "CriticalSections.h"
 #include "D2Skills.h"
+#include "MPQStats.h"
 
 EMPTY_CTOR(unit)
 
@@ -1147,6 +1148,13 @@ JSAPI_FUNC(unit_getSkill)
 	jsint nSkillId = NULL;
 	jsint nExt = NULL;
 
+	myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
+	if(!pmyUnit)
+		return JS_TRUE;
+	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+	if(!pUnit)
+		return JS_TRUE;
+
 	if(argc == NULL)
 		return JS_TRUE;
 
@@ -1167,13 +1175,37 @@ JSAPI_FUNC(unit_getSkill)
 	}
 	if(argc == 1)
 	{
-		WORD wLeftSkillId = D2CLIENT_GetPlayerUnit()->pInfo->pLeftSkill->pSkillInfo->wSkillId;
-		WORD wRightSkillId = D2CLIENT_GetPlayerUnit()->pInfo->pRightSkill->pSkillInfo->wSkillId;
+		WORD wLeftSkillId = pUnit->pInfo->pLeftSkill->pSkillInfo->wSkillId;
+		WORD wRightSkillId = pUnit->pInfo->pRightSkill->pSkillInfo->wSkillId;
 		JSObject* pReturnArray = NULL;
 		switch(nSkillId)
 		{
-			case 0: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wRightSkillId].name)); break;
-			case 1: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wLeftSkillId].name)); break;
+			case 0:
+				{
+					int row = 0;
+					if(FillBaseStat("skills", wRightSkillId, "skilldesc", &row, sizeof(int)))
+						if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
+						{
+							wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+							char* str = UnicodeToAnsi(szName);
+							*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+							delete[] str;
+						}
+				}
+				break;
+			case 1:
+				{
+					int row = 0;
+					if(FillBaseStat("skills", wLeftSkillId, "skilldesc", &row, sizeof(int)))
+						if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
+						{
+							wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+							char* str = UnicodeToAnsi(szName);
+							*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+							delete[] str;
+						}
+				}
+				break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
 			case 4:
@@ -1181,7 +1213,7 @@ JSAPI_FUNC(unit_getSkill)
 				if(pReturnArray)
 				{
 					int i = 0;
-					for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+					for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
 						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 
 						if(!pArrayInsert)
@@ -1189,7 +1221,7 @@ JSAPI_FUNC(unit_getSkill)
 
 						jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
 						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
-						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, 1));
+						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
 
 						JS_SetElement(cx, pArrayInsert, 0, &nId);
 						JS_SetElement(cx, pArrayInsert, 1, &nBase);
@@ -1211,15 +1243,13 @@ JSAPI_FUNC(unit_getSkill)
 	}
 	else if(argc == 2)
 	{
-		if(D2CLIENT_GetPlayerUnit() &&
-			D2CLIENT_GetPlayerUnit()->pInfo &&
-			D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill)
+		if(pUnit && pUnit->pInfo && pUnit->pInfo->pFirstSkill)
 		{
-			for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+			for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 			{
 				if(pSkill->pSkillInfo && pSkill->pSkillInfo->wSkillId == nSkillId)
 				{
-					*rval = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, nExt));
+					*rval = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, nExt));
 					return JS_TRUE;
 				}
 			}
@@ -1227,7 +1257,7 @@ JSAPI_FUNC(unit_getSkill)
 
 	}
 
-	*rval = INT_TO_JSVAL(NULL);
+	*rval = JSVAL_FALSE;
 
 	return JS_TRUE;
 }

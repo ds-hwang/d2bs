@@ -8,6 +8,7 @@
 #include "JSUnit.h"
 #include "Constants.h"
 #include "D2BS.h"
+#include "Console.h"
 
 using namespace std;
 
@@ -417,4 +418,6 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
+	else
+		Console::Show();
 }

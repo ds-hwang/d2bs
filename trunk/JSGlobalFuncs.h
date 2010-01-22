@@ -67,6 +67,8 @@ static JSFunctionSpec global_funcs[] = {
 	{"sqlite_version",		my_sqlite_version,		0},
 	{"dopen",				my_openDir,				1},
 	{"debugLog",			my_debugLog,			1},
+	{"showConsole",			my_showConsole,			0},
+	{"hideConsole",			my_hideConsole,			0},
 
 	// out of game functions
 	{"login",				my_login,				1},

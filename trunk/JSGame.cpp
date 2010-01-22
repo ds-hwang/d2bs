@@ -897,18 +897,16 @@ JSAPI_FUNC(my_getSkillById)
 		return JS_TRUE;
 
 	jsint nId = JSVAL_TO_INT(argv[0]);
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "Unknown"));
 
-	if(nId < 0 || nId > 280)
-	{
-		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx,"Unknown"));
-		return JS_TRUE;
-	}
-
-	for(UINT i = 0; i < ArraySize(Game_Skills); i++)
-		if(Game_Skills[i].skillID == nId)
+	int row = 0;
+	if(FillBaseStat("skills", nId, "skilldesc", &row, sizeof(int)))
+		if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
 		{
-			*rval =  STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[i].name));
-			return JS_TRUE;
+			wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+			char* str = UnicodeToAnsi(szName);
+			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+			delete[] str;
 		}
 
 	return JS_TRUE;

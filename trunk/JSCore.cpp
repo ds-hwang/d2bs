@@ -11,6 +11,7 @@
 #include "ScriptEngine.h"
 #include "D2BS.h"
 #include "Events.h"
+#include "Console.h"
 
 JSAPI_FUNC(my_print)
 {
@@ -439,5 +440,17 @@ JSAPI_FUNC(my_scriptBroadcast)
 		THROW_ERROR(cx, obj, "You must specify something to broadcast");
 
 	ScriptBroadcastEvent(argc, argv);
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_showConsole)
+{
+	Console::Show();
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_hideConsole)
+{
+	Console::Hide();
 	return JS_TRUE;
 }
