@@ -105,8 +105,6 @@ void InitSettings(void)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;
 	Vars.oldWNDPROC = NULL;
-	Vars.image = NULL;
-	Vars.text = NULL;
 }
 
 bool InitHooks(void)
@@ -138,17 +136,7 @@ bool InitHooks(void)
 		else
 			continue;
 
-		if(ClientState() == ClientStateMenu || ClientState() == ClientStateInGame)
-		{
-			char versionimg[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
-			if(!Vars.image)
-				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm, false);
-			if(!Vars.text)
-				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
-		}
-
-		if(Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
+		if(Vars.hKeybHook && Vars.hMouseHook)
 		{
 			if(!ScriptEngine::Startup())
 				return false;

@@ -15,7 +15,7 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 {
 	using namespace std;
 
-	if(str.length() < 1)
+	if(str.length() < 1 || maxlen < 2)
 		return false;
 
 	size_t pos, len;

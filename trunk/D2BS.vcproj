@@ -549,6 +549,14 @@
 				RelativePath=".\sqlite3.h"
 				>
 			</File>
+			<File
+				RelativePath=".\stringhash.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stringhash.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Spidermonkey Engine"

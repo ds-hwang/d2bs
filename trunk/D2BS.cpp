@@ -96,11 +96,7 @@ void Shutdown(void)
 
 	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
-	delete Vars.image;
-	delete Vars.text;
-
 	RemovePatches();
-	Console::Destroy();
 	Genhook::Destroy();
 	ShutdownDdeServer();
 

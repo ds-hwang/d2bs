@@ -65,10 +65,8 @@ struct Variables
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
 
-	ImageHook *image;
-	TextHook  *text;
-
 	CCollisionMap cCollisionMap;
+	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;

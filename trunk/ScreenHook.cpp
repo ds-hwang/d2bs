@@ -1,21 +1,36 @@
 #include "ScreenHook.h"
 #include "JSScreenHook.h"
 #include "D2BS.h"
+#include "Console.h"
+
+#include <vector>
 
 using namespace std;
 
 bool Genhook::init = false;
-HookList Genhook::hooks = HookList();
+HookList Genhook::visible = HookList();
+HookList Genhook::invisible = HookList();
 CRITICAL_SECTION Genhook::globalSection = {0};
 
-HookList Genhook::GetHooks(void)
+void DrawLogo(void)
 {
-	EnterCriticalSection(&globalSection);
-	HookList currentHooks;
-	for(HookIterator it = hooks.begin(); it != hooks.end(); it++)
-		currentHooks.push_back(*it);
-	LeaveCriticalSection(&globalSection);
-	return currentHooks;
+	static char img[_MAX_PATH+_MAX_FNAME] = "";
+	static char version[] = "D2BS " D2BS_VERSION;
+	static int x = (CalculateTextLen(version, 0).x/2);
+
+	if(img[0] == '\0')
+		sprintf_s(img, sizeof(img), "%sversion.bmp", Vars.szPath);
+
+	CellFile* vimg = LoadCellFile(img);
+	int dx = (GetScreenSize().x/2);
+	if(!Console::IsVisible())
+	{
+		myDrawAutomapCell(vimg, dx, 10, 0);
+		myDrawText(version, dx-x, 13, 4, 0);
+	} else {
+		myDrawAutomapCell(vimg, dx, Console::GetHeight()+9, 0);
+		myDrawText(version, dx-x, Console::GetHeight()+14, 4, 0);
+	}
 }
 
 bool zOrderSort(Genhook* first, Genhook* second)
@@ -23,31 +38,109 @@ bool zOrderSort(Genhook* first, Genhook* second)
 	return first->GetZOrder() < second->GetZOrder();
 }
 
+bool __fastcall HoverHook(Genhook* hook, void* argv, uint argc)
+{
+	HookClickHelper* helper = (HookClickHelper*)argv;
+	hook->Hover(&helper->point);
+	return true;
+}
+
+bool __fastcall ClickHook(Genhook* hook, void* argv, uint argc)
+{
+	HookClickHelper* helper = (HookClickHelper*)argv;
+	return hook->Click(helper->button, &helper->point);
+}
+
+bool __fastcall DrawHook(Genhook* hook, void* argv, uint argc)
+{
+	if((hook->GetGameState() == (ScreenhookState)(int)argv || hook->GetGameState() == Perm) &&
+	  (!hook->GetIsAutomap() || (hook->GetIsAutomap() && *p_D2CLIENT_AutomapOn)))
+		hook->Draw();
+	return true;
+}
+
+bool __fastcall CleanHook(Genhook* hook, void* argv, uint argc)
+{
+	if(hook->owner == (Script*)argv)
+		hook->SetIsVisible(false);
+	return true;
+}
+
 void Genhook::DrawAll(ScreenhookState type)
 {
 	if(!init)
 		return;
+	ForEachVisibleHook(DrawHook, (void*)type, 1);
+}
 
+bool Genhook::ForEachHook(HookCallback proc, void* argv, uint argc)
+{
+	// iterate the visible ones, then the invisible ones
 	EnterCriticalSection(&globalSection);
-	HookList currentHooks = GetHooks();
-	currentHooks.sort(zOrderSort);
-	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
-		if(((*it)->GetGameState() == type || (*it)->GetGameState() == Perm) && (*it)->GetIsVisible() &&
-			(!(*it)->GetIsAutomap() || ((*it)->GetIsAutomap() && (*p_D2CLIENT_AutomapOn))))
-		{
-			(*it)->Draw();
-		}
+
+	bool result = false;
+	std::vector<Genhook*> list;
+	for(HookIterator it = visible.begin(); it != visible.end(); it++)
+		list.push_back(*it);
+	int count = list.size();
+
+	for(int i = 0; i < count; i++)
+		if(proc(list[i], argv, argc))
+			result = true;
+
+	if(!result)
+	{
+		list.clear();
+		for(HookIterator it = visible.begin(); it != visible.end(); it++)
+			list.push_back(*it);
+		count = list.size();
+
+		for(int i = 0; i < count; i++)
+			if(proc(list[i], argv, argc))
+				result = true;
+	}
+
 	LeaveCriticalSection(&globalSection);
+	return result;
 }
 
-HookIterator Genhook::GetFirstHook()
+bool Genhook::ForEachVisibleHook(HookCallback proc, void* argv, uint argc)
 {
-	return hooks.begin();
+	// iterate the visible ones, then the invisible ones
+	EnterCriticalSection(&globalSection);
+
+	bool result = false;
+	std::vector<Genhook*> list;
+	for(HookIterator it = visible.begin(); it != visible.end(); it++)
+		list.push_back(*it);
+	int count = list.size();
+
+	for(int i = 0; i < count; i++)
+		if(proc(list[i], argv, argc))
+			result = true;
+
+	LeaveCriticalSection(&globalSection);
+	return result;
 }
 
-HookIterator Genhook::GetLastHook()
+bool Genhook::ForEachInvisibleHook(HookCallback proc, void* argv, uint argc)
 {
-	return hooks.end();
+	// iterate the visible ones, then the invisible ones
+	EnterCriticalSection(&globalSection);
+
+	bool result = false;
+	std::vector<Genhook*> list;
+	for(HookIterator it = invisible.begin(); it != invisible.end(); it++)
+		list.push_back(*it);
+	int count = list.size();
+
+	for(int i = 0; i < count; i++)
+		if(proc(list[i], argv, argc))
+			result = true;
+
+
+	LeaveCriticalSection(&globalSection);
+	return result;
 }
 
 void Genhook::Clean(Script* owner)
@@ -55,17 +148,7 @@ void Genhook::Clean(Script* owner)
 	if(!init)
 		return;
 
-	EnterCriticalSection(&globalSection);
-	HookList currentHooks = GetHooks();
-	for(HookIterator it = currentHooks.begin(); it != currentHooks.end(); it++)
-	{
-		if((*it)->owner == owner)
-		{
-			(*it)->SetIsVisible(false);
-			(*it)->owner = NULL;
-		}
-	}
-	LeaveCriticalSection(&globalSection);
+	ForEachHook(CleanHook, owner, 1);
 }
 
 Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
@@ -75,7 +158,7 @@ Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutoma
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
 	SetX(x); SetY(y);
-	hooks.push_back(this);
+	visible.push_back(this);
 }
 
 Genhook::~Genhook(void) {
@@ -86,11 +169,17 @@ Genhook::~Genhook(void) {
 		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &hovered);
 
 	EnterCriticalSection(&globalSection);
-	hooks.remove(this);
-	LeaveCriticalSection(&globalSection);
+
 	owner = NULL;
 	location.x = -1;
 	location.y = -1;
+	if(isVisible)
+		visible.remove(this);
+	else
+		invisible.remove(this);
+
+	LeaveCriticalSection(&globalSection);
+
 	Unlock();
 	DeleteCriticalSection(&hookSection);
 }

@@ -8,6 +8,7 @@
 #include "D2Skills.h"
 #include "D2Intercepts.h"
 #include "D2BS.h"
+#include "stringhash.h"
 
 void Log(char* szFormat, ...)
 {
@@ -180,7 +181,7 @@ Level* GetLevel(DWORD dwLevelNo)
 }
 
 // TODO: make this use SIZE for clarity
-POINT CalculateTextLen(char* szwText, INT Font)
+POINT CalculateTextLen(const char* szwText, INT Font)
 {
 	POINT ret = {0,0};
 
@@ -346,7 +347,7 @@ BOOL IsTownLevel(INT nLevel)
 }
 
 
-void myDrawText(char* szwText, int x, int y, int color, int font) 
+void myDrawText(const char* szwText, int x, int y, int color, int font) 
 {
 	wchar_t* text = AnsiToUnicode(szwText);
 
@@ -358,7 +359,7 @@ void myDrawText(char* szwText, int x, int y, int color, int font)
 }
 
 
-void myDrawCenterText(char* szText, int x, int y, int color, int font, int div) 
+void myDrawCenterText(const char* szText, int x, int y, int color, int font, int div) 
 {
 	DWORD dwWidth = NULL, dwFileNo = NULL, dwOldSize = NULL;
 	wchar_t* Buffer = AnsiToUnicode(szText);
@@ -440,113 +441,6 @@ BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 
 	return FALSE;
 }
-
-/*
-Thanks to 99Elite for posting the list at ladderhall.com!
-
-Layout of sgptDataTables
-
-+0     :  ptr to playerclass.bin
-+4     :  num records in playerclass.bin
-+8     :  ptr to bodylocs.bin
-+c     :  num records in bodylocs.bin
-+10   :  ptr to storepage.bin
-+14   :  num records in storepage.bin
-+18   :  ptr to elemtypes.bin
-+1c   :  num records in elemtypes.bin
-+20   :  ptr to hitclass.bin
-+24   :  num records in hitclass.bin
-+28   :  ptr to monmode.bin
-+2c   :  num records in monmode.bin
-+30   :  ptr to plrmode.bin
-+34   :  num records in plrmode.bin
-+38   :  ptr to skillcalc.bin
-+3c   :  num records in skillcalc.bin
-+44   :  ptr to skillscode.bin
-+48   :  num records in skillscode.bin
-+50   :  ptr to skilldesccode.bin
-+54   :  num records in skilldesccode.bin
-+58   :  ptr to misscalc.bin
-+5c   :  num records in misccalc.bin
-+64   :  ptr to misscode.bin
-+68   :  numrecords in misccode.bin
-+70   :  ptr to events.bin
-+74   :  numrecords in events.bin
-+88   :  ptr to monai.bin
-+8c    : num records in monai.bin
-+A4   :  ptr to properties.bin
-+Ac   :  num records in properties.bin
-+b4   :  ptr to hiredesc.bin
-+b8   :  num records in hiredesc.bin
-+194 :  ptr to sounds.bin
-+19c :  num records in sounds.bin
-+1a0 :  ptr to heirling.bin
-+1a4 :  num records in heirling.bin
-+9a8 :  ptr to npc.txt
-+9ac :  num records in npc.txt
-+9b0 :  ptr to colors.bin
-+9b4 :  num records in colors.bin
-+a78 :  ptr to monstats.bin
-+a80 :  num records in monstats.bin
-+a84 :  ptr to monsounds.bin
-+a8c :  num records in monsunds.bin
-+a90 :  ptr to monstats2.bin
-+a98 :  num records in monstats2.bin
-+a9c :  ptr to monplace.bin
-+aa0 :  numrecirds in monplace.bin
-+aa8 :  ptr to monprest.bin
-+aac :  ptr to monprest.bin (again) // check this
-+ad4 :  ptr to superuniques.bin
-+adc :  num records in superuniques.bin
-+b64 :  missiles.bin
-+b6c :  num records in missiles.bin
-+b70 :  ptr to monlvl.bin
-+b74 :  num records in monlvl.bin
-+b78 :  ptr to monseq.bin
-+b7c :  num records in monseq.bin
-+b94 :  num records in skillsdesc.bin
-+b98 :  ptr to skills.bin
-+ba0 :  num records in skills table
-+bbc :  ptr to overlay.bin
-+bc0 :  num records in overlay.bin
-+bc4 :  charstats table
-+bcc :  ptr to itemstatcost table
-+bd4 :  num records in itemstatcost
-+be0 :  ptr to monequip.bin
-+be4 :  num records in monequip.bin
-+bf8  :  ptr to itemtypes.bin
-+bfc  :  num records in itemtypes.bin
-+c0c :  ptr to sets.bin
-+c10 :  num records in sets.bin
-+c18 :  ptr to setitems.bin
-+c1c :  num records in setitems.bin
-+c24 :  ptr to uniqueitems.bin
-+c28 :  num records in uniqueitems.bin
-+c30 :  ptr to monprop.bin
-+c34 :  num records in monprop.bin
-+c3c :  ptr to montype.bin
-+c40 :  num records in montype.bin
-+c50 :  ptr to monumod.bin
-+c54 :  num records in monummod.bin
-+c58 :  ptr to levels.bin
-+c5c :  num records in levels.bin
-+c60 :  ptr to lvldefs.bin
-+c64 :  ptr to lvlPrest.bin
-+c68 :  num records in lvlPrest.bin
-+cb8 :  ptr to chartemplate.bin
-+cbc :  num records in chartemplate.bin
-+cc0 :  ptr to arena.bin
-+cc4 :  ptr to lvlTypes.bin
-+cd0 :  num records in lvlTypes.bin
-+cd4 :  ptr to lvlwarp.bin
-+cd8 :  num records in lvlwarp.bin
-+cdc :  ptr to lvlmaze.bin
-+ce0 :  num records in lvlmaze.bin
-+ce4 :  ptr to levelsub.bin
-+ce8 :  num records in levelsub.bin
-+d04 :  ptr to cubemain.bin
-+d08 :  num records in cubemain.bin
-*/
 
 INT GetItemLocation(UnitAny *pItem)
 {
@@ -632,15 +526,24 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 		//return NULL;
 	}
 
+	unsigned __int32 hash = sfh(lpszPath, (int)strlen(lpszPath));
+	if(Vars.mCachedCellFiles.count(hash) > 0)
+		return Vars.mCachedCellFiles[hash];
 	if(bMPQ == TRUE)
 	{
-		return (CellFile*)D2CLIENT_LoadUIImage_ASM(lpszPath);
+		CellFile* result = (CellFile*)D2CLIENT_LoadUIImage_ASM(lpszPath);
+		Vars.mCachedCellFiles[hash] = result;
+		return result;
 	}
 	else if(bMPQ == FALSE)
 	{
 		// see if the file exists first
 		if(!(_access(lpszPath, 0) != 0 && errno == ENOENT))
-			return myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+		{
+			CellFile* result = myInitCellFile((CellFile*)LoadBmpCellFile(lpszPath));
+			Vars.mCachedCellFiles[hash] = result;
+			return result;
+		}
 	}
 
 	return NULL;
