@@ -34,6 +34,7 @@ JSAPI_FUNC(item_getItemCost);
 void unit_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(unit_getProperty);
 JSAPI_PROP(unit_setProperty);
+JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
 struct myUnit
 {
@@ -71,11 +72,18 @@ enum unit_tinyid
 };
 
 static JSClass unit_class = {
-    "Unit",	JSCLASS_HAS_PRIVATE,
+    "Unit",	JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize,
     NULL, NULL, NULL, unit_ctor
 };
+
+static JSExtendedClass unit_class_ex = {
+	unit_class,
+	unit_equal,
+	NULL, NULL, NULL, NULL
+};
+
 enum me_tinyid {
 	ME_ACCOUNT = 100,
 	ME_CHARNAME,

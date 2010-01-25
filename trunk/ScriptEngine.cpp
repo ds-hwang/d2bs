@@ -352,7 +352,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.funcs, entry.props,
 										entry.static_funcs, entry.static_props);
 
-		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
+		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
 		if(!meObject)
 			return JS_FALSE;
 

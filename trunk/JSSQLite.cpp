@@ -276,7 +276,7 @@ JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 {
 	SqliteDB* dbobj = (SqliteDB*)JS_GetInstancePrivate(cx, obj, &sqlite_db_ex.base, NULL);
 	if(!JSVAL_IS_OBJECT(v))
-		return JS_TRUE;;
+		return JS_TRUE;
 	JSObject *obj2 = JSVAL_TO_OBJECT(v);
 	if(!obj2 || JS_GET_CLASS(cx, obj2) != JS_GET_CLASS(cx, obj))
 		return JS_TRUE;

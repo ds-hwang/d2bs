@@ -24,7 +24,7 @@ struct JSClassSpec {
 static JSClassSpec global_classes[] = {
 	/*JSClass*				properties			functions				static props	static funcs */
 	// game objects
-	{&unit_class,			unit_props,			unit_methods,			NULL,			NULL},
+	{&unit_class_ex.base,	unit_props,			unit_methods,			NULL,			NULL},
 	{&presetunit_class,		presetunit_props,	NULL,					NULL,			NULL},
 	{&area_class,			area_props,			NULL,					NULL,			NULL},
 	{&control_class,		control_props,		control_funcs,			NULL,			NULL},

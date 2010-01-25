@@ -35,10 +35,35 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 	JS_SetPrivate(cx, obj, NULL);
 }
 
+JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
+{
+	*bp = JS_FALSE;
+
+	myUnit* unit1 = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
+	if(!JSVAL_IS_OBJECT(v))
+		return JS_TRUE;
+	JSObject *obj2 = JSVAL_TO_OBJECT(v);
+	JSClass* c1 = JS_GET_CLASS(cx, obj);
+	JSClass* c2 = JS_GET_CLASS(cx, obj2);
+	if(!obj2 || _strcmpi(c1->name, c2->name) != 0)
+		return JS_TRUE;
+	myUnit* unit2 = (myUnit*)JS_GetPrivate(cx, obj2);
+
+	UnitAny* pUnit1 = D2CLIENT_FindUnit(unit1->dwUnitId, unit1->dwType);
+	UnitAny* pUnit2 = D2CLIENT_FindUnit(unit2->dwUnitId, unit2->dwType);
+
+	if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
+		return JS_TRUE;
+
+	*bp = JS_TRUE;
+	return JS_TRUE;
+}
+
 JSAPI_PROP(unit_getProperty)
 {	
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
+	p_D2CLIENT_MapId;
 
 	switch(JSVAL_TO_INT(id))
 	{
@@ -489,7 +514,7 @@ JSAPI_FUNC(unit_getUnit)
 	pmyUnit->dwUnitId = pUnit->dwUnitId;
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 
 	if(!jsunit)
 		return JS_TRUE;
@@ -1122,7 +1147,7 @@ JSAPI_FUNC(unit_getItems)
 		pmyUnit->dwOwnerId = pUnit->dwUnitId;
 		pmyUnit->dwOwnerType = pUnit->dwType;
 
-		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
 			JS_RemoveRoot(&pReturnArray);
@@ -1397,7 +1422,7 @@ JSAPI_FUNC(unit_getParent)
 		pmyUnit->dwType = pMonster->dwType;
 		pmyUnit->szName[0] = NULL;
 						
-		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 			if (!jsunit)
 				return JS_TRUE;
 		*rval = OBJECT_TO_JSVAL(jsunit);			
@@ -1428,7 +1453,7 @@ JSAPI_FUNC(unit_getParent)
 			pmyUnit->dwMode = pUnit->pItemData->pOwnerInventory->pOwner->dwMode;
 			pmyUnit->dwType = pUnit->pItemData->pOwnerInventory->pOwner->dwType;
 			pmyUnit->szName[0] = NULL;
-			JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+			JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 
 			*rval = OBJECT_TO_JSVAL(jsunit);
 		}
@@ -1511,7 +1536,7 @@ JSAPI_FUNC(unit_getMerc)
 							pmyUnit->dwType = UNIT_MONSTER;
 							pmyUnit->szName[0] = NULL;
 
-							JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+							JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 							if (!jsunit)
 								return JS_TRUE;
 
@@ -1641,7 +1666,7 @@ JSAPI_FUNC(unit_getItem)
 	pmyItem->dwOwnerType = pmyUnit->dwType;
 	strcpy_s(pmyItem->szName, sizeof(pmyItem->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyItem);
+	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyItem);
 
 	if(!jsunit)
 		return JS_TRUE;

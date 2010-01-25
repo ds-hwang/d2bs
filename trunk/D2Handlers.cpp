@@ -317,6 +317,7 @@ void GameDraw(void)
 		Console::Draw();
 		Genhook::DrawAll(IG);
 	}
+	Sleep(10);
 }
 
 void GameDrawOOG(void)
@@ -328,6 +329,7 @@ void GameDrawOOG(void)
 		Console::Draw();
 		Genhook::DrawAll(OOG);
 	}
+	Sleep(10);
 }
 
 void __fastcall WhisperHandler(char* szAcc, char* szText)

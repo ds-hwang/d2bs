@@ -34,7 +34,7 @@ JSAPI_FUNC(my_copyUnit)
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
-				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+				JSObject* jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -53,7 +53,7 @@ JSAPI_FUNC(my_copyUnit)
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(invUnit));
-				JSObject* jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, lpUnit);
+				JSObject* jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -1337,7 +1337,7 @@ JSAPI_FUNC(my_getInteractedNPC)
 	pmyUnit->dwUnitId = pNPC->dwUnitId;
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 	if(!jsunit)
 		return JS_TRUE;
 

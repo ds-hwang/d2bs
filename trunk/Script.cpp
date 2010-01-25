@@ -142,6 +142,7 @@ void Script::Run(void)
 		JS_EndRequest(GetContext());
 		return;
 	}
+	JS_SetContextThread(GetContext());
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
@@ -275,6 +276,7 @@ bool Script::Include(const char* file)
 		return true;
 	}
 	bool rval = false;
+	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);

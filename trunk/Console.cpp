@@ -39,7 +39,16 @@ void Console::ExecuteCommand(void)
 void Console::RemoveLastKey(void)
 {
 	EnterCriticalSection(&Vars.cConsoleSection);
-	cmd.str(cmd.str().substr(0, cmd.str().length()-1));
+	int len = cmd.str().length()-1;
+	if(len >= 0)
+	{
+		cmd.str(cmd.str().substr(0, len));
+		if(len > 0)
+		{
+			cmd.seekg(len);
+			cmd.seekp(len);
+		}
+	}
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
 
