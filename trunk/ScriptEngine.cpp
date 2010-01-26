@@ -380,14 +380,18 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
+#ifdef LORD_INFO
 		Print("*** ENTERING GC ***");
+#endif
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
+#ifdef LORD_INFO
 		Print("*** LEAVING GC ***");
+#endif
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();

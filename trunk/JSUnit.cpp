@@ -63,7 +63,6 @@ JSAPI_PROP(unit_getProperty)
 {	
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
-	p_D2CLIENT_MapId;
 
 	switch(JSVAL_TO_INT(id))
 	{
