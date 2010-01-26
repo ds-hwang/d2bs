@@ -3,6 +3,8 @@
 #include "Helpers.h"
 #include "D2Helpers.h"
 
+EMPTY_CTOR(control)
+
 void control_finalize(JSContext *cx, JSObject *obj)
 {
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
@@ -13,68 +15,70 @@ void control_finalize(JSContext *cx, JSObject *obj)
 		delete pData;
 	}
 }
-JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+
+JSAPI_PROP(control_getProperty)
 {
 	if(ClientState() != ClientStateMenu)
-		return JS_TRUE;
+		return JS_FALSE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData)
-		return JS_TRUE;
+		return JS_FALSE;
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-	if(!pControl)
-		return JS_TRUE;
-
-	char* tmp = NULL;
+	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	if(!ctrl)
+		return JS_FALSE;
 
 	switch(JSVAL_TO_INT(id))
 	{
 		case CONTROL_TEXT:
-			if(pControl->dwIsCloaked == 33)
-				break;
-			tmp = UnicodeToAnsi((pControl->dwType == 6 ? pControl->wText2 : pControl->wText));
-			*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+			if(ctrl->dwIsCloaked != 33)
+			{
+				char* tmp = UnicodeToAnsi((ctrl->dwType == 6 ? ctrl->wText2 : ctrl->wText));
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
+				delete[] tmp;
+			}
 			break;
 		case CONTROL_X:
-			*vp = INT_TO_JSVAL(pControl->dwPosX);
+			JS_NewNumberValue(cx, ctrl->dwPosX, vp);
 			break;
 		case CONTROL_Y:
-			*vp = INT_TO_JSVAL(pControl->dwPosY);
+			JS_NewNumberValue(cx, ctrl->dwPosY, vp);
 			break;
 		case CONTROL_XSIZE:
-			*vp = INT_TO_JSVAL(pControl->dwSizeX);
+			JS_NewNumberValue(cx, ctrl->dwSizeX, vp);
 			break;
 		case CONTROL_YSIZE:
-			*vp = INT_TO_JSVAL(pControl->dwSizeY);
+			JS_NewNumberValue(cx, ctrl->dwSizeY, vp);
 			break;
 		case CONTROL_STATE:
-			*vp = INT_TO_JSVAL(pControl->dwDisabled - 2);
+			JS_NewNumberValue(cx, (ctrl->dwDisabled - 2), vp);
 			break;
-		case CONTROL_PASSWORD:
-			*vp = BOOLEAN_TO_JSVAL(pControl->dwIsCloaked == 33);
+		case CONTROL_MAXLENGTH:
+			//JS_NewNumberValue(cx, ctrl->dwMaxLength, vp);
 			break;
 		case CONTROL_TYPE:
-			*vp = INT_TO_JSVAL(pControl->dwType);
+			JS_NewNumberValue(cx, ctrl->dwType, vp);
+			break;
+		case CONTROL_VISIBLE:
+			// nothing to do yet because we don't know what to do
 			break;
 		case CONTROL_CURSORPOS:
-			*vp = INT_TO_JSVAL(pControl->dwCursorPos);
+			JS_NewNumberValue(cx, ctrl->dwCursorPos, vp);
 			break;
-//		case CONTROL_MAXLENGTH:
-//			*vp = INT_TO_JSVAL(pControl->dwMaxLength);
-//			break;
 		case CONTROL_SELECTSTART:
-			*vp = INT_TO_JSVAL(pControl->dwSelectStart);
+			JS_NewNumberValue(cx, ctrl->dwSelectStart, vp);
 			break;
 		case CONTROL_SELECTEND:
-			*vp = INT_TO_JSVAL(pControl->dwSelectEnd);
+			JS_NewNumberValue(cx, ctrl->dwSelectEnd, vp);
 			break;
-		default:
+		case CONTROL_PASSWORD:
+			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwIsCloaked == 33));
+			break;
+		case CONTROL_DISABLED:
+			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwDisabled == 0x0d));
 			break;
 	}
-
-	if(tmp)
-		delete[] tmp;
 
 	return JS_TRUE;
 }
@@ -82,60 +86,60 @@ JSBool control_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 JSAPI_PROP(control_setProperty)
 {
 	if(ClientState() != ClientStateMenu)
-		return JS_TRUE;
+		return JS_FALSE;
 
 	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
 	if(!pData)
-		return JS_TRUE;
+		return JS_FALSE;
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
-	if(!pControl)
-		return JS_TRUE;
+	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	if(!ctrl)
+		return JS_FALSE;
 
 	switch(JSVAL_TO_INT(id))
 	{
-		case CONTROL_TEXT: 
-		{
-			if (!(pControl->dwType == 1))
-				return JS_TRUE;
-			if(JSVAL_IS_STRING(*vp))
+		case CONTROL_TEXT:
+			if(ctrl->dwType == 1 && JSVAL_IS_STRING(*vp))
 			{
-				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				char* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				if(!pText)
 					return JS_TRUE;
 				wchar_t* szwText = AnsiToUnicode(pText);
-				D2WIN_SetControlText(pControl, szwText);
+				D2WIN_SetControlText(ctrl, szwText);
 				delete[] szwText;
 			}
 			break;
-		}
 		case CONTROL_STATE:
-		{
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 			{
-				int nState = JSVAL_TO_INT(*vp);
-				if (nState < 0 || nState > 3)
-					return JS_TRUE;
-				memset((VOID*)&pControl->dwDisabled, (nState + 2), sizeof(DWORD));
+				int32 nState;
+				if(!JS_ValueToECMAInt32(cx, *vp, &nState) || nState < 0 || nState > 3)
+					THROW_ERROR(cx, obj, "Invalid state value");
+				memset((VOID*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
 			}
 			break;
-		}
 		case CONTROL_CURSORPOS:
-		{
-			if (JSVAL_IS_INT(*vp))
+			if(JSVAL_IS_INT(*vp))
 			{
-				DWORD dwPos = JSVAL_TO_INT(*vp);
-//				if (dwPos < 0 || dwPos > pControl->dwMaxLength)
-//					return JS_TRUE;
-				memset((VOID*)&pControl->dwCursorPos, dwPos, sizeof(DWORD));
+				DWORD dwPos;
+				if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
+					THROW_ERROR(cx, obj, "Invalid cursor position value");
+				memset((VOID*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;
-		}
+		case CONTROL_DISABLED:
+			if(JSVAL_IS_BOOLEAN(*vp))
+			{
+				DWORD bEnabled = (JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c);
+				memset((VOID*)&ctrl->dwDisabled, bEnabled, sizeof(DWORD));
+			}
+			break;
 	}
+
 	return JS_TRUE;
 }
 
-JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_getNext)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -149,12 +153,6 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		pControl = pControl->pNext;
 	else
 		pControl = NULL;
-
-	if(!pControl)
-	{
-		*rval = INT_TO_JSVAL(0);
-		return JS_TRUE;
-	}
 
 	if(pControl)
 	{
@@ -172,13 +170,13 @@ JSBool control_getNext(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
 			return JS_TRUE;
-		*rval = INT_TO_JSVAL(0);
+		*rval = JSVAL_FALSE;
 	}
 	
 	return JS_TRUE;
 }
 
-JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_click)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -194,12 +192,12 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 		return JS_TRUE;
 	}
 
-	jsint x=-1,y=-1;
+	uint32 x = (uint32)-1, y = (uint32)-1;
 
 	if(argc > 1 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
 	{
-		x = JSVAL_TO_INT(argv[0]);
-		y = JSVAL_TO_INT(argv[1]);
+		JS_ValueToECMAUint32(cx, argv[0], &x);
+		JS_ValueToECMAUint32(cx, argv[1], &y);
 	}
 
 	clickControl(pControl, x, y);
@@ -207,7 +205,7 @@ JSBool control_click(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	return JS_TRUE;
 }
 
-JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_setText)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -237,7 +235,7 @@ JSBool control_setText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 	return JS_TRUE;
 }
 
-JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(control_getText)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
@@ -278,12 +276,11 @@ JSBool control_getText(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 }
 
 
-INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSAPI_FUNC(my_getControl)
 {
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	Control* pControl = *p_D2WIN_FirstControl;
 	int nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
 	int *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
 
@@ -291,19 +288,7 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 		if(JSVAL_IS_INT(argv[i]))
 			*args[i] = JSVAL_TO_INT(argv[i]);
 
-	if(argc > 0 && (nType != -1 || nX != -1 || nY != -1 || nXSize != -1 || nYSize != -1))
-	{
-		for(pControl = *p_D2WIN_FirstControl; pControl; pControl = pControl->pNext)
-		{
-			if((nType != -1 && pControl->dwType == (DWORD)nType) &&
-					(nX != -1 && pControl->dwPosX == (DWORD)nX) &&
-					(nY != -1 && pControl->dwPosY == (DWORD)nY) &&
-					(nXSize != -1 && pControl->dwSizeX == (DWORD)nXSize) &&
-					(nYSize != -1 && pControl->dwSizeY == (DWORD)nYSize))
-				break;
-		}
-	}
-
+	Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
 	if(!pControl)
 		return JS_TRUE;
 
@@ -322,4 +307,3 @@ INT my_getControl(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	return JS_TRUE;
 }
-

@@ -109,13 +109,17 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 			}
 			break;
 		case 0x07: // player relation
-			strcpy_s(name1, 16, D2CLIENT_FindUnit(param1, UNIT_PLAYER)->pPlayerData->szName);
-			switch(param2)
 			{
-				case 0x03: // hostile
-					if(Vars.bQuitOnHostile)
-						D2CLIENT_ExitGame();
-					break;
+				for(RosterUnit* player = *p_D2CLIENT_PlayerUnitList; player != NULL; player = player->pNext)
+					if(player->dwUnitId == param1)
+						strcpy_s(name1, 16, player->szName);
+				switch(param2)
+				{
+					case 0x03: // hostile
+						if(Vars.bQuitOnHostile)
+							D2CLIENT_ExitGame();
+						break;
+				}
 			}
 			break;
 		case 0x0a: // name1 has items in his box

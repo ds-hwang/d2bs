@@ -7,34 +7,34 @@
 #include <cstdlib>
 #include <cstring>
 
-#define DEFFNC(x) JSBool x (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+CLASS_CTOR(dir);
 
-DEFFNC(dir_getFiles)
-DEFFNC(dir_getDirectories)
-DEFFNC(dir_create)
-DEFFNC(dir_delete)
-DEFFNC(my_openDir)
+JSAPI_FUNC(dir_getFiles);
+JSAPI_FUNC(dir_getFolders);
+JSAPI_FUNC(dir_create);
+JSAPI_FUNC(dir_delete);
+JSAPI_FUNC(my_openDir);
 
-JSBool dir_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);;
+JSAPI_PROP(dir_getProperty);
+
 void dir_finalize(JSContext *cx, JSObject *obj);
 
-#undef DEFFNC
 
 //////////////////////////////////////////////////////////////////
 // directory stuff
 //////////////////////////////////////////////////////////////////
 
-static JSClass directory_class = {
-	"Directory", JSCLASS_HAS_PRIVATE,
-	JS_PropertyStub, JS_PropertyStub, dir_getProperty, JS_PropertyStub,
+static JSClass folder_class = {
+	"Folder", JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, dir_finalize,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, NULL, NULL, dir_ctor
 };
 
 enum {DIR_NAME};
 
 static JSPropertySpec dir_props[] = {
-	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR},
+	{"name",	DIR_NAME,	JSPROP_PERMANENT_VAR,	dir_getProperty},
 	{0}
 };
 
@@ -42,7 +42,7 @@ static JSFunctionSpec dir_methods[] = {
 	{"create",			dir_create,			1},
 	{"remove",			dir_delete,			1},
 	{"getFiles",		dir_getFiles,		1},
-	{"getDirectories",	dir_getDirectories,	1},
+	{"getFolders",		dir_getFolders,		1},
 	{0}
 };
 

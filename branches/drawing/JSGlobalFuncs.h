@@ -2,6 +2,8 @@
 
 #include "js32.h"
 #include "JSCore.h"
+#include "JSGame.h"
+#include "JSMenu.h"
 #include "JSFile.h"
 #include "JSFileTools.h"
 #include "JSDirectory.h"
@@ -9,6 +11,11 @@
 #include "JSSandbox.h"
 #include "JSScreenHook.h"
 #include "JSUnit.h"
+#include "JSScript.h"
+#include "JSParty.h"
+#include "JSPresetUnit.h"
+#include "JSArea.h"
+#include "JSRoom.h"
 #include "JSHash.h"
 #include "JSDraw.h"
 
@@ -33,7 +40,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"getPresetUnit",		my_getPresetUnit,		0},
 	{"getPresetUnits",		my_getPresetUnits,		0},
 	{"getArea",				my_getArea,				0},
-	{"getExits",			my_getExits,			0},
 	{"getBaseStat",			my_getBaseStat,			0},
 	{"getControl",			my_getControl,			0},
 	{"getPlayerFlag",		my_getPlayerFlag,		2},
@@ -61,9 +67,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"sqlite_version",		my_sqlite_version,		0},
 	{"dopen",				my_openDir,				1},
 	{"debugLog",			my_debugLog,			1},
-	// TODO: deprecate these below here
-	{"iniread",				my_iniread,				4},
-	{"iniwrite",			my_iniwrite,			4},
 
 	// game functions that don't have anything to do with gathering data
 	{"submitItem",			my_submitItem,			0},
@@ -92,10 +95,10 @@ static JSFunctionSpec global_funcs[] = {
 
 	// drawing functions
 	{"drawFrame",			drawFrame,				4},
-	{"drawBox",				drawFrame,				6},
-	{"drawLine",			drawFrame,				5},
-	{"drawText",			drawFrame,				5},
-	{"drawImage",			drawFrame,				4},
+	{"drawBox",				drawBox,				6},
+	{"drawLine",			drawLine,				5},
+	{"drawText",			drawText,				5},
+	{"drawImage",			drawImage,				4},
 	{"screenToAutomap",		screenToAutomap,		1},
 	{"automapToScreen",		automapToScreen,		1},
 

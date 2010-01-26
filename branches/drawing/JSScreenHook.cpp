@@ -562,7 +562,7 @@ JSAPI_PROP(text_setProperty)
 		case TEXT_TEXT:
 			if(JSVAL_IS_STRING(*vp))
 			{
-				CHAR* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
+				char* pText = JS_GetStringBytes(JS_ValueToString(cx, *vp));
 				if(!pText)
 					return JS_TRUE;
 				pTextHook->SetText(pText);
@@ -727,4 +727,3 @@ JSAPI_PROP(image_setProperty)
 	}
 	return JS_TRUE;
 }
-

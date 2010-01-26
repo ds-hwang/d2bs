@@ -31,7 +31,7 @@ void file_finalize(JSContext *cx, JSObject *obj);
 
 static JSClass file_class = {
 	"File", JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
-	JS_PropertyStub, JS_PropertyStub, file_getProperty, file_setProperty,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, file_finalize,
 	NULL, NULL, NULL, file_ctor, NULL, NULL, NULL, NULL
 };
@@ -114,19 +114,19 @@ bool file.eof - object - determines if the file is at end-of-file or not
 **/
 
 static JSPropertySpec file_props[] = {
-	{"readable",	FILE_READABLE,	JSPROP_PERMANENT_VAR},
-	{"writeable",	FILE_WRITEABLE,	JSPROP_PERMANENT_VAR},
-	{"seekable",	FILE_SEEKABLE,	JSPROP_PERMANENT_VAR},
-	{"mode",		FILE_MODE,		JSPROP_PERMANENT_VAR},
-	{"binaryMode",	FILE_BINARYMODE,JSPROP_PERMANENT_VAR},
-	{"length",		FILE_LENGTH,	JSPROP_PERMANENT_VAR},
-	{"path",		FILE_PATH,		JSPROP_PERMANENT_VAR},
-	{"position",	FILE_POSITION,	JSPROP_PERMANENT_VAR},
-	{"eof",			FILE_EOF,		JSPROP_PERMANENT_VAR},
-	{"accessed",	FILE_ACCESSED,	JSPROP_PERMANENT_VAR},
-	{"created",		FILE_CREATED,	JSPROP_PERMANENT_VAR},
-	{"modified",	FILE_MODIFIED,	JSPROP_PERMANENT_VAR},
-	{"autoflush",	FILE_AUTOFLUSH,	JSPROP_STATIC_VAR},
+	{"readable",	FILE_READABLE,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"writeable",	FILE_WRITEABLE,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"seekable",	FILE_SEEKABLE,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"mode",		FILE_MODE,		JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"binaryMode",	FILE_BINARYMODE,JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"length",		FILE_LENGTH,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"path",		FILE_PATH,		JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"position",	FILE_POSITION,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"eof",			FILE_EOF,		JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"accessed",	FILE_ACCESSED,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"created",		FILE_CREATED,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"modified",	FILE_MODIFIED,	JSPROP_PERMANENT_VAR,	file_getProperty},
+	{"autoflush",	FILE_AUTOFLUSH,	JSPROP_STATIC_VAR,		file_getProperty,	file_setProperty},
 	{0}
 };
 

@@ -5,6 +5,7 @@
 
 #pragma warning ( push )
 #pragma warning ( disable: 4201 )
+#pragma optimize ( "", off )
 
 struct UnitAny;
 struct Room1;
@@ -742,7 +743,7 @@ struct OverheadMsg {
 	DWORD _1;
 	DWORD dwTrigger;
 	DWORD _2[2];
-	CHAR Msg[232];
+	char Msg[232];
 };
 
 #pragma pack(pop)
@@ -891,5 +892,7 @@ Layout of sgptDataTables
 */
 
 #pragma warning ( pop )
+
+#pragma optimize ( "", on )
 
 #endif

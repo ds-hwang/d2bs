@@ -8,6 +8,7 @@
 #include "JSUnit.h"
 #include "Constants.h"
 #include "D2BS.h"
+#include "Console.h"
 
 using namespace std;
 
@@ -236,17 +237,26 @@ void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
 	ForEachScript(ExecEventOnScript, &helper, 1);
 }
 
+void ScriptEngine::ExecEvent(char* evtName, jsval* argv, uintN argc)
+{
+	if(GetState() != Running)
+		return;
+
+	RunEventHelper helper = {evtName, argv, argc};
+	ForEachScript(RunEventOnScript, &helper, 1);
+}
+
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
-							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props)
 {
-	if(!JS_InitClass(context, globalObject, NULL, classp, ctor, 0, props, methods, s_props, s_methods))
+	if(!JS_InitClass(context, globalObject, NULL, classp, classp->construct, 0, props, methods, s_props, s_methods))
 		throw std::exception("Couldn't initialize the class");
 }
 
 void ScriptEngine::DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value)
 {
-	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_CONSTANT))
+	if(!JS_DefineProperty(context, globalObject, name, INT_TO_JSVAL(value), NULL, NULL, JSPROP_PERMANENT_VAR))
 		throw std::exception("Couldn't initialize the constant");
 }
 
@@ -275,6 +285,14 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 	EventHelper* helper = (EventHelper*)argv;
 	if(script->IsListenerRegistered(helper->evtName))
 		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
+	return true;
+}
+
+bool __fastcall RunEventOnScript(Script* script, void* argv, uint argc)
+{
+	RunEventHelper* helper = (RunEventHelper*)argv;
+	if(script->IsListenerRegistered(helper->evtName))
+		script->ExecEvent(helper->evtName, helper->argc, helper->argv);
 	return true;
 }
 
@@ -348,14 +366,14 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 		int i = 0;
 		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
-			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.class_ctor,
-							entry.funcs, entry.props, entry.static_funcs, entry.static_props);
+			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.funcs, entry.props,
+										entry.static_funcs, entry.static_props);
 
-		JSObject* meObject = BuildObject(cx, &unit_class, unit_methods, me_props, lpUnit);
+		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
 		if(!meObject)
 			return JS_FALSE;
 
-		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_CONSTANT) == JS_FALSE)
+		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_PERMANENT_VAR) == JS_FALSE)
 			return JS_FALSE;
 
 #define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
@@ -379,12 +397,18 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
+#ifdef LORD_INFO
+		Print("*** ENTERING GC ***");
+#endif
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
+#ifdef LORD_INFO
+		Print("*** LEAVING GC ***");
+#endif
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
@@ -399,18 +423,22 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	bool isStrict = JSREPORT_IS_STRICT(report->flags);
 	const char* type = (warn ? "Warning" : "Error");
 	const char* strict = (isStrict ? "Strict " : "");
-	char* filename = NULL;
-	filename = (report->filename ? _strdup(report->filename) : _strdup("<unknown>"));
+	char* filename = report->filename ? _strdup(report->filename) : _strdup("<unknown>");
+	char* displayName = filename;
+	if(_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
+		displayName = filename + strlen(Vars.szPath);
 
 	Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", 
 			strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
 
 	Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", 
-			(warn ? 9 : 1), strict, type, report->errorNumber, filename, report->lineno, message);
+			(warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
 	if(filename)
 		free(filename);
 
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
+	else
+		Console::Show();
 }

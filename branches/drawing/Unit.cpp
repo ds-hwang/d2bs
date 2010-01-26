@@ -9,8 +9,8 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 {
 	if(!GameReady())
 		return NULL;
-
 	// check the server list first, then the client list
+/*
 	for(UnitAny* unit = *p_D2CLIENT_ServerUnitList; unit != NULL; unit = unit->pListNext)
 	{
 		if(CheckUnit(unit, szName, dwClassId, dwType, dwMode, dwUnitId))
@@ -23,8 +23,8 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	}
 
 	return NULL;
+*/
 
-/*
 	// First off, check for near units
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	if(player && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && 
@@ -44,7 +44,6 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 		}
 	}
 	return NULL;
-*/
 }
 
 UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
@@ -55,15 +54,17 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	if(!pUnit)
 		return NULL;
 
+/*
 	// only check the list we got the unit from to prevent circular checking
 	for(UnitAny* lpUnit = pUnit->pListNext; lpUnit != NULL; lpUnit = lpUnit->pListNext)
 	{
-		if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, NULL))
+		if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
 			return lpUnit;
 	}
 
 	return NULL;
-/*
+*/
+
 	UnitAny* lpUnit = pUnit->pListNext;
 	Room1* ptRoom = D2COMMON_GetRoomFromUnit(pUnit);
 	Room2* ptRoomOther = NULL;
@@ -84,7 +85,7 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 
 				for(; lpUnit; lpUnit = lpUnit->pListNext)
 				{
-					if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, NULL))
+					if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
 						return lpUnit;
 				}
 			}
@@ -92,7 +93,6 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	}
 
 	return NULL;
-*/
 }
 
 UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId)
@@ -116,7 +116,7 @@ UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwC
 			// Get the next matching unit from the owner's inventory
 			for(UnitAny* pItem = D2COMMON_GetNextItemFromInventory(pUnit); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem))
 			{
-				if(CheckUnit(pItem, szName, dwClassId, 4, dwMode, NULL))
+				if(CheckUnit(pItem, szName, dwClassId, 4, dwMode, (DWORD)-1))
 					return pItem;
 			}
 
@@ -126,12 +126,15 @@ UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwC
 	return NULL;
 }
 
-BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
+BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
-	if(!GameReady())
-		return FALSE;
+// extraneous check?
+//	if(!GameReady())
+//		return FALSE;
 
-	if(pUnit->dwType != dwType)
+	if((dwUnitId != -1 && pUnit->dwUnitId != dwUnitId) ||
+		(dwType != -1 && pUnit->dwType != dwType) ||
+		(dwClassId != -1 && pUnit->dwTxtFileNo != dwClassId))
 		return FALSE;
 
 	if(dwMode != -1)
@@ -158,37 +161,19 @@ BOOL CheckUnit(UnitAny* pUnit, CHAR* szName, DWORD dwClassId, DWORD dwType, DWOR
 		}
 	}
 
-	if(dwUnitId && dwUnitId == pUnit->dwUnitId)
-		return TRUE;
-	else if(dwUnitId)
-		return FALSE;
-
 	if(szName && szName[0])
 	{
 		char szBuf[512] = "";
 
 		if(dwType == UNIT_ITEM)
-		{
-			ItemTxt* pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
-			if(pTxt)
-			{
-				memcpy(szBuf, pTxt->szCode, 3);
-				szBuf[3] = 0x00;
-			}
-		}
+			GetItemCode(pUnit, szBuf);
 		else
 			GetUnitName(pUnit, szBuf, 512);
-
-		if(strstr(szBuf, szName))
-			return TRUE;
+		if(!!_stricmp(szBuf, szName))
+			return FALSE;
 	}
-	else if(dwClassId != -1 && pUnit->dwTxtFileNo == dwClassId)
-		return TRUE;
 
-	if((!szName || !szName[0]) && dwClassId == -1)
-		return TRUE;
-
-	return FALSE;
+	return TRUE;
 }
 
 INT GetUnitHP(UnitAny* pUnit)

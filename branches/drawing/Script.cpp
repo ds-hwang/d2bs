@@ -142,8 +142,19 @@ void Script::Run(void)
 		JS_EndRequest(GetContext());
 		return;
 	}
+	JS_SetContextThread(GetContext());
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
+
+	if(GetState() == Command)
+	{
+		// if we just processed a command, print the results of the command
+		if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
+		{
+			JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
+			Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
+		}
+	}	
 
 	JS_SetContextThread(GetContext());
 	JS_RemoveRoot(&main);
@@ -179,7 +190,7 @@ void Script::UpdatePlayerGid(void)
 	JS_SetPrivate(GetContext(), meObject, meUnit);
 	JS_RemoveRoot(&me);
 	JS_EndRequest(GetContext());
-	JS_ClearContextThread(GetContext());
+	//JS_ClearContextThread(GetContext());
 }
 
 void Script::Pause(void)
@@ -215,7 +226,8 @@ void Script::Stop(bool force, bool reallyForce)
 	ClearAllEvents();
 	Genhook::Clean(this);
 
-	int maxCount = (force ? (reallyForce ? 100 : 300) : 500);
+	// normal wait: 500ms, forced wait: 300ms, really forced wait: 100ms
+	int maxCount = (force ? (reallyForce ? 10 : 30) : 50);
 	for(int i = 0; IsRunning(); i++)
 	{
 		// if we pass the time frame, just ignore the wait because the thread will end forcefully anyway
@@ -264,6 +276,7 @@ bool Script::Include(const char* file)
 		return true;
 	}
 	bool rval = false;
+	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
@@ -381,6 +394,20 @@ void Script::ClearAllEvents(void)
 		ClearEvent(it->first.c_str());
 	functions.clear();
 	LeaveCriticalSection(&lock);
+}
+
+void Script::ExecEvent(char* evtName, uintN argc, jsval* argv)
+{
+	if(IsRunning() && !(GetState() == InGame && !GameReady()))
+	{
+		JS_SetContextThread(GetContext());
+		FunctionList functions = this->functions[evtName];
+		for(FunctionList::iterator it = functions.begin(); it != functions.end(); it++)
+		{
+			jsval dummy = JSVAL_VOID;
+			JS_CallFunctionValue(GetContext(), GetGlobalObject(), (*it)->value(), argc, argv, &dummy);
+		}
+	}
 }
 
 void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)

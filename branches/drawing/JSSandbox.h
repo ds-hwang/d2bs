@@ -3,25 +3,17 @@
 
 #include "Script.h"
 
-JSBool sandbox_ctor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSAPI_FUNC(sandbox_ctor);
 
-#define DEFPROP(x) JSBool x (JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+JSAPI_PROP(sandbox_addProperty);
+JSAPI_PROP(sandbox_delProperty);
+JSAPI_PROP(sandbox_getProperty);
+JSAPI_PROP(sandbox_setProperty);
 
-DEFPROP(sandbox_addProperty)
-DEFPROP(sandbox_delProperty)
-DEFPROP(sandbox_getProperty)
-DEFPROP(sandbox_setProperty)
-
-#undef DEFPROP
-
-#define DEFFUNC(x) JSBool x (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-
-DEFFUNC(sandbox_eval)
-DEFFUNC(sandbox_include)
-DEFFUNC(sandbox_isIncluded)
-DEFFUNC(sandbox_clear)
-
-#undef DEFFUNC
+JSAPI_FUNC(sandbox_eval);
+JSAPI_FUNC(sandbox_include);
+JSAPI_FUNC(sandbox_isIncluded);
+JSAPI_FUNC(sandbox_clear);
 
 void sandbox_finalize(JSContext *cx, JSObject *obj);
 

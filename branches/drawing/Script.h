@@ -96,6 +96,7 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+	void ExecEvent(char* evtName, uintN argc, jsval* argv);
 };
 
 DWORD WINAPI ScriptThread(void* data);

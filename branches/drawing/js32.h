@@ -14,7 +14,6 @@
 
 #define JSVAL_IS_FUNCTION(cx, var) (JSVAL_IS_OBJECT(var) && JS_ObjectIsFunction(cx, JSVAL_TO_OBJECT(var)))
 
-#define JSPROP_CONSTANT (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_PERMANENT_VAR (JSPROP_READONLY | JSPROP_ENUMERATE | JSPROP_PERMANENT)
 #define JSPROP_STATIC_VAR (JSPROP_ENUMERATE | JSPROP_PERMANENT)
 
@@ -29,3 +28,9 @@ JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char*
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)
+
+#define CLASS_CTOR(name) JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval)
+#define EMPTY_CTOR(name) \
+JSBool name##_ctor (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) { \
+	THROW_ERROR(cx, obj, "Invalid Operation"); }
+

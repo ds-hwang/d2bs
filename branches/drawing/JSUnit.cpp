@@ -6,6 +6,9 @@
 #include "Core.h"
 #include "CriticalSections.h"
 #include "D2Skills.h"
+#include "MPQStats.h"
+
+EMPTY_CTOR(unit)
 
 void unit_finalize(JSContext *cx, JSObject *obj)
 {
@@ -30,6 +33,30 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 		}
 	}
 	JS_SetPrivate(cx, obj, NULL);
+}
+
+JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
+{
+	*bp = JS_FALSE;
+
+	myUnit* unit1 = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
+	if(!JSVAL_IS_OBJECT(v))
+		return JS_TRUE;
+	JSObject *obj2 = JSVAL_TO_OBJECT(v);
+	JSClass* c1 = JS_GET_CLASS(cx, obj);
+	JSClass* c2 = JS_GET_CLASS(cx, obj2);
+	if(!obj2 || _strcmpi(c1->name, c2->name) != 0)
+		return JS_TRUE;
+	myUnit* unit2 = (myUnit*)JS_GetPrivate(cx, obj2);
+
+	UnitAny* pUnit1 = D2CLIENT_FindUnit(unit1->dwUnitId, unit1->dwType);
+	UnitAny* pUnit2 = D2CLIENT_FindUnit(unit2->dwUnitId, unit2->dwType);
+
+	if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
+		return JS_TRUE;
+
+	*bp = JS_TRUE;
+	return JS_TRUE;
 }
 
 JSAPI_PROP(unit_getProperty)
@@ -104,7 +131,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(D2GFX_GetScreenSize());
 			break;
 		case OOG_WINDOWTITLE:
-			CHAR szTitle[128];
+			char szTitle[128];
 			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
 			break;
@@ -243,7 +270,7 @@ JSAPI_PROP(unit_getProperty)
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, "Unknown"));
 				return JS_TRUE;
 			}
-			CHAR szCode[4];
+			char szCode[4];
 			memcpy(szCode, pTxt->szCode, 3);
 			szCode[3] = 0x00;
 			*vp = STRING_TO_JSVAL(JS_InternString(cx, szCode));
@@ -437,28 +464,26 @@ JSAPI_FUNC(unit_getUnit)
 	if(argc < 1)
 		return JS_TRUE;
 
-	jsint nType = NULL;
-	jsint nClassId = -1;
-	jsint nMode = -1;
-	jsint nUnitId = NULL;
-	CHAR szName[128] = "";
+	int nType = -1;
+	uint32 nClassId = (uint32)-1;
+	uint32 nMode = (uint32)-1;
+	uint32 nUnitId = (uint32)-1;
+	char szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nType = JSVAL_TO_INT(argv[0]);
-	else
-		return JS_TRUE;
 
 	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	
-	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
-		nClassId = JSVAL_TO_INT(argv[1]);
+	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+		JS_ValueToECMAUint32(cx, argv[1], &nClassId);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
-		nMode = JSVAL_TO_INT(argv[2]);
+	if(argc > 2 && JSVAL_IS_NUMBER(argv[2]) && !JSVAL_IS_NULL(argv[2]))
+		JS_ValueToECMAUint32(cx, argv[2], &nMode);
 
-	if(argc > 3 && JSVAL_IS_INT(argv[3]) && !JSVAL_IS_NULL(argv[3]))
-		nUnitId = JSVAL_TO_INT(argv[3]);
+	if(argc > 3 && JSVAL_IS_NUMBER(argv[3]) && !JSVAL_IS_NULL(argv[3]))
+		JS_ValueToECMAUint32(cx, argv[3], &nUnitId);
 
 	UnitAny* pUnit = NULL;
 	
@@ -488,7 +513,7 @@ JSAPI_FUNC(unit_getUnit)
 	pmyUnit->dwUnitId = pUnit->dwUnitId;
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 
 	if(!jsunit)
 		return JS_TRUE;
@@ -516,11 +541,11 @@ JSAPI_FUNC(unit_getNext)
 		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 			strcpy_s(lpUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
-		if(argc > 0 && JSVAL_IS_INT(argv[0]))
-			lpUnit->dwClassId = JSVAL_TO_INT(argv[0]);
+		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[1]))
+			JS_ValueToECMAUint32(cx, argv[0], &(lpUnit->dwClassId));
 
-		if(argc > 1 && JSVAL_IS_INT(argv[1]))
-			lpUnit->dwMode = JSVAL_TO_INT(argv[1]);
+		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[2]))
+			JS_ValueToECMAUint32(cx, argv[1], &(lpUnit->dwMode));
 
 		pUnit = GetNextUnit(pUnit, lpUnit->szName, lpUnit->dwClassId, lpUnit->dwType, lpUnit->dwMode);
 
@@ -548,6 +573,15 @@ JSAPI_FUNC(unit_getNext)
 		UnitAny* pOwner = D2CLIENT_FindUnit(pmyUnit->dwOwnerId, pmyUnit->dwOwnerType);
 		if(!pUnit || !pOwner)
 			return JS_TRUE;
+
+		if(argc > 0 && JSVAL_IS_STRING(argv[0]))
+			strcpy_s(pmyUnit->szName, 128, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+		if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[1]))
+			JS_ValueToECMAUint32(cx, argv[0], &(pmyUnit->dwClassId));
+
+		if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[2]))
+			JS_ValueToECMAUint32(cx, argv[1], &(pmyUnit->dwMode));
 
 		UnitAny* nextItem = GetInvNextUnit(pUnit, pOwner, pmyUnit->szName, pmyUnit->dwClassId, pmyUnit->dwMode);
 		if(!nextItem)
@@ -1112,7 +1146,7 @@ JSAPI_FUNC(unit_getItems)
 		pmyUnit->dwOwnerId = pUnit->dwUnitId;
 		pmyUnit->dwOwnerType = pUnit->dwType;
 
-		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 		if(!jsunit)
 		{
 			JS_RemoveRoot(&pReturnArray);
@@ -1138,6 +1172,13 @@ JSAPI_FUNC(unit_getSkill)
 	jsint nSkillId = NULL;
 	jsint nExt = NULL;
 
+	myUnit* pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
+	if(!pmyUnit)
+		return JS_TRUE;
+	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
+	if(!pUnit)
+		return JS_TRUE;
+
 	if(argc == NULL)
 		return JS_TRUE;
 
@@ -1158,13 +1199,37 @@ JSAPI_FUNC(unit_getSkill)
 	}
 	if(argc == 1)
 	{
-		WORD wLeftSkillId = D2CLIENT_GetPlayerUnit()->pInfo->pLeftSkill->pSkillInfo->wSkillId;
-		WORD wRightSkillId = D2CLIENT_GetPlayerUnit()->pInfo->pRightSkill->pSkillInfo->wSkillId;
+		WORD wLeftSkillId = pUnit->pInfo->pLeftSkill->pSkillInfo->wSkillId;
+		WORD wRightSkillId = pUnit->pInfo->pRightSkill->pSkillInfo->wSkillId;
 		JSObject* pReturnArray = NULL;
 		switch(nSkillId)
 		{
-			case 0: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wRightSkillId].name)); break;
-			case 1: *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Game_Skills[wLeftSkillId].name)); break;
+			case 0:
+				{
+					int row = 0;
+					if(FillBaseStat("skills", wRightSkillId, "skilldesc", &row, sizeof(int)))
+						if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
+						{
+							wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+							char* str = UnicodeToAnsi(szName);
+							*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+							delete[] str;
+						}
+				}
+				break;
+			case 1:
+				{
+					int row = 0;
+					if(FillBaseStat("skills", wLeftSkillId, "skilldesc", &row, sizeof(int)))
+						if(FillBaseStat("skilldesc", row, "str name", &row, sizeof(int)))
+						{
+							wchar_t* szName = D2LANG_GetLocaleText((WORD)row);
+							char* str = UnicodeToAnsi(szName);
+							*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, str));
+							delete[] str;
+						}
+				}
+				break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
 			case 4:
@@ -1172,7 +1237,7 @@ JSAPI_FUNC(unit_getSkill)
 				if(pReturnArray)
 				{
 					int i = 0;
-					for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+					for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
 						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
 
 						if(!pArrayInsert)
@@ -1180,7 +1245,7 @@ JSAPI_FUNC(unit_getSkill)
 
 						jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
 						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
-						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, 1));
+						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
 
 						JS_SetElement(cx, pArrayInsert, 0, &nId);
 						JS_SetElement(cx, pArrayInsert, 1, &nBase);
@@ -1202,15 +1267,13 @@ JSAPI_FUNC(unit_getSkill)
 	}
 	else if(argc == 2)
 	{
-		if(D2CLIENT_GetPlayerUnit() &&
-			D2CLIENT_GetPlayerUnit()->pInfo &&
-			D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill)
+		if(pUnit && pUnit->pInfo && pUnit->pInfo->pFirstSkill)
 		{
-			for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+			for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 			{
 				if(pSkill->pSkillInfo && pSkill->pSkillInfo->wSkillId == nSkillId)
 				{
-					*rval = INT_TO_JSVAL(D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, nExt));
+					*rval = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, nExt));
 					return JS_TRUE;
 				}
 			}
@@ -1218,7 +1281,7 @@ JSAPI_FUNC(unit_getSkill)
 
 	}
 
-	*rval = INT_TO_JSVAL(NULL);
+	*rval = JSVAL_FALSE;
 
 	return JS_TRUE;
 }
@@ -1315,7 +1378,7 @@ JSAPI_FUNC(item_shop)
 
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 
-	//FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
+	//FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
 */
 	
 	*rval = JSVAL_TRUE;
@@ -1358,7 +1421,7 @@ JSAPI_FUNC(unit_getParent)
 		pmyUnit->dwType = pMonster->dwType;
 		pmyUnit->szName[0] = NULL;
 						
-		JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+		JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 			if (!jsunit)
 				return JS_TRUE;
 		*rval = OBJECT_TO_JSVAL(jsunit);			
@@ -1368,7 +1431,7 @@ JSAPI_FUNC(unit_getParent)
 	{
 		if(pUnit->pObjectData)
 		{
-			CHAR szBuffer[128] = "";
+			char szBuffer[128] = "";
 			strcpy_s(szBuffer, sizeof(szBuffer), pUnit->pObjectData->szOwner);
 
 			*rval = STRING_TO_JSVAL(JS_InternString(cx, szBuffer));
@@ -1389,7 +1452,7 @@ JSAPI_FUNC(unit_getParent)
 			pmyUnit->dwMode = pUnit->pItemData->pOwnerInventory->pOwner->dwMode;
 			pmyUnit->dwType = pUnit->pItemData->pOwnerInventory->pOwner->dwType;
 			pmyUnit->szName[0] = NULL;
-			JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+			JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 
 			*rval = OBJECT_TO_JSVAL(jsunit);
 		}
@@ -1472,7 +1535,7 @@ JSAPI_FUNC(unit_getMerc)
 							pmyUnit->dwType = UNIT_MONSTER;
 							pmyUnit->szName[0] = NULL;
 
-							JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyUnit);
+							JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 							if (!jsunit)
 								return JS_TRUE;
 
@@ -1535,7 +1598,7 @@ JSAPI_FUNC(my_overhead)
 
 	if(!JSVAL_IS_NULL(argv[0]) && !JSVAL_IS_VOID(argv[0]))
 	{
-		CHAR *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 		if(lpszText && lpszText[0])
 		{
 			OverheadMsg* pMsg = D2COMMON_GenerateOverheadMsg(NULL, lpszText, *p_D2CLIENT_OverheadTrigger);
@@ -1566,22 +1629,22 @@ JSAPI_FUNC(unit_getItem)
 	if(!pUnit || !pUnit->pInventory)
 		return JS_TRUE;
 
-	jsint nClassId = -1;
-	jsint nMode = -1;
-	jsint nUnitId = NULL;
-	CHAR szName[128] = "";
+	uint32 nClassId = (uint32)-1;
+	uint32 nMode = (uint32)-1;
+	uint32 nUnitId = (uint32)-1;
+	char szName[128] = "";
 
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 		strcpy_s(szName, sizeof(szName), JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 	
-	if(argc > 0 && JSVAL_IS_INT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
-		nClassId = JSVAL_TO_INT(argv[0]);
+	if(argc > 0 && JSVAL_IS_NUMBER(argv[0]) && !JSVAL_IS_NULL(argv[0]))
+		JS_ValueToECMAUint32(cx, argv[0], &nClassId);
 
-	if(argc > 1 && JSVAL_IS_INT(argv[1]) && !JSVAL_IS_NULL(argv[1]))
-		nMode = JSVAL_TO_INT(argv[1]);
+	if(argc > 1 && JSVAL_IS_NUMBER(argv[1]) && !JSVAL_IS_NULL(argv[1]))
+		JS_ValueToECMAUint32(cx, argv[1], &nMode);
 
-	if(argc > 2 && JSVAL_IS_INT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
-		nUnitId = JSVAL_TO_INT(argv[2]);
+	if(argc > 2 && JSVAL_IS_NUMBER(argv[2]) && !JSVAL_IS_NULL(argv[2]))
+		JS_ValueToECMAUint32(cx, argv[2], &nUnitId);
 
 	UnitAny* pItem = GetInvUnit(pUnit, szName, nClassId, nMode, nUnitId);
 
@@ -1602,7 +1665,7 @@ JSAPI_FUNC(unit_getItem)
 	pmyItem->dwOwnerType = pmyUnit->dwType;
 	strcpy_s(pmyItem->szName, sizeof(pmyItem->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class, unit_methods, unit_props, pmyItem);
+	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyItem);
 
 	if(!jsunit)
 		return JS_TRUE;

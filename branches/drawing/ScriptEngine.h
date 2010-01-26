@@ -54,8 +54,9 @@ public:
 
 	static void StopAll(bool forceStop = false);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
+	static void ExecEvent(char* evtName, jsval* argv, uintN argc);
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
-							 JSNative ctor, JSFunctionSpec* methods, JSPropertySpec* props,
+							 JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
 	static void DefineConstant(JSContext* context, JSObject* globalObject, const char* name, int value);
 
@@ -69,6 +70,15 @@ struct EventHelper
 {
 	char* evtName;
 	AutoRoot** argv;
+	uintN argc;
+	bool executed;
+};
+
+bool __fastcall RunEventOnScript(Script* script, void* argv, uint argc);
+struct RunEventHelper
+{
+	char* evtName;
+	jsval* argv;
 	uintN argc;
 	bool executed;
 };

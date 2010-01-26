@@ -15,6 +15,8 @@ JSAPI_PROP(sqlite_getProperty);
 void sqlite_finalize(JSContext *cx, JSObject *obj);
 JSBool sqlite_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
+CLASS_CTOR(sqlite_stmt);
+
 JSAPI_FUNC(sqlite_stmt_getobject);
 JSAPI_FUNC(sqlite_stmt_colcount);
 JSAPI_FUNC(sqlite_stmt_colval);
@@ -43,7 +45,7 @@ enum {
 static JSClass sqlite_db = {
 	"SQLite",
 	JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
-	JS_PropertyStub, JS_PropertyStub, sqlite_getProperty, JS_PropertyStub,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_finalize,
 	NULL, NULL, NULL, sqlite_ctor, NULL, NULL, NULL, NULL
 };
@@ -63,19 +65,19 @@ static JSFunctionSpec sqlite_methods[] = {
 };
 
 static JSPropertySpec sqlite_props[] = {
-	{"path",		SQLITE_PATH,		JSPROP_PERMANENT_VAR},
-	{"statements",	SQLITE_STMTS,		JSPROP_PERMANENT_VAR},
-	{"isOpen",		SQLITE_OPEN,		JSPROP_PERMANENT_VAR},
-	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR},
+	{"path",		SQLITE_PATH,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
+	{"statements",	SQLITE_STMTS,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
+	{"isOpen",		SQLITE_OPEN,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
+	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{0}
 };
 
 static JSClass sqlite_stmt = {
 	"DBStatement",
 	JSCLASS_HAS_PRIVATE,
-	JS_PropertyStub, JS_PropertyStub, sqlite_stmt_getProperty, JS_PropertyStub,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_stmt_finalize,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+	NULL, NULL, NULL, sqlite_stmt_ctor
 };
 
 static JSFunctionSpec sqlite_stmt_methods[] = {
@@ -93,8 +95,8 @@ static JSFunctionSpec sqlite_stmt_methods[] = {
 };
 
 static JSPropertySpec sqlite_stmt_props[] = {
-	{"sql",		SQLITE_STMT_SQL,	JSPROP_PERMANENT_VAR},
-	{"ready",	SQLITE_STMT_READY,	JSPROP_PERMANENT_VAR},
+	{"sql",		SQLITE_STMT_SQL,	JSPROP_PERMANENT_VAR,	sqlite_stmt_getProperty},
+	{"ready",	SQLITE_STMT_READY,	JSPROP_PERMANENT_VAR,	sqlite_stmt_getProperty},
 	{0}
 };
 

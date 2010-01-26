@@ -15,7 +15,7 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 {
 	using namespace std;
 
-	if(str.length() < 1)
+	if(str.length() < 1 || maxlen < 2)
 		return false;
 
 	size_t pos, len;
@@ -154,7 +154,7 @@ void Say(const char *szMessage, ...)
 	}
 	else if(OOG_GetLocation() == OOG_CHANNEL)
 	{
-		memcpy((CHAR*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
+		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
 	}
 }
@@ -164,32 +164,23 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 	if(!GameReady())
 		return false;
 
-	DWORD dwUnitId = NULL;
-	DWORD dwUnitType = NULL;
-
+	POINT Click = {wX, wY};
 	if(pUnit)
 	{
-		dwUnitId = pUnit->dwUnitId;
-		dwUnitType = pUnit->dwType;
+		Click.x = GetUnitX(pUnit);
+		Click.y = GetUnitY(pUnit);
 	}
 
+	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
 
-	if(dwUnitId)
+	Click.x -= *p_D2CLIENT_MouseOffsetX;
+	Click.y -= *p_D2CLIENT_MouseOffsetY;
+
+	if(pUnit && pUnit != *p_D2CLIENT_PlayerUnit)
 	{
-		pUnit = D2CLIENT_FindUnit(dwUnitId, dwUnitType);
-		if(!pUnit)
-			return FALSE;
+		Vars.dwSelectedUnitId = pUnit->dwUnitId;
+		Vars.dwSelectedUnitType = pUnit->dwType;
 
-		Vars.dwSelectedUnitId = dwUnitId;
-		Vars.dwSelectedUnitType = dwUnitType;
-
-		POINT Click = {wX, wY};
-
-		D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
-
-		Click.x -= *p_D2CLIENT_MouseOffsetX;
-		Click.y -= *p_D2CLIENT_MouseOffsetY;
-		
 		Vars.bClickAction = TRUE;
 
 		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 0x08);
@@ -198,23 +189,16 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 		Vars.bClickAction = FALSE;
 		Vars.dwSelectedUnitId = NULL;
 		Vars.dwSelectedUnitType = NULL;
-
-		return TRUE;
 	}
+	else
+	{
+		Vars.dwSelectedUnitId = NULL;
+		Vars.dwSelectedUnitType = NULL;
 
-	Vars.dwSelectedUnitId = NULL;
-	Vars.dwSelectedUnitType = NULL;
-
-	POINT Click = {wX, wY};
-
-	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
-
-	Click.x -= *p_D2CLIENT_MouseOffsetX;
-	Click.y -= *p_D2CLIENT_MouseOffsetY;
-
-	Vars.bClickAction = TRUE;
-	D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
-	Vars.bClickAction = FALSE;
+		Vars.bClickAction = TRUE;
+		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
+		Vars.bClickAction = FALSE;
+	}
 
 	return TRUE;
 }

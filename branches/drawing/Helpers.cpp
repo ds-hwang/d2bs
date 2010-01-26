@@ -42,10 +42,30 @@ void StringReplace(char* str, const char find, const char replace)
 		*ptr = replace;
 }
 
+bool ProfileExists(const char *profile)
+{
+	char file[_MAX_FNAME+_MAX_PATH];
+	char profiles[65535] = "";
+	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
+
+	int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
+	if(count > 0)
+	{
+		int i = 0;
+		while(i < count)
+		{
+			if(_strcmpi(profiles+i, profile) == 0)
+				return true;
+
+			i += strlen(profiles+i)+1;
+		}
+	}
+	return false;
+}
+
 void InitSettings(void)
 {
-	char path[_MAX_FNAME+MAX_PATH],
-		 fname[_MAX_FNAME+MAX_PATH],
+	char fname[_MAX_FNAME+MAX_PATH],
 		 scriptPath[_MAX_FNAME+MAX_PATH],
 		 debug[6],
 		 blockMinimize[6],
@@ -57,11 +77,7 @@ void InitSettings(void)
 		 memUsage[6],
 		 gamePrint[6];
 
-	sprintf_s(path, sizeof(path), "%sd2bs-%d.log", Vars.szPath, GetProcessId(GetCurrentProcess()));
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
-
-	FILE* stream = NULL;
-	freopen_s(&stream, path, "a+tc", stderr);
 
 	GetPrivateProfileString("settings", "ScriptPath", "scripts", scriptPath, _MAX_PATH, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
@@ -89,8 +105,6 @@ void InitSettings(void)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;
 	Vars.oldWNDPROC = NULL;
-	Vars.image = NULL;
-	Vars.text = NULL;
 }
 
 bool InitHooks(void)
@@ -122,17 +136,7 @@ bool InitHooks(void)
 		else
 			continue;
 
-		if(ClientState() == ClientStateMenu || ClientState() == ClientStateInGame)
-		{
-			char versionimg[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(versionimg, sizeof(versionimg), "%sversion.bmp", Vars.szPath);
-			if(!Vars.image)
-				Vars.image = new ImageHook(NULL, versionimg, 0, 10, 0, false, Center, Perm, false);
-			if(!Vars.text)
-				Vars.text = new TextHook(NULL, "D2BS " D2BS_VERSION, 0, 15, 13, 4, false, Center, Perm);
-		}
-
-		if(Vars.hKeybHook && Vars.hMouseHook && Vars.image && Vars.text)
+		if(Vars.hKeybHook && Vars.hMouseHook)
 		{
 			if(!ScriptEngine::Startup())
 				return false;

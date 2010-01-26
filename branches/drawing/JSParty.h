@@ -3,25 +3,19 @@
 
 #include "js32.h"
 
-JSBool party_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp);
+CLASS_CTOR(party);
 
-#define DEFFNC(f) JSBool f (JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSAPI_PROP(party_getProperty);
 
-DEFFNC(party_getNext)
+JSAPI_FUNC(party_getNext);
 
-#undef DEFFNC
-
-/**********************************************************
-
-					Classes/Objects/Methods
-
- **********************************************************/
+JSAPI_FUNC(my_getParty);
 
 static JSClass party_class = {
     "Party",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, party_getProperty, JS_PropertyStub,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
 	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-	JSCLASS_NO_OPTIONAL_MEMBERS
+    NULL, NULL, NULL, party_ctor
 };
 
 enum party_tinyid {
@@ -39,16 +33,16 @@ enum party_tinyid {
 
 
 static JSPropertySpec party_props[] = {
-	{"x",			PARTY_X,			JSPROP_PERMANENT_VAR},
-	{"y",			PARTY_Y,			JSPROP_PERMANENT_VAR},
-	{"area",		PARTY_AREA,			JSPROP_PERMANENT_VAR},
-	{"gid",			PARTY_GID,			JSPROP_PERMANENT_VAR},
-	{"life",		PARTY_LIFE,			JSPROP_PERMANENT_VAR},
-	{"partyflag",	PARTY_FLAG,			JSPROP_PERMANENT_VAR},
-	{"partyid",		PARTY_ID,			JSPROP_PERMANENT_VAR},
-	{"name",		PARTY_NAME,			JSPROP_PERMANENT_VAR},
-	{"classid",		PARTY_CLASSID,		JSPROP_PERMANENT_VAR},
-	{"level",		PARTY_LEVEL,		JSPROP_PERMANENT_VAR},
+	{"x",			PARTY_X,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"y",			PARTY_Y,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"area",		PARTY_AREA,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"gid",			PARTY_GID,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"life",		PARTY_LIFE,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"partyflag",	PARTY_FLAG,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"partyid",		PARTY_ID,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"name",		PARTY_NAME,			JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"classid",		PARTY_CLASSID,		JSPROP_PERMANENT_VAR,	party_getProperty},
+	{"level",		PARTY_LEVEL,		JSPROP_PERMANENT_VAR,	party_getProperty},
 	{0},
 };
 

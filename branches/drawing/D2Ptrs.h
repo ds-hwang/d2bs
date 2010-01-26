@@ -1,9 +1,13 @@
 #pragma once
+#ifndef __D2PTRS_H__
+#define __D2PTRS_H__
 
 #include "D2Structs.h"
 
 #pragma warning ( push )
 #pragma warning ( disable: 4245 )
+
+#pragma optimize ( "", off )
 
 #ifdef _DEFINE_VARS
 
@@ -46,35 +50,35 @@ FUNCPTR(D2CLIENT, GetItemNameString, void __stdcall, (UnitAny *pItem, wchar_t *w
 FUNCPTR(D2CLIENT, CalculateShake, void __stdcall, (DWORD *dwPosX, DWORD *dwPosY), 0xBB4F0) // Update
 FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny*  __stdcall,(),0x1E490) // Update
 FUNCPTR(D2CLIENT, InitLevel_I, AutomapLayer* __fastcall,(),0x40650) // Update 
-FUNCPTR(D2CLIENT, DrawRectFrame, VOID __fastcall, (DWORD Rect), 0x8AB50) // Update
-FUNCPTR(D2CLIENT, ExitGame, VOID __fastcall, (VOID), 0x7AB00) // Update
-FUNCPTR(D2CLIENT, Attack, VOID __stdcall, (AttackStruct* Attack, BOOL AttackingUnit), 0x5B050) // Update
+FUNCPTR(D2CLIENT, DrawRectFrame, void __fastcall, (DWORD Rect), 0x8AB50) // Update
+FUNCPTR(D2CLIENT, ExitGame, void __fastcall, (void), 0x7AB00) // Update
+FUNCPTR(D2CLIENT, Attack, void __stdcall, (AttackStruct* Attack, BOOL AttackingUnit), 0x5B050) // Update
 FUNCPTR(D2CLIENT, GetItemName, BOOL __stdcall, (UnitAny* pItem, wchar_t* wBuffer, DWORD dwSize), 0xAB3C0) // Update
-FUNCPTR(D2CLIENT, AcceptTrade, VOID __fastcall, (VOID), 0xC2610) // Update
-FUNCPTR(D2CLIENT, CancelTrade, VOID __fastcall, (VOID), 0x56440) // Update
-FUNCPTR(D2CLIENT, GetMouseXOffset, DWORD __fastcall, (VOID), 0x5D670) // Updated
-FUNCPTR(D2CLIENT, GetMouseYOffset, DWORD __fastcall, (VOID), 0x5D680) // Updated
-FUNCPTR(D2CLIENT, ClearScreen, VOID __fastcall, (VOID), 0x1B4C0) // Updated
-FUNCPTR(D2CLIENT, GetQuestInfo, VOID* __stdcall, (VOID), 0x17D00) // Updated
+FUNCPTR(D2CLIENT, AcceptTrade, void __fastcall, (void), 0xC2610) // Update
+FUNCPTR(D2CLIENT, CancelTrade, void __fastcall, (void), 0x56440) // Update
+FUNCPTR(D2CLIENT, GetMouseXOffset, DWORD __fastcall, (void), 0x5D670) // Updated
+FUNCPTR(D2CLIENT, GetMouseYOffset, DWORD __fastcall, (void), 0x5D680) // Updated
+FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x1B4C0) // Updated
+FUNCPTR(D2CLIENT, GetQuestInfo, void* __stdcall, (void), 0x17D00) // Updated
 FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x20010) // Updated
 FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1C0) // Updated
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x1F1A0) // Updated
-FUNCPTR(D2CLIENT, clickMap, VOID __stdcall, (DWORD MouseFlag, DWORD x, DWORD y, DWORD Type), 0x5CE80) // Updated
-FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (VOID), 0x9EB40) // Updated
-FUNCPTR(D2CLIENT, LeftClickItem, VOID __stdcall, (UnitAny* pPlayer, Inventory* pInventory, INT x, INT y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0xB0900) // Updated
-FUNCPTR(D2CLIENT, CloseNPCInteract, VOID __fastcall, (VOID), 0x1A630) // Updated 
-FUNCPTR(D2CLIENT, CloseInteract, VOID __fastcall, (VOID), 0x7BBD0) // Updated
+FUNCPTR(D2CLIENT, clickMap, void __stdcall, (DWORD MouseFlag, DWORD x, DWORD y, DWORD Type), 0x5CE80) // Updated
+FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (void), 0x9EB40) // Updated
+FUNCPTR(D2CLIENT, LeftClickItem, void __stdcall, (UnitAny* pPlayer, Inventory* pInventory, INT x, INT y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0xB0900) // Updated
+FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x1A630) // Updated 
+FUNCPTR(D2CLIENT, CloseInteract, void __fastcall, (void), 0x7BBD0) // Updated
 FUNCPTR(D2CLIENT, ChatBoxHandler, DWORD __stdcall, (MSG* pMsg), 0x86F80) // Updated
-FUNCPTR(D2CLIENT, InitInventory, VOID __fastcall, (VOID), 0xA8B70) // Updated
-FUNCPTR(D2CLIENT, FixShopActions, VOID __fastcall, (VOID), 0x19D90) // Updated
-FUNCPTR(D2CLIENT, submitItem, VOID __fastcall, (DWORD dwItemId), 0x18410) // Updated
+FUNCPTR(D2CLIENT, InitInventory, void __fastcall, (void), 0xA8B70) // Updated
+FUNCPTR(D2CLIENT, FixShopActions, void __fastcall, (void), 0x19D90) // Updated
+FUNCPTR(D2CLIENT, submitItem, void __fastcall, (DWORD dwItemId), 0x18410) // Updated
 FUNCPTR(D2CLIENT, GetUnitHPPercent, DWORD __fastcall, (DWORD dwUnitId), 0xC3040) // Updated
-FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (VOID), 0xB1B30) // Updated
-FUNCPTR(D2CLIENT, ShopAction, VOID __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
-FUNCPTR(D2CLIENT, GetCurrentInteractingNPC, UnitAny* __fastcall, (VOID), 0x18450) // Updated
-FUNCPTR(D2CLIENT, PerformGoldDialogAction, VOID __fastcall, (VOID), 0x8C1F0)
-FUNCPTR(D2CLIENT, LeaveParty, VOID __fastcall, (VOID), 0x79160)
-FUNCPTR(D2CLIENT, Transmute, VOID __fastcall, (VOID), 0xA6560)
+FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (void), 0xB1B30) // Updated
+FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
+FUNCPTR(D2CLIENT, GetCurrentInteractingNPC, UnitAny* __fastcall, (void), 0x18450) // Updated
+FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0x8C1F0)
+FUNCPTR(D2CLIENT, LeaveParty, void __fastcall, (void), 0x79160)
+FUNCPTR(D2CLIENT, Transmute, void __fastcall, (void), 0xA6560)
 
 VARPTR(D2CLIENT, MouseOffsetY, int, 0x1121CC) // Updated
 VARPTR(D2CLIENT, MouseOffsetX, int, 0x1121D0) // Updated
@@ -206,12 +210,12 @@ FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk
 FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10373) // Updated 
 FUNCPTR(D2COMMON, GetItemQuality, DWORD __stdcall, (UnitAny* pItem), -10276) // Updated
 FUNCPTR(D2COMMON, GetItemNameString, void __stdcall, (UnitAny *pItem, char *szItemName, int nLen), 0x2C440) // ??? Updated
-FUNCPTR(D2COMMON, GetItemMagicalMods, CHAR* __stdcall, (WORD wPrefixNum), -11065) // Updated
+FUNCPTR(D2COMMON, GetItemMagicalMods, char* __stdcall, (WORD wPrefixNum), -11065) // Updated
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), -10875) // Updated
 FUNCPTR(D2COMMON, GetItemPrice, DWORD __stdcall, (UnitAny* MyUnit, UnitAny* pItem, DWORD U1_,DWORD U2_,DWORD U3_,DWORD U4_), -10122) // Updated
-FUNCPTR(D2COMMON, GetQuestFlag, INT __stdcall, (VOID* QuestInfo, DWORD dwAct, DWORD dwQuest), -10600) // Updated
-FUNCPTR(D2COMMON, GenerateOverheadMsg, OverheadMsg* __stdcall, (DWORD dwUnk, CHAR* szMsg, DWORD dwTrigger), -10041) // Updated
-FUNCPTR(D2COMMON, FixOverheadMsg, VOID __stdcall, (OverheadMsg* pMsg, DWORD dwUnk), -10315) // Updated
+FUNCPTR(D2COMMON, GetQuestFlag, INT __stdcall, (void* QuestInfo, DWORD dwAct, DWORD dwQuest), -10600) // Updated
+FUNCPTR(D2COMMON, GenerateOverheadMsg, OverheadMsg* __stdcall, (DWORD dwUnk, char* szMsg, DWORD dwTrigger), -10041) // Updated
+FUNCPTR(D2COMMON, FixOverheadMsg, void __stdcall, (OverheadMsg* pMsg, DWORD dwUnk), -10315) // Updated
 FUNCPTR(D2COMMON, CheckCollision, DWORD __stdcall, (Room1* pRoom, DWORD dwX, DWORD dwY, DWORD dwBitMask), -10493) // Updated
 FUNCPTR(D2COMMON, GetUnitMaxHP, DWORD __stdcall, (UnitAny* pUnit), -10445) // Updated
 FUNCPTR(D2COMMON, CheckUnitSlot, DWORD __stdcall, (Inventory* pInventory, DWORD dwSlot), -10099)
@@ -235,17 +239,17 @@ FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD 
 FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (), -10043)  // Updated
 VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ACC) // Updated
 
-FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (CHAR *szText, DWORD dwColor),  0xF8C0) // Updated - Okaygo found new offset
-FUNCPTR(D2MULTI, DoChat, VOID __fastcall, (VOID), 0xC650) // Updated
-FUNCPTR(D2MULTI, WhisperIntercept_Jump, VOID __fastcall, (VOID), 0xFC3C+8)
-VARPTR(D2MULTI, ChatBoxMsg, CHAR*, 0x38F18) // Updated 
+FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (char *szText, DWORD dwColor),  0xF8C0) // Updated - Okaygo found new offset
+FUNCPTR(D2MULTI, DoChat, void __fastcall, (void), 0xC650) // Updated
+FUNCPTR(D2MULTI, WhisperIntercept_Jump, void __fastcall, (void), 0xFC3C+8)
+VARPTR(D2MULTI, ChatBoxMsg, char*, 0x38F18) // Updated 
 
 FUNCPTR(D2CMP, InitCellFile, void __stdcall, (void *cellfile, CellFile **outptr, char *srcfile, DWORD lineno, DWORD filever, char *filename), -10006)
 FUNCPTR(D2CMP, DeleteCellFile, void __stdcall, (CellFile *cellfile), -10106) 
 
 ASMPTR(D2LANG, Say_II, 0xA6E0)
 FUNCPTR(D2LANG, GetLocaleText, wchar_t* __fastcall, (WORD nLocaleTxtNo), -10005)
-FUNCPTR(D2WIN, DrawSprites, VOID __fastcall, (VOID), 0xD680)
+FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0xD680)
 FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), -10095) // Updated
 FUNCPTR(D2WIN, GetTextWidthFileNo, DWORD __fastcall, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo), -10096) // Updated
 FUNCPTR(D2WIN, SetTextSize, DWORD __fastcall, (DWORD dwSize), -10010) // Updated 
@@ -287,3 +291,7 @@ FUNCPTR(D2GAME, D2Rand, DWORD __fastcall, (DWORD* seed), 0x1080);
 #define D2GFX_DrawFrame(Rect)				DrawRectFrame_STUB(Rect)
 
 #pragma warning ( pop )
+
+#pragma optimize ( "", on )
+
+#endif

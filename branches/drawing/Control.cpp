@@ -208,7 +208,7 @@ BOOL OOG_SelectCharacter(char * szCharacter)
 	return FALSE;
 }
 
-void SetControlText(Control* pControl, char* Text)
+void SetControlText(Control* pControl, const char* Text)
 {
 	if(ClientState() != ClientStateMenu)
 		return;
@@ -432,85 +432,114 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 		return FALSE;
 
 	// reject name/password combinations over 15 characters
-	if(strlen(name) > 15 || strlen(pass) > 15)
+	if(!name || !pass || strlen(name) > 15 || strlen(pass) > 15)
 		return FALSE;
 
 	Control* pControl = NULL;
 
 	// Battle.net/open game creation
-	// TODO: single player game creation
-	if(!(OOG_GetLocation() == OOG_LOBBY || OOG_GetLocation() == OOG_CHAT))
+	OOG_Location loc = OOG_GetLocation();
+	if(!(loc == OOG_LOBBY || loc == OOG_CHAT || loc == OOG_DIFFICULTY))
 		return FALSE;
 
-	// Create button
-	pControl = findControl(6, (char *)NULL, -1, 533,469,120,20);
-	if(!pControl || !clickControl(pControl))
-		return FALSE;
-	Sleep(100);
-
-	if(OOG_GetLocation() == OOG_CREATE)
+	if(loc == OOG_DIFFICULTY)
 	{
-		// Game name edit box
-		if(name)
-		{
-			wchar_t* wcname = AnsiToUnicode(name);
-			pControl = findControl(1, (char *)NULL, -1, 432,162,158,20);
-			if(pControl)
-				D2WIN_SetControlText(pControl, wcname);
-			delete[] wcname;
-		}
-		else
-			return FALSE;
-		Sleep(100);
-
-		// Password edit box
-		if(pass)
-		{
-			wchar_t* wcpass = AnsiToUnicode(pass);
-			pControl = findControl(1, (char *)NULL, -1, 432,217,158,20);
-			if(pControl && pass)
-				D2WIN_SetControlText(pControl, wcpass);
-			delete[] wcpass;
-		}
-		else
-			return FALSE;
-		Sleep(100);
+		// just click the difficulty button
+		Control *normal = findControl(6, (char *)NULL, -1, 264, 297, 272, 35),
+				*nightmare = findControl(6, (char *)NULL, -1, 264, 340, 272, 35),
+				*hell = findControl(6, (char *)NULL, -1, 264, 383, 272, 35);
 
 		switch(difficulty)
 		{
 			case 0: // normal button
-				if(!clickControl(findControl(6, (char *)NULL, -1, 430,381,16,16)))
+				if(normal->dwDisabled != 0x0d || !clickControl(normal))
 					return FALSE;
 				break;
 			case 1: // nightmare button
-				if(!clickControl(findControl(6, (char *)NULL, -1, 555,381,16,16)))
+				if(nightmare->dwDisabled != 0x0d || !clickControl(nightmare))
 					return FALSE;
 				break;
 			case 2: // hell button
-				if(!clickControl(findControl(6, (char *)NULL, -1, 698,381,16,16)))
+				if(hell->dwDisabled != 0x0d || !clickControl(hell))
 					return FALSE;
 				break;
-			case 3: //hardest difficulty available 
-				if(!clickControl(findControl(6, (char *)NULL, -1, 430,381,16,16)))
-					return FALSE;
-				
-				Sleep(100);
-				if(!clickControl(findControl(6, (char *)NULL, -1, 555,381,16,16)))
-					return FALSE;
-				
-				Sleep(100);
-				if(!clickControl(findControl(6, (char *)NULL, -1, 698,381,16,16)))
-					return FALSE;
-
+			case 3: //hardest difficulty available
+				if(hell->dwDisabled != 0x0d) {
+					if(!clickControl(hell))
+						return FALSE;
+				} else if(nightmare->dwDisabled != 0x0d) {
+					if(!clickControl(nightmare))
+						return FALSE;
+				} else if(normal->dwDisabled != 0x0d) {
+					if(!clickControl(normal))
+						return FALSE;
+				}
 				break;
 			default:
 				return FALSE;
 		}
-
-		//CreateGameButton
-		pControl = findControl(6, (char *)NULL, -1, 594,433,172,32);
+	}
+	else
+	{
+		// Create button
+		pControl = findControl(6, (char *)NULL, -1, 533,469,120,20);
 		if(!pControl || !clickControl(pControl))
 			return FALSE;
+		Sleep(100);
+
+		if(OOG_GetLocation() == OOG_CREATE)
+		{
+			// Game name edit box
+			if(name)
+				SetControlText(findControl(1, (char *)NULL, -1, 432,162,158,20), name);
+			else
+				return FALSE;
+			Sleep(100);
+
+			// Password edit box
+			if(pass)
+				SetControlText(findControl(1, (char *)NULL, -1, 432,217,158,20), pass);
+			else
+				return FALSE;
+			Sleep(100);
+			Control *normal = findControl(6, (char *)NULL, -1, 430,381,16,16),
+					*nightmare = findControl(6, (char *)NULL, -1, 555,381,16,16),
+					*hell = findControl(6, (char *)NULL, -1, 698,381,16,16);
+
+			switch(difficulty)
+			{
+				case 0: // normal button
+					if(normal->dwDisabled || !clickControl(normal))
+						return FALSE;
+					break;
+				case 1: // nightmare button
+					if(nightmare->dwDisabled || !clickControl(nightmare))
+						return FALSE;
+					break;
+				case 2: // hell button
+					if(hell->dwDisabled || !clickControl(hell))
+						return FALSE;
+					break;
+				case 3: //hardest difficulty available
+					if(!hell->dwDisabled)
+						if(!clickControl(hell))
+							return FALSE;
+					else if(!nightmare->dwDisabled)
+						if(!clickControl(nightmare))
+							return FALSE;
+					else if(!normal->dwDisabled)
+						if(!clickControl(normal))
+							return FALSE;
+					break;
+				default:
+					return FALSE;
+			}
+
+			// Create Game Button
+			pControl = findControl(6, (char *)NULL, -1, 594,433,172,32);
+			if(!pControl || !clickControl(pControl))
+				return FALSE;
+		}
 	}
 
 	return TRUE;
@@ -541,24 +570,12 @@ bool OOG_JoinGame(const char* name, const char* pass)
 	{
 		// Game name edit box
 		if(name)
-		{
-			wchar_t* wcname = AnsiToUnicode(name);
-			pControl = findControl(1, (char *)NULL, -1, 432,148,155,20);
-			if(pControl)
-				D2WIN_SetControlText(pControl, AnsiToUnicode(name));
-			delete[] wcname;
-		}
+			SetControlText(findControl(1, (char *)NULL, -1, 432,148,155,20), name);
 		else
 			return FALSE;
 		// Password edit box
 		if(pass)
-		{
-			wchar_t* wcpass = AnsiToUnicode(pass);
-			pControl = findControl(1, (char *)NULL, -1, 606,148,155,20);
-			if(pControl)
-				D2WIN_SetControlText(pControl, wcpass);
-			delete[] wcpass;
-		}
+			SetControlText(findControl(1, (char *)NULL, -1, 606,148,155,20), pass);
 		else
 			return FALSE;
 

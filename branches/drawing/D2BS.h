@@ -30,7 +30,7 @@ struct Module
 		DWORD dwBaseAddress;
 	};
 	DWORD _1;
-	CHAR szPath[MAX_PATH];
+	char szPath[MAX_PATH];
 };
 
 struct Variables
@@ -65,9 +65,6 @@ struct Variables
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
-
-	ImageHook *image;
-	TextHook  *text;
 
 	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;

@@ -8,12 +8,23 @@
 #include "ScriptEngine.h"
 #include "D2Helpers.h"
 
+
+void DrawLogo(void);
+
 typedef unsigned short ushort;
 
 class Genhook;
 
 typedef std::list<Genhook*> HookList;
 typedef HookList::iterator HookIterator;
+
+struct HookClickHelper
+{
+	int button;
+	POINT point;
+};
+
+typedef bool (__fastcall *HookCallback)(Genhook*, void*, uint);
 
 enum Align { Left, Right, Center };
 enum ScreenhookState { OOG, IG, Perm };
@@ -22,7 +33,7 @@ class Genhook
 {
 private:
 	static bool init;
-	static HookList hooks;
+	static HookList visible, invisible;
 	static CRITICAL_SECTION globalSection;
 
 protected:
@@ -43,11 +54,17 @@ public:
 		ScreenhookState ngameState = Perm);
 	~Genhook(void);
 
+	friend bool __fastcall DrawHook(Genhook* hook, void* argv, uint argc);
+	friend bool __fastcall CleanHook(Genhook* hook, void* argv, uint argc);
+	friend bool __fastcall ClickHook(Genhook* hook, void* argv, uint argc);
+	friend bool __fastcall HoverHook(Genhook* hook, void* argv, uint argc);
+
 	static void DrawAll(ScreenhookState type);
-	// TODO: refactor these away, a la ScriptEngine with ForEachHook
-	static HookList GetHooks(void);
-	static HookIterator GetFirstHook(void);
-	static HookIterator GetLastHook(void);
+
+	static bool ForEachHook(HookCallback proc, void* argv, uint argc);
+	static bool ForEachVisibleHook(HookCallback proc, void* argv, uint argc);
+	static bool ForEachInvisibleHook(HookCallback proc, void* argv, uint argc);
+
 	static void Clean(Script* owner);
 	static void Initialize(void) { InitializeCriticalSection(&globalSection); init = true; }
 	static void Destroy(void) { init = false; DeleteCriticalSection(&globalSection); }
@@ -70,7 +87,19 @@ public:
 	void SetY(uint y) { Lock(); location.y = y; Unlock(); }
 	void SetAlign(Align nalign) { Lock(); alignment = nalign; Unlock(); }
 	void SetOpacity(ushort nopacity) { Lock(); opacity = nopacity; Unlock(); }
-	void SetIsVisible(bool nisVisible) { Lock(); isVisible = nisVisible; Unlock(); }
+	void SetIsVisible(bool nisVisible) {
+		Lock();
+		if(!nisVisible)
+		{
+			visible.remove(this);
+			invisible.push_back(this);
+		} else {
+			invisible.remove(this);
+			visible.push_back(this);
+		}
+		isVisible = nisVisible;
+		Unlock();
+	}
 	void SetZOrder(ushort norder) { Lock(); zorder = norder; Unlock(); }
 	void SetClickHandler(jsval handler);
 	void SetHoverHandler(jsval handler);

@@ -35,23 +35,12 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
-	static int x = D2GetScreenSizeX();
-	Vars.image->SetX(x/2);
-	Vars.text->SetX(x/2);
-
 	while(Vars.bActive)
 	{
 		switch(ClientState())
 		{
 			case ClientStateInGame:
 			{
-				if(x != D2GetScreenSizeX())
-				{
-					x = D2GetScreenSizeX();
-					Vars.image->SetX(x/2);
-					Vars.text->SetX(x/2);
-				}
-
 				if(bInGame)
 				{
 					if((Vars.dwMaxGameTime && Vars.dwGameTime && 
@@ -77,13 +66,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			}
 			case ClientStateMenu:
 			{
-				if(x != D2GetScreenSizeX())
-				{
-					x = D2GetScreenSizeX();
-					Vars.image->SetX(x/2);
-					Vars.text->SetX(x/2);
-				}
-
 				MenuEntered(beginStarter);
 				beginStarter = false;
 				if(bInGame)
@@ -284,39 +266,40 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	{
 		bool clicked = false;
 
+		HookClickHelper helper = {-1, {pt.x, pt.y}};
 		switch(wParam)
 		{
 			case WM_LBUTTONDOWN:
 				MouseClickEvent(0, pt, false);
-				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-					if((*it)->Click(0, &pt))
-						clicked = true;
+				helper.button = 0;
+				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+					clicked = true;
 				break;
 			case WM_LBUTTONUP:
 				MouseClickEvent(0, pt, true);
 				break;
 			case WM_RBUTTONDOWN:
 				MouseClickEvent(1, pt, false);
-				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-					if((*it)->Click(1, &pt))
-						clicked = true;
+				helper.button = 1;
+				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+					clicked = true;
 				break;
 			case WM_RBUTTONUP:
 				MouseClickEvent(1, pt, true);
 				break;
 			case WM_MBUTTONDOWN:
 				MouseClickEvent(2, pt, false);
-				for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-					if((*it)->Click(2, &pt))
-						clicked = true;
+				helper.button = 2;
+				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
+					clicked = true;
 				break;
 			case WM_MBUTTONUP:
 				MouseClickEvent(2, pt, true);
 				break;
 			case WM_MOUSEMOVE:
-	//			MouseMoveEvent(pt);
-	//			for(HookList::iterator it = Genhook::GetFirstHook(); it != Genhook::GetLastHook(); it++)
-	//				(*it)->Hover(&pt);
+				// would be nice to enable these events but they bog down too much
+				//MouseMoveEvent(pt);
+				//Genhook::ForEachVisibleHook(HoverHook, &helper, 1);
 				break;
 		}
 
@@ -326,28 +309,32 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	return CallNextHookEx(NULL, code, wParam, lParam);
 }
 
-VOID GameDraw(VOID)
+void GameDraw(void)
 {
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
+		DrawLogo();
 		Console::Draw();
-		Genhook::DrawAll(IG);
+//		Genhook::DrawAll(IG);
 		DrawEvent();
 	}
+	Sleep(10);
 }
 
-VOID GameDrawOOG(VOID)
+void GameDrawOOG(void)
 {
 	D2WIN_DrawSprites();
 	if(Vars.bActive && ClientState() == ClientStateMenu)
 	{
+		DrawLogo();
 		Console::Draw();
-		Genhook::DrawAll(OOG);
+//		Genhook::DrawAll(OOG);
 		DrawOOGEvent();
 	}
+	Sleep(10);
 }
 
-VOID __fastcall WhisperHandler(CHAR* szAcc, CHAR* szText)
+void __fastcall WhisperHandler(char* szAcc, char* szText)
 {
 	WhisperEvent(szAcc, szText);
 }
@@ -366,7 +353,7 @@ DWORD __fastcall GameAttack(AttackStruct* pAttack)
 	return NULL;
 }
 
-VOID __fastcall GamePlayerAssignment(UnitAny* pPlayer)
+void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 {
 	if(!pPlayer)
 		return;

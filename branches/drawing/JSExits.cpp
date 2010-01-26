@@ -1,5 +1,7 @@
 #include "JSExits.h"
 
+EMPTY_CTOR(exit)
+
 void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
@@ -7,11 +9,11 @@ void exit_finalize(JSContext *cx, JSObject *obj)
 		delete pExit;
 }
 
-JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+JSAPI_PROP(exit_getProperty)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
 
-	*vp = JSVAL_FALSE;
+	*vp = JSVAL_VOID;
 
 	if(!pExit)
 		return JS_TRUE;
@@ -24,7 +26,7 @@ JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 		case EXIT_Y:
 			*vp = INT_TO_JSVAL(pExit->y);
 			break;
-		case EXIT_ID:
+		case EXIT_TARGET:
 			*vp = INT_TO_JSVAL(pExit->id);
 			break;
 		case EXIT_TYPE:
@@ -32,6 +34,9 @@ JSBool exit_getProperty(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
 			break;
 		case EXIT_TILEID:
 			*vp = INT_TO_JSVAL(pExit->tileid);
+			break;
+		case EXIT_LEVELID:
+			*vp = INT_TO_JSVAL(pExit->level);
 			break;
 		default:
 			break;
