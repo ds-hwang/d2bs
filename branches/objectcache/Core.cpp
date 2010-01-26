@@ -97,8 +97,11 @@ void Print(const char * szFormat, ...)
 				D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
 		}
 	}
-	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-			Console::AddLine(*it);
+	//for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+	//		Console::AddLine(*it);
+	Console::AddLine(string(str));
+	if(Vars.bDebug)
+		Log(str);
 
 	LeaveCriticalSection(&Vars.cPrintSection);
 

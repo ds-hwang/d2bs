@@ -35,7 +35,7 @@ JSAPI_FUNC(my_print)
 
 			Print(Text ? Text : "undefined");
 
-			JS_SetContextThread(cx);
+			JS_TakeContext(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -54,7 +54,7 @@ JSAPI_FUNC(my_delay)
 
 			Sleep(nDelay);
 
-			JS_SetContextThread(cx);
+			JS_TakeContext(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 		else

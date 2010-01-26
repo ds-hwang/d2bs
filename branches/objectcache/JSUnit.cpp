@@ -63,7 +63,6 @@ JSAPI_PROP(unit_getProperty)
 {	
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
-	p_D2CLIENT_MapId;
 
 	switch(JSVAL_TO_INT(id))
 	{
@@ -160,6 +159,8 @@ JSAPI_PROP(unit_getProperty)
 		case ME_BLOCKMOUSE:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bBlockMouse);
 			break;
+		case ME_DEBUG:
+			*vp = BOOLEAN_TO_JSVAL(Vars.bDebug);
 		default:
 			break;
 	}
@@ -405,6 +406,10 @@ JSAPI_PROP(unit_getProperty)
 			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
 			break;
+		case ME_MAPID:
+			if(pUnit == (*p_D2CLIENT_PlayerUnit))
+				JS_NewDoubleValue(cx, *p_D2CLIENT_MapId, vp);
+			break;
 		default:
 			break;
 	}
@@ -445,17 +450,22 @@ JSAPI_PROP(unit_setProperty)
 				Vars.bBlockMouse = JSVAL_TO_BOOLEAN(*vp);
 			break;
 		case ME_RUNWALK:
-			myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-			if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-				return JS_TRUE;
+			{
+				myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+				if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+					return JS_TRUE;
 
-			UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-			if(!pUnit)
-				return JS_TRUE;
-			if(pUnit == (*p_D2CLIENT_PlayerUnit))
-				*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+				UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+				if(!pUnit)
+					return JS_TRUE;
+				if(pUnit == (*p_D2CLIENT_PlayerUnit))
+					*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+			}
 			break;
-
+		case ME_DEBUG:
+			if(JSVAL_IS_BOOLEAN(*vp))
+				Vars.bDebug = JSVAL_TO_BOOLEAN(*vp);
+			break;
 	}
 	return JS_TRUE;
 }

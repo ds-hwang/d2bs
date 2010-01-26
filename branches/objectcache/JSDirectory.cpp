@@ -50,7 +50,9 @@ JSAPI_FUNC(my_openDir)
 	else
 	{
 		DirData* d = new DirData(name);
-		JSObject *jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
+		char hname[516];
+		sprintf_s(hname, 516, "dir%s", name);
+		JSObject *jsdir = BuildObject(cx, hname, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
 
@@ -160,7 +162,9 @@ JSAPI_FUNC(dir_create)
 	else
 	{
 		DirData* d = new DirData(name);
-		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
+		char hname[516];
+		sprintf_s(hname, 516, "dir%s", name);
+		JSObject* jsdir = BuildObject(cx, name, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
 

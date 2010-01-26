@@ -6,6 +6,8 @@
 #include "windows.h"
 #include "Script.h"
 #include "ScriptEngine.h"
+#include "D2BS.h"
+#include "stringhash.h"
 
 using namespace std;
 
@@ -173,15 +175,24 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 	return JS_FALSE;
 }
 
-JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
+JSObject* BuildObject(JSContext* cx, char* name, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
+	unsigned __int32 hash = sfh(name, strlen(name));
+	// do we have a cached version of this lying around?
+	if(Vars.mCachedJSObjects.count(hash) > 0)
+	{
+		// we found a cached one, return that
+		return Vars.mCachedJSObjects[hash];
+	}
+
+	// no, build one
 	// always steal the context thread--we have to have it anyway.
-	JS_SetContextThread(cx);
+	JS_TakeContext(cx);
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 
 	if(obj)
 	{
-		// add root to avoid newborn root problem
+		// add root to prevent this soon-to-be-cached object from getting GC'd from under us
 		if(JS_AddRoot(&obj) == JS_FALSE)
 			return NULL;
 		if(obj && funcs && !JS_DefineFunctions(cx, obj, funcs))
@@ -190,8 +201,17 @@ JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSP
 			obj = NULL;
 		if(obj && priv)
 			JS_SetPrivate(cx, obj, priv);
-		JS_RemoveRoot(&obj);
+//		JS_RemoveRoot(&obj);
 	}
+	// and store it
+	Vars.mCachedJSObjects[hash] = obj;
+
 	return obj;
 }
 
+JSBool JS_TakeContext(JSContext* cx)
+{
+	if(!!JS_GetContextThread(cx))
+		JS_ClearContextThread(cx);
+	return !!JS_SetContextThread(cx);
+}

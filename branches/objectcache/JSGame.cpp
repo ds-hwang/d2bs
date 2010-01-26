@@ -34,7 +34,9 @@ JSAPI_FUNC(my_copyUnit)
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(myUnit));
-				JSObject* jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
+				char name[68];
+				sprintf_s(name, 68, "unit%s", lpUnit->szName);
+				JSObject* jsunit = BuildObject(cx, name, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -53,7 +55,9 @@ JSAPI_FUNC(my_copyUnit)
 			if(lpUnit)
 			{
 				memcpy(lpUnit, lpOldUnit, sizeof(invUnit));
-				JSObject* jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
+				char name[68];
+				sprintf_s(name, 68, "item%s", lpUnit->szName);
+				JSObject* jsunit = BuildObject(cx, name, &unit_class_ex.base, unit_methods, unit_props, lpUnit);
 				if(!jsunit)
 				{
 					delete lpUnit;
@@ -1329,7 +1333,8 @@ JSAPI_FUNC(my_getInteractedNPC)
 	if(!pmyUnit)
 		return JS_TRUE;
 
-	char szName[256] = "";
+	char szName[64] = "";
+	GetUnitName(pNPC, szName, 64);
 	pmyUnit->_dwPrivateType = PRIVATE_UNIT;
 	pmyUnit->dwClassId = pNPC->dwTxtFileNo;
 	pmyUnit->dwMode = pNPC->dwMode;
@@ -1337,7 +1342,9 @@ JSAPI_FUNC(my_getInteractedNPC)
 	pmyUnit->dwUnitId = pNPC->dwUnitId;
 	strcpy_s(pmyUnit->szName, sizeof(pmyUnit->szName), szName);
 
-	JSObject *jsunit = BuildObject(cx, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
+	char name[68];
+	sprintf_s(name, 68, "unit%s", szName);
+	JSObject *jsunit = BuildObject(cx, name, &unit_class_ex.base, unit_methods, unit_props, pmyUnit);
 	if(!jsunit)
 		return JS_TRUE;
 

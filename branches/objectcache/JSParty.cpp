@@ -90,7 +90,9 @@ JSAPI_FUNC(my_getParty)
 	if(!pUnit)
 		return JS_TRUE;
 
-	JSObject* jsUnit = BuildObject(cx, &party_class, party_methods, party_props, pUnit);
+	char name[26];
+	sprintf_s(name, 26, "roster%s", pUnit->szName);
+	JSObject* jsUnit = BuildObject(cx, name, &party_class, party_methods, party_props, pUnit);
 	if(!jsUnit)
 		return JS_TRUE;
 

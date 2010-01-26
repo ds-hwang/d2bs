@@ -61,7 +61,9 @@ JSAPI_PROP(area_getProperty)
 						pExit->tileid	= ExitArray[i]->dwId;
 						pExit->level	= pArea->AreaId;
 
-						JSObject* jsUnit = BuildObject(cx, &exit_class, NULL, exit_props, pExit);
+						char name[50];
+						sprintf_s(name, 50, "%d%d%d%d", pExit->id, pExit->x, pExit->y, pExit->level);
+						JSObject* jsUnit = BuildObject(cx, name, &exit_class, NULL, exit_props, pExit);
 						if(!jsUnit)
 						{
 							delete pExit;
@@ -138,8 +140,10 @@ JSAPI_FUNC(my_getArea)
 
 	pArea->AreaId = nArea;
 	pArea->ExitArray = NULL;
-	
-	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
+
+	char name[50];
+	sprintf_s(name, 50, "%s%d", D2COMMON_GetLevelTxt(nArea)->szName, *p_D2CLIENT_MapId);
+	JSObject* unit = BuildObject(cx, name, &area_class, NULL, area_props, pArea);
 	if(!unit)
 	{
 		delete pArea;

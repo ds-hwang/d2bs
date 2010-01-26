@@ -43,7 +43,7 @@ struct myUnit
 	DWORD dwClassId;
 	DWORD dwType;
 	DWORD dwMode;
-	char szName[128];
+	char szName[64];
 };
 
 struct invUnit
@@ -110,7 +110,9 @@ enum me_tinyid {
 	OOG_QUITONERROR,
 	OOG_MAXGAMETIME,
 	ME_BLOCKKEYS,
-	ME_BLOCKMOUSE
+	ME_BLOCKMOUSE,
+	ME_DEBUG,
+	ME_MAPID
 };
 
 static JSPropertySpec me_props[] = {
@@ -137,6 +139,8 @@ static JSPropertySpec me_props[] = {
 	{"quitonhostile",	ME_QUITONHOSTILE,	JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"blockKeys",		ME_BLOCKKEYS,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"blockMouse",		ME_BLOCKMOUSE,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
+	{"debug",			ME_DEBUG,			JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
+	{"mapid",			ME_MAPID,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 
 	{"screensize",		OOG_SCREENSIZE,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"windowtitle",		OOG_WINDOWTITLE,	JSPROP_PERMANENT_VAR,	unit_getProperty},

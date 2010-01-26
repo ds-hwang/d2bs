@@ -299,7 +299,9 @@ JSAPI_FUNC(my_getControl)
 	data->dwSizeX = nXSize;
 	data->dwSizeY = nYSize;
 
-	JSObject* control = BuildObject(cx, &control_class, control_funcs, control_props, data);
+	char name[50];
+	sprintf_s(name, 50, "control%d%d%d%d%d", pControl->dwType, pControl->dwPosX, pControl->dwPosY, pControl->dwSizeX, pControl->dwSizeY);
+	JSObject* control = BuildObject(cx, name, &control_class, control_funcs, control_props, data);
 	if(!control)
 		THROW_ERROR(cx, obj, "Failed to build control!");
 

@@ -215,10 +215,9 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(cx);
+		JS_TakeContext(cx);
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->nick)));
 		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
-		//JS_ClearContextThread(cx);
 		script->ExecEventAsync(helper->event, 2, argv);
 	}
 	return true;
@@ -243,7 +242,7 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 	{
 		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(cx);
+		JS_TakeContext(cx);
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
 		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
 		//JS_ClearContextThread(cx);
@@ -264,9 +263,8 @@ bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
+		JS_TakeContext(cx);
 		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)argv)));
-		//JS_ClearContextThread(cx);
 		script->ExecEventAsync("gamemsg", 1, argv);
 	}
 	return true;
@@ -284,12 +282,11 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[4];
 		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
+		JS_TakeContext(cx);
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->id));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->mode));
 		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->code)));
 		argv[3] = new AutoRoot(BOOLEAN_TO_JSVAL(helper->global));
-		//JS_ClearContextThread(cx);
 		script->ExecEventAsync("itemaction", 4, argv);
 	}
 	return true;
@@ -308,12 +305,11 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[4];
 		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
+		JS_TakeContext(cx);
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param));
 		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name1)));
 		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name2)));
-		//JS_ClearContextThread(cx);
 		script->ExecEventAsync("gameevent", 4, argv);
 	}
 	return true;

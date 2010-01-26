@@ -55,6 +55,7 @@ struct Variables
 	BOOL	bBlockKeys;
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
+	BOOL	bDebug;
 	INT		dwMemUsage;
 
 	Module* pModule;
@@ -67,6 +68,7 @@ struct Variables
 
 	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
+	std::map<unsigned __int32, JSObject*> mCachedJSObjects;
 
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;

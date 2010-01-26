@@ -5,7 +5,8 @@
 
 #include "js32/jsapi.h"
 #include "js32/jsdbgapi.h"
-// this should be included, but can't be due to compiler include cycles
+// this should be included in order to use ScriptEngine::GetRuntime, but can't be
+// due to compiler include cycles
 // however, every file that includes this one includes ScriptEngine.h first anyway
 //#include "ScriptEngine.h"
 
@@ -26,7 +27,9 @@
 
 JSBool JS_ConvertArgumentsEx(JSContext* cx, uintN argc, jsval* argv, const char* format, ...);
 JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...);
-JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
+JSObject* BuildObject(JSContext* cx, char* name, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
+JSBool JS_TakeContext(JSContext* cx);
+
 #define THROW_ERROR(cx, obj, msg) return ThrowJSError(cx, obj, msg)
 
 #define CLASS_CTOR(name) JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval)
