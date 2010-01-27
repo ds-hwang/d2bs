@@ -400,13 +400,17 @@ void Script::ExecEvent(char* evtName, uintN argc, jsval* argv)
 {
 	if(IsRunning() && !(GetState() == InGame && !GameReady()))
 	{
-		JS_SetContextThread(GetContext());
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JS_SetContextPrivate(cx, this);
+		JS_BeginRequest(cx);
 		FunctionList functions = this->functions[evtName];
 		for(FunctionList::iterator it = functions.begin(); it != functions.end(); it++)
 		{
 			jsval dummy = JSVAL_VOID;
-			JS_CallFunctionValue(GetContext(), GetGlobalObject(), (*it)->value(), argc, argv, &dummy);
+			JS_CallFunctionValue(cx, GetGlobalObject(), (*it)->value(), argc, argv, &dummy);
 		}
+		JS_EndRequest(cx);
+		JS_DestroyContextNoGC(cx);
 	}
 }
 
