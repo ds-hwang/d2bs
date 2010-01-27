@@ -293,7 +293,7 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-JSBool branchCallback(JSContext* cx, JSScript*)
+JSBool branchCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
@@ -324,9 +324,9 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		JS_BeginRequest(cx);
 
 		JS_SetErrorReporter(cx, reportError);
-		JS_SetBranchCallback(cx, branchCallback);
-		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(cx, JSVERSION_1_7);
+		JS_SetOperationCallback(cx, branchCallback);
+		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
+		JS_SetVersion(cx, JSVERSION_LATEST);
 
 		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
 		if(!globalObject)

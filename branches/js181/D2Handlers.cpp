@@ -35,9 +35,18 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
+	ClientGameState oldState = ClientState();
 	while(Vars.bActive)
 	{
-		switch(ClientState())
+		ClientGameState state = ClientState();
+		if(oldState != state)
+		{
+			// we switched from in game to out or something
+			JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
+			oldState = state;
+		}
+
+		switch(state)
 		{
 			case ClientStateInGame:
 			{

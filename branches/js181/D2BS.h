@@ -3,9 +3,6 @@
 
 #pragma once
 
-#define XP_WIN
-#define JS_THREADSAFE
-
 #define D2BS_VERSION "1.1.2"
 
 #include <windows.h>
