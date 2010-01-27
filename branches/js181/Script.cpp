@@ -461,7 +461,7 @@ void __cdecl FuncThread(void* data)
 		JS_EnterLocalRootScope(cx);
 		// build the arg list
 		void* markp = NULL;
-		jsval* argv = JS_PushArguments(cx, &markp, evt->format, evt->argv);
+		jsval* argv = JS_PushArgumentsVA(cx, &markp, evt->format, (va_list)evt->argv);
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{

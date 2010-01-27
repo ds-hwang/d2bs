@@ -578,15 +578,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsconfig.h"
-					>
-				</File>
-				<File
 					RelativePath=".\js32\jscpucfg.h"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsdbgapi.h"
 					>
 				</File>
 				<File
@@ -598,23 +590,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsopcode.h"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsosdep.h"
-					>
-				</File>
-				<File
 					RelativePath=".\js32\jsotypes.h"
 					>
 				</File>
 				<File
 					RelativePath=".\js32\jsproto.tbl"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsprvtd.h"
 					>
 				</File>
 				<File

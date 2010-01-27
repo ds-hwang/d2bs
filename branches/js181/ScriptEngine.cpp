@@ -252,6 +252,7 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 	va_list args;
 	va_start(args, argc);
 	uintN len = strlen(format), size = 0;
+	bool needFix = false;
 	for(uintN i = 0; i < argc && i < len; i++)
 	{
 		switch(format[i])
@@ -261,24 +262,17 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
 			case 'u': va_arg(args, uint32);				size += sizeof(uint32); break;
 			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
-			case 'o': va_arg(args, JSObject*);			size += sizeof(JSObject*); break;
-			case 'f': va_arg(args, JSFunction*);		size += sizeof(JSFunction*); break;
-			case 'S': va_arg(args, JSString*);			size += sizeof(JSString*); break;
-			case 's': {
-					char* str = va_arg(args, char*);
-					size += strlen(str)+1;
-				}
-				break;
-			case 'W':
-				// we don't support this because it's not null-terminated and it's impossible
-				// to correctly parse for size...
+			case 's': {char* str = va_arg(args, char*); size += strlen(str)+1; needFix = true;} break;
+			case 'o': case 'f': case 'S': case 'W':
+				// we don't support these because they're meaningless to the script
+				throw;
 				break;
 		}
 	}
 	va_end(args);
 
 	// copy the event data into a new helper object
-	char* stack = (char*)(&argc + sizeof(uintN));
+	char* stack = (char*)(&argc + 1);
 	EventHelper* helper = new EventHelper;
 	strcpy_s(helper->evtName, 15, evtName);
 	helper->format = new char[len+1];
@@ -289,6 +283,20 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 	helper->argvsize = size;
 	helper->argv = new BYTE[size];
 	memcpy(helper->argv, stack, size);
+	if(needFix)
+	{
+		// if we have any string arguments, we have to fix up the pointer--the
+		// memory could be dead by the time we get it, so we have to copy it into
+		// our memory
+		for(uintN i = 0; i < len; i++)
+		{
+			if(format[i] == 's')
+			{
+				char* str = (char*)*(helper->argv+(i*4));
+				memcpy(helper->argv, str, strlen(str)+1);
+			}
+		}		
+	}
 
 	PushEvent(helper);
 }
