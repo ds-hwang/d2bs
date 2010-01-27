@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <vector>
+#include <stdarg.h>
+#include <process.h>
 
 #include "ScriptEngine.h"
 #include "Core.h"
@@ -16,6 +18,8 @@ JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
+SLIST_HEADER ScriptEngine::eventList = {0};
+HANDLE ScriptEngine::eventHandle = INVALID_HANDLE_VALUE;
 
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
@@ -124,7 +128,12 @@ BOOL ScriptEngine::Startup(void)
 	if(GetState() == Stopped)
 	{
 		state = Starting;
+
 		InitializeCriticalSection(&lock);
+		InitializeSListHead(&eventList);
+
+		eventHandle = (HANDLE)_beginthread(EventThread, 0, NULL);
+
 		EnterCriticalSection(&lock);
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
@@ -150,6 +159,7 @@ void ScriptEngine::Shutdown(void)
 		EnterCriticalSection(&lock);
 		state = Stopping;
 		StopAll(true);
+		WaitForSingleObject(eventHandle, 500);
 
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);
@@ -228,13 +238,59 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
+void ScriptEngine::PushEvent(EventHelper* helper)
+{
+	InterlockedPushEntrySList(&eventList, (PSINGLE_LIST_ENTRY)helper);
+}
+
+void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc, ...)
 {
 	if(GetState() != Running)
 		return;
 
-	EventHelper helper = {evtName, argv, argc};
-	ForEachScript(ExecEventOnScript, &helper, 1);
+	// calculate the total number of bytes required to store the event data
+	va_list args;
+	va_start(args, argc);
+	uintN len = strlen(format), size = 0;
+	for(uintN i = 0; i < argc && i < len; i++)
+	{
+		switch(format[i])
+		{
+			case 'b': va_arg(args, JSBool);				size += sizeof(JSBool); break;
+			case 'c': va_arg(args, uint16);				size += sizeof(uint16); break;
+			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
+			case 'u': va_arg(args, uint32);				size += sizeof(uint32); break;
+			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
+			case 'o': va_arg(args, JSObject*);			size += sizeof(JSObject*); break;
+			case 'f': va_arg(args, JSFunction*);		size += sizeof(JSFunction*); break;
+			case 'S': va_arg(args, JSString*);			size += sizeof(JSString*); break;
+			case 's': {
+					char* str = va_arg(args, char*);
+					size += strlen(str)+1;
+				}
+				break;
+			case 'W':
+				// we don't support this because it's not null-terminated and it's impossible
+				// to correctly parse for size...
+				break;
+		}
+	}
+	va_end(args);
+
+	// copy the event data into a new helper object
+	char* stack = (char*)(&argc + sizeof(uintN));
+	EventHelper* helper = new EventHelper;
+	strcpy_s(helper->evtName, 15, evtName);
+	helper->format = new char[len+1];
+	strcpy_s(helper->format, len+1, format);
+
+	helper->executed = false;
+	helper->argc = argc;
+	helper->argvsize = size;
+	helper->argv = new BYTE[size];
+	memcpy(helper->argv, stack, size);
+
+	PushEvent(helper);
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -271,14 +327,6 @@ bool __fastcall StopIngameScript(Script* script, void*, uint)
 	return true;
 }
 
-bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
-{
-	EventHelper* helper = (EventHelper*)argv;
-	if(script->IsListenerRegistered(helper->evtName))
-		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
-	return true;
-}
-
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
@@ -290,6 +338,14 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 			list->push_back(script);
 		script->Pause();
 	}
+	return true;
+}
+
+bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
+{
+	EventHelper* helper = (EventHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
+		script->ExecEventAsync(helper->evtName, helper->format, helper->argvsize, helper->argc, helper->argv);
 	return true;
 }
 
@@ -311,8 +367,9 @@ JSBool branchCallback(JSContext* cx)
 	if(pause)
 		script->SetPauseState(false);
 
-	JS_SetContextThread(cx);
 	JS_ResumeRequest(cx, depth);
+
+	script->UpdatePlayerGid();
 
 	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
@@ -398,6 +455,22 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 //		LeaveCriticalSection(&ScriptEngine::lock);
 	}
 	return JS_TRUE;
+}
+
+void __cdecl EventThread(void* arg)
+{
+	while(ScriptEngine::GetState() != Stopped)
+	{
+		EventHelper* helper = (EventHelper*)InterlockedPopEntrySList(&ScriptEngine::eventList);
+		if(helper)
+		{
+			// execute it on every script
+			ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
+			delete[] helper->argv;
+			delete helper;
+		}
+		Sleep(10);
+	}
 }
 
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)

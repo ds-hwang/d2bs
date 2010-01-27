@@ -108,7 +108,7 @@ JSAPI_FUNC(script_send)
 		args[i] = new AutoRoot(argv[i]);
 
 	// this event has to occur as such because it's not a broadcasted event, just a local one
-	script->ExecEventAsync("scriptmsg", argc, args);
+//	script->ExecEventAsync("scriptmsg", argc, args);
 
 	return JS_TRUE;
 }

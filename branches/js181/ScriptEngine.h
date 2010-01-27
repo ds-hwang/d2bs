@@ -5,14 +5,16 @@
 #include <list>
 #include <map>
 #include <string>
+#include <windows.h>
 
 #include "js32.h"
-#include "AutoRoot.h"
 #include "Script.h"
 
 typedef std::map<std::string, Script*> ScriptMap;
 
 typedef bool (__fastcall *ScriptCallback)(Script*, void*, uint);
+
+struct EventHelper;
 
 enum EngineState {
 	Starting,
@@ -28,11 +30,14 @@ class ScriptEngine
 	virtual ~ScriptEngine(void) = 0;
 	ScriptEngine(const ScriptEngine&);
 	ScriptEngine& operator=(const ScriptEngine&);
+	friend void __cdecl EventThread(void* arg);
 
 	static JSRuntime* runtime;
 	static ScriptMap scripts;
 	static EngineState state;
 	static CRITICAL_SECTION lock;
+	static SLIST_HEADER eventList;
+	static HANDLE eventHandle;
 
 public:
 	friend class Script;
@@ -53,7 +58,9 @@ public:
 	static JSRuntime* GetRuntime(void) { return runtime; }
 
 	static void StopAll(bool forceStop = false);
-	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);
+	static void ExecEventAsync(char* evtName, const char* format, uintN argc, ...);
+	static void PushEvent(EventHelper* helper);
+
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
 							 JSFunctionSpec* methods, JSPropertySpec* props,
 							 JSFunctionSpec* s_methods, JSPropertySpec* s_props);
@@ -67,10 +74,13 @@ bool __fastcall StopIngameScript(Script* script, void*, uint);
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc);
 struct EventHelper
 {
-	char* evtName;
-	AutoRoot** argv;
-	uintN argc;
+	PSLIST_ENTRY Next;
+	char evtName[15];
+	char* format;
 	bool executed;
+	uintN argc;
+	uintN argvsize;
+	BYTE* argv;
 };
 
 JSBool branchCallback(JSContext* cx);

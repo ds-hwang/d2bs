@@ -175,8 +175,6 @@ JSBool ThrowJSError(JSContext* cx, JSObject* obj, const char* format, ...)
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
-	// always steal the context thread--we have to have it anyway.
-	JS_SetContextThread(cx);
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 
 	if(obj)

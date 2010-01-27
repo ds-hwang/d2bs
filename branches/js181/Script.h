@@ -32,11 +32,11 @@ typedef std::list<Script*> ScriptList;
 
 struct Event {
 	Script* owner;
-	JSContext* context;
 	JSObject* object;
 	FunctionList functions;
-	AutoRoot** argv;
+	char* format;
 	uintN argc;
+	void* argv;
 };
 
 class Script
@@ -95,8 +95,9 @@ public:
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
 
-	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+	void ExecEvent(const char* evtName, const char* format, uintN argc, void* argv);
+	void ExecEventAsync(const char* evtName, const char* format, uintN size, uintN argc, void* argv);
 };
 
 DWORD WINAPI ScriptThread(void* data);
-DWORD WINAPI FuncThread(void* data);
+void __cdecl FuncThread(void* data);

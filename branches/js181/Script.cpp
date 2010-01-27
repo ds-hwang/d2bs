@@ -1,5 +1,6 @@
 #include <io.h>
 #include <algorithm>
+#include <process.h>
 
 #include "Script.h"
 #include "Core.h"
@@ -44,7 +45,6 @@ Script::Script(const char* file, ScriptState state) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
-		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
@@ -65,6 +65,7 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Couldn't add named root for scriptObject");
 
 		JS_EndRequest(context);
+		JS_ClearContextThread(context);
 
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
@@ -141,7 +142,7 @@ void Script::Run(void)
 		JS_EndRequest(GetContext());
 		return;
 	}
-	JS_SetContextThread(GetContext());
+
 	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
@@ -155,9 +156,9 @@ void Script::Run(void)
 		}
 	}	
 
-	JS_SetContextThread(GetContext());
 	JS_RemoveRoot(&main);
-	JS_EndRequest(GetContext());	
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
 
 	execCount++;
 	Stop();
@@ -168,7 +169,6 @@ void Script::UpdatePlayerGid(void)
 	jsval me = JSVAL_VOID;
 	JSObject* meObject = NULL;
 	JS_AddRoot(&me);
-	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	if(JS_GetProperty(GetContext(), globalObject, "me", &me) == JS_FALSE)
@@ -275,7 +275,6 @@ bool Script::Include(const char* file)
 		return true;
 	}
 	bool rval = false;
-	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
 	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
@@ -293,15 +292,12 @@ bool Script::Include(const char* file)
 	}
 	else
 	{
-		JS_SetContextThread(GetContext());
 		JS_EndRequest(GetContext());
 		LeaveCriticalSection(&lock);
 		free(fname);
 		return false;
 	}
 
-	// HACK: assume we have to reclaim ownership
-	JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
 	LeaveCriticalSection(&lock);
 	free(fname);
@@ -395,35 +391,48 @@ void Script::ClearAllEvents(void)
 	LeaveCriticalSection(&lock);
 }
 
-void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
+void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void* argv)
 {
-	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
+		IsRunning() && !(GetState() == InGame && !GameReady()))
 	{
-		// no event will happen, clean up the roots
-		for(uintN i = 0; i < argc; i++)
-			delete argv[i];
-		delete[] argv;
-		return;
+		FunctionList funcs = functions[evtName];
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JS_EnterLocalRootScope(cx);
+		// build the arg list
+		void* markp = NULL;
+		jsval* argv = NULL;
+		argv = JS_PushArguments(cx, &markp, format, argv);
+
+		for(FunctionList::iterator it = funcs.begin(); it != funcs.end(); it++)
+		{
+			jsval dummy = JSVAL_VOID;
+			JS_CallFunctionValue(cx, GetGlobalObject(), (*it)->value(), argc, argv, &dummy);
+		}
+
+		// and clean it up
+		JS_PopArguments(cx, markp);
+		JS_LeaveLocalRootScope(cx);
+		JS_DestroyContextNoGC(cx);
 	}
+}
 
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();
-
-	Event* evt = new Event;
-	evt->owner = this;
-	evt->functions = functions[evtName];
-	evt->argc = argc;
-	evt->argv = argv;
-	evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
-	if(!evt->context)
+void Script::ExecEventAsync(const char* evtName, const char* format, uintN size, uintN argc, void* argv)
+{
+	if((!IsAborted() && !IsPaused() && functions.count(evtName)))
 	{
-		delete evt;
-		return;
+		Event* evt = new Event;
+		evt->owner = this;
+		evt->object = globalObject;
+		evt->functions = functions[evtName];
+		int len = strlen(format)+1;
+		evt->format = new char[len];
+		strcpy_s(evt->format, len, format);
+		evt->argc = argc;
+		evt->argv = new BYTE[size];
+		memcpy(evt->argv, argv, size);
+		_beginthread(FuncThread, 0, evt);
 	}
-	evt->object = globalObject;
-	JS_SetContextPrivate(evt->context, this);
-
-	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
 
 DWORD WINAPI ScriptThread(void* data)
@@ -438,59 +447,36 @@ DWORD WINAPI ScriptThread(void* data)
 	return 0;
 }
 
-DWORD WINAPI FuncThread(void* data)
+void __cdecl FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
 	if(!evt)
-		return 0;
-
-	JS_SetContextThread(evt->context);
-	JS_BeginRequest(evt->context);
+		return;
 
 	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
 	{
-		jsval* args = new jsval[evt->argc];
-		for(uintN i = 0; i < evt->argc; i++)
-		{
-			args[i] = evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
-			{
-				if(evt->argv)
-					delete[] evt->argv;
-				delete evt;
-				return NULL;
-			}
-		}
-		jsval dummy = JSVAL_VOID;
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JS_SetContextPrivate(cx, evt->owner);
+		JS_BeginRequest(cx);
+		JS_EnterLocalRootScope(cx);
+		// build the arg list
+		void* markp = NULL;
+		jsval* argv = JS_PushArguments(cx, &markp, evt->format, evt->argv);
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			jsval dummy = JSVAL_VOID;
+			JS_CallFunctionValue(cx, evt->object, (*it)->value(), evt->argc, argv, &dummy);
 		}
 
-		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
-		delete[] args;
-
-		// check if the caller stole the context thread
-		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
-		{
-			JS_ClearContextThread(evt->context);
-			JS_SetContextThread(evt->context);	
-		}
+		// and clean it up
+		JS_PopArguments(cx, markp);
+		JS_LeaveLocalRootScope(cx);
+		JS_EndRequest(cx);
+		JS_DestroyContextNoGC(cx);
 	}
 
-	JS_DestroyContextNoGC(evt->context);
-	// we have to clean up the event
-	for(uintN i = 0; i < evt->argc; i++)
-	{
-		evt->argv[i]->Release();
-		if(evt->argv[i])
-			delete evt->argv[i];
-	}
-	if(evt->argv)
-		delete[] evt->argv;
+	delete[] evt->argv;
+	delete[] evt->format;
 	delete evt;
-	
-	return 0;
 }
