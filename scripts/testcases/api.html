@@ -517,6 +517,61 @@ Also see [[AdvancedOptions]]</pre>
 <div title="DefaultTiddlers" modifier="lord2800" created="200910281255" modified="200911120145" changecount="2">
 <pre>Welcome</pre>
 </div>
+<div title="EventListPlugin" modifier="lord2800" created="201001181019" modified="201001221349" tags="systemConfig" changecount="2">
+<pre>//{{{
+
+config.macros.eventList = {
+	handler: function (place, macroName, params, wikifier, paramString) {
+		var functions = &quot;!Events:\r\n\r\n&quot;;
+		for(var i = 0; i &lt; params.length; i++)
+			functions += '[[' + params[i] + ']]\r\n';
+
+		wikify(functions, place);
+	}
+};
+
+//}}}</pre>
+</div>
+<div title="EventPlugin" modifier="lord2800" created="201001181011" modified="201001181013" tags="systemConfig" changecount="2">
+<pre>//{{{
+
+config.macros.event = {
+	handler: function (place, macroName, params, wikifier, paramString, tiddler) {
+		var p = paramString.parseParams(null, null, true);
+		var len = tiddler.title.indexOf('Event');
+		if(len == -1) len = tiddler.title.length;
+		var name = getParam(p, &quot;name&quot;) || tiddler.title.slice(0, len);
+		var args = getParam(p, &quot;args&quot;);
+		var retVal = getParam(p, &quot;returnType&quot;) || 'void';
+		var remarks = getParam(p, &quot;remarks&quot;) || 'none';
+		var example = getParam(p, &quot;example&quot;) || '';
+		wikify(&quot;!Event:\r\n{{{&quot; + retVal + &quot; &quot; + name + &quot;(&quot; + args + &quot;)}}}\r\n\r\n&quot; +
+			 &quot;!!!''Remarks:''\r\n&quot; + remarks + &quot;\r\n\r\n&quot; +
+			 &quot;!!!''Example:''\r\n{{{&quot; + example + &quot;}}}&quot;,
+			 place);
+	}
+};
+
+//}}}</pre>
+</div>
+<div title="Events" modifier="lord2800" created="201001181020" modified="201001221348" changecount="3">
+<pre>&lt;&lt;eventList
+	ItemActionEvent
+	GameMsgEvent
+	ChatMsgEvent
+	WhisperMsgEvent
+	MeLifeEvent
+	MeManaEvent
+	KeyUpEvent
+	KeyDownEvent
+	PlayerAssignEvent
+	MouseClickEvent
+	ScriptMsgEvent
+	GoldDropEvent
+	CopyDataEvent
+	GameEventEvent
+&gt;&gt;</pre>
+</div>
 <div title="File.open" modifier="lord2800" created="200912102109" changecount="1">
 <pre>&lt;&lt;func prefix:&quot;File&quot; args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
@@ -550,8 +605,27 @@ Also see [[AdvancedOptions]]</pre>
 	eof
 &gt;&gt;</pre>
 </div>
-<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="200911120452" changecount="9">
-<pre>&lt;&lt;func args:&quot;string name&quot; returnType:&quot;bool&quot; returns:&quot;True if the file was removed, otherwise false.&quot; remarks:&quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
+<div title="FileTools.appendText" modifier="lord2800" created="201001221355" modified="201001221404" changecount="5">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string name, object content [, ... ]&quot; returnType:&quot;bool&quot; returns:&quot;True if all the content was successfully appended, otherwise false.&quot; remarks:&quot;Appends all of the contents to a file based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.appendText('/logs/mylog.txt', 'January 2nd. Got eaten by a grue. Apparently he wanted the beans.');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.copy" modifier="lord2800" created="201001221405" modified="201001221405" changecount="2">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string original, string newname&quot; returnType:&quot;bool&quot; returns:&quot;True if the copy succeeded, otherwise false.&quot; remarks:&quot;Copies a file on disk to a new name. All paths are relative to the script folder.&quot; example:&quot;var contents = FileTools.copy('/logs/mylog.txt', '/logs/mybackup.txt');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.exists" modifier="lord2800" created="201001221402" modified="201001221403" changecount="2">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string name&quot; returnType:&quot;bool&quot; returns:&quot;True if the file exists, otherwise false.&quot; remarks:&quot;Checks to see if the specified file exists on disk. All paths are relative to the script folder.&quot; example:&quot;if(FileTools.exists('/logs/mylog.txt'))
+	print('I have a log!');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.readText" modifier="lord2800" created="201001221400" modified="201001221403" changecount="2">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string name&quot; returnType:&quot;string&quot; returns:&quot;The entire file contents.&quot; remarks:&quot;Reads all of the contents from the specified file and returns it as a string. All paths are relative to the script folder.&quot; example:&quot;var contents = FileTools.readText('/logs/mylog.txt');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.remove" modifier="lord2800" created="200911012353" modified="201001221403" changecount="10">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string name&quot; returnType:&quot;bool&quot; returns:&quot;True if the file was removed, otherwise false.&quot; remarks:&quot;Remove a file based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.remove('/some/file.txt');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.rename" modifier="lord2800" created="201001221406" changecount="1">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string original, string newname&quot; returnType:&quot;bool&quot; returns:&quot;True if the rename succeeded, otherwise false.&quot; remarks:&quot;Renames a file on disk to a new name. All paths are relative to the script folder.&quot; example:&quot;var contents = FileTools.rename('/logs/mylog.txt', '/logs/oldlog.txt');&quot;&gt;&gt;</pre>
+</div>
+<div title="FileTools.writeText" modifier="lord2800" created="201001221358" modified="201001221403" changecount="2">
+<pre>&lt;&lt;func prefix:&quot;FileTools&quot; args:&quot;string name, object content [, ... ]&quot; returnType:&quot;bool&quot; returns:&quot;True if of all the contents were successfully written, otherwise false.&quot; remarks:&quot;Overwrites all of the old contents of a file with the new specified contents based on the file name. All paths are relative to the script folder.&quot; example:&quot;FileTools.writeText('/logs/mylog.txt', 'January 1st. Found an old can of beans. No idea what it's for, but it's got to be useful for something.');&quot;&gt;&gt;</pre>
 </div>
 <div title="FileToolsObject" modifier="lord2800" created="200911012322" modified="200911112248" changecount="8">
 <pre>&lt;&lt;functionList prefix:&quot;FileTools&quot;
@@ -619,7 +693,7 @@ config.macros.func = {
 
 //}}}</pre>
 </div>
-<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="200912092228" changecount="5">
+<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="201001250208" changecount="6">
 <pre>&lt;&lt;functionList
 	getUnit
 	getPath
@@ -640,7 +714,6 @@ config.macros.func = {
 	getPresetUnit
 	getPresetUnits
 	getArea
-	getExits
 	getBaseStat
 	getControl
 	getPlayerFlag
@@ -702,34 +775,57 @@ config.macros.func = {
 	sha512_file
 &gt;&gt;</pre>
 </div>
-<div title="GlobalObjects" modifier="lord2800" created="200912301531" changecount="1">
-<pre>[[me]]</pre>
+<div title="GlobalObjects" modifier="lord2800" created="200912301531" modified="201001221351" changecount="2">
+<pre>&lt;&lt;objectList
+	me
+&gt;&gt;</pre>
 </div>
-<div title="MainMenu" modifier="lord2800" created="200910281257" modified="200912301531" changecount="3">
+<div title="ItemActionEvent" modifier="lord2800" created="201001181022" changecount="1">
+<pre>&lt;&lt;event args:&quot;int gid, int mode, string code, bool global&quot; remarks:&quot;If global is true, the item action is a 'world action', meaning everyone in game got the same event&quot;&gt;&gt;</pre>
+</div>
+<div title="MainMenu" modifier="lord2800" created="200910281257" modified="201001181003" changecount="4">
 <pre>GlobalFunctions
 GlobalObjects
-[[Objects]]</pre>
+[[Objects]]
+[[Events]]</pre>
 </div>
-<div title="Objects" modifier="lord2800" created="200911012315" modified="200912301852" changecount="2">
-<pre>SQLiteObject
-DBStatementObject
-FileObject
-FileToolsObject
-D2BSScriptObject
-FrameObject
-BoxObject
-LineObject
-TextObject
-ImageObject
-SandboxObject
-RoomObject
-PresetUnitObject
-PartyObject
-ExitObject
-DirectoryObject
-ControlObject
-AreaObject
-UnitObject</pre>
+<div title="ObjectListPlugin" modifier="lord2800" created="201001221350" tags="systemConfig" changecount="1">
+<pre>//{{{
+
+config.macros.objectList = {
+	handler: function (place, macroName, params, wikifier, paramString) {
+		var functions = &quot;!Objects:\r\n\r\n&quot;;
+		for(var i = 0; i &lt; params.length; i++)
+			functions += '[[' + params[i] + ']]\r\n';
+
+		wikify(functions, place);
+	}
+};
+
+//}}}</pre>
+</div>
+<div title="Objects" modifier="lord2800" created="200911012315" modified="201001221351" changecount="3">
+<pre>&lt;&lt;objectList
+	SQLiteObject
+	DBStatementObject
+	FileObject
+	FileToolsObject
+	D2BSScriptObject
+	FrameObject
+	BoxObject
+	LineObject
+	TextObject
+	ImageObject
+	SandboxObject
+	RoomObject
+	PresetUnitObject
+	PartyObject
+	ExitObject
+	DirectoryObject
+	ControlObject
+	AreaObject
+	UnitObject
+&gt;&gt;</pre>
 </div>
 <div title="PropertyListPlugin" modifier="lord2800" created="200911112248" tags="systemConfig" changecount="1">
 <pre>//{{{
@@ -889,8 +985,8 @@ Difficulties:
 <div title="getArea" modifier="lord2800" created="200912092235" modified="200912301926" changecount="2">
 <pre>&lt;&lt;func args:&quot;[ int id ]&quot; returnType:&quot;Area&quot; returns:&quot;An Area object representing the specified area, if no area specified then the current one is assumed&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getBaseStat" modifier="lord2800" created="200912092235" modified="200912301802" changecount="3">
-<pre>&lt;&lt;func args:&quot;int table, int row, int column OR string columnName&quot; returnType:&quot;string/int&quot; returns:&quot;The MPQ value for the specified row/column in the specified table&quot; remarks:&quot;Tables:
+<div title="getBaseStat" modifier="lord2800" created="200912092235" modified="201001181002" changecount="4">
+<pre>&lt;&lt;func args:&quot;int table OR string tableName, int row, int column OR string columnName&quot; returnType:&quot;string/int&quot; returns:&quot;The MPQ value for the specified row/column in the specified table&quot; remarks:&quot;Tables (these names are also valid for argument 1):
 0 - items
 1 - monstats
 2 - skilldesc
@@ -916,7 +1012,7 @@ Difficulties:
 22 - gems 
 23 - experience
 24 - pettype
-25 - ~SuperUniques&quot; example:&quot;&quot;&gt;&gt;</pre>
+25 - superuniques&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
 <div title="getCollision" modifier="lord2800" created="200912092236" modified="200912102124" changecount="2">
 <pre>&lt;&lt;func args:&quot;int area, int x, int y&quot; returnType:&quot;int&quot; returns:&quot;The collision data for the specified (x, y) in the specified area&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
