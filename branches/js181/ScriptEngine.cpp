@@ -20,6 +20,7 @@ EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 SLIST_HEADER ScriptEngine::eventList = {0};
 HANDLE ScriptEngine::eventHandle = INVALID_HANDLE_VALUE;
+JSContext* ScriptEngine::context = {0};
 
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
@@ -142,6 +143,10 @@ BOOL ScriptEngine::Startup(void)
 			LeaveCriticalSection(&lock);
 			return FALSE;
 		}
+		// grab a private context to use before we assign the context callback
+		context = JS_NewContext(runtime, 8192);
+		JS_ClearContextThread(context);
+
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
@@ -169,6 +174,8 @@ void ScriptEngine::Shutdown(void)
 
 		if(runtime)
 		{
+			// free our private context just before we shut down the runtime
+			JS_DestroyContext(context);
 			JS_DestroyRuntime(runtime);
 			JS_ShutDown();
 			runtime = NULL;
@@ -243,7 +250,7 @@ void ScriptEngine::PushEvent(EventHelper* helper)
 	InterlockedPushEntrySList(&eventList, (PSINGLE_LIST_ENTRY)helper);
 }
 
-void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc, ...)
+void ScriptEngine::ExecEventAsync(char* evtName, char* format, uintN argc, ...)
 {
 	if(GetState() != Running)
 		return;
@@ -252,7 +259,9 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 	va_list args;
 	va_start(args, argc);
 	uintN len = strlen(format), size = 0;
-	bool needFix = false;
+	char fmt[10];
+	strcpy_s(fmt, 10, format);
+
 	for(uintN i = 0; i < argc && i < len; i++)
 	{
 		switch(format[i])
@@ -262,10 +271,23 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
 			case 'u': va_arg(args, uint32);				size += sizeof(uint32); break;
 			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
-			case 's': {char* str = va_arg(args, char*); size += strlen(str)+1; needFix = true;} break;
-			case 'o': case 'f': case 'S': case 'W':
-				// we don't support these because they're meaningless to the script
-				throw;
+			case 's': {
+				JS_SetContextThread(context);
+				JS_BeginRequest(context);
+
+				char* str = va_arg(args, char*);
+				size += sizeof(JSString*);
+				JSString* encString = JS_NewStringCopyZ(context, str);
+				memcpy((void*)(&argc + (size/4)), &encString, sizeof(void*));
+				fmt[i] = 'S';
+
+				JS_EndRequest(context);
+				JS_ClearContextThread(context);
+				break;
+			}
+			default:
+				// api usage error
+				ASSERT(false);
 				break;
 		}
 	}
@@ -275,28 +297,13 @@ void ScriptEngine::ExecEventAsync(char* evtName, const char* format, uintN argc,
 	char* stack = (char*)(&argc + 1);
 	EventHelper* helper = new EventHelper;
 	strcpy_s(helper->evtName, 15, evtName);
-	helper->format = new char[len+1];
-	strcpy_s(helper->format, len+1, format);
+	strcpy_s(helper->format, 10, fmt);
 
 	helper->executed = false;
 	helper->argc = argc;
 	helper->argvsize = size;
 	helper->argv = new BYTE[size];
 	memcpy(helper->argv, stack, size);
-	if(needFix)
-	{
-		// if we have any string arguments, we have to fix up the pointer--the
-		// memory could be dead by the time we get it, so we have to copy it into
-		// our memory
-		for(uintN i = 0; i < len; i++)
-		{
-			if(format[i] == 's')
-			{
-				char* str = (char*)*(helper->argv+(i*4));
-				memcpy(helper->argv, str, strlen(str)+1);
-			}
-		}		
-	}
 
 	PushEvent(helper);
 }

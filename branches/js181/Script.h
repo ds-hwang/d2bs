@@ -31,10 +31,10 @@ typedef std::map<std::string, FunctionList> FunctionMap;
 typedef std::list<Script*> ScriptList;
 
 struct Event {
+	FunctionList functions;
 	Script* owner;
 	JSObject* object;
-	FunctionList functions;
-	char* format;
+	char format[10];
 	uintN argc;
 	void* argv;
 };

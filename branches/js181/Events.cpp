@@ -1,159 +1,33 @@
 #include "ScriptEngine.h"
 
-struct ChatEventHelper
-{
-	char *event, *nick, *msg;
-};
-
-struct CopyDataHelper
-{
-	DWORD mode;
-	char* msg;
-};
-
-struct ItemEventHelper
-{
-	DWORD id;
-	char* code;
-	WORD mode;
-	bool global;
-};
-
-struct KeyEventHelper
-{
-	BOOL up;
-	WPARAM key;
-};
-
-struct GameActionEventHelper
-{
-	BYTE mode;
-	DWORD param;
-	char *name1, *name2;
-};
-
-struct SingleArgHelper
-{
-	DWORD arg1;
-};
-
-struct DoubleArgHelper
-{
-	DWORD arg1, arg2;
-};
-
-struct TripleArgHelper
-{
-	DWORD arg1, arg2, arg3;
-};
-
-struct QuadArgHelper
-{
-	DWORD arg1, arg2, arg3, arg4;
-};
-
-struct BCastEventHelper
-{
-	jsval* argv;
-	uintN argc;
-};
-
-bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
-{
-//	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("melife"))
-	{
-//		script->ExecEventAsync("melife", "u", 1, (void*)helper->arg1);
-	}
-	return true;
-}
-
 void LifeEvent(DWORD dwLife)
 {
-//	SingleArgHelper helper = {dwLife};
-//	ScriptEngine::ForEachScript(LifeEventCallback, &helper, 1);
 	ScriptEngine::ExecEventAsync("melife", "u", 1, (uint32)dwLife);
-}
-
-bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
-{
-//	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("memana"))
-	{
-//		script->ExecEventAsync("memana", "u", 1, (void*)helper->arg1);
-	}
-	return true;
 }
 
 void ManaEvent(DWORD dwMana)
 {
-//	SingleArgHelper helper = {dwMana};
-//	ScriptEngine::ForEachScript(ManaEventCallback, &helper, 1);
-}
-
-bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
-{
-	KeyEventHelper* helper = (KeyEventHelper*)argv;
-	char* evt = (helper->up ? "keyup" : "keydown");
-	if(script->IsRunning() && script->IsListenerRegistered(evt))
-	{
-//		script->ExecEventAsync(evt, "u", 1, (void*)helper->key);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("memana", "u", 1, (uint32)dwMana);
 }
 
 void KeyDownUpEvent(WPARAM key, BYTE bUp)
 {
-//	KeyEventHelper helper = {bUp, key};
-//	ScriptEngine::ForEachScript(KeyEventCallback, &helper, 1);
-}
-
-bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
-{
-//	SingleArgHelper* helper = (SingleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("playerassign"))
-	{
-//		script->ExecEventAsync("playerassign", "u", 1, (void*)helper->arg1);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync((bUp ? "keyup" : "keydown"), "u", 1, (uint32)key);
 }
 
 void PlayerAssignEvent(DWORD dwUnitId)
 {
-//	SingleArgHelper helper = {dwUnitId};
-//	ScriptEngine::ForEachScript(PlayerAssignCallback, &helper, 1);
-}
-
-bool __fastcall MouseClickCallback(Script* script, void* argv, uint argc)
-{
-//	TripleArgHelper* helper = (TripleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("mouseclick"))
-	{
-		//script->ExecEventAsync("mouseclick", "uuu", 3, helper->arg1, helper->arg2, helper->arg3);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("playerassign", "u", 1, (uint32)dwUnitId);
 }
 
 void MouseClickEvent(int button, POINT pt, bool bUp)
 {
-//	TripleArgHelper helper = {button, pt.x, pt.y};
-//	ScriptEngine::ForEachScript(MouseClickCallback, &helper, 1);
-}
-
-bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
-{
-//	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("mousemove"))
-	{
-		//script->ExecEventAsync("mousemove", "uu", 2, helper->arg1, helper->arg2);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("mouseclick", "ubuu", 3, (uint32)button, (JSBool)bUp, (uint32)pt.x, (uint32)pt.y)
 }
 
 void MouseMoveEvent(POINT pt)
 {
-//	DoubleArgHelper helper = {pt.x, pt.y};
-//	ScriptEngine::ForEachScript(MouseMoveCallback, &helper, 1);
+	ScriptEngine::ExecEventAsync("mousemove", "uu", 2, (uint32)pt.x, (uint32)pt.y);
 }
 
 bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
@@ -175,103 +49,37 @@ void ScriptBroadcastEvent(uintN argc, jsval* args)
 //	ScriptEngine::ForEachScript(BCastEventCallback, &helper, 1);
 }
 
-bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
-{
-//	DoubleArgHelper* helper = (DoubleArgHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("golddrop"))
-	{
-//		script->ExecEventAsync("golddrop", "uu", 2, helper->arg1, helper->arg2);
-	}
-	return true;
-}
-
 void GoldDropEvent(DWORD GID, BYTE Mode)
 {
-//	DoubleArgHelper helper = {GID, Mode};
-//	ScriptEngine::ForEachScript(GoldDropCallback, &helper, 1);
-}
-
-bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
-{
-	ChatEventHelper* helper = (ChatEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered(helper->event))
-	{
-//		script->ExecEventAsync(helper->event, "ss", 2, helper->nick, helper->msg);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("golddrop", "uu", 2, (uint32)GID, (uint32)Mode);
 }
 
 void ChatEvent(char* lpszNick, char* lpszMsg)
 {
-//	ChatEventHelper helper = {"chatmsg", lpszNick, lpszMsg};
-//	ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
+	ScriptEngine::ExecEventAsync("chatmsg", "ss", 2, lpszNick, lpszMsg);
 }
 
 void WhisperEvent(char* lpszNick, char* lpszMsg)
 {
-//	ChatEventHelper helper = {"whispermsg", lpszNick, lpszMsg};
-//	ScriptEngine::ForEachScript(ChatEventCallback, &helper, 1);
-}
-
-bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
-{
-	CopyDataHelper* helper = (CopyDataHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("copydata"))
-	{
-		script->ExecEventAsync("copydata", "is", 2, helper->mode, helper->msg);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("whispermsg", "ss", 2, lpszNick, lpszMsg);
 }
 
 void CopyDataEvent(DWORD dwMode, char* lpszMsg)
 {
-//	CopyDataHelper helper = {dwMode, lpszMsg};
-//	ScriptEngine::ForEachScript(CopyDataCallback, &helper, 1);
-}
-
-bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
-{
-	if(script->IsRunning() && script->IsListenerRegistered("gamemsg"))
-	{
-//		script->ExecEventAsync("gamemsg", "s", 1, argv);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("copydata", "is", 2, (int32)dwMode, lpszMsg);
 }
 
 void GameMsgEvent(char* lpszMsg)
 {
-//	ScriptEngine::ForEachScript(GameEventCallback, lpszMsg, 1);
-}
-
-bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
-{
-//	ItemEventHelper* helper = (ItemEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("itemaction"))
-	{
-//		script->ExecEventAsync("itemaction", "uusb", 4, helper->id, helper->mode, helper->code, helper->global);
-	}
-	return true;
+	ScriptEngine::ExecEventAsync("gamemsg", "s", 1, lpszMsg);
 }
 
 void ItemActionEvent(DWORD gid, char* code, BYTE mode, bool global)
 {
-//	ItemEventHelper helper = {GID, Code, Mode, Global};
-//	ScriptEngine::ForEachScript(ItemEventCallback, &helper, 1);
 	ScriptEngine::ExecEventAsync("itemaction", "usub", 4, (uint32)gid, code, (uint32)mode, (JSBool)global);
-}
-
-bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
-{
-//	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
-	{
-//		script->ExecEventAsync("gameevent", "uuss", 4, helper->mode, helper->param, helper->name1, helper->name2);
-	}
-	return true;
 }
 
 void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2)
 {
-//	GameActionEventHelper helper = {mode, param, name1, name2};
-//	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
+	ScriptEngine::ExecEventAsync("gameevent", "uuss", 4, (uint32)mode, (uint32)param, name1, name2);
 }

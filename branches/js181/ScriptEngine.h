@@ -38,6 +38,7 @@ class ScriptEngine
 	static CRITICAL_SECTION lock;
 	static SLIST_HEADER eventList;
 	static HANDLE eventHandle;
+	static JSContext* context;
 
 public:
 	friend class Script;
@@ -58,7 +59,7 @@ public:
 	static JSRuntime* GetRuntime(void) { return runtime; }
 
 	static void StopAll(bool forceStop = false);
-	static void ExecEventAsync(char* evtName, const char* format, uintN argc, ...);
+	static void ExecEventAsync(char* evtName, char* format, uintN argc, ...);
 	static void PushEvent(EventHelper* helper);
 
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -76,7 +77,7 @@ struct EventHelper
 {
 	PSLIST_ENTRY Next;
 	char evtName[15];
-	char* format;
+	char format[10];
 	bool executed;
 	uintN argc;
 	uintN argvsize;

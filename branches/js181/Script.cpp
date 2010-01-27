@@ -425,9 +425,7 @@ void Script::ExecEventAsync(const char* evtName, const char* format, uintN size,
 		evt->owner = this;
 		evt->object = globalObject;
 		evt->functions = functions[evtName];
-		int len = strlen(format)+1;
-		evt->format = new char[len];
-		strcpy_s(evt->format, len, format);
+		strcpy_s(evt->format, 10, format);
 		evt->argc = argc;
 		evt->argv = new BYTE[size];
 		memcpy(evt->argv, argv, size);
@@ -477,6 +475,5 @@ void __cdecl FuncThread(void* data)
 	}
 
 	delete[] evt->argv;
-	delete[] evt->format;
 	delete evt;
 }
