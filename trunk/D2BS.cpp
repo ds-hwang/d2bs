@@ -1,6 +1,8 @@
 // Diablo II Botting System Core
 
 #include <shlwapi.h>
+#include <io.h>
+#include <fcntl.h>
 
 #include "dde.h"
 #include "Offset.h"
@@ -34,10 +36,22 @@ BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
 			}
 			else
 			{
-				GetModuleFileName(hDll,Vars.szPath,MAX_PATH);
+				GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
 				PathRemoveFileSpec(Vars.szPath);
 				strcat_s(Vars.szPath, MAX_PATH, "\\");
 			}
+
+#ifdef DEBUG
+			char errlog[516] = "";
+			sprintf_s(errlog, 516, "%sd2bs.log", Vars.szPath);
+			AllocConsole();
+			int handle = _open_osfhandle((long)GetStdHandle(STD_ERROR_HANDLE), _O_TEXT);
+			FILE* f = _fdopen(handle, "wt");
+			*stderr = *f;
+			setvbuf(stderr, NULL, _IONBF, 0);
+			freopen_s(&f, errlog, "a+t", f);
+#endif
+
 			Vars.bShutdownFromDllMain = FALSE;
 			if(!Startup())
 				return FALSE;
