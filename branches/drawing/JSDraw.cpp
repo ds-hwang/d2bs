@@ -109,114 +109,92 @@ JSAPI_FUNC(drawImage)
 
 JSAPI_FUNC(screenToAutomap)
 {
+	int32 x = 0, y = 0;
+
 	if(argc == 1)
 	{
-		// the arg must be an object with an x and a y that we can convert
-		if(JSVAL_IS_OBJECT(argv[0]))
+		JSObject* arg = NULL;
+		if(!JS_ConvertArguments(cx, 1, argv, "o", &arg))
+			return JS_FALSE;
+		jsval dx = JSVAL_VOID, dy = JSVAL_VOID;
+		if(!JS_GetProperty(cx, arg, "x", &dx) || !JS_GetProperty(cx, arg, "y", &dy))
 		{
-			// get the params
-			JSObject* arg = JSVAL_TO_OBJECT(argv[0]);
-			jsval x, y;
-			if(JS_GetProperty(cx, arg, "x", &x) == JS_FALSE || JS_GetProperty(cx, arg, "y", &y) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to get x and/or y values");
-			if(!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y))
-				THROW_ERROR(cx, obj, "Input has an x or y, but they aren't the correct type!");
-			int32 ix, iy;
-			if(JS_ValueToInt32(cx, x, &ix) == JS_FALSE || JS_ValueToInt32(cx, y, &iy) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
-			// convert the values
-			POINT result;
-			ix *= 32;
-			iy *= 32;
-			ScreenToAutomap(&result, ix, iy);
-			x = INT_TO_JSVAL(ix);
-			y = INT_TO_JSVAL(iy);
-			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(arg);
+			JS_ReportError(cx, "Argument must have an x and a y property");
+			return JS_FALSE;
 		}
-		else
-			THROW_ERROR(cx, obj, "Invalid object specified to screenToAutomap");
+		if(!JS_ConvertValue(cx, dx, JSTYPE_NUMBER, &(argv[0])) ||
+		   !JS_ConvertValue(cx, dy, JSTYPE_NUMBER, &(argv[1])) ||
+		   !JS_ValueToECMAInt32(cx, dx, &x) || !JS_ValueToECMAInt32(cx, dy, &y))
+		{
+			JS_ReportError(cx, "Failed to convert x or y property");
+			return JS_FALSE;
+		}
 	}
 	else if(argc == 2)
 	{
-		// the args must be ints
-		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
+		if(!JS_ConvertArguments(cx, 2, argv, "uu", &x, &y))
 		{
-			int32 ix, iy;
-			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
-			// convert the values
-			POINT result;
-			ix *= 32;
-			iy *= 32;
-			ScreenToAutomap(&result, ix, iy);
-			argv[0] = INT_TO_JSVAL(ix);
-			argv[1] = INT_TO_JSVAL(iy);
-			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
-			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(res);
+			JS_ReportError(cx, "Failed to convert x or y property");
+			return JS_FALSE;
 		}
-		else
-			THROW_ERROR(cx, obj, "screenToAutomap expects two arguments to be two integers");
 	}
-	else
-		THROW_ERROR(cx, obj, "Invalid arguments specified for screenToAutomap");
+
+	// convert the values
+	POINT result;
+	x *= 32;
+	y *= 32;
+	ScreenToAutomap(&result, x, y);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
+	if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
+		THROW_ERROR(cx, obj, "Failed to set x and/or y values");
+	*rval = OBJECT_TO_JSVAL(res);
+
 	return JS_TRUE;
 }
 
 JSAPI_FUNC(automapToScreen)
 {
+	int32 x = 0, y = 0;
+
 	if(argc == 1)
 	{
-		// the arg must be an object with an x and a y that we can convert
-		if(JSVAL_IS_OBJECT(argv[0]))
+		JSObject* arg = NULL;
+		if(!JS_ConvertArguments(cx, 1, argv, "o", &arg))
+			return JS_FALSE;
+		jsval dx = JSVAL_VOID, dy = JSVAL_VOID;
+		if(!JS_GetProperty(cx, arg, "x", &dx) || !JS_GetProperty(cx, arg, "y", &dy))
 		{
-			// get the params
-			JSObject* arg = JSVAL_TO_OBJECT(argv[0]);
-			jsval x, y;
-			if(JS_GetProperty(cx, arg, "x", &x) == JS_FALSE || JS_GetProperty(cx, arg, "y", &y) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to get x and/or y values");
-			if(!JSVAL_IS_INT(x) || !JSVAL_IS_INT(y))
-				THROW_ERROR(cx, obj, "Input has an x or y, but they aren't the correct type!");
-			int32 ix, iy;
-			if(JS_ValueToInt32(cx, x, &ix) == JS_FALSE || JS_ValueToInt32(cx, y, &iy))
-				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
-			// convert the values
-			POINT result = {ix,iy};
-			MapToScreenCoords(&result);
-			x = INT_TO_JSVAL(ix);
-			y = INT_TO_JSVAL(iy);
-			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(arg);
+			JS_ReportError(cx, "Argument must have an x and a y property");
+			return JS_FALSE;
 		}
-		else
-			THROW_ERROR(cx, obj, "Invalid object specified to automapToScreen");
+		if(!JS_ConvertValue(cx, dx, JSTYPE_NUMBER, &(argv[0])) ||
+		   !JS_ConvertValue(cx, dy, JSTYPE_NUMBER, &(argv[1])) ||
+		   !JS_ValueToECMAInt32(cx, dx, &x) || !JS_ValueToECMAInt32(cx, dy, &y))
+		{
+			JS_ReportError(cx, "Failed to convert x or y property");
+			return JS_FALSE;
+		}
 	}
 	else if(argc == 2)
 	{
-		// the args must be ints
-		if(JSVAL_IS_INT(argv[0]) && JSVAL_IS_INT(argv[1]))
+		if(!JS_ConvertArguments(cx, 2, argv, "uu", &x, &y))
 		{
-			int32 ix, iy;
-			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy))
-				THROW_ERROR(cx, obj, "Failed to convert x and/or y values");
-			// convert the values
-			POINT result = {ix,iy};
-			MapToScreenCoords(&result);
-			argv[0] = INT_TO_JSVAL(result.x);
-			argv[1] = INT_TO_JSVAL(result.y);
-			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
-			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(res);
+			JS_ReportError(cx, "Failed to convert x or y property");
+			return JS_FALSE;
 		}
-		else
-			THROW_ERROR(cx, obj, "automapToScreen expects two arguments to be two integers");
 	}
-	else
-		THROW_ERROR(cx, obj, "Invalid arguments specified for automapToScreen");
+
+	// convert the values
+	POINT result = {x,y};
+	MapToScreenCoords(&result);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
+	if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
+		THROW_ERROR(cx, obj, "Failed to set x and/or y values");
+	*rval = OBJECT_TO_JSVAL(res);
+
 	return JS_TRUE;
 }
