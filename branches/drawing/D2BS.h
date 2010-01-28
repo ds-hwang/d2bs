@@ -78,6 +78,7 @@ struct Variables
 	CRITICAL_SECTION	cBoxHookSection;
 	CRITICAL_SECTION	cFrameHookSection;
 	CRITICAL_SECTION	cLineHookSection;
+	CRITICAL_SECTION	cAutomapSymbolSection;
 	CRITICAL_SECTION	cFlushCacheSection;
 	CRITICAL_SECTION	cConsoleSection;
 	CRITICAL_SECTION	cGameLoopSection;

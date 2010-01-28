@@ -84,7 +84,7 @@ VARPTR(D2CLIENT, MouseOffsetY, int, 0x1121CC) // Updated
 VARPTR(D2CLIENT, MouseOffsetX, int, 0x1121D0) // Updated
 VARPTR(D2CLIENT, CursorHoverX, DWORD, 0xDCAD8) // Added (12-5-09, Sheppard)
 VARPTR(D2CLIENT, CursorHoverY, DWORD, 0xDCADC) // Added (12-5-09, Sheppard)
-VARPTR(D2CLIENT, Divisor, int, 0xF3B98) // Updated
+VARPTR(D2CLIENT, AutomapMode, int, 0xF3B98) // Updated
 VARPTR(D2CLIENT, yShake, int, 0xFD114) // Updated
 VARPTR(D2CLIENT, GameInfo, GameStructInfo *, 0x11B908) // Updated
 VARPTR(D2CLIENT, Ping, DWORD, 0x1032BC) // Updated
@@ -96,6 +96,10 @@ VARPTR(D2CLIENT, Offset, POINT, 0x11C2E8) // Updated
 VARPTR(D2CLIENT, AutomapOn, DWORD, 0x102B80)
 VARPTR(D2CLIENT, FirstAutomapLayer, AutomapLayer *, 0x11C2B0) // Updated
 VARPTR(D2CLIENT, AutomapLayer, AutomapLayer *, 0x11C2B4) // Updated
+VARPTR(D2CLIENT, AutomapLeftEdge, WORD, 0x11C318)
+VARPTR(D2CLIENT, AutomapTopEdge, WORD, 0x11C31C)
+VARPTR(D2CLIENT, AutomapRightEdge, WORD, 0x11C320)
+VARPTR(D2CLIENT, AutomapBottomEdge, WORD, 0x11C324)
 VARPTR(D2CLIENT, AutomapYPosition, int, 0x11C30C) // Updated
 VARPTR(D2CLIENT, PlayerUnit, UnitAny*, 0x11C3D0) // Updated
 VARPTR(D2CLIENT, ServerUnitList, UnitAny*, 0x11A960);
@@ -178,6 +182,7 @@ ASMPTR(D2CLIENT, clickMap_2, 0x11C1D8) // Updated
 ASMPTR(D2CLIENT, clickMap_3, 0x5D5A0) // Updated
 ASMPTR(D2CLIENT, clickMap_4, 0x5CEF9) // Updated
 ASMPTR(D2CLIENT, GetMinionCount_I, 0xC3340)
+ASMPTR(D2CLIENT, DrawAutomapSymbol_I, 0x3D0C0)
 
 FUNCPTR(D2COMMON, AddRoomData, void __stdcall, (Act * ptAct, int LevelId, int Xpos, int Ypos, Room1 * pRoom), -10184) // Updated
 FUNCPTR(D2COMMON, RemoveRoomData, void __stdcall, (Act * ptAct, int LevelId, int Xpos, int Ypos, Room1 * pRoom), -11009) // Updated

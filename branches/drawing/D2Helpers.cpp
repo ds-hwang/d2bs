@@ -317,22 +317,30 @@ AutomapLayer* InitAutomapLayer(DWORD levelno)
 	return D2CLIENT_InitAutomapLayer(pLayer->nLayerNo);
 }
 
-void MapToScreenCoords(POINT* pPos)
+void WorldToScreen(POINT* pPos)
 {
 	D2COMMON_MapToAbsScreen(&pPos->x, &pPos->y);
 	pPos->x -= D2CLIENT_GetMouseXOffset();
 	pPos->y -= D2CLIENT_GetMouseYOffset();
 }
 
-void ScreenToAutomap(POINT *ptPos, int x, int y)
+void ScreenToWorld(POINT* pPos)
 {
-	ptPos->x = ((x - y)/2/(*(INT*)p_D2CLIENT_Divisor))-(*p_D2CLIENT_Offset).x+8;
-	ptPos->y = ((x + y)/4/(*(INT*)p_D2CLIENT_Divisor))-(*p_D2CLIENT_Offset).y-8;
-	if(D2CLIENT_GetAutomapSize())
-	{
-		--ptPos->x;
-		ptPos->y += 5;
-	}
+	D2COMMON_AbsScreenToMap(&pPos->x, &pPos->y);
+	pPos->x += D2CLIENT_GetMouseXOffset();
+	pPos->y += D2CLIENT_GetMouseYOffset();
+}
+
+void ScreenToAutomap(POINT* pPos)
+{
+	pPos->x = (pPos->x / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->x + 8;
+	pPos->y = (pPos->y / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->y - 8;
+}
+
+void AutomapToScreen(POINT* pPos)
+{
+	pPos->x = 8 - p_D2CLIENT_Offset->x + (pPos->x * (*p_D2CLIENT_AutomapMode));
+	pPos->y = 8 + p_D2CLIENT_Offset->y + (pPos->y * (*p_D2CLIENT_AutomapMode));
 }
 
 BOOL IsTownLevel(INT nLevel)
@@ -1073,6 +1081,15 @@ __declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, D
 	{
 		MOV EAX, EDX
 		JMP [D2CLIENT_clickParty_II]
+	}
+}
+
+__declspec(naked) void __fastcall D2CLIENT_DrawAutomapSymbol(int x, int y, int color)
+{
+	__asm
+	{
+		MOV EAX, EDX
+		JMP D2CLIENT_DrawAutomapSymbol_I
 	}
 }
 

@@ -23,8 +23,10 @@ DWORD	GetPlayerArea(void);
 void	ScreenSizeCheck(POINT* pPoint);
 void	SendMouseClick(INT x, INT y, INT clicktype);
 POINT	CalculateTextLen(const char* szwText, INT Font);
-void	MapToScreenCoords(POINT* pPos);
-void	ScreenToAutomap(POINT *ptPos, int x, int y);
+void	WorldToScreen(POINT* pPos);
+void	ScreenToWorld(POINT* pPos);
+void	ScreenToAutomap(POINT* pPos);
+void	AutomapToScreen(POINT* pPos);
 Level*	GetLevel(DWORD dwLevelNo);
 BOOL	IsTownLevel(INT nLevel);
 void	D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);
@@ -91,6 +93,7 @@ void __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
 DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
 void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
 void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
+void __fastcall D2CLIENT_DrawAutomapSymbol(int x, int y, int color);
 
 double GetDistance(long x1, long y1, long x2, long y2, DistanceType type = Euclidean);
 

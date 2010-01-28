@@ -107,27 +107,40 @@ JSAPI_FUNC(drawImage)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(screenToAutomap)
+JSAPI_FUNC(drawAutomapSymbol)
 {
-	int32 x = 0, y = 0;
+	int x = 0, y = 0, color = 0;
 
+	if(!JS_ConvertArguments(cx, argc, argv, "iii", &x, &y, &color))
+		return JS_FALSE;
+
+	EnterCriticalSection(&Vars.cAutomapSymbolSection);
+	D2CLIENT_DrawAutomapSymbol(x, y, color);
+	LeaveCriticalSection(&Vars.cAutomapSymbolSection);
+	return JS_TRUE;
+}
+
+bool ConvertArgs(JSContext *cx, uintN &argc, jsval *argv, int32 &x, int32 &y)
+{
 	if(argc == 1)
 	{
 		JSObject* arg = NULL;
 		if(!JS_ConvertArguments(cx, 1, argv, "o", &arg))
-			return JS_FALSE;
+		{
+			return false;
+		}
 		jsval dx = JSVAL_VOID, dy = JSVAL_VOID;
 		if(!JS_GetProperty(cx, arg, "x", &dx) || !JS_GetProperty(cx, arg, "y", &dy))
 		{
 			JS_ReportError(cx, "Argument must have an x and a y property");
-			return JS_FALSE;
+			return false;
 		}
 		if(!JS_ConvertValue(cx, dx, JSTYPE_NUMBER, &(argv[0])) ||
-		   !JS_ConvertValue(cx, dy, JSTYPE_NUMBER, &(argv[1])) ||
-		   !JS_ValueToECMAInt32(cx, dx, &x) || !JS_ValueToECMAInt32(cx, dy, &y))
+			!JS_ConvertValue(cx, dy, JSTYPE_NUMBER, &(argv[1])) ||
+			!JS_ValueToECMAInt32(cx, dx, &x) || !JS_ValueToECMAInt32(cx, dy, &y))
 		{
 			JS_ReportError(cx, "Failed to convert x or y property");
-			return JS_FALSE;
+			return false;
 		}
 	}
 	else if(argc == 2)
@@ -135,22 +148,70 @@ JSAPI_FUNC(screenToAutomap)
 		if(!JS_ConvertArguments(cx, 2, argv, "uu", &x, &y))
 		{
 			JS_ReportError(cx, "Failed to convert x or y property");
-			return JS_FALSE;
+			return false;
 		}
 	}
+	return true;
+}
 
-	// convert the values
-	POINT result;
-	x *= 32;
-	y *= 32;
-	ScreenToAutomap(&result, x, y);
+JSAPI_FUNC(screenToWorld)
+{
+	int32 x = 0, y = 0;
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
+
+	POINT result = {x, y};
+	ScreenToWorld(&result);
 	JS_NewNumberValue(cx, result.x, &(argv[0]));
 	JS_NewNumberValue(cx, result.y, &(argv[1]));
-	JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
-	if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Failed to set x and/or y values");
+	JSObject* res = BuildObject(cx);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
 	*rval = OBJECT_TO_JSVAL(res);
+	return JS_TRUE;
+}
 
+JSAPI_FUNC(worldToScreen)
+{
+	int32 x = 0, y = 0;
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
+
+	POINT result = {x, y};
+	WorldToScreen(&result);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = BuildObject(cx);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
+	*rval = OBJECT_TO_JSVAL(res);
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(screenToAutomap)
+{
+	int32 x = 0, y = 0;
+
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
+
+	POINT result = {x, y};
+	ScreenToAutomap(&result);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = BuildObject(cx);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
+	*rval = OBJECT_TO_JSVAL(res);
 	return JS_TRUE;
 }
 
@@ -158,42 +219,68 @@ JSAPI_FUNC(automapToScreen)
 {
 	int32 x = 0, y = 0;
 
-	if(argc == 1)
-	{
-		JSObject* arg = NULL;
-		if(!JS_ConvertArguments(cx, 1, argv, "o", &arg))
-			return JS_FALSE;
-		jsval dx = JSVAL_VOID, dy = JSVAL_VOID;
-		if(!JS_GetProperty(cx, arg, "x", &dx) || !JS_GetProperty(cx, arg, "y", &dy))
-		{
-			JS_ReportError(cx, "Argument must have an x and a y property");
-			return JS_FALSE;
-		}
-		if(!JS_ConvertValue(cx, dx, JSTYPE_NUMBER, &(argv[0])) ||
-		   !JS_ConvertValue(cx, dy, JSTYPE_NUMBER, &(argv[1])) ||
-		   !JS_ValueToECMAInt32(cx, dx, &x) || !JS_ValueToECMAInt32(cx, dy, &y))
-		{
-			JS_ReportError(cx, "Failed to convert x or y property");
-			return JS_FALSE;
-		}
-	}
-	else if(argc == 2)
-	{
-		if(!JS_ConvertArguments(cx, 2, argv, "uu", &x, &y))
-		{
-			JS_ReportError(cx, "Failed to convert x or y property");
-			return JS_FALSE;
-		}
-	}
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
 
 	// convert the values
 	POINT result = {x,y};
-	MapToScreenCoords(&result);
+	ScreenToAutomap(&result);
 	JS_NewNumberValue(cx, result.x, &(argv[0]));
 	JS_NewNumberValue(cx, result.y, &(argv[1]));
-	JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
-	if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Failed to set x and/or y values");
+	JSObject* res = BuildObject(cx, NULL, NULL, NULL);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
+	*rval = OBJECT_TO_JSVAL(res);
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(worldToAutomap)
+{
+	int32 x = 0, y = 0;
+
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
+
+	// convert the values
+	POINT result = {x,y};
+	WorldToScreen(&result);
+	ScreenToAutomap(&result);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = BuildObject(cx, NULL, NULL, NULL);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
+	*rval = OBJECT_TO_JSVAL(res);
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(automapToWorld)
+{
+	int32 x = 0, y = 0;
+
+	if(!ConvertArgs(cx, argc, argv, x, y))
+		return JS_FALSE;
+
+	// convert the values
+	POINT result = {x,y};
+	AutomapToScreen(&result);
+	ScreenToWorld(&result);
+	JS_NewNumberValue(cx, result.x, &(argv[0]));
+	JS_NewNumberValue(cx, result.y, &(argv[1]));
+	JSObject* res = BuildObject(cx, NULL, NULL, NULL);
+	if(!JS_SetProperty(cx, res, "x", &argv[0]) || !JS_SetProperty(cx, res, "y", &argv[1]))
+	{
+		JS_ReportError(cx, "Failed to set x and/or y values");
+		return JS_FALSE;
+	}
 	*rval = OBJECT_TO_JSVAL(res);
 
 	return JS_TRUE;

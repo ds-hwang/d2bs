@@ -99,8 +99,13 @@ static JSFunctionSpec global_funcs[] = {
 	{"drawLine",			drawLine,				5},
 	{"drawText",			drawText,				5},
 	{"drawImage",			drawImage,				4},
-	{"screenToAutomap",		screenToAutomap,		1},
-	{"automapToScreen",		automapToScreen,		1},
+	{"drawAutomapSymbol",	drawAutomapSymbol,		3},
+	{"screenToWorld",		screenToWorld,			2},
+	{"worldToScreen",		worldToScreen,			2},
+	{"screenToAutomap",		screenToAutomap,		2},
+	{"automapToScreen",		automapToScreen,		2},
+	{"worldToAutomap",		worldToAutomap,			2},
+	{"automapToWorld",		automapToWorld,			2},
 
 	// hash functions
 	{"md5",					my_md5,					1},

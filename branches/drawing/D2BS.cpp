@@ -66,6 +66,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cLineHookSection);
 	InitializeCriticalSection(&Vars.cImageHookSection);
 	InitializeCriticalSection(&Vars.cTextHookSection);
+	InitializeCriticalSection(&Vars.cAutomapSymbolSection);
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 	InitializeCriticalSection(&Vars.cGameLoopSection);
@@ -112,6 +113,7 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cLineHookSection);
 	DeleteCriticalSection(&Vars.cImageHookSection);
 	DeleteCriticalSection(&Vars.cTextHookSection);
+	DeleteCriticalSection(&Vars.cAutomapSymbolSection);
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
 	DeleteCriticalSection(&Vars.cGameLoopSection);
