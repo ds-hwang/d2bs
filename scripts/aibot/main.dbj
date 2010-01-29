@@ -1,28 +1,19 @@
 js_strict(true);
 
-include('pattern.dbl');
-include('cache.dbl');
 include('configuration.dbl');
-include('common.dbl');
 include('pause.dbl');
+include('common.dbl');
 include('debug.dbl');
 
 var config = new Config();
 
 var threads = [
-	config.get('GameCreator',	'creategame.dbj'),
 	config.get('Goal',			'goal.dbj'),
 	config.get('Attack',		'attack.dbj'),
-	config.get('LifeWatch',		'lifewatch.dbj'),
-	config.get('Pickit',		'pickit.dbj'),
-	config.get('Dodge',			'dodge.dbj')
 ];
 
 function main()
 {
-	// let the game catch up if needed
-	delay(rand(1,4)*1000);
-
 	Debug.Write(INFO, 'Loading bot threads');
 	// load our bot threads
 	var scripts = [];
@@ -39,9 +30,13 @@ function main()
 	}
 
 	// load the pause script
-	// the reason this isn't in the threads array is because it shouldn't
+	// the reason these aren't in the threads array is because they shouldn't
 	// be displayed in the 'threads' window
-	load(config.get('Pause', 'tools/pause.dbj'));
+	load(config.get('Pause',	'tools/pause.dbj'));
+	load(config.get('Pickit',	'tools/pickit.dbj'));
+	load(config.get('LifeWatch','tools/lifewatch.dbj'));
+	load(config.get('Dodge',	'tools/dodge.dbj'));
+
 	addEventListener('scriptmsg', scriptmsg);
 
 	while(true) { update(scripts); delay(500); }

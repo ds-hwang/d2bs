@@ -2,14 +2,33 @@ js_strict(true);
 
 include("common.dbl");
 
+var mousePos = new Box(0, 0, 100, 100, 0xff, 7, 2, true, farcast);
+var statuses = ["ÿc2enabled", "ÿc1disabled"];
+var fcStatus = new Text("Status: " + statuses[mousePos.visible?0:1], 450, 100)
+
 function main() {
-	addEventListener("mouseclick", function (type, x, y) {
-		var hand = (type == 0 ? HAND_LEFT : (type == 1 ? HAND_RIGHT : false);
-		var pos = screenToAutomap(x, y);
-		var cast = keystate(0x12); // alt key
-		if(hand && cast)
-			me.cast(hand, (hand == HAND_LEFT), pos.x, pos.y);
-	});
+	addEventListener("mousemove", move);
 
 	while(me.ingame) delay(1000);
+}
+
+function move(x, y) {
+	if(keystate(0x41)) {
+		mousePos.visible = true;
+	} else {
+		mousePos.visible = false;
+	}
+	fcStatus.text = "Status: " + statuses[mousePos.visible?0:1];
+	var pos = screenToAutomap(x,y);
+	mousePos.x = pos.x;
+	mousePos.y = pos.y;
+}
+
+function farcast(type, x, y) {
+	var hand = (type == 0 ? HAND_LEFT : (type == 1 ? HAND_RIGHT : false));
+	var pos = screenToAutomap(x, y);
+	var cast = keystate(0x41); // alt key
+	display('Farcasting at', pos.toSource());
+	if(hand && cast)
+		click(CLICK_SINGLE|hand, true, pos.x, pos.y);
 }

@@ -5,12 +5,8 @@ include('configuration.dbl');
 var config = new Config();
 
 var threads = [
-	config.get('GameCreator',	'creategame.dbj'),
 	config.get('Goal',			'goal.dbj'),
 	config.get('Attack',		'attack.dbj'),
-	config.get('LifeWatch',		'lifewatch.dbj'),
-	config.get('Pickit',		'pickit.dbj'),
-	config.get('Dodge',			'dodge.dbj')
 ];
 
 function main() {

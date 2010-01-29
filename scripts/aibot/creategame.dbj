@@ -1,8 +1,0 @@
-js_strict(true);
-
-function main()
-{
-	print("Ordinarily there would be a lot of complicated game creation code here, but I'm going to rip " +
-		  "D2Driver's code once I get it fully working 100% instead of trying to maintain two branches of " +
-		  "the same thing. So for now, rip main() out of D2Driver, or make games by hand.");
-}

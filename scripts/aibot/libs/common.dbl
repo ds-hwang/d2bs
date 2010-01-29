@@ -121,6 +121,13 @@ PresetUnit.prototype.__defineGetter__('realy', function() {
 	return this.roomy * 5 + this.y;
 });
 
+Area.prototype.__defineGetter__('realx', function() {
+	return this.x * 5;
+});
+Area.prototype.__defineGetter__('realy', function() {
+	return this.y * 5;
+});
+
 me.hasSkill = function hasSkill(x) {
 	return me.getSkillLvl(x, 0) > 0;
 };
@@ -128,20 +135,6 @@ me.getSkillLvl = function getSkillLvl(x) {
 	if(isString(x))
 		x = getSkillByName(x);
 	return me.getSkill(x, 0);
-};
-me.castOn = function castOn(hand, shift, unit, id) {
-	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
-			{valid: isBoolean}, {valid: isUnit},
-			{valid: function hasSkill(id) { return me.hasSkill(id); }}], arguments);
-
-	if(isString(id)) id = getSkillByName(id);
-
-	var which = (hand == HAND_LEFT ? 1 : 0);
-	if(me.getSkill(2+which) != id) me.setSkill(id, which);
-	Debug.Write(INFO, 'Casting', getSkillById(id), '(' + id + ')',
-			'on', unit.name, (shift ? 'using' : 'not using'), 'shift');
-	click(CLICK_SINGLE|hand, shift, unit);
-	castDelay();
 };
 me.cast = function cast(hand, shift, x, y, id) {
 	require([{valid: function validHand(x) { return x === HAND_LEFT || x === HAND_RIGHT; }},
@@ -265,7 +258,7 @@ Exit.prototype.moveTo = function moveToExit(callback) {
 	me.moveTo(this.x, this.y, callback, this.level);
 };
 Area.prototype.moveTo = function moveToArea(callback) {
-	me.moveTo(this.x, this.y, callback, this.id);
+	me.moveTo(this.realx, this.realy, callback, this.id);
 };
 
 me.moveTo = function moveTo(x, y, callback, area) {
