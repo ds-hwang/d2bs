@@ -91,9 +91,8 @@ Script::~Script(void)
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
-	// use the RT version of RemoveRoot to prevent crashes
-	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &globalObject);
-	JS_RemoveRootRT(ScriptEngine::GetRuntime(), &scriptObject);
+	JS_RemoveRoot(&globalObject);
+	JS_RemoveRoot(&scriptObject);
 
 	JS_DestroyContextNoGC(context);
 

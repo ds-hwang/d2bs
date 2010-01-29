@@ -30,10 +30,16 @@ void Log(char* szFormat, ...)
 	char path[_MAX_PATH+_MAX_FNAME] = "";
 	sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
 
+#ifdef DEBUG
+	FILE* log = stderr;
+#else
 	FILE* log = _fsopen(path, "a+", _SH_DENYNO);
+#endif
 	fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
+#ifndef DEBUG
 	fflush(log);
 	fclose(log);
+#endif
 	delete[] szString;
 }
 

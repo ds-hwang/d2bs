@@ -397,7 +397,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
-#ifdef LORD_INFO
+#ifdef lord2800_INFO
 		Print("*** ENTERING GC ***");
 #endif
 #endif
@@ -406,7 +406,7 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
-#ifdef LORD_INFO
+#ifdef lord2800_INFO
 		Print("*** LEAVING GC ***");
 #endif
 #endif
@@ -440,5 +440,5 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
 		D2CLIENT_ExitGame();
 	else
-		Console::Show();
+		Console::ShowBuffer();
 }

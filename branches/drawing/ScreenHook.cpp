@@ -21,7 +21,7 @@ void DrawLogo(void)
 	if(img[0] == '\0')
 		sprintf_s(img, sizeof(img), "%sversion.bmp", Vars.szPath);
 
-	CellFile* vimg = LoadCellFile(img);
+	CellFile* vimg = LoadCellFile(img, FALSE);
 	int dx = (GetScreenSize().x/2);
 	if(!Console::IsVisible())
 	{

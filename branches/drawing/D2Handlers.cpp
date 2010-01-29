@@ -313,10 +313,14 @@ void GameDraw(void)
 {
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
+		Genhook::DrawAll(IG);
 		DrawLogo();
 		Console::Draw();
+<<<<<<< .working
 //		Genhook::DrawAll(IG);
 		DrawEvent();
+=======
+>>>>>>> .merge-right.r923
 	}
 	Sleep(10);
 }
@@ -326,10 +330,14 @@ void GameDrawOOG(void)
 	D2WIN_DrawSprites();
 	if(Vars.bActive && ClientState() == ClientStateMenu)
 	{
+		Genhook::DrawAll(OOG);
 		DrawLogo();
 		Console::Draw();
+<<<<<<< .working
 //		Genhook::DrawAll(OOG);
 		DrawOOGEvent();
+=======
+>>>>>>> .merge-right.r923
 	}
 	Sleep(10);
 }
