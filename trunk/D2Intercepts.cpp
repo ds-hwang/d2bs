@@ -59,8 +59,8 @@ BlockIt:
 
 BOOL GameMinimize_Interception()
 {
-	if(D2CLIENT_GetPlayerUnit() && GetForegroundWindow() != D2GFX_GetHwnd())
-		return 1;
+//	if(D2CLIENT_GetPlayerUnit() && GetForegroundWindow() != D2GFX_GetHwnd())
+//		return 1;
 
 	return 0;
 }
