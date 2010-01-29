@@ -99,5 +99,8 @@ public:
 	void ExecEventAsync(const char* evtName, const char* format, uintN size, uintN argc, void* argv);
 };
 
+void RootJsvals(const char* format, char* ptr);
+void UnrootJsvals(const char* format, char* ptr);
+
 DWORD WINAPI ScriptThread(void* data);
 void __cdecl FuncThread(void* data);

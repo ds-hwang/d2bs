@@ -22,7 +22,7 @@ void PlayerAssignEvent(DWORD dwUnitId)
 
 void MouseClickEvent(int button, POINT pt, bool bUp)
 {
-	ScriptEngine::ExecEventAsync("mouseclick", "ubuu", 3, (uint32)button, (JSBool)bUp, (uint32)pt.x, (uint32)pt.y)
+	ScriptEngine::ExecEventAsync("mouseclick", "ubuu", 3, (uint32)button, (JSBool)bUp, (uint32)pt.x, (uint32)pt.y);
 }
 
 void MouseMoveEvent(POINT pt)
@@ -30,23 +30,15 @@ void MouseMoveEvent(POINT pt)
 	ScriptEngine::ExecEventAsync("mousemove", "uu", 2, (uint32)pt.x, (uint32)pt.y);
 }
 
-bool __fastcall BCastEventCallback(Script* script, void* argv, uint argc)
-{
-//	BCastEventHelper* helper = (BCastEventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered("scriptmsg"))
-	{
-//		AutoRoot** args = new AutoRoot*[helper->argc];
-//		for(uintN i = 0; i < helper->argc; i++)
-//			args[i] = new AutoRoot(helper->argv[i]);
-//		script->ExecEventAsync("scriptmsg", helper->argc, args);
-	}
-	return true;
-}
 
 void ScriptBroadcastEvent(uintN argc, jsval* args)
 {
-//	BCastEventHelper helper = {args, argc};
-//	ScriptEngine::ForEachScript(BCastEventCallback, &helper, 1);
+//	char* format = new char[argc+1];
+//	for(uintN i = 0; i < argc; i++)
+//		format[i] = 'v';
+//	format[argc] = '\0';
+//	ScriptEngine::ExecEventAsync("scriptmsg", format, argc, args);
+//	delete[] format;
 }
 
 void GoldDropEvent(DWORD GID, BYTE Mode)

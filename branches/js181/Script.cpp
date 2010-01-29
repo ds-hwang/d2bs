@@ -396,6 +396,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
 		IsRunning() && !(GetState() == InGame && !GameReady()))
 	{
+		RootJsvals(format, (char*)argv);
 		FunctionList funcs = functions[evtName];
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 		JS_EnterLocalRootScope(cx);
@@ -414,6 +415,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 		JS_PopArguments(cx, markp);
 		JS_LeaveLocalRootScope(cx);
 		JS_DestroyContextNoGC(cx);
+		UnrootJsvals(format, (char*)argv);
 	}
 }
 
@@ -429,7 +431,47 @@ void Script::ExecEventAsync(const char* evtName, const char* format, uintN size,
 		evt->argc = argc;
 		evt->argv = new BYTE[size];
 		memcpy(evt->argv, argv, size);
+
+		RootJsvals(evt->format, (char*)evt->argv);
 		_beginthread(FuncThread, 0, evt);
+	}
+}
+
+void RootJsvals(const char* format, char* ptr)
+{
+	// root any jsvals
+	int len = strlen(format);
+	for(int i = 0; i < len; i++)
+	{
+		switch(format[i])
+		{
+		case 'b': ptr += sizeof(JSBool); break;
+		case 'c': ptr += sizeof(uint16); break;
+		case 'u': ptr += sizeof(uint32); break;
+		case 'S': ptr += sizeof(JSString*); break;
+		case 'd': case 'I': ptr += sizeof(jsdouble); break;
+		case 'i': case 'j': ptr += sizeof(int32); break;
+		case 'v': JS_AddRoot((jsval*)ptr); ptr += sizeof(jsval); break;
+		}
+	}
+}
+
+void UnrootJsvals(const char* format, char* ptr)
+{
+	// unroot any jsvals
+	int len = strlen(format);
+	for(int i = 0; i < len; i++)
+	{
+		switch(format[i])
+		{
+		case 'b': ptr += sizeof(JSBool); break;
+		case 'c': ptr += sizeof(uint16); break;
+		case 'u': ptr += sizeof(uint32); break;
+		case 'S': ptr += sizeof(JSString*); break;
+		case 'd': case 'I': ptr += sizeof(jsdouble); break;
+		case 'i': case 'j': ptr += sizeof(int32); break;
+		case 'v': JS_RemoveRoot((jsval*)ptr); ptr += sizeof(jsval); break;
+		}
 	}
 }
 
@@ -473,6 +515,8 @@ void __cdecl FuncThread(void* data)
 		JS_EndRequest(cx);
 		JS_DestroyContextNoGC(cx);
 	}
+
+	UnrootJsvals(evt->format, (char*)evt->argv);
 
 	delete[] evt->argv;
 	delete evt;

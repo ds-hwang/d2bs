@@ -90,4 +90,3 @@ JSBool gcCallback(JSContext* cx, JSGCStatus status);
 void reportError(JSContext *cx, const char *message, JSErrorReport *report);
 
 #endif
-

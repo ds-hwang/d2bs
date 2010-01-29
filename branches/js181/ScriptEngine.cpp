@@ -266,11 +266,12 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, uintN argc, ...)
 	{
 		switch(format[i])
 		{
+			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
+			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
 			case 'b': va_arg(args, JSBool);				size += sizeof(JSBool); break;
 			case 'c': va_arg(args, uint16);				size += sizeof(uint16); break;
-			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
 			case 'u': va_arg(args, uint32);				size += sizeof(uint32); break;
-			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
+			case 'v': va_arg(args, jsval);				size += sizeof(jsval); break;
 			case 's': {
 				JS_SetContextThread(context);
 				JS_BeginRequest(context);
@@ -304,6 +305,7 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, uintN argc, ...)
 	helper->argvsize = size;
 	helper->argv = new BYTE[size];
 	memcpy(helper->argv, stack, size);
+	RootJsvals(format, (char*)helper->argv);
 
 	PushEvent(helper);
 }
@@ -481,6 +483,7 @@ void __cdecl EventThread(void* arg)
 		{
 			// execute it on every script
 			ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
+			UnrootJsvals(helper->format, (char*)helper->argv);
 			delete[] helper->argv;
 			delete helper;
 		}
