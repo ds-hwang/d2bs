@@ -193,7 +193,7 @@ void Console::Draw(void)
 		POINT size = GetScreenSize();
 		int xsize = size.x;
 		int ysize = size.y;
-		// the console height is 30% of the screen size
+		// the default console height is 30% of the screen size
 		int height = (int)(((double)ysize)*.3);
 		size = CalculateTextLen(">", 0);
 		int charsize = size.x;
@@ -204,31 +204,10 @@ void Console::Draw(void)
 
 		int cmdsize = CalculateTextLen(cmd.str().c_str(), 0).x;
 		if((cmdsize/xsize) > 0)
-		{
-			Console::height += (cmdsize/xsize)*charheight;
-		}
+			Console::height += (cmdsize/xsize)*charheight + 1;
 
 		// draw the box large enough to hold the whole thing
 		D2GFX_DrawRectangle(0, 0, xsize, Console::height, 0xdf, 0);
-		// draw the prompt at the /uppermost/ corner
-		if(IsEnabled())
-			myDrawText(">", 1, height, 0, 0);
-		if(count % 30 && IsEnabled())
-			D2GFX_DrawLine(cx+cmdsize-charsize+6, height-charheight, cx+cmdsize-charsize+6, height-2, 0xFF, 0xFF);
-
-		std::string cmdstr = cmd.str();
-		if(cmdstr.length() > 0)
-		{
-			if((cmdsize/xsize) > 0)
-			{
-				std::list<std::string> lines;
-				SplitLines(cmdstr, linelen, ' ', lines);
-				int i = 0;
-				for(std::list<std::string>::iterator it = lines.begin(); it != lines.end(); it++, i++)
-					myDrawText(it->c_str(), charsize+5, height+(charheight*i), 0, 0);
-			} else
-				myDrawText(cmdstr.c_str(), charsize+5, height, 0, 0);
-		}
 
 		std::deque<std::string>::reverse_iterator it = lines.rbegin();
 		for(int i = lineCount-1; i >= 0 && it != lines.rend(); i--, it++)
@@ -241,6 +220,29 @@ void Console::Draw(void)
 					myDrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, 0);
 			} else
 				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, 0);
+		}
+
+		if(IsEnabled())
+		{
+			myDrawText(">", 1, height, 0, 0);
+			int lx = cx + cmdsize - charsize + 5,
+				ly = height-charheight;
+			if(count % 30)
+				D2GFX_DrawLine(lx, ly, lx, height-2, 0xFF, 0xFF);
+
+			std::string cmdstr = cmd.str();
+			if(cmdstr.length() > 0)
+			{
+				if((cmdsize/xsize) > 0)
+				{
+					std::list<std::string> lines;
+					SplitLines(cmdstr, linelen, ' ', lines);
+					int i = 0;
+					for(std::list<std::string>::iterator it = lines.begin(); it != lines.end(); it++, i++)
+						myDrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, 0);
+				} else
+					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, 0);
+			}
 		}
 	}
 	LeaveCriticalSection(&Vars.cConsoleSection);
