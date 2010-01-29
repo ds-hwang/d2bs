@@ -124,6 +124,8 @@ bool ConvertArgs(JSContext *cx, uintN &argc, jsval *argv, int32 &x, int32 &y)
 {
 	if(argc == 1)
 	{
+		if(JSVAL_IS_VOID(argv[0]) || JSVAL_IS_NULL(argv[0]))
+			return false;
 		JSObject* arg = NULL;
 		if(!JS_ConvertArguments(cx, 1, argv, "o", &arg))
 		{
