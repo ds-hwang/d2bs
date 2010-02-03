@@ -332,7 +332,7 @@ JSAPI_FUNC(my_sendCopyData)
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
 	jsint nModeId = NULL;
 
-	if(!JS_ConvertArguments(cx, argc, argv, "ssis", windowClassName, windowName, &nModeId, data))
+	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
 		return JS_FALSE;
 
 /*	if(JSVAL_IS_STRING(argv[0]))
@@ -388,7 +388,7 @@ JSAPI_FUNC(my_sendDDE)
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
-	if(!JS_ConvertArguments(cx, argc, argv, "isss", &mode, pszDDEServer, pszTopic, pszItem))
+	if(!JS_ConvertArguments(cx, argc, argv, "isss", &mode, &pszDDEServer, &pszTopic, &pszItem))
 		return JS_FALSE;
 
 	char buffer[255] = "";
