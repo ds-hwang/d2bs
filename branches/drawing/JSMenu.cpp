@@ -17,13 +17,13 @@ JSAPI_FUNC(my_login)
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
 
 	if(!JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "Invalid profile specified!");
+		THROW_ERROR(cx, "Invalid profile specified!");
 
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!profile)
-		THROW_ERROR(cx, obj, "Could not convert string (profile)");
+		THROW_ERROR(cx, "Could not convert string (profile)");
 	if(!ProfileExists(profile))
-		THROW_ERROR(cx, obj, "Profile does not exist!");
+		THROW_ERROR(cx, "Profile does not exist!");
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
@@ -167,14 +167,14 @@ JSAPI_FUNC(my_login)
 		if(_strcmpi(errorMsg, ""))
 		{
 			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
-			THROW_ERROR(cx, obj, errorMsg);						
+			THROW_ERROR(cx, errorMsg);						
 			break;
 		}
 
 		if((timeout*100) > loginTime)
 		{
 			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
-			THROW_ERROR(cx, obj, "login time out");
+			THROW_ERROR(cx, "login time out");
 			break;
 		}
 
@@ -191,11 +191,11 @@ JSAPI_FUNC(my_login)
 JSAPI_FUNC(my_selectChar)
 {
 	if(argc != 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "Invalid parameters specified to selectCharacter");
+		THROW_ERROR(cx, "Invalid parameters specified to selectCharacter");
 
 	char* profile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!ProfileExists(profile))
-		THROW_ERROR(cx, obj, "Invalid profile specified");
+		THROW_ERROR(cx, "Invalid profile specified");
 	char charname[24], file[_MAX_FNAME+MAX_PATH];
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 	GetPrivateProfileString(profile, "character", "ERROR", charname, sizeof(charname), file);
@@ -212,7 +212,7 @@ JSAPI_FUNC(my_createGame)
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
 	   (argc > 1 && !(JSVAL_IS_STRING(argv[1]) ||JSVAL_IS_NULL(argv[1]))) ||
 	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
-		THROW_ERROR(cx, obj, "Invalid parameters specified to createGame");
+		THROW_ERROR(cx, "Invalid parameters specified to createGame");
 
 	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
 		 *pass = "";
@@ -224,10 +224,10 @@ JSAPI_FUNC(my_createGame)
 		diff = JSVAL_TO_INT(argv[2]);
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
-		THROW_ERROR(cx, obj, "Invalid game name or password length");
+		THROW_ERROR(cx, "Invalid game name or password length");
 
 	if(!OOG_CreateGame(name, pass, diff))
-		THROW_ERROR(cx, obj, "createGame failed");
+		THROW_ERROR(cx, "createGame failed");
 
 	return JS_TRUE;
 }
@@ -239,7 +239,7 @@ JSAPI_FUNC(my_joinGame)
 
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
 	   (argc > 1 && !JSVAL_IS_STRING(argv[1])))
-		THROW_ERROR(cx, obj, "Invalid parameters specified to joinGame");
+		THROW_ERROR(cx, "Invalid parameters specified to joinGame");
 
 	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
 		 *pass = NULL;
@@ -247,10 +247,10 @@ JSAPI_FUNC(my_joinGame)
 		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
-		THROW_ERROR(cx, obj, "Invalid game name or password length");
+		THROW_ERROR(cx, "Invalid game name or password length");
 
 	if(!OOG_JoinGame(name, pass))
-		THROW_ERROR(cx, obj, "joinGame failed");
+		THROW_ERROR(cx, "joinGame failed");
 
 	return JS_TRUE;
 }
@@ -260,11 +260,11 @@ JSAPI_FUNC(my_addProfile)
 	// validate the args...
 	char *profile, *mode, *gateway, *username, *password, *charname;
 	if(argc != 6)
-		THROW_ERROR(cx, obj, "Invalid arguments passed to addProfile");
+		THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
 	for(uintN i = 0; i < argc; i++)
 		if(!JSVAL_IS_STRING(argv[i]))
-			THROW_ERROR(cx, obj, "All arguments to addProfile must be strings!");
+			THROW_ERROR(cx, "All arguments to addProfile must be strings!");
 
 	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	mode = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
@@ -273,7 +273,7 @@ JSAPI_FUNC(my_addProfile)
 	password = JS_GetStringBytes(JSVAL_TO_STRING(argv[4]));
 	charname = JS_GetStringBytes(JSVAL_TO_STRING(argv[5]));
 	if(!profile || !mode || !gateway || !username || !password || !charname)
-		THROW_ERROR(cx, obj, "Failed to convert string");
+		THROW_ERROR(cx, "Failed to convert string");
 
 	char file[_MAX_FNAME+_MAX_PATH];
 
@@ -300,3 +300,17 @@ JSAPI_FUNC(my_getOOGLocation)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_createCharacter)
+{
+	if(ClientState() != ClientStateMenu)
+		return JS_TRUE;
+
+	char* name = NULL;
+	int32 type = -1;
+	JSBool hc = JS_FALSE, ladder = JS_FALSE;
+	if(!JS_ConvertArguments(cx, argc, argv, "si/bb", &name, &type, &hc, &ladder))
+		return JS_FALSE;
+
+	*rval = BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder));
+	return JS_TRUE;
+}

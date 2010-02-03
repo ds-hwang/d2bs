@@ -71,6 +71,8 @@ static JSFunctionSpec global_funcs[] = {
 	// game functions that don't have anything to do with gathering data
 	{"submitItem",			my_submitItem,			0},
 	{"login",				my_login,				1},
+//	{"createCharacter",		my_createCharacter,		4}, // this function is not finished
+	{"selectCharacter",		my_selectChar,			1},
 	{"createGame",			my_createGame,			3},
 	{"joinGame",			my_joinGame,			2},
 	{"addProfile",			my_addProfile,			6},

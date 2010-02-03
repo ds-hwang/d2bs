@@ -64,14 +64,14 @@ JSAPI_FUNC(frame_ctor)
 	FrameHook* pFramehook = new FrameHook(script, x, y, x2, y2, automap, align, IG);
 
 	if (!pFramehook)
-		THROW_ERROR(cx, obj, "Failed to create framehook");
+		THROW_ERROR(cx, "Failed to create framehook");
 
 	pFramehook->SetClickHandler(click);
 	pFramehook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &frame_class, frame_methods, frame_props, pFramehook);
 	if(!hook)
-		THROW_ERROR(cx, obj, "Failed to create frame object");
+		THROW_ERROR(cx, "Failed to create frame object");
 
 	*rval = OBJECT_TO_JSVAL(hook);
 
@@ -199,14 +199,14 @@ JSAPI_FUNC(box_ctor)
 	BoxHook* pBoxHook = new BoxHook(script, x, y, x2, y2, color, opacity, automap, align, state);
 
 	if (!pBoxHook)
-		THROW_ERROR(cx, obj, "Unable to initalize a box class.");
+		THROW_ERROR(cx, "Unable to initalize a box class.");
 
 	pBoxHook->SetClickHandler(click);
 	pBoxHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &box_class, box_methods, box_props, pBoxHook);
 	if(!hook)
-		THROW_ERROR(cx, obj, "Failed to create box object");
+		THROW_ERROR(cx, "Failed to create box object");
 
 	*rval = OBJECT_TO_JSVAL(hook);
 
@@ -343,14 +343,14 @@ JSAPI_FUNC(line_ctor)
 	LineHook* pLineHook = new LineHook(script, x, y, x2, y2, color, automap, Left, state);
 
 	if (!pLineHook)
-		THROW_ERROR(cx, obj, "Unable to initalize a line class.");
+		THROW_ERROR(cx, "Unable to initalize a line class.");
 
 	pLineHook->SetClickHandler(click);
 	pLineHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &line_class, line_methods, line_props, pLineHook);
 	if(!hook)
-		THROW_ERROR(cx, obj, "Failed to create line object");
+		THROW_ERROR(cx, "Failed to create line object");
 
 	*rval = OBJECT_TO_JSVAL(hook);
 
@@ -481,14 +481,14 @@ JSAPI_FUNC(text_ctor)
 	TextHook* pTextHook = new TextHook(script, szText, x, y, font, color, automap, align, state);
 
 	if(!pTextHook)
-		THROW_ERROR(cx, obj, "Failed to create texthook");
+		THROW_ERROR(cx, "Failed to create texthook");
 
 	pTextHook->SetClickHandler(click);
 	pTextHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &text_class, text_methods, text_props, pTextHook);
 	if(!hook)
-		THROW_ERROR(cx, obj, "Failed to create text object");
+		THROW_ERROR(cx, "Failed to create text object");
 
 	*rval = OBJECT_TO_JSVAL(hook);
 
@@ -627,20 +627,20 @@ JSAPI_FUNC(image_ctor)
 		hover = argv[7];
 
 	if(!isValidPath(path))
-		THROW_ERROR(cx, obj, "Invalid image file path");
+		THROW_ERROR(cx, "Invalid image file path");
 
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, szText);
 	ImageHook* pImageHook = new ImageHook(script, path, x, y, color, automap, align, state);
 
 	if(!pImageHook)
-		THROW_ERROR(cx, obj, "Failed to create ImageHook");
+		THROW_ERROR(cx, "Failed to create ImageHook");
 
 	pImageHook->SetClickHandler(click);
 	pImageHook->SetHoverHandler(hover);
 
 	JSObject* hook = BuildObject(cx, &image_class, image_methods, image_props, pImageHook);
 	if(!hook)
-		THROW_ERROR(cx, obj, "Failed to create image object");
+		THROW_ERROR(cx, "Failed to create image object");
 
 	*rval = OBJECT_TO_JSVAL(hook);
 

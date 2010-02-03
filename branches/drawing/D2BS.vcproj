@@ -387,6 +387,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Common.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Common.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Matrix.h"
 					>
 				</File>
@@ -448,14 +456,6 @@
 			Name="Misc"
 			>
 			<File
-				RelativePath=".\Common.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Common.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Console.cpp"
 				>
 			</File>
@@ -469,14 +469,6 @@
 			</File>
 			<File
 				RelativePath=".\D2Loader.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dde.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\dde.h"
 				>
 			</File>
 			<File
@@ -637,6 +629,14 @@
 					</File>
 					<File
 						RelativePath=".\Core.h"
+						>
+					</File>
+					<File
+						RelativePath=".\dde.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\dde.h"
 						>
 					</File>
 					<File

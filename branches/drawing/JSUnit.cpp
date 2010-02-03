@@ -1150,7 +1150,7 @@ JSAPI_FUNC(unit_getItems)
 		if(!jsunit)
 		{
 			JS_RemoveRoot(&pReturnArray);
-			THROW_ERROR(cx, obj, "Failed to build item array");
+			THROW_ERROR(cx, "Failed to build item array");
 		}
 
 		jsval a = OBJECT_TO_JSVAL(jsunit);
@@ -1404,9 +1404,9 @@ JSAPI_FUNC(unit_getParent)
 	if(pUnit->dwType == UNIT_MONSTER)
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
-		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, UNIT_PLAYER, (DWORD)-1, dwOwnerId);
-		if (!pMonster)
-			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
+		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
+//		if (!pMonster)
+//			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
 		if (!pMonster)
 			return JS_TRUE;
 

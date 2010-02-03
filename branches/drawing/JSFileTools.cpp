@@ -25,19 +25,15 @@
 
 using namespace std;
 
-JSAPI_FUNC(filetools_ctor)
-{
-	// the ctor should never be called by regular code
-	THROW_ERROR(cx, obj, "Could not create the FileTools namespace");
-}
+EMPTY_CTOR(filetools)
 
 JSAPI_FUNC(filetools_remove)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply a file name");
+		THROW_ERROR(cx, "You must supply a file name");
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
@@ -49,18 +45,18 @@ JSAPI_FUNC(filetools_remove)
 JSAPI_FUNC(filetools_rename)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply an original file name");
+		THROW_ERROR(cx, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
-		THROW_ERROR(cx, obj, "You must supply a new file name");
+		THROW_ERROR(cx, "You must supply a new file name");
 	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
@@ -72,18 +68,18 @@ JSAPI_FUNC(filetools_rename)
 JSAPI_FUNC(filetools_copy)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply an original file name");
+		THROW_ERROR(cx, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if(argc < 2 || !JSVAL_IS_STRING(argv[1]))
-		THROW_ERROR(cx, obj, "You must supply a new file name");
+		THROW_ERROR(cx, "You must supply a new file name");
 	char* newName = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
 	if(!isValidPath(newName))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char pnewName[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
@@ -101,17 +97,17 @@ JSAPI_FUNC(filetools_copy)
 
 	//Sanity check to make sure the file opened for reading!
 	if(!fptr1)
-		THROW_ERROR(cx, obj, _strerror("Read file open failed"));
+		THROW_ERROR(cx, _strerror("Read file open failed"));
 	// Same for file opened for writing
 	if(!fptr2)
-		THROW_ERROR(cx, obj, _strerror("Write file open failed"));
+		THROW_ERROR(cx, _strerror("Write file open failed"));
 
 	while(!feof(fptr1)) 
 	{
 		int ch = fgetc(fptr1);
 		if(ferror(fptr1)) 
 		{
-			THROW_ERROR(cx, obj, _strerror("Read Error"));
+			THROW_ERROR(cx, _strerror("Read Error"));
 			break;
 		} 
 		else 
@@ -120,7 +116,7 @@ JSAPI_FUNC(filetools_copy)
 				fputc(ch, fptr2);
 			if(ferror(fptr2)) 
 			{
-				THROW_ERROR(cx, obj, _strerror("Write Error"));
+				THROW_ERROR(cx, _strerror("Write Error"));
 				break;
 			}
 		}
@@ -133,7 +129,7 @@ JSAPI_FUNC(filetools_copy)
 		fclose(fptr2);
 		fclose(fptr1);
 		remove(pnewName); // delete the partial file so it doesnt look like we succeeded
-		THROW_ERROR(cx, obj, _strerror("File copy failed"));
+		THROW_ERROR(cx, _strerror("File copy failed"));
 	}
 
 	fflush(fptr2);
@@ -146,10 +142,10 @@ JSAPI_FUNC(filetools_copy)
 JSAPI_FUNC(filetools_exists)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(file))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char path[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
@@ -161,15 +157,15 @@ JSAPI_FUNC(filetools_exists)
 JSAPI_FUNC(filetools_readText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply an original file name");
+		THROW_ERROR(cx, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	if((_access(porig, 0) != 0 && errno == ENOENT))
-		THROW_ERROR(cx, obj, "File not found");
+		THROW_ERROR(cx, "File not found");
 
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "r");
@@ -179,7 +175,7 @@ JSAPI_FUNC(filetools_readText)
 	char* contents = new char[size];
 	memset(contents, 0, size);
 	if(fread(contents, 1, size, fptr) != size && ferror(fptr))
-		THROW_ERROR(cx, obj, _strerror("Read failed"));
+		THROW_ERROR(cx, _strerror("Read failed"));
 	fclose(fptr);
 
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));
@@ -190,10 +186,10 @@ JSAPI_FUNC(filetools_readText)
 JSAPI_FUNC(filetools_writeText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply an original file name");
+		THROW_ERROR(cx, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
@@ -213,10 +209,10 @@ JSAPI_FUNC(filetools_writeText)
 JSAPI_FUNC(filetools_appendText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "You must supply an original file name");
+		THROW_ERROR(cx, "You must supply an original file name");
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 	char porig[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
