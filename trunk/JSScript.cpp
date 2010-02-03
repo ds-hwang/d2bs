@@ -149,7 +149,7 @@ JSAPI_FUNC(my_getScript)
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
 
 	if(!res)
-		THROW_ERROR(cx, obj, "Failed to build the script object");
+		THROW_ERROR(cx, "Failed to build the script object");
 	*rval = OBJECT_TO_JSVAL(res);
 
 	return JS_TRUE;

@@ -170,13 +170,13 @@ JSAPI_FUNC(sandbox_eval)
 	{
 		sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 		if(!box)
-			THROW_ERROR(cx, obj, "Invalid execution object!");
+			THROW_ERROR(cx, "Invalid execution object!");
 		char* code = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		jsval result;
 		if(JS_BufferIsCompilableUnit(box->context, box->innerObj, code, strlen(code)) &&
 			JS_EvaluateScript(box->context, box->innerObj, code, strlen(code), "sandbox", 0, &result))
 				*rval = result;
-	} else THROW_ERROR(cx, obj, "Invalid parameter, string expected");
+	} else THROW_ERROR(cx, "Invalid parameter, string expected");
 	return JS_TRUE;
 }
 
@@ -208,7 +208,7 @@ JSAPI_FUNC(sandbox_include)
 		}
 	}
 	else
-		THROW_ERROR(cx, obj, "Invalid parameter, file expected");
+		THROW_ERROR(cx, "Invalid parameter, file expected");
 
 	return JS_TRUE;
 }
@@ -222,7 +222,7 @@ JSAPI_FUNC(sandbox_isIncluded)
 		char buf[_MAX_PATH+_MAX_FNAME];
 		sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
 		*rval = BOOLEAN_TO_JSVAL(!!box->list.count(std::string(buf)));
-	} else THROW_ERROR(cx, obj, "Invalid parameter, file expected");
+	} else THROW_ERROR(cx, "Invalid parameter, file expected");
 	return JS_TRUE;
 }
 

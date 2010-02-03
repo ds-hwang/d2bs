@@ -8,7 +8,7 @@
 // file stuff
 //////////////////////////////////////////////////////////////////
 
-JSAPI_FUNC(file_ctor);
+CLASS_CTOR(file);
 JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp);
 
 JSAPI_PROP(file_getProperty);

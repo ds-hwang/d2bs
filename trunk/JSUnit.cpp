@@ -1150,7 +1150,7 @@ JSAPI_FUNC(unit_getItems)
 		if(!jsunit)
 		{
 			JS_RemoveRoot(&pReturnArray);
-			THROW_ERROR(cx, obj, "Failed to build item array");
+			THROW_ERROR(cx, "Failed to build item array");
 		}
 
 		jsval a = OBJECT_TO_JSVAL(jsunit);

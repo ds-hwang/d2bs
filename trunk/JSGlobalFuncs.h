@@ -72,6 +72,7 @@ static JSFunctionSpec global_funcs[] = {
 
 	// out of game functions
 	{"login",				my_login,				1},
+//	{"createCharacter",		my_createCharacter,		4}, // this function is not finished
 	{"selectCharacter",		my_selectChar,			1},
 	{"createGame",			my_createGame,			3},
 	{"joinGame",			my_joinGame,			2},

@@ -70,7 +70,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
-		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
+		THROW_ERROR(cx, "getPresetUnits failed, couldn't access the level!");
 
 	uint nClassId = NULL;
 	uint nType = NULL;
@@ -115,7 +115,7 @@ JSAPI_FUNC(my_getPresetUnits)
 				if(!unit)
 				{
 					delete mypUnit;
-					THROW_ERROR(cx, obj, "Failed to build object?");
+					THROW_ERROR(cx, "Failed to build object?");
 				}
 
 				jsval a = OBJECT_TO_JSVAL(unit);
@@ -153,7 +153,7 @@ JSAPI_FUNC(my_getPresetUnit)
 	Level* pLevel = GetLevel(levelId);
 
 	if(!pLevel)
-		THROW_ERROR(cx, obj, "getPresetUnits failed, couldn't access the level!");
+		THROW_ERROR(cx, "getPresetUnits failed, couldn't access the level!");
 
 	DWORD nClassId = NULL;
 	DWORD nType = NULL;
@@ -198,7 +198,7 @@ JSAPI_FUNC(my_getPresetUnit)
 				if(!obj)
 				{
 					delete mypUnit;
-					THROW_ERROR(cx, obj, "Failed to create presetunit object");
+					THROW_ERROR(cx, "Failed to create presetunit object");
 				}
 
 				*rval = OBJECT_TO_JSVAL(obj);
