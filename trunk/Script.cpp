@@ -215,12 +215,21 @@ bool Script::IsPaused(void)
 
 void Script::Stop(bool force, bool reallyForce)
 {
+	// if we've already stopped, just return
+	if(isAborted)
+		return;
+
 	EnterCriticalSection(&lock);
 
 	// tell everyone else that the script is aborted FIRST
 	isAborted = true;
 	isPaused = false;
 	isReallyPaused = false;
+	if(GetState() != Command)
+	{
+		const char* displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
+		Print("Script %s ended", displayName);
+	}
 
 	ClearAllEvents();
 	Genhook::Clean(this);
