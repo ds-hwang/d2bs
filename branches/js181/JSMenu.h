@@ -11,5 +11,6 @@ JSAPI_FUNC(my_createGame);
 JSAPI_FUNC(my_joinGame);
 JSAPI_FUNC(my_addProfile);
 JSAPI_FUNC(my_getOOGLocation);
+JSAPI_FUNC(my_createCharacter);
 
 #endif

@@ -1,4 +1,5 @@
 #include "ScriptEngine.h"
+#include "D2Helpers.h"
 #include "dde.h"
 
 DWORD DdeSrvInst = 0;
@@ -47,4 +48,51 @@ DWORD CreateDdeServer() {
 BOOL ShutdownDdeServer() {
 	DdeFreeStringHandle(DdeSrvInst, hszD2BSns);
 	return DdeUninitialize(DdeSrvInst);
+}
+
+BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* pszData, char** result, uint size)
+{
+	DWORD pidInst = 0;
+	HCONV hConv;
+	DWORD dwTimeout = 5000;
+	HDDEDATA DdeSrvData;
+
+	int ret = DdeInitialize(&pidInst, (PFNCALLBACK) DdeCallback, APPCMD_CLIENTONLY, 0);
+	if(ret != DMLERR_NO_ERROR)
+	{
+		Log("DdeInitialize Error: %X", ret);
+		return FALSE;
+	}
+
+	HSZ hszDDEServer = DdeCreateStringHandle(pidInst, pszDDEServer, CP_WINANSI);
+	HSZ hszTopic = DdeCreateStringHandle(pidInst, pszTopic, CP_WINANSI);
+	HSZ hszCommand = DdeCreateStringHandle(pidInst, pszItem, CP_WINANSI);
+
+	if(!hszDDEServer || !hszTopic || !hszCommand)
+	{
+		Log("Error creating DDE Handles: Server:%s, Topic:%s, Command:%s, Data:%s", pszDDEServer, pszTopic, pszItem, pszData);
+		return FALSE;
+	}
+
+	hConv = DdeConnect(pidInst, hszDDEServer, hszTopic, 0);
+
+	switch(mode)
+	{
+		case 0:
+			DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
+			DdeGetData(DdeSrvData, (LPBYTE)result, size, 0);
+			break;
+		case 1:
+			DdeClientTransaction((LPBYTE)pszData, strlen(pszData)+1, hConv, hszCommand, CF_TEXT, XTYP_POKE, dwTimeout, 0);
+			break;
+		case 2:
+			DdeClientTransaction((LPBYTE)pszData, strlen(pszData)+1, hConv, 0L, 0, XTYP_EXECUTE, dwTimeout, 0);
+			break;
+	}
+
+	DdeFreeStringHandle(pidInst, hszDDEServer);
+	DdeFreeStringHandle(pidInst, hszTopic);
+	DdeFreeStringHandle(pidInst, hszCommand);
+	DdeUninitialize(pidInst);
+	return TRUE;
 }

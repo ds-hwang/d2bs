@@ -25,6 +25,7 @@
 #include "JSDirectory.h"
 #include "D2BS.h"
 #include "File.h"
+#include "js32.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Directory stuff
@@ -45,10 +46,10 @@ JSAPI_FUNC(my_openDir)
 
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, name);
 
-	if((_mkdir(path) == -1) && (errno == ENOENT))
-		return ThrowJSError(cx, obj, "Couldn't get directory %s, path '%s' not found", name, path);
-	else
-	{
+	if((_mkdir(path) == -1) && (errno == ENOENT)) {
+		JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
+		return JS_FALSE;
+	} else {
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
@@ -75,7 +76,7 @@ JSAPI_FUNC(dir_getFiles)
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!search)
-		THROW_ERROR(cx, obj, "Failed to get search string");
+		THROW_ERROR(cx, "Failed to get search string");
 
 	long hFile;
 	char path[_MAX_PATH], oldpath[_MAX_PATH];
@@ -115,7 +116,7 @@ JSAPI_FUNC(dir_getFolders)
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
 	char* search = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!search)
-		THROW_ERROR(cx, obj, "Failed to get search string");
+		THROW_ERROR(cx, "Failed to get search string");
 
 	long hFile;
 	char path[_MAX_PATH], oldpath[_MAX_PATH];
@@ -155,10 +156,10 @@ JSAPI_FUNC(dir_create)
 		return JS_TRUE;
 
 	sprintf_s(path, sizeof(path), "%s\\%s\\%s", Vars.szScriptPath, d->name, name);
-	if(_mkdir(path) == -1 && (errno == ENOENT))
-		return ThrowJSError(cx, obj, "Couldn't create directory %s, path %s not found", name, path);
-	else
-	{
+	if(_mkdir(path) == -1 && (errno == ENOENT)) {
+		JS_ReportError(cx, "Couldn't create directory %s, path %s not found", name, path);
+		return JS_FALSE;
+	} else {
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
@@ -178,9 +179,9 @@ JSAPI_FUNC(dir_delete)
 	{
 		// TODO: Make an optional param that specifies recursive delete
 		if(errno == ENOTEMPTY)
-			THROW_ERROR(cx, obj, "Tried to delete directory, but it is not empty or is the current working directory");
+			THROW_ERROR(cx, "Tried to delete directory, but it is not empty or is the current working directory");
 		if(errno == ENOENT)
-			THROW_ERROR(cx, obj, "Path not found");
+			THROW_ERROR(cx, "Path not found");
 	}
 	*rval = JSVAL_TRUE;
 

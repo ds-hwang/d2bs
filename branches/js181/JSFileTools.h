@@ -18,7 +18,7 @@ bool FileTools.writeText(string path, object contents, ...) - static - open a fi
 bool FileTools.appendText(string path, string contents) - static - open a file in append mode, write contents into the file, close it, true if the write succeeded, false if not
 **/
 
-JSAPI_FUNC(filetools_ctor);
+CLASS_CTOR(filetools);
 
 JSAPI_FUNC(filetools_remove);
 JSAPI_FUNC(filetools_rename);

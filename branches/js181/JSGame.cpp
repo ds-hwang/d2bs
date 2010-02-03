@@ -39,7 +39,7 @@ JSAPI_FUNC(my_copyUnit)
 				{
 					delete lpUnit;
 					lpUnit = NULL;
-					THROW_ERROR(cx, obj, "Couldn't copy unit");
+					THROW_ERROR(cx, "Couldn't copy unit");
 				}
 
 				*rval = OBJECT_TO_JSVAL(jsunit);
@@ -58,7 +58,7 @@ JSAPI_FUNC(my_copyUnit)
 				{
 					delete lpUnit;
 					lpUnit = NULL;
-					THROW_ERROR(cx, obj, "Couldn't copy unit");
+					THROW_ERROR(cx, "Couldn't copy unit");
 				}
 
 				*rval = OBJECT_TO_JSVAL(jsunit);
@@ -163,7 +163,7 @@ JSAPI_FUNC(my_acceptTrade)
 		return JS_TRUE;
 	}
 
-	THROW_ERROR(cx, obj, "Invalid parameter passed to acceptTrade!");
+	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
 JSAPI_FUNC(my_getPath)
@@ -172,7 +172,7 @@ JSAPI_FUNC(my_getPath)
 		return JS_TRUE;
 
 	if(argc < 5)
-		THROW_ERROR(cx, obj, "Not enough parameters were passed to getPath!");
+		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
@@ -312,7 +312,7 @@ JSAPI_FUNC(my_getCollision)
 		return JS_TRUE;
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
-		THROW_ERROR(cx, obj, "Invalid parameters were passed to getCollision!");
+		THROW_ERROR(cx, "Invalid parameters were passed to getCollision!");
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
@@ -444,7 +444,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 		jsint nClickType = JSVAL_TO_INT(argv[0]);
 
 		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
-			THROW_ERROR(cx, obj, "Object is not an item!");
+			THROW_ERROR(cx, "Object is not an item!");
 
 		INT InventoryLocation = GetItemLocation(pUnit);
 		
@@ -679,10 +679,10 @@ JSAPI_FUNC(my_rand)
 	jsint low;
 
 	if(JS_ValueToInt32(cx, argv[0], &low) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert low value");
+		THROW_ERROR(cx, "Could not convert low value");
 
 	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert high value");
+		THROW_ERROR(cx, "Could not convert high value");
 
 	if(high > low+1)
 	{
@@ -877,7 +877,7 @@ JSAPI_FUNC(my_getSkillByName)
 
 	char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!(lpszText && lpszText[0]))
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, "Could not convert string");
 
 	for(INT i = 0; i < ArraySize(Game_Skills); i++)
 	{
@@ -922,7 +922,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 
 	char* pString = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pString)
-		THROW_ERROR(cx, obj, "Could not convert string");
+		THROW_ERROR(cx, "Could not convert string");
 
 	POINT r = CalculateTextLen(pString, JSVAL_TO_INT(argv[1]));
 	jsval x = INT_TO_JSVAL(r.x);
@@ -934,11 +934,11 @@ JSAPI_FUNC(my_getTextWidthHeight)
 		// return an object with a height/width rather than an array
 		pObj = BuildObject(cx, NULL);
 		if(!pObj)
-			THROW_ERROR(cx, NULL, "Could not build object");
+			THROW_ERROR(cx, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
-			THROW_ERROR(cx, pObj, "Could not set width property");
+			THROW_ERROR(cx, "Could not set width property");
 		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
-			THROW_ERROR(cx, pObj, "Could not set height property");
+			THROW_ERROR(cx, "Could not set height property");
 	}
 	else
 	{
@@ -1076,7 +1076,7 @@ JSAPI_FUNC(my_say)
 		{
 			char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			if(!lpszText)
-				THROW_ERROR(cx, obj, "Could not convert string");
+				THROW_ERROR(cx, "Could not convert string");
 			Say(lpszText);
 		}
 	}
@@ -1158,28 +1158,28 @@ JSAPI_FUNC(my_getBaseStat)
 		{
 			szTableName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 			if(!szTableName)
-				THROW_ERROR(cx, obj, "Invalid table value");
+				THROW_ERROR(cx, "Invalid table value");
 		}
 		else if(JSVAL_IS_NUMBER(argv[0]))
 			JS_ValueToECMAInt32(cx, argv[0], &nBaseStat);
 		else
-			THROW_ERROR(cx, obj, "Invalid table value");
+			THROW_ERROR(cx, "Invalid table value");
 
 		if(JSVAL_IS_NUMBER(argv[1]))
 			JS_ValueToECMAInt32(cx, argv[1], &nClassId);
 		else
-			THROW_ERROR(cx, obj, "Invalid row value");
+			THROW_ERROR(cx, "Invalid row value");
 
 		if(JSVAL_IS_STRING(argv[2]))
 		{
 			szStatName = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
 			if(!szStatName)
-				THROW_ERROR(cx, obj, "Invalid column value");
+				THROW_ERROR(cx, "Invalid column value");
 		}
 		else if(JSVAL_IS_NUMBER(argv[2]))
 			JS_ValueToECMAInt32(cx, argv[2], &nStat);
 		else
-			THROW_ERROR(cx, obj, "Invalid column value");
+			THROW_ERROR(cx, "Invalid column value");
 
 		FillBaseStat(cx, rval, nBaseStat, nClassId, nStat, szTableName, szStatName);
 	}
@@ -1197,7 +1197,7 @@ JSAPI_FUNC(my_weaponSwitch)
 	jsint nParameter = NULL;
 	if(argc > 0)
 		if(JS_ValueToInt32(cx, argv[0], &nParameter) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not convert value");
+			THROW_ERROR(cx, "Could not convert value");
 	
 	if(nParameter == NULL)
 	{
@@ -1209,7 +1209,7 @@ JSAPI_FUNC(my_weaponSwitch)
 				return JS_TRUE;
 		}
 		else
-			THROW_ERROR(cx, obj, "Could not acquire BnData");
+			THROW_ERROR(cx, "Could not acquire BnData");
 
 		BYTE aPacket[1];
 		aPacket[0] = 0x60;
@@ -1277,11 +1277,11 @@ JSAPI_FUNC(my_getMouseCoords)
 	{
 		pObj = BuildObject(cx, NULL);
 		if(!pObj)
-			THROW_ERROR(cx, NULL, "Could not build object");
+			THROW_ERROR(cx, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not set x property");
+			THROW_ERROR(cx, "Could not set x property");
 		if(JS_SetProperty(cx, pObj, "y", &jsY) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not set y property");
+			THROW_ERROR(cx, "Could not set y property");
 	}
 	else
 	{

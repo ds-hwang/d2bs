@@ -35,11 +35,7 @@ struct FileData {
 #endif
 };
 
-JSAPI_FUNC(file_ctor)
-{
-	// the ctor should never be called by regular code
-	THROW_ERROR(cx, obj, "Could not create the File namespace");
-}
+EMPTY_CTOR(file)
 
 JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 {
@@ -133,7 +129,7 @@ JSAPI_PROP(file_getProperty)
 		}
 	}
 	else
-		THROW_ERROR(cx, obj, "Couldn't get file object");
+		THROW_ERROR(cx, "Couldn't get file object");
 
 return JS_TRUE;
 }
@@ -152,7 +148,7 @@ JSAPI_PROP(file_setProperty)
 		}
 	}
 	else
-		THROW_ERROR(cx, obj, "Couldn't get file object");
+		THROW_ERROR(cx, "Couldn't get file object");
 
 	return JS_TRUE;
 }
@@ -160,25 +156,25 @@ JSAPI_PROP(file_setProperty)
 JSAPI_FUNC(file_open)
 {
 	if(argc < 2)
-		THROW_ERROR(cx, obj, "Not enough parameters, 2 or more expected");
+		THROW_ERROR(cx, "Not enough parameters, 2 or more expected");
 	if(!JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, obj, "Parameter 1 not a string");
+		THROW_ERROR(cx, "Parameter 1 not a string");
 	if(!JSVAL_IS_INT(argv[1]))
-		THROW_ERROR(cx, obj, "Parameter 2 not a mode");
+		THROW_ERROR(cx, "Parameter 2 not a mode");
 
 	// check for attempts to break the sandbox and for invalid file name characters
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!(file && file[0] && isValidPath(file)))
-		THROW_ERROR(cx, obj, "Invalid file name");
+		THROW_ERROR(cx, "Invalid file name");
 
 	int32 mode;
 	if(JS_ValueToInt32(cx, argv[1], &mode) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert parameter 2");
+		THROW_ERROR(cx, "Could not convert parameter 2");
 
 	// this could be simplified to: mode > FILE_APPEND || mode < FILE_READ
 	// but then it takes a hit for readability
 	if(!(mode == FILE_READ || mode == FILE_WRITE || mode == FILE_APPEND))
-		THROW_ERROR(cx, obj, "Invalid file mode");
+		THROW_ERROR(cx, "Invalid file mode");
 
 	bool binary = false, autoflush = false, lockFile = false;
 	if(argc > 2 && JSVAL_IS_BOOLEAN(argv[2]))
@@ -196,14 +192,16 @@ JSAPI_FUNC(file_open)
 
 	FILE* fptr = NULL;
 	fopen_s(&fptr, path, modes[mode]);
-	if(!fptr)
-		return ThrowJSError(cx, obj, "Couldn't open file %s: %s", file, _strerror(NULL));
+	if(!fptr) {
+		JS_ReportError(cx, "Couldn't open file %s: %s", file, _strerror(NULL));
+		return JS_FALSE;
+	}
 
 	FileData* fdata = new FileData;
 	if(!fdata)
 	{
 		fclose(fptr);
-		THROW_ERROR(cx, obj, "Couldn't allocate memory for the FileData object");
+		THROW_ERROR(cx, "Couldn't allocate memory for the FileData object");
 	}
 
 	fdata->mode = mode;
@@ -228,7 +226,7 @@ JSAPI_FUNC(file_open)
 		else
 			_fclose_nolock(fptr);
 		delete fdata;
-		THROW_ERROR(cx, obj, "Failed to define the file object");
+		THROW_ERROR(cx, "Failed to define the file object");
 	}
 	*rval = OBJECT_TO_JSVAL(res);
 	return JS_TRUE;
@@ -249,14 +247,14 @@ JSAPI_FUNC(file_close)
 				fdata->line = __LINE__;
 #endif
 				if(!!fclose(fdata->fptr))
-					THROW_ERROR(cx, obj, _strerror("Close failed"));
+					THROW_ERROR(cx, _strerror("Close failed"));
 			}
 			else if(!!_fclose_nolock(fdata->fptr))
-				THROW_ERROR(cx, obj, _strerror("Close failed"));
+				THROW_ERROR(cx, _strerror("Close failed"));
 			fdata->fptr = NULL;
 		}
 		else
-			THROW_ERROR(cx, obj, "File is not open");
+			THROW_ERROR(cx, "File is not open");
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -271,7 +269,7 @@ JSAPI_FUNC(file_reopen)
 			fdata->fptr = NULL;
 			fopen_s(&fdata->fptr, fdata->path, modes[fdata->mode]);
 			if(!fdata->fptr)
-				THROW_ERROR(cx, obj, _strerror("Could not reopen file"));
+				THROW_ERROR(cx, _strerror("Could not reopen file"));
 			if(fdata->locked)
 			{
 				_lock_file(fdata->fptr);
@@ -280,7 +278,7 @@ JSAPI_FUNC(file_reopen)
 				fdata->line = __LINE__;
 #endif
 			}
-		} else THROW_ERROR(cx, obj, "File is not closed");
+		} else THROW_ERROR(cx, "File is not closed");
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
 }
@@ -293,7 +291,7 @@ JSAPI_FUNC(file_read)
 		clearerr(fdata->fptr);
 		int32 count = 1;
 		if(!(argc > 0 && JSVAL_TO_INT(argv[0]) > 0 && JS_ValueToInt32(cx, argv[0], &count)))
-			THROW_ERROR(cx, obj, "Invalid arguments");
+			THROW_ERROR(cx, "Invalid arguments");
 
 		if(fdata->mode > 2)
 		{
@@ -309,7 +307,7 @@ JSAPI_FUNC(file_read)
 			if(size != (uint32)count && ferror(fdata->fptr))
 			{
 				delete[] result;
-				THROW_ERROR(cx, obj, _strerror("Read failed"));
+				THROW_ERROR(cx, _strerror("Read failed"));
 			}
 			if(count == 1)
 				*rval = INT_TO_JSVAL(result[0]);
@@ -342,7 +340,7 @@ JSAPI_FUNC(file_read)
 			if(size != (uint32)count && ferror(fdata->fptr))
 			{
 				delete[] result;
-				THROW_ERROR(cx, obj, _strerror("Read failed"));
+				THROW_ERROR(cx, _strerror("Read failed"));
 			}
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, result));
 			delete[] result;
@@ -357,7 +355,7 @@ JSAPI_FUNC(file_readLine)
 	if(fdata && fdata->fptr) {
 		const char* line = readLine(fdata->fptr, fdata->locked);
 		if(!line)
-			THROW_ERROR(cx, obj, _strerror("Read failed"));
+			THROW_ERROR(cx, _strerror("Read failed"));
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
 		delete[] line;
 	}
@@ -373,7 +371,7 @@ JSAPI_FUNC(file_readAllLines)
 		while(!feof(fdata->fptr)) {
 			const char* line = readLine(fdata->fptr, fdata->locked);
 			if(!line)
-				THROW_ERROR(cx, obj, _strerror("Read failed"));
+				THROW_ERROR(cx, _strerror("Read failed"));
 			jsval val = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, line));
 			JS_SetElement(cx, arr, i++, &val);
 			delete[] line;
@@ -413,7 +411,7 @@ JSAPI_FUNC(file_readAll)
 		if(count != size && ferror(fdata->fptr))
 		{
 			delete[] contents;
-			THROW_ERROR(cx, obj, _strerror("Read failed"));
+			THROW_ERROR(cx, _strerror("Read failed"));
 		}
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));
 		delete[] contents;
@@ -451,17 +449,17 @@ JSAPI_FUNC(file_seek)
 			int32 bytes;
 			bool isLines = false, fromStart = false;
 			if(JS_ValueToInt32(cx, argv[0], &bytes) == JS_FALSE)
-				THROW_ERROR(cx, obj, "Could not convert parameter 1");
+				THROW_ERROR(cx, "Could not convert parameter 1");
 			if(argc > 1 && JSVAL_IS_BOOLEAN(argv[1]))
 				isLines = !!JSVAL_TO_BOOLEAN(argv[1]);
 			if(argc > 2 && JSVAL_IS_BOOLEAN(argv[2]))
 				fromStart = !!JSVAL_TO_BOOLEAN(argv[1]);
 			if(!isLines)
 			{
-				if(fdata->locked && fseek(fdata->fptr, _ftell_nolock(fdata->fptr)+bytes, SEEK_CUR))
-					THROW_ERROR(cx, obj, _strerror("Seek failed"));
-				else if(_fseek_nolock(fdata->fptr, ftell(fdata->fptr)+bytes, SEEK_CUR))
-					THROW_ERROR(cx, obj, _strerror("Seek failed"));
+				if(fdata->locked && fseek(fdata->fptr, _ftell_nolock(fdata->fptr)+bytes, SEEK_CUR)) {
+					THROW_ERROR(cx, _strerror("Seek failed"));
+				} else if(_fseek_nolock(fdata->fptr, ftell(fdata->fptr)+bytes, SEEK_CUR))
+					THROW_ERROR(cx, _strerror("Seek failed"));
 			}
 			else
 			{
@@ -474,7 +472,7 @@ JSAPI_FUNC(file_seek)
 			}
 		}
 		else
-			THROW_ERROR(cx, obj, "Not enough parameters");
+			THROW_ERROR(cx, "Not enough parameters");
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -497,10 +495,10 @@ JSAPI_FUNC(file_reset)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
-		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_SET))
-			THROW_ERROR(cx, obj, _strerror("Seek failed"));
-		else if(_fseek_nolock(fdata->fptr, 0L, SEEK_SET))
-			THROW_ERROR(cx, obj, _strerror("Seek failed"));
+		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_SET)) {
+			THROW_ERROR(cx, _strerror("Seek failed"));
+		} else if(_fseek_nolock(fdata->fptr, 0L, SEEK_SET))
+			THROW_ERROR(cx, _strerror("Seek failed"));
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
@@ -511,10 +509,10 @@ JSAPI_FUNC(file_end)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr)
 	{
-		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_END))
-			THROW_ERROR(cx, obj, _strerror("Seek failed"));
-		else if(_fseek_nolock(fdata->fptr, 0L, SEEK_END))
-			THROW_ERROR(cx, obj, _strerror("Seek failed"));
+		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_END)) {
+			THROW_ERROR(cx, _strerror("Seek failed"));
+		} else if(_fseek_nolock(fdata->fptr, 0L, SEEK_END))
+			THROW_ERROR(cx, _strerror("Seek failed"));
 	}
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

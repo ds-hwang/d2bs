@@ -76,7 +76,7 @@ JSAPI_PROP(control_getProperty)
 			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwIsCloaked == 33));
 			break;
 		case CONTROL_DISABLED:
-			*vp = BOOLEAN_TO_JSVAL(!!(ctrl->dwDisabled == 0x0d));
+			JS_NewNumberValue(cx, ctrl->dwDisabled, vp);
 			break;
 	}
 
@@ -114,7 +114,7 @@ JSAPI_PROP(control_setProperty)
 			{
 				int32 nState;
 				if(!JS_ValueToECMAInt32(cx, *vp, &nState) || nState < 0 || nState > 3)
-					THROW_ERROR(cx, obj, "Invalid state value");
+					THROW_ERROR(cx, "Invalid state value");
 				memset((void*)&ctrl->dwDisabled, (nState + 2), sizeof(DWORD));
 			}
 			break;
@@ -123,15 +123,14 @@ JSAPI_PROP(control_setProperty)
 			{
 				DWORD dwPos;
 				if(!JS_ValueToECMAUint32(cx, *vp, &dwPos))
-					THROW_ERROR(cx, obj, "Invalid cursor position value");
+					THROW_ERROR(cx, "Invalid cursor position value");
 				memset((void*)&ctrl->dwCursorPos, dwPos, sizeof(DWORD));
 			}
 			break;
 		case CONTROL_DISABLED:
-			if(JSVAL_IS_BOOLEAN(*vp))
+			if(JSVAL_IS_INT(*vp))
 			{
-				DWORD bEnabled = (JSVAL_TO_BOOLEAN(*vp) ? 0x0d : 0x0c);
-				memset((void*)&ctrl->dwDisabled, bEnabled, sizeof(DWORD));
+				memset((void*)&ctrl->dwDisabled, JSVAL_TO_INT(*vp), sizeof(DWORD));
 			}
 			break;
 	}
@@ -301,7 +300,7 @@ JSAPI_FUNC(my_getControl)
 
 	JSObject* control = BuildObject(cx, &control_class, control_funcs, control_props, data);
 	if(!control)
-		THROW_ERROR(cx, obj, "Failed to build control!");
+		THROW_ERROR(cx, "Failed to build control!");
 
 	*rval = OBJECT_TO_JSVAL(control);
 

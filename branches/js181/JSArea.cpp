@@ -12,7 +12,8 @@ void area_finalize(JSContext *cx, JSObject *obj)
 
 	if(pArea)
 	{
-		JS_RemoveRoot(&pArea->ExitArray);
+		if(pArea->ExitArray)
+			JS_RemoveRoot(&pArea->ExitArray);
 		JS_SetPrivate(cx, obj, NULL);
 		delete pArea;
 	}
@@ -66,7 +67,7 @@ JSAPI_PROP(area_getProperty)
 						{
 							delete pExit;
 							pExit = NULL;
-							THROW_ERROR(cx, obj, "Failed to create exit object!");
+							THROW_ERROR(cx, "Failed to create exit object!");
 						}
 
 						jsval a = OBJECT_TO_JSVAL(jsUnit);
@@ -115,11 +116,11 @@ JSAPI_FUNC(my_getArea)
 		if(JSVAL_IS_INT(argv[0]))
 			nArea = JSVAL_TO_INT(argv[0]); 
 		else
-			THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
+			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	}
 
 	if(nArea < 0)
-		THROW_ERROR(cx, obj, "Invalid parameter passed to getArea!");
+		THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	
 	Level* pLevel = GetLevel(nArea);
 
@@ -144,7 +145,7 @@ JSAPI_FUNC(my_getArea)
 	{
 		delete pArea;
 		pArea = NULL;
-		THROW_ERROR(cx, obj, "Failed to build area unit!");
+		THROW_ERROR(cx, "Failed to build area unit!");
 	}
 
 	*rval = OBJECT_TO_JSVAL(unit);

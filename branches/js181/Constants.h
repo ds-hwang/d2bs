@@ -54,6 +54,22 @@
 #define UI_SCROLL				0x25
 
 ///////////////////////////////////////////////////
+// Control types
+///////////////////////////////////////////////////
+#define CONTROL_EDITBOX			0x01
+#define CONTROL_IMAGE			0x02
+#define CONTROL_UNUSED			0x03
+#define CONTROL_TEXTBOX			0x04
+#define CONTROL_SCROLLBAR		0x05
+#define CONTROL_BUTTON			0x06
+#define CONTROL_LIST			0x07
+#define CONTROL_TIMER			0x08
+#define CONTROL_SMACK			0x09
+#define CONTROL_PROGRESSBAR		0x0a
+#define CONTROL_POPUP			0x0b
+#define CONTROL_ACCOUNTLIST		0x0c
+
+///////////////////////////////////////////////////
 // Out of Game Locations (From ControlInfo.dbl)
 ///////////////////////////////////////////////////
 enum OOG_Location {
