@@ -250,7 +250,7 @@ JSAPI_FUNC(my_isIncluded)
 	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
 		return JS_FALSE;
 
-	if(strlen(file) < _MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6)
+	if(strlen(file) > (_MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6))
 	{
 		JS_ReportError(cx, "File name too long");
 		return JS_FALSE;
