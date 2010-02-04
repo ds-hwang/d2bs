@@ -1404,6 +1404,9 @@ JSAPI_FUNC(unit_getParent)
 	if(pUnit->dwType == UNIT_MONSTER)
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
+		if(dwOwnerId == -1)
+			return JS_TRUE;
+
 		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
 //		if (!pMonster)
 //			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
