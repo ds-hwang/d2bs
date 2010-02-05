@@ -335,6 +335,11 @@ JSAPI_FUNC(my_sendCopyData)
 	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
 		return JS_FALSE;
 
+	if(JSVAL_IS_NULL(argv[0]))
+		windowClassName = NULL;
+	if(JSVAL_IS_NULL(argv[2]))
+		windowName = NULL;
+
 /*	if(JSVAL_IS_STRING(argv[0]))
 	{
 		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
