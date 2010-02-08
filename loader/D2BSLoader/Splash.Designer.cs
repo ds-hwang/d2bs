@@ -40,7 +40,7 @@
 			label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0x83)))), ((int)(((byte)(0x8b)))), ((int)(((byte)(0x8b)))));
 			label2.Location = new System.Drawing.Point(251, 283);
 			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(159, 40);
+			label2.Size = new System.Drawing.Size(175, 40);
 			label2.TabIndex = 1;
 			label2.TabStop = false;
 			label2.Text = "version 1.2";
