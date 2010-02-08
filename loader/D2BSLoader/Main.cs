@@ -37,16 +37,22 @@ namespace D2BSLoader
 				ProcessCmdArgs(args);
 			else
 			{
-				new Splash().Show();
+				Splash s = new Splash();
+				s.FormClosed += delegate {
+					s.Hide();
+					LoadSettings(true);
+					if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe) ||
+					   !File.Exists(Path.Combine(D2Path, D2Exe)) ||
+					   String.IsNullOrEmpty(D2BSDLL) ||
+					   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
+						Options_Click(null, null);
 
+					Opacity = 100f;
+				};
+				s.Show();
+
+				Opacity = 0f;
 				InitializeComponent();
-
-				LoadSettings(false);
-				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe) ||
-				   !File.Exists(Path.Combine(D2Path, D2Exe)) ||
-				   String.IsNullOrEmpty(D2BSDLL) ||
-				   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
-				   Options_Click(null, null);
 
 				processes.RaiseListChangedEvents = true;
 				Processes.DataSource = processes;
@@ -195,7 +201,7 @@ namespace D2BSLoader
 				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
 				try {
 					LoadDelay = Convert.ToInt32(config.AppSettings.Settings["LoadDelay"].Value);
-				} catch { LoadDelay = 500; }
+				} catch { LoadDelay = 1000; }
 			} catch {
 				if(showError)
 					MessageBox.Show("Configuration not found.", "D2BS");
@@ -381,7 +387,7 @@ namespace D2BSLoader
 		{
 			Options o = new Options(D2Path, D2Exe, D2Args, D2BSDLL);
 			o.ShowDialog();
-			LoadSettings(true);
+			LoadSettings(false);
 		}
 	}
 

@@ -32,6 +32,9 @@ namespace D2BSLoader
 			Exe.Text = exe;
 			Args.Text = args;
 			DLL.Text = String.IsNullOrEmpty(dll) ? "cGuard.dll" : dll;
+			Exe.Text = String.IsNullOrEmpty(exe) &&
+						File.Exists(System.IO.Path.Combine(Path.Text, "Diablo II.exe")) ?
+						"Diablo II.exe" : exe;
 		}
 
 		private void OK_Click(object sender, EventArgs e)

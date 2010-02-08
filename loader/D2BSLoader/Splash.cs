@@ -16,7 +16,7 @@ namespace D2BSLoader
 			InitializeComponent();
 			Timer t = new Timer();
 			t.Interval = 3000;
-			t.Tick += delegate { Close(); t.Stop(); };
+			t.Tick += delegate { t.Stop(); Close(); };
 			t.Start();
 		}
 	}

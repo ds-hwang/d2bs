@@ -37,13 +37,13 @@
 			// label2
 			// 
 			label2.Font = new System.Drawing.Font("Calibri", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(20)))));
+			label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(35)))));
 			label2.Location = new System.Drawing.Point(251, 283);
 			label2.Name = "label2";
 			label2.Size = new System.Drawing.Size(159, 40);
 			label2.TabIndex = 1;
 			label2.TabStop = false;
-			label2.Text = "Version 1.2";
+			label2.Text = "version 1.2";
 			// 
 			// label1
 			// 
