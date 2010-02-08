@@ -517,12 +517,13 @@ Also see [[AdvancedOptions]]</pre>
 <div title="DefaultTiddlers" modifier="lord2800" created="200910281255" modified="200911120145" changecount="2">
 <pre>Welcome</pre>
 </div>
-<div title="EventListPlugin" modifier="lord2800" created="201001181019" modified="201001221349" tags="systemConfig" changecount="2">
+<div title="EventListPlugin" modifier="lord2800" created="201001181019" modified="201001291130" tags="systemConfig" changecount="3">
 <pre>//{{{
 
 config.macros.eventList = {
 	handler: function (place, macroName, params, wikifier, paramString) {
 		var functions = &quot;!Events:\r\n\r\n&quot;;
+		params = params.sort();
 		for(var i = 0; i &lt; params.length; i++)
 			functions += '[[' + params[i] + ']]\r\n';
 
@@ -571,6 +572,12 @@ config.macros.event = {
 	CopyDataEvent
 	GameEventEvent
 &gt;&gt;</pre>
+</div>
+<div title="FAQs" modifier="lord2800" created="201001302307" modified="201001302308" changecount="3">
+<pre>[[Terminology]]
+[[How D2BS works]]
+[[How to run a script]]
+[[How to write a script]]</pre>
 </div>
 <div title="File.open" modifier="lord2800" created="200912102109" changecount="1">
 <pre>&lt;&lt;func prefix:&quot;File&quot; args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
@@ -638,7 +645,7 @@ config.macros.event = {
 	appendText
 &gt;&gt;</pre>
 </div>
-<div title="FunctionListPlugin" modifier="lord2800" created="200911112154" modified="200911120134" tags="systemConfig" changecount="10">
+<div title="FunctionListPlugin" modifier="lord2800" created="200911112154" modified="201001291132" tags="systemConfig" changecount="11">
 <pre>//{{{
 
 config.macros.functionList = {
@@ -658,6 +665,7 @@ config.macros.functionList = {
 			start++;
 		}
 
+		params = params.sort();
 		var functions = '!' + type + 'Functions:\r\n\r\n';
 		for(var i = start; i &lt; params.length; i++)
 		{
@@ -783,18 +791,20 @@ config.macros.func = {
 <div title="ItemActionEvent" modifier="lord2800" created="201001181022" changecount="1">
 <pre>&lt;&lt;event args:&quot;int gid, int mode, string code, bool global&quot; remarks:&quot;If global is true, the item action is a 'world action', meaning everyone in game got the same event&quot;&gt;&gt;</pre>
 </div>
-<div title="MainMenu" modifier="lord2800" created="200910281257" modified="201001181003" changecount="4">
+<div title="MainMenu" modifier="lord2800" created="200910281257" modified="201001302307" changecount="6">
 <pre>GlobalFunctions
 GlobalObjects
 [[Objects]]
-[[Events]]</pre>
+[[Events]]
+[[FAQs]]</pre>
 </div>
-<div title="ObjectListPlugin" modifier="lord2800" created="201001221350" tags="systemConfig" changecount="1">
+<div title="ObjectListPlugin" modifier="lord2800" created="201001221350" modified="201001291132" tags="systemConfig" changecount="2">
 <pre>//{{{
 
 config.macros.objectList = {
 	handler: function (place, macroName, params, wikifier, paramString) {
 		var functions = &quot;!Objects:\r\n\r\n&quot;;
+		params = params.sort();
 		for(var i = 0; i &lt; params.length; i++)
 			functions += '[[' + params[i] + ']]\r\n';
 
@@ -827,7 +837,7 @@ config.macros.objectList = {
 	UnitObject
 &gt;&gt;</pre>
 </div>
-<div title="PropertyListPlugin" modifier="lord2800" created="200911112248" tags="systemConfig" changecount="1">
+<div title="PropertyListPlugin" modifier="lord2800" created="200911112248" modified="201001291132" tags="systemConfig" changecount="2">
 <pre>//{{{
 
 config.macros.propertyList = {
@@ -837,6 +847,7 @@ config.macros.propertyList = {
 		if(prefix != '') prefix += '.';
 		var functions = '!Properties:\r\n\r\n';
 		var start = (prefix != '' ? 1 : 0);
+		params = params.sort();
 		for(var i = start; i &lt; params.length; i++)
 		{
 			functions += '[[' + prefix + params[i] + ']]\r\n';
@@ -924,8 +935,8 @@ This document is not complete! A lot of things are still missing, a lot of thing
 <div title="clearEvent" modifier="lord2800" created="200912092234" modified="200912301857" changecount="2">
 <pre>&lt;&lt;func args:&quot;string event&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Clears all registered event handlers for the specified event on the current script&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clickItem" modifier="lord2800" created="200912092232" modified="200912301745" changecount="2">
-<pre>&lt;&lt;func args:&quot;pick one: Unit item OR int clickType, Unit item OR int clickType, int location OR int clickType, int x, int y, int location&quot; remarks:&quot;This function's parameters vary based on the desired functionality.
+<div title="clickItem" modifier="lord2800" created="200912092232" modified="201002050719" changecount="3">
+<pre>&lt;&lt;func args:&quot;int clickType, [Unit item OR int x, int y [, int location] ]&quot; remarks:&quot;This function's parameters vary based on the desired functionality.
 Locations:
 0 - Inventory
 2 - Trade Window
@@ -1415,8 +1426,8 @@ Modes:
 <div title="submitItem" modifier="lord2800" created="200912092233" modified="200912301846" changecount="2">
 <pre>&lt;&lt;func args:&quot;&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Submits the item on the cursor.&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="transmute" modifier="lord2800" created="200912092231" modified="200912301705" changecount="2">
-<pre>&lt;&lt;func remarks:&quot;Transmutes the current contents of the Horadric Cube&quot; example:&quot;&quot;&gt;&gt;</pre>
+<div title="transmute" modifier="lord2800" created="200912092231" modified="201002050811" changecount="4">
+<pre>&lt;&lt;func remarks:&quot;Transmutes the current contents of the Horadric Cube. The cube must be open for this function to work.&quot; example:&quot;clickItem(1, getUnit(4, 'box')); delay(1000); transmute();&quot;&gt;&gt;</pre>
 </div>
 <div title="version" modifier="lord2800" created="200912092233" modified="200912301856" changecount="3">
 <pre>&lt;&lt;func args:&quot;[ bool returnAsWell ]&quot; returnType:&quot;string&quot; returns:&quot;The current version&quot; remarks:&quot;Prints the current version, and if returnAsWell is true, returns it&quot; example:&quot;&quot;&gt;&gt;</pre>
