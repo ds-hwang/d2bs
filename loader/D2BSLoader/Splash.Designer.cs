@@ -36,8 +36,8 @@
 			// 
 			// label2
 			// 
-			label2.Font = new System.Drawing.Font("Calibri", 24F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(35)))));
+			label2.Font = new System.Drawing.Font("Calibri", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0x83)))), ((int)(((byte)(0x8b)))), ((int)(((byte)(0x8b)))));
 			label2.Location = new System.Drawing.Point(251, 283);
 			label2.Name = "label2";
 			label2.Size = new System.Drawing.Size(159, 40);
