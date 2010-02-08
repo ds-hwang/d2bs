@@ -19,7 +19,7 @@ namespace D2BSLoader
 							  D2Exe = String.Empty,
 							  D2Args = String.Empty,
 							  D2BSDLL = String.Empty;
-		private static int LoadDelay = 500;
+		private static int LoadDelay = 1000;
 		private static Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>() {
 				{"inject", Inject},
 				{"kill", Kill},
@@ -37,9 +37,11 @@ namespace D2BSLoader
 				ProcessCmdArgs(args);
 			else
 			{
+				new Splash().Show();
+
 				InitializeComponent();
 
-				LoadSettings();
+				LoadSettings(false);
 				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe) ||
 				   !File.Exists(Path.Combine(D2Path, D2Exe)) ||
 				   String.IsNullOrEmpty(D2BSDLL) ||
@@ -101,7 +103,7 @@ namespace D2BSLoader
 			{
 				// if the path or exe is empty, load settings
 				if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe))
-					LoadSettings();
+					LoadSettings(false);
 				// if the path is still empty, die
 				if(String.IsNullOrEmpty(D2Path))
 				{
@@ -181,7 +183,7 @@ namespace D2BSLoader
 			config.Save(ConfigurationSaveMode.Full);
 		}
 
-		public static void LoadSettings()
+		public static void LoadSettings(bool showError)
 		{
 			try
 			{
@@ -195,7 +197,8 @@ namespace D2BSLoader
 					LoadDelay = Convert.ToInt32(config.AppSettings.Settings["LoadDelay"].Value);
 				} catch { LoadDelay = 500; }
 			} catch {
-				MessageBox.Show("Configuration not found.", "D2BS");
+				if(showError)
+					MessageBox.Show("Configuration not found.", "D2BS");
 			}
 		}
 
@@ -330,7 +333,7 @@ namespace D2BSLoader
 			if(String.IsNullOrEmpty(D2Path) ||
 			   String.IsNullOrEmpty(D2Exe) ||
 			   String.IsNullOrEmpty(D2BSDLL))
-				LoadSettings();
+				LoadSettings(false);
 			D2Args += String.Join(" ", args);
 			return Start();
 		}
@@ -378,7 +381,7 @@ namespace D2BSLoader
 		{
 			Options o = new Options(D2Path, D2Exe, D2Args, D2BSDLL);
 			o.ShowDialog();
-			LoadSettings();
+			LoadSettings(true);
 		}
 	}
 
