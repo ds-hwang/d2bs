@@ -213,12 +213,11 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 	ChatEventHelper* helper = (ChatEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered(helper->event))
 	{
-		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(cx);
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->nick)));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
-		//JS_ClearContextThread(cx);
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync(helper->event, 2, argv);
 	}
 	return true;
@@ -241,12 +240,11 @@ bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 	CopyDataHelper* helper = (CopyDataHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("copydata"))
 	{
-		JSContext* cx = script->GetContext();
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(cx);
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
-		//JS_ClearContextThread(cx);
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync("copydata", 2, argv);
 	}
 	return true;
@@ -263,10 +261,9 @@ bool __fastcall GameEventCallback(Script* script, void* argv, uint argc)
 	if(script->IsRunning() && script->IsListenerRegistered("gamemsg"))
 	{
 		AutoRoot** argv = new AutoRoot*[1];
-		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char*)argv)));
-		//JS_ClearContextThread(cx);
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), (char*)argv)));
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync("gamemsg", 1, argv);
 	}
 	return true;
@@ -283,13 +280,12 @@ bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 	if(script->IsRunning() && script->IsListenerRegistered("itemaction"))
 	{
 		AutoRoot** argv = new AutoRoot*[4];
-		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->id));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->mode));
-		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->code)));
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->code)));
 		argv[3] = new AutoRoot(BOOLEAN_TO_JSVAL(helper->global));
-		//JS_ClearContextThread(cx);
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync("itemaction", 4, argv);
 	}
 	return true;
@@ -307,13 +303,12 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
 	{
 		AutoRoot** argv = new AutoRoot*[4];
-		JSContext* cx = script->GetContext();
-		JS_SetContextThread(cx);
+		JS_SetContextThread(ScriptEngine::GetGlobalContext());
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param));
-		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name1)));
-		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name2)));
-		//JS_ClearContextThread(cx);
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name1)));
+		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name2)));
+		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 		script->ExecEventAsync("gameevent", 4, argv);
 	}
 	return true;
@@ -324,4 +319,3 @@ void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2)
 	GameActionEventHelper helper = {mode, param, name1, name2};
 	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
 }
-

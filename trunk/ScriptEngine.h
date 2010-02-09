@@ -30,6 +30,7 @@ class ScriptEngine
 	ScriptEngine& operator=(const ScriptEngine&);
 
 	static JSRuntime* runtime;
+	static JSContext* context;
 	static ScriptMap scripts;
 	static EngineState state;
 	static CRITICAL_SECTION lock;
@@ -51,6 +52,7 @@ public:
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
+	static JSContext* GetGlobalContext(void) { return context; }
 
 	static void StopAll(bool forceStop = false);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);

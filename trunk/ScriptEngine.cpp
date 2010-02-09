@@ -16,6 +16,7 @@ JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
+JSContext* ScriptEngine::context = NULL;
 
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
@@ -133,6 +134,10 @@ BOOL ScriptEngine::Startup(void)
 			LeaveCriticalSection(&lock);
 			return FALSE;
 		}
+
+		// create a context for internal use before we set the callback
+		context = JS_NewContext(runtime, 8192);
+
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
 
@@ -159,6 +164,7 @@ void ScriptEngine::Shutdown(void)
 
 		if(runtime)
 		{
+			JS_DestroyContextNoGC(context);
 			JS_DestroyRuntime(runtime);
 			JS_ShutDown();
 			runtime = NULL;
