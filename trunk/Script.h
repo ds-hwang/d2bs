@@ -7,6 +7,7 @@
 
 #include "js32.h"
 #include "AutoRoot.h"
+#include "JSUnit.h"
 
 enum ScriptState {
 	InGame,
@@ -32,7 +33,6 @@ typedef std::list<Script*> ScriptList;
 
 struct Event {
 	Script* owner;
-	JSContext* context;
 	JSObject* object;
 	FunctionList functions;
 	AutoRoot** argv;
@@ -47,6 +47,7 @@ private:
 	ScriptState scriptState;
 	JSContext* context;
 	JSScript* script;
+	myUnit* me;
 
 	JSObject *globalObject, *scriptObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted;
@@ -61,6 +62,7 @@ private:
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
+
 public:
 	friend class ScriptEngine;
 

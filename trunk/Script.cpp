@@ -44,11 +44,16 @@ Script::Script(const char* file, ScriptState state) :
 		if(!context)
 			throw std::exception("Couldn't create the context");
 
-		JS_SetContextThread(context);
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
 		globalObject = JS_GetGlobalObject(context);
+		jsval meVal = JSVAL_VOID;
+		if(JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE)
+		{
+			JSObject* meObject = JSVAL_TO_OBJECT(meVal);
+			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
+		}
 
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
@@ -87,7 +92,6 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
-	JS_SetContextThread(context);
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
@@ -134,30 +138,26 @@ void Script::Run(void)
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
-	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE ||
-	   JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
+	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) != JS_FALSE &&
+	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE &&
+	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-		JS_RemoveRoot(&main);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	JS_SetContextThread(GetContext());
-	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 
-	if(GetState() == Command)
-	{
-		// if we just processed a command, print the results of the command
-		if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
+		if(GetState() == Command)
 		{
-			JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
-			Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
+			// if we just processed a command, print the results of the command
+			if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
+			{
+				JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
+				Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
+			}
 		}
-	}	
+	}
 
-	JS_SetContextThread(GetContext());
 	JS_RemoveRoot(&main);
-	JS_EndRequest(GetContext());	
+	JS_EndRequest(GetContext());
+	JS_ClearContextThread(GetContext());
 
 	execCount++;
 	Stop();
@@ -165,31 +165,7 @@ void Script::Run(void)
 
 void Script::UpdatePlayerGid(void)
 {
-	jsval me = JSVAL_VOID;
-	JSObject* meObject = NULL;
-	JS_AddRoot(&me);
-	JS_SetContextThread(GetContext());
-	JS_BeginRequest(GetContext());
-
-	if(JS_GetProperty(GetContext(), globalObject, "me", &me) == JS_FALSE)
-	{
-		JS_RemoveRoot(&me);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	meObject = JSVAL_TO_OBJECT(me);
-	myUnit* meUnit = (myUnit*)JS_GetPrivate(GetContext(), meObject);
-	if(!meUnit)
-	{
-		JS_RemoveRoot(&me);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	meUnit->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
-	JS_SetPrivate(GetContext(), meObject, meUnit);
-	JS_RemoveRoot(&me);
-	JS_EndRequest(GetContext());
-	//JS_ClearContextThread(GetContext());
+	me->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
 }
 
 void Script::Pause(void)
@@ -284,7 +260,7 @@ bool Script::Include(const char* file)
 		return true;
 	}
 	bool rval = false;
-	JS_SetContextThread(GetContext());
+
 	JS_BeginRequest(GetContext());
 
 	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
@@ -300,17 +276,7 @@ bool Script::Include(const char* file)
 		inProgress.erase(fname);
 		JS_RemoveRoot(&scriptObj);
 	}
-	else
-	{
-		JS_SetContextThread(GetContext());
-		JS_EndRequest(GetContext());
-		LeaveCriticalSection(&lock);
-		free(fname);
-		return false;
-	}
 
-	// HACK: assume we have to reclaim ownership
-	JS_SetContextThread(GetContext());
 	JS_EndRequest(GetContext());
 	LeaveCriticalSection(&lock);
 	free(fname);
@@ -423,14 +389,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	evt->functions = functions[evtName];
 	evt->argc = argc;
 	evt->argv = argv;
-	evt->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
-	if(!evt->context)
-	{
-		delete evt;
-		return;
-	}
 	evt->object = globalObject;
-	JS_SetContextPrivate(evt->context, this);
 
 	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
@@ -453,8 +412,9 @@ DWORD WINAPI FuncThread(void* data)
 	if(!evt)
 		return 0;
 
-	JS_SetContextThread(evt->context);
-	JS_BeginRequest(evt->context);
+	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+	JS_SetContextPrivate(cx, evt->owner);
+	JS_BeginRequest(cx);
 
 	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
 	{
@@ -474,22 +434,15 @@ DWORD WINAPI FuncThread(void* data)
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_CallFunctionValue(evt->context, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			JS_CallFunctionValue(cx, evt->object, (*it)->value(), evt->argc, args, &dummy);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(&args[i]);
 		delete[] args;
-
-		// check if the caller stole the context thread
-		if ((DWORD)JS_GetContextThread(evt->context) != evt->owner->GetThreadId())
-		{
-			JS_ClearContextThread(evt->context);
-			JS_SetContextThread(evt->context);	
-		}
 	}
 
-	JS_DestroyContextNoGC(evt->context);
+	JS_DestroyContextNoGC(cx);
 	// we have to clean up the event
 	for(uintN i = 0; i < evt->argc; i++)
 	{
