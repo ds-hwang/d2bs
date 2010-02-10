@@ -143,7 +143,7 @@ Control* findControl(int Type, char* Text, int Disabled, int PosX, int PosY, int
 bool clickControl(Control* pControl, int x, int y)
 {
 	if(ClientState() != ClientStateMenu)
-		return NULL;
+		return false;
 
 	if(pControl)
 	{
@@ -559,27 +559,28 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 			switch(difficulty)
 			{
 				case 0: // normal button
-					if(normal->dwDisabled || !clickControl(normal))
+					if(normal->dwDisabled != 0x5 || !clickControl(normal))
 						return FALSE;
 					break;
 				case 1: // nightmare button
-					if(nightmare->dwDisabled || !clickControl(nightmare))
+					if(nightmare->dwDisabled != 0x5 || !clickControl(nightmare))
 						return FALSE;
 					break;
 				case 2: // hell button
-					if(hell->dwDisabled || !clickControl(hell))
+					if(hell->dwDisabled != 0x5 || !clickControl(hell))
 						return FALSE;
 					break;
 				case 3: //hardest difficulty available
-					if(!hell->dwDisabled)
+					if(hell->dwDisabled != 0x5) {
 						if(!clickControl(hell))
 							return FALSE;
-					else if(!nightmare->dwDisabled)
+					} else if(nightmare->dwDisabled != 0x5) {
 						if(!clickControl(nightmare))
 							return FALSE;
-					else if(!normal->dwDisabled)
+					} else if(normal->dwDisabled != 0x5) {
 						if(!clickControl(normal))
 							return FALSE;
+					}
 					break;
 				default:
 					return FALSE;
