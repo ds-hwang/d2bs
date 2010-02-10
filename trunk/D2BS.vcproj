@@ -648,6 +648,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Game.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Game.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Hash.cpp"
 						>
 					</File>

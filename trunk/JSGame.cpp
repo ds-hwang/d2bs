@@ -10,6 +10,7 @@
 #include "AreaLinker.h"
 #include "Core.h"
 #include "Helpers.h"
+#include "Game.h"
 
 #include <cmath>
 
@@ -318,9 +319,10 @@ JSAPI_FUNC(my_getCollision)
 	myMisc.EnterSection();
 
 	DWORD nLevelId;
+	int32 nX, nY;
 	JS_ValueToECMAUint32(cx, argv[0], &nLevelId);
-	jsint nX = JSVAL_TO_INT(argv[1]);
-	jsint nY = JSVAL_TO_INT(argv[2]);
+	JS_ValueToECMAInt32(cx, argv[1], &nX);
+	JS_ValueToECMAInt32(cx, argv[2], &nY);
 	if (Vars.cCollisionMap.dwLevelId && Vars.cCollisionMap.dwLevelId != nLevelId)
 	{
 		Vars.cCollisionMap.DestroyMap();
@@ -797,10 +799,7 @@ JSAPI_FUNC(my_gold)
 	if(argc > 1 && JSVAL_IS_INT(argv[1]))
 		nMode = JSVAL_TO_INT(argv[1]);
 
-	*p_D2CLIENT_GoldDialogAmount = nGold;
-	*p_D2CLIENT_GoldDialogAction = nMode;
-	D2CLIENT_PerformGoldDialogAction();
-
+	SendGold(nGold, nMode);
 	return JS_TRUE;
 }
 

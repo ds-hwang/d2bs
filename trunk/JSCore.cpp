@@ -61,12 +61,10 @@ JSAPI_FUNC(my_delay)
 		int nDelay = JSVAL_TO_INT(argv[0]);
 		if(nDelay)
 		{
-			JS_ClearContextThread(cx);
 			jsrefcount depth = JS_SuspendRequest(cx);
 
 			Sleep(nDelay);
 
-			JS_SetContextThread(cx);
 			JS_ResumeRequest(cx, depth);
 		}
 		else

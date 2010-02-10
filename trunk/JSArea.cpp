@@ -109,12 +109,12 @@ JSAPI_FUNC(my_getArea)
 	if(!GameReady())
 		return JS_TRUE;
 
-	jsint nArea = GetPlayerArea();
+	int32 nArea = GetPlayerArea();
 
 	if(argc == 1)
 	{
 		if(JSVAL_IS_INT(argv[0]))
-			nArea = JSVAL_TO_INT(argv[0]); 
+			JS_ValueToECMAInt32(cx, argv[0], &nArea);
 		else
 			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	}
