@@ -11,12 +11,13 @@ namespace D2BSLoader
 {
 	public partial class Splash : Form
 	{
-		public Splash()
+		public Splash(Form parent)
 		{
 			InitializeComponent();
+			parent.Opacity = 0f;
 			Timer t = new Timer();
 			t.Interval = 3000;
-			t.Tick += delegate { t.Stop(); Close(); };
+			t.Tick += delegate { t.Stop(); Close(); parent.Opacity = 100f; };
 			t.Start();
 		}
 	}

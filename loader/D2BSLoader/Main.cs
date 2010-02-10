@@ -37,7 +37,7 @@ namespace D2BSLoader
 				ProcessCmdArgs(args);
 			else
 			{
-				Splash s = new Splash();
+				Splash s = new Splash(this);
 				s.FormClosed += delegate {
 					s.Hide();
 					LoadSettings(true);
@@ -46,12 +46,9 @@ namespace D2BSLoader
 					   String.IsNullOrEmpty(D2BSDLL) ||
 					   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
 						Options_Click(null, null);
-
-					Opacity = 100f;
 				};
 				s.Show();
 
-				Opacity = 0f;
 				InitializeComponent();
 
 				processes.RaiseListChangedEvents = true;
