@@ -39,7 +39,6 @@ namespace D2BSLoader
 			{
 				Splash s = new Splash(this);
 				s.FormClosed += delegate {
-					s.Hide();
 					LoadSettings(true);
 					if(String.IsNullOrEmpty(D2Path) || String.IsNullOrEmpty(D2Exe) ||
 					   !File.Exists(Path.Combine(D2Path, D2Exe)) ||

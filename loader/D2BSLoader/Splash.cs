@@ -17,7 +17,7 @@ namespace D2BSLoader
 			parent.Opacity = 0f;
 			Timer t = new Timer();
 			t.Interval = 3000;
-			t.Tick += delegate { t.Stop(); Close(); parent.Opacity = 100f; };
+			t.Tick += delegate { Opacity = 0f; t.Stop(); Close(); parent.Opacity = 100f; };
 			t.Start();
 		}
 	}
