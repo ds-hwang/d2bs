@@ -209,19 +209,15 @@ JSAPI_FUNC(my_createGame)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
-	   (argc > 1 && !(JSVAL_IS_STRING(argv[1]) ||JSVAL_IS_NULL(argv[1]))) ||
-	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
-		THROW_ERROR(cx, "Invalid parameters specified to createGame");
-
-	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
-		 *pass = "";
-	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
-		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
-
-	int diff = 3;
-	if(argc > 2)
-		diff = JSVAL_TO_INT(argv[2]);
+	char *name = NULL, *pass = NULL;
+	int32 diff = 3;
+	if(!JS_ConvertArguments(cx, argc, argv, "s/si", &name, &pass, &diff))
+	{
+		JS_ReportError(cx, "Invalid arguments specified to createGame");
+		return JS_FALSE;
+	}
+	if(!pass)
+		pass = "";
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
 		THROW_ERROR(cx, "Invalid game name or password length");
@@ -237,14 +233,14 @@ JSAPI_FUNC(my_joinGame)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
-	   (argc > 1 && !JSVAL_IS_STRING(argv[1])))
-		THROW_ERROR(cx, "Invalid parameters specified to joinGame");
-
-	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
-		 *pass = NULL;
-	if(argc > 1)
-		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	char *name = NULL, *pass = NULL;
+	if(!JS_ConvertArguments(cx, argc, argv, "s/s", &name, &pass))
+	{
+		JS_ReportError(cx, "Invalid arguments specified to createGame");
+		return JS_FALSE;
+	}
+	if(!pass)
+		pass = "";
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
 		THROW_ERROR(cx, "Invalid game name or password length");
