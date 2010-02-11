@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System.Windows.Forms;
+using System.Drawing.Imaging;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
 namespace D2BSLoader
 {
@@ -19,6 +14,10 @@ namespace D2BSLoader
 			t.Interval = 3000;
 			t.Tick += delegate { Opacity = 0f; t.Stop(); Close(); parent.Opacity = 100f; };
 			t.Start();
+		}
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			e.Graphics.DrawImage(global::D2BSLoader.Properties.Resources.splash, e.ClipRectangle);
 		}
 	}
 }

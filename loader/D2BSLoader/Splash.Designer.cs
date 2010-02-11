@@ -60,7 +60,8 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.BackColor = System.Drawing.Color.AntiqueWhite;
+			this.BackColor = System.Drawing.Color.Lime;
+			this.TransparencyKey = System.Drawing.Color.Lime;
 			this.BackgroundImage = global::D2BSLoader.Properties.Resources.splash;
 			this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
 			this.ClientSize = new System.Drawing.Size(648, 488);
@@ -76,7 +77,6 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Splash";
 			this.TopMost = true;
-			this.TransparencyKey = System.Drawing.Color.AntiqueWhite;
 			this.ResumeLayout(false);
 
 		}
