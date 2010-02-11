@@ -142,7 +142,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE));
+			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);

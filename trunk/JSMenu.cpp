@@ -148,19 +148,19 @@ JSAPI_FUNC(my_login)
 				loginComplete=TRUE;
 				break;
 			case OOG_UNABLE_TO_CONNECT:
-				errorMsg = "un-able to connect";
+				errorMsg = "Unable to connect";
 				break;
 			case OOG_CDKEY_IN_USE:
 				errorMsg = "CD-Key in use";
 				break;
 			case OOG_LOGIN_ERROR:
-				errorMsg = "bad account or password";
+				errorMsg = "Bad account or password";
 				break;
 			case OOG_REALM_DOWN:
 				errorMsg = "Realm Down";
 				break;
 			default:
-				errorMsg = "unhandled login location";
+				errorMsg = "Unhandled login location";
 				break;				
 		}
 
