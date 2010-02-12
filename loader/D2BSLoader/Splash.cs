@@ -15,9 +15,18 @@ namespace D2BSLoader
 			t.Tick += delegate { Opacity = 0f; t.Stop(); Close(); parent.Opacity = 100f; };
 			t.Start();
 		}
-		protected override void OnPaint(PaintEventArgs e)
+        protected override void OnPaintBackground(PaintEventArgs e)
 		{
 			e.Graphics.DrawImage(global::D2BSLoader.Properties.Resources.splash, e.ClipRectangle);
 		}
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            
+        }
+
+        private void Splash_Load(object sender, System.EventArgs e)
+        {
+
+        }
 	}
 }

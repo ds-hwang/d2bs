@@ -385,6 +385,11 @@ namespace D2BSLoader
 			o.ShowDialog();
 			LoadSettings(false);
 		}
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+
+        }
 	}
 
 	class ProcessWrapper
