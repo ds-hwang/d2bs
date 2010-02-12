@@ -253,11 +253,11 @@ function DT_DoInteract(npc) {
 	DC_PingDel(DT_NPCDelay);
 	// If we called this function without assigning a NPC object, warn the user
 	if(!npc) {
-		DC_DPrint("DT_DoInteract() : No NPC object is entered");
+		DC_DPrint("DT_DoInteract() : Missing Arg! nothing passed to interact with!");
 		return false;
 	}
 	else {
-		DC_DPrint("DT_DoInteract() -> NPC Name : " + npc.name + " Classid : " + npc.classid);
+		DC_DPrint("DT_DoInteract() -> Arg Name : " + npc.name + " Classid : " + npc.classid);
 		// Enter the right uiflag depending if the npc object is a stash, cube or npc.
 		var _uiflag = 0x08; // NPC for default
 		if(npc.classid == 267) { // Stash

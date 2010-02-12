@@ -762,7 +762,6 @@ function DC_CheckOwner(object,ownername) {
 		if(object.getParent()) {
 			_unit = object.getParent();
 			if(_unit == me.name || _unit.name == me.name) { 
-				delete _unit; //TESTING -see if this clears up the leaked objects
 				return true; 
 			}
 		}
@@ -771,7 +770,6 @@ function DC_CheckOwner(object,ownername) {
 		if(object.getParent()) {
 			_unit = object.getParent();
 			if(_unit == ownername || _unit.name == ownername) { 
-				delete _unit; //TESTING -see if this clears up the leaked objects
 				return true; 
 			}
 		}
@@ -1572,7 +1570,7 @@ function DC_FindScript( scriptname ) {
 // -msg		Message to send to the target script
 // Return value : Success of the function
 function DC_SendMsgToScript( scriptname, msg ) {
-	script = DC_FindScript( scriptname );
+	var script = DC_FindScript( scriptname );
 	if(script) {
 		script.send( msg );
 		return true;
@@ -1585,7 +1583,7 @@ function DC_SendMsgToScript( scriptname, msg ) {
 // -scriptname	Name of the script to stop
 // Return value : Success of the function
 function DC_StopScript( scriptname ) {
-	script = DC_FindScript( scriptname );
+	var script = DC_FindScript( scriptname );
 	if(script) {
 		script.stop();
 		return true;
