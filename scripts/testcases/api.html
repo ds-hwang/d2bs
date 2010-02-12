@@ -701,7 +701,7 @@ config.macros.func = {
 
 //}}}</pre>
 </div>
-<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="201001250208" changecount="6">
+<div title="GlobalFunctions" modifier="lord2800" created="200911111941" modified="201002080813" changecount="8">
 <pre>&lt;&lt;functionList
 	getUnit
 	getPath
@@ -781,6 +781,8 @@ config.macros.func = {
 	sha256_file
 	sha384_file
 	sha512_file
+	addProfile
+	profileExists
 &gt;&gt;</pre>
 </div>
 <div title="GlobalObjects" modifier="lord2800" created="200912301531" modified="201001221351" changecount="2">
@@ -919,6 +921,9 @@ This document is not complete! A lot of things are still missing, a lot of thing
 </div>
 <div title="addEventListener" modifier="lord2800" created="200912092234" modified="200912301859" changecount="2">
 <pre>&lt;&lt;func args:&quot;string event, Function listener&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Registers listener to listen to events of the specified type&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="addProfile" modifier="lord2800" created="201002080812" modified="201002080815" changecount="3">
+<pre>&lt;&lt;func args:&quot;string name, string mode, string gateway, string username, string password, string character&quot; remarks:&quot;Adds the specified profile to ~D2BS.ini.&quot; example:&quot;if(!profileExists('test')) addProfile('test', 'single', '', '', '', 'tester');&quot;&gt;&gt;</pre>
 </div>
 <div title="beep" modifier="lord2800" created="200912092232" modified="200912301748" changecount="2">
 <pre>&lt;&lt;func args:&quot;uint type&quot; remarks:&quot;This function is the equivalent of the ~WinAPI function [[MessageBeep|http://msdn.microsoft.com/en-us/library/ms680356%28VS.85%29.aspx]].&quot; example:&quot;&quot;&gt;&gt;</pre>
@@ -1364,6 +1369,9 @@ example:&quot;print('I am in ' + ['normal', 'nightmare', 'hell'][me.diff] + ' di
 </div>
 <div title="print" modifier="lord2800" created="200912092235" modified="200912301915" changecount="3">
 <pre>&lt;&lt;func args:&quot;string message, ...&quot; returnType:&quot;&quot; returns:&quot;&quot; remarks:&quot;Writes the specified messages to the console and (optionally, based on the d2bs.ini setting) the screen&quot; example:&quot;&quot;&gt;&gt;</pre>
+</div>
+<div title="profileExists" modifier="lord2800" created="201002080814" modified="201002080815" changecount="4">
+<pre>&lt;&lt;func args:&quot;string profileName&quot; returnType:&quot;bool&quot; returns:&quot;True if the profile exists, otherwise false&quot; remarks:&quot;Checks the existing profiles in ~D2BS.ini to see if the specified one exists.&quot;&gt;&gt;</pre>
 </div>
 <div title="quit" modifier="lord2800" created="200912092232" modified="200912301715" changecount="3">
 <pre>&lt;&lt;func remarks:&quot;Quits the current game&quot; example:&quot;&quot;&gt;&gt;</pre>
