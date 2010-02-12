@@ -27,7 +27,12 @@ function Config(file) {
 			//throw new Error('Configuration not found');
 			return;
 
-		var content = FileTools.readText(file);
+		var content = '';
+
+		var f = File.open(file, FILE_READ);
+		while(!f.eof) content += f.readLine();
+		f.close();
+
 		// remove the xml declaration (bug 336551)
 		content = content.replace(/^<\?xml\s+version\s*=\s*(["'])[^\1]+\1[^?]*\?>/, '').replace('\r', '', 'g').replace('\n', '', 'g').replace('\t', '', 'g');
 		var config = new XML(content);

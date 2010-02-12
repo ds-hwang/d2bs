@@ -13,5 +13,5 @@ function main()
 	addEventListener('golddrop', function (gid, mode) {
 	});
 
-	while(true) delay(10000); // low priority delay
+	while(true) delay(10000); // low priority delay to keep the script alive
 }

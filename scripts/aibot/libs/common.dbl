@@ -24,6 +24,8 @@ const CLICK_DOWN	= 0x1;
 const CLICK_UP		= 0x2;
 const CLICK_HOLD	= 0x8;
 const CLICK_SINGLE	= CLICK_DOWN|CLICK_UP;
+const CLICK_ITEM	= 0x100;
+const CLICK_MERC	= 0x101;
 const HAND_RIGHT	= 0x10;
 const HAND_LEFT		= 0x20;
 
@@ -113,6 +115,30 @@ Unit.prototype.__defineGetter__('isInTown', function() {
 		default: return false;
 	}
 });
+Unit.prototype.__defineGetter__('flags', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return this.getFlags();
+});
+Unit.prototype.__defineGetter__('identified', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, FLAG_ITEM_IDENTIFIED);
+});
+Unit.prototype.__defineGetter__('broken', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, FLAG_ITEM_BROKEN);
+});
+Unit.prototype.__defineGetter__('isNamed', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, FLAG_ITEM_NAMED);
+});
+Unit.prototype.__defineGetter__('isRuneword', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, FLAG_ITEM_RUNEWORD);
+});
+Unit.prototype.__defineGetter__('isStarterItem', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, FLAG_ITEM_STARTERITEM);
+});
 
 PresetUnit.prototype.__defineGetter__('realx', function() {
 	return this.roomx * 5 + this.x;
@@ -174,14 +200,78 @@ me.__defineGetter__('isInTown', function() {
 	}
 });
 
-function click(mode, shift) {
+function click(mode) {
+	if(hasFlag(mode, CLICK_ITEM))
+		ClickItem.apply(this, arguments);
+	else
+		ClickPoint.apply(this, arguments);
+
+function ClickItem(mode, shift) {
+	var point = null;
+	var hasUnit = isUnit(arguments[1]);
+	var hasPoint = isPoint(arguments[1]);
+	if(arguments.length >= 2 && (hasPoint || hasUnit))
+		point = arguments[1];
+	else if(arguments.length == 4 && isNumber(arguments[1]) &&
+			isNumber(arguments[2]) && isNumber(arguments[3]))
+		point = {x: arguments[1], y: arguments[2]};
+	else
+		throw new Error('Invalid click point, hasUnit = ' + hasUnit +
+				', hasPoint = ' + hasPoint);
+
+	var left	= hasFlag(mode, HAND_LEFT),
+		right	= hasFlag(mode, HAND_RIGHT),
+		merc	= hasFlag(mode, CLICK_MERC);
+
+	// sanity checking
+	if(left && right || left && merc || right && merc)
+		throw new Error('Invalid hand selection');
+	if(right && shift || merc && shift)
+		throw new Error('Invalid shift selection');
+
+	var clickType = left ? (shift ? 2 : 0) :
+					right ? 1 :
+					merc ? 3 : -1;
+	if(clickType == -1)
+		throw new Error('Passed sanity checks, but invalid mode?' +
+				'left = ' + left + ', right = ' + right + ', merc = ' + merc);
+
+	var args = [clickType];
+	if(hasUnit)
+		args.push(point);
+	else
+		args.push(point.x, point.y);
+	if(location)
+		args.push(location);
+
+	if(_CommonGlobalLock != null)
+		_CommonGlobalLock.lock();
+
+	var atCursor = false;
+	if(hasUnit)
+		// wait for the unit to hit the cursor
+		addEventListener('itemaction', function(gid, mode) {
+			if(point.gid == gid && mode == 1) {
+				atCursor = true;
+				removeEventListener('itemaction', arguments.callee);
+			}});
+
+	clickItem.apply(this, args);
+	if(hasUnit)
+		while(!atCursor) sleep(100);
+
+	if(_CommonGlobalLock != null)
+		_CommonGlobalLock.unlock();
+}
+
+function ClickPoint(mode, shift) {
 	var point = null;
 	var hasUnit = isUnit(arguments[2]);
 	var hasPoint = isPoint(arguments[2]);
 
 	if(arguments.length == 3 && (hasPoint || hasUnit))
 		point = arguments[2];
-	else if(arguments.length = 4 && isNumber(arguments[2]) && isNumber(arguments[3]))
+	else if(arguments.length == 4 && isNumber(arguments[2]) && isNumber(arguments[3]))
 		point = {x: arguments[2], y: arguments[3]};
 	else
 		throw new Error('Invalid click point');
@@ -193,7 +283,7 @@ function click(mode, shift) {
 		right	= hasFlag(mode, HAND_RIGHT);
 	if(left && right)
 		throw new Error('Invalid hand selection');
-	if(down && held && up)
+	if(down && held && up || (!(down || up) && held))
 		throw new Error('Invalid click selection');
 
 	Debug.Write(INFO, 'We will be',
@@ -242,11 +332,12 @@ function click(mode, shift) {
 	if(_CommonGlobalLock != null)
 		_CommonGlobalLock.unlock();
 }
+}
 
 Unit.prototype.moveTo = function moveToUnit(callback) {
 	// only moveTo the object if it's not me!
-	if(this.gid != me.gid)
-		me.moveTo(this.x, this.y, callback, this.area);
+	require([{valid: function isNotMe(x) { return x != me; }}], arguments);
+	me.moveTo(this.x, this.y, callback, this.area);
 };
 PresetUnit.prototype.moveTo = function moveToPreset(callback) {
 	me.moveTo(this.realx, this.realy, callback, this.level);
@@ -512,7 +603,7 @@ function clearBit(num, bit) { return clearFlag(num, (1 << bit)); }
 function clearFlag(num, flag) { return (num & flag); }
 
 function sleep(milliseconds) {
-	// ping/2 + (fps > 30 ? 0 : 30-fps)*10 + delay should be sufficient
-	require([{valid: function greaterThanZero(x) { return x > 0; }}], arguments);
-	delay(milliseconds + (me.ping/2) + ((me.fps > 30 ? 0 : 30 - me.fps) *10));
+	// ping/2 + (30 - min(30, fps)) * 10 + delay should be sufficient
+	require([{valid: function greaterThanZero(x){ return x > 0; }}], arguments);
+	delay(milliseconds + (me.ping/2) + (30 - Math.min(30, me.fps) * 10));
 }
