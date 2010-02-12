@@ -23,6 +23,7 @@ Version 1.2 -
 		- selectCharacter -- takes the profile name, selects the character specified by that profile.
 		- Area.exits -- now returns the exit array instead of the number of exits
 		- getExits -- removed in preference of Area.exits.
+		- Exit.id -- renamed to Exit.level
 		- showConsole -- shows the console
 		- hideConsole -- hides the console
 
@@ -39,7 +40,7 @@ Version 1.2 -
 	.	Changed the logo drawing code similarly, so that it draws on its own without being treated
 		as a screenhook (which means it always draws centered and draws much faster)
 
-	.	Changed the console drawing code similar to above, so that it handles long lones correctly
+	.	Changed the console drawing code similar to above, so that it handles long lines correctly
 		without being broken (this includes input, which drops to a newline on long lines).
 
 	.	Changed the handling for commands, you no longer have to print() the result you want--the
