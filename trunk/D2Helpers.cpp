@@ -504,6 +504,7 @@ DWORD GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo)
 
 UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 {
+	if(dwId == -1) return NULL;
 	UnitAny* pUnit = D2CLIENT_FindServerSideUnit(dwId, dwType);
 	return pUnit ? pUnit : D2CLIENT_FindClientSideUnit(dwId, dwType);
 }

@@ -319,7 +319,7 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 
 	JS_ResumeRequest(cx, depth);
 
-	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
+	return !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu));
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
