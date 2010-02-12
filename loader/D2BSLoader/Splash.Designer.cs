@@ -28,22 +28,20 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-            System.Windows.Forms.TransparentLabel label2;
             System.Windows.Forms.TransparentLabel label1;
-            label2 = new System.Windows.Forms.TransparentLabel();
+            VersionLabel = new System.Windows.Forms.TransparentLabel();
             label1 = new System.Windows.Forms.TransparentLabel();
             this.SuspendLayout();
             // 
             // label2
             // 
-            label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(131)))), ((int)(((byte)(139)))), ((int)(((byte)(139)))));
-            label2.Location = new System.Drawing.Point(251, 283);
-            label2.Name = "label2";
-            label2.Size = new System.Drawing.Size(175, 40);
-            label2.TabIndex = 1;
-            label2.TabStop = false;
-            label2.Text = "version 1.2";
+			VersionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			VersionLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(131)))), ((int)(((byte)(139)))), ((int)(((byte)(139)))));
+			VersionLabel.Location = new System.Drawing.Point(251, 283);
+			VersionLabel.Name = "label2";
+			VersionLabel.Size = new System.Drawing.Size(175, 40);
+			VersionLabel.TabIndex = 1;
+			VersionLabel.TabStop = false;
             // 
             // label1
             // 
@@ -64,7 +62,7 @@
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.ClientSize = new System.Drawing.Size(648, 488);
             this.ControlBox = false;
-            this.Controls.Add(label2);
+            this.Controls.Add(VersionLabel);
             this.Controls.Add(label1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.SystemColors.ActiveCaption;
@@ -81,6 +79,8 @@
             this.ResumeLayout(false);
 
 		}
+
+		private System.Windows.Forms.TransparentLabel VersionLabel;
 
 		#endregion
 
