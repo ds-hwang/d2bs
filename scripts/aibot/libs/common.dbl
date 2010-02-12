@@ -6,20 +6,6 @@ include('path.dbl');
 include('datastructures.dbl');
 include('debug.dbl');
 
-var _CommonGlobalLock = null;
-
-addEventListener('scriptmsg', function(check, obj) {
-	if(check == 'lock')
-	{
-		_CommonGlobalLock = obj;
-		removeEventListener('scriptmsg', arguments.callee);
-	}
-});
-var starter = getScript('starter.dbj');
-if(starter != undefined)
-	starter.send(getScript(true), 'get-lock');
-delete starter;
-
 const CLICK_DOWN	= 0x1;
 const CLICK_UP		= 0x2;
 const CLICK_HOLD	= 0x8;
@@ -244,9 +230,6 @@ function ClickItem(mode, shift) {
 	if(location)
 		args.push(location);
 
-	if(_CommonGlobalLock != null)
-		_CommonGlobalLock.lock();
-
 	var atCursor = false;
 	if(hasUnit)
 		// wait for the unit to hit the cursor
@@ -259,9 +242,6 @@ function ClickItem(mode, shift) {
 	clickItem.apply(this, args);
 	if(hasUnit)
 		while(!atCursor) sleep(100);
-
-	if(_CommonGlobalLock != null)
-		_CommonGlobalLock.unlock();
 }
 
 function ClickPoint(mode, shift) {
@@ -292,15 +272,10 @@ function ClickPoint(mode, shift) {
 			(held ? 'and holding' : 'and not holding'),
 			'while clicking at', point.x, ',', point.y,
 			(shift ? 'using' : 'not using'), 'shift');
-	if(_CommonGlobalLock != null)
-		_CommonGlobalLock.lock();
 	if(down) {
 		var clickMode = (left ? 0 : (right ? 3 : -1));
-		if(clickMode == -1) {
-			if(_CommonGlobalLock != null)
-				_CommonGlobalLock.unlock();
+		if(clickMode == -1)
 			throw new Error('Invalid click mode');
-		}
 
 		var args = [(clickMode + (held ? 1 : 0)), shift];
 		if(hasUnit) args.push(point);
@@ -314,11 +289,9 @@ function ClickPoint(mode, shift) {
 	}
 	if(up) {
 		var clickMode = (left ? 2 : (right ? 5 : -1));
-		if(clickMode == -1) {
-			if(_CommonGlobalLock != null)
-				_CommonGlobalLock.unlock();
+		if(clickMode == -1)
 			throw new Error('Invalid click mode');
-		}
+
 		var args = [clickMode, shift];
 		if(hasUnit) args.push(point);
 		else args.push(point.x, point.y);
@@ -329,8 +302,6 @@ function ClickPoint(mode, shift) {
 			throw new Error('Failed to click map at ' + point.x + ',' + point.y);
 		sleep(50);
 	}
-	if(_CommonGlobalLock != null)
-		_CommonGlobalLock.unlock();
 }
 }
 
