@@ -146,15 +146,15 @@ void Script::Run(void)
 	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
+	}
 
-		if(GetState() == Command)
+	if(GetState() == Command)
+	{
+		// if we just processed a command, print the results of the command
+		if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
 		{
-			// if we just processed a command, print the results of the command
-			if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
-			{
-				JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
-				Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
-			}
+			JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
+			Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
 		}
 	}
 
