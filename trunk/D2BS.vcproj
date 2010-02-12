@@ -934,6 +934,14 @@
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
+		<File
+			RelativePath=".\version.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
