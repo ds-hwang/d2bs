@@ -574,10 +574,12 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 					if(hell->dwDisabled != 0x5) {
 						if(!clickControl(hell))
 							return FALSE;
-					} else if(nightmare->dwDisabled != 0x5) {
+					} 
+					else if(nightmare->dwDisabled != 0x5) {
 						if(!clickControl(nightmare))
 							return FALSE;
-					} else if(normal->dwDisabled != 0x5) {
+					} 
+					else if(normal->dwDisabled != 0x5) {
 						if(!clickControl(normal))
 							return FALSE;
 					}
