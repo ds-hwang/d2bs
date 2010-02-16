@@ -651,7 +651,7 @@ function pathMove(_info) {
 	this.GotoLevel = function( exitAreaId, goThru) {
 		var exit = getArea(me.area).exits;
 		for(var n in exit) {
-			if(exit[n].level == exitAreaId) {
+			if(exit[n].target == exitAreaId) {
 				var oldArea = me.area;
 				this.GotoDest(exit[n].x,exit[n].y);
 				this.TargetID=exit[n].tileid;
@@ -662,7 +662,7 @@ function pathMove(_info) {
 					var otherExit = getArea(exitAreaId).exits;
 					//print(otherExit.toSource ());
 					for(var l = 0; l < otherExit.length; l++) {
-						if(otherExit[l].level == oldArea) {
+						if(otherExit[l].target == oldArea) {
 							//this.useDoors();
 							while(oldArea == me.area){
 								this.GotoDest(exit[n].x,exit[n].y);
