@@ -98,7 +98,7 @@ JSAPI_FUNC(my_load)
 	char buf[_MAX_PATH+_MAX_FNAME];
 	ScriptState scriptState = script->GetState();
 	if(scriptState == Command)
-		scriptState = (GameReady() ? InGame : OutOfGame);
+		scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
 	StringReplace(buf, '/', '\\');
@@ -186,6 +186,7 @@ JSAPI_FUNC(my_include)
 			{
 				char lpszBuf[_MAX_PATH+_MAX_FNAME];
 				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
+				StringReplace(lpszFileName, '/', '\\');
 				if(_access(lpszBuf, 0) == 0)
 					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
 			}

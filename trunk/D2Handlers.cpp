@@ -171,7 +171,7 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		bool isDown = !(previousState && transitionState);
 		bool isUp = previousState && transitionState;
 
-		bool gameState = !!GameReady();
+		bool gameState = ClientState() == ClientStateInGame;
 		bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
 		bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
 

@@ -419,7 +419,7 @@ DWORD WINAPI FuncThread(void* data)
 	JS_SetContextPrivate(cx, evt->owner);
 	JS_BeginRequest(cx);
 
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
+	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
 	{
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)

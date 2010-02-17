@@ -174,7 +174,7 @@ BOOL GameReady(void)
 
 DWORD GetPlayerArea(void)
 {
-	return (GameReady() ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
+	return (ClientState() == ClientStateInGame ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
 }
 
 Level* GetLevel(DWORD dwLevelNo)
@@ -219,7 +219,7 @@ INT GetSkill(WORD wSkillId)
 
 BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 {
-	if(!GameReady()) 
+	if(ClientState() != ClientStateInGame) 
 		return FALSE;
 
 	if(!GetSkill(wSkillId))
@@ -239,7 +239,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 
 	int timeout = 0;
 	Skill* hand = NULL;
-	while(GameReady())
+	while(ClientState() == ClientStateInGame)
 	{
 		hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
 		if(hand->pSkillInfo->wSkillId != wSkillId)

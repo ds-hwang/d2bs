@@ -80,7 +80,7 @@ void Print(const char * szFormat, ...)
 	EnterCriticalSection(&Vars.cPrintSection);
 	if(Vars.bUseGamePrint)
 	{
-		if(GameReady())
+		if(ClientState() == ClientStateInGame)
 		{
 			// Convert and send every line.
 			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
@@ -161,7 +161,7 @@ void Say(const char *szMessage, ...)
 
 bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 {
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return false;
 
 	POINT Click = {wX, wY};

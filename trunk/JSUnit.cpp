@@ -163,7 +163,7 @@ JSAPI_PROP(unit_getProperty)
 			break;
 	}
 
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);

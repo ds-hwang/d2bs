@@ -178,7 +178,7 @@ JSAPI_FUNC(my_login)
 			break;
 		}
 
-		if(GameReady())
+		if(ClientState() == ClientStateInGame)
 			loginComplete = TRUE;
 		
 		Sleep(100);

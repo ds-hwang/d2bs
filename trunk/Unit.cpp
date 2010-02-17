@@ -7,7 +7,7 @@
 
 UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return NULL;
 	// check the server list first, then the client list
 /*
@@ -48,7 +48,7 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 
 UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
 {
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return NULL;
 
 	if(!pUnit)
