@@ -5,7 +5,7 @@
 
 #include "Core.h"
 #include "D2Ptrs.h"
-#include "D2Helpers.h"
+//#include "D2Helpers.h"
 #include "Helpers.h"
 #include "Control.h"
 #include "CriticalSections.h"

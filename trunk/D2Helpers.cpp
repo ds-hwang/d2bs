@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cmath>
 
+#include "D2Helpers.h"
 #include "Constants.h"
 #include "Helpers.h"
 #include "D2Skills.h"
@@ -167,7 +168,7 @@ ClientGameState ClientState(void)
 	return ClientStateNull;
 }
 
-BOOL GameReady(void)
+bool GameReady(void)
 {
 	return (ClientState() == ClientStateInGame ? true : false);
 }

@@ -1,4 +1,4 @@
-#include "Control.h"
+//#include "Control.h"
 #include "JSControl.h"
 #include "Helpers.h"
 #include "D2Helpers.h"

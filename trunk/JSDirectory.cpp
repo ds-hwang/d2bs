@@ -25,7 +25,7 @@
 #include "JSDirectory.h"
 #include "D2BS.h"
 #include "File.h"
-#include "js32.h"
+//#include "js32.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Directory stuff

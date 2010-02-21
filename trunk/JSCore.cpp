@@ -2,14 +2,14 @@
 #include <windows.h>
 #include <ddeml.h>
 
-#include "js32.h"
-#include "Script.h"
+//#include "js32.h"
+//#include "Script.h"
 #include "JSCore.h"
 #include "Core.h"
 #include "Helpers.h"
 #include "dde.h"
-#include "ScriptEngine.h"
-#include "D2BS.h"
+//#include "ScriptEngine.h"
+//#include "D2BS.h"
 #include "Events.h"
 #include "Console.h"
 

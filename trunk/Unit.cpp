@@ -1,4 +1,3 @@
-#include "D2Ptrs.h"
 #include "Unit.h"
 #include "Constants.h"
 #include "D2Helpers.h"

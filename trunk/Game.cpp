@@ -1,3 +1,4 @@
+#include "Game.h"
 #include "D2Ptrs.h"
 
 // TODO: Refactor a lot of the JSGame functions here

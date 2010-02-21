@@ -1,10 +1,10 @@
 #include <windows.h>
 
-#include "Constants.h"
+//#include "Constants.h"
 #include "D2Structs.h"
 #include "D2Helpers.h"
-#include "D2Ptrs.h"
-#include "Core.h"
+//#include "D2Ptrs.h"
+//#include "Core.h"
 #include "AreaLinker.h"
 
 AreaNode* GetAreaNode(INT nAreaId)

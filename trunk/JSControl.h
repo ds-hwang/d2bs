@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Control.h"
+
 #include "js32.h"
 #include <windows.h>
 #include "D2Ptrs.h"

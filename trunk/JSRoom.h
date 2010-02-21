@@ -1,6 +1,8 @@
 #ifndef ROOM_H
 #define ROOM_H
 
+#include "Room.h"
+
 #include "js32.h"
 
 CLASS_CTOR(room);

@@ -1,6 +1,6 @@
 #include "JSArea.h"
-#include "D2Ptrs.h"
-#include "D2Helpers.h"
+//#include "D2Ptrs.h"
+//#include "D2Helpers.h"
 #include "JSExits.h"
 #include "CriticalSections.h"
 

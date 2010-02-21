@@ -18,7 +18,7 @@ void	Log(char* szFormat, ...);
 WORD	GetUnitX(UnitAny* pUnit);
 WORD	GetUnitY(UnitAny* pUnit);
 ClientGameState ClientState(void);
-BOOL	GameReady(void);
+bool	GameReady(void);
 void	WaitForGameReady(void);
 DWORD	GetPlayerArea(void);
 void	ScreenSizeCheck(POINT* pPoint);
