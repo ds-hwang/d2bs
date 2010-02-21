@@ -173,11 +173,19 @@ bool GameReady(void)
 	return (ClientState() == ClientStateInGame ? true : false);
 }
 
-void WaitForGameReady(void)
+bool WaitForGameReady(void)
 {
 	DWORD start = GetTickCount();
-	while(!GameReady() && (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout))
+	while((Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout))
+	{
+		switch(ClientState())
+		{
+			case ClientStateNull: case ClientStateMenu: return false;
+			case ClientStateInGame: return true;
+		}
 		Sleep(10);
+	}
+	return false;
 }
 
 DWORD GetPlayerArea(void)

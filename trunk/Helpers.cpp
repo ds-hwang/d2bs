@@ -95,15 +95,15 @@ void InitSettings(void)
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
 	Vars.dwGameTime = GetTickCount();
-	Vars.dwMaxGameTime = atoi(maxGameTime) * 1000;
-	Vars.dwGameTimeout = atoi(gameTimeout) * 1000;
+	Vars.dwMaxGameTime = abs(atoi(maxGameTime) * 1000);
+	Vars.dwGameTimeout = abs(atoi(gameTimeout) * 1000);
 	Vars.bBlockMinimize = StringToBool(blockMinimize);
 	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 	Vars.bQuitOnError = StringToBool(quitOnError);
 	Vars.bStartAtMenu = StringToBool(startAtMenu);
 	Vars.bDisableCache = StringToBool(disableCache);
 	Vars.bUseGamePrint = StringToBool(gamePrint);
-	Vars.dwMemUsage = atoi(memUsage);
+	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;

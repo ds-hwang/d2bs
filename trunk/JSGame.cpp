@@ -70,7 +70,8 @@ JSAPI_FUNC(my_copyUnit)
 
 JSAPI_FUNC(my_clickMap)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
@@ -119,7 +120,8 @@ JSAPI_FUNC(my_clickMap)
 
 JSAPI_FUNC(my_acceptTrade)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	// TODO: Fix this nonsense.
 	if(argc > 0 && JSVAL_TO_INT(argv[0]) == 1) // Called with a '1' it will return if we already accepted it or not
@@ -165,7 +167,8 @@ JSAPI_FUNC(my_acceptTrade)
 
 JSAPI_FUNC(my_getPath)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
@@ -304,7 +307,8 @@ JSAPI_FUNC(my_getPath)
 
 JSAPI_FUNC(my_getCollision)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
 		THROW_ERROR(cx, "Invalid parameters were passed to getCollision!");
@@ -336,7 +340,8 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
 
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
@@ -692,7 +697,8 @@ JSAPI_FUNC(my_rand)
 
 JSAPI_FUNC(my_getDistance)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	// TODO: Add the type of distance to the api design
 	jsint nX1 = NULL;
@@ -941,7 +947,8 @@ JSAPI_FUNC(my_getTextWidthHeight)
 
 JSAPI_FUNC(my_getTradeInfo)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc < 1)
 	{
@@ -976,7 +983,8 @@ JSAPI_FUNC(my_getTradeInfo)
 
 JSAPI_FUNC(my_getUIFlag)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -992,7 +1000,8 @@ JSAPI_FUNC(my_getUIFlag)
 
 JSAPI_FUNC(my_getWaypoint)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -1072,7 +1081,8 @@ JSAPI_FUNC(my_say)
 
 JSAPI_FUNC(my_clickParty)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	*rval = JSVAL_FALSE;
 
@@ -1175,7 +1185,8 @@ JSAPI_FUNC(my_weaponSwitch)
 {	
 	*rval = JSVAL_FALSE;
 
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	jsint nParameter = NULL;
 	if(argc > 0)
@@ -1207,7 +1218,8 @@ JSAPI_FUNC(my_weaponSwitch)
 
 JSAPI_FUNC(my_transmute)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	D2CLIENT_Transmute();
 
@@ -1216,7 +1228,8 @@ JSAPI_FUNC(my_transmute)
 
 JSAPI_FUNC(my_getPlayerFlag)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
 		return JS_TRUE;
@@ -1280,7 +1293,8 @@ JSAPI_FUNC(my_getMouseCoords)
 
 JSAPI_FUNC(my_submitItem)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
@@ -1295,7 +1309,8 @@ JSAPI_FUNC(my_submitItem)
 
 JSAPI_FUNC(my_getInteractedNPC)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	if(!pNPC)

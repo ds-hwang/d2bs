@@ -52,7 +52,8 @@ JSAPI_PROP(party_getProperty)
 
 JSAPI_FUNC(party_getNext)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	RosterUnit *pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
@@ -81,7 +82,8 @@ JSAPI_FUNC(party_getNext)
 
 JSAPI_FUNC(my_getParty)
 {	
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	RosterUnit* pUnit = *p_D2CLIENT_PlayerUnitList;
 

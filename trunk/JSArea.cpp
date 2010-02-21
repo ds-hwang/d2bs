@@ -106,7 +106,8 @@ JSAPI_PROP(area_getProperty)
 
 JSAPI_FUNC(my_getArea)
 {
-	WaitForGameReady();
+	if(!WaitForGameReady())
+		return JS_FALSE;
 
 	int32 nArea = GetPlayerArea();
 

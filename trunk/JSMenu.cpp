@@ -38,8 +38,8 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString("settings", "MaxCharSelectTime", "5", maxCharTime, sizeof(maxCharTime), file);
 
 	char* errorMsg = "";
-	loginTime = atoi(maxLoginTime) * 1000;
-	charTime = atoi(maxCharTime) * 1000;
+	loginTime = abs(atoi(maxLoginTime) * 1000);
+	charTime = abs(atoi(maxCharTime) * 1000);
 	SPdifficulty = atoi(difficulty);
 	Control* pControl = NULL;
 	int location = 0;
