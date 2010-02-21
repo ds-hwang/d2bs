@@ -184,7 +184,7 @@ bool WaitForGameReady(void)
 			case ClientStateInGame: return true;
 		}
 		Sleep(10);
-	} while((Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
+	} while((Vars.dwGameTimeout == 0 ) || (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
 	return false;
 }
 
