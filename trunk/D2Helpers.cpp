@@ -176,7 +176,7 @@ bool GameReady(void)
 bool WaitForGameReady(void)
 {
 	DWORD start = GetTickCount();
-	while((Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout))
+	do
 	{
 		switch(ClientState())
 		{
@@ -184,7 +184,7 @@ bool WaitForGameReady(void)
 			case ClientStateInGame: return true;
 		}
 		Sleep(10);
-	}
+	} while((Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
 	return false;
 }
 
