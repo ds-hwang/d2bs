@@ -72,6 +72,7 @@ void InitSettings(void)
 		 quitOnHostile[6],
 		 quitOnError[6],
 		 maxGameTime[6],
+		 gameTimeout[6],
 		 startAtMenu[6],
 		 disableCache[6],
 		 memUsage[6],
@@ -89,11 +90,13 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
+	GetPrivateProfileString("settings", "GameReadyTimeout", "0", gameTimeout, 6, fname);
 
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
 	Vars.dwGameTime = GetTickCount();
-	Vars.dwMaxGameTime = atoi(maxGameTime);
+	Vars.dwMaxGameTime = atoi(maxGameTime) * 1000;
+	Vars.dwGameTimeout = atoi(gameTimeout) * 1000;
 	Vars.bBlockMinimize = StringToBool(blockMinimize);
 	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 	Vars.bQuitOnError = StringToBool(quitOnError);

@@ -71,12 +71,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "D2BS Team"
             VALUE "FileDescription", "Diablo II Botting System"
-            VALUE "FileVersion", "1, 2, 0, 0"
+            VALUE "FileVersion", "1, 2, 1, 0"
             VALUE "InternalName", "D2BS"
             VALUE "LegalCopyright", "Copyright (C) 2010"
             VALUE "OriginalFilename", "D2BS.dll"
             VALUE "ProductName", "Diablo II Botting System"
-            VALUE "ProductVersion", "1, 2, 0, 0"
+            VALUE "ProductVersion", "1, 2, 1, 0"
         END
     END
     BLOCK "VarFileInfo"

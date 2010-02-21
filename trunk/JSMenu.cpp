@@ -34,12 +34,12 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
 	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);		
 
-	GetPrivateProfileString("settings", "MaxLoginTime", "5000", maxLoginTime, sizeof(maxLoginTime), file);
-	GetPrivateProfileString("settings", "MaxCharSelectTime", "5000", maxCharTime, sizeof(maxCharTime), file);
+	GetPrivateProfileString("settings", "MaxLoginTime", "5", maxLoginTime, sizeof(maxLoginTime), file);
+	GetPrivateProfileString("settings", "MaxCharSelectTime", "5", maxCharTime, sizeof(maxCharTime), file);
 
 	char* errorMsg = "";
-	loginTime = atoi(maxLoginTime);
-	charTime = atoi(maxCharTime);
+	loginTime = atoi(maxLoginTime) * 1000;
+	charTime = atoi(maxCharTime) * 1000;
 	SPdifficulty = atoi(difficulty);
 	Control* pControl = NULL;
 	int location = 0;

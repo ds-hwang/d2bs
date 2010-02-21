@@ -110,7 +110,8 @@ enum me_tinyid {
 	OOG_QUITONERROR,
 	OOG_MAXGAMETIME,
 	ME_BLOCKKEYS,
-	ME_BLOCKMOUSE
+	ME_BLOCKMOUSE,
+	ME_GAMEREADY
 };
 
 static JSPropertySpec me_props[] = {
@@ -137,6 +138,7 @@ static JSPropertySpec me_props[] = {
 	{"quitonhostile",	ME_QUITONHOSTILE,	JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"blockKeys",		ME_BLOCKKEYS,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"blockMouse",		ME_BLOCKMOUSE,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
+	{"gameReady",		ME_GAMEREADY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 
 	{"screensize",		OOG_SCREENSIZE,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"windowtitle",		OOG_WINDOWTITLE,	JSPROP_PERMANENT_VAR,	unit_getProperty},

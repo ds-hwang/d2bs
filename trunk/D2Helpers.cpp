@@ -172,6 +172,13 @@ BOOL GameReady(void)
 	return (ClientState() == ClientStateInGame ? true : false);
 }
 
+void WaitForGameReady(void)
+{
+	DWORD start = GetTickCount();
+	while(!GameReady() && (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout))
+		Sleep(10);
+}
+
 DWORD GetPlayerArea(void)
 {
 	return (ClientState() == ClientStateInGame ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);

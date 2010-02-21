@@ -645,29 +645,28 @@ config.macros.event = {
 	appendText
 &gt;&gt;</pre>
 </div>
-<div title="FunctionListPlugin" modifier="lord2800" created="200911112154" modified="201001291132" tags="systemConfig" changecount="11">
+<div title="FunctionListPlugin" modifier="lord2800" created="200911112154" modified="201002162045" tags="systemConfig" changecount="13">
 <pre>//{{{
 
 config.macros.functionList = {
 	handler: function (place, macroName, params, wikifier, paramString) {
 		var args = paramString.parseParams(null,null,true);
-		var start = 0;
 
 		var prefix = getParam(args, &quot;prefix&quot;) || '';
 		if(prefix != '') {
 			prefix += '.';
-			start++;
+			params.shift();
 		}
 
 		var type = getParam(args, &quot;type&quot;) || '';
 		if(type != '') {
 			type += ' ';
-			start++;
+			params.shift();
 		}
 
 		params = params.sort();
 		var functions = '!' + type + 'Functions:\r\n\r\n';
-		for(var i = start; i &lt; params.length; i++)
+		for(var i = 0; i &lt; params.length; i++)
 		{
 			functions += '[[' + prefix + params[i] + ']]\r\n';
 		}
@@ -839,14 +838,17 @@ config.macros.objectList = {
 	UnitObject
 &gt;&gt;</pre>
 </div>
-<div title="PropertyListPlugin" modifier="lord2800" created="200911112248" modified="201001291132" tags="systemConfig" changecount="2">
+<div title="PropertyListPlugin" modifier="lord2800" created="200911112248" modified="201002162046" tags="systemConfig" changecount="3">
 <pre>//{{{
 
 config.macros.propertyList = {
 	handler: function (place, macroName, params, wikifier, paramString) {
 		var args = paramString.parseParams(null,null,true);
 		var prefix = getParam(args, &quot;prefix&quot;) || '';
-		if(prefix != '') prefix += '.';
+		if(prefix != '') {
+			prefix += '.';
+			params.shift();
+		}
 		var functions = '!Properties:\r\n\r\n';
 		var start = (prefix != '' ? 1 : 0);
 		params = params.sort();
@@ -960,8 +962,8 @@ Mercenary Body Locations:
 3 - Armor
 4 - Weapon&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="clickMap" modifier="lord2800" created="200912092232" modified="200912301812" changecount="2">
-<pre>&lt;&lt;func args:&quot;int type, bool shift, [Unit a OR int x, int y]&quot; returnType:&quot;bool&quot; returns:&quot;True if the click succeeded, otherwise false&quot; remarks:&quot;If you specify a unit, that unit will be selected prior to clicking. If shift is true, the character will stand in place while clicking.
+<div title="clickMap" modifier="lord2800" created="200912092232" modified="201002160050" changecount="3">
+<pre>&lt;&lt;func args:&quot;int type, bool shift, [Unit a OR int x, int y]&quot; returnType:&quot;bool&quot; returns:&quot;True if the click succeeded, otherwise false&quot; remarks:&quot;Either a unit or an x/y is required. If you specify a unit, that unit will be selected prior to clicking. If shift is true, the character will stand in place while clicking. The coordinates are in-game coordinates.
 Click types:
 0 - Left down
 1 - Left held

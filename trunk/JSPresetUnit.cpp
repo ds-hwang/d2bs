@@ -54,8 +54,7 @@ JSAPI_PROP(presetunit_getProperty)
 
 JSAPI_FUNC(my_getPresetUnits)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 1)
 	{
@@ -139,8 +138,7 @@ JSAPI_FUNC(my_getPresetUnits)
 
 JSAPI_FUNC(my_getPresetUnit)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 1)
 	{

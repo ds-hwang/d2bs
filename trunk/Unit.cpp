@@ -128,10 +128,6 @@ UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwC
 
 BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
-// extraneous check?
-//	if(!GameReady())
-//		return FALSE;
-
 	if((dwUnitId != -1 && pUnit->dwUnitId != dwUnitId) ||
 		(dwType != -1 && pUnit->dwType != dwType) ||
 		(dwClassId != -1 && pUnit->dwTxtFileNo != dwClassId))

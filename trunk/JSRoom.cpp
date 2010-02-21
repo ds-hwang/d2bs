@@ -389,8 +389,7 @@ JSAPI_FUNC(room_reveal)
 
 JSAPI_FUNC(my_getRoom)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();

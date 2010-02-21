@@ -16,9 +16,6 @@
 
 JSAPI_FUNC(my_copyUnit)
 {
-	if(!GameReady())
-		return JS_TRUE;
-
 	if(argc >= 1 && JSVAL_IS_OBJECT(argv[0]) && !JSVAL_IS_NULL(argv[0]))
 	{
 		*rval = JSVAL_VOID;
@@ -72,8 +69,7 @@ JSAPI_FUNC(my_copyUnit)
 
 JSAPI_FUNC(my_clickMap)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
@@ -122,8 +118,7 @@ JSAPI_FUNC(my_clickMap)
 
 JSAPI_FUNC(my_acceptTrade)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	// TODO: Fix this nonsense.
 	if(argc > 0 && JSVAL_TO_INT(argv[0]) == 1) // Called with a '1' it will return if we already accepted it or not
@@ -169,8 +164,7 @@ JSAPI_FUNC(my_acceptTrade)
 
 JSAPI_FUNC(my_getPath)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
@@ -309,8 +303,7 @@ JSAPI_FUNC(my_getPath)
 
 JSAPI_FUNC(my_getCollision)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
 		THROW_ERROR(cx, "Invalid parameters were passed to getCollision!");
@@ -342,8 +335,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
 
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
@@ -699,8 +691,7 @@ JSAPI_FUNC(my_rand)
 
 JSAPI_FUNC(my_getDistance)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	// TODO: Add the type of distance to the api design
 	jsint nX1 = NULL;
@@ -787,8 +778,7 @@ JSAPI_FUNC(my_getDistance)
 
 JSAPI_FUNC(my_gold)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	jsint nGold = NULL;
 	jsint nMode = 1;
@@ -805,8 +795,7 @@ JSAPI_FUNC(my_gold)
 
 JSAPI_FUNC(my_checkCollision)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JSVAL_IS_INT(argv[2]))
 	{
@@ -832,8 +821,7 @@ JSAPI_FUNC(my_checkCollision)
 
 JSAPI_FUNC(my_getMercHP)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
 	{
@@ -952,8 +940,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 
 JSAPI_FUNC(my_getTradeInfo)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 1)
 	{
@@ -988,8 +975,7 @@ JSAPI_FUNC(my_getTradeInfo)
 
 JSAPI_FUNC(my_getUIFlag)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -1005,8 +991,7 @@ JSAPI_FUNC(my_getUIFlag)
 
 JSAPI_FUNC(my_getWaypoint)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -1026,7 +1011,7 @@ JSAPI_FUNC(my_getWaypoint)
 
 JSAPI_FUNC(my_quitGame)
 {
-	if(GameReady())
+	if(ClientState() != ClientStateMenu)
 		D2CLIENT_ExitGame();
 
 	// give the core a chance to shut down
@@ -1038,7 +1023,7 @@ JSAPI_FUNC(my_quitGame)
 
 JSAPI_FUNC(my_quit)
 {
-	if(GameReady())
+	if(ClientState() != ClientStateMenu)
 		D2CLIENT_ExitGame();
 
 	return JS_TRUE;
@@ -1086,8 +1071,7 @@ JSAPI_FUNC(my_say)
 
 JSAPI_FUNC(my_clickParty)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	*rval = JSVAL_FALSE;
 
@@ -1190,8 +1174,7 @@ JSAPI_FUNC(my_weaponSwitch)
 {	
 	*rval = JSVAL_FALSE;
 
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	jsint nParameter = NULL;
 	if(argc > 0)
@@ -1223,8 +1206,7 @@ JSAPI_FUNC(my_weaponSwitch)
 
 JSAPI_FUNC(my_transmute)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	D2CLIENT_Transmute();
 
@@ -1233,8 +1215,7 @@ JSAPI_FUNC(my_transmute)
 
 JSAPI_FUNC(my_getPlayerFlag)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
 		return JS_TRUE;
@@ -1298,8 +1279,7 @@ JSAPI_FUNC(my_getMouseCoords)
 
 JSAPI_FUNC(my_submitItem)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
@@ -1314,8 +1294,7 @@ JSAPI_FUNC(my_submitItem)
 
 JSAPI_FUNC(my_getInteractedNPC)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	WaitForGameReady();
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	if(!pNPC)
