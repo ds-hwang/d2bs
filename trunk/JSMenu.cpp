@@ -255,19 +255,25 @@ JSAPI_FUNC(my_addProfile)
 {
 	// validate the args...
 	char *profile, *mode, *gateway, *username, *password, *charname;
-	if(argc != 6)
+	profile = mode = gateway = username = password = charname = NULL;
+	int spdifficulty = 3;
+	if(argc < 6 || argc > 7)
 		THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
-	for(uintN i = 0; i < argc; i++)
-		if(!JSVAL_IS_STRING(argv[i]))
-			THROW_ERROR(cx, "All arguments to addProfile must be strings!");
+	char* args[] = {profile, mode, gateway, username, password, charname};
+	for(uintN i = 0; i < 6; i++)
+		if(!JSVAL_IS_STRING(argv[i])) {
+			THROW_ERROR(cx, "Invalid argument passed to addProfile");
+		} else {
+			args[i] = JS_GetStringBytes(JSVAL_TO_STRING(argv[i]));
+		}
 
-	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	mode = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
-	gateway = JS_GetStringBytes(JSVAL_TO_STRING(argv[2]));
-	username = JS_GetStringBytes(JSVAL_TO_STRING(argv[3]));
-	password = JS_GetStringBytes(JSVAL_TO_STRING(argv[4]));
-	charname = JS_GetStringBytes(JSVAL_TO_STRING(argv[5]));
+	if(argc == 7)
+		spdifficulty = JSVAL_TO_INT(argv[6]);
+
+	if(spdifficulty > 3 || spdifficulty < 0)
+		THROW_ERROR(cx, "Invalid argument passed to addProfile");
+
 	if(!profile || !mode || !gateway || !username || !password || !charname)
 		THROW_ERROR(cx, "Failed to convert string");
 
@@ -278,8 +284,9 @@ JSAPI_FUNC(my_addProfile)
 	{
 		char settings[600];
 		sprintf_s(settings, sizeof(settings),
-					"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
-					mode, gateway, username, password, charname);
+					"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t",
+					mode, gateway, username, password, charname, spdifficulty);
+		StringReplace(settings, '\t', '\0');
 		WritePrivateProfileSection(profile, settings, file);
 	}
 
