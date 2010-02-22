@@ -2,6 +2,7 @@
 #include "Script.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
+#include "Helpers.h"
 
 EMPTY_CTOR(script)
 
@@ -132,7 +133,7 @@ JSAPI_FUNC(my_getScript)
 	else if(argc == 1 && JSVAL_IS_STRING(argv[0]))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		StringReplace(name, '/', '\\', strlen(name))
+		StringReplace(name, '/', '\\', strlen(name));
 		FindHelper args = {0, name, NULL};
 		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
 		if(args.script != NULL)
