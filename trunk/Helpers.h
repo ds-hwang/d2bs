@@ -8,7 +8,7 @@
 wchar_t* AnsiToUnicode(const char* str);
 char* UnicodeToAnsi(const wchar_t* str);
 bool StringToBool(const char* str);
-void StringReplace(char* str, const char find, const char replace);
+void StringReplace(char* str, const char find, const char replace, size_t buflen);
 bool ProfileExists(const char* profile);
 void InitSettings(void);
 bool InitHooks(void);

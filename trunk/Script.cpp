@@ -237,7 +237,7 @@ bool Script::IsIncluded(const char* file)
 		return false;
 
 	_strlwr_s(fname, strlen(fname)+1);
-	StringReplace(fname, '/', '\\');
+	StringReplace(fname, '/', '\\', strlen(fname));
 	count = includes.count(string(fname));
 	free(fname);
 
@@ -252,7 +252,7 @@ bool Script::Include(const char* file)
 	if(!fname)
 		return false;
 	_strlwr_s(fname, strlen(fname)+1);
-	StringReplace(fname, '/', '\\');
+	StringReplace(fname, '/', '\\', strlen(fname));
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(!!includes.count(string(fname)) ||
 	   !!inProgress.count(string(fname)) ||

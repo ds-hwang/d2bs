@@ -260,13 +260,22 @@ JSAPI_FUNC(my_addProfile)
 	if(argc < 6 || argc > 7)
 		THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
-	char* args[] = {profile, mode, gateway, username, password, charname};
+	char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
 	for(uintN i = 0; i < 6; i++)
-		if(!JSVAL_IS_STRING(argv[i])) {
+	{
+		if(!JSVAL_IS_STRING(argv[i]))
+		{
 			THROW_ERROR(cx, "Invalid argument passed to addProfile");
-		} else {
-			args[i] = JS_GetStringBytes(JSVAL_TO_STRING(argv[i]));
 		}
+		else
+			*args[i] = JS_GetStringBytes(JSVAL_TO_STRING(argv[i]));
+	}
+
+	for(int i = 0; i < 6; i++)
+	{
+		if(!(*args[i]))
+			THROW_ERROR(cx, "Failed to convert string");
+	}
 
 	if(argc == 7)
 		spdifficulty = JSVAL_TO_INT(argv[6]);
@@ -274,20 +283,18 @@ JSAPI_FUNC(my_addProfile)
 	if(spdifficulty > 3 || spdifficulty < 0)
 		THROW_ERROR(cx, "Invalid argument passed to addProfile");
 
-	if(!profile || !mode || !gateway || !username || !password || !charname)
-		THROW_ERROR(cx, "Failed to convert string");
-
 	char file[_MAX_FNAME+_MAX_PATH];
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
-	if(!ProfileExists(profile))
+	if(!ProfileExists(*args[0]))
 	{
-		char settings[600];
+		char settings[600] = "";
 		sprintf_s(settings, sizeof(settings),
 					"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t",
 					mode, gateway, username, password, charname, spdifficulty);
-		StringReplace(settings, '\t', '\0');
-		WritePrivateProfileSection(profile, settings, file);
+
+		StringReplace(settings, '\t', '\0', 600);
+		WritePrivateProfileSection(*args[0], settings, file);
 	}
 
 	return JS_TRUE;

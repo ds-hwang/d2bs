@@ -35,11 +35,13 @@ bool StringToBool(const char* str)
 	}
 }
 
-void StringReplace(char* str, const char find, const char replace)
+void StringReplace(char* str, const char find, const char replace, size_t buflen)
 {
-	char* ptr = NULL;
-	while((ptr = strchr(str, find)) != NULL)
-		*ptr = replace;
+	for(size_t i = 0; i < buflen; i++)
+	{
+		if(str[i] == find)
+			str[i] = replace;
+	}
 }
 
 bool ProfileExists(const char *profile)

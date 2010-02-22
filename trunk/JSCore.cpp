@@ -33,7 +33,7 @@ JSAPI_FUNC(my_print)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE);
+			StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 			Print(Text ? Text : "undefined");
 			JS_ResumeRequest(cx, depth);
 		}
@@ -101,7 +101,7 @@ JSAPI_FUNC(my_load)
 		scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
-	StringReplace(buf, '/', '\\');
+	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
 	Script* newScript = ScriptEngine::CompileFile(buf, scriptState);
 	if(newScript)
 	{
@@ -311,7 +311,7 @@ JSAPI_FUNC(my_debugLog)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE);
+			StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 			Log(Text ? Text : "undefined");
 			JS_ResumeRequest(cx, depth);
 		}
