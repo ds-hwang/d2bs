@@ -132,9 +132,7 @@ JSAPI_FUNC(my_getScript)
 	else if(argc == 1 && JSVAL_IS_STRING(argv[0]))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		char* ptr = NULL;
-		while((ptr = strchr(name, '/')) != NULL)
-			*ptr = '\\';
+		StringReplace(name, '/', '\\', strlen(name))
 		FindHelper args = {0, name, NULL};
 		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
 		if(args.script != NULL)
