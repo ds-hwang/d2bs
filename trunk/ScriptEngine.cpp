@@ -425,7 +425,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(filename)
 		free(filename);
 
-	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
+	if(Vars.bQuitOnError && !JSREPORT_IS_WARNING(report->flags) && ClientState() == ClientStateInGame)
 		D2CLIENT_ExitGame();
 	else
 		Console::ShowBuffer();
