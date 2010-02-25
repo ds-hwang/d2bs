@@ -133,7 +133,8 @@ JSAPI_FUNC(my_getScript)
 	else if(argc == 1 && JSVAL_IS_STRING(argv[0]))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		StringReplace(name, '/', '\\', strlen(name));
+		if(name)
+			StringReplace(name, '/', '\\', strlen(name));
 		FindHelper args = {0, name, NULL};
 		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
 		if(args.script != NULL)
@@ -161,7 +162,7 @@ bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 	const char* fname = script->GetFilename();
 	// calculate the relative name from the filename
 	const char* relName = (strlen(fname) > pathlen ? fname + pathlen : fname);
-	if(strcmp(relName, helper->name) == 0)
+	if(_strcmpi(relName, helper->name) == 0)
 	{
 		helper->script = script;
 		return false;

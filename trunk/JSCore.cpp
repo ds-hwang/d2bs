@@ -33,8 +33,12 @@ JSAPI_FUNC(my_print)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
-			Print(Text ? Text : "undefined");
+			if(!Text)
+				Print("undefined");
+			else {
+				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
+				Print(Text);
+			}
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -311,8 +315,12 @@ JSAPI_FUNC(my_debugLog)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
-			Log(Text ? Text : "undefined");
+			if(!Text)
+				Log("undefined");
+			else {
+				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
+				Log(Text);
+			}
 			JS_ResumeRequest(cx, depth);
 		}
 	}
