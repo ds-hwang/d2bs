@@ -73,7 +73,7 @@ JSAPI_FUNC(my_clickMap)
 	if(!WaitForGameReady())
 		THROW_ERROR(cx, "Game not ready");
 
-	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
+	uint16 nClickType = 0, nShift = 0, nX = 0xFFFF, nY = 0xFFFF;
 
 	*rval = JSVAL_FALSE;
 	

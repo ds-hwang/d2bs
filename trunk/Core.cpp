@@ -159,10 +159,16 @@ void Say(const char *szMessage, ...)
 	}
 }
 
-bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
+bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift = FALSE, UnitAny* pUnit = NULL)
 {
 	if(ClientState() != ClientStateInGame)
 		return false;
+
+	if((wX < 0xFFFF && wY < 0xFFFF && pUnit) || ((wX == 0xFFFF || wY == 0xFFFF) && !pUnit))
+	{
+		DebugBreak();
+		return false;
+	}
 
 	POINT Click = {wX, wY};
 	if(pUnit)
