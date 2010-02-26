@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define D2BS_VERSION "1.2.1"
+#define D2BS_VERSION "1.2.900"
 
 #include <windows.h>
 
