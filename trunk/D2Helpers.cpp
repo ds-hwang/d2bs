@@ -168,11 +168,6 @@ ClientGameState ClientState(void)
 	return ClientStateNull;
 }
 
-bool GameReady(void)
-{
-	return (ClientState() == ClientStateInGame ? true : false);
-}
-
 bool WaitForGameReady(void)
 {
 	DWORD start = GetTickCount();

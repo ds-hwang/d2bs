@@ -68,7 +68,7 @@ JSAPI_PROP(unit_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case ME_GAMEREADY:
-			*vp = BOOLEAN_TO_JSVAL(GameReady());
+			*vp = BOOLEAN_TO_JSVAL(ClientState() == ClientStateInGame);
 			break;
 		case ME_ACCOUNT:
 			if(!pData)

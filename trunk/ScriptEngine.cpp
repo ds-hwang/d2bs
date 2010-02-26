@@ -146,6 +146,7 @@ BOOL ScriptEngine::Startup(void)
 		}
 		// grab a private context to use before we assign the context callback
 		context = JS_NewContext(runtime, 8192);
+		//JS_SetGCZeal(context, 1);
 		JS_ClearContextThread(context);
 
 		JS_SetContextCallback(runtime, contextCallback);

@@ -378,7 +378,7 @@ void Script::ClearAllEvents(void)
 void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void* argv)
 {
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
-		IsRunning() && !(GetState() == InGame && !GameReady()))
+		IsRunning() && !(GetState() == InGame && ClientState() != ClientStateInGame))
 	{
 		FunctionList funcs = functions[evtName];
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
