@@ -241,5 +241,6 @@ var Pickit = new function () {
 				Town.newItems.push(copyUnit(pickList[n].item));
 			}
 		}
+		return true;
 	}
 }
