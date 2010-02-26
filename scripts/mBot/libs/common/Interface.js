@@ -11,10 +11,10 @@ var Interface = new function () {
 		this.profileName = "McGod";
 		while(this.profileName.length == 0)
 			delay(100);
-		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:2}]);
+		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:0}]);
 	}
-		this.read = function(nSection, nName, nDefault) {
-		var ret = iniread("profile/" + this.profileName + "/mBot.ini", nSection, nName, nDefault);
+	this.read = function(nSection, nName, nDefault) {
+		var ret = this.iniread("profile/" + this.profileName + "/mBot.ini", nSection, nName, nDefault);
 		if (typeof(nDefault) == "number")
 			return parseInt(ret);
 		if (typeof(nDefault) == "boolean")
@@ -25,7 +25,7 @@ var Interface = new function () {
 	this.readConfig = function (nSection, nConfig) {
 		var nRet = {};
 		for (var n = 0; n < nConfig.length; n++) {
-			var ret = iniread("profile/" + this.profileName + "/mBot.ini", nSection, nConfig[n].Name, nConfig[n].Default);
+			var ret = this.iniread("profile/" + this.profileName + "/mBot.ini", nSection, nConfig[n].Name, nConfig[n].Default);
 			nRet[nConfig[n].Name] = ret;
 			if (typeof(nConfig[n].Default) == "number")
 				nRet[nConfig[n].Name] = parseInt(ret);
@@ -72,7 +72,7 @@ var Interface = new function () {
 			}
 			if (line.indexOf("=") != -1 && nFile
 		}*/
-		return defaultValue;
+		return String(defaultValue);
 	}
 }
 

@@ -1,5 +1,6 @@
 var Town = new function () {
 	this.config = {};
+	this.newItems = [];
 	
 	this.Init = function () {
 		this.config = Interface.readConfig("Town", [
@@ -24,7 +25,7 @@ var Town = new function () {
 		Parameters:
 			nType - Type of NPC you need, "Scrolls" - NPC that has scrolls.
 	*/
-this.useNPC = function(nType) {
+	this.useNPC = function(nType) {
 		try {
 			var npcId = Area[me.act].Jobs[nType];
 			var npcName = Area[me.act].NPCNames[npcId];
@@ -414,5 +415,54 @@ this.useNPC = function(nType) {
 		me.repair();
 		Interface.message(Normal, "Successfully repaired all items.");
 		return true;
+	}
+	
+	this.needIdentify = function () {
+	print(this.newItems.length);
+		for (var n in this.newItems) {
+			if (!this.newItems[n].getFlag(pickitFlag.identified)) {
+				Interface.message(Debug, "We need to identify one or more items.");
+				return true;
+			}
+		} 
+		return false;
+	}
+	
+	this.doIdentify = function () {
+		try {
+			//Check if we even have itamz.
+			if (!this.needIdentify())
+				return true;
+				
+			//Move to the NPC with scrolls
+			var nUnit = this.useNPC("Scrolls");
+			
+			if (!nUnit)
+				return false;
+				
+			var nIDs = Unit.findItem({code:"isc", ownerid:nUnit.gid});
+			
+			if (nIDs.length == 0)
+				throw new Error("Unable to find ID Scrolls in NPC's Shop.");
+				
+			for (var n in this.newItems) {
+				nIDs[0].buy();
+				
+				var scroll = Unit.findItem({code:"isc", ownerid:me.gid, location:0});
+				if (scroll.length == 0)
+					throw new Error("Unable to find ID Scroll in Inventory.");
+					
+				if (!scroll[0].useScroll())
+					continue;
+
+				if (!this.newItems[n].identify())
+					continue;
+			}
+			return true;
+		} catch(e) {
+			mBot.throwError(e);
+			return false;
+		}
+		
 	}
 }

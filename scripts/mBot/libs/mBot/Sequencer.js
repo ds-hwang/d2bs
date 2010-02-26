@@ -7,7 +7,6 @@ var Sequencer = new function () {
 		this.config = Interface.readConfig("Sequencer", [{Name:"RandomizeSequences", Default:true}]);
 		
 		this.GetAllSequences();
-		print(this.sequenceList.toSource());
 		for (var n in this.sequenceList)
 			this.completedSequences.push(false);
 	}
@@ -18,15 +17,17 @@ var Sequencer = new function () {
 			if (this.config.RandomizeSequences)
 				nCurrentSequence = this.GetRandomSequence();
 			
-			if (!Interface.read(this.sequenceList[nCurrentSequence], "Enabled", false)) {
+			if (!Interface.read(this.sequenceList[nCurrentSequence], "Enabled", true)) {
 				this.completedSequences[nCurrentSequence] = true;
 				Interface.message(DetailedDebug, this.sequenceList[nCurrentSequence] + " isn't enabled! Skipping.");
 				continue;	
 			}
 			
-			if (!mBot.inTown())
-				Pather.moveToTown();
-				
+			if (!mBot.inTown()) {
+				if (!Pather.moveToTown())
+					quit();
+			}
+			
 			Town.tick();
 			
 			Interface.message(Normal, "Starting sequence '" + this.sequenceList[nCurrentSequence] + "'");

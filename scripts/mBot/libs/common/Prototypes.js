@@ -13,3 +13,11 @@ if(!Date.prototype.hasOwnProperty("toShortTimeString")) {
 String.prototype.trim = function () {
     return this.replace(/^\s*/, "").replace(/\s*$/, "");
 }
+
+function isObject(obj) {
+	return (typeof(obj) == "object");
+}
+
+function isArray(arr) {
+	return (isObject(arr) && arr.hasOwnProperty("slice"));
+}

@@ -219,6 +219,7 @@ var Pather = new function () {
 				attemptCount++;
 				
 				//Watch for movement.
+				var nTimer = getTickCount();
 				while(!mBot.checkMode(Mode.Player.Group.Move)) {
 					//If we haven't begun moving in 500ms, then it safe to say we aren't.
 					if ((getTickCount() - nTimer) > 500) {
@@ -231,9 +232,9 @@ var Pather = new function () {
 						}
 						//Try moving in a random direction to un-stick ourselves.
 						Interface.message(Debug, "We got stuck! Random click time, attempt #" + nFail);
-						clickMap(click.Down, Shift.Off, me.x+rnd(-2,2), me.y+rnd(-2,2));
+						clickMap(click.Down, Shift.Off, me.x+rand(-2,2), me.y+rand(-2,2));
 						delay(5);
-						clickMap(click.Up, Shift.Off, me.x+rnd(-2,2), me.y+rnd(-2,2));
+						clickMap(click.Up, Shift.Off, me.x+rand(-2,2), me.y+rand(-2,2));
 						continue MoveLoop;
 					}
 				}
@@ -273,14 +274,14 @@ var Pather = new function () {
 				throw new Error("Unable to get our current area object.");
 				
 			//Since we have our area, get the exits.
-			var nExit = getExits(nArea);
+			var nExit = nArea.exits;
 			if (!nExit)
 				throw new Error("Unable to get our current exits array.");
 				
 			//Loop through all the exits in our area.
 			for (var n in nExit) {
 				//Check if this exit goes to where we want.
-				if (nExit[n].id == nLevelId) {
+				if (nExit[n].target == nLevelId) {
 					//Move to the exit!
 					if (!this.moveTo(nExit[n]))
 						return false;
@@ -293,14 +294,14 @@ var Pather = new function () {
 							if (!this.moveThru(nExit[n].tileid))
 								return false;
 						} else {
-							var otherExit = getExits(getArea(nLevelId));
+							var otherExit = getArea(nLevelId).exits;
 							if (!otherExit)
 								throw new Error("Unable to obtain opposite exit to move through.");
 							
 							//Loop through the other sides exits to find ours.
 							for (var l = 0; l < otherExit.length; l++) {
 								//Check if the exit is the opposite the one we're at.
-								if (otherExit[l].id == nArea.id) {
+								if (otherExit[l].target == nArea.id) {
 									//Move through the area
 									for (var n = 0; n < 3; n++) {
 										//Try to click the side we want to move to.
@@ -496,7 +497,8 @@ var Pather = new function () {
 				
 			var nUnit = false;
 			for (var n = 0; n < 3; n++) {
-				tome[0].interact();
+				if (!getUnit(2, 59))
+					tome[0].interact();
 				
 				var nDelay = getTickCount();
 				while((getTickCount() - nDelay) < 3000) {
@@ -569,5 +571,24 @@ var Pather = new function () {
 			mBot.throwError(e);
 			return false;
 		}
+	}
+	
+	this.monsterMove = function(mon, range) {
+		Skill.get(Skill.Teleport).setSkill();
+		var oldPos = {x:me.x, y:me.y};
+		
+		for (var n = 0; n < 3; n++) {
+			if (range == 0) {
+				clickMap(ClickType.Right.Down, Shift.Off, mon);
+				delay(5);
+				clickMap(ClickType.Right.Up, Shift.Off, mon);
+			}
+			var nTimer = getTickCount();
+			while(mBot.checkMode(Mode.Player.Group.Move) && (getTickCount() - nTimer) < 300)
+				delay(2);
+			if (me.x != oldPos.x || me.y != oldPos.y)
+				return true;
+		}
+		return false;
 	}
 }

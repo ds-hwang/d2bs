@@ -16,7 +16,7 @@ var Type = {Message:0, Warning:1, Error:2};
 var Statistics = new function () {
 	this.statusRows = ["runSuccess", "runFailure", "runDeath", "runSkip"];
 	this.statusMsg = ["successful", "failure", "died", "skipped"];
-	this.db = new SQLite("//logs//" + Interface.profileName + "//" + "Statistics.db", true);
+	//this.db = new SQLite("//logs//" + Interface.profileName + "//" + "Statistics.db", true);
 	this.currentBoss = 0;
 	this.bossTimer = 0;
 	this.runId = 0;
@@ -36,8 +36,8 @@ var Statistics = new function () {
 	
 	this.endBoss = function(status) {
 		var timeSpent = (getTickCount () - this.bossTimer);
-		this.db.execute("UPDATE BossStats SET " + this.statusRows[status] + " = " + this.statusRows[status] + " + 1, timeSpent = timeSpent + " + timeSpent + ", runTotal = runTotal + 1 WHERE id = " + this.currentBoss);
-		this.db.execute("UPDATE Runs SET boss" + this.currentBoss + "status = " + status + ", boss" + this.currentBoss + "time = " + timeSpent + " WHERE id = " + this.runId);
+		//this.db.execute("UPDATE BossStats SET " + this.statusRows[status] + " = " + this.statusRows[status] + " + 1, timeSpent = timeSpent + " + timeSpent + ", runTotal = runTotal + 1 WHERE id = " + this.currentBoss);
+		//this.db.execute("UPDATE Runs SET boss" + this.currentBoss + "status = " + status + ", boss" + this.currentBoss + "time = " + timeSpent + " WHERE id = " + this.runId);
 		return Math.round(timeSpent / 1000);
 	}
 	
@@ -47,12 +47,12 @@ var Statistics = new function () {
 	
 	this.itemFound = function(item, pickitEntry) {
 		this.msg(Type.Message, "Keepingÿc" + itemColor[item.quality] + " " + item.name);
-		this.db.execute("UPDATE Runs SET itemCount = itemCount + 1 WHERE id = " + this.runId);
-		this.db.query("INSERT INTO Items (name, quality, time, boss, desc, pickitdesc) VALUES (?, ?, DATETIME('now'), ?, ?, ?)", item.name, item.quality, this.currentBoss, item.description, pickitEntry.desc);
+	//	this.db.execute("UPDATE Runs SET itemCount = itemCount + 1 WHERE id = " + this.runId);
+		//this.db.query("INSERT INTO Items (name, quality, time, boss, desc, pickitdesc) VALUES (?, ?, DATETIME('now'), ?, ?, ?)", item.name, item.quality, this.currentBoss, item.description, pickitEntry.desc);
 	}
 	
 	this.newRun = function() {
-		this.db.query("INSERT INTO Runs (gameName, gamePass, date) VALUES (?, ?, DATETIME('now'))", me.gamename, me.gamepassword).go();
+		//this.db.query("INSERT INTO Runs (gameName, gamePass, date) VALUES (?, ?, DATETIME('now'))", me.gamename, me.gamepassword).go();
 		this.runId = this.db.lastRowId;
 	}
 }

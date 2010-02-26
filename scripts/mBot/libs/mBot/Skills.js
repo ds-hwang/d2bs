@@ -199,7 +199,7 @@ var SkillClass = function(id) {
 			clickMap(this.clickType.Up, this.shift, this.loc.x, this.loc.y);
 		
 		//Who cares if we have finished casting a hammer?
-		if (this.id == Skill.BlessedHammer)
+		if (this.id == Skill.BlessedHammer && arguments.length == 1)
 			return true;
 		
 		//Wait until we're done casting.

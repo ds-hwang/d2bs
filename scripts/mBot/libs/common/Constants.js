@@ -565,7 +565,7 @@ var BodyLocation = {
 	LeftSlotII:12
 }
 
-var pickitStats = {strength:0, energy:1, dexterity:2, vitality:3, life:6, maxlife:7, mana:8, maxmana:9, stamina:10, 
+var pickitStats = {strength:0, energy:1, dexterity:2, vitality:3, life:7, maxlife:7, mana:9, maxmana:9, stamina:11, 
 maxstamina:11, gold:14, enhanceddefense:16, maxdamagepercent:17, enhanceddamage:18, tohit:19, toblock:20, mindamage:21, 
 maxdamage:22, secondarymindamage:23, secondarymaxdamage:24, damagepercent:25, manarecovery:26, manarecoverybonus:27,
 staminarecoverybonus:28, defense:31, defensevsmissile:32, defensevshth:33, normaldamagereduction:34,
@@ -691,6 +691,15 @@ var itemColor = {
 	rare: 9,
 	unique: 4,
 	crafted: 8
+}
+
+var itemLocation = {
+	Inventory:0,
+	Belt:1,
+	Cube:2,
+	Stash:3,
+	Trade:4,
+	Equip:5
 }
 
 var categories = {
@@ -971,3 +980,11 @@ var itemCodes = {"cap":"cap", "skull cap":"skp", "helm":"hlm", "full helm":"fhl"
 "amulet":"amu", "gold":"gld", "ring":"rin", "ear":"ear", "torch":"tch", 
 "key of terror":"pk1", "key of hate":"pk2", "key of destruction":"pk3", "diablos horn":"dhn", "baals eye":"bey",
 "mephistos brain":"mbr"}
+
+itemCodes = {};
+itemCodes.IsValid = function(code) {
+	for (var n in itemCode)
+		if (itemCode[n] == code)
+			return true;
+	return false;
+}

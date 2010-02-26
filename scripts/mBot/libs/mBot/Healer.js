@@ -26,12 +26,11 @@ var Healer = new function() {
 			Interface.message(DetailedDebug, "Attempting to drink a " + nType);
 			var nUnit = mBot.getPotion(nType);
 			if (!nUnit)
-				throw new Error("Unable to find a " + nType + " potion to drink.");
+				return false;
 			if (!nUnit.drink((arguments.length == 2) ? true : false))
 				throw new Error("Unable to drink " + nUnit.name);
 			if (nType.indexOf("Juv") == -1)
 				Healer.timers[nType] = getTickCount();
-			Interface.message(Normal, "Drank a " + nUnit.name + ".");
 			return true;
 		} catch(e) {
 			mBot.throwError(e);

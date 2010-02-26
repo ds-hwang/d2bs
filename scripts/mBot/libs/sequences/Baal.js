@@ -36,6 +36,12 @@ function Baal() {
 	//Move to the center of throne
 	if (!Pather.moveTo({x:15092, y:5008}))
 		return false;
+
+	//Make sure Baal is there!
+	if (!getUnit(1, "Baal")) {
+		Interface.message(Warning, "Baal is not in the throne, skipping.");
+		return false;
+	}
 		
 	if (this.config.PublicMode > 0) {
 		//Move to corner of Throne
@@ -58,21 +64,16 @@ function Baal() {
 	}
 	
 	//Clear the throne room
-	Attack.attackAll(this.filterRoom);	
-	Attack.attackAll(this.filterRoom);	
-	Attack.attackAll(this.filterRoom);	
-	
-	var superUniques = ["Colenzo the Annihilator", "Achmel the Cursed", "Bartuc the Bloody", "Ventar the Unholy", "Lister the Tormentor"];
-	for (var n in superUniques) {
-		Pather.moveTo({x:15098, y:5033});
-		Precast.precast();
-		while(!getUnit(1, superUniques[n])) {
-			delay(200);
+
+	while(getUnit(1, "Baal")) {
+		if (!Attack.attackAll(this.filterRoom)) {
+			Pather.moveTo({x:15098, y:5033});
+			Precast.precast();
 			Attack.spam();
 		}
-		Attack.attackAll(this.filterRoom);
+		delay(500);
 	}
-	
+	var superUniques = ["Colenzo the Annihilator", "Achmel the Cursed", "Bartuc the Bloody", "Ventar the Unholy", "Lister the Tormentor"];
 
 	delay(1000);
 	return true;

@@ -12,6 +12,8 @@ include("mBot/Item.js");
 include("mBot/Town.js");
 include("mBot/Sequencer.js");
 include("mBot/Precast.js");
+include("mBot/Storage.js");
+include("mBot/Pickit.js");
 
 var mBot = new function () {
 	this.Init = function () {
@@ -21,7 +23,9 @@ var mBot = new function () {
 		Healer.Init();
 		Town.Init();
 		Sequencer.Init();
+		Storage.Init();
 		Precast.Init();
+		Pickit.Init();
 		
 		this.__defineGetter__("gold", function() { return me.getStat(14) + me.getStat(15); });
 	}

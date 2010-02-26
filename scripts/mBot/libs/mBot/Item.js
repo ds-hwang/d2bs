@@ -1,15 +1,18 @@
 Unit.findItem = function(nStats) {
 	var nRet = [];
-	var nUnit = getUnit(4);
+	if (nStats.hasOwnProperty("ownerid") && nStats.ownerid != me.gid)
+		var unit = getUnit(1, false, false, nStats.ownerid);
+	else if (nStats.hasOwnProperty("ownerclass") && nStats.ownerclass != me.classid)
+		var unit = getUnit(1, nStats.ownerclass);
+	else
+		var unit = me;
+	if (!unit)
+		return nRet;
+	var nUnit = unit.getItem();
 	ItemLoop:do {
 		for (var n in nStats) {
 			if (n == "ownerid" || n == "ownerclass") {
-				var nOwner = nUnit.getParent();
-				if (!nOwner)
-					continue ItemLoop;
-				
-				if (nOwner[(n == "ownerid") ? "gid" : "classid"] != nStats[n])
-					continue ItemLoop;
+				continue;
 			} else if (n == "scode") {
 				if (nUnit["code"].substr(0, 2) != nStats[n])
 					continue ItemLoop;
@@ -257,7 +260,7 @@ Unit.drink = function () {
 		if (!this.isPotion())
 			throw new Error("Called with a non-potion unit.");
 			
-		Interface.message(Normal, "Drinking " + this.name + " for " + (arguments.length == 1 ? "Merc" : "Self") + ".");
+		Interface.message(Normal, "Drinking " + this.name + " for " + (arguments.length == 2 ? "Merc" : "Self") + ".");
 		if (arguments.length == 1 && arguments[0])
 			clickItem(this, 0);
 		else
@@ -311,7 +314,7 @@ Unit.useScroll = function() {
 		//Try to place id scroll on cursor.
 		Interface.message(DetailedDebug, "Attempting to use " + this.name);
 		for (var n = 0; n < 3; n++) {
-			clickItem(0, this);
+			clickItem(2, this);
 			
 			var nDelay = getTickCount();
 			while((getTickCount() - nDelay) < 2000) {
@@ -334,7 +337,7 @@ Unit.identify = function () {
 		if (getCursorType() != 6)
 			throw new Error("There is no scroll on the cursor.");
 		
-		if (this.getFlag(Item.Flag.Identified))
+		if (this.getFlag(pickitFlag.identified))
 			return true;
 			
 		Interface.message(DetailedDebug, "Attempting to identify " + this.name);
@@ -343,7 +346,7 @@ Unit.identify = function () {
 			
 			var nDelay = getTickCount();
 			while((getTickCount() - nDelay) < 2000) {
-				if (this.getFlag(Item.Flag.Identified)) {
+				if (this.getFlag(pickitFlag.identified)) {
 					Interface.message(DetailedDebug, "Succesfully identified item.");
 					return true;
 				}
@@ -373,3 +376,28 @@ Unit.beltCount = function () {
 	}
 	return 0;
 }
+
+Unit.__defineGetter__("loc", function(){
+	switch(this.node) {
+		case 1://Storage
+			switch(this.location) {
+				case 0://Inventory
+					return itemLocation.Inventory;
+				break;
+				case 3://Cube
+					return itemLocation.Cube;
+				break;
+				case 4://Stash
+					return itemLocation.Stash;
+				break;
+			}
+		break;
+		case 2://Belt
+			return itemLocation.Belt;
+		break;
+		case 3://Equip
+			return itemLocation.Equip;
+		break;
+	}
+	return 255;
+});

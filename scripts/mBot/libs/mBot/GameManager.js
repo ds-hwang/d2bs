@@ -8,7 +8,7 @@ var GameManager = new function () {
 	this.inChannel = false;
 	
 	this.Init = function () {
-		this.config = Interface.readConfig("GameManager", [{Name:"Mode", Default:0},{Name:"AccountName", Default:""},{Name:"AccountPass", Default:""},{Name:"CharSlot", Default:""},
+		this.config = Interface.readConfig("GameManager", [{Name:"Mode", Default:0},{Name:"AccountName", Default:""},{Name:"AccountPass", Default:""},{Name:"CharSlot", Default:1},
 		{Name:"UseChannel", Default:false}, {Name:"ChannelName", Default:""},{Name:"GamePrefix", Default:""},{Name:"GamePass", Default:""},
 		{Name:"GameDiff", Default:0}, {Name:"LeechBot", Default:false}, {Name:"LeechMaster", Default:""}]);
 		this.delayConfig = Interface.readConfig("Delays", [{Name:"Login", Default:5000}, {Name:"CharSelect", Default:2000}, {Name:"Lobby", Default: 500}, {Name:"GameCreateMin", Default:5000},
@@ -50,7 +50,7 @@ var GameManager = new function () {
 	this.delay = function (nMsg, nType) {
 		var nTimer = getTickCount();
 		if (arguments.length == 3) {
-			var nAm = rnd(this.delayConfig[nType + "Min"], this.delayConfig[nType + "Max"]);
+			var nAm = rand(this.delayConfig[nType + "Min"], this.delayConfig[nType + "Max"]);
 		} else {
 			var nAm = this.delayConfig[nType];
 		}
@@ -102,6 +102,7 @@ var GameManager = new function () {
 		var nSlots = ["", "SlotOne", "SlotTwo", "SlotThree", "SlotFour", "SlotFive", "SlotSix", "SlotSeven", "SlotEight"];
 		if (this.config.CharSlot < 1 && this.config.CharSlot > 8)
 			return;
+			print(this.config.CharSlot);
 		this.delay("Character Selection", "CharSelect");
 		nControls[nSlots[this.config.CharSlot]].click();
 		delay(50);
@@ -109,7 +110,7 @@ var GameManager = new function () {
 	}
 	
 	this.LobbyScreen = function(nControls) {
-		delay(rnd(1000, 1500));
+		delay(rand(1000, 1500));
 		if (this.config.UseChannel) {
 			nControls.EnterChat.click();
 			this.inChannel = false;
@@ -120,7 +121,7 @@ var GameManager = new function () {
 	}
 	
 	this.ChatScreen = function(nControls) {
-		delay(rnd(1000, 1500));
+		delay(rand(1000, 1500));
 		if (this.config.UseChannel && !this.inChannel) {
 			say("/join " + this.config.ChannelName);
 			this.delay("Channel Join Delay", "ChannelJoin");
@@ -134,7 +135,7 @@ var GameManager = new function () {
 	}
 	
 	this.createGame = function(nControls) {
-		delay(rnd(1000, 1500));
+		delay(rand(1000, 1500));
 		this.gameCount++;
 		nControls.GameName.setText(this.config.GamePrefix + this.gameCount);
 		nControls.GamePass.setText(this.config.GamePass);
@@ -148,7 +149,7 @@ var GameManager = new function () {
 	}
 	
 	this.chooseDiff = function(nControls) {
-		delay(rnd(250,500));
+		delay(rand(250,500));
 		var nDiff = ["Normal", "Nightmare", "Hell"];
 		nControls[nDiff[this.config.GameDiff]].click();
 		nControls[nDiff[this.config.GameDiff]].click();

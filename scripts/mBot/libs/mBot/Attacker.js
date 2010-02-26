@@ -4,6 +4,7 @@ var Attack = new function () {
 	this.timedAttacks = [];
 	this.untimedAttacks = [];
 	this.postAttacks = [];
+	this.spamAttacks = [];
 
 	
 	this.Init = function () {
@@ -19,6 +20,7 @@ var Attack = new function () {
 			include("attacks/" + nFiles[n]);
 		}
 		
+		Interface.message(Normal, "We have " + this.preAttacks.length + " pre-attack(s), " + this.timedAttacks.length + " timed attack(s), " + this.untimedAttacks.length + " untimed attack(s), " + this.postAttacks.length + " post attack(s).");
 		Interface.message(DetailedDebug, "Sorting attack sequences based on skill level.");
 		this.sortFunc = function(a, b) {
 			return (b.Skill.level - a.Skill.level);
@@ -45,6 +47,10 @@ var Attack = new function () {
 		if (nUnits.length == 0)
 			return false;
 		nUnits.sort(this.sort);
+		var nString = "";
+		for (var n in nUnits)
+			nString += nUnits[n].name + " ";
+		print(nString);
 		for (var n in nUnits)
 			if (this.isValidMonster(nUnits[n]))
 				this.attack(nUnits[n]);
@@ -94,6 +100,7 @@ var Attack = new function () {
 			
 		if (Mon.getParent ()) {//Check if unit has a owner, if so, it's going to be a summon.
 			Interface.message(DetailedDebug, Mon.name + " is a summon.");
+			print(Mon.getParent().toSource());
 			return false;
 		}
 		
@@ -146,6 +153,11 @@ var Attack = new function () {
 		return nRet;
 	}
 	
+	this.spam = function () {
+		for (var n in this.spamAttacks)
+			this.spamAttacks[n].Func();
+	}
+	
 	this.attack = function(mon) {
 		try {
 			//Make sure we have a valid monster to play with.
@@ -158,7 +170,7 @@ var Attack = new function () {
 			this.preAttack = this.compareMonster(mon, this.preAttacks);
 			this.postAttack = this.compareMonster(mon, this.postAttacks);
 			
-			Interface.message(Debug, "Attacking " + mon.name + " with " + this.timedAttack.Name + " and " + this.untimedAttack.Name);
+			//Interface.message(Debug, "Attacking " + mon.name + " with " + this.timedAttack.Name + " and " + this.untimedAttack.Name);
 			
 			//Check if we even have any possible attack to use.
 			if (!this.timedAttack && !this.untimedAttack)
@@ -190,7 +202,6 @@ var Attack = new function () {
 					this.untimedAttack.Func(mon);
 				delay(10);
 			}
-			
 			//Last but not least, post-attack functions.
 			for (var n in this.postAttack)
 				this.postAttack[n].Func(mon);
