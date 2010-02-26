@@ -118,4 +118,5 @@ public:
 };
 
 DWORD WINAPI ScriptThread(void* data);
-void __cdecl FuncThread(void* data);
+
+void SpawnEvent(Event* evt);

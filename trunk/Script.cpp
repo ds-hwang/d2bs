@@ -412,8 +412,10 @@ void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* ar
 		strcpy_s(evt->format, 10, format);
 		evt->args = args;
 
-		_beginthread(FuncThread, 0, evt);
-	} else {
+		SpawnEvent(evt);
+	}
+	else
+	{
 		// clean up args to prevent mem leak
 		delete args;
 	}
@@ -431,9 +433,8 @@ DWORD WINAPI ScriptThread(void* data)
 	return 0;
 }
 
-void __cdecl FuncThread(void* data)
+void SpawnEvent(Event* evt)
 {
-	Event* evt = (Event*)data;
 	if(!evt)
 		return;
 
