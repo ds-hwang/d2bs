@@ -1,5 +1,5 @@
 #include "JSMenu.h"
-#include "Control.h"
+//#include "Control.h"
 #include "JSControl.h"
 #include "Constants.h"
 #include "Helpers.h"
@@ -34,12 +34,12 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
 	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);		
 
-	GetPrivateProfileString("settings", "MaxLoginTime", "5000", maxLoginTime, sizeof(maxLoginTime), file);
-	GetPrivateProfileString("settings", "MaxCharSelectTime", "5000", maxCharTime, sizeof(maxCharTime), file);
+	GetPrivateProfileString("settings", "MaxLoginTime", "5", maxLoginTime, sizeof(maxLoginTime), file);
+	GetPrivateProfileString("settings", "MaxCharSelectTime", "5", maxCharTime, sizeof(maxCharTime), file);
 
 	char* errorMsg = "";
-	loginTime = atoi(maxLoginTime);
-	charTime = atoi(maxCharTime);
+	loginTime = abs(atoi(maxLoginTime) * 1000);
+	charTime = abs(atoi(maxCharTime) * 1000);
 	SPdifficulty = atoi(difficulty);
 	Control* pControl = NULL;
 	int location = 0;
@@ -148,19 +148,19 @@ JSAPI_FUNC(my_login)
 				loginComplete=TRUE;
 				break;
 			case OOG_UNABLE_TO_CONNECT:
-				errorMsg = "un-able to connect";
+				errorMsg = "Unable to connect";
 				break;
 			case OOG_CDKEY_IN_USE:
 				errorMsg = "CD-Key in use";
 				break;
 			case OOG_LOGIN_ERROR:
-				errorMsg = "bad account or password";
+				errorMsg = "Bad account or password";
 				break;
 			case OOG_REALM_DOWN:
 				errorMsg = "Realm Down";
 				break;
 			default:
-				errorMsg = "unhandled login location";
+				errorMsg = "Unhandled login location";
 				break;				
 		}
 
@@ -178,7 +178,7 @@ JSAPI_FUNC(my_login)
 			break;
 		}
 
-		if(GameReady())
+		if(ClientState() == ClientStateInGame)
 			loginComplete = TRUE;
 		
 		Sleep(100);
@@ -209,19 +209,15 @@ JSAPI_FUNC(my_createGame)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
-	   (argc > 1 && !(JSVAL_IS_STRING(argv[1]) ||JSVAL_IS_NULL(argv[1]))) ||
-	   (argc > 2 && !JSVAL_IS_INT(argv[2])))
-		THROW_ERROR(cx, "Invalid parameters specified to createGame");
-
-	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
-		 *pass = "";
-	if(argc > 1 && JSVAL_IS_STRING(argv[1]))
-		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
-
-	int diff = 3;
-	if(argc > 2)
-		diff = JSVAL_TO_INT(argv[2]);
+	char *name = NULL, *pass = NULL;
+	int32 diff = 3;
+	if(!JS_ConvertArguments(cx, argc, argv, "s/si", &name, &pass, &diff))
+	{
+		JS_ReportError(cx, "Invalid arguments specified to createGame");
+		return JS_FALSE;
+	}
+	if(!pass)
+		pass = "";
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
 		THROW_ERROR(cx, "Invalid game name or password length");
@@ -237,14 +233,14 @@ JSAPI_FUNC(my_joinGame)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	if(argc < 1 || !JSVAL_IS_STRING(argv[0]) ||
-	   (argc > 1 && !JSVAL_IS_STRING(argv[1])))
-		THROW_ERROR(cx, "Invalid parameters specified to joinGame");
-
-	char *name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0])),
-		 *pass = NULL;
-	if(argc > 1)
-		pass = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
+	char *name = NULL, *pass = NULL;
+	if(!JS_ConvertArguments(cx, argc, argv, "s/s", &name, &pass))
+	{
+		JS_ReportError(cx, "Invalid arguments specified to createGame");
+		return JS_FALSE;
+	}
+	if(!pass)
+		pass = "";
 
 	if(strlen(name) > 15 || strlen(pass) > 15)
 		THROW_ERROR(cx, "Invalid game name or password length");
@@ -259,32 +255,46 @@ JSAPI_FUNC(my_addProfile)
 {
 	// validate the args...
 	char *profile, *mode, *gateway, *username, *password, *charname;
-	if(argc != 6)
+	profile = mode = gateway = username = password = charname = NULL;
+	int spdifficulty = 3;
+	if(argc < 6 || argc > 7)
 		THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
-	for(uintN i = 0; i < argc; i++)
+	char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
+	for(uintN i = 0; i < 6; i++)
+	{
 		if(!JSVAL_IS_STRING(argv[i]))
-			THROW_ERROR(cx, "All arguments to addProfile must be strings!");
+		{
+			THROW_ERROR(cx, "Invalid argument passed to addProfile");
+		}
+		else
+			*args[i] = JS_GetStringBytes(JSVAL_TO_STRING(argv[i]));
+	}
 
-	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	mode = JS_GetStringBytes(JSVAL_TO_STRING(argv[1]));
-	gateway = JS_GetStringBytes(JSVAL_TO_STRING(argv[2]));
-	username = JS_GetStringBytes(JSVAL_TO_STRING(argv[3]));
-	password = JS_GetStringBytes(JSVAL_TO_STRING(argv[4]));
-	charname = JS_GetStringBytes(JSVAL_TO_STRING(argv[5]));
-	if(!profile || !mode || !gateway || !username || !password || !charname)
-		THROW_ERROR(cx, "Failed to convert string");
+	for(int i = 0; i < 6; i++)
+	{
+		if(!(*args[i]))
+			THROW_ERROR(cx, "Failed to convert string");
+	}
+
+	if(argc == 7)
+		spdifficulty = JSVAL_TO_INT(argv[6]);
+
+	if(spdifficulty > 3 || spdifficulty < 0)
+		THROW_ERROR(cx, "Invalid argument passed to addProfile");
 
 	char file[_MAX_FNAME+_MAX_PATH];
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
-	if(!ProfileExists(profile))
+	if(!ProfileExists(*args[0]))
 	{
-		char settings[600];
+		char settings[600] = "";
 		sprintf_s(settings, sizeof(settings),
-					"mode=%s\0gateway=%s\0username=%s\0password=%s\0character=%s\0\0",
-					mode, gateway, username, password, charname);
-		WritePrivateProfileSection(profile, settings, file);
+					"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t",
+					mode, gateway, username, password, charname, spdifficulty);
+
+		StringReplace(settings, '\t', '\0', 600);
+		WritePrivateProfileSection(*args[0], settings, file);
 	}
 
 	return JS_TRUE;

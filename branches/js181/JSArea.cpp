@@ -1,6 +1,6 @@
 #include "JSArea.h"
-#include "D2Ptrs.h"
-#include "D2Helpers.h"
+//#include "D2Ptrs.h"
+//#include "D2Helpers.h"
 #include "JSExits.h"
 #include "CriticalSections.h"
 
@@ -106,15 +106,15 @@ JSAPI_PROP(area_getProperty)
 
 JSAPI_FUNC(my_getArea)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
-	jsint nArea = GetPlayerArea();
+	int32 nArea = GetPlayerArea();
 
 	if(argc == 1)
 	{
 		if(JSVAL_IS_INT(argv[0]))
-			nArea = JSVAL_TO_INT(argv[0]); 
+			JS_ValueToECMAInt32(cx, argv[0], &nArea);
 		else
 			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	}

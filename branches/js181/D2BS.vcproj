@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1031"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -645,6 +645,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Game.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Game.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Hash.cpp"
 						>
 					</File>
@@ -923,6 +931,14 @@
 				</File>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\resource.h"
+			>
+		</File>
+		<File
+			RelativePath=".\version.rc"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

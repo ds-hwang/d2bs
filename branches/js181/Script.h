@@ -4,15 +4,32 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 
 #include "js32.h"
 #include "AutoRoot.h"
+#include "JSUnit.h"
 
 enum ScriptState {
 	InGame,
 	OutOfGame,
 	Command
 };
+
+enum ArgType {
+	String,
+	UnsignedInt,
+	SignedInt,
+	UnsignedShort,
+	Double,
+	Boolean,
+	JSVal
+};
+
+typedef __int64 QWORD;
+
+typedef std::pair<QWORD, ArgType> EventArg;
+typedef std::vector<EventArg> ArgList;
 
 static JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
@@ -35,8 +52,7 @@ struct Event {
 	Script* owner;
 	JSObject* object;
 	char format[10];
-	uintN argc;
-	void* argv;
+	ArgList* args;
 };
 
 class Script
@@ -47,6 +63,7 @@ private:
 	ScriptState scriptState;
 	JSContext* context;
 	JSScript* script;
+	myUnit* me;
 
 	JSObject *globalObject, *scriptObject;
 	bool isLocked, isPaused, isReallyPaused, isAborted;
@@ -61,6 +78,7 @@ private:
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
+
 public:
 	friend class ScriptEngine;
 
@@ -96,11 +114,8 @@ public:
 	void ClearAllEvents(void);
 
 	void ExecEvent(const char* evtName, const char* format, uintN argc, void* argv);
-	void ExecEventAsync(const char* evtName, const char* format, uintN size, uintN argc, void* argv);
+	void ExecEventAsync(const char* evtName, const char* format, ArgList* args);
 };
-
-void RootJsvals(const char* format, char* ptr);
-void UnrootJsvals(const char* format, char* ptr);
 
 DWORD WINAPI ScriptThread(void* data);
 void __cdecl FuncThread(void* data);

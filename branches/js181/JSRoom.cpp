@@ -1,9 +1,10 @@
 #include "JSRoom.h"
 #include "CriticalSections.h"
 #include "JSPresetUnit.h"
-#include "JSUnit.h"
-#include "D2Ptrs.h"
-#include "Room.h"
+//#include "JSUnit.h"
+//#include "D2Helpers.h"
+//#include "D2Ptrs.h"
+//#include "Room.h"
 
 EMPTY_CTOR(room)
 
@@ -389,8 +390,8 @@ JSAPI_FUNC(room_reveal)
 
 JSAPI_FUNC(my_getRoom)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();

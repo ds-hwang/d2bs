@@ -1,6 +1,7 @@
 #include "JSPresetUnit.h"
 
-#include "D2Ptrs.h"
+#include "D2Structs.h"
+//#include "D2Ptrs.h"
 #include "CriticalSections.h"
 #include "D2Helpers.h"
 
@@ -54,8 +55,8 @@ JSAPI_PROP(presetunit_getProperty)
 
 JSAPI_FUNC(my_getPresetUnits)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1)
 	{
@@ -139,8 +140,8 @@ JSAPI_FUNC(my_getPresetUnits)
 
 JSAPI_FUNC(my_getPresetUnit)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1)
 	{
@@ -172,7 +173,7 @@ JSAPI_FUNC(my_getPresetUnit)
 
 		bAddedRoom = FALSE;
 
-		if(!pRoom->pRoom1)
+		if(!pRoom->pPreset)
 		{
 			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = TRUE;

@@ -3,6 +3,7 @@
 #include <ctime>
 #include <cmath>
 
+#include "D2Helpers.h"
 #include "Constants.h"
 #include "Helpers.h"
 #include "D2Skills.h"
@@ -167,14 +168,29 @@ ClientGameState ClientState(void)
 	return ClientStateNull;
 }
 
-BOOL GameReady(void)
+bool GameReady(void)
 {
 	return (ClientState() == ClientStateInGame ? true : false);
 }
 
+bool WaitForGameReady(void)
+{
+	DWORD start = GetTickCount();
+	do
+	{
+		switch(ClientState())
+		{
+			case ClientStateNull: case ClientStateMenu: return false;
+			case ClientStateInGame: return true;
+		}
+		Sleep(10);
+	} while((Vars.dwGameTimeout == 0 ) || (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
+	return false;
+}
+
 DWORD GetPlayerArea(void)
 {
-	return (GameReady() ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
+	return (ClientState() == ClientStateInGame ? (*p_D2CLIENT_PlayerUnit)->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
 }
 
 Level* GetLevel(DWORD dwLevelNo)
@@ -219,7 +235,7 @@ INT GetSkill(WORD wSkillId)
 
 BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 {
-	if(!GameReady()) 
+	if(ClientState() != ClientStateInGame) 
 		return FALSE;
 
 	if(!GetSkill(wSkillId))
@@ -239,7 +255,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 
 	int timeout = 0;
 	Skill* hand = NULL;
-	while(GameReady())
+	while(ClientState() == ClientStateInGame)
 	{
 		hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
 		if(hand->pSkillInfo->wSkillId != wSkillId)
@@ -504,6 +520,7 @@ DWORD GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo)
 
 UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 {
+	if(dwId == -1) return NULL;
 	UnitAny* pUnit = D2CLIENT_FindServerSideUnit(dwId, dwType);
 	return pUnit ? pUnit : D2CLIENT_FindClientSideUnit(dwId, dwType);
 }

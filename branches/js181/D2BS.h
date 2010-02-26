@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define D2BS_VERSION "1.1.2"
+#define D2BS_VERSION "1.2.1"
 
 #include <windows.h>
 
@@ -44,6 +44,7 @@ struct Variables
 	BOOL	bGameLoopEntered;
 
 	DWORD	dwMaxGameTime;
+	DWORD	dwGameTimeout;
 	BOOL	bBlockMinimize;
 	BOOL	bQuitOnError;
 	BOOL	bQuitOnHostile;

@@ -2,14 +2,14 @@
 #include <windows.h>
 #include <ddeml.h>
 
-#include "js32.h"
-#include "Script.h"
+//#include "js32.h"
+//#include "Script.h"
 #include "JSCore.h"
 #include "Core.h"
 #include "Helpers.h"
 #include "dde.h"
-#include "ScriptEngine.h"
-#include "D2BS.h"
+//#include "ScriptEngine.h"
+//#include "D2BS.h"
 #include "Events.h"
 #include "Console.h"
 
@@ -19,7 +19,7 @@ JSAPI_FUNC(my_print)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
-			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+			if(!JSVAL_IS_STRING(argv[i]) && !JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
 			{
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;
@@ -33,8 +33,12 @@ JSAPI_FUNC(my_print)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE);
-			Print(Text ? Text : "undefined");
+			if(!Text)
+				Print("undefined");
+			else {
+				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
+				Print(Text);
+			}
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -98,10 +102,10 @@ JSAPI_FUNC(my_load)
 	char buf[_MAX_PATH+_MAX_FNAME];
 	ScriptState scriptState = script->GetState();
 	if(scriptState == Command)
-		scriptState = (GameReady() ? InGame : OutOfGame);
+		scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
-	StringReplace(buf, '/', '\\');
+	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
 	Script* newScript = ScriptEngine::CompileFile(buf, scriptState);
 	if(newScript)
 	{
@@ -186,6 +190,7 @@ JSAPI_FUNC(my_include)
 			{
 				char lpszBuf[_MAX_PATH+_MAX_FNAME];
 				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
+				StringReplace(lpszFileName, '/', '\\');
 				if(_access(lpszBuf, 0) == 0)
 					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
 			}
@@ -248,7 +253,7 @@ JSAPI_FUNC(my_isIncluded)
 	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
 		return JS_FALSE;
 
-	if(strlen(file) < _MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6)
+	if(strlen(file) > (_MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6))
 	{
 		JS_ReportError(cx, "File name too long");
 		return JS_FALSE;
@@ -310,8 +315,12 @@ JSAPI_FUNC(my_debugLog)
 			}
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			StringReplace(Text, '%', (unsigned char)0xFE);
-			Log(Text ? Text : "undefined");
+			if(!Text)
+				Log("undefined");
+			else {
+				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
+				Log(Text);
+			}
 			JS_ResumeRequest(cx, depth);
 		}
 	}
@@ -332,6 +341,11 @@ JSAPI_FUNC(my_sendCopyData)
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
 		return JS_FALSE;
+
+	if(_strcmpi(windowClassName, "null") == 0)
+		windowClassName = NULL;
+	if(_strcmpi(windowName, "null") == 0)
+		windowName = NULL;
 
 /*	if(JSVAL_IS_STRING(argv[0]))
 	{

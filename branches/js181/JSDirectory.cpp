@@ -25,7 +25,7 @@
 #include "JSDirectory.h"
 #include "D2BS.h"
 #include "File.h"
-#include "js32.h"
+//#include "js32.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Directory stuff
@@ -49,7 +49,8 @@ JSAPI_FUNC(my_openDir)
 	if((_mkdir(path) == -1) && (errno == ENOENT)) {
 		JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
 		return JS_FALSE;
-	} else {
+	} 
+	else {
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
@@ -159,7 +160,8 @@ JSAPI_FUNC(dir_create)
 	if(_mkdir(path) == -1 && (errno == ENOENT)) {
 		JS_ReportError(cx, "Couldn't create directory %s, path %s not found", name, path);
 		return JS_FALSE;
-	} else {
+	} 
+	else {
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);

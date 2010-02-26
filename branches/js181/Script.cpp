@@ -49,6 +49,12 @@ Script::Script(const char* file, ScriptState state) :
 		JS_BeginRequest(context);
 
 		globalObject = JS_GetGlobalObject(context);
+		jsval meVal = JSVAL_VOID;
+		if(JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE)
+		{
+			JSObject* meObject = JSVAL_TO_OBJECT(meVal);
+			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
+		}
 
 		if(state == Command)
 			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
@@ -88,7 +94,9 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
-	JS_SetContextThread(context);
+	if(!JS_GetContextThread(context))
+		JS_SetContextThread(context);
+
 	JS_BeginRequest(context);
 
 	// these calls can, and probably should, be moved to the context callback on cleanup
@@ -135,16 +143,12 @@ void Script::Run(void)
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
 
-	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) == JS_FALSE ||
-	   JS_GetProperty(GetContext(), globalObject, "main", &main) == JS_FALSE)
+	if(JS_ExecuteScript(GetContext(), globalObject, script, &dummy) != JS_FALSE &&
+	   JS_GetProperty(GetContext(), globalObject, "main", &main) != JS_FALSE &&
+	   JSVAL_IS_FUNCTION(GetContext(), main))
 	{
-		JS_RemoveRoot(&main);
-		JS_EndRequest(GetContext());
-		return;
-	}
-
-	if(JSVAL_IS_FUNCTION(GetContext(), main))
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
+	}
 
 	if(GetState() == Command)
 	{
@@ -154,7 +158,7 @@ void Script::Run(void)
 			JS_ConvertValue(GetContext(), dummy, JSTYPE_STRING, &dummy);
 			Print(JS_GetStringBytes(JS_ValueToString(GetContext(), dummy)));
 		}
-	}	
+	}
 
 	JS_RemoveRoot(&main);
 	JS_EndRequest(GetContext());
@@ -166,30 +170,7 @@ void Script::Run(void)
 
 void Script::UpdatePlayerGid(void)
 {
-	jsval me = JSVAL_VOID;
-	JSObject* meObject = NULL;
-	JS_AddRoot(&me);
-	JS_BeginRequest(GetContext());
-
-	if(JS_GetProperty(GetContext(), globalObject, "me", &me) == JS_FALSE)
-	{
-		JS_RemoveRoot(&me);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	meObject = JSVAL_TO_OBJECT(me);
-	myUnit* meUnit = (myUnit*)JS_GetPrivate(GetContext(), meObject);
-	if(!meUnit)
-	{
-		JS_RemoveRoot(&me);
-		JS_EndRequest(GetContext());
-		return;
-	}
-	meUnit->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
-	JS_SetPrivate(GetContext(), meObject, meUnit);
-	JS_RemoveRoot(&me);
-	JS_EndRequest(GetContext());
-	//JS_ClearContextThread(GetContext());
+	me->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
 }
 
 void Script::Pause(void)
@@ -258,7 +239,7 @@ bool Script::IsIncluded(const char* file)
 		return false;
 
 	_strlwr_s(fname, strlen(fname)+1);
-	StringReplace(fname, '/', '\\');
+	StringReplace(fname, '/', '\\', strlen(fname));
 	count = includes.count(string(fname));
 	free(fname);
 
@@ -273,7 +254,7 @@ bool Script::Include(const char* file)
 	if(!fname)
 		return false;
 	_strlwr_s(fname, strlen(fname)+1);
-	StringReplace(fname, '/', '\\');
+	StringReplace(fname, '/', '\\', strlen(fname));
 	// ignore already included, 'in-progress' includes, and self-inclusion
 	if(!!includes.count(string(fname)) ||
 	   !!inProgress.count(string(fname)) ||
@@ -284,6 +265,7 @@ bool Script::Include(const char* file)
 		return true;
 	}
 	bool rval = false;
+
 	JS_BeginRequest(GetContext());
 
 	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
@@ -298,13 +280,6 @@ bool Script::Include(const char* file)
 			includes[fname] = true;
 		inProgress.erase(fname);
 		JS_RemoveRoot(&scriptObj);
-	}
-	else
-	{
-		JS_EndRequest(GetContext());
-		LeaveCriticalSection(&lock);
-		free(fname);
-		return false;
 	}
 
 	JS_EndRequest(GetContext());
@@ -405,7 +380,6 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
 		IsRunning() && !(GetState() == InGame && !GameReady()))
 	{
-		RootJsvals(format, (char*)argv);
 		FunctionList funcs = functions[evtName];
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 		JS_EnterLocalRootScope(cx);
@@ -424,11 +398,10 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 		JS_PopArguments(cx, markp);
 		JS_LeaveLocalRootScope(cx);
 		JS_DestroyContextNoGC(cx);
-		UnrootJsvals(format, (char*)argv);
 	}
 }
 
-void Script::ExecEventAsync(const char* evtName, const char* format, uintN size, uintN argc, void* argv)
+void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* args)
 {
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)))
 	{
@@ -437,50 +410,12 @@ void Script::ExecEventAsync(const char* evtName, const char* format, uintN size,
 		evt->object = globalObject;
 		evt->functions = functions[evtName];
 		strcpy_s(evt->format, 10, format);
-		evt->argc = argc;
-		evt->argv = new BYTE[size];
-		memcpy(evt->argv, argv, size);
+		evt->args = args;
 
-		RootJsvals(evt->format, (char*)evt->argv);
 		_beginthread(FuncThread, 0, evt);
-	}
-}
-
-void RootJsvals(const char* format, char* ptr)
-{
-	// root any jsvals
-	int len = strlen(format);
-	for(int i = 0; i < len; i++)
-	{
-		switch(format[i])
-		{
-		case 'b': ptr += sizeof(JSBool); break;
-		case 'c': ptr += sizeof(uint16); break;
-		case 'u': ptr += sizeof(uint32); break;
-		case 'S': ptr += sizeof(JSString*); break;
-		case 'd': case 'I': ptr += sizeof(jsdouble); break;
-		case 'i': case 'j': ptr += sizeof(int32); break;
-		case 'v': JS_AddRoot((jsval*)ptr); ptr += sizeof(jsval); break;
-		}
-	}
-}
-
-void UnrootJsvals(const char* format, char* ptr)
-{
-	// unroot any jsvals
-	int len = strlen(format);
-	for(int i = 0; i < len; i++)
-	{
-		switch(format[i])
-		{
-		case 'b': ptr += sizeof(JSBool); break;
-		case 'c': ptr += sizeof(uint16); break;
-		case 'u': ptr += sizeof(uint32); break;
-		case 'S': ptr += sizeof(JSString*); break;
-		case 'd': case 'I': ptr += sizeof(jsdouble); break;
-		case 'i': case 'j': ptr += sizeof(int32); break;
-		case 'v': JS_RemoveRoot((jsval*)ptr); ptr += sizeof(jsval); break;
-		}
+	} else {
+		// clean up args to prevent mem leak
+		delete args;
 	}
 }
 
@@ -502,31 +437,52 @@ void __cdecl FuncThread(void* data)
 	if(!evt)
 		return;
 
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && !GameReady()))
+	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
 	{
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 		JS_SetContextPrivate(cx, evt->owner);
 		JS_BeginRequest(cx);
 		JS_EnterLocalRootScope(cx);
 		// build the arg list
-		void* markp = NULL;
-		jsval* argv = JS_PushArgumentsVA(cx, &markp, evt->format, (va_list)evt->argv);
+		uintN argc = evt->args->size();
+		jsval* argv = new jsval[argc];
+		int i = 0;
+		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++, i++)
+		{
+			switch(it->second)
+			{
+				case String: argv[i] = STRING_TO_JSVAL((JSString*)it->first); break;
+				case SignedInt: case UnsignedInt: case Double: case UnsignedShort:
+					JS_NewNumberValue(cx, (jsdouble)it->first, &argv[i]);
+					break;
+				case Boolean: argv[i] = BOOLEAN_TO_JSVAL((JSBool)it->first); break;
+				case JSVal: argv[i] = (jsval)it->first; break;
+			}
+		}
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
 			jsval dummy = JSVAL_VOID;
-			JS_CallFunctionValue(cx, evt->object, (*it)->value(), evt->argc, argv, &dummy);
+			JS_CallFunctionValue(cx, evt->object, (*it)->value(), argc, argv, &dummy);
 		}
 
 		// and clean it up
-		JS_PopArguments(cx, markp);
 		JS_LeaveLocalRootScope(cx);
 		JS_EndRequest(cx);
 		JS_DestroyContextNoGC(cx);
+
+		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++)
+		{
+			switch(it->second)
+			{
+				case JSVal: JS_RemoveRoot((jsval*)&(it->first)); break;
+				case String: JS_RemoveRoot((JSString*)&(it->first)); break;
+			}
+		}
+
+		delete[] argv;
 	}
 
-	UnrootJsvals(evt->format, (char*)evt->argv);
-
-	delete[] evt->argv;
+	delete evt->args;
 	delete evt;
 }

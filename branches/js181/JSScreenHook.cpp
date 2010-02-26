@@ -752,9 +752,10 @@ JSAPI_FUNC(screenToAutomap)
 			ScreenToAutomap(&result, ix, iy);
 			x = INT_TO_JSVAL(ix);
 			y = INT_TO_JSVAL(iy);
-			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
+			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
+			if(JS_SetProperty(cx, res, "x", &x) == JS_FALSE || JS_SetProperty(cx, res, "y", &y) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
-			*rval = OBJECT_TO_JSVAL(arg);
+			*rval = OBJECT_TO_JSVAL(res);
 		}
 		else
 			THROW_ERROR(cx, "Invalid object specified to screenToAutomap");

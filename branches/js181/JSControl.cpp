@@ -1,4 +1,4 @@
-#include "Control.h"
+//#include "Control.h"
 #include "JSControl.h"
 #include "Helpers.h"
 #include "D2Helpers.h"
@@ -280,12 +280,12 @@ JSAPI_FUNC(my_getControl)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	int nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
-	int *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
+	int32 nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
+	int32 *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
 
 	for(uintN i = 0; i < argc; i++)
 		if(JSVAL_IS_INT(argv[i]))
-			*args[i] = JSVAL_TO_INT(argv[i]);
+			JS_ValueToECMAInt32(cx, argv[i], args[i]);
 
 	Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
 	if(!pControl)

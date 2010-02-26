@@ -35,11 +35,13 @@ bool StringToBool(const char* str)
 	}
 }
 
-void StringReplace(char* str, const char find, const char replace)
+void StringReplace(char* str, const char find, const char replace, size_t buflen)
 {
-	char* ptr = NULL;
-	while((ptr = strchr(str, find)) != NULL)
-		*ptr = replace;
+	for(size_t i = 0; i < buflen; i++)
+	{
+		if(str[i] == find)
+			str[i] = replace;
+	}
 }
 
 bool ProfileExists(const char *profile)
@@ -72,6 +74,7 @@ void InitSettings(void)
 		 quitOnHostile[6],
 		 quitOnError[6],
 		 maxGameTime[6],
+		 gameTimeout[6],
 		 startAtMenu[6],
 		 disableCache[6],
 		 memUsage[6],
@@ -89,18 +92,20 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "DisableCache", "true", disableCache, 6, fname);
 	GetPrivateProfileString("settings", "MemoryLimit", "50", memUsage, 6, fname);
 	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
+	GetPrivateProfileString("settings", "GameReadyTimeout", "5", gameTimeout, 6, fname);
 
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 
 	Vars.dwGameTime = GetTickCount();
-	Vars.dwMaxGameTime = atoi(maxGameTime);
+	Vars.dwMaxGameTime = abs(atoi(maxGameTime) * 1000);
+	Vars.dwGameTimeout = abs(atoi(gameTimeout) * 1000);
 	Vars.bBlockMinimize = StringToBool(blockMinimize);
 	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 	Vars.bQuitOnError = StringToBool(quitOnError);
 	Vars.bStartAtMenu = StringToBool(startAtMenu);
 	Vars.bDisableCache = StringToBool(disableCache);
 	Vars.bUseGamePrint = StringToBool(gamePrint);
-	Vars.dwMemUsage = atoi(memUsage);
+	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)
 		Vars.dwMemUsage = 50;
 	Vars.dwMemUsage *= 1024*1024;

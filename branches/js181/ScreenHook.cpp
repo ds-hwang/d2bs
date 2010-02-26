@@ -184,68 +184,51 @@ Genhook::~Genhook(void) {
 	DeleteCriticalSection(&hookSection);
 }
 
-// TODO: make this properly manage the context thread...
 bool Genhook::Click(int button, POINT* loc)
 {
 	if(!IsInRange(loc))
 		return false;
 
-	if(!owner || !JSVAL_IS_FUNCTION(owner->GetContext(), clicked))
-		return false;
-
-	Lock();
-
-	jsval rval = JSVAL_VOID;
-	jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&rval) == JS_FALSE ||
-	   JS_AddRoot(&args[0]) == JS_FALSE ||
-	   JS_AddRoot(&args[1]) == JS_FALSE ||
-	   JS_AddRoot(&args[2]) == JS_FALSE)
+	bool result = false;
+	JS_SetContextThread(ScriptEngine::GetGlobalContext());
+	if(owner && JSVAL_IS_FUNCTION(ScriptEngine::GetGlobalContext(), clicked))
 	{
+		Lock();
+
+		JS_EnterLocalRootScope(ScriptEngine::GetGlobalContext());
+		jsval rval = JSVAL_VOID;
+		jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
+
+		JS_CallFunctionValue(ScriptEngine::GetGlobalContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
+
+		result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 		Unlock();
-		return false;
 	}
-
-	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
-
-	JS_RemoveRoot(&args[0]);
-	JS_RemoveRoot(&args[1]);
-	JS_RemoveRoot(&args[2]);
-	JS_RemoveRoot(&rval);
-
-	bool result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
-	Unlock();
+	JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 
 	return result;
 }
 
-// TODO: make this properly manage the context thread...
 void Genhook::Hover(POINT* loc)
 {
 	if(!IsInRange(loc))
 		return;
-	if(!owner || !(JSVAL_IS_FUNCTION(owner->GetContext(), hovered)))
-		return;
 
-	Lock();
-
-	jsval rval = JSVAL_VOID;
-	jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
-	if(JS_AddRoot(&rval) == JS_FALSE ||
-	   JS_AddRoot(&args[0]) == JS_FALSE ||
-	   JS_AddRoot(&args[1]) == JS_FALSE)
+	JS_SetContextThread(ScriptEngine::GetGlobalContext());
+	if(owner && (JSVAL_IS_FUNCTION(ScriptEngine::GetGlobalContext(), hovered)))
 	{
+		Lock();
+
+		JS_EnterLocalRootScope(ScriptEngine::GetGlobalContext());
+		jsval rval = JSVAL_VOID;
+		jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
+
+		JS_CallFunctionValue(ScriptEngine::GetGlobalContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
+
+		JS_LeaveLocalRootScope(ScriptEngine::GetGlobalContext());
 		Unlock();
-		return;
 	}
-
-	JS_CallFunctionValue(owner->GetContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
-
-	JS_RemoveRoot(&args[0]);
-	JS_RemoveRoot(&args[1]);
-	JS_RemoveRoot(&rval);
-
-	Unlock();
+	JS_ClearContextThread(ScriptEngine::GetGlobalContext());
 }
 
 void Genhook::SetClickHandler(jsval handler)

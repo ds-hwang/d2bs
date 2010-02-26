@@ -33,12 +33,12 @@ class ScriptEngine
 	friend void __cdecl EventThread(void* arg);
 
 	static JSRuntime* runtime;
+	static JSContext* context;
 	static ScriptMap scripts;
 	static EngineState state;
 	static CRITICAL_SECTION lock;
 	static SLIST_HEADER eventList;
 	static HANDLE eventHandle;
-	static JSContext* context;
 
 public:
 	friend class Script;
@@ -57,9 +57,10 @@ public:
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
+	static JSContext* GetGlobalContext(void) { return context; }
 
 	static void StopAll(bool forceStop = false);
-	static void ExecEventAsync(char* evtName, char* format, uintN argc, ...);
+	static void ExecEventAsync(char* evtName, char* format, ...);
 	static void PushEvent(EventHelper* helper);
 
 	static void InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -79,9 +80,7 @@ struct EventHelper
 	char evtName[15];
 	char format[10];
 	bool executed;
-	uintN argc;
-	uintN argvsize;
-	BYTE* argv;
+	ArgList* args;
 };
 
 JSBool branchCallback(JSContext* cx);

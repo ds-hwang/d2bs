@@ -1,4 +1,3 @@
-#include "D2Ptrs.h"
 #include "Unit.h"
 #include "Constants.h"
 #include "D2Helpers.h"
@@ -7,7 +6,7 @@
 
 UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return NULL;
 	// check the server list first, then the client list
 /*
@@ -48,7 +47,7 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 
 UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
 {
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return NULL;
 
 	if(!pUnit)
@@ -128,10 +127,6 @@ UnitAny* GetInvNextUnit(UnitAny* pUnit, UnitAny* pOwner, char* szName, DWORD dwC
 
 BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
-// extraneous check?
-//	if(!GameReady())
-//		return FALSE;
-
 	if((dwUnitId != -1 && pUnit->dwUnitId != dwUnitId) ||
 		(dwType != -1 && pUnit->dwType != dwType) ||
 		(dwClassId != -1 && pUnit->dwTxtFileNo != dwClassId))

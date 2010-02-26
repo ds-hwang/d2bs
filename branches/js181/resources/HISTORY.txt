@@ -1,5 +1,72 @@
 Version History:
 
+Version 1.2.1 -
+
+	.	Reverted to packet-based shopping, the internal method we were using seems to still be buggy.
+
+	.	Fixed various places where scripts/functions could inadvertantly fail due to internal mishandling
+		of game state.
+
+	.	Fixed addProfile--it wasn't correctly adding profiles anyway.
+
+	.	Made all profile settings be in SECONDS. This means you MUST EDIT YOUR D2BS.INI APPROPRIATELY.
+
+	.	Added a new property, me.gameReady. Previously, functions that required the game to be ready
+		would simply return undefined if the game wasn't ready, now they will wait on the game to be
+		ready. If you wish to do your own processing instead, then you should test me.gameReady to see
+		if the core would block while waiting for the game. You don't need to do anything to benefit
+		from this change, as the default behavior is now just a little more correct.
+
+Version 1.2 -
+
+	.	Fixes:
+		- me was not getting reset between games with the script cache enabled
+		- various interactions used to incorrectly cause deadlocks when the client was minimized
+		- getUnit now correctly interprets the gid parameter
+		- itemdrop has been renamed to itemaction, and passes different parameters:
+		  gid, mode, code, globalEvent. gid is still the item's gid, mode is the type of action
+		  (I'll make a list later), code is the item code, and globalEvent is whether the action
+		  came from a 9c or 9d packet.
+		- Added new event: gameaction, triggers on 0x5a packets, params vary based on the action.
+		  See the breakdown in the packet list sticky for more info.
+		- various crashes with images, including one where the version background image didn't exist
+		- Events now use their own independent context, to help prevent crashes.
+
+	.	Made all classes properly exposed to the scripter so they can be properly extended.
+
+	.	Made scripts wait less time while trying to stop, as the old duration was ridiculous.
+
+	.	Added/changed new functions/properties:
+		- selectCharacter -- takes the profile name, selects the character specified by that profile.
+		- Area.exits -- now returns the exit array instead of the number of exits
+		- getExits -- removed in preference of Area.exits.
+		- Exit.id -- renamed to Exit.level
+		- showConsole -- shows the console
+		- hideConsole -- hides the console
+
+	.	Updated sqlite version to 3.6.22.
+
+	.	Turned on compiler optimizations (finally).
+
+	.	Screenhook images are now cached. You only have to load them once, and any further loads
+		will return the same image.
+
+	.	Changed screenhook handling so that hidden screenhooks no longer are considered for drawing
+		period, meaning they're MUCH faster.
+
+	.	Changed the logo drawing code similarly, so that it draws on its own without being treated
+		as a screenhook (which means it always draws centered and draws much faster)
+
+	.	Changed the console drawing code similar to above, so that it handles long lines correctly
+		without being broken (this includes input, which drops to a newline on long lines).
+
+	.	Changed the handling for commands, you no longer have to print() the result you want--the
+		last value is printed by default now.
+
+	.	Loader changes:
+		- Added a new (and very cool) splash screen (thanks to Game_Slave for designing it!)
+		- Changed the default delay for child process detection to 1 second (up from .5 second)
+
 Version 1.1.2 -
 
 	.	Changed item.getPrice to item.getItemCost, getPrice is still there but marked as deprecated

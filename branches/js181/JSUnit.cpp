@@ -1,5 +1,6 @@
 #include "JSUnit.h"
-#include "D2Ptrs.h"
+#include "D2Helpers.h"
+//#include "D2Ptrs.h"
 #include "Constants.h"
 #include "Helpers.h"
 #include "Unit.h"
@@ -66,6 +67,9 @@ JSAPI_PROP(unit_getProperty)
 
 	switch(JSVAL_TO_INT(id))
 	{
+		case ME_GAMEREADY:
+			*vp = BOOLEAN_TO_JSVAL(GameReady());
+			break;
 		case ME_ACCOUNT:
 			if(!pData)
 				return JS_TRUE;
@@ -142,7 +146,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : (GameReady() ? JSVAL_TRUE : JSVAL_FALSE));
+			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
@@ -163,7 +167,7 @@ JSAPI_PROP(unit_getProperty)
 			break;
 	}
 
-	if(!GameReady())
+	if(ClientState() != ClientStateInGame)
 		return JS_TRUE;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
@@ -604,8 +608,8 @@ JSAPI_FUNC(unit_getNext)
 
 JSAPI_FUNC(unit_cancel)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	if(argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
@@ -675,8 +679,8 @@ JSAPI_FUNC(unit_useMenu)
 
 JSAPI_FUNC(unit_interact)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -746,8 +750,8 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray);
 
 JSAPI_FUNC(unit_getStat)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -935,8 +939,8 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 
 JSAPI_FUNC(unit_getState)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -966,8 +970,8 @@ JSAPI_FUNC(unit_getState)
 
 JSAPI_FUNC(item_getFlags)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -986,8 +990,8 @@ JSAPI_FUNC(item_getFlags)
 
 JSAPI_FUNC(item_getFlag)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
@@ -1013,8 +1017,8 @@ JSAPI_FUNC(item_getPrice)
 {	
 	DEPRECATED;
 
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	INT diff = D2CLIENT_GetDifficulty();
 	//D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell)
@@ -1062,8 +1066,8 @@ JSAPI_FUNC(item_getPrice)
 
 JSAPI_FUNC(item_getItemCost)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	jsint nMode;
 	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
@@ -1109,8 +1113,8 @@ JSAPI_FUNC(item_getItemCost)
 
 JSAPI_FUNC(unit_getItems)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1166,8 +1170,8 @@ JSAPI_FUNC(unit_getItems)
 
 JSAPI_FUNC(unit_getSkill)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	jsint nSkillId = NULL;
 	jsint nExt = NULL;
@@ -1291,8 +1295,8 @@ JSAPI_FUNC(item_shop)
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
 
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
@@ -1325,7 +1329,7 @@ JSAPI_FUNC(item_shop)
 		return JS_TRUE;
 
 	//Selling an Item 
-	if (dwMode == 1)
+	/*if (dwMode == 1)
 	{
 		//Check if we own the item!
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
@@ -1340,8 +1344,8 @@ JSAPI_FUNC(item_shop)
 			return JS_TRUE;
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	}
-	/*
+	}*/
+
 	BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
@@ -1377,9 +1381,6 @@ JSAPI_FUNC(item_shop)
 	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
 
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
-
-	//FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x19E00) // Updated
-*/
 	
 	*rval = JSVAL_TRUE;
 
@@ -1388,8 +1389,8 @@ JSAPI_FUNC(item_shop)
 
 JSAPI_FUNC(unit_getParent)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1404,6 +1405,9 @@ JSAPI_FUNC(unit_getParent)
 	if(pUnit->dwType == UNIT_MONSTER)
 	{
 		DWORD dwOwnerId = D2CLIENT_GetMonsterOwner(pUnit->dwUnitId);
+		if(dwOwnerId == -1)
+			return JS_TRUE;
+
 		UnitAny* pMonster = GetUnit(NULL, (DWORD)-1, (DWORD)-1, (DWORD)-1, dwOwnerId);
 //		if (!pMonster)
 //			pMonster = GetUnit(NULL, (DWORD)-1, UNIT_MONSTER, (DWORD)-1, dwOwnerId);
@@ -1464,8 +1468,8 @@ JSAPI_FUNC(unit_getParent)
 // Works only on players sinces monsters _CANT_ have mercs!
 JSAPI_FUNC(unit_getMerc)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1553,8 +1557,8 @@ JSAPI_FUNC(unit_getMerc)
 // unit.setSkill( int skillId OR String skillName, int hand [, int itemGlobalId] );
 JSAPI_FUNC(unit_setskill)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	WORD nSkillId = (WORD)-1;
 	BOOL nHand = FALSE;
@@ -1583,8 +1587,8 @@ JSAPI_FUNC(unit_setskill)
 
 JSAPI_FUNC(my_overhead)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1616,8 +1620,8 @@ JSAPI_FUNC(my_overhead)
 
 JSAPI_FUNC(unit_getItem)
 {	
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1677,8 +1681,8 @@ JSAPI_FUNC(unit_getItem)
 
 JSAPI_FUNC(unit_move)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	myUnit *pmyUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1720,8 +1724,8 @@ JSAPI_FUNC(unit_move)
 
 JSAPI_FUNC(unit_getEnchant)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 	
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
@@ -1752,8 +1756,8 @@ JSAPI_FUNC(unit_getEnchant)
 
 JSAPI_FUNC(unit_getQuest)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 	
 	if(argc < 2 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]))
 		return JS_TRUE;
@@ -1768,8 +1772,8 @@ JSAPI_FUNC(unit_getQuest)
 
 JSAPI_FUNC(unit_getMinionCount)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 	
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
@@ -1795,8 +1799,8 @@ JSAPI_FUNC(unit_getMinionCount)
 
 JSAPI_FUNC(me_getRepairCost)
 {
-	if(!GameReady())
-		return JS_TRUE;
+	if(!WaitForGameReady())
+		THROW_ERROR(cx, "Game not ready");
 
 	UnitAny* npc = D2CLIENT_GetCurrentInteractingNPC();
 	jsint nNpcClassId = (npc ? npc->dwTxtFileNo : 0x9A);

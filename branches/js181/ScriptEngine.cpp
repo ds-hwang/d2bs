@@ -100,9 +100,10 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	delete script;
 
 	LeaveCriticalSection(&lock);
+
+	delete script;
 }
 
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
@@ -250,62 +251,75 @@ void ScriptEngine::PushEvent(EventHelper* helper)
 	InterlockedPushEntrySList(&eventList, (PSINGLE_LIST_ENTRY)helper);
 }
 
-void ScriptEngine::ExecEventAsync(char* evtName, char* format, uintN argc, ...)
+void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 {
 	if(GetState() != Running)
 		return;
 
-	// calculate the total number of bytes required to store the event data
 	va_list args;
-	va_start(args, argc);
-	uintN len = strlen(format), size = 0;
+	va_start(args, format);
+	uintN len = strlen(format);
 	char fmt[10];
 	strcpy_s(fmt, 10, format);
+	ArgList* argv = new ArgList(len);
 
-	for(uintN i = 0; i < argc && i < len; i++)
+	for(uintN i = 0; i < len; i++)
 	{
 		switch(format[i])
 		{
-			case 'i': case 'j': va_arg(args, int32);	size += sizeof(int32); break;
-			case 'd': case 'I': va_arg(args, jsdouble);	size += sizeof(jsdouble); break;
-			case 'b': va_arg(args, JSBool);				size += sizeof(JSBool); break;
-			case 'c': va_arg(args, uint16);				size += sizeof(uint16); break;
-			case 'u': va_arg(args, uint32);				size += sizeof(uint32); break;
-			case 'v': va_arg(args, jsval);				size += sizeof(jsval); break;
+			case 'i': case 'j':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, int32), SignedInt));
+				break;
+			case 'd': case 'I':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, jsdouble), Double));
+				break;
+			case 'b':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, JSBool), Boolean));
+				break;
+			case 'c':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, uint16), UnsignedShort));
+				break;
+			case 'u':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, uint32), UnsignedInt));
+				break;
+			case 'v': {
+					EventArg p = make_pair((QWORD)va_arg(args, jsval), JSVal);
+					argv->at(i) = p;
+					// seems to cause problems with root_points_to_gcArenaList...
+					//JS_AddRoot(&(p.first));
+					break;
+				}
 			case 's': {
 				JS_SetContextThread(context);
 				JS_BeginRequest(context);
 
 				char* str = va_arg(args, char*);
-				size += sizeof(JSString*);
 				JSString* encString = JS_NewStringCopyZ(context, str);
-				memcpy((void*)(&argc + (size/4)), &encString, sizeof(void*));
 				fmt[i] = 'S';
+				EventArg p = make_pair((QWORD)encString, String);
+				argv->at(i) = p;
+				// seems to cause problems with root_points_to_gcArenaList...
+				//JS_AddRoot(&(p.first));
 
 				JS_EndRequest(context);
 				JS_ClearContextThread(context);
 				break;
 			}
-			default:
-				// api usage error
-				ASSERT(false);
+			default: {
+				// give a named assert instead of just a false
+				bool api_usage_error = false;
+				ASSERT(api_usage_error);
 				break;
+			}
 		}
 	}
 	va_end(args);
 
-	// copy the event data into a new helper object
-	char* stack = (char*)(&argc + 1);
 	EventHelper* helper = new EventHelper;
 	strcpy_s(helper->evtName, 15, evtName);
 	strcpy_s(helper->format, 10, fmt);
-
 	helper->executed = false;
-	helper->argc = argc;
-	helper->argvsize = size;
-	helper->argv = new BYTE[size];
-	memcpy(helper->argv, stack, size);
-	RootJsvals(format, (char*)helper->argv);
+	helper->args = argv;
 
 	PushEvent(helper);
 }
@@ -362,7 +376,7 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
-		script->ExecEventAsync(helper->evtName, helper->format, helper->argvsize, helper->argc, helper->argv);
+		script->ExecEventAsync(helper->evtName, helper->format, helper->args);
 	return true;
 }
 
@@ -447,29 +461,22 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
 	static ScriptList pausedList = ScriptList();
-	if(status == JSGC_BEGIN)
+	if(status == JSGC_MARK_END)
 	{
-//		EnterCriticalSection(&ScriptEngine::lock);
 		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
-#ifdef lord2800_INFO
-		Print("*** ENTERING GC ***");
-#endif
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
-#ifdef lord2800_INFO
-		Print("*** LEAVING GC ***");
-#endif
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
-//		LeaveCriticalSection(&ScriptEngine::lock);
+		pausedList.clear();
 	}
 	return JS_TRUE;
 }
@@ -483,8 +490,6 @@ void __cdecl EventThread(void* arg)
 		{
 			// execute it on every script
 			ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
-			UnrootJsvals(helper->format, (char*)helper->argv);
-			delete[] helper->argv;
 			delete helper;
 		}
 		Sleep(10);
@@ -511,7 +516,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(filename)
 		free(filename);
 
-	if(Vars.bQuitOnError && D2CLIENT_GetPlayerUnit() && !JSREPORT_IS_WARNING(report->flags))
+	if(Vars.bQuitOnError && !JSREPORT_IS_WARNING(report->flags) && ClientState() == ClientStateInGame)
 		D2CLIENT_ExitGame();
 	else
 		Console::ShowBuffer();
