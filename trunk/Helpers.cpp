@@ -107,7 +107,7 @@ void InitSettings(void)
 	Vars.bUseGamePrint = StringToBool(gamePrint);
 	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)
-		Vars.dwMemUsage = 50;
+		Vars.dwMemUsage = 32;
 	Vars.dwMemUsage *= 1024*1024;
 	Vars.oldWNDPROC = NULL;
 }
