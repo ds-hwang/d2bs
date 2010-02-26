@@ -1,0 +1,98 @@
+#include "ScriptEngine.h"
+#include "D2Helpers.h"
+#include "dde.h"
+
+DWORD DdeSrvInst = 0;
+HSZ hszD2BSns;
+
+HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, 
+    HSZ hsz2, HDDEDATA hdata, DWORD dwData1, DWORD dwData2)
+{
+	char pszItem[65535];
+	switch(uType) {
+		case XTYP_CONNECT:
+			return (HDDEDATA)TRUE;
+		case XTYP_POKE:
+		case XTYP_EXECUTE:
+			DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
+			Script* script = ScriptEngine::CompileCommand(pszItem);
+			if(script)
+				CreateThread(0, 0, ScriptThread, script, 0, 0);
+			break;
+	}
+	return (HDDEDATA)0;
+}
+
+DWORD CreateDdeServer() {
+	char buf[1000];
+
+	int ret = DdeInitialize(&DdeSrvInst, DdeCallback,
+				APPCLASS_STANDARD | APPCMD_FILTERINITS | CBF_FAIL_ADVISES |
+				CBF_FAIL_REQUESTS | CBF_SKIP_CONNECT_CONFIRMS | CBF_SKIP_REGISTRATIONS |
+				CBF_SKIP_UNREGISTRATIONS, 0);
+	if(ret != DMLERR_NO_ERROR)
+		return 0;
+	char handle[25];
+	sprintf_s(handle, sizeof(handle), "d2bs-%d", GetProcessId(GetCurrentProcess()));
+	hszD2BSns = DdeCreateStringHandle(DdeSrvInst, handle, CP_WINANSI);
+	if(!hszD2BSns)
+		return 0;
+	if(!DdeNameService(DdeSrvInst, hszD2BSns, 0L, DNS_REGISTER | DNS_FILTERON)) {
+		sprintf_s(buf, sizeof(buf), "DdeServer DdeNameService Error: %X", DdeGetLastError(DdeSrvInst));
+		OutputDebugString(buf);
+		return 0;
+	}
+	return GetLastError();
+}
+
+BOOL ShutdownDdeServer() {
+	DdeFreeStringHandle(DdeSrvInst, hszD2BSns);
+	return DdeUninitialize(DdeSrvInst);
+}
+
+BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* pszData, char** result, uint size)
+{
+	DWORD pidInst = 0;
+	HCONV hConv;
+	DWORD dwTimeout = 5000;
+	HDDEDATA DdeSrvData;
+
+	int ret = DdeInitialize(&pidInst, (PFNCALLBACK) DdeCallback, APPCMD_CLIENTONLY, 0);
+	if(ret != DMLERR_NO_ERROR)
+	{
+		Log("DdeInitialize Error: %X", ret);
+		return FALSE;
+	}
+
+	HSZ hszDDEServer = DdeCreateStringHandle(pidInst, pszDDEServer, CP_WINANSI);
+	HSZ hszTopic = DdeCreateStringHandle(pidInst, pszTopic, CP_WINANSI);
+	HSZ hszCommand = DdeCreateStringHandle(pidInst, pszItem, CP_WINANSI);
+
+	if(!hszDDEServer || !hszTopic || !hszCommand)
+	{
+		Log("Error creating DDE Handles: Server:%s, Topic:%s, Command:%s, Data:%s", pszDDEServer, pszTopic, pszItem, pszData);
+		return FALSE;
+	}
+
+	hConv = DdeConnect(pidInst, hszDDEServer, hszTopic, 0);
+
+	switch(mode)
+	{
+		case 0:
+			DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
+			DdeGetData(DdeSrvData, (LPBYTE)result, size, 0);
+			break;
+		case 1:
+			DdeClientTransaction((LPBYTE)pszData, strlen(pszData)+1, hConv, hszCommand, CF_TEXT, XTYP_POKE, dwTimeout, 0);
+			break;
+		case 2:
+			DdeClientTransaction((LPBYTE)pszData, strlen(pszData)+1, hConv, 0L, 0, XTYP_EXECUTE, dwTimeout, 0);
+			break;
+	}
+
+	DdeFreeStringHandle(pidInst, hszDDEServer);
+	DdeFreeStringHandle(pidInst, hszTopic);
+	DdeFreeStringHandle(pidInst, hszCommand);
+	DdeUninitialize(pidInst);
+	return TRUE;
+}
