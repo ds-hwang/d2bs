@@ -37,9 +37,9 @@
             // 
 			VersionLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			VersionLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(131)))), ((int)(((byte)(139)))), ((int)(((byte)(139)))));
-			VersionLabel.Location = new System.Drawing.Point(251, 283);
+			VersionLabel.Location = new System.Drawing.Point(241, 283);
 			VersionLabel.Name = "label2";
-			VersionLabel.Size = new System.Drawing.Size(175, 40);
+			VersionLabel.Size = new System.Drawing.Size(200, 40);
 			VersionLabel.TabIndex = 1;
 			VersionLabel.TabStop = false;
             // 
