@@ -158,7 +158,6 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box) {
-		JS_SetContextThread(box->context);
 		JS_DestroyContext(box->context);
 		delete box;
 	}

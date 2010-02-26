@@ -1,5 +1,6 @@
 #include <io.h>
 #include <algorithm>
+#include <process.h>
 
 #include "Script.h"
 #include "Core.h"
@@ -70,6 +71,7 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Couldn't add named root for scriptObject");
 
 		JS_EndRequest(context);
+		JS_ClearContextThread(context);
 
 		LeaveCriticalSection(&lock);
 	} catch(std::exception&) {
@@ -373,28 +375,48 @@ void Script::ClearAllEvents(void)
 	LeaveCriticalSection(&lock);
 }
 
-void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
+void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void* argv)
 {
-	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
+	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
+		IsRunning() && !(GetState() == InGame && !GameReady()))
 	{
-		// no event will happen, clean up the roots
-		for(uintN i = 0; i < argc; i++)
-			delete argv[i];
-		delete[] argv;
-		return;
+		FunctionList funcs = functions[evtName];
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JS_EnterLocalRootScope(cx);
+		// build the arg list
+		void* markp = NULL;
+		jsval* argv = NULL;
+		argv = JS_PushArguments(cx, &markp, format, argv);
+
+		for(FunctionList::iterator it = funcs.begin(); it != funcs.end(); it++)
+		{
+			jsval dummy = JSVAL_VOID;
+			JS_CallFunctionValue(cx, GetGlobalObject(), (*it)->value(), argc, argv, &dummy);
+		}
+
+		// and clean it up
+		JS_PopArguments(cx, markp);
+		JS_LeaveLocalRootScope(cx);
+		JS_DestroyContextNoGC(cx);
 	}
+}
 
-	for(uintN i = 0; i < argc; i++)
-		argv[i]->Take();
+void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* args)
+{
+	if((!IsAborted() && !IsPaused() && functions.count(evtName)))
+	{
+		Event* evt = new Event;
+		evt->owner = this;
+		evt->object = globalObject;
+		evt->functions = functions[evtName];
+		strcpy_s(evt->format, 10, format);
+		evt->args = args;
 
-	Event* evt = new Event;
-	evt->owner = this;
-	evt->functions = functions[evtName];
-	evt->argc = argc;
-	evt->argv = argv;
-	evt->object = globalObject;
-
-	CreateThread(0, 0, FuncThread, evt, 0, 0);
+		_beginthread(FuncThread, 0, evt);
+	} else {
+		// clean up args to prevent mem leak
+		delete args;
+	}
 }
 
 DWORD WINAPI ScriptThread(void* data)
@@ -409,53 +431,58 @@ DWORD WINAPI ScriptThread(void* data)
 	return 0;
 }
 
-DWORD WINAPI FuncThread(void* data)
+void __cdecl FuncThread(void* data)
 {
 	Event* evt = (Event*)data;
 	if(!evt)
-		return 0;
-
-	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
-	JS_SetContextPrivate(cx, evt->owner);
-	JS_BeginRequest(cx);
+		return;
 
 	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
 	{
-		jsval* args = new jsval[evt->argc];
-		for(uintN i = 0; i < evt->argc; i++)
+		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JS_SetContextPrivate(cx, evt->owner);
+		JS_BeginRequest(cx);
+		JS_EnterLocalRootScope(cx);
+		// build the arg list
+		uintN argc = evt->args->size();
+		jsval* argv = new jsval[argc];
+		int i = 0;
+		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++, i++)
 		{
-			args[i] = evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
+			switch(it->second)
 			{
-				if(evt->argv)
-					delete[] evt->argv;
-				delete evt;
-				return NULL;
+				case String: argv[i] = STRING_TO_JSVAL((JSString*)it->first); break;
+				case SignedInt: case UnsignedInt: case Double: case UnsignedShort:
+					JS_NewNumberValue(cx, (jsdouble)it->first, &argv[i]);
+					break;
+				case Boolean: argv[i] = BOOLEAN_TO_JSVAL((JSBool)it->first); break;
+				case JSVal: argv[i] = (jsval)it->first; break;
 			}
 		}
-		jsval dummy = JSVAL_VOID;
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_CallFunctionValue(cx, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			jsval dummy = JSVAL_VOID;
+			JS_CallFunctionValue(cx, evt->object, (*it)->value(), argc, argv, &dummy);
 		}
 
-		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
-		delete[] args;
+		// and clean it up
+		JS_LeaveLocalRootScope(cx);
+		JS_EndRequest(cx);
+		JS_DestroyContextNoGC(cx);
+
+		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++)
+		{
+			switch(it->second)
+			{
+				case JSVal: JS_RemoveRoot((jsval*)&(it->first)); break;
+				case String: JS_RemoveRoot((JSString*)&(it->first)); break;
+			}
+		}
+
+		delete[] argv;
 	}
 
-	JS_DestroyContextNoGC(cx);
-	// we have to clean up the event
-	for(uintN i = 0; i < evt->argc; i++)
-	{
-		evt->argv[i]->Release();
-		if(evt->argv[i])
-			delete evt->argv[i];
-	}
-	if(evt->argv)
-		delete[] evt->argv;
+	delete evt->args;
 	delete evt;
-	
-	return 0;
 }

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <vector>
+#include <stdarg.h>
+#include <process.h>
 
 #include "ScriptEngine.h"
 #include "Core.h"
@@ -16,7 +18,9 @@ JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
-JSContext* ScriptEngine::context = NULL;
+SLIST_HEADER ScriptEngine::eventList = {0};
+HANDLE ScriptEngine::eventHandle = INVALID_HANDLE_VALUE;
+JSContext* ScriptEngine::context = {0};
 
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
@@ -96,9 +100,10 @@ void ScriptEngine::DisposeScript(Script* script)
 
 	if(scripts.count(script->GetFilename()))
 		scripts.erase(script->GetFilename());
-	delete script;
 
 	LeaveCriticalSection(&lock);
+
+	delete script;
 }
 
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
@@ -125,7 +130,12 @@ BOOL ScriptEngine::Startup(void)
 	if(GetState() == Stopped)
 	{
 		state = Starting;
+
 		InitializeCriticalSection(&lock);
+		InitializeSListHead(&eventList);
+
+		eventHandle = (HANDLE)_beginthread(EventThread, 0, NULL);
+
 		EnterCriticalSection(&lock);
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
@@ -134,9 +144,9 @@ BOOL ScriptEngine::Startup(void)
 			LeaveCriticalSection(&lock);
 			return FALSE;
 		}
-
-		// create a context for internal use before we set the callback
+		// grab a private context to use before we assign the context callback
 		context = JS_NewContext(runtime, 8192);
+		JS_ClearContextThread(context);
 
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);
@@ -155,6 +165,7 @@ void ScriptEngine::Shutdown(void)
 		EnterCriticalSection(&lock);
 		state = Stopping;
 		StopAll(true);
+		WaitForSingleObject(eventHandle, 500);
 
 		// clear all scripts now that they're stopped
 		ForEachScript(::DisposeScript, NULL, 0);
@@ -164,7 +175,8 @@ void ScriptEngine::Shutdown(void)
 
 		if(runtime)
 		{
-			JS_DestroyContextNoGC(context);
+			// free our private context just before we shut down the runtime
+			JS_DestroyContext(context);
 			JS_DestroyRuntime(runtime);
 			JS_ShutDown();
 			runtime = NULL;
@@ -234,13 +246,82 @@ void ScriptEngine::ForEachScript(ScriptCallback callback, void* argv, uint argc)
 	LeaveCriticalSection(&lock);
 }
 
-void ScriptEngine::ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc)
+void ScriptEngine::PushEvent(EventHelper* helper)
+{
+	InterlockedPushEntrySList(&eventList, (PSINGLE_LIST_ENTRY)helper);
+}
+
+void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 {
 	if(GetState() != Running)
 		return;
 
-	EventHelper helper = {evtName, argv, argc};
-	ForEachScript(ExecEventOnScript, &helper, 1);
+	va_list args;
+	va_start(args, format);
+	uintN len = strlen(format);
+	char fmt[10];
+	strcpy_s(fmt, 10, format);
+	ArgList* argv = new ArgList(len);
+
+	for(uintN i = 0; i < len; i++)
+	{
+		switch(format[i])
+		{
+			case 'i': case 'j':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, int32), SignedInt));
+				break;
+			case 'd': case 'I':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, jsdouble), Double));
+				break;
+			case 'b':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, JSBool), Boolean));
+				break;
+			case 'c':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, uint16), UnsignedShort));
+				break;
+			case 'u':
+				argv->at(i) = (make_pair((QWORD)va_arg(args, uint32), UnsignedInt));
+				break;
+			case 'v': {
+					EventArg p = make_pair((QWORD)va_arg(args, jsval), JSVal);
+					argv->at(i) = p;
+					// seems to cause problems with root_points_to_gcArenaList...
+					//JS_AddRoot(&(p.first));
+					break;
+				}
+			case 's': {
+				JS_SetContextThread(context);
+				JS_BeginRequest(context);
+
+				char* str = va_arg(args, char*);
+				JSString* encString = JS_NewStringCopyZ(context, str);
+				fmt[i] = 'S';
+				EventArg p = make_pair((QWORD)encString, String);
+				argv->at(i) = p;
+				// seems to cause problems with root_points_to_gcArenaList...
+				//JS_AddRoot(&(p.first));
+
+				JS_EndRequest(context);
+				JS_ClearContextThread(context);
+				break;
+			}
+			default: {
+				// give a named assert instead of just a false
+				bool api_usage_error = false;
+				ASSERT(api_usage_error);
+				break;
+			}
+		}
+	}
+	va_end(args);
+
+	EventHelper* helper = new EventHelper;
+	strcpy_s(helper->evtName, 15, evtName);
+	strcpy_s(helper->format, 10, fmt);
+	helper->executed = false;
+	helper->args = argv;
+
+	PushEvent(helper);
 }
 
 void ScriptEngine::InitClass(JSContext* context, JSObject* globalObject, JSClass* classp,
@@ -277,14 +358,6 @@ bool __fastcall StopIngameScript(Script* script, void*, uint)
 	return true;
 }
 
-bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
-{
-	EventHelper* helper = (EventHelper*)argv;
-	if(script->IsListenerRegistered(helper->evtName))
-		script->ExecEventAsync(helper->evtName, helper->argc, helper->argv);
-	return true;
-}
-
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
@@ -299,7 +372,15 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-JSBool branchCallback(JSContext* cx, JSScript*)
+bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
+{
+	EventHelper* helper = (EventHelper*)argv;
+	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
+		script->ExecEventAsync(helper->evtName, helper->format, helper->args);
+	return true;
+}
+
+JSBool branchCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
@@ -319,7 +400,9 @@ JSBool branchCallback(JSContext* cx, JSScript*)
 
 	JS_ResumeRequest(cx, depth);
 
-	return !!!(JSBool)(script->IsAborted() || ((script->GetState() == InGame) && ClientState() == ClientStateMenu));
+	script->UpdatePlayerGid();
+
+	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
@@ -329,9 +412,9 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		JS_BeginRequest(cx);
 
 		JS_SetErrorReporter(cx, reportError);
-		JS_SetBranchCallback(cx, branchCallback);
-		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
-		JS_SetVersion(cx, JSVERSION_1_7);
+		JS_SetOperationCallback(cx, branchCallback);
+		JS_SetOptions(cx, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML);
+		JS_SetVersion(cx, JSVERSION_LATEST);
 
 		JSObject* globalObject = JS_NewObject(cx, &global_obj, NULL, NULL);
 		if(!globalObject)
@@ -378,31 +461,39 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
 	static ScriptList pausedList = ScriptList();
-	if(status == JSGC_BEGIN)
+	if(status == JSGC_MARK_END)
 	{
-//		EnterCriticalSection(&ScriptEngine::lock);
 		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
-#ifdef lord2800_INFO
-		Print("*** ENTERING GC ***");
-#endif
 #endif
 	}
 	else if(status == JSGC_END)
 	{
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
-#ifdef lord2800_INFO
-		Print("*** LEAVING GC ***");
-#endif
 #endif
 		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
 			(*it)->Resume();
-//		LeaveCriticalSection(&ScriptEngine::lock);
+		pausedList.clear();
 	}
 	return JS_TRUE;
+}
+
+void __cdecl EventThread(void* arg)
+{
+	while(ScriptEngine::GetState() != Stopped)
+	{
+		EventHelper* helper = (EventHelper*)InterlockedPopEntrySList(&ScriptEngine::eventList);
+		if(helper)
+		{
+			// execute it on every script
+			ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
+			delete helper;
+		}
+		Sleep(10);
+	}
 }
 
 void reportError(JSContext *cx, const char *message, JSErrorReport *report)

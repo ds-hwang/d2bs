@@ -19,7 +19,7 @@ JSAPI_FUNC(my_print)
 	{
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
-			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+			if(!JSVAL_IS_STRING(argv[i]) && !JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
 			{
 				JS_ReportError(cx, "Converting to string failed");
 				return JS_FALSE;

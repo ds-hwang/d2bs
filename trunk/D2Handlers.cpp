@@ -16,8 +16,6 @@
 
 using namespace std;
 
-bool __fastcall UpdatePlayerGid(Script* script, void*, uint) { script->UpdatePlayerGid(); return true; }
-
 DWORD WINAPI D2Thread(LPVOID lpParam)
 {
 	bool beginStarter = true;
@@ -35,9 +33,18 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
+	ClientGameState oldState = ClientState();
 	while(Vars.bActive)
 	{
-		switch(ClientState())
+		ClientGameState state = ClientState();
+		if(oldState != state)
+		{
+			// we switched from in game to out or something
+			JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
+			oldState = state;
+		}
+
+		switch(state)
 		{
 			case ClientStateInGame:
 			{
@@ -56,7 +63,6 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 
 					Vars.dwGameTime = GetTickCount();
 					D2CLIENT_InitInventory();
-					ScriptEngine::ForEachScript(UpdatePlayerGid, NULL, 0);
 
 					GameJoined();
 

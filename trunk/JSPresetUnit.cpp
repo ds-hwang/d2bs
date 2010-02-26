@@ -76,9 +76,9 @@ JSAPI_FUNC(my_getPresetUnits)
 	uint nClassId = NULL;
 	uint nType = NULL;
 
-	if(argc >= 2)
+	if(argc >= 2 && JSVAL_IS_INT(argv[1]))
 		nType = JSVAL_TO_INT(argv[1]);
-	if(argc >= 3)
+	if(argc >= 3 && JSVAL_IS_INT(argv[2]))
 		nClassId = JSVAL_TO_INT(argv[2]);
 
 	CriticalRoom cRoom;
@@ -173,7 +173,7 @@ JSAPI_FUNC(my_getPresetUnit)
 
 		bAddedRoom = FALSE;
 
-		if(!pRoom->pRoom1)
+		if(!pRoom->pPreset)
 		{
 			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = TRUE;

@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 
 #include "js32.h"
 #include "AutoRoot.h"
@@ -14,6 +15,21 @@ enum ScriptState {
 	OutOfGame,
 	Command
 };
+
+enum ArgType {
+	String,
+	UnsignedInt,
+	SignedInt,
+	UnsignedShort,
+	Double,
+	Boolean,
+	JSVal
+};
+
+typedef __int64 QWORD;
+
+typedef std::pair<QWORD, ArgType> EventArg;
+typedef std::vector<EventArg> ArgList;
 
 static JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
@@ -32,11 +48,11 @@ typedef std::map<std::string, FunctionList> FunctionMap;
 typedef std::list<Script*> ScriptList;
 
 struct Event {
+	FunctionList functions;
 	Script* owner;
 	JSObject* object;
-	FunctionList functions;
-	AutoRoot** argv;
-	uintN argc;
+	char format[10];
+	ArgList* args;
 };
 
 class Script
@@ -97,8 +113,9 @@ public:
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
 
-	void ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv);
+	void ExecEvent(const char* evtName, const char* format, uintN argc, void* argv);
+	void ExecEventAsync(const char* evtName, const char* format, ArgList* args);
 };
 
 DWORD WINAPI ScriptThread(void* data);
-DWORD WINAPI FuncThread(void* data);
+void __cdecl FuncThread(void* data);

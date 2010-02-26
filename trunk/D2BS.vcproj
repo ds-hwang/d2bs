@@ -78,10 +78,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32d.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjsd.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				UACExecutionLevel="2"
 				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
@@ -177,7 +178,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjs.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -278,7 +279,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js32.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjs.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -557,6 +558,10 @@
 				Name="Engine Imports"
 				>
 				<File
+					RelativePath=".\js32\js-config.h"
+					>
+				</File>
+				<File
 					RelativePath=".\js32\jsapi.h"
 					>
 				</File>
@@ -565,15 +570,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsconfig.h"
-					>
-				</File>
-				<File
 					RelativePath=".\js32\jscpucfg.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsdbgapi.h"
+					RelativePath=".\js32\jsinttypes.h"
 					>
 				</File>
 				<File
@@ -581,19 +582,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsopcode.h"
-					>
-				</File>
-				<File
-					RelativePath=".\js32\jsosdep.h"
-					>
-				</File>
-				<File
 					RelativePath=".\js32\jsotypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\js32\jsprvtd.h"
+					RelativePath=".\js32\jsproto.tbl"
 					>
 				</File>
 				<File
@@ -606,6 +599,10 @@
 				</File>
 				<File
 					RelativePath=".\js32\jsutil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\js32\jsversion.h"
 					>
 				</File>
 			</Filter>
