@@ -299,8 +299,8 @@ namespace D2BSLoader
 		{
 			if(!IsInDebug)
 				Process.EnterDebugMode();
-			string js32 = Path.Combine(Application.StartupPath, "js32.dll"),
-				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
+			string js32 = Path.Combine(Application.StartupPath, "mozjs.dll"),
+				   libnspr = Path.Combine(Application.StartupPath, "nspr4.dll"),
 				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
 			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
 					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
