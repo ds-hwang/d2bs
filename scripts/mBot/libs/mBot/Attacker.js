@@ -123,6 +123,9 @@ var Attack = new function () {
 			Interface.message(DetailedDebug, Mon.name + " is underwater, forgot harpoon.");
 			return false;
 		}
+		
+		if ((Mon.name == "Baal") && me.area == Area.Act5.ThroneOfDestruction)
+			return false;
 
 		var BadIDs = new Array(326, 327, 328, 329, 330, 410, 411, 412, 413, 414, 415, 416, 366, 406,
 								351, 352, 353, 266, 408, 516, 517, 518, 519, 522, 523, 543, 543, 545);

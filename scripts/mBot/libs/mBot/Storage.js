@@ -160,6 +160,10 @@ var Container = function (name, width, height, location) {
 			return false;
 		}
 	}
+	
+	this.toSource = function() {
+		return this.buffer.toSource();
+	}
 }
 
 var Storage = new function () {

@@ -1,12 +1,13 @@
 var Town = new function () {
 	this.config = {};
-	this.newItems = [];
+	this.invRef = [];
 	
 	this.Init = function () {
 		this.config = Interface.readConfig("Town", [
 			{Name:"MinHealPercent", Default:80}, {Name:"MinManaPercent", Default:70},
 			{Name:"MinTPs", Default:10}, {Name:"MinDurability", Default:70}, {Name:"PotionRows", Default:"hmmj"}, {Name:"HealRows", Default:1},
 			{Name:"ManaRows", Default:2}, {Name:"UseMerc", Default:false}]);
+		this.invRef = eval(Interface.read("Internal", "InvRef", Storage.Inventory.toSource()));
 	}
 	
 	this.tick = function () {
@@ -380,6 +381,8 @@ var Town = new function () {
 		if (nNPCsTPs.length == 0)
 			throw new Error("Unable to find scrolls in the NPC's shop.");
 		
+		print(nNPCsTPs.toSource());
+		print(nNPCsTPs[0].loc);
 		Interface.message(Normal, "We need to buy " + (20 - nTome[0].getStat(70)) + " scrolls from NPC.");
 		nNPCsTPs[0].buy(true);
 		Interface.message(Normal, "Tome is now fully stocked.");

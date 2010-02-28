@@ -36,7 +36,7 @@ Unit.findItem = function(nStats) {
 	Parameters:
 		nBulkBuy(Optional) - Pass a true to Unit.buy for it to bulk buy(Fill tome or belt).
 */
-Unit.buy = function() {
+Unit.prototype.buy = function() {
 	try {
 		//Insure this is called with a item unit.
 		if (this.type != 4)
@@ -81,7 +81,7 @@ Unit.buy = function() {
 	Unit.sell()
 		Sell a unit to an NPC.
 */
-Unit.sell = function () {
+Unit.prototype.sell = function () {
 	try {
 		//Insure this is called with a item unit.
 		if (this.type != 4)
@@ -133,7 +133,7 @@ Unit.sell = function () {
 	Unit.toCursor()
 		Places item on cursor
 */
-Unit.toCursor = function () {
+Unit.prototype.toCursor = function () {
 	try {
 		//Make sure it is an item
 		if (this.type != 4)
@@ -172,7 +172,7 @@ Unit.toCursor = function () {
 	Unit.drop()
 		Pickups if needed, and drops the given item.
 */
-Unit.drop = function() {
+Unit.prototype.drop = function() {
 	try {
 		//Make sure it is an item
 		if (this.type != 4)
@@ -210,7 +210,7 @@ Unit.drop = function() {
 	Unit.pickFromGround()
 		Picks the given item from the ground.
 */
-Unit.pickFromGround = function () {
+Unit.prototype.pickFromGround = function () {
 	try {
 		//Make sure it is an item
 		if (this.type != 4)
@@ -250,7 +250,7 @@ Unit.pickFromGround = function () {
 	Parameters:
 		nMerc - Pass true to give potion to merc.
 */
-Unit.drink = function () {
+Unit.prototype.drink = function () {
 	try {
 		//Make sure it is an item
 		if (this.type != 4)
@@ -276,7 +276,7 @@ Unit.drink = function () {
 	Unit.getDurability
 		Returns the percentage of durability left.
 */
-Unit.getDurability = function () {
+Unit.prototype.getDurability = function () {
 	return Math.round((this.getStat(Stats.Durability) / this.getStat(Stats.MaxDurability)) * 100);
 }
 
@@ -284,7 +284,7 @@ Unit.getDurability = function () {
 	Unit.isPotion()
 		Returns if the given item is a potion.
 */
-Unit.isPotion = function() {
+Unit.prototype.isPotion = function() {
 	for (var n in categories['potions'])
 		if (categories['potions'][n] == this.code)
 			return true;
@@ -295,7 +295,7 @@ Unit.isPotion = function() {
 	Unit.useScroll()
 		Opens a portal or places ID scroll on cursor.
 */
-Unit.useScroll = function() {
+Unit.prototype.useScroll = function() {
 	try {
 		//Make sure it is an item
 		if(this.type != 4)
@@ -332,7 +332,7 @@ Unit.useScroll = function() {
 	}
 }
 
-Unit.identify = function () {
+Unit.prototype.identify = function () {
 	try {
 		if (getCursorType() != 6)
 			throw new Error("There is no scroll on the cursor.");
@@ -360,7 +360,7 @@ Unit.identify = function () {
 	}
 }
 
-Unit.beltCount = function () {
+Unit.prototype.beltCount = function () {
 	switch(this.code) {
 		case "lbl"://Sash
 		case "vbl"://Light Belt
