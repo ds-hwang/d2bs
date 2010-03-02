@@ -23,11 +23,11 @@ JSAPI_PROP(area_getProperty)
 {
 	myArea* pArea = (myArea*)JS_GetPrivate(cx, obj);;
 	if(!pArea)
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not convert myArea object")
 
 	Level* pLevel = GetLevel(pArea->AreaId);
 	if(!pLevel)
-		return JS_FALSE;
+		return JS_TRUE;
 
 	switch(JSVAL_TO_INT(id))
 		{

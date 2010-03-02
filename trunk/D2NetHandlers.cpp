@@ -43,6 +43,11 @@ DWORD HPMPUpdateHandler(BYTE* pPacket, DWORD dwSize)
 	}
 	Mana *= 2;
 
+	if(!IsTownLevel(GetPlayerArea()) &&
+			(Vars.nChickenHP && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
+			(Vars.nChickenMP && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))
+		D2CLIENT_ExitGame();
+
 	static WORD SaveLife = 0;
 	if(SaveLife != Life)
 	{

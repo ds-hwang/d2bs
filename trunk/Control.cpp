@@ -172,6 +172,8 @@ BOOL OOG_CreateCharacter(char* szCharacter, int type, bool hardcore, bool ladder
 	Control* ctrl = findControl(CONTROL_BUTTON, (char*)NULL, -1, 33, 528, 168, 60);
 	if(ctrl)
 		clickControl(ctrl);
+	else
+		return FALSE;
 
 	// TODO: replace with real time checking code
 	int i = 0;

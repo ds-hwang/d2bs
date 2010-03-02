@@ -46,11 +46,12 @@ JSAPI_FUNC(my_openDir)
 
 	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, name);
 
-	if((_mkdir(path) == -1) && (errno == ENOENT)) {
+	if(_mkdir(path) == -1 && errno == ENOENT)
+	{
 		JS_ReportError(cx, "Couldn't get directory %s, path '%s' not found", name, path);
-		return JS_FALSE;
-	} 
-	else {
+	}
+	else
+	{
 		DirData* d = new DirData(name);
 		JSObject *jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
@@ -157,11 +158,13 @@ JSAPI_FUNC(dir_create)
 		return JS_TRUE;
 
 	sprintf_s(path, sizeof(path), "%s\\%s\\%s", Vars.szScriptPath, d->name, name);
-	if(_mkdir(path) == -1 && (errno == ENOENT)) {
+	if(_mkdir(path) == -1 && (errno == ENOENT))
+	{
 		JS_ReportError(cx, "Couldn't create directory %s, path %s not found", name, path);
 		return JS_FALSE;
-	} 
-	else {
+	}
+	else
+	{
 		DirData* d = new DirData(name);
 		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
 		*rval = OBJECT_TO_JSVAL(jsdir);
@@ -193,8 +196,8 @@ JSAPI_FUNC(dir_delete)
 JSAPI_PROP(dir_getProperty)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
-
-	if(!d) return JS_FALSE;
+	if(!d)
+		THROW_ERROR(cx, "Could not get directory data object");
 
 	switch(JSVAL_TO_INT(id))
 	{

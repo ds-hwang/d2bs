@@ -20,22 +20,17 @@ JSAPI_FUNC(my_print)
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
 			if(!JSVAL_IS_STRING(argv[i]) && !JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
-			{
-				JS_ReportError(cx, "Converting to string failed");
-				return JS_FALSE;
-			}
+				THROW_ERROR(cx, "Could not convert to string");
 
 			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			if(Text == NULL)
-			{
-				JS_ReportError(cx, "Could not get string for value");
-				return JS_FALSE;
-			}
+				THROW_ERROR(cx, "Could not get string for value");
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			if(!Text)
+			if(strlen(Text) == 0)
 				Print("undefined");
-			else {
+			else
+			{
 				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 				Print(Text);
 			}
@@ -49,7 +44,7 @@ JSAPI_FUNC(my_delay)
 {
 	uint32 nDelay = 0;
 	if(!JS_ConvertArguments(cx, argc, argv, "u", &nDelay))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not convert arguments")
 
 	if(nDelay)
 	{
@@ -69,20 +64,14 @@ JSAPI_FUNC(my_load)
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if(!script)
-	{
-		JS_ReportError(cx, "Failed to get script object");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "Failed to get script object");
 
 	char* file = NULL;
 	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Failed to convert arugments");
 
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
-	{
-		JS_ReportError(cx, "File name too long!");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "File name is too long");
 
 	char buf[_MAX_PATH+_MAX_FNAME];
 	ScriptType scriptType = script->GetScriptType();
@@ -115,20 +104,14 @@ JSAPI_FUNC(my_include)
 
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	if(!script)
-	{
-		JS_ReportError(cx, "Failed to get script object");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "Failed to get script object");
 
 	char* file = NULL;
 	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Failed to convert arguments");
 
 	if(strlen(file) > (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath) - 6))
-	{
-		JS_ReportError(cx, "File name too long!");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "File name is too long.");
 
 	char buf[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
@@ -139,6 +122,7 @@ JSAPI_FUNC(my_include)
 	return JS_TRUE;
 }
 
+// TODO FIXME AUDIT
 JSAPI_FUNC(my_stop)
 {
 	if(argc > 0 && (JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1) ||
@@ -151,7 +135,7 @@ JSAPI_FUNC(my_stop)
 	else
 		ScriptEngine::StopAll();
 
-	return JS_FALSE;
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(my_beep)
@@ -190,33 +174,15 @@ JSAPI_FUNC(my_isIncluded)
 {
 	char* file = NULL;
 	if(!JS_ConvertArguments(cx, argc, argv, "s", &file))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Failed to convert arguments");
 
 	if(strlen(file) > (_MAX_FNAME+_MAX_PATH-strlen(Vars.szScriptPath)-6))
-	{
-		JS_ReportError(cx, "File name too long");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "File name is too long");
 
 	char path[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));
-
-/*	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
-	char* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!(szFile && szFile[0]))
-		THROW_ERROR(cx, obj, "Could not convert string");
-
-	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, szFile);
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));*/
 
 	return JS_TRUE;
 }
@@ -241,22 +207,17 @@ JSAPI_FUNC(my_debugLog)
 		if(!JSVAL_IS_NULL(argv[i]))
 		{
 			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
-			{
-				JS_ReportError(cx, "Converting to string failed");
-				return JS_FALSE;
-			}
+				THROW_ERROR(cx, "Converting to string failed");
 
 			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
-			if(Text == NULL)
-			{
-				JS_ReportError(cx, "Could not get string for value");
-				return JS_FALSE;
-			}
+			if(!Text)
+				THROW_ERROR(cx, "Could not get string for value");
 
 			jsrefcount depth = JS_SuspendRequest(cx);
-			if(!Text)
+			if(strlen(Text) == 0)
 				Log("undefined");
-			else {
+			else
+			{
 				StringReplace(Text, '%', (unsigned char)0xFE, strlen(Text));
 				Log(Text);
 			}
@@ -279,39 +240,12 @@ JSAPI_FUNC(my_sendCopyData)
 	jsint nModeId = NULL;
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not convert arguments");
 
 	if(_strcmpi(windowClassName, "null") == 0)
 		windowClassName = NULL;
 	if(_strcmpi(windowName, "null") == 0)
 		windowName = NULL;
-
-/*	if(JSVAL_IS_STRING(argv[0]))
-	{
-		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(!windowClassName)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}
-	
-	if(JSVAL_IS_STRING(argv[1]))
-	{
-		windowName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-		if(!windowName)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}
-	
-	if(JSVAL_IS_INT(argv[2]))
-	{
-		if(JS_ValueToInt32(cx, argv[2], &nModeId) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not convert value");
-	}
-	
-	if(JSVAL_IS_STRING(argv[3]))
-	{
-		data = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
-		if(!data)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}*/
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
 	if(!hWnd)
@@ -340,7 +274,7 @@ JSAPI_FUNC(my_sendDDE)
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
 	if(!JS_ConvertArguments(cx, argc, argv, "isss", &mode, &pszDDEServer, &pszTopic, &pszItem))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not convert arguments");
 
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
@@ -369,7 +303,7 @@ JSAPI_FUNC(my_keystate)
 {
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		return JS_TRUE;
-	
+
 	*rval = BOOLEAN_TO_JSVAL(!!GetAsyncKeyState(JSVAL_TO_INT(argv[0])));
 
 	return JS_TRUE;

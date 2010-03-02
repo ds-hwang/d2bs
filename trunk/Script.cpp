@@ -38,7 +38,6 @@ Script::Script(const char* file, ScriptType scriptType) :
 
 		fileName = string(tmpName);
 		replace(fileName.begin(), fileName.end(), '/', '\\');
-
 		free(tmpName);
 	}
 
@@ -172,7 +171,7 @@ void Script::Run(void)
 	threadId = GetCurrentThreadId();
 
 	jsval main = JSVAL_VOID, dummy = JSVAL_VOID;
-	JS_AddRoot(&main);
+	//JS_AddRoot(&main);
 
 	JS_SetContextThread(GetContext());
 	JS_BeginRequest(GetContext());
@@ -194,7 +193,7 @@ void Script::Run(void)
 		}
 	}
 
-	JS_RemoveRoot(&main);
+	//JS_RemoveRoot(&main);
 	JS_EndRequest(GetContext());
 	JS_ClearContextThread(GetContext());
 
@@ -294,9 +293,11 @@ bool Script::Include(const char* file)
 		return false;
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\', strlen(fname));
+	// FIXME
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	string fName(fname);
-	if(!!includes.count(fName) || !!inProgress.count(fName) || fileName == fName)
+	if(!!includes.count(string(fname)) ||
+	    !!inProgress.count(string(fname)) ||
+	    (fileName == string(fname)))
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);

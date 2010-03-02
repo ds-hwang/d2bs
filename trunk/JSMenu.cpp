@@ -1,5 +1,4 @@
 #include "JSMenu.h"
-//#include "Control.h"
 #include "JSControl.h"
 #include "Constants.h"
 #include "Helpers.h"
@@ -212,10 +211,8 @@ JSAPI_FUNC(my_createGame)
 	char *name = NULL, *pass = NULL;
 	int32 diff = 3;
 	if(!JS_ConvertArguments(cx, argc, argv, "s/si", &name, &pass, &diff))
-	{
-		JS_ReportError(cx, "Invalid arguments specified to createGame");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "Could not convert arguments");
+
 	if(!pass)
 		pass = "";
 
@@ -235,10 +232,8 @@ JSAPI_FUNC(my_joinGame)
 
 	char *name = NULL, *pass = NULL;
 	if(!JS_ConvertArguments(cx, argc, argv, "s/s", &name, &pass))
-	{
-		JS_ReportError(cx, "Invalid arguments specified to createGame");
-		return JS_FALSE;
-	}
+		THROW_ERROR(cx, "Could not convert arguments");
+
 	if(!pass)
 		pass = "";
 
@@ -319,7 +314,7 @@ JSAPI_FUNC(my_createCharacter)
 	int32 type = -1;
 	JSBool hardcore = JS_FALSE, ladder = JS_FALSE, expansion = JS_TRUE;
 	if(!JS_ConvertArguments(cx, argc, argv, "si/bbb", &name, &type, &hardcore, &ladder, &expansion))
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not convert arguments");
 
 	*rval = BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hardcore, !!ladder, !!expansion));
 	return JS_TRUE;

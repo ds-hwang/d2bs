@@ -386,6 +386,11 @@ void ScreenToAutomap(POINT *ptPos, int x, int y)
 
 BOOL IsTownLevel(INT nLevel)
 {
+	// Needed because we can be under chicken setting and recieve life a
+	// life packet while joining game.
+	if(nLevel == 0)
+		return TRUE;
+
 	if(nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
 		nLevel == MAP_A2_LUT_GHOLEIN || 
 		nLevel == MAP_A3_KURAST_DOCKS ||
@@ -449,7 +454,7 @@ typedef void (*fnClickEntry) (void);
 BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 {
 	if(ClientState() != ClientStateInGame) 
-		FALSE;
+		return FALSE;
 
 	NPCMenu* pMenu = (NPCMenu*)p_D2CLIENT_NPCMenu;
 	fnClickEntry pClick = (fnClickEntry) NULL;

@@ -304,7 +304,8 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 				JS_ClearContextThread(context);
 				break;
 			}
-			default: {
+			default:
+			{
 				// give a named assert instead of just a false
 				bool api_usage_error = false;
 				ASSERT(api_usage_error);

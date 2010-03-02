@@ -1,4 +1,4 @@
-#include "Control.h"
+//#include "Control.h"
 #include "JSControl.h"
 #include "Helpers.h"
 #include "D2Helpers.h"
@@ -7,8 +7,7 @@ EMPTY_CTOR(control)
 
 void control_finalize(JSContext *cx, JSObject *obj)
 {
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
-
+	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(pData)
 	{
 		JS_SetPrivate(cx, obj, NULL);
@@ -23,7 +22,7 @@ JSAPI_PROP(control_getProperty)
 
 	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		THROW_ERROR(cx, "Could not get control data.");
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!ctrl)
@@ -88,9 +87,9 @@ JSAPI_PROP(control_setProperty)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		THROW_ERROR(cx, "Could not get control data.");
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!ctrl)
@@ -145,7 +144,7 @@ JSAPI_FUNC(control_getNext)
 
 	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		return JS_FALSE;
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(pControl && pControl->pNext)
@@ -168,7 +167,7 @@ JSAPI_FUNC(control_getNext)
 	{
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			return JS_FALSE;
+			THROW_ERROR(cx, "Could not convert JSVAL_NULL to ojbect");
 
 		*rval = JSVAL_FALSE;
 	}
@@ -183,7 +182,7 @@ JSAPI_FUNC(control_click)
 
 	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		return JS_TRUE;
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
@@ -210,9 +209,9 @@ JSAPI_FUNC(control_setText)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	ControlData *pData = ((ControlData*)JS_GetPrivate(cx, obj));
+	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		return JS_TRUE;
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
@@ -227,11 +226,11 @@ JSAPI_FUNC(control_setText)
 	char* pText = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	if(!pText)
 		return JS_TRUE;
+
 	wchar_t* szwText = AnsiToUnicode(pText);
-
 	D2WIN_SetControlText(pControl, szwText);
-
 	delete[] szwText;
+
 	return JS_TRUE;
 }
 
@@ -242,14 +241,15 @@ JSAPI_FUNC(control_getText)
 
 	ControlData *pData = (ControlData*)JS_GetPrivate(cx, obj);
 	if(!pData)
-		return JS_TRUE;
+		THROW_ERROR(cx, "Could not get control data");
 
 	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object.");
+			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object");
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -257,7 +257,8 @@ JSAPI_FUNC(control_getText)
 	{
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object.");
+			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object");
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 
@@ -288,10 +289,13 @@ JSAPI_FUNC(my_getControl)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
+	if(argc > 5)
+		THROW_ERROR(cx, "Incorrect number of arguments passed");
+
 	int32 nType = -1, nX = -1, nY = -1, nXSize = -1, nYSize = -1;
 	int32 *args[] = {&nType, &nX, &nY, &nXSize, &nYSize};
 
-	for(uintN i = 0; i < 5; i++)
+	for(uintN i = 0; i < argc && i < 5; i++)
 		if(JSVAL_IS_INT(argv[i]))
 			JS_ValueToECMAInt32(cx, argv[i], args[i]);
 
@@ -300,7 +304,8 @@ JSAPI_FUNC(my_getControl)
 	{
 		JS_ClearScope(cx, obj);
 		if(JS_ValueToObject(cx, JSVAL_NULL, &obj) == JS_FALSE)
-			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object.");
+			THROW_ERROR(cx, "Could not convert JSVAL_NULL to object");
+		*rval = JSVAL_FALSE;
 		return JS_TRUE;
 	}
 

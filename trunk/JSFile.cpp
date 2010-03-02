@@ -192,7 +192,8 @@ JSAPI_FUNC(file_open)
 
 	FILE* fptr = NULL;
 	fopen_s(&fptr, path, modes[mode]);
-	if(!fptr) {
+	if(!fptr)
+	{
 		JS_ReportError(cx, "Couldn't open file %s: %s", file, _strerror(NULL));
 		return JS_FALSE;
 	}
