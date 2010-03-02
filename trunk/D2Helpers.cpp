@@ -144,6 +144,22 @@ void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 
 ClientGameState ClientState(void)
 {
+
+	// Temp debugging helper for spammage.
+#if 0
+	static DWORD tick = GetTickCount();
+	static int times;
+	if(GetTickCount() - tick <= 1000)
+	{
+		times++;
+		if(times > 200)
+		{
+			times = 0;
+			DebugBreak();
+		}
+	}
+#endif
+
 	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
 	{
 		if((*p_D2CLIENT_PlayerUnit)->pInventory &&
@@ -160,26 +176,39 @@ ClientGameState ClientState(void)
 	else if(!(*p_D2CLIENT_PlayerUnit) && *p_D2WIN_FirstControl)
 		return ClientStateMenu;
 	else if(!(*p_D2CLIENT_PlayerUnit) && !(*p_D2WIN_FirstControl))
-		return ClientStateNull;
+	{
+		// Throttle since we need to wait anyways.
+		Sleep(10);
+		return ClientStateBusy;
+	}
+
 //#ifdef DEBUG
 //	else
 //		DebugBreak();
 //#endif
+
+	// This should only happen on injection
+	Sleep(50);
 	return ClientStateNull;
 }
 
-bool WaitForGameReady(void)
+bool WaitForClientState(ClientGameState WantedState)
 {
 	DWORD start = GetTickCount();
 	do
 	{
 		switch(ClientState())
 		{
-			case ClientStateNull: case ClientStateMenu: return false;
-			case ClientStateInGame: return true;
+			case ClientStateInGame:
+				if(WantedState == ClientStateInGame)
+					return true;
+			case ClientStateMenu:
+				if(WantedState == ClientStateMenu)
+					return true;
 		}
 		Sleep(10);
-	} while((Vars.dwGameTimeout == 0 ) || (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
+	} while(Vars.dwGameTimeout == 0 || (Vars.dwGameTimeout > 0 && (GetTickCount() - start) < Vars.dwGameTimeout));
+
 	return false;
 }
 
@@ -219,13 +248,14 @@ POINT CalculateTextLen(const char* szwText, INT Font)
 
 INT GetSkill(WORD wSkillId)
 {
-	if(!D2CLIENT_GetPlayerUnit()) return 0;
+	if(ClientState() != ClientStateInGame)
+		return -1;
 
-	for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+	for(Skill* pSkill = (*p_D2CLIENT_PlayerUnit)->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 		if(pSkill->pSkillInfo->wSkillId == wSkillId)
-			return D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, TRUE);
+			return D2COMMON_GetSkillLevel(*p_D2CLIENT_PlayerUnit, pSkill, true);
 
-	return 0;
+	return -1;
 }
 
 BOOL SetSkill(WORD wSkillId, BOOL bLeft)
@@ -250,17 +280,14 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 
 	int timeout = 0;
 	Skill* hand = NULL;
-	while(ClientState() == ClientStateInGame)
+	while(ClientState() == ClientStateInGame && timeout <= 10)
 	{
 		hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
 		if(hand->pSkillInfo->wSkillId != wSkillId)
-		{
-			if(timeout > 10)
-				return FALSE;
 			timeout++;
-		}
 		else
 			return TRUE;
+
 		Sleep(100);
 	}
 	
@@ -273,6 +300,7 @@ WORD GetSkillByName(char* skillname)
 	for(int i = 0; i < 216; i++)
 		if(_stricmp(Game_Skills[i].name, skillname) == 0)
 			return Game_Skills[i].skillID;
+
 	return (WORD)-1;
 }
 
@@ -281,6 +309,7 @@ char* GetSkillByID(WORD id)
 	for(int i = 0; i < 216; i++)
 		if(id == Game_Skills[i].skillID)
 			return Game_Skills[i].name;
+
 	return NULL;
 }
 
@@ -330,6 +359,9 @@ DWORD __declspec(naked) __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo
 
 AutomapLayer* InitAutomapLayer(DWORD levelno)
 {
+	if(ClientState() != ClientStateInGame) 
+		return NULL;
+
 	AutomapLayer2 *pLayer = D2COMMON_GetLayer(levelno);
 	return D2CLIENT_InitAutomapLayer(pLayer->nLayerNo);
 }
@@ -389,12 +421,15 @@ void myDrawCenterText(const char* szText, int x, int y, int color, int font, int
 	delete[] Buffer;
 }
 
-void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
-	
+void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType)
+{
+	if(ClientState() != ClientStateInGame) 
+		return;
+
 	if(!pUnit)
 		return;
 
-	if(!D2CLIENT_FindUnit(pUnit->dwUnitId,pUnit->dwType))
+	if(!D2CLIENT_FindUnit(pUnit->dwUnitId, pUnit->dwType))
 		return;
 
 	InteractStruct pInteract = {
@@ -413,6 +448,9 @@ typedef void (*fnClickEntry) (void);
 
 BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 {
+	if(ClientState() != ClientStateInGame) 
+		FALSE;
+
 	NPCMenu* pMenu = (NPCMenu*)p_D2CLIENT_NPCMenu;
 	fnClickEntry pClick = (fnClickEntry) NULL;
 
@@ -423,33 +461,37 @@ BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 			if(pMenu->wEntryId1 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc1;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else
+					return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId2 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc2;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else
+					return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId3 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc3;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else
+					return FALSE;
 				return TRUE;
 			}
 			else if(pMenu->wEntryId4 == MenuId)
 			{
 				pClick = (fnClickEntry)pMenu->dwEntryFunc4;
-					if(pClick)
-						pClick();
-					else return FALSE;
+				if(pClick)
+					pClick();
+				else
+					return FALSE;
 				return TRUE;
 			}
 		}
@@ -504,18 +546,26 @@ BYTE CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin)
 
 DWORD GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo)
 {
+	if(ClientState() != ClientStateInGame) 
+		return 0;
+
 	for(RoomTile* pRoomTile = lpRoom2->pRoomTiles; pRoomTile; pRoomTile = pRoomTile->pNext)
 	{
 		if(*(pRoomTile->nNum) == dwTileNo)
 			return pRoomTile->pRoom2->pLevel->dwLevelNo;
 	}
 
-	return NULL;
+	return 0;
 }
 
 UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType)
 {
-	if(dwId == -1) return NULL;
+	if(ClientState() != ClientStateInGame) 
+		return NULL;
+
+	if(dwId == (DWORD)-1)
+		return NULL;
+
 	UnitAny* pUnit = D2CLIENT_FindServerSideUnit(dwId, dwType);
 	return pUnit ? pUnit : D2CLIENT_FindClientSideUnit(dwId, dwType);
 }
@@ -528,7 +578,6 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 	if(bMPQ == 3)
 	{
 		// Check in our directory first
-
 		HANDLE hFile = OpenFileRead(lpszPath);
 
 		if(hFile != INVALID_HANDLE_VALUE)
@@ -537,11 +586,7 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 			return LoadCellFile(lpszPath, FALSE);
 		}
 		else
-		{
 			return LoadCellFile(lpszPath, TRUE);
-		}
-
-		//return NULL;
 	}
 
 	unsigned __int32 hash = sfh(lpszPath, (int)strlen(lpszPath));
@@ -756,24 +801,6 @@ void __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
 		jmp D2CLIENT_Interact_I
 	}
 }
-
-/*
-DWORD __declspec(naked) __fastcall FindUnit_STUB(DWORD unitid, DWORD unittype)
-{
-	__asm
-	{
-		pop eax;
-		push edx;
-		push eax;
-
-		shl edx, 9;
-		mov eax, D2CLIENT_GetUnitFromId_I;
-		add edx, eax;
-		mov eax, ecx;
-		and eax, 0x7F;
-		jmp D2CLIENT_GetUnitFromId_II;
-	}
-}*/
 
 DWORD __declspec(naked) __fastcall D2CLIENT_clickParty_ASM(DWORD RosterUnit, DWORD Mode)
 {

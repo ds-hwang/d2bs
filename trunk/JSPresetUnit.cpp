@@ -55,7 +55,7 @@ JSAPI_PROP(presetunit_getProperty)
 
 JSAPI_FUNC(my_getPresetUnits)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1)
@@ -140,7 +140,7 @@ JSAPI_FUNC(my_getPresetUnits)
 
 JSAPI_FUNC(my_getPresetUnit)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1)

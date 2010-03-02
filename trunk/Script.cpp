@@ -13,21 +13,21 @@
 
 using namespace std;
 
-Script::Script(const char* file, ScriptState state) :
+Script::Script(const char* file, ScriptType scriptType) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
-			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
+			isAborted(false), isPaused(false), isReallyPaused(false), scriptType(scriptType),
 			threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
-	if(scriptState == Command)
+	if(scriptType == Command)
 	{
 		fileName = string("Command Line");
 	}
 	else
 	{
-		if(_access(file, 0) != 0)
+		if(!!_access(file, 0))
 			throw std::exception("File not found");
 
 		char* tmpName = _strdup(file);
@@ -35,34 +35,60 @@ Script::Script(const char* file, ScriptState state) :
 			throw std::exception("Could not dup filename");
 
 		_strlwr_s(tmpName, strlen(file)+1);
+
 		fileName = string(tmpName);
 		replace(fileName.begin(), fileName.end(), '/', '\\');
+
 		free(tmpName);
 	}
+
 	try
 	{
 		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
 		if(!context)
 			throw std::exception("Couldn't create the context");
+	}
+	catch(std::exception &)
+	{
+		LeaveCriticalSection(&lock);
+		throw;
+	}
 
+	try
+	{
 		JS_SetContextPrivate(context, this);
 		JS_BeginRequest(context);
 
 		globalObject = JS_GetGlobalObject(context);
 		jsval meVal = JSVAL_VOID;
-		if(JS_GetProperty(GetContext(), globalObject, "me", &meVal) != JS_FALSE)
+		if(JS_GetProperty(context, globalObject, "me", &meVal) != JS_FALSE)
 		{
 			JSObject* meObject = JSVAL_TO_OBJECT(meVal);
-			me = (myUnit*)JS_GetPrivate(GetContext(), meObject);
+			me = (myUnit*)JS_GetPrivate(context, meObject);
 		}
+		else
+			throw std::exception("Couldn't get me object");
 
-		if(state == Command)
-			script = JS_CompileScript(context, globalObject, file, strlen(file), "Command Line", 1);
+		if(scriptType == Command)
+			script = JS_CompileScript(context, globalObject, fileName.c_str(), strlen(fileName.c_str()), "Command Line", 1);
 		else
 			script = JS_CompileFile(context, globalObject, fileName.c_str());
+
 		if(!script)
 			throw std::exception("Couldn't compile the script");
+	}
+	catch(std::exception &)
+	{
 
+		JS_EndRequest(context);
+		JS_DestroyContext(context);
+
+		LeaveCriticalSection(&lock);
+		throw;
+	}
+
+	try
+	{
 		scriptObject = JS_NewScriptObject(context, script);
 		if(!scriptObject)
 			throw std::exception("Couldn't create the script object");
@@ -74,16 +100,19 @@ Script::Script(const char* file, ScriptState state) :
 		JS_ClearContextThread(context);
 
 		LeaveCriticalSection(&lock);
-	} catch(std::exception&) {
+	}
+	catch(std::exception&)
+	{
 		if(scriptObject)
-			JS_RemoveRoot(&scriptObject);
-		if(script && !scriptObject)
-			JS_DestroyScript(context, script);
-		if(context)
 		{
-			JS_EndRequest(context);
-			JS_DestroyContext(context);
+			JS_RemoveRoot(&scriptObject);
 		}
+		else
+			JS_DestroyScript(context, script);
+ 
+		JS_EndRequest(context);
+		JS_DestroyContext(context);
+
 		LeaveCriticalSection(&lock);
 		throw;
 	}
@@ -103,7 +132,8 @@ Script::~Script(void)
 	JS_RemoveRoot(&globalObject);
 	JS_RemoveRoot(&scriptObject);
 
-	JS_DestroyContextNoGC(context);
+	JS_EndRequest(context);
+	JS_DestroyContext(context);
 
 	context = NULL;
 	scriptObject = NULL;
@@ -111,8 +141,12 @@ Script::~Script(void)
 	script = NULL;
 
 	includes.clear();
-	if(threadHandle)
+	if(threadHandle != INVALID_HANDLE_VALUE)
+	{
 		CloseHandle(threadHandle);
+		threadHandle = INVALID_HANDLE_VALUE;
+	}
+
 	LeaveCriticalSection(&lock);
 	DeleteCriticalSection(&lock);
 }
@@ -150,7 +184,7 @@ void Script::Run(void)
 		JS_CallFunctionValue(GetContext(), globalObject, main, 0, NULL, &dummy);
 	}
 
-	if(GetState() == Command)
+	if(GetScriptType() == Command)
 	{
 		// if we just processed a command, print the results of the command
 		if(!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
@@ -202,15 +236,13 @@ void Script::Stop(bool force, bool reallyForce)
 
 	EnterCriticalSection(&lock);
 
+	if(context && JS_IsRunning(context))
+		JS_TriggerOperationCallback(context);
+
 	// tell everyone else that the script is aborted FIRST
 	isAborted = true;
 	isPaused = false;
 	isReallyPaused = false;
-	if(GetState() != Command)
-	{
-		const char* displayName = fileName.c_str() + strlen(Vars.szScriptPath) + 1;
-		Print("Script %s ended", displayName);
-	}
 
 	ClearAllEvents();
 	Genhook::Clean(this);
@@ -225,21 +257,28 @@ void Script::Stop(bool force, bool reallyForce)
 		Sleep(10);
 	}
 
-	if(threadHandle)
+	if(threadHandle != INVALID_HANDLE_VALUE)
+	{
 		CloseHandle(threadHandle);
-	threadHandle = NULL;
+		threadHandle = INVALID_HANDLE_VALUE;
+	}
+
+	if(GetScriptType() != Command)
+		Print("Script %s ended", fileName.c_str() + strlen(Vars.szScriptPath) + 1);
+
 	LeaveCriticalSection(&lock);
 }
 
 bool Script::IsIncluded(const char* file)
 {
-	uint count = 0;
 	char* fname = _strdup(file);
 	if(!fname)
 		return false;
 
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\', strlen(fname));
+
+	uint count = 0;
 	count = includes.count(string(fname));
 	free(fname);
 
@@ -256,9 +295,8 @@ bool Script::Include(const char* file)
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\', strlen(fname));
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(!!includes.count(string(fname)) ||
-	   !!inProgress.count(string(fname)) ||
-	    (fileName == string(fname)))
+	string fName(fname);
+	if(!!includes.count(fName) || !!inProgress.count(fName) || fileName == fName)
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
@@ -378,7 +416,7 @@ void Script::ClearAllEvents(void)
 void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void* argv)
 {
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
-		IsRunning() && !(GetState() == InGame && ClientState() != ClientStateInGame))
+		IsRunning() && !(GetScriptType() == InGame && ClientState() != ClientStateInGame))
 	{
 		FunctionList funcs = functions[evtName];
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
@@ -403,7 +441,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 
 void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* args)
 {
-	if((!IsAborted() && !IsPaused() && functions.count(evtName)))
+	if(!IsAborted() && !IsPaused() && functions.count(evtName))
 	{
 		Event* evt = new Event;
 		evt->owner = this;
@@ -438,7 +476,7 @@ void SpawnEvent(Event* evt)
 	if(!evt)
 		return;
 
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
+	if(evt->owner->IsRunning() && !(evt->owner->GetScriptType() == InGame && ClientState() != ClientStateInGame))
 	{
 		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 		JS_SetContextPrivate(cx, evt->owner);
@@ -452,12 +490,18 @@ void SpawnEvent(Event* evt)
 		{
 			switch(it->second)
 			{
-				case String: argv[i] = STRING_TO_JSVAL((JSString*)it->first); break;
+				case String:
+					argv[i] = STRING_TO_JSVAL((JSString*)it->first);
+					break;
 				case SignedInt: case UnsignedInt: case Double: case UnsignedShort:
 					JS_NewNumberValue(cx, (jsdouble)it->first, &argv[i]);
 					break;
-				case Boolean: argv[i] = BOOLEAN_TO_JSVAL((JSBool)it->first); break;
-				case JSVal: argv[i] = (jsval)it->first; break;
+				case Boolean:
+					argv[i] = BOOLEAN_TO_JSVAL((JSBool)it->first);
+					break;
+				case JSVal:
+					argv[i] = (jsval)it->first;
+					break;
 			}
 		}
 
@@ -476,8 +520,12 @@ void SpawnEvent(Event* evt)
 		{
 			switch(it->second)
 			{
-				case JSVal: JS_RemoveRoot((jsval*)&(it->first)); break;
-				case String: JS_RemoveRoot((JSString*)&(it->first)); break;
+				case JSVal:
+					JS_RemoveRoot((jsval*)&(it->first));
+					break;
+				case String:
+					JS_RemoveRoot((JSString*)&(it->first));
+					break;
 			}
 		}
 

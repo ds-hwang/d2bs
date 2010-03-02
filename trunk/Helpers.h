@@ -13,7 +13,7 @@ bool ProfileExists(const char* profile);
 void InitSettings(void);
 bool InitHooks(void);
 bool ExecCommand(const char* command);
-bool StartScript(const char* script, ScriptState state);
+bool StartScript(const char* script, ScriptType scriptType);
 void Reload(void);
 bool ProcessCommand(const char* command, bool unprocessedIsCommand);
 

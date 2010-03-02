@@ -38,7 +38,7 @@ JSAPI_PROP(script_getProperty)
 			}
 			break;
 		case SCRIPT_GAMETYPE:
-			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
+			*vp = script->GetScriptType() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
 			break;
 		case SCRIPT_RUNNING:
 			*vp = BOOLEAN_TO_JSVAL(script->IsRunning());
@@ -96,7 +96,7 @@ JSAPI_FUNC(script_resume)
 	if(script->IsPaused())
 		script->Resume();
 
-	return JS_TRUE;	
+	return JS_TRUE;
 }
 
 JSAPI_FUNC(script_send)
@@ -135,6 +135,7 @@ JSAPI_FUNC(my_getScript)
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		if(name)
 			StringReplace(name, '/', '\\', strlen(name));
+
 		FindHelper args = {0, name, NULL};
 		ScriptEngine::ForEachScript(FindScriptByName, &args, 1);
 		if(args.script != NULL)
@@ -161,7 +162,7 @@ bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 	static uint pathlen = strlen(Vars.szScriptPath) + 1;
 	const char* fname = script->GetFilename();
 	// calculate the relative name from the filename
-	const char* relName = (strlen(fname) > pathlen ? fname + pathlen : fname);
+	const char* relName = strlen(fname) > pathlen ? fname + pathlen : fname;
 	if(_strcmpi(relName, helper->name) == 0)
 	{
 		helper->script = script;

@@ -128,23 +128,23 @@ JSAPI_FUNC(my_login)
 					break;
 				}
 			
-			case OOG_MAIN_MENU_CONNECTING: 
+			case OOG_MAIN_MENU_CONNECTING:
 			case OOG_CHARACTER_SELECT_PLEASE_WAIT:
-			case OOG_PLEASE_WAIT: 
+			case OOG_PLEASE_WAIT:
 			case OOG_GATEWAY:
-			case OOG_CHARACTER_SELECT_NO_CHARS: 
+			case OOG_CHARACTER_SELECT_NO_CHARS:
 			case OOG_NONE:
 				timeout++;
 				break;
-			case OOG_LOBBY: 
-			case OOG_INLINE: 
-			case OOG_CHAT: 
+			case OOG_LOBBY:
+			case OOG_INLINE:
+			case OOG_CHAT:
 			case OOG_CREATE:
-			case OOG_JOIN: 
-			case OOG_LADDER: 
-			case OOG_CHANNEL: 
-			case OOG_GAME_EXIST: 
-			case OOG_GAME_DOES_NOT_EXIST:	
+			case OOG_JOIN:
+			case OOG_LADDER:
+			case OOG_CHANNEL:
+			case OOG_GAME_EXIST:
+			case OOG_GAME_DOES_NOT_EXIST:
 				loginComplete=TRUE;
 				break;
 			case OOG_UNABLE_TO_CONNECT:
@@ -161,13 +161,13 @@ JSAPI_FUNC(my_login)
 				break;
 			default:
 				errorMsg = "Unhandled login location";
-				break;				
+				break;
 		}
 
 		if(_strcmpi(errorMsg, ""))
 		{
 			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
-			THROW_ERROR(cx, errorMsg);						
+			THROW_ERROR(cx, errorMsg);
 			break;
 		}
 
@@ -290,8 +290,8 @@ JSAPI_FUNC(my_addProfile)
 	{
 		char settings[600] = "";
 		sprintf_s(settings, sizeof(settings),
-					"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t",
-					mode, gateway, username, password, charname, spdifficulty);
+				"mode=%s\tgateway=%s\tusername=%s\tpassword=%s\tcharacter=%s\tspdifficulty=%d\t",
+				mode, gateway, username, password, charname, spdifficulty);
 
 		StringReplace(settings, '\t', '\0', 600);
 		WritePrivateProfileSection(*args[0], settings, file);
@@ -317,10 +317,10 @@ JSAPI_FUNC(my_createCharacter)
 
 	char* name = NULL;
 	int32 type = -1;
-	JSBool hc = JS_FALSE, ladder = JS_FALSE;
-	if(!JS_ConvertArguments(cx, argc, argv, "si/bb", &name, &type, &hc, &ladder))
+	JSBool hardcore = JS_FALSE, ladder = JS_FALSE, expansion = JS_TRUE;
+	if(!JS_ConvertArguments(cx, argc, argv, "si/bbb", &name, &type, &hardcore, &ladder, &expansion))
 		return JS_FALSE;
 
-	*rval = BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hc, !!ladder));
+	*rval = BOOLEAN_TO_JSVAL(!!OOG_CreateCharacter(name, type, !!hardcore, !!ladder, !!expansion));
 	return JS_TRUE;
 }

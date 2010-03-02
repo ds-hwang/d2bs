@@ -390,7 +390,7 @@ JSAPI_FUNC(room_reveal)
 
 JSAPI_FUNC(my_getRoom)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	CriticalRoom cRoom;

@@ -2,13 +2,13 @@
 #include <windows.h>
 #include <ddeml.h>
 
-//#include "js32.h"
-//#include "Script.h"
+#include "js32.h"
+#include "Script.h"
 #include "JSCore.h"
 #include "Core.h"
 #include "Helpers.h"
 #include "dde.h"
-//#include "ScriptEngine.h"
+#include "ScriptEngine.h"
 //#include "D2BS.h"
 #include "Events.h"
 #include "Console.h"
@@ -60,21 +60,6 @@ JSAPI_FUNC(my_delay)
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
 
-/*	if(argc == 1 && JSVAL_IS_INT(argv[0]))
-	{
-		int nDelay = JSVAL_TO_INT(argv[0]);
-		if(nDelay)
-		{
-			jsrefcount depth = JS_SuspendRequest(cx);
-
-			Sleep(nDelay);
-
-			JS_ResumeRequest(cx, depth);
-		}
-		else
-			JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-	}*/
-
 	return JS_TRUE;
 }
 
@@ -100,13 +85,15 @@ JSAPI_FUNC(my_load)
 	}
 
 	char buf[_MAX_PATH+_MAX_FNAME];
-	ScriptState scriptState = script->GetState();
-	if(scriptState == Command)
-		scriptState = (ClientState() == ClientStateInGame ? InGame : OutOfGame);
+	ScriptType scriptType = script->GetScriptType();
+	if(scriptType == Command)
+		scriptType = ClientState() == ClientStateInGame ? InGame : OutOfGame;
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
+	
+	_strlwr_s(buf, _MAX_PATH+_MAX_FNAME);
 	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
-	Script* newScript = ScriptEngine::CompileFile(buf, scriptState);
+	Script* newScript = ScriptEngine::CompileFile(buf, scriptType);
 	if(newScript)
 	{
 		CreateThread(0, 0, ScriptThread, newScript, 0, 0);
@@ -118,38 +105,6 @@ JSAPI_FUNC(my_load)
 		Print("File \"%s\" not found.", file);
 		*rval = JSVAL_FALSE;
 	}
-
-/*	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-	{
-		Script* execScript = (Script*)JS_GetContextPrivate(cx);
-		ScriptState scriptState = execScript->GetState();
-		if(scriptState == Command)
-			scriptState = (GameReady() ? InGame : OutOfGame);
-
-		char* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(!(lpszFileName && lpszFileName[0]))
-			THROW_ERROR(cx, obj, "Could not convert or empty string");
-		StringReplace(lpszFileName, '/', '\\');
-		if(strlen(lpszFileName) < (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
-		{
-			char lpszBuf[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
-			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
-			if(script)
-			{
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
-				*rval = JSVAL_TRUE;
-			}
-			else
-			{
-				// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
-				Print("File \"%s\" not found.", lpszFileName);
-				*rval = JSVAL_FALSE;
-			}
-		}
-		else
-			THROW_ERROR(cx, obj, "File name exceeds max name length");
-	}*/
 
 	return JS_TRUE;
 }
@@ -177,25 +132,9 @@ JSAPI_FUNC(my_include)
 
 	char buf[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
+
 	if(_access(buf, 0) == 0)
 		*rval = BOOLEAN_TO_JSVAL(script->Include(buf));
-
-/*	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-	{
-		Script* script = (Script*)JS_GetContextPrivate(cx);
-		if(script)
-		{
-			char * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
-			{
-				char lpszBuf[_MAX_PATH+_MAX_FNAME];
-				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
-				StringReplace(lpszFileName, '/', '\\');
-				if(_access(lpszBuf, 0) == 0)
-					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
-			}
-		}
-	}*/
 
 	return JS_TRUE;
 }

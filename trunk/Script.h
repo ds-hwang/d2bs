@@ -10,7 +10,7 @@
 #include "AutoRoot.h"
 #include "JSUnit.h"
 
-enum ScriptState {
+enum ScriptType {
 	InGame,
 	OutOfGame,
 	Command
@@ -34,8 +34,8 @@ typedef std::vector<EventArg> ArgList;
 static JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
 	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
+	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+	JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
 class Script;
@@ -60,12 +60,13 @@ class Script
 private:
 	std::string fileName;
 	int execCount;
-	ScriptState scriptState;
+	ScriptType scriptType;
 	JSContext* context;
 	JSScript* script;
 	myUnit* me;
 
 	JSObject *globalObject, *scriptObject;
+
 	bool isLocked, isPaused, isReallyPaused, isAborted;
 
 	IncludeList includes, inProgress;
@@ -74,7 +75,7 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
-	Script(const char* file, ScriptState state);
+	Script(const char* file, ScriptType type);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
@@ -94,7 +95,7 @@ public:
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
-	ScriptState GetState(void) { return scriptState; }
+	ScriptType GetScriptType(void) { return scriptType; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts

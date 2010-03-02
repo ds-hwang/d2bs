@@ -168,7 +168,7 @@ JSAPI_FUNC(box_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState state = (script->GetScriptType() == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0, x2 = 0, y2 = 0;
 	ushort color = 0, opacity = 0;
 	Align align = Left;
@@ -317,7 +317,7 @@ JSAPI_FUNC(line_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState state = (script->GetScriptType () == OutOfGame) ? OOG : IG;
 	int x = 0, y = 0, x2 = 0, y2 = 0;
 	ushort color = 0;
 	bool automap = false;
@@ -449,7 +449,7 @@ JSAPI_FUNC(text_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState state = (script->GetScriptType () == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0;
 	ushort color = 0, font = 0;
 	Align align = Left;
@@ -598,7 +598,7 @@ JSAPI_FUNC(image_ctor)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	ScreenhookState state = (script->GetState () == OutOfGame) ? OOG : IG;
+	ScreenhookState state = (script->GetScriptType () == OutOfGame) ? OOG : IG;
 	uint x = 0, y = 0;
 	ushort color = 0;
 	Align align = Left;

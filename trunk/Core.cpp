@@ -18,12 +18,11 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 	if(str.length() < 1 || maxlen < 2)
 		return false;
 
-	size_t pos, len;
+	size_t pos;
 	string tmp(str);
 
 	while(tmp.length() > maxlen)
 	{
-		len = tmp.length();
 		// maxlen-1 since std::string::npos indexes from 0
 		pos = tmp.find_last_of(delim, maxlen-1);
 		if(!pos || pos == string::npos)
@@ -44,11 +43,9 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 		else
 			DebugBreak();
 	}
-	if(!tmp.length())
-		DebugBreak();
 
-	if(tmp.length())
-		lst.push_back(tmp);
+	ASSERT(tmp.length());
+	lst.push_back(tmp);
 
 	return true;
 }
@@ -68,42 +65,38 @@ void Print(const char * szFormat, ...)
 
 	replace(str, str + len, REPLACE_CHAR, '%');
 
-	const uint maxlen = 98;
-
 	// Break into lines through \n.
 	list<string> lines;
 	string temp;
 	stringstream ss(str);
+
+	const uint maxlen = 98;
 	while(getline(ss, temp))
 		SplitLines(temp, maxlen, ' ', lines);
 
 	EnterCriticalSection(&Vars.cPrintSection);
-	if(Vars.bUseGamePrint)
+
+	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
 	{
-		if(ClientState() == ClientStateInGame)
+		if(Vars.bUseGamePrint)
 		{
-			// Convert and send every line.
-			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+			if(ClientState() == ClientStateInGame)
 			{
-				wchar_t * output = AnsiToUnicode(it->c_str());
+				wchar_t *output = AnsiToUnicode(it->c_str());
 				D2CLIENT_PrintGameString(output, 0);
 				delete [] output;
 			}
+			else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298))
+				D2MULTI_PrintChannelText((char* )it->c_str(), 0);
 		}
-		else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298)) 	
-		{
-			// TODO: Double check this function, make sure it is working as intended.
-			for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-				D2MULTI_PrintChannelText((char* )it->c_str(), 0); 	
-		}
-	}
-	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+		else
 			Console::AddLine(*it);
-
-	LeaveCriticalSection(&Vars.cPrintSection);
+	}
 
 	delete[] str;
 	str = NULL;
+
+	LeaveCriticalSection(&Vars.cPrintSection);
 }
 
 void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)

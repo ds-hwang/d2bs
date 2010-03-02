@@ -70,7 +70,7 @@ JSAPI_FUNC(my_copyUnit)
 
 JSAPI_FUNC(my_clickMap)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	uint16 nClickType = 0, nShift = 0, nX = 0xFFFF, nY = 0xFFFF;
@@ -120,7 +120,7 @@ JSAPI_FUNC(my_clickMap)
 
 JSAPI_FUNC(my_acceptTrade)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	// TODO: Fix this nonsense.
@@ -167,7 +167,7 @@ JSAPI_FUNC(my_acceptTrade)
 
 JSAPI_FUNC(my_getPath)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 5)
@@ -307,7 +307,7 @@ JSAPI_FUNC(my_getPath)
 
 JSAPI_FUNC(my_getCollision)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
@@ -340,7 +340,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
 
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
@@ -697,7 +697,7 @@ JSAPI_FUNC(my_rand)
 
 JSAPI_FUNC(my_getDistance)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	// TODO: Add the type of distance to the api design
@@ -785,7 +785,7 @@ JSAPI_FUNC(my_getDistance)
 
 JSAPI_FUNC(my_gold)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	jsint nGold = NULL;
@@ -803,7 +803,7 @@ JSAPI_FUNC(my_gold)
 
 JSAPI_FUNC(my_checkCollision)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JSVAL_IS_INT(argv[2]))
@@ -830,7 +830,7 @@ JSAPI_FUNC(my_checkCollision)
 
 JSAPI_FUNC(my_getMercHP)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
@@ -950,7 +950,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 
 JSAPI_FUNC(my_getTradeInfo)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1)
@@ -986,7 +986,7 @@ JSAPI_FUNC(my_getTradeInfo)
 
 JSAPI_FUNC(my_getUIFlag)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
@@ -1003,7 +1003,7 @@ JSAPI_FUNC(my_getUIFlag)
 
 JSAPI_FUNC(my_getWaypoint)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
@@ -1084,7 +1084,7 @@ JSAPI_FUNC(my_say)
 
 JSAPI_FUNC(my_clickParty)
 {	
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	*rval = JSVAL_FALSE;
@@ -1188,7 +1188,7 @@ JSAPI_FUNC(my_weaponSwitch)
 {	
 	*rval = JSVAL_FALSE;
 
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	jsint nParameter = NULL;
@@ -1221,7 +1221,7 @@ JSAPI_FUNC(my_weaponSwitch)
 
 JSAPI_FUNC(my_transmute)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	D2CLIENT_Transmute();
@@ -1231,7 +1231,7 @@ JSAPI_FUNC(my_transmute)
 
 JSAPI_FUNC(my_getPlayerFlag)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
@@ -1296,7 +1296,7 @@ JSAPI_FUNC(my_getMouseCoords)
 
 JSAPI_FUNC(my_submitItem)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
@@ -1312,7 +1312,7 @@ JSAPI_FUNC(my_submitItem)
 
 JSAPI_FUNC(my_getInteractedNPC)
 {
-	if(!WaitForGameReady())
+	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();

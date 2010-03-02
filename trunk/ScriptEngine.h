@@ -49,7 +49,7 @@ public:
 
 	static void FlushCache(void);
 
-	static Script* CompileFile(const char* file, ScriptState state, bool recompile = false);
+	static Script* CompileFile(const char* file, ScriptType scriptType, bool recompile = false);
 	static Script* CompileCommand(const char* command);
 	static void DisposeScript(Script* script);
 

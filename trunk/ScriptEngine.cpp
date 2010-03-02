@@ -27,7 +27,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool recompile)
+Script* ScriptEngine::CompileFile(const char* file, ScriptType scriptType, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -52,7 +52,7 @@ Script* ScriptEngine::CompileFile(const char* file, ScriptState state, bool reco
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, state);
+		Script* script = new Script(fileName, scriptType);
 		scripts[fileName] = script;
 		LeaveCriticalSection(&lock);
 		delete[] fileName;
@@ -354,7 +354,7 @@ bool __fastcall StopScript(Script* script, void* argv, uint argc)
 
 bool __fastcall StopIngameScript(Script* script, void*, uint)
 {
-	if(script->GetState() == InGame)
+	if(script->GetScriptType() == InGame)
 		script->Stop(true);
 	return true;
 }
@@ -390,12 +390,14 @@ JSBool branchCallback(JSContext* cx)
 	bool pause = script->IsPaused();
 
 	if(pause)
-		script->SetPauseState(true);
-	while(script->IsPaused())
 	{
-		Sleep(50);
+		script->SetPauseState(true);
 		JS_MaybeGC(cx);
 	}
+
+	while(script->IsPaused())
+		Sleep(50);
+
 	if(pause)
 		script->SetPauseState(false);
 
@@ -403,7 +405,7 @@ JSBool branchCallback(JSContext* cx)
 
 	script->UpdatePlayerGid();
 
-	return !!!(JSBool)(script->IsAborted() || ((script->GetState() != OutOfGame) && !D2CLIENT_GetPlayerUnit()));
+	return !!!(JSBool)(script->IsAborted() || (script->GetScriptType() != OutOfGame && ClientState() != ClientStateInGame));
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
@@ -486,14 +488,19 @@ void __cdecl EventThread(void* arg)
 {
 	while(ScriptEngine::GetState() != Stopped)
 	{
-		EventHelper* helper = (EventHelper*)InterlockedPopEntrySList(&ScriptEngine::eventList);
-		if(helper)
+		while(QueryDepthSList(&ScriptEngine::eventList) > 0)
 		{
-			// execute it on every script
-			ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
-			delete helper;
+			EventHelper* helper = (EventHelper*)InterlockedPopEntrySList(&ScriptEngine::eventList);
+			if(helper)
+			{
+				// execute it on every script
+				ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
+				delete helper;
+			}
+			else
+				DebugBreak();
 		}
-		Sleep(10);
+		Sleep(1);
 	}
 }
 

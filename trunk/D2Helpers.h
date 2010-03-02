@@ -19,7 +19,7 @@ WORD	GetUnitX(UnitAny* pUnit);
 WORD	GetUnitY(UnitAny* pUnit);
 ClientGameState ClientState(void);
 bool	GameReady(void);
-bool	WaitForGameReady(void);
+bool WaitForClientState(ClientGameState WantedState = ClientStateInGame);
 DWORD	GetPlayerArea(void);
 void	ScreenSizeCheck(POINT* pPoint);
 void	SendMouseClick(INT x, INT y, INT clicktype);
