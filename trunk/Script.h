@@ -114,7 +114,10 @@ public:
 	void ClearEvent(const char* evtName);
 	void ClearAllEvents(void);
 
+// TODO: clean this up and make it either directly call or match SpawnEvent
+#if 0
 	void ExecEvent(const char* evtName, const char* format, uintN argc, void* argv);
+#endif
 	void ExecEventAsync(const char* evtName, const char* format, ArgList* args);
 };
 

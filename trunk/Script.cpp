@@ -413,6 +413,8 @@ void Script::ClearAllEvents(void)
 	LeaveCriticalSection(&lock);
 }
 
+// TODO: clean this up and re-build it to match SpawnEvent... or maybe call SpawnEvent directly
+#if 0
 void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void* argv)
 {
 	if((!IsAborted() && !IsPaused() && functions.count(evtName)) &&
@@ -438,6 +440,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 		JS_DestroyContextNoGC(cx);
 	}
 }
+#endif
 
 void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* args)
 {
@@ -455,6 +458,18 @@ void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* ar
 	else
 	{
 		// clean up args to prevent mem leak
+		for(ArgList::iterator it = args->begin(); it != args->end(); it++)
+		{
+			switch(it->second)
+			{
+				case JSVal:
+					JS_RemoveRoot((jsval*)&(it->first));
+					break;
+				case String:
+					JS_RemoveRoot((JSString*)&(it->first));
+					break;
+			}
+		}
 		delete args;
 	}
 }

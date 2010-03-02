@@ -286,8 +286,7 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 			case 'v': {
 					EventArg p = make_pair((QWORD)va_arg(args, jsval), JSVal);
 					argv->at(i) = p;
-					// seems to cause problems with root_points_to_gcArenaList...
-					//JS_AddRoot(&(p.first));
+					JS_AddRoot(&(p.first));
 					break;
 				}
 			case 's': {
@@ -299,8 +298,7 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 				fmt[i] = 'S';
 				EventArg p = make_pair((QWORD)encString, String);
 				argv->at(i) = p;
-				// seems to cause problems with root_points_to_gcArenaList...
-				//JS_AddRoot(&(p.first));
+				JS_AddRoot(&(p.first));
 
 				JS_EndRequest(context);
 				JS_ClearContextThread(context);
