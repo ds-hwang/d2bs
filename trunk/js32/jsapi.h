@@ -862,9 +862,6 @@ JS_realloc(JSContext *cx, void *p, size_t nbytes);
 extern JS_PUBLIC_API(void)
 JS_free(JSContext *cx, void *p);
 
-extern JS_PUBLIC_API(void)
-JS_updateMallocCounter(JSContext *cx, size_t nbytes);
-
 extern JS_PUBLIC_API(char *)
 JS_strdup(JSContext *cx, const char *s);
 
@@ -2374,6 +2371,17 @@ extern JS_FRIEND_API(JSBool)
 JS_IsAssigning(JSContext *cx);
 
 /*
+ * Set the second return value, which should be a string or int jsval that
+ * identifies a property in the returned object, to form an ECMA reference
+ * type value (obj, id).  Only native methods can return reference types,
+ * and if the returned value is used on the left-hand side of an assignment
+ * op, the identified property will be set.  If the return value is in an
+ * r-value, the interpreter just gets obj[id]'s value.
+ */
+extern JS_PUBLIC_API(void)
+JS_SetCallReturnValue2(JSContext *cx, jsval v);
+
+/*
  * Saving and restoring frame chains.
  *
  * These two functions are used to set aside cx's call stack while that stack
@@ -2438,12 +2446,6 @@ JS_GetStringChars(JSString *str);
 
 extern JS_PUBLIC_API(size_t)
 JS_GetStringLength(JSString *str);
-
-extern JS_PUBLIC_API(const char *)
-JS_GetStringBytesZ(JSContext *cx, JSString *str);
-
-extern JS_PUBLIC_API(const jschar *)
-JS_GetStringCharsZ(JSContext *cx, JSString *str);
 
 extern JS_PUBLIC_API(intN)
 JS_CompareStrings(JSString *str1, JSString *str2);
@@ -2694,15 +2696,6 @@ struct JSErrorReport {
 #define JSREPORT_STRICT     0x4     /* error or warning due to strict option */
 
 /*
- * This condition is an error in strict mode code, a warning if
- * JS_HAS_STRICT_OPTION(cx), and otherwise should not be reported at
- * all.  We check the strictness of the context's top frame's script;
- * where that isn't appropriate, the caller should do the right checks
- * itself instead of using this flag.
- */
-#define JSREPORT_STRICT_MODE_ERROR 0x8
-
-/*
  * If JSREPORT_EXCEPTION is set, then a JavaScript-catchable exception
  * has been thrown for this runtime error, and the host should ignore it.
  * Exception-aware hosts should also check for JS_IsExceptionPending if
@@ -2712,8 +2705,6 @@ struct JSErrorReport {
 #define JSREPORT_IS_WARNING(flags)      (((flags) & JSREPORT_WARNING) != 0)
 #define JSREPORT_IS_EXCEPTION(flags)    (((flags) & JSREPORT_EXCEPTION) != 0)
 #define JSREPORT_IS_STRICT(flags)       (((flags) & JSREPORT_STRICT) != 0)
-#define JSREPORT_IS_STRICT_MODE_ERROR(flags) (((flags) &                      \
-                                              JSREPORT_STRICT_MODE_ERROR) != 0)
 
 extern JS_PUBLIC_API(JSErrorReporter)
 JS_SetErrorReporter(JSContext *cx, JSErrorReporter er);

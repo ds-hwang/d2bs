@@ -108,12 +108,13 @@ JS_Assert(const char *s, const char *file, JSIntn ln);
  */
 extern JS_PUBLIC_API(void) JS_Abort(void);
 
-#ifdef DEBUG
+#if 0
 # define JS_BASIC_STATS 1
+# define JS_SCOPE_DEPTH_METER 1
 #endif
 
-#ifdef DEBUG_brendan
-# define JS_SCOPE_DEPTH_METER 1
+#if defined DEBUG && !defined JS_BASIC_STATS
+# define JS_BASIC_STATS 1
 #endif
 
 #ifdef JS_BASIC_STATS
@@ -264,22 +265,18 @@ public:
     JSGuardObjectNotificationReceiver() : mStatementDone(false) {}
 
     ~JSGuardObjectNotificationReceiver() {
-        /*
-         * Assert that the guard object was not used as a temporary.
-         * (Note that this assert might also fire if Init is not called
-         * because the guard object's implementation is not using the
-         * above macros correctly.)
-         */
+        // Assert that the guard object was not used as a temporary.
+        // (Note that this assert might also fire if Init is not called
+        // because the guard object's implementation is not using the
+        // above macros correctly.)
         JS_ASSERT(mStatementDone);
     }
 
     void Init(const JSGuardObjectNotifier &aNotifier) {
-        /*
-         * aNotifier is passed as a const reference so that we can pass a
-         * temporary, but we really intend it as non-const
-         */
-        const_cast<JSGuardObjectNotifier&>(aNotifier).
-            SetStatementDone(&mStatementDone);
+       // aNotifier is passed as a const reference so that we can pass a
+       // temporary, but we really intend it as non-const
+       const_cast<JSGuardObjectNotifier&>(aNotifier).
+           SetStatementDone(&mStatementDone);
     }
 };
 

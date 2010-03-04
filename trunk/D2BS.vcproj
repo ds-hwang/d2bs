@@ -78,7 +78,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjsd.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js3250d.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -178,7 +178,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjs.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js3250.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
@@ -279,7 +279,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/mozjs.lib"
+				AdditionalDependencies="$(NoInherit) kernel32.lib user32.lib gdi32.lib shlwapi.lib advapi32.lib js32/js3250.lib"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=""
