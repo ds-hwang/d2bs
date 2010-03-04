@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "JSScript.h"
 #include "Script.h"
 #include "ScriptEngine.h"
@@ -107,15 +109,23 @@ JSAPI_FUNC(script_resume)
 
 JSAPI_FUNC(script_send)
 {
-//	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
-//	Script* script = (Script*)JS_GetContextPrivate(iterp);
-
-//	AutoRoot** args = new AutoRoot*[argc];
-//	for(uintN i = 0; i < argc; i++)
-//		args[i] = new AutoRoot(argv[i]);
+	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
+	Script* script = (Script*)JS_GetContextPrivate(iterp);
+	if(argc < 1)
+		THROW_ERROR(cx, "You must specify at least one thing to send to the other script");
 
 	// this event has to occur as such because it's not a broadcasted event, just a local one
-//	script->ExecEventAsync("scriptmsg", argc, args);
+	char* format = new char[argc+1];
+	format[argc] = '\0';
+	ArgList* args = new ArgList;
+
+	for(uintN i = 0; i < argc; i++)
+	{
+		format[i] = 'v';
+		args->push_back(std::make_pair((QWORD)argv[i], JSVal));
+	}
+
+	script->ExecEventAsync("scriptmsg", format, args);
 
 	return JS_TRUE;
 }

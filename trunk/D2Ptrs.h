@@ -133,7 +133,7 @@ VARPTR(D2CLIENT, bTradeAccepted, DWORD, 0x11BC2C) // Updated
 VARPTR(D2CLIENT, bTradeBlock, DWORD, 0x11BC3C) // Updated
 VARPTR(D2CLIENT, TradeFlag, DWORD, 0x11C1F4) // Updated
 VARPTR(D2CLIENT, ScreenSizeX, DWORD, 0xDC6E0) // Updated
-VARPTR(D2CLIENT, ScreenSizeY, DWORD, 0xDC6E0+4) // Updated
+VARPTR(D2CLIENT, ScreenSizeY, DWORD, 0xDC6E4) // Updated
 VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11FC40) // Updated
 VARPTR(D2CLIENT, AlwaysRun, DWORD, 0x11C050) // Updated
 VARPTR(D2CLIENT, RecentTradeName, wchar_t*, 0x12334C) // Updated

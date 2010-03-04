@@ -297,6 +297,8 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 				JS_BeginRequest(context);
 
 				char* str = va_arg(args, char*);
+				// HACK we probably don't want to be interning every string, since that
+				// will just swell our memory usage with no means to clear it out...
 				JSString* encString = JS_InternString(context, str);
 				fmt[i] = 'S';
 				EventArg p = make_pair((QWORD)encString, String);
@@ -309,8 +311,11 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 			default:
 			{
 				// give a named assert instead of just a false
+// we know the local variable is initialized but not referenced, and it actually is referenced
+#pragma warning ( disable : 4189 )
 				bool api_usage_error = false;
 				ASSERT(api_usage_error);
+#pragma warning ( default : 4189 )
 				break;
 			}
 		}

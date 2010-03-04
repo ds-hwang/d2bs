@@ -448,18 +448,11 @@ void Script::ExecEventAsync(const char* evtName, const char* format, ArgList* ar
 	}
 	else
 	{
-		// clean up args to prevent mem leak
+		// clean up args
 		for(ArgList::iterator it = args->begin(); it != args->end(); it++)
 		{
-			switch(it->second)
-			{
-				case JSVal:
-					JS_RemoveRoot((jsval*)&(it->first));
-					break;
-				case String:
-					JS_RemoveRoot((JSString*)&(it->first));
-					break;
-			}
+			if(it->second == JSVal)
+				JS_RemoveRoot(&(it->first));
 		}
 		delete args;
 	}
@@ -488,6 +481,7 @@ void SpawnEvent(Event* evt)
 		JS_SetContextPrivate(cx, evt->owner);
 		JS_BeginRequest(cx);
 		JS_EnterLocalRootScope(cx);
+
 		// build the arg list
 		uintN argc = evt->args->size();
 		jsval* argv = new jsval[argc];
@@ -524,15 +518,8 @@ void SpawnEvent(Event* evt)
 
 		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++)
 		{
-			switch(it->second)
-			{
-				case JSVal:
-					JS_RemoveRoot((jsval*)&(it->first));
-					break;
-				case String:
-					JS_RemoveRoot((JSString*)&(it->first));
-					break;
-			}
+			if(it->second == JSVal)
+				JS_RemoveRoot(&(it->first));
 		}
 
 		delete[] argv;
