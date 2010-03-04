@@ -46,14 +46,24 @@ JSAPI_FUNC(my_delay)
 	if(!JS_ConvertArguments(cx, argc, argv, "u", &nDelay))
 		THROW_ERROR(cx, "Could not convert arguments")
 
-	if(nDelay)
+	if(nDelay == 0)
+		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1, doing delay(1)");
+	else if(nDelay < 50)
 	{
 		jsrefcount depth = JS_SuspendRequest(cx);
 		Sleep(nDelay);
 		JS_ResumeRequest(cx, depth);
 	}
 	else
-		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
+	{
+		DWORD StartTick = GetTickCount();
+		while(GetTickCount() - StartTick < (DWORD)nDelay)
+		{
+			jsrefcount depth = JS_SuspendRequest(cx);
+			Sleep(50);
+			JS_ResumeRequest(cx, depth);
+		}
+	}
 
 	return JS_TRUE;
 }
@@ -189,14 +199,7 @@ JSAPI_FUNC(my_isIncluded)
 
 JSAPI_FUNC(my_version)
 {
-	if(argc < 1)
-	{
-		*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
-		return JS_TRUE;
-	}
-
-	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.12a.", D2BS_VERSION); 
-
+	*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
 	return JS_TRUE;
 }
 

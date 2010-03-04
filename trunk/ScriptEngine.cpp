@@ -27,42 +27,42 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const char* file, ScriptType scriptType, bool recompile)
+Script* ScriptEngine::CompileFile(const std::string &file, ScriptType scriptType, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
-	char* fileName = _strdup(file);
-	_strlwr_s(fileName, strlen(file)+1);
+
+	std::string File = file;
+	std::transform(File.begin(), File.end(), File.begin(), tolower);
+
 	try
 	{
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache)
 		{
-			if(recompile && scripts.count(fileName) > 0)
+			if(recompile && scripts.count(File) > 0)
 			{
-				scripts[fileName]->Stop(true, true);
-				DisposeScript(scripts[fileName]);
+				scripts[File]->Stop(true);
+				DisposeScript(scripts[File]);
 			}
-			else if(scripts.count(fileName) > 0)
+			else if(scripts.count(File) > 0)
 			{
-				Script* ret = scripts[fileName];
-				ret->Stop(true, true);
-				delete[] fileName;
+				Script* ret = scripts[File];
+				ret->Stop(true);
 				LeaveCriticalSection(&lock);
 				return ret;
 			}
 		}
-		Script* script = new Script(fileName, scriptType);
-		scripts[fileName] = script;
+		Script* script = new Script(File, scriptType);
+		scripts[File] = script;
 		LeaveCriticalSection(&lock);
-		delete[] fileName;
+
 		return script;
 	}
-	catch(std::exception e)
+	catch(std::exception &e)
 	{
 		LeaveCriticalSection(&lock);
 		Print(const_cast<char*>(e.what()));
-		delete[] fileName;
 		return NULL;
 	}
 }
@@ -71,16 +71,14 @@ Script* ScriptEngine::CompileCommand(const char* command)
 {
 	if(GetState() != Running)
 		return NULL;
+
 	try
 	{
 		EnterCriticalSection(&lock);
 		if(!Vars.bDisableCache)
-		{
 			if(scripts.count("Command Line") > 0)
-			{
 				DisposeScript(scripts["Command Line"]);
-			}
-		}
+
 		Script* script = new Script(command, Command);
 		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
@@ -115,9 +113,11 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 	int count = scripts.size();
 	for(ScriptMap::iterator it = scripts.begin(); it != scripts.end(); it++)
 	{
-		if(!active && it->second->IsRunning() && !it->second->IsAborted())
+		//if(!active && it->second->IsRunning() && it->second->GetExecState() != ScriptStateAborted)
+		if(!active && it->second->GetExecState() == ScriptStateRunning)
 			count--;
-		if(!unexecuted && it->second->GetExecutionCount() == 0 && !it->second->IsRunning())
+		//if(!unexecuted && it->second->GetExecutionCount() == 0 && !it->second->IsRunning())
+		if(!unexecuted && it->second->GetExecutionCount() == 0 && it->second->GetExecState() != ScriptStateRunning)
 			count--;
 	}
 	assert(count >= 0);
@@ -127,16 +127,19 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 
 BOOL ScriptEngine::Startup(void)
 {
+	static bool initialized = false;
 	if(GetState() == Stopped)
 	{
+		if(!initialized)
+			InitializeCriticalSection(&lock);
+		EnterCriticalSection(&lock);
+
 		state = Starting;
 
-		InitializeCriticalSection(&lock);
 		InitializeSListHead(&eventList);
 
 		eventHandle = (HANDLE)_beginthread(EventThread, 0, NULL);
 
-		EnterCriticalSection(&lock);
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
 		if(!runtime)
@@ -294,11 +297,10 @@ void ScriptEngine::ExecEventAsync(char* evtName, char* format, ...)
 				JS_BeginRequest(context);
 
 				char* str = va_arg(args, char*);
-				JSString* encString = JS_NewStringCopyZ(context, str);
+				JSString* encString = JS_InternString(context, str);
 				fmt[i] = 'S';
 				EventArg p = make_pair((QWORD)encString, String);
 				argv->at(i) = p;
-				JS_AddRoot(&(p.first));
 
 				JS_EndRequest(context);
 				JS_ClearContextThread(context);
@@ -347,7 +349,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint)
 
 bool __fastcall StopScript(Script* script, void* argv, uint argc)
 {
-	script->Stop(*(bool*)(argv), ScriptEngine::GetState() == Stopping);
+	script->Stop(ScriptEngine::GetState() == Stopping);
 	return true;
 }
 
@@ -362,12 +364,11 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 {
 	ScriptList* list = (ScriptList*)argv;
 	// only pause running scripts
-	if(script->IsRunning())
+	if(script->GetExecState() == ScriptStateRunning)
 	{
-		// only resume scripts we paused
-		if(!script->IsPaused())
-			list->push_back(script);
+		// only add currently running scripts to the pause list
 		script->Pause();
+		list->push_back(script);
 	}
 	return true;
 }
@@ -375,8 +376,13 @@ bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
-	if(script->IsRunning() && script->IsListenerRegistered(helper->evtName))
+	ASSERT(helper);
+
+	if(script->GetExecState() == ScriptStateRunning && script->IsListenerRegistered(helper->evtName))
 		script->ExecEventAsync(helper->evtName, helper->format, helper->args);
+	//else
+	//	DebugBreak();
+
 	return true;
 }
 
@@ -384,27 +390,23 @@ JSBool branchCallback(JSContext* cx)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 
-	jsrefcount depth = JS_SuspendRequest(cx);
+	if(script->GetExecState() == ScriptStateAborted)
+		return JS_FALSE;
 
-	bool pause = script->IsPaused();
-
-	if(pause)
+	if(script->GetExecState() == ScriptStatePaused)
 	{
-		script->SetPauseState(true);
+		jsrefcount depth = JS_SuspendRequest(cx);
+
 		JS_MaybeGC(cx);
+		while(script->GetExecState() == ScriptStatePaused)
+			Sleep(10);
+
+		JS_ResumeRequest(cx, depth);
 	}
-
-	while(script->IsPaused())
-		Sleep(50);
-
-	if(pause)
-		script->SetPauseState(false);
-
-	JS_ResumeRequest(cx, depth);
 
 	script->UpdatePlayerGid();
 
-	return !!!(JSBool)(script->IsAborted() || (script->GetScriptType() != OutOfGame && ClientState() != ClientStateInGame));
+	return !!!(script->GetScriptType() != OutOfGame && ClientState() != ClientStateInGame);
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
@@ -462,10 +464,10 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-	static ScriptList pausedList = ScriptList();
+//	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_MARK_END)
 	{
-		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
+//		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
 
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
@@ -476,9 +478,9 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
 #endif
-		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
-			(*it)->Resume();
-		pausedList.clear();
+//		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
+//			(*it)->Resume();
+//		pausedList.clear();
 	}
 	return JS_TRUE;
 }
@@ -493,11 +495,10 @@ void __cdecl EventThread(void* arg)
 			if(helper)
 			{
 				// execute it on every script
+				ASSERT(helper);
 				ScriptEngine::ForEachScript(ExecEventOnScript, helper, 1);
 				delete helper;
 			}
-			else
-				DebugBreak();
 		}
 		Sleep(1);
 	}

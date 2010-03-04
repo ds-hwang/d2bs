@@ -29,19 +29,24 @@ JSAPI_PROP(script_getProperty)
 	{
 		case SCRIPT_FILENAME:
 			{
-				const char* relName = NULL;
-				if(strcmp(script->GetFilename(), "Command Line") == 0)
+				std::string relName;
+				if(script->GetFilename() == "Command Line")
 					relName = script->GetFilename();
 				else
-					relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName));
+				{
+					size_t pos = script->GetFilename().find(Vars.szScriptPath);
+					relName = script->GetFilename().substr(pos+1);
+					//relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
+				}
+
+				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName.c_str()));
 			}
 			break;
 		case SCRIPT_GAMETYPE:
 			*vp = script->GetScriptType() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
 			break;
 		case SCRIPT_RUNNING:
-			*vp = BOOLEAN_TO_JSVAL(script->IsRunning());
+			*vp = BOOLEAN_TO_JSVAL(script->GetExecState() == ScriptStateRunning);
 			break;
 		case SCRIPT_THREADID:
 			*vp = INT_TO_JSVAL(script->GetThreadId());
@@ -71,7 +76,8 @@ JSAPI_FUNC(script_stop)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
-	if(script->IsRunning())
+
+	if(script->GetExecState() == ScriptStateRunning || script->GetExecState() == ScriptStatePaused)
 		script->Stop();
 
 	return JS_TRUE;
@@ -82,7 +88,7 @@ JSAPI_FUNC(script_pause)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
-	if(script->IsRunning())
+	if(script->GetExecState() == ScriptStateRunning)
 		script->Pause();
 
 	return JS_TRUE;
@@ -93,7 +99,7 @@ JSAPI_FUNC(script_resume)
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
 
-	if(script->IsPaused())
+	if(script->GetExecState() == ScriptStatePaused)
 		script->Resume();
 
 	return JS_TRUE;
@@ -142,13 +148,15 @@ JSAPI_FUNC(my_getScript)
 			return JS_TRUE;
 	}
 	else
+	{
 		if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
 			return JS_TRUE;
+	}
 
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
-
 	if(!res)
 		THROW_ERROR(cx, "Failed to build the script object");
+
 	*rval = OBJECT_TO_JSVAL(res);
 
 	return JS_TRUE;
@@ -157,15 +165,26 @@ JSAPI_FUNC(my_getScript)
 bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;
-	static uint pathlen = strlen(Vars.szScriptPath) + 1;
-	const char* fname = script->GetFilename();
+	size_t pathlen = strlen(Vars.szScriptPath) + 1;
+	std::string fname = script->GetFilename();
 	// calculate the relative name from the filename
-	const char* relName = strlen(fname) > pathlen ? fname + pathlen : fname;
-	if(_strcmpi(relName, helper->name) == 0)
+
+	//std::string relName = strlen(fname.c_str()) > pathlen ? fname + pathlen : fname;
+	std::string relName;
+	if(fname.length() > pathlen)
+	{
+		size_t pos = fname.find(Vars.szScriptPath);
+		relName = fname.substr(pos);
+	}
+	else
+		relName = fname;
+
+	if(relName == helper->name)
 	{
 		helper->script = script;
 		return false;
 	}
+
 	return true;
 }
 

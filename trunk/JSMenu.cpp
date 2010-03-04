@@ -43,7 +43,7 @@ JSAPI_FUNC(my_login)
 	Control* pControl = NULL;
 	int location = 0;
 	int timeout = 0;
-	bool loginComplete = FALSE,	skippedToBnet = TRUE;
+	bool loginComplete = FALSE, skippedToBnet = TRUE;
 	Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
 	while(!loginComplete)
@@ -133,8 +133,8 @@ JSAPI_FUNC(my_login)
 			case OOG_GATEWAY:
 			case OOG_CHARACTER_SELECT_NO_CHARS:
 			case OOG_NONE:
-				timeout++;
-				break;
+//				timeout++;
+//				break;
 			case OOG_LOBBY:
 			case OOG_INLINE:
 			case OOG_CHAT:
@@ -144,7 +144,8 @@ JSAPI_FUNC(my_login)
 			case OOG_CHANNEL:
 			case OOG_GAME_EXIST:
 			case OOG_GAME_DOES_NOT_EXIST:
-				loginComplete=TRUE;
+				timeout++;
+				//loginComplete=TRUE;
 				break;
 			case OOG_UNABLE_TO_CONNECT:
 				errorMsg = "Unable to connect";
@@ -167,17 +168,15 @@ JSAPI_FUNC(my_login)
 		{
 			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
 			THROW_ERROR(cx, errorMsg);
-			break;
 		}
 
 		if((timeout*100) > loginTime)
 		{
 			Vars.bBlockKeys = Vars.bBlockMouse = FALSE;
 			THROW_ERROR(cx, "login time out");
-			break;
 		}
 
-		if(ClientState() == ClientStateInGame)
+		if(ClientState() == ClientStateInGame || ClientState() == ClientStateBusy)
 			loginComplete = TRUE;
 		
 		Sleep(100);

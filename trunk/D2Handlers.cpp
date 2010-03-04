@@ -33,7 +33,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 		return FALSE;
 	}
 
-	ClientGameState oldState = ClientState();
+	ClientGameState oldState = ClientStateNull;
 	while(Vars.bActive)
 	{
 		// TODO look at this more
@@ -43,46 +43,45 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 			// we switched from in game to out or something
 			JS_TriggerAllOperationCallbacks(ScriptEngine::GetRuntime());
 			oldState = state;
-		}
 
-		switch(state)
-		{
+			switch(state)
+			{
 			case ClientStateInGame:
-			{
-				if(bInGame)
 				{
-					if((Vars.dwMaxGameTime && Vars.dwGameTime && 
+					if(bInGame)
+					{
+						if((Vars.dwMaxGameTime && Vars.dwGameTime && 
 							(GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime))
-						D2CLIENT_ExitGame();
+							D2CLIENT_ExitGame();
+					}
+					else
+					{
+						Vars.dwGameTime = GetTickCount();
+						D2CLIENT_InitInventory();
+
+						GameJoined();
+
+						bInGame = true;
+					}
+					break;
 				}
-				else
-				{
-					//Sleep(1000);
-
-					Vars.dwGameTime = GetTickCount();
-					D2CLIENT_InitInventory();
-
-					GameJoined();
-
-					bInGame = true;
-				}
-				break;
-			}
 			case ClientStateMenu:
-			{
-				MenuEntered(beginStarter);
-				beginStarter = false;
-				if(bInGame)
 				{
-					Vars.dwGameTime = NULL;
-					bInGame = false;
+					MenuEntered(beginStarter);
+					beginStarter = false;
+					if(bInGame)
+					{
+						Vars.dwGameTime = 0;
+						bInGame = false;
+					}
+					break;
 				}
-				break;
-			}
 			default:
 				break;
+			}
 		}
-		Sleep(10);
+
+		Sleep(50);
 	}
 
 	ScriptEngine::Shutdown();

@@ -84,7 +84,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cConsoleSection);
 	InitializeCriticalSection(&Vars.cGameLoopSection);
 
-	Vars.bNeedShutdown = TRUE;	
+	Vars.bNeedShutdown = TRUE;
 	Vars.bChangedAct = FALSE;
 	Vars.bGameLoopEntered = FALSE;
 

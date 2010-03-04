@@ -6,6 +6,8 @@
 #include <list>
 #include <vector>
 
+#include <iostream>
+
 #include "js32.h"
 #include "AutoRoot.h"
 #include "JSUnit.h"
@@ -14,6 +16,15 @@ enum ScriptType {
 	InGame,
 	OutOfGame,
 	Command
+};
+
+enum ScriptExecState {
+	ScriptStateCreation,
+	ScriptStateRunning,
+	ScriptStatePaused,
+	ScriptStateAborted,
+	ScriptStateAborting,
+	ScriptStateUnknown
 };
 
 enum ArgType {
@@ -61,13 +72,14 @@ private:
 	std::string fileName;
 	int execCount;
 	ScriptType scriptType;
+	ScriptExecState scriptExecState;
 	JSContext* context;
 	JSScript* script;
 	myUnit* me;
 
 	JSObject *globalObject, *scriptObject;
 
-	bool isLocked, isPaused, isReallyPaused, isAborted;
+	//bool isReallyPaused;
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
@@ -75,7 +87,7 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
-	Script(const char* file, ScriptType type);
+	Script(std::string file, ScriptType type);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
@@ -83,15 +95,13 @@ private:
 public:
 	friend class ScriptEngine;
 
+	ScriptExecState GetExecState();
 	void Run(void);
 	void Pause(void);
 	void Resume(void);
-	bool IsPaused(void);
-	void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
-	bool IsReallyPaused(void) { return isReallyPaused; }
-	void Stop(bool force = false, bool reallyForce = false);
+	void Stop(bool force = false);
 
-	const char* GetFilename(void) { const char* file = _strdup(fileName.c_str()); return file; }
+	const std::string& GetFilename(void) { return fileName; }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
@@ -101,11 +111,8 @@ public:
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
 	void UpdatePlayerGid(void);
 
-	bool IsRunning(void);
-	bool IsAborted(void);
-
-	bool IsIncluded(const char* file);
-	bool Include(const char* file);
+	bool IsIncluded(const std::string &file);
+	bool Include(const std::string &file);
 
 	bool IsListenerRegistered(const char* evtName);
 	void RegisterEvent(const char* evtName, jsval evtFunc);
