@@ -25,3 +25,4 @@ JSAPI_FUNC(my_scriptBroadcast);
 JSAPI_FUNC(my_blockMinimize);
 JSAPI_FUNC(my_showConsole);
 JSAPI_FUNC(my_hideConsole);
+JSAPI_FUNC(my_clearConsole);

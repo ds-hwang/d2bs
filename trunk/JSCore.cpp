@@ -407,3 +407,9 @@ JSAPI_FUNC(my_hideConsole)
 	Console::Hide();
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_clearConsole)
+{
+	Console::Clear();
+	return JS_TRUE;
+}
