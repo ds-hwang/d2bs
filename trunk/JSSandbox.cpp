@@ -5,7 +5,7 @@
 JSAPI_FUNC(sandbox_ctor)
 {
 	sandbox* box = new sandbox; // leaked?
-	box->context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+	box->context = ScriptEngine::AcquireContext();
 	if(!box->context)
 	{
 		delete box;
@@ -14,7 +14,7 @@ JSAPI_FUNC(sandbox_ctor)
 	box->innerObj = JS_NewObject(box->context, &global_obj, NULL, NULL);
 	if(!box->innerObj)
 	{
-		JS_DestroyContext(box->context);
+		ScriptEngine::ReleaseContext(box->context);
 		delete box;
 		return JS_TRUE;
 	}
@@ -31,7 +31,7 @@ JSAPI_FUNC(sandbox_ctor)
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
 		JS_RemoveRoot(&box->innerObj);
-		JS_DestroyContext(box->context);
+		ScriptEngine::ReleaseContext(box->context);
 		delete box;
 		return JS_TRUE;
 	}
@@ -158,7 +158,7 @@ void sandbox_finalize(JSContext *cx, JSObject *obj)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 	if(box) {
-		JS_DestroyContext(box->context);
+		ScriptEngine::ReleaseContext(box->context);
 		delete box;
 	}
 }

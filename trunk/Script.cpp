@@ -39,7 +39,7 @@ Script::Script(string file, ScriptType scriptType) :
 
 	try
 	{
-		context = JS_NewContext(ScriptEngine::GetRuntime(), 0x2000);
+		context = ScriptEngine::AcquireContext();
 		if(!context)
 			throw std::exception("Couldn't create the context");
 	}
@@ -75,7 +75,7 @@ Script::Script(string file, ScriptType scriptType) :
 	catch(std::exception &)
 	{
 		JS_EndRequest(context);
-		JS_DestroyContext(context);
+		ScriptEngine::ReleaseContext(context);
 
 		LeaveCriticalSection(&lock);
 		throw;
@@ -105,7 +105,7 @@ Script::Script(string file, ScriptType scriptType) :
 			JS_DestroyScript(context, script);
  
 		JS_EndRequest(context);
-		JS_DestroyContext(context);
+		ScriptEngine::ReleaseContext(context);
 
 		LeaveCriticalSection(&lock);
 		throw;
@@ -129,7 +129,7 @@ Script::~Script(void)
 	JS_RemoveRoot(&scriptObject);
 
 	JS_EndRequest(context);
-	JS_DestroyContext(context);
+	ScriptEngine::ReleaseContext(context);
 
 	includes.clear();
 
@@ -412,7 +412,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 		IsRunning() && !(GetScriptType() == InGame && ClientState() != ClientStateInGame))
 	{
 		FunctionList funcs = functions[evtName];
-		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JSContext* cx = ScriptEngine::AcquireContext();
 		JS_EnterLocalRootScope(cx);
 		// build the arg list
 		void* markp = NULL;
@@ -428,7 +428,7 @@ void Script::ExecEvent(const char* evtName, const char* format, uintN argc, void
 		// and clean it up
 		JS_PopArguments(cx, markp);
 		JS_LeaveLocalRootScope(cx);
-		JS_DestroyContextNoGC(cx);
+		ScriptEngine::ReleaseContext(cx);
 	}
 }
 #endif
@@ -477,7 +477,7 @@ void SpawnEvent(Event* evt)
 	if(evt->owner->GetExecState() == ScriptStateRunning && 
 		!(evt->owner->GetScriptType() == InGame && ClientState() != ClientStateInGame))
 	{
-		JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+		JSContext* cx = ScriptEngine::AcquireContext();
 		JS_SetContextPrivate(cx, evt->owner);
 		JS_BeginRequest(cx);
 		JS_EnterLocalRootScope(cx);
@@ -514,7 +514,7 @@ void SpawnEvent(Event* evt)
 		// and clean it up
 		JS_LeaveLocalRootScope(cx);
 		JS_EndRequest(cx);
-		JS_DestroyContextMaybeGC(cx);
+		ScriptEngine::ReleaseContext(cx);
 
 		for(ArgList::iterator it = evt->args->begin(); it != evt->args->end(); it++)
 		{

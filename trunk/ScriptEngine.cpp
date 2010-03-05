@@ -16,6 +16,8 @@ using namespace std;
 
 JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
+ContextList ScriptEngine::active = ContextList();
+ContextList ScriptEngine::inactive = ContextList();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
 SLIST_HEADER ScriptEngine::eventList = {0};
@@ -104,6 +106,37 @@ void ScriptEngine::DisposeScript(Script* script)
 	delete script;
 }
 
+JSContext* ScriptEngine::AcquireContext(void)
+{
+	// if we don't have any more contexts, make one
+	if(inactive.empty())
+	{
+		JSContext* cx = JS_NewContext(runtime, 8192);
+		JS_ClearContextThread(cx);
+		inactive.insert(cx);
+	}
+
+	ASSERT(!inactive.empty());
+
+	JSContext* result = *inactive.begin();
+	inactive.erase(result);
+	active.insert(result);
+	JS_SetContextThread(result);
+
+	return result;
+}
+
+void ScriptEngine::ReleaseContext(JSContext* context)
+{
+	ASSERT(!active.empty() && active.find(context) != active.end());
+
+	active.erase(context);
+	inactive.insert(context);
+	JS_ClearContextThread(context);
+
+	ASSERT(!inactive.empty());
+}
+
 unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 {
 	if(GetState() != Running)
@@ -179,6 +212,21 @@ void ScriptEngine::Shutdown(void)
 
 		if(runtime)
 		{
+			int count = active.size();
+			for(int i = 0; i < count; i++)
+			{
+				JSContext* cx = *active.end();
+				JS_DestroyContextNoGC(cx);
+			}
+			count = inactive.size();
+			for(int i = 0; i < count; i++)
+			{
+				JSContext* cx = *inactive.end();
+				JS_DestroyContextNoGC(cx);
+			}
+			active.clear();
+			inactive.clear();
+
 			// free our private context just before we shut down the runtime
 			JS_DestroyContext(context);
 			JS_DestroyRuntime(runtime);

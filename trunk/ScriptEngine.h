@@ -5,12 +5,14 @@
 #include <list>
 #include <map>
 #include <string>
+#include <set>
 #include <windows.h>
 
 #include "js32.h"
 #include "Script.h"
 
 typedef std::map<std::string, Script*> ScriptMap;
+typedef std::set<JSContext*> ContextList;
 
 typedef bool (__fastcall *ScriptCallback)(Script*, void*, uint);
 
@@ -39,6 +41,7 @@ class ScriptEngine
 	static CRITICAL_SECTION lock;
 	static SLIST_HEADER eventList;
 	static HANDLE eventHandle;
+	static ContextList active, inactive;
 
 public:
 	friend class Script;
@@ -48,6 +51,9 @@ public:
 	static EngineState GetState(void) { return state; }
 
 	static void FlushCache(void);
+
+	static JSContext* AcquireContext(void);
+	static void ReleaseContext(JSContext*);
 
 	static Script* CompileFile(const std::string &file, ScriptType scriptType, bool recompile = false);
 	static Script* CompileCommand(const char* command);
