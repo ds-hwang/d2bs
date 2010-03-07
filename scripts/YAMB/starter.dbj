@@ -1,10 +1,48 @@
+/* 
+  * Modified for OOG and d2bs 1.1
+*/ 
 
 
-//load("tools/dumpControl-Test.dbj");
-//load("tools/debugControls.dbj");
-//load("examples/cube.dbj");
+js_strict(true);
+///////////////////////////////////////// 
 
-//delay(5000);
-//login("terrabattle-bnet");
-//login("Hammerdin");
-login("Virgin2");
+
+
+// Main 
+
+function main() { 
+
+sendCopyData(null, "OOG", 0,"ShowWindow 6" );
+      while(true) { 
+      	while (!(me.ingame))    { 
+         	delay(2000);               		
+			locationAction( getLocation() ); 		
+			sendCopyData(null, "OOG", 0,"Move "+getLocation() );
+   	}
+      delay(2000); 
+	
+   }
+}
+
+//Functions 
+function locationAction( location ) { 
+   switch (location) { 
+
+        case 3: // Chat 
+	var con =getControl(4,28,410,354,298);
+	var lin=con.getText();
+	sendCopyData(null, "OOG", 0,"Chat "+lin );
+     	break; 
+
+      	case 5: //Join Game
+	var con =getControl(4,432,393,160,173);
+	var lin=con.getText();
+	sendCopyData(null, "OOG", 0,"Join "+lin );
+	break;
+	
+	case 11: // unable to connect
+	//delay(300000); //5 min delay
+	quitGame(); 
+	
+   } 
+} 

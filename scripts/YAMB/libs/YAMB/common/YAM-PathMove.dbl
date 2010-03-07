@@ -433,7 +433,7 @@ function pathMove(_info) {
 			DP_DPrint("GotoDest() -> Warning! pMoveDist not entered, setting to " + pMoveDist + "!");
 		}
 		// Get the path to the destination coordinates
-		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
+		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)))// pMoveDist, !this.UseTele );
 		// If a path is not found
 		if  ( !myPath ) {
 			DP_DPrint("GotoDest() -> Unable to find path to dest. Trying again to find path, current ping : " + me.ping);
@@ -604,13 +604,19 @@ function pathMove(_info) {
 
 	this.ExploreLevel = function(pMoveDist, pDataback, callback_perRoom, pDoorHandler) {
 		var rooms        = new Array();
+		var reachable;
 		// Add the rooms in the array
 		var troom        = getRoom(me.area);
+		var size = (troom.ysize > troom.xsize ? troom.ysize : troom.xsize) //find the larger room size for clear area func
 		// Hold on to InteractTile value and SET IT FALSE else the function goes BOOM quite spectacularly -TechnoHunter
 		var _tTile       = this.InteractTile;
 		this.InteractTile = false;
 		do {
-			rooms.push([troom.x * 5, troom.y * 5, troom.getStat(2), troom.getStat(3),troom.number]);
+			reachable =isRoomReachable(troom);
+			if (reachable){	
+				rooms.push([reachable[0],reachable[1],troom.getStat(2), troom.getStat(3),troom.number])
+			}
+			//rooms.push([troom.x * 5, troom.y * 5, troom.getStat(2), troom.getStat(3),troom.number]);
 		} while (troom && troom.getNext());
 		// If no rooms list is generated, return false
 		if( rooms.length == 0 ) {
@@ -624,19 +630,19 @@ function pathMove(_info) {
 			var rm = rooms.shift();
 			var keepgoing = true;
 			try {
-				rmMid = DP_FindClosestWalkable(parseInt((rm[0] + rm[2]/2),10), parseInt((rm[1] + rm[3]/2),10), me.area, 19);
-				if(rmMid != false){
-					keepgoing = this.GotoDest(rmMid.x, rmMid.y, pMoveDist, pDataback, pDoorHandler);
+				//rmMid = DP_FindClosestWalkable(parseInt((rm[0] + rm[2]/2),10), parseInt((rm[1] + rm[3]/2),10), me.area, 19);
+				//if(rmMid != false){
+					keepgoing = this.GotoDest(rm[0], rm[1]);
 					if( keepgoing ) {
 						DP_DPrint("NowInRoom : " + rm[4] + ", RoomsLeft : " + rooms.length);
-						if(typeof(callback_perRoom)=="function") {
-							callback_perRoom();
+						if(typeof(callback_perRoom)=="function") {							
+							callback_perRoom(size);
 						}
 					}
 					else {
 						DP_DPrint("Unable to go in Room : " + rm[4] + " and skipped, Rooms Left : " + rooms.length);
 					}
-				}
+				//}
 			}
 			catch (bomb) {
 				DP_Print("Exception caught in Room : " + rm[4] + " and skipped, Rooms Left : " + rooms.length);
@@ -1393,4 +1399,18 @@ function DP_MaxDxDy( pSX, pSY, pDX, pDY ){
 	var _dy = Math.abs( pDY - pSY );
 	var _dx = Math.abs( pDX - pSX );
 	return ( _dx > _dy ) ? _dx : _dy;
+}
+function isRoomReachable(room){  // returns a vail pathto x,y in a room false if not found 
+var col = room.getCollision();
+		var size = (room.ysize > room.xsize ? room.ysize : room.xsize)
+		for (var y =1; y < room.xsize -1; y++){
+			for (var x =1; x < room.ysize-1; x++){
+				if (col[x][y] == 0)
+				//if(col[x-1][y] == && col[x-1][y-1] == 0 && col[x+1][y] == 0 && col[x+1][y+1] == 0 )
+						return [room.x*5+y,room.y*5+x,size]; // this is probly wrong fixed x/y swap
+				
+			}
+		}
+	//	dumpRoom(room)
+	return false;
 }
