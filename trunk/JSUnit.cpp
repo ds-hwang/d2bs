@@ -50,6 +50,9 @@ JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 		return JS_TRUE;
 	myUnit* unit2 = (myUnit*)JS_GetPrivate(cx, obj2);
 
+	if (!unit1 || !unit2)
+		return JS_TRUE;
+
 	UnitAny* pUnit1 = D2CLIENT_FindUnit(unit1->dwUnitId, unit1->dwType);
 	UnitAny* pUnit2 = D2CLIENT_FindUnit(unit2->dwUnitId, unit2->dwType);
 
