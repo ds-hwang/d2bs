@@ -612,8 +612,8 @@ function pathMove(_info) {
 		var _tTile       = this.InteractTile;
 		this.InteractTile = false;
 		do {
-			reachable =isRoomReachable(troom);
-			if (reachable){	
+			reachable = isRoomReachable(troom);
+			if(reachable){	
 				rooms.push([reachable[0],reachable[1],troom.getStat(2), troom.getStat(3),troom.number])
 			}
 			//rooms.push([troom.x * 5, troom.y * 5, troom.getStat(2), troom.getStat(3),troom.number]);
@@ -1400,17 +1400,17 @@ function DP_MaxDxDy( pSX, pSY, pDX, pDY ){
 	var _dx = Math.abs( pDX - pSX );
 	return ( _dx > _dy ) ? _dx : _dy;
 }
-function isRoomReachable(room){  // returns a vail pathto x,y in a room false if not found 
-var col = room.getCollision();
-		var size = (room.ysize > room.xsize ? room.ysize : room.xsize)
-		for (var y =1; y < room.xsize -1; y++){
-			for (var x =1; x < room.ysize-1; x++){
-				if (col[x][y] == 0)
+
+// returns a valid x/y to path to in a room, false if not found
+function isRoomReachable(room){
+	var col = room.getCollision();
+	var size = (room.ysize > room.xsize ? room.ysize : room.xsize)
+	for (var y =1; y < room.xsize -1; y++){
+		for (var x =1; x < room.ysize-1; x++){
+			if (col[x][y] == 0)
 				//if(col[x-1][y] == && col[x-1][y-1] == 0 && col[x+1][y] == 0 && col[x+1][y+1] == 0 )
-						return [room.x*5+y,room.y*5+x,size]; // this is probly wrong fixed x/y swap
-				
-			}
+				return [room.x*5+y,room.y*5+x,size]; // this is probly wrong fixed x/y swap
 		}
-	//	dumpRoom(room)
+	}
 	return false;
 }

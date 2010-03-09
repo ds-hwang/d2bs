@@ -38,8 +38,8 @@ function YAM_Idle() {
 	_lastdate      = new Date() - 60000;
 	_foundgame     = "FOUND HOT IP: " + _IP + " " + me.realmshort + (me.playertype ? "(HC)":"(SC)") + " Game: " + me.gamename + "//" + me.gamepassword;
 	_oldmessage    = "";
-	// Set Max Game length to infinite so we dont time out
-	me.gamelength = 0;
+	// Set Max Game time to infinite so we dont time out
+	me.maxgametime = 0;
 
 	// Set autostarter.dbj to rejoin the same game if we get disconnected
 	if (!DC_SendMsgToScript("scripts\\YAMBstarter.dbj","join " + me.gamename + "/" + me.gamepassword)) {

@@ -378,7 +378,7 @@ function Tokra() {
    	}
 
 	// Set Max Game length to infinite so we dont time out
-	me.gamelength = 0;
+	me.maxgametime = 0;
 	MonsterSearch=1;
 
 	// Do town stuff in the act we are in

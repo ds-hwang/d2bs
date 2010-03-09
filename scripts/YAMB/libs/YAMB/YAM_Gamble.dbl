@@ -8,10 +8,11 @@
 entryFunc = Gamble;
  
 function Gamble() {
+	var count = 1;
 	DC_DPrint("Setting Infinite Game Length!");
 	if(YAM_MaxGameLength){
 		YAM_MaxGameLength = 0;
-		me.gamelength = 0;
+		me.maxgametime = 0;
 	}
 	if (!YAM_GambleIt ) {
 		DC_DPrint("ÿc1Warning: Forcing YAM_GambleIt to TRUE for this module!ÿc0");
@@ -26,13 +27,13 @@ function Gamble() {
 		DM_UsePortal("Waypoint",0x1); 
 		YAM_InitCommTown(); 
 	}
-	var count = 0;
 	while (true) {
 		print("in loop, count is " + count);
 		while (DC_MyGoldCarry() != 990000) {
 			say("gold 990000");
 			delay(500);
 		}
+		count++;
 		// Do town stuff in the act we are in
 		YAM_TownManager();
 
@@ -41,6 +42,5 @@ function Gamble() {
 			commTown.GotoGheed();
 			YAM_NPCinteract(DC_getNPC(147));
 		}
-	count++;
 	}
 }

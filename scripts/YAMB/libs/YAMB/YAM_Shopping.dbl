@@ -32,7 +32,7 @@ function Shopping() {
 	var _lastdate = new Date() - 60000;
 	var count = 1;
 	print ("Setting Infinite Game Length!");
-	me.gamelength = 0;
+	me.maxgametime = 0;
 	if (!YAM_ShopIt) {
 		print ("ÿc1Warning: Forcing YAM_ShopIt to TRUE for this module!ÿc0");
 		YAM_ShopIt = true;

@@ -837,7 +837,7 @@ function DC_ClearCursor() {
 // Function by Xizeta
 // Return value : Name of the mercenary if he is alive, false if he is not
 function DC_GetMercName() {
-	if(me.mercrevive) { return false; }
+	if(me.mercrevivecost) { return false; }
 	var _merc = DC_GetMerc();
 	return (_merc) ? _merc.name : false;
 }
@@ -845,7 +845,7 @@ function DC_GetMercName() {
 // Return value : If the mercenary is alive, return the object. False if he is not alive
 function DC_GetMerc() {
 	// If we get the price to ressurect the merc, he is dead so return false
-	if(me.mercrevive) { return false; }
+	if(me.mercrevivecost) { return false; }
 	var _merc = me.getMerc();
 	DC_DPrint("DC_GetMerc() : using me.getMerc() -> Merc was" + ((_merc) ? " found!  merc gid = " : " not found!") + ((_merc) ? _merc.gid : " ")); //TESTING
 

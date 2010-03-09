@@ -501,7 +501,7 @@ function YAM() {
 		delay(YAM_StartGameDelay);
 	}
 	// With all that taken care of, set max game length
-	me.gamelength = YAM_MaxGameLength*1000;
+	me.maxgametime = YAM_MaxGameLength*1000;
 	// Load the life watch script
 	load(YAM_LifeWatchPath);
 	delay(500);
