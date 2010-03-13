@@ -756,9 +756,9 @@ njipStats["passivemagpierce"]=358;
 
 // mod 256 items
 var njipStats256 = [];
-njipStats256[7] = 1;	// maxhp
-njipStats256[9] = 1;	// maxmp
-njipStats256[11] = 1;	// maxstamina
+//njipStats256[7] = 1;	// maxhp
+//njipStats256[9] = 1;	// maxmp
+//njipStats256[11] = 1;	// maxstamina
 njipStats256[216] = 1;	// maxhp / lvl
 njipStats256[217] = 1;	// maxmp / lvl
 
