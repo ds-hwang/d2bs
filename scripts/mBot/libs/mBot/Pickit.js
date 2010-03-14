@@ -23,10 +23,12 @@ var Pickit = new function () {
 		
 		//Loop pickit!
 		var lines = file.readAllLines();
+		file.close();
 		for (var lineNum = 1, line = lines[0]; (lineNum - 1) < lines.length; lineNum++, line = lines[lineNum - 1]) {
 			
 			//Clean out any comments in the line.
-			line.substr(0, line.indexOf("//"));
+			if (line.indexOf("//") != -1)
+				line = line.substr(0, line.indexOf("//"));
 			
 			//Check if the line is empty
 			if (line.length == 0)
@@ -211,6 +213,11 @@ var Pickit = new function () {
 		return false;
 	}
 
+	this.detailedInfo = function(item) {
+		var stats = item.getStat(-1);
+		print(stats.toSource());
+	}
+	
 	this.pick = function () {
 		var pickList = [];
 		//Loop all the items on the ground.
@@ -238,7 +245,6 @@ var Pickit = new function () {
 			
 			if (pickList[n].item.pickFromGround()) {
 				print("Picked up " + pickList[n].item.name);
-				Town.newItems.push(copyUnit(pickList[n].item));
 			}
 		}
 		return true;
