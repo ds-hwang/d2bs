@@ -5,16 +5,24 @@ const Warning = 3;
 
 var Interface = new function () {
 	this.profileName = "";
+	this.mBotConfig = {};
 	this.config = {};
+	this.cache;
 	
 	this.Init = function () {
 		this.profileName = "McGod";
 		while(this.profileName.length == 0)
 			delay(100);
-		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:0}]);
+		this.cache = new Ini("profile/" + this.profileName + "/mBot.ini", true);
+		this.mBotConfig = this.cache.Read();
+		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:2}]);
 	}
 	this.read = function(nSection, nName, nDefault) {
-		var ret = this.iniread("profile/" + this.profileName + "/mBot.ini", nSection, nName, nDefault);
+		if (!this.mBotConfig.hasOwnProperty(nSection))
+			var ret = nDefault;
+		else
+			var ret = this.mBotConfig[nSection][nName];
+			
 		if (typeof(nDefault) == "number")
 			return parseInt(ret);
 		if (typeof(nDefault) == "boolean")
@@ -25,8 +33,10 @@ var Interface = new function () {
 	this.readConfig = function (nSection, nConfig) {
 		var nRet = {};
 		for (var n = 0; n < nConfig.length; n++) {
-			var ret = this.iniread("profile/" + this.profileName + "/mBot.ini", nSection, nConfig[n].Name, nConfig[n].Default);
-			nRet[nConfig[n].Name] = ret;
+			if (!this.mBotConfig.hasOwnProperty(nSection))
+				var ret = String(nConfig[n].Default);
+			else
+				var ret = this.mBotConfig[nSection][nConfig[n].Name];
 			if (typeof(nConfig[n].Default) == "number")
 				nRet[nConfig[n].Name] = parseInt(ret);
 			if (typeof(nConfig[n].Default) == "boolean")
@@ -36,7 +46,7 @@ var Interface = new function () {
 	}
 
 	this.message = function(nType, nMsg) {
-		if (nType < this.config.MessageType)
+		if (this.config.hasOwnProperty("MessageType") && nType < this.config.MessageType)
 			return false;
 			
 		var TypeNames = ["DDebug", "Debug", "", "Warning", "Error"];
@@ -55,29 +65,10 @@ var Interface = new function () {
 		nFil.write("[" + nDate.toShortTimeString() + "]: " + nMessage + "\n");
 		nFil.close();
 	}
-	
-	this.iniread = function(file, section, name, defaultValue) {
-		/*var nFile = File.open(file, 0);
-		if (!nFile)
-			return defaultValue;
-		var nSection = false;
-		while(!nFile.eof) {
-			var line = nFile.readLine();
-			var nSection = /\[(.+?)\]/.exec(line);
-			if (nSection) {
-				if (nSection[1].toLower() == section.toLower())
-					nSection = true;
-				else
-					nSection = false;
-			}
-			if (line.indexOf("=") != -1 && nFile
-		}*/
-		return String(defaultValue);
-	}
 }
 
 function parseBoolean(nStr) {
-	switch (nStr.toLowerCase()) {
+	switch (String(nStr).toLowerCase()) {
 		case "y":
 		case "yes":
 		case "1":

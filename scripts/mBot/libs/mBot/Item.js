@@ -377,7 +377,7 @@ Unit.prototype.beltCount = function () {
 	return 0;
 }
 
-Unit.__defineGetter__("loc", function(){
+Unit.prototype.__defineGetter__("loc", function(){
 	switch(this.node) {
 		case 1://Storage
 			switch(this.location) {

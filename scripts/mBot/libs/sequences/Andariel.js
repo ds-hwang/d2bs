@@ -10,6 +10,7 @@ function Andariel() {
 	
 
 	Attack.attackMonster("Andariel");
+	Pickit.pick();
 	
 	return true;
 }

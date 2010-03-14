@@ -25,11 +25,13 @@ var Container = function (name, width, height, location) {
 		//Mark item in buffer.
 		for(var x = item.x; x < (item.x + item.sizex); x++)
 			for (var y = item.y; y < (item.y + item.sizey); y++) {
-				this.buffer[y][x] = 1;
+				this.buffer[y][x] = this.itemList.length + 1;
 				this.openPositions--;
 			}
 		//Add item to list.
 		this.itemList.push(copyUnit(item));
+		if (this.location == 0)
+			Interface.writeLog("Test.log", JSON.stringify(this.buffer));
 		
 		return true;
 	}
@@ -61,7 +63,7 @@ var Container = function (name, width, height, location) {
 		for (var x = 0; x < this.height - (item.sizey - 1); x++) {
 			itemLoop:for (var y = 0; y < this.width - (item.sizex - 1); y++) {
 				//Check if there is something in this spot.
-				if (this.buffer[x][y])
+				if (this.buffer[x][y] > 0)
 					continue;
 				//Loop the item size to make sure we can fit it.
 				for (var nx = 0; nx < item.sizey; nx++)
@@ -126,35 +128,38 @@ var Container = function (name, width, height, location) {
 		for (var x = 0; x < this.height; x++) {
 			var string = "";
 			for (var y = 0; y < this.width; y++)
-				string += (this.buffer[x][y]) ? "ÿc1x" : "ÿc0o";
+				string += (this.buffer[x][y] > 0) ? "ÿc1x" : "ÿc0o";
 			print(string);
 		}
 	}
 	
 	/* Container.compare(reference)
-	 *	Compare given container versus the current one, return differences.
+	 *	Compare given container versus the current one, return all new items in current buffer.
 	 */
-	this.compare = function(reference) {
+	this.Compare = function(baseRef) {
 		try {
+			var itemList = new Array();
+			var reference = baseRef.slice(0, baseRef.length);
 			//Insure valid reference.
-			if (!isArray(reference) || reference.length != this.buffer.length || reference[0].length != this.buffer[0].length)
-				throw new Error("Unable to compare different containers.");
+			if (!isObject(reference) || reference.length != this.buffer.length || reference[0].length != this.buffer[0].length)
+				throw new Error("Unable to compare different containers.");				
 			
-			var tempBuffer = new Array();
 			for (var h = 0; h < this.height; h++) {
-				tempBuffer.push(new Array());
-				for (var w = 0; w < this.width; w++)
-					tempBuffer[h][w] = 0;
-			}
-
-			
-			for (var h = 0; h < this.height; h++)
-				for (var w = 0; w < this.width; w++)
+				Loop:for (var w = 0; w < this.width; w++) {
+					var item = this.itemList[this.buffer[h][w] - 1];
+					
+					if (!item)
+						continue;
+						
+					for (var n = 0; n < itemList.length; n++)
+						if (itemList[n].id == item.id)
+							continue Loop;
 					//Check if the buffers changed and the current buffer has an item there.
-					if (this.buffer[h][w] != reference[h][w] && this.buffer[h][w])
-						tempBuffer[h][w] = 1;
-			
-			return tempBuffer;
+					if (this.buffer[h][w] > 0 && reference[h][w] == 0) 
+						itemList.push(copyUnit(item));
+				}
+			}
+			return itemList;
 		} catch(e) {
 			mBot.throwError(e);
 			return false;

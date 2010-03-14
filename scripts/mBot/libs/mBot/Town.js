@@ -12,6 +12,8 @@ var Town = new function () {
 	
 	this.tick = function () {
 		this.doHeal();
+		this.doIdentify();
+		this.doStash();
 		this.doMerc();
 		this.doPotions();
 		this.doTPs();
@@ -421,13 +423,10 @@ var Town = new function () {
 	}
 	
 	this.needIdentify = function () {
-	print(this.newItems.length);
-		for (var n in this.newItems) {
-			if (!this.newItems[n].getFlag(pickitFlag.identified)) {
-				Interface.message(Debug, "We need to identify one or more items.");
+		var items = Storage.Inventory.Compare(this.invRef);
+		for (var n in items)
+			if (!items[n].getFlag(pickitFlag.identified))
 				return true;
-			}
-		} 
 		return false;
 	}
 	
@@ -436,7 +435,7 @@ var Town = new function () {
 			//Check if we even have itamz.
 			if (!this.needIdentify())
 				return true;
-				
+
 			//Move to the NPC with scrolls
 			var nUnit = this.useNPC("Scrolls");
 			
@@ -448,24 +447,46 @@ var Town = new function () {
 			if (nIDs.length == 0)
 				throw new Error("Unable to find ID Scrolls in NPC's Shop.");
 				
+			this.newItems = Storage.Inventory.Compare(this.invRef);
+			print(this.newItems.length);
 			for (var n in this.newItems) {
-				nIDs[0].buy();
-				
-				var scroll = Unit.findItem({code:"isc", ownerid:me.gid, location:0});
-				if (scroll.length == 0)
-					throw new Error("Unable to find ID Scroll in Inventory.");
+				if (!this.newItems[n].getFlag(pickitFlag.identified)) {
+					nIDs[0].buy();
 					
-				if (!scroll[0].useScroll())
-					continue;
+					var scroll = Unit.findItem({code:"isc", ownerid:me.gid, location:0});
+					if (scroll.length == 0)
+						throw new Error("Unable to find ID Scroll in Inventory.");
+						
+					if (!scroll[0].useScroll())
+						continue;
 
-				if (!this.newItems[n].identify())
-					continue;
+					if (!this.newItems[n].identify())
+						continue;
+				}
 			}
 			return true;
 		} catch(e) {
 			mBot.throwError(e);
 			return false;
-		}
+		}	
+	}
+	
+	this.needStash = function () {
+		return Storage.Inventory.Compare(this.invRef).length > 0;
+	}
+	
+	this.doStash = function () {
+		this.newItems = Storage.Inventory.Compare(this.invRef);
 		
+		for (var n in this.newItems) {
+			if (!!Pickit.checkItem(this.newItems[n])) {
+				Storage.Stash.MoveTo(this.newItems[n]);
+			} else {
+				if (getInteractedNPC())
+					this.newItems[n].sell();
+				else
+					this.newItems[n].drop();
+			}
+		}
 	}
 }

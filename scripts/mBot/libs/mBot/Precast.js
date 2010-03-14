@@ -91,7 +91,7 @@ var Precast = new function () {
 
 	this.Init = function () {
 		this.determinePrecasts();
-		this.config = Interface.read("Precast", [{Name:"ForceRecast", Default:false}]);
+		this.config = Interface.readConfig("Precast", [{Name:"ForceRecast", Default:false}]);
 	}
 	
 	/*	this.determinePrecasts()
