@@ -80,6 +80,9 @@ JSAPI_FUNC(my_clickMap)
 	if(argc < 3)
 		return JS_TRUE;
 
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
 	if(JSVAL_IS_INT(argv[0]))
 		JS_ValueToUint16(cx, argv[0], &nClickType);
 	if(JSVAL_IS_INT(argv[1]) || JSVAL_IS_BOOLEAN(argv[1]))
@@ -139,6 +142,9 @@ JSAPI_FUNC(my_acceptTrade)
 		*rval = BOOLEAN_TO_JSVAL((*p_D2CLIENT_bTradeBlock));
 		return JS_TRUE;
 	}
+
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
 
 	if((*p_D2CLIENT_TradeFlag) == 3 || (*p_D2CLIENT_TradeFlag) == 5 || (*p_D2CLIENT_TradeFlag) == 7)
 	{

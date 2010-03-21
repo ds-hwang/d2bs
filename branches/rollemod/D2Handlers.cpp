@@ -367,6 +367,8 @@ BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFil
 	}
 	else Vars.bGameLoopEntered = true;
 
+	Sleep( 0 );
+
 	EnterCriticalSection(&Vars.cGameLoopSection);
 
 	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
