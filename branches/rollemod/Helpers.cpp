@@ -129,6 +129,8 @@ bool InitHooks(void)
 			if(!Vars.oldWNDPROC)
 				continue;
 
+			Vars.uTimer = SetTimer( D2WIN_GetHwnd(), 1, 0, TimerProc );
+
 			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
 			if(mainThread)
 			{

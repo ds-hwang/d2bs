@@ -66,6 +66,8 @@ struct Variables
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
 
+	UINT_PTR uTimer;
+
 	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 

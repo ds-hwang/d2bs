@@ -374,6 +374,20 @@ BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFil
 	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
 }
 
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+{
+	if(Vars.bGameLoopEntered)
+	{
+		LeaveCriticalSection(&Vars.cGameLoopSection);
+	}
+	else Vars.bGameLoopEntered = true;
+
+	Sleep( 0 );
+
+	EnterCriticalSection(&Vars.cGameLoopSection);	
+}
+
+
 void GameLeave(void)
 {
 	if(Vars.bGameLoopEntered)

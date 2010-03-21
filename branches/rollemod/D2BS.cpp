@@ -114,6 +114,8 @@ void Shutdown(void)
 	Genhook::Destroy();
 	ShutdownDdeServer();
 
+	KillTimer( D2WIN_GetHwnd(), Vars.uTimer );
+
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);
 
