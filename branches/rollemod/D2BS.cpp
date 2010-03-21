@@ -88,6 +88,8 @@ BOOL Startup(void)
 	Vars.bChangedAct = FALSE;
 	Vars.bGameLoopEntered = FALSE;
 
+	Vars.SectionCount = 0;
+
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
