@@ -282,7 +282,7 @@ void TextHook::Draw(void)
 		POINT loc = {x, y};
 		if(GetIsAutomap())
 		{
-			ScreenToAutomap(&loc, x, y);
+			ScreenToAutomap(&loc);
 		}
 		EnterCriticalSection(&Vars.cTextHookSection);
 		myDrawText(text, loc.x, loc.y, color, font);
@@ -323,7 +323,7 @@ void ImageHook::Draw(void)
 		POINT loc = {x, y};
 		if(GetIsAutomap())
 		{
-			ScreenToAutomap(&loc, x, y);
+			ScreenToAutomap(&loc);
 		}
 		EnterCriticalSection(&Vars.cImageHookSection);
 		myDrawAutomapCell(image, loc.x, loc.y, (BYTE)color);
@@ -372,8 +372,8 @@ void LineHook::Draw(void)
 		POINT sz = {x2, y2};
 		if(GetIsAutomap())
 		{
-			ScreenToAutomap(&loc, x, y);
-			ScreenToAutomap(&sz, x2, y2);
+			ScreenToAutomap(&loc);
+			ScreenToAutomap(&sz);
 		}
 		EnterCriticalSection(&Vars.cLineHookSection);
 		D2GFX_DrawLine(loc.x, loc.y, sz.x, sz.y, color, 0xFF);
@@ -400,8 +400,8 @@ void BoxHook::Draw(void)
 		POINT sz = {x+x2, y+y2};
 		if(GetIsAutomap())
 		{
-			MapToScreenCoords(&loc);
-			MapToScreenCoords(&sz);
+			ScreenToAutomap(&loc);
+			ScreenToAutomap(&sz);
 		}
 		EnterCriticalSection(&Vars.cBoxHookSection);
 		D2GFX_DrawRectangle(loc.x, loc.y, sz.x, sz.y, color, opacity);

@@ -746,14 +746,12 @@ JSAPI_FUNC(screenToAutomap)
 			if(JS_ValueToInt32(cx, x, &ix) == JS_FALSE || JS_ValueToInt32(cx, y, &iy))
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
-			POINT result;
-			ix *= 32;
-			iy *= 32;
-			ScreenToAutomap(&result, ix, iy);
-			x = INT_TO_JSVAL(ix);
-			y = INT_TO_JSVAL(iy);
+			POINT result = {ix * 32, iy * 32};
+			ScreenToAutomap(&result);
+			x = INT_TO_JSVAL(result.x);
+			y = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
-			if(JS_SetProperty(cx, res, "x", &x) == JS_FALSE || JS_SetProperty(cx, res, "y", &y) == JS_FALSE)
+			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
 			*rval = OBJECT_TO_JSVAL(res);
 		}
@@ -769,12 +767,10 @@ JSAPI_FUNC(screenToAutomap)
 			if(JS_ValueToInt32(cx, argv[0], &ix) == JS_FALSE || JS_ValueToInt32(cx, argv[1], &iy) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
-			POINT result;
-			ix *= 32;
-			iy *= 32;
-			ScreenToAutomap(&result, ix, iy);
-			argv[0] = INT_TO_JSVAL(ix);
-			argv[1] = INT_TO_JSVAL(iy);
+			POINT result = {ix * 32, iy * 32};
+			ScreenToAutomap(&result);
+			argv[0] = INT_TO_JSVAL(result.x);
+			argv[1] = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
 			if(JS_SetProperty(cx, res, "x", &argv[0]) == JS_FALSE || JS_SetProperty(cx, res, "y", &argv[1]) == JS_FALSE)
 				THROW_ERROR(cx, "Failed to set x and/or y values");
@@ -807,7 +803,7 @@ JSAPI_FUNC(automapToScreen)
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
 			POINT result = {ix,iy};
-			MapToScreenCoords(&result);
+			AutomapToScreen(&result);
 			x = INT_TO_JSVAL(ix);
 			y = INT_TO_JSVAL(iy);
 			if(JS_SetProperty(cx, arg, "x", &x) == JS_FALSE || JS_SetProperty(cx, arg, "y", &y) == JS_FALSE)
@@ -827,7 +823,7 @@ JSAPI_FUNC(automapToScreen)
 				THROW_ERROR(cx, "Failed to convert x and/or y values");
 			// convert the values
 			POINT result = {ix,iy};
-			MapToScreenCoords(&result);
+			AutomapToScreen(&result);
 			argv[0] = INT_TO_JSVAL(result.x);
 			argv[1] = INT_TO_JSVAL(result.y);
 			JSObject* res = JS_NewObject(cx, NULL, NULL, NULL);
