@@ -46,7 +46,7 @@ DWORD GetBaseTable(INT table, INT row)
 		DWORD dwTableOffset = BaseStatTable[table].dwEntry;
 
 		if(dwTableOffset <= 0xFFFF)
-			dwD2MPQTable = (*p_D2COMMON_sqptDataTable);
+			dwD2MPQTable = (*p_D2COMMON_sgptDataTable);
 		else dwD2MPQTable = NULL;
 
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
