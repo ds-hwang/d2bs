@@ -38,7 +38,7 @@ FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, U
 FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x48350)
 FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x492F0) // unused but I want to look into using it
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B20)
-FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0x19438)
+FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B40)
 FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x8D030) // unused but we need to use it
 FUNCPTR(D2CLIENT, GetAutomapSize, DWORD __stdcall, (), 0x5F080)
 FUNCPTR(D2CLIENT, NewAutomapCell, AutomapCell * __fastcall, (), 0x5F6B0)
@@ -184,7 +184,7 @@ FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pSt
 FUNCPTR(D2COMMON, GetQuestFlag, INT __stdcall, (void* QuestInfo, DWORD dwAct, DWORD dwQuest), -10600)
 FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10611)
 FUNCPTR(D2COMMON, AbsScreenToMap, void __stdcall, (long *pX, long *pY), -10474)
-FUNCPTR(D2COMMON, GetNextItemFromInventory, UnitAny *__stdcall, (UnitAny *pItem), -10698)
+//FUNCPTR(D2COMMON, GetNextItemFromInventory, UnitAny *__stdcall, (UnitAny *pItem), -10698) // incorrect right now
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), -10875)
 FUNCPTR(D2COMMON, GetSkillLevel, INT __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10306)
 FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), -11087)
@@ -245,6 +245,7 @@ FUNCPTR(D2MULTI, PrintChannelText, void __stdcall, (char *szText, DWORD dwColor)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Multi Globals
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
 VARPTR(D2MULTI, ChatBoxMsg, char*, 0x38F18)
 
 

@@ -256,7 +256,8 @@ struct Level {
 struct Room2 {
 	DWORD _1[2];			//0x00
 	Room2** pRoom2Near;		//0x08
-	DWORD _2[6];			//0x0C
+	DWORD _2[5];			//0x0C
+	DWORD* pType2Info;		//0x20
 	Room2* pRoom2Next;		//0x24
 	DWORD dwRoomFlags;		//0x28
 	DWORD dwRoomsNear;		//0x2C
