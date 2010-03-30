@@ -191,7 +191,7 @@ JSAPI_FUNC(my_getPath)
 		JS_GetArrayLength(cx, pObject, &dwLength);
 		AreaIds = new DWORD[dwLength];
 		jsval nVal;
-		for (int n = 0; n < (INT)dwLength; n++) {
+		for (int n = 0; n < (int)dwLength; n++) {
 			JS_GetElement(cx, pObject, n, &nVal);
 			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
 		}
@@ -220,7 +220,7 @@ JSAPI_FUNC(my_getPath)
 	CCollisionMap g_collisionMap;
 
 	DWORD nAreas[64] = {0};
-	INT nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
+	int nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
 
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
@@ -338,7 +338,7 @@ JSAPI_FUNC(my_getCollision)
 
 JSAPI_FUNC(my_clickItem)
 {
-typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
+typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int loc);
 
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
@@ -355,7 +355,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 	myUnit* pmyUnit = NULL;
 	UnitAny* pUnit = NULL;
 
-	//INT ScreenSize = D2GFX_GetScreenSize();
+	//int ScreenSize = D2GFX_GetScreenSize();
 
 	POINT Belt[] =
 	{
@@ -449,10 +449,10 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
 			THROW_ERROR(cx, "Object is not an item!");
 
-		INT InventoryLocation = GetItemLocation(pUnit);
+		int InventoryLocation = GetItemLocation(pUnit);
 		
-		INT x = pUnit->pItemPath->dwPosX;
-		INT y = pUnit->pItemPath->dwPosY;
+		int x = pUnit->pItemPath->dwPosX;
+		int y = pUnit->pItemPath->dwPosY;
 
 		*p_D2CLIENT_CursorHoverX = x;
 		*p_D2CLIENT_CursorHoverY = y;
@@ -498,7 +498,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 		}
 		else if(InventoryLocation == STORAGE_BELT)
 		{
-			INT i = x;
+			int i = x;
 
 			if( i < 0 || i > 0x0F)
 				return JS_TRUE;
@@ -582,8 +582,8 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 						break;
 				}
 
-				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
-				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
+				int	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
+				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
 					D2CLIENT_LeftClickItem(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, x, y, 1, pLayout, nLoc);
@@ -611,8 +611,8 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 				if(z == -1)
 					return JS_TRUE;
 
-				INT x = NULL;
-				INT y = NULL;
+				int x = NULL;
+				int y = NULL;
 
 				if(D2GFX_GetScreenSize() == 2)
 				{
@@ -879,7 +879,7 @@ JSAPI_FUNC(my_getSkillByName)
 	if(!(lpszText && lpszText[0]))
 		THROW_ERROR(cx, "Could not convert string");
 
-	for(INT i = 0; i < ArraySize(Game_Skills); i++)
+	for(int i = 0; i < ArraySize(Game_Skills); i++)
 	{
 		if(!_strcmpi(Game_Skills[i].name, lpszText))
 		{

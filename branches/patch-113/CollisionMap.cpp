@@ -288,7 +288,7 @@ BOOL CCollisionMap::DumpMap(LPCSTR lpszFilePath, const LPPOINT lpPath, DWORD dwC
 	return TRUE;
 }
 
-BOOL CCollisionMap::CheckCollision(INT x, INT y) {
+BOOL CCollisionMap::CheckCollision(int x, int y) {
 	if(!m_map.IsCreated())
 		return FALSE;
 	if(x > m_map.GetCX() || y > m_map.GetCY())
@@ -499,16 +499,16 @@ BOOL CCollisionMap::ReportCollisionType(POINT ptOrigin, long lRadius) const
 	return aList.GetSize();
 }
 
-INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
+int CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 {
 	POINT ptExitPoints[0x40][2];
-	INT nTotalPoints = 0, nCurrentExit = 0;
-	INT nMaxExits = 0x40;
+	int nTotalPoints = 0, nCurrentExit = 0;
+	int nMaxExits = 0x40;
 	UnitAny* Me = *p_D2CLIENT_PlayerUnit;
 	CriticalRoom myRoom;
 	myRoom.EnterSection();
 
-	for(INT i = 0; i < m_map.GetCX(); i++)
+	for(int i = 0; i < m_map.GetCX(); i++)
 	{
 		if(!(m_map[i][0] % 2))
 		{
@@ -530,7 +530,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 		}
 	}
 
-	for(INT i = 0; i < m_map.GetCX(); i++)
+	for(int i = 0; i < m_map.GetCX(); i++)
 	{
 		if(!(m_map[i][m_map.GetCY() - 1] % 2))
 		{
@@ -552,7 +552,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 		}
 	}
 
-	for(INT i = 0; i < m_map.GetCY(); i++)
+	for(int i = 0; i < m_map.GetCY(); i++)
 	{
 		if(!(m_map[0][i] % 2))
 		{
@@ -574,7 +574,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 		}
 	}
 
-	for(INT i = 0; i < m_map.GetCY(); i++)
+	for(int i = 0; i < m_map.GetCY(); i++)
 	{
 		if(!(m_map[m_map.GetCX() - 1][i] % 2))
 		{
@@ -597,11 +597,11 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 	}
 
 	LPPOINT ptCenters = new POINT[nTotalPoints];
-	for(INT i = 0; i < nTotalPoints; i++)
+	for(int i = 0; i < nTotalPoints; i++)
 	{
-		INT nXDiff = ptExitPoints[i][1].x - ptExitPoints[i][0].x;
-		INT nYDiff = ptExitPoints[i][1].y - ptExitPoints[i][0].y;
-		INT nXCenter = 0, nYCenter = 0;
+		int nXDiff = ptExitPoints[i][1].x - ptExitPoints[i][0].x;
+		int nYDiff = ptExitPoints[i][1].y - ptExitPoints[i][0].y;
+		int nXCenter = 0, nYCenter = 0;
 
 		if(nXDiff > 0)
 		{
@@ -632,10 +632,10 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 		{
 			if(pNear[i]->pLevel->dwLevelNo != dwLevelId)
 			{
-				INT nRoomX = pRoom->dwPosX * 5;
-				INT nRoomY = pRoom->dwPosY * 5;
+				int nRoomX = pRoom->dwPosX * 5;
+				int nRoomY = pRoom->dwPosY * 5;
 
-				for(INT j = 0; j < nTotalPoints; j++)
+				for(int j = 0; j < nTotalPoints; j++)
 				{
 					if((ptCenters[j].x + m_ptLevelOrigin.x) >= (WORD)nRoomX && (ptCenters[j].x + m_ptLevelOrigin.x) <= (WORD)(nRoomX + (pRoom->dwSizeX * 5)))
 					{
@@ -689,7 +689,7 @@ INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel)
 					{
 						BOOL bExists = FALSE;
 
-						for(INT i = 0; i < nCurrentExit; i++)
+						for(int i = 0; i < nCurrentExit; i++)
 							{
 								if(((DWORD)lpLevel[i]->ptPos.x == (pRoom->dwPosX * 5) + pUnit->dwPosX) && 
 									((DWORD)lpLevel[i]->ptPos.y == (pRoom->dwPosY * 5) + pUnit->dwPosY))

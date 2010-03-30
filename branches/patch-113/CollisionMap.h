@@ -65,7 +65,7 @@ public:
 	SIZE CopyMapData(WORD** ppBuffer, int cx, int cy) const;
 	BOOL CopyMapData(WordMatrix& rBuffer) const;
 	BOOL ReportCollisionType(POINT ptOrigin, long lRadius) const;
-	INT CCollisionMap::GetLevelExits(LPLevelExit* lpLevel);
+	int CCollisionMap::GetLevelExits(LPLevelExit* lpLevel);
 
 	////////////////////////////////////////////////////////////
 	// Convertions
@@ -75,7 +75,7 @@ public:
 	static void MakeBlank(WordMatrix& rMatrix, POINT pos);
 	static BOOL ThickenWalls(WordMatrix& rMatrix, int nThickenBy = 1);
 	BOOL IsGap(int x, int y);
-	BOOL CheckCollision(INT x, INT y);
+	BOOL CheckCollision(int x, int y);
 
 	////////////////////////////////////////////////////////////
 	// Only Used by D2Hackit! Do NOT Call It!!!

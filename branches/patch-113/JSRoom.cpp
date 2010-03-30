@@ -182,7 +182,7 @@ JSAPI_FUNC(room_getCollision)
 	int nLimitX = x + nCx;
 	int nLimitY = y + nCy;
 
-	INT nCurrentArrayY = NULL;
+	int nCurrentArrayY = NULL;
 
 	WORD* p = pCol->pMapStart;
 
@@ -190,7 +190,7 @@ JSAPI_FUNC(room_getCollision)
 	{
 		JSObject* jsobjx = JS_NewArrayObject(cx, NULL, NULL);
 		
-		INT nCurrentArrayX = NULL;
+		int nCurrentArrayX = NULL;
 
 		for (int i = x; i < nLimitX; i++)
 		{
@@ -475,8 +475,8 @@ JSAPI_FUNC(my_getRoom)
 			POINT RoomStart = {pRoom->pRoom1->dwXStart, pRoom->pRoom1->dwYStart };
 			POINT RoomEnd = {pRoom->pRoom1->dwXStart + pRoom->pRoom1->dwXSize , pRoom->pRoom1->dwYStart + pRoom->pRoom1->dwYSize};
 
-			for(INT x = RoomStart.x; x < RoomEnd.x; x++)
-				for(INT y = RoomStart.y; y < RoomEnd.y; y++)
+			for(int x = RoomStart.x; x < RoomEnd.x; x++)
+				for(int y = RoomStart.y; y < RoomEnd.y; y++)
 					if(x == nX && y == nY)
 					{
 						if(bAdded)

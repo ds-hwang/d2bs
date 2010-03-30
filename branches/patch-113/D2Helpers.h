@@ -21,14 +21,14 @@ ClientGameState ClientState(void);
 bool	GameReady(void);
 bool	WaitForGameReady(void);
 DWORD	GetPlayerArea(void);
-void	SendMouseClick(INT x, INT y, INT clicktype);
-POINT	CalculateTextLen(const char* szwText, INT Font);
+void	SendMouseClick(int x, int y, int clicktype);
+POINT	CalculateTextLen(const char* szwText, int Font);
 void	WorldToScreen(POINT* pPos);
 void	ScreenToWorld(POINT *ptPos);
 void	ScreenToAutomap(POINT* pPos);
 void	AutomapToScreen(POINT* pPos);
 Level*	GetLevel(DWORD dwLevelNo);
-BOOL	IsTownLevel(INT nLevel);
+BOOL	IsTownLevel(int nLevel);
 void	D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);
 void	myDrawText(const char* szwText, int x, int y, int color, int font);
 void	myDrawCenterText(const char* szwText, int x, int y, int color, int font, int div) ;
@@ -37,10 +37,10 @@ BYTE	CalcPercent(DWORD dwVal, DWORD dwMaxVal, BYTE iMin = NULL);
 DWORD	GetTileLevelNo(Room2* lpRoom2, DWORD dwTileNo);
 
 BOOL	ClickNPCMenu(DWORD NPCClassId, DWORD MenuId);
-INT		GetItemLocation(UnitAny *pItem);
+int		GetItemLocation(UnitAny *pItem);
 void	SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation);
 
-INT		GetSkill(WORD wSkillId);
+int		GetSkill(WORD wSkillId);
 BOOL	SetSkill(WORD wSkillId, BOOL bLeft);
 char*	GetSkillByID(WORD id);
 WORD	GetSkillByName(char* szSkillName);
@@ -52,8 +52,8 @@ InventoryLayout* GetLayoutFromTable(DWORD dwTable);
 UnitAny* D2CLIENT_FindUnit(DWORD dwId, DWORD dwType);
 
 POINT GetScreenSize();
-INT D2GetScreenSizeX();
-INT D2GetScreenSizeY();
+int D2GetScreenSizeX();
+int D2GetScreenSizeY();
 
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = 3);
 int RemoveColorSpecs(wchar_t *lpwsz);

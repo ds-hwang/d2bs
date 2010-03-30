@@ -204,7 +204,7 @@ Level* GetLevel(DWORD dwLevelNo)
 }
 
 // TODO: make this use SIZE for clarity
-POINT CalculateTextLen(const char* szwText, INT Font)
+POINT CalculateTextLen(const char* szwText, int Font)
 {
 	POINT ret = {0,0};
 
@@ -223,7 +223,7 @@ POINT CalculateTextLen(const char* szwText, INT Font)
 	return ret;
 }
 
-INT GetSkill(WORD wSkillId)
+int GetSkill(WORD wSkillId)
 {
 	if(!*p_D2CLIENT_PlayerUnit) return 0;
 
@@ -290,7 +290,7 @@ char* GetSkillByID(WORD id)
 	return NULL;
 }
 
-void SendMouseClick(INT x, INT y, INT clicktype)
+void SendMouseClick(int x, int y, int clicktype)
 {
 	LPARAM lp = x + (y << 16);
 	switch(clicktype)
@@ -354,7 +354,7 @@ void AutomapToScreen(POINT* pPos)
 	pPos->y = 8 + p_D2CLIENT_Offset->y + (pPos->y * (*p_D2CLIENT_AutomapMode));
 }
 
-BOOL IsTownLevel(INT nLevel)
+BOOL IsTownLevel(int nLevel)
 {
 	if(nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
 		nLevel == MAP_A2_LUT_GHOLEIN || 
@@ -461,7 +461,7 @@ BOOL ClickNPCMenu(DWORD NPCClassId, DWORD MenuId)
 	return FALSE;
 }
 
-INT GetItemLocation(UnitAny *pItem)
+int GetItemLocation(UnitAny *pItem)
 {
 	if(!pItem || !pItem->pItemData)
 		return -1;
@@ -597,12 +597,12 @@ POINT GetScreenSize()
 	return p;
 }
 
-INT D2GetScreenSizeX()
+int D2GetScreenSizeX()
 {
 	return GetScreenSize().x;
 }
 
-INT D2GetScreenSizeY()
+int D2GetScreenSizeY()
 {
 	return GetScreenSize().y;
 }

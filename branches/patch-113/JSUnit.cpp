@@ -696,7 +696,7 @@ JSAPI_FUNC(unit_interact)
 
 	if(pUnit->dwType == UNIT_ITEM && pUnit->dwMode != ITEM_MODE_ON_GROUND && pUnit->dwMode != ITEM_MODE_BEING_DROPPED)
 	{
-			INT nLocation = GetItemLocation(pUnit);					
+			int nLocation = GetItemLocation(pUnit);					
 			
 			BYTE aPacket[13] = {NULL};
 
@@ -1020,10 +1020,10 @@ JSAPI_FUNC(item_getPrice)
 	if(!WaitForGameReady())
 		THROW_ERROR(cx, "Game not ready");
 
-	INT diff = D2CLIENT_GetDifficulty();
+	int diff = D2CLIENT_GetDifficulty();
 	//D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell)
-	INT buysell = 0;
-	INT NPCID = 148;
+	int buysell = 0;
+	int NPCID = 148;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1372,7 +1372,7 @@ JSAPI_FUNC(item_shop)
 	else
 		*(BYTE*)&pPacket[9+3] = 0x80;
 
-	INT nBuySell = NULL;
+	int nBuySell = NULL;
 
 	if(dwMode == 2 || dwMode == 6)
 		nBuySell = NULL;
@@ -1740,11 +1740,11 @@ JSAPI_FUNC(unit_getEnchant)
 	if(!pUnit || pUnit->dwType != UNIT_MONSTER)
 		return JS_TRUE;
 
-	INT nEnchant = JSVAL_TO_INT(argv[0]);
+	int nEnchant = JSVAL_TO_INT(argv[0]);
 
 	*rval = INT_TO_JSVAL(0);
 
-	for(INT i = 0; i < 9; i++)
+	for(int i = 0; i < 9; i++)
 		if(pUnit->pMonsterData->anEnchants[i] == nEnchant)
 		{
 			*rval = JSVAL_TRUE;

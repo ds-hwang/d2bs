@@ -10,7 +10,7 @@ struct AreaNode
 	int nAreas[64];
 };
 
-extern INT GetAreas(DWORD nArray[], INT nSize, INT nStartAreaId, WORD wX, WORD wY);
+extern int GetAreas(DWORD nArray[], int nSize, int nStartAreaId, WORD wX, WORD wY);
 
 static AreaNode AreaNodes[] = {
 	// Act 1

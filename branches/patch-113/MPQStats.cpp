@@ -33,7 +33,7 @@ MPQTable BaseStatTable[] = {
 	{0}
 };
 
-DWORD GetBaseTable(INT table, INT row)
+DWORD GetBaseTable(int table, int row)
 {
 	DWORD dwResult = NULL;
 	DWORD dwD2MPQTable = NULL;
@@ -80,7 +80,7 @@ bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t siz
 	return FillBaseStat(table, row, szStat, result, size);
 }
 
-bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size)
+bool FillBaseStat(char* szTable, int row, int column, void* result, size_t size)
 {
 	int table = -1;
 	for(int i = 0; BaseStatTable[i].pTable != NULL; i++)
@@ -96,11 +96,11 @@ bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size)
 	return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size)
+bool FillBaseStat(int table, int row, char* szStat, void* result, size_t size)
 {
 	BinField* pTable = BaseStatTable[table].pTable;
 
-	INT column = -1;
+	int column = -1;
 	for(int i = 0; i < BaseStatTable[table].wTableSize; i++)
 		if(!_strcmpi(szStat, pTable[i].szFieldName))
 		{
@@ -114,7 +114,7 @@ bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size)
 	return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size)
+bool FillBaseStat(int table, int row, int column, void* result, size_t size)
 {
 	BinField* pTable = BaseStatTable[table].pTable;
 	DWORD dwRetValue = GetBaseTable(table, row);
@@ -179,7 +179,7 @@ bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size)
 	return true;
 }
 
-DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT column, char* szTable, char* szStat)
+DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, char* szTable, char* szStat)
 {
 	if(szTable)
 	{

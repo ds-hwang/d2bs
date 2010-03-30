@@ -39,7 +39,7 @@ FUNCPTR(D2CLIENT, Transmute, void __fastcall, (void), 0xA6560)
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B20)
 FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B40)
 FUNCPTR(D2CLIENT, GetCurrentInteractingNPC, UnitAny* __fastcall, (void), 0x46150)
-FUNCPTR(D2CLIENT, GetSelectedUnit, UnitAny * __stdcall, (), 0x51A80)
+FUNCPTR(D2CLIENT, GetSelectedUnit, UnitAny * __stdcall, (void), 0x51A80)
 FUNCPTR(D2CLIENT, GetCursorItem, UnitAny* __fastcall, (void), 0x16020)
 FUNCPTR(D2CLIENT, GetMercUnit, UnitAny* __fastcall, (void), 0x97CD0)
 FUNCPTR(D2CLIENT, UnitTestSelect, DWORD __stdcall, (UnitAny* pUnit, DWORD _1, DWORD _2, DWORD _3), 0x8D030) // unused but we need to use it
@@ -56,14 +56,14 @@ FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x48350)
 FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x492F0) // unused but I want to look into using it
 FUNCPTR(D2CLIENT, CloseInteract, void __fastcall, (void), 0x43870)
 
-FUNCPTR(D2CLIENT, GetAutomapSize, DWORD __stdcall, (), 0x5F080)
-FUNCPTR(D2CLIENT, NewAutomapCell, AutomapCell * __fastcall, (), 0x5F6B0)
+FUNCPTR(D2CLIENT, GetAutomapSize, DWORD __stdcall, (void), 0x5F080)
+FUNCPTR(D2CLIENT, NewAutomapCell, AutomapCell * __fastcall, (void), 0x5F6B0)
 FUNCPTR(D2CLIENT, AddAutomapCell, void __fastcall, (AutomapCell *aCell, AutomapCell **node), 0x61320)
 FUNCPTR(D2CLIENT, RevealAutomapRoom, void __stdcall, (Room1 *pRoom1, DWORD dwClipFlag, AutomapLayer *aLayer), 0x62580)
 FUNCPTR(D2CLIENT, InitAutomapLayer_I, AutomapLayer* __fastcall, (DWORD nLayerNo), 0x62710)
 
 FUNCPTR(D2CLIENT, ClickMap, void __stdcall, (DWORD MouseFlag, DWORD x, DWORD y, DWORD Type), 0x1BF20)
-FUNCPTR(D2CLIENT, LeftClickItem, void __stdcall, (UnitAny* pPlayer, Inventory* pInventory, INT x, INT y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0x96AA0) // 1.12
+FUNCPTR(D2CLIENT, LeftClickItem, void __stdcall, (UnitAny* pPlayer, Inventory* pInventory, int x, int y, DWORD dwClickType, InventoryLayout* pLayout, DWORD Location), 0x96AA0) // 1.12
 
 FUNCPTR(D2CLIENT, GetMouseXOffset, DWORD __fastcall, (void), 0x3F6C0)
 FUNCPTR(D2CLIENT, GetMouseYOffset, DWORD __fastcall, (void), 0x3F6D0)
@@ -76,7 +76,7 @@ FUNCPTR(D2CLIENT, LeaveParty, void __fastcall, (void), 0x9E5D0)
 FUNCPTR(D2CLIENT, AcceptTrade, void __fastcall, (void), 0x59600)
 FUNCPTR(D2CLIENT, CancelTrade, void __fastcall, (void), 0x595C0)
 
-FUNCPTR(D2CLIENT, GetDifficulty, BYTE __stdcall, (), 0x41930)
+FUNCPTR(D2CLIENT, GetDifficulty, BYTE __stdcall, (void), 0x41930)
 
 FUNCPTR(D2CLIENT, ExitGame, void __fastcall, (void), 0x42850)
 
@@ -165,7 +165,7 @@ VARPTR(D2CLIENT, MapId, DWORD, 0x11C3BC) // unused but I want to add it
 VARPTR(D2CLIENT, AlwaysRun, DWORD, 0x11C3EC)
 VARPTR(D2CLIENT, NoPickUp, DWORD, 0x52011) // unused but I want to add it
 
-VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused and I wonder what it is
+VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
 
 VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11EC80)
 
@@ -236,7 +236,7 @@ FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo)
 FUNCPTR(D2COMMON, CheckUnitCollision, DWORD __stdcall, (UnitAny* pUnitA, UnitAny* pUnitB, DWORD dwBitMask), -10839)
 FUNCPTR(D2COMMON, GetRoomFromUnit,  Room1* __stdcall, (UnitAny * ptUnit), -10331)
 
-FUNCPTR(D2COMMON, GetSkillLevel, INT __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10306)
+FUNCPTR(D2COMMON, GetSkillLevel, int __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10306)
 
 FUNCPTR(D2COMMON, GetItemLevelRequirement, DWORD __stdcall, (UnitAny* pItem, UnitAny* pPlayer), -11015)
 FUNCPTR(D2COMMON, GetItemPrice, DWORD __stdcall, (UnitAny* MyUnit, UnitAny* pItem, DWORD U1_,DWORD U2_,DWORD U3_,DWORD U4_), -10122)
@@ -251,7 +251,7 @@ FUNCPTR(D2COMMON, FixOverheadMsg, void __stdcall, (OverheadMsg* pMsg, DWORD dwUn
 FUNCPTR(D2COMMON, AddRoomData, void __stdcall, (Act * ptAct, int LevelId, int Xpos, int Ypos, Room1 * pRoom), -10401)
 FUNCPTR(D2COMMON, RemoveRoomData, void __stdcall, (Act* ptAct, int LevelId, int Xpos, int Ypos, Room1* pRoom), -11099)
 
-FUNCPTR(D2COMMON, GetQuestFlag, INT __stdcall, (void* QuestInfo, DWORD dwAct, DWORD dwQuest), -10600)
+FUNCPTR(D2COMMON, GetQuestFlag, int __stdcall, (void* QuestInfo, DWORD dwAct, DWORD dwQuest), -10600)
 
 FUNCPTR(D2COMMON, AbsScreenToMap, void __stdcall, (long *pX, long *pY), -10474)
 FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), -11087)
@@ -296,9 +296,9 @@ FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD 
 FUNCPTR(D2GFX, DrawRectangle, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwTrans), -10014)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext* context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10041)
 
-FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (), -10036)
+FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10036)
 
-FUNCPTR(D2GFX, GetHwnd, HWND __stdcall, (), -10048)
+FUNCPTR(D2GFX, GetHwnd, HWND __stdcall, (void), -10048)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -34,8 +34,8 @@ struct Module
 
 struct Variables
 {
-	INT		nChickenHP;
-	INT		nChickenMP;
+	int		nChickenHP;
+	int		nChickenMP;
 	DWORD	dwInjectTime;
 	DWORD	dwGameTime;
 	BOOL	bDontCatchNextMsg;
@@ -56,7 +56,7 @@ struct Variables
 	BOOL	bBlockKeys;
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
-	INT		dwMemUsage;
+	int		dwMemUsage;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];

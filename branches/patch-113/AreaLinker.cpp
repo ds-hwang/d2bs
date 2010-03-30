@@ -7,26 +7,26 @@
 //#include "Core.h"
 #include "AreaLinker.h"
 
-AreaNode* GetAreaNode(INT nAreaId)
+AreaNode* GetAreaNode(int nAreaId)
 {
-	for(INT i = 0; i < ArraySize(AreaNodes); i++)
-		for(INT x = 0; x < AreaNodes[i].nCount; x++)
+	for(int i = 0; i < ArraySize(AreaNodes); i++)
+		for(int x = 0; x < AreaNodes[i].nCount; x++)
 			if(AreaNodes[i].nAreas[x] == nAreaId)
 				return &AreaNodes[i];
 
 	return NULL;
 }
 
-INT GetAreas(DWORD nArray[], INT nSize, INT nStartAreaId, WORD wX, WORD wY)
+int GetAreas(DWORD nArray[], int nSize, int nStartAreaId, WORD wX, WORD wY)
 {
-	INT nDest = -1;
-	INT nCount = 0;
+	int nDest = -1;
+	int nCount = 0;
 
 	AreaNode* pNode = GetAreaNode(nStartAreaId);
 
 	if(pNode)
 	{
-		for(INT i = 0; i < pNode->nCount; i++)
+		for(int i = 0; i < pNode->nCount; i++)
 		{
 			Level* pLevel = GetLevel(pNode->nAreas[i]);
 
@@ -44,7 +44,7 @@ INT GetAreas(DWORD nArray[], INT nSize, INT nStartAreaId, WORD wX, WORD wY)
 
 		if(nStartAreaId > nDest)
 		{
-			for(INT i = nStartAreaId - 1; i >= nDest; i--)
+			for(int i = nStartAreaId - 1; i >= nDest; i--)
 				nArray[nCount++] = i;
 			
 			if(nCount >= nSize)
@@ -52,7 +52,7 @@ INT GetAreas(DWORD nArray[], INT nSize, INT nStartAreaId, WORD wX, WORD wY)
 		}
 		else if (nStartAreaId < nDest)
 		{
-			for(INT i = nStartAreaId + 1; i <= nDest; i++)
+			for(int i = nStartAreaId + 1; i <= nDest; i++)
 			{
 				nArray[nCount++] = i;
 
