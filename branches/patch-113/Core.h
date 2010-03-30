@@ -1,0 +1,12 @@
+#pragma once
+
+#include <windows.h>
+#include <string>
+#include <list>
+
+#include "D2Structs.h"
+
+bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst);
+void Print(const char * szFormat, ...);
+void Say(const char* szMessage, ...);
+bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit);
