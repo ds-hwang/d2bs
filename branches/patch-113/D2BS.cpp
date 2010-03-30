@@ -89,6 +89,8 @@ BOOL Startup(void)
 	Vars.bChangedAct = FALSE;
 	Vars.bGameLoopEntered = FALSE;
 
+	Vars.SectionCount = 0;
+
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
@@ -114,6 +116,8 @@ void Shutdown(void)
 	RemovePatches();
 	Genhook::Destroy();
 	ShutdownDdeServer();
+
+	KillTimer(D2WIN_GetHwnd(), Vars.uTimer);
 
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);

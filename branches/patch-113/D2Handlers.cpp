@@ -360,7 +360,7 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
 
-BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	if(Vars.bGameLoopEntered)
 	{
@@ -368,10 +368,12 @@ BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFil
 	}
 	else Vars.bGameLoopEntered = true;
 
-	EnterCriticalSection(&Vars.cGameLoopSection);
+	while(Vars.SectionCount)
+		Sleep(0);
 
-	return PeekMessage(lpMsg, hWnd, wMsgFIlterMin, wMsgFilterMax, wRemoveMsg);
+	EnterCriticalSection(&Vars.cGameLoopSection);	
 }
+
 
 void GameLeave(void)
 {

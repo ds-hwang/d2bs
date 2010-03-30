@@ -140,6 +140,9 @@ JSAPI_FUNC(my_acceptTrade)
 		return JS_TRUE;
 	}
 
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
 	if((*p_D2CLIENT_RecentTradeId) == 3 || (*p_D2CLIENT_RecentTradeId) == 5 || (*p_D2CLIENT_RecentTradeId) == 7)
 	{
 		if((*p_D2CLIENT_bTradeBlock))

@@ -15,5 +15,5 @@ void GameDrawOOG(void);
 void __fastcall WhisperHandler(char* szAcc, char* szText);
 DWORD __fastcall GameAttack(AttackStruct* pAttack);
 void __fastcall GamePlayerAssignment(UnitAny* pPlayer);
-BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFIlterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
 void GameLeave(void);
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
