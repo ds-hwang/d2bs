@@ -2,6 +2,8 @@
 #include "D2Ptrs.h"
 #include "Core.h"
 
+// This file is still 1.12 and needs to be updated to 1.13c
+
 MPQTable BaseStatTable[] = {
 	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, char szTableName, WORD wTableSize, WORD wUnknown
 	{0x6FDF0438,	0x6FDF0434,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},

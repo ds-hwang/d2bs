@@ -215,7 +215,7 @@ POINT CalculateTextLen(const char* szwText, INT Font)
 
 	DWORD dwWidth, dwFileNo;
 	DWORD dwOldSize = D2WIN_SetTextSize(Font);
-	ret.y = D2WIN_GetTextWidthFileNo(Buffer, &dwWidth, &dwFileNo);
+	ret.y = D2WIN_GetTextSize(Buffer, &dwWidth, &dwFileNo);
 	ret.x = dwWidth;
 	D2WIN_SetTextSize(dwOldSize);
 
@@ -376,7 +376,7 @@ void myDrawCenterText(const char* szText, int x, int y, int color, int font, int
 	wchar_t* Buffer = AnsiToUnicode(szText);
 
 	dwOldSize = D2WIN_SetTextSize(font);
-	D2WIN_GetTextWidthFileNo(Buffer, &dwWidth, &dwFileNo);
+	D2WIN_GetTextSize(Buffer, &dwWidth, &dwFileNo);
 	D2WIN_SetTextSize(dwOldSize);
 	myDrawText(szText,x-(dwWidth >> div),y,color,font);
 
