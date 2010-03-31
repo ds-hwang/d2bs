@@ -24,15 +24,14 @@ struct InventoryInfo {
 };
 
 struct GameStructInfo {
-	DWORD _1[6];					//0x00
-	WORD _1a;						//0x18
-	char szGameName[0x18];			//0x1A
-	char szGameServerIp[0x56];		//0x32
-	char szAccountName[0x30];		//0x88
-	char szCharName[0x18];			//0xB8
-	char szRealmName[0x18];			//0xD0
-	BYTE _2[0x157];					//0xE8
-	char szGamePassword[0x18];		//0x23F
+	DWORD _1[7];					//0x00
+	char szGameName[0x18];			//0x1B
+	char szGameServerIp[0x56];		//0x33
+	char szAccountName[0x30];		//0x89
+	char szCharName[0x18];			//0xB9
+	char szRealmName[0x18];			//0xD1
+	BYTE _2[0x158];					//0xE9
+	char szGamePassword[0x18];		//0x241
 };
 
 struct AutomapCell {
