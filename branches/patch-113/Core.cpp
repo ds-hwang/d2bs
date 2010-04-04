@@ -132,7 +132,7 @@ void Say(const char *szMessage, ...)
 	va_end(vaArgs);
 	Vars.bDontCatchNextMsg = TRUE;
 
-	if(p_D2CLIENT_MyPlayerUnit)
+	if(D2CLIENT_GetPlayerUnit())
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
 		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
@@ -176,7 +176,7 @@ bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 	Click.x -= *p_D2CLIENT_MouseOffsetX;
 	Click.y -= *p_D2CLIENT_MouseOffsetY;
 
-	if(pUnit && pUnit != *p_D2CLIENT_PlayerUnit)
+	if(pUnit && pUnit != D2CLIENT_GetPlayerUnit())
 	{
 		Vars.dwSelectedUnitId = pUnit->dwUnitId;
 		Vars.dwSelectedUnitType = pUnit->dwType;

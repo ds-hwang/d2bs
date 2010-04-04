@@ -92,7 +92,7 @@ JSAPI_FUNC(my_getPresetUnits)
 
 		if(!pRoom->pPreset)
 		{
-			D2COMMON_AddRoomData(p_D2CLIENT_MyPlayerUnit->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, p_D2CLIENT_MyPlayerUnit->pPath->pRoom1);
+			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = TRUE;
 		}
 		
@@ -127,7 +127,7 @@ JSAPI_FUNC(my_getPresetUnits)
 
 		if(bAddedRoom)
 		{
-			D2COMMON_RemoveRoomData(p_D2CLIENT_MyPlayerUnit->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, p_D2CLIENT_MyPlayerUnit->pPath->pRoom1);
+			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = FALSE;			
 		}
 	}
@@ -174,7 +174,7 @@ JSAPI_FUNC(my_getPresetUnit)
 
 		if(!pRoom->pRoom1)
 		{
-			D2COMMON_AddRoomData(p_D2CLIENT_MyPlayerUnit->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, p_D2CLIENT_MyPlayerUnit->pPath->pRoom1);
+			D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = TRUE;
 		}
 
@@ -208,7 +208,7 @@ JSAPI_FUNC(my_getPresetUnit)
 
 		if(bAddedRoom)
 		{
-			D2COMMON_RemoveRoomData(p_D2CLIENT_MyPlayerUnit->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, p_D2CLIENT_MyPlayerUnit->pPath->pRoom1);
+			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 			bAddedRoom = FALSE;			
 		}
 	}

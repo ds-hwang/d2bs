@@ -131,7 +131,7 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 }
 
 UnitAny* FindItemByPosition(DWORD x, DWORD y, DWORD Location) {
-	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(p_D2CLIENT_MyPlayerUnit->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
+	for(UnitAny* pItem = D2COMMON_GetItemFromInventory(D2CLIENT_GetPlayerUnit()->pInventory); pItem; pItem = D2COMMON_GetNextItemFromInventory(pItem)) {
 		if((DWORD)GetItemLocation(pItem) == Location && InArea(x,y,pItem->pObjectPath->dwPosX,pItem->pObjectPath->dwPosY,D2COMMON_GetItemText(pItem->dwTxtFileNo)->xSize,D2COMMON_GetItemText(pItem->dwTxtFileNo)->ySize))
 			return pItem;
 	}
@@ -145,22 +145,22 @@ void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 
 ClientGameState ClientState(void)
 {
-	if(*p_D2CLIENT_PlayerUnit && !(*p_D2WIN_FirstControl))
+	if(D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
 	{
-		if(p_D2CLIENT_MyPlayerUnit->pInventory &&
-				p_D2CLIENT_MyPlayerUnit->pPath &&
-				p_D2CLIENT_MyPlayerUnit->pPath->xPos &&
-				p_D2CLIENT_MyPlayerUnit->pPath->pRoom1 &&
-				p_D2CLIENT_MyPlayerUnit->pPath->pRoom1->pRoom2 &&
-				p_D2CLIENT_MyPlayerUnit->pPath->pRoom1->pRoom2->pLevel &&
-				p_D2CLIENT_MyPlayerUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
+		if(D2CLIENT_GetPlayerUnit()->pInventory &&
+				D2CLIENT_GetPlayerUnit()->pPath &&
+				D2CLIENT_GetPlayerUnit()->pPath->xPos &&
+				D2CLIENT_GetPlayerUnit()->pPath->pRoom1 &&
+				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2 &&
+				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel &&
+				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
 			return ClientStateInGame;
 		else
 			return ClientStateBusy;
 	}
-	else if(!p_D2CLIENT_MyPlayerUnit && *p_D2WIN_FirstControl)
+	else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
 		return ClientStateMenu;
-	else if(!p_D2CLIENT_MyPlayerUnit && !(*p_D2WIN_FirstControl))
+	else if(!D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
 		return ClientStateNull;
 //#ifdef DEBUG
 //	else
@@ -191,16 +191,16 @@ bool WaitForGameReady(void)
 
 DWORD GetPlayerArea(void)
 {
-	return (ClientState() == ClientStateInGame ? p_D2CLIENT_MyPlayerUnit->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
+	return (ClientState() == ClientStateInGame ? D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo : NULL);
 }
 
 Level* GetLevel(DWORD dwLevelNo)
 {
-	for(Level* pLevel = p_D2CLIENT_MyPlayerUnit->pAct->pMisc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
+	for(Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
 		if(pLevel->dwLevelNo == dwLevelNo)
 			return pLevel;
 
-	return D2COMMON_GetLevel(p_D2CLIENT_MyPlayerUnit->pAct->pMisc, dwLevelNo);
+	return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 }
 
 // TODO: make this use SIZE for clarity
@@ -225,11 +225,11 @@ POINT CalculateTextLen(const char* szwText, int Font)
 
 int GetSkill(WORD wSkillId)
 {
-	if(!*p_D2CLIENT_PlayerUnit) return 0;
+	if(!D2CLIENT_GetPlayerUnit()) return 0;
 
-	for(Skill* pSkill = p_D2CLIENT_MyPlayerUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+	for(Skill* pSkill = D2CLIENT_GetPlayerUnit()->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
 		if(pSkill->pSkillInfo->wSkillId == wSkillId)
-			return D2COMMON_GetSkillLevel(*p_D2CLIENT_PlayerUnit, pSkill, TRUE);
+			return D2COMMON_GetSkillLevel(D2CLIENT_GetPlayerUnit(), pSkill, TRUE);
 
 	return 0;
 }
@@ -252,7 +252,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 
 	D2NET_SendPacket(9, 1, aPacket);
 
-	UnitAny* Me = *p_D2CLIENT_PlayerUnit;
+	UnitAny* Me = D2CLIENT_GetPlayerUnit();
 
 	int timeout = 0;
 	Skill* hand = NULL;
@@ -401,7 +401,7 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 
 	InteractStruct pInteract = {
 		dwMoveType,
-		*p_D2CLIENT_PlayerUnit,
+		D2CLIENT_GetPlayerUnit(),
 		pUnit,
 		GetUnitX(pUnit),
 		GetUnitY(pUnit),
@@ -593,8 +593,8 @@ int RemoveColorSpecs(wchar_t *lpwsz)
 
 POINT GetScreenSize()
 {
-	POINT p = {*p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY};
-	return p;
+	POINT sizes[] = { {800, 600}, {800, 600}, {800, 600} };
+	return sizes[D2GFX_GetScreenSize()];
 }
 
 int D2GetScreenSizeX()

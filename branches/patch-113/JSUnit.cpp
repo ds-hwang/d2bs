@@ -237,7 +237,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 12, 0));
 			break;
 		case ME_RUNWALK:
-			 if(pUnit == p_D2CLIENT_MyPlayerUnit)
+			 if(pUnit == D2CLIENT_GetPlayerUnit())
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
 			break;
 		case UNIT_SPECTYPE:
@@ -384,7 +384,7 @@ JSAPI_PROP(unit_getProperty)
 		case ITEM_LEVELREQ:
 			if(pUnit->dwType != UNIT_ITEM)
 				break;
-			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, *p_D2CLIENT_PlayerUnit));
+			*vp = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 			break;
 		case UNIT_DIRECTION:
 			if(pUnit->pPath)
@@ -405,7 +405,7 @@ JSAPI_PROP(unit_getProperty)
 				*vp = INT_TO_JSVAL( pUnit->pObjectData->ChestLocked );
 			break;
 		case ME_WSWITCH:
-			 if(pUnit == p_D2CLIENT_MyPlayerUnit)
+			 if(pUnit == D2CLIENT_GetPlayerUnit())
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
 			break;
 		default:
@@ -455,7 +455,7 @@ JSAPI_PROP(unit_setProperty)
 			UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 			if(!pUnit)
 				return JS_TRUE;
-			if(pUnit == p_D2CLIENT_MyPlayerUnit)
+			if(pUnit == D2CLIENT_GetPlayerUnit())
 				*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
 			break;
 
@@ -691,7 +691,7 @@ JSAPI_FUNC(unit_interact)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
-	if(!pUnit || pUnit == p_D2CLIENT_MyPlayerUnit)
+	if(!pUnit || pUnit == D2CLIENT_GetPlayerUnit())
 		return JS_TRUE;
 
 	if(pUnit->dwType == UNIT_ITEM && pUnit->dwMode != ITEM_MODE_ON_GROUND && pUnit->dwMode != ITEM_MODE_BEING_DROPPED)
@@ -704,8 +704,8 @@ JSAPI_FUNC(unit_interact)
 			{
 				aPacket[0] = 0x20;
 				*(DWORD*)&aPacket[1] = pUnit->dwUnitId;
-				*(DWORD*)&aPacket[5] = p_D2CLIENT_MyPlayerUnit->pPath->xPos;
-				*(DWORD*)&aPacket[9] = p_D2CLIENT_MyPlayerUnit->pPath->yPos;
+				*(DWORD*)&aPacket[5] = D2CLIENT_GetPlayerUnit()->pPath->xPos;
+				*(DWORD*)&aPacket[9] = D2CLIENT_GetPlayerUnit()->pPath->yPos;
 				D2NET_SendPacket(13, 1, aPacket);
 				return JS_TRUE;
 			}
@@ -776,7 +776,7 @@ JSAPI_FUNC(unit_getStat)
 	else if(nStat == 13)
 		JS_NewNumberValue(cx, D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
 	else if(nStat == 92)
-		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, p_D2CLIENT_MyPlayerUnit));
+		*rval = INT_TO_JSVAL(D2COMMON_GetItemLevelRequirement(pUnit, D2CLIENT_GetPlayerUnit()));
 	else if(nStat == -1)
 	{
 		Stat aStatList[256] = { NULL };
@@ -1059,7 +1059,7 @@ JSAPI_FUNC(item_getPrice)
 	if(argc>2)
 		diff = JSVAL_TO_INT(argv[2]);
 
-	*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(*p_D2CLIENT_PlayerUnit, pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell));
+	*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell));
 
 	return JS_TRUE;
 }
@@ -1099,10 +1099,10 @@ JSAPI_FUNC(item_getItemCost)
 	{
 		case 0: // Buy
 		case 1: // Sell
-			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(*p_D2CLIENT_PlayerUnit, pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, nMode));
+			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, nMode));
 			break;
 		case 2: // Repair
-			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(*p_D2CLIENT_PlayerUnit, pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, 3));
+			*rval = INT_TO_JSVAL(D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, nDifficulty, *p_D2CLIENT_ItemPriceList, nNpcClassId, 3));
 			break;
 		default:
 			break;
@@ -1332,7 +1332,7 @@ JSAPI_FUNC(item_shop)
 	/*if (dwMode == 1)
 	{
 		//Check if we own the item!
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != p_D2CLIENT_MyPlayerUnit->dwUnitId)
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
 			return JS_TRUE;
 
 		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
@@ -1378,7 +1378,7 @@ JSAPI_FUNC(item_shop)
 		nBuySell = NULL;
 	else nBuySell = 1;
 
-	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(*p_D2CLIENT_PlayerUnit, pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
+	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
 
 	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
 	
@@ -1484,9 +1484,9 @@ JSAPI_FUNC(unit_getMerc)
 	if(argc > 0 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
 	{
 		UnitAny* pMerc = NULL;
-		if(p_D2CLIENT_MyPlayerUnit->pAct)
+		if(D2CLIENT_GetPlayerUnit()->pAct)
 		{
-			for(Room1* pRoom = p_D2CLIENT_MyPlayerUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
+			for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 			{
 				for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pListNext)
 				{
@@ -1495,7 +1495,7 @@ JSAPI_FUNC(unit_getMerc)
 
 					if(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 || pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5)
 					{
-						if(D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == p_D2CLIENT_MyPlayerUnit->dwUnitId)
+						if(D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)
 						{
 							*rval = JSVAL_TRUE;
 							return JS_TRUE;
@@ -1515,9 +1515,9 @@ JSAPI_FUNC(unit_getMerc)
 		return JS_TRUE;
 	}
 
-	if(p_D2CLIENT_MyPlayerUnit && p_D2CLIENT_MyPlayerUnit->pAct)
+	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
 	{
-		for(Room1* pRoom = p_D2CLIENT_MyPlayerUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
+		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 		{
 			for(UnitAny* pMonster = pRoom->pUnitFirst; pMonster; pMonster = pMonster->pListNext)
 			{
@@ -1691,7 +1691,7 @@ JSAPI_FUNC(unit_move)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(pmyUnit->dwUnitId, pmyUnit->dwType);
 
-	UnitAny *pPlayer = *p_D2CLIENT_PlayerUnit;
+	UnitAny *pPlayer = D2CLIENT_GetPlayerUnit();
 
 	if(!pPlayer || !pUnit)
 		return JS_TRUE;
@@ -1808,7 +1808,7 @@ JSAPI_FUNC(me_getRepairCost)
 	if(argc > 0 && JSVAL_IS_INT(argv[0]))
 		nNpcClassId = JSVAL_TO_INT(argv[0]);
 
-	*rval = INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, *p_D2CLIENT_PlayerUnit, nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0));
+	*rval = INT_TO_JSVAL(D2COMMON_GetRepairCost(NULL, D2CLIENT_GetPlayerUnit(), nNpcClassId, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, 0));
 
 	return JS_TRUE;
 }

@@ -168,7 +168,7 @@ void Script::Run(void)
 
 void Script::UpdatePlayerGid(void)
 {
-	me->dwUnitId = (p_D2CLIENT_MyPlayerUnit == NULL ? NULL : p_D2CLIENT_MyPlayerUnit->dwUnitId);
+	me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
 }
 
 void Script::Pause(void)

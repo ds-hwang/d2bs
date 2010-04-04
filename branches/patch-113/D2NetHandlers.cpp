@@ -18,7 +18,7 @@ Variables Vars;
 
 DWORD ReassignPlayerHandler(BYTE* pPacket, DWORD dwSize)
 {
-	if(*(LPDWORD)&pPacket[2] == p_D2CLIENT_MyPlayerUnit->dwUnitId)
+	if(*(LPDWORD)&pPacket[2] == D2CLIENT_GetPlayerUnit()->dwUnitId)
 		pPacket[10] = NULL;
 
 	return TRUE;

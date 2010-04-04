@@ -345,7 +345,7 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		myUnit* lpUnit = new myUnit;
 		memset(lpUnit, NULL, sizeof(myUnit));
 
-		UnitAny* player = *p_D2CLIENT_PlayerUnit;
+		UnitAny* player = D2CLIENT_GetPlayerUnit();
 		lpUnit->dwMode = (DWORD)-1;
 		lpUnit->dwClassId = (DWORD)-1;
 		lpUnit->dwType = UNIT_PLAYER;

@@ -81,13 +81,11 @@ struct CellFile {
 };
 
 struct CellContext {
-	DWORD direction;				//0x00
-	GfxCell *hCell;					//0x04
-	DWORD _1[0xD];					//0x08
-	CellFile* pCellFile;			//0x3C
-	DWORD _2;						//0x40
-	DWORD nCellNo;					//0x44
+	DWORD _1[13];					//0x00
+	CellFile* pCellFile;			//0x34
+	DWORD _2[4];					//0x38
 };
+
 
 struct AutomapLayer {
 	DWORD nLayerNo;					//0x00

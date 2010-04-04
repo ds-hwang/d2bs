@@ -400,7 +400,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 		if(!click)
 			return JS_TRUE;
 
-		click(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, pUnit->pItemData->BodyLocation);
+		click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, pUnit->pItemData->BodyLocation);
 	
 		return JS_TRUE;
 	}
@@ -417,7 +417,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 			if(!click)
 				return JS_TRUE;
 
-			click(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, nBodyLoc);	
+			click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, nBodyLoc);	
 		}
 		// Click Merc Gear
 		else if(nClickType == 4)
@@ -491,9 +491,9 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 			y = pLayout->Top + y * pLayout->SlotPixelHeight + 10;
 
 			if(nClickType == NULL)
-				D2CLIENT_LeftClickItem(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
+				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
 			else
-				D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory);
+				D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 
 		}
 		else if(InventoryLocation == STORAGE_BELT)
@@ -513,9 +513,9 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				y = 460 - (Belt[i].y * 29);
 			}
 			if(nClickType == NULL)
-				D2CLIENT_clickBelt(x, y, p_D2CLIENT_MyPlayerUnit->pInventory);
+				D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);
 			else
-				D2CLIENT_clickBeltRight(p_D2CLIENT_MyPlayerUnit->pInventory, p_D2CLIENT_MyPlayerUnit, nClickType == 1 ? FALSE : TRUE, i);
+				D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory, D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
 		}
 		else if(D2CLIENT_GetCursorItem() == pUnit)
 		{
@@ -527,7 +527,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 			if(!click)
 				return JS_TRUE;
 			
-			click(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, nClickType);			
+			click(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, nClickType);			
 		}
 	}
 	else if(argc == 4)
@@ -586,11 +586,11 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
-					D2CLIENT_LeftClickItem(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, x, y, 1, pLayout, nLoc);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
 				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x, y, nLoc, p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory);
+					D2CLIENT_RightClickItem(x, y, nLoc, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
-					D2CLIENT_LeftClickItem(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, x, y, 5, pLayout, nLoc);
+					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
 			
 				return JS_TRUE;
 			}
@@ -625,11 +625,11 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				}
 
 				if(nButton == 0)
-					D2CLIENT_clickBelt(x, y, p_D2CLIENT_MyPlayerUnit->pInventory);	
+					D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);	
 				else if(nButton == 1)
-					D2CLIENT_clickBeltRight(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, FALSE, z);
+					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
 				else if(nButton == 2)
-					D2CLIENT_clickBeltRight(p_D2CLIENT_MyPlayerUnit, p_D2CLIENT_MyPlayerUnit->pInventory, TRUE, z);
+					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
 
 				return JS_TRUE;
 			}	
@@ -673,7 +673,7 @@ JSAPI_FUNC(my_rand)
 
 	long long seed = 0;
 	if(ClientState() == ClientStateInGame)
-		seed = D2GAME_Rand(p_D2CLIENT_MyPlayerUnit->dwSeed);
+		seed = D2GAME_Rand(D2CLIENT_GetPlayerUnit()->dwSeed);
 	else
 		seed = rand();
 
@@ -836,16 +836,16 @@ JSAPI_FUNC(my_getMercHP)
 		THROW_ERROR(cx, "Game not ready");
 
 	// TODO: Can we replace this with D2CLIENT_GetMercUnit()?
-	if(p_D2CLIENT_MyPlayerUnit && p_D2CLIENT_MyPlayerUnit->pAct)
+	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
 	{
-		for(Room1* pRoom = p_D2CLIENT_MyPlayerUnit->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
+		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 		{
 			for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pListNext)
 			{
 				if(pUnit->dwType == UNIT_MONSTER &&
 					(pUnit->dwTxtFileNo == MERC_A1 || pUnit->dwTxtFileNo == MERC_A2 ||
 					pUnit->dwTxtFileNo == MERC_A3 || pUnit->dwTxtFileNo == MERC_A5) &&
-					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == p_D2CLIENT_MyPlayerUnit->dwUnitId)									
+					D2CLIENT_GetMonsterOwner(pUnit->dwUnitId) == D2CLIENT_GetPlayerUnit()->dwUnitId)									
 
 				{
 					*rval = (pUnit->dwMode == 12 ? JSVAL_ZERO : INT_TO_JSVAL(D2CLIENT_GetUnitHPPercent(pUnit->dwUnitId)));

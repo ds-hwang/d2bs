@@ -86,6 +86,7 @@ FUNCPTR(D2CLIENT, DrawRectFrame, void __fastcall, (DWORD Rect), 0xBE4C0)
 
 FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0xBFDF0)
 
+FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny*  __stdcall,(),0xA4D60)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Client Globals
@@ -179,7 +180,7 @@ ASMPTR(D2CLIENT, TakeWaypoint_I, 0xAA8B3)
 ASMPTR(D2CLIENT, ClickShopItem_I, 0x46EE0)
 ASMPTR(D2CLIENT, ClickBelt_I, 0x51AE0)
 ASMPTR(D2CLIENT, ClickBeltRight_I, 0x29990)
-ASMPTR(D2CLIENT, ClickItemRight_I, 0x4D610)
+ASMPTR(D2CLIENT, ClickItemRight_I, 0x98B60)
 ASMPTR(D2CLIENT, MercItemAction_I, 0x14A10)
 
 ASMPTR(D2CLIENT, Interact_I, 0x1BDE0)
@@ -210,7 +211,7 @@ ASMPTR(D2CLIENT, LoadUIImage_I, 0x2B380)
 
 ASMPTR(D2CLIENT, GetMinionCount_I, 0x217E0)
 
-ASMPTR(D2CLIENT, GameLeave_I, 0x7E0F0)
+ASMPTR(D2CLIENT, GameLeave_I, 0x5D110)
 
 ASMPTR(D2CLIENT, ClickMap_I, 0xFADA4)
 ASMPTR(D2CLIENT, ClickMap_II, 0x11C4D8)
@@ -229,8 +230,8 @@ FUNCPTR(D2COMMON, GetItemText, ItemTxt *__stdcall, (DWORD dwItemNo), -10695)
 FUNCPTR(D2COMMON, GetLayer, AutomapLayer2* __fastcall, (DWORD dwLevelNo), -10749)
 FUNCPTR(D2COMMON, GetLevel, Level * __fastcall, (ActMisc *pMisc, DWORD dwLevelNo), -10207)
 
-FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10611)
-FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10373)
+FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10930)
+FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10658)
 FUNCPTR(D2COMMON, GetUnitStat, DWORD __stdcall, (UnitAny* pUnit, DWORD dwStat, DWORD dwStat2), -10973)
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10494)
 FUNCPTR(D2COMMON, CheckUnitCollision, DWORD __stdcall, (UnitAny* pUnitA, UnitAny* pUnitB, DWORD dwBitMask), -10839)
@@ -239,7 +240,7 @@ FUNCPTR(D2COMMON, GetRoomFromUnit,  Room1* __stdcall, (UnitAny * ptUnit), -10331
 FUNCPTR(D2COMMON, GetSkillLevel, int __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10306)
 
 FUNCPTR(D2COMMON, GetItemLevelRequirement, DWORD __stdcall, (UnitAny* pItem, UnitAny* pPlayer), -11015)
-FUNCPTR(D2COMMON, GetItemPrice, DWORD __stdcall, (UnitAny* MyUnit, UnitAny* pItem, DWORD U1_,DWORD U2_,DWORD U3_,DWORD U4_), -10122)
+FUNCPTR(D2COMMON, GetItemPrice, DWORD __stdcall, (UnitAny* MyUnit, UnitAny* pItem, DWORD U1_,DWORD U2_,DWORD U3_,DWORD U4_), -10107)
 FUNCPTR(D2COMMON, GetRepairCost, DWORD __stdcall, (DWORD _1, UnitAny* pUnit, DWORD dwNpcId, DWORD dwDifficulty, DWORD dwItemPriceList, DWORD _2), -10071)
 FUNCPTR(D2COMMON, GetItemMagicalMods, char* __stdcall, (WORD wPrefixNum), -10248)
 FUNCPTR(D2COMMON, GetItemFromInventory, UnitAny *__stdcall, (Inventory* inv), -10460)
@@ -277,7 +278,7 @@ ASMPTR(D2COMMON, DisplayOverheadMsg_I, -10422)
 // D2Net Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10009)
+FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10024)
 FUNCPTR(D2NET, ReceivePacket_I, void __stdcall, (BYTE *aPacket, DWORD aLen), -10033)
 
 
@@ -385,7 +386,6 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1160)
 #undef VARPTR
 #undef ASMPTR
 
-#define p_D2CLIENT_MyPlayerUnit				(*p_D2CLIENT_PlayerUnit)
 #define GetItemFlag(Unit, Flag)				(D2COMMON_GetItemFlag(Unit, Flag, 0, "?"))
 #define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)	(TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
 #define GetUnitStat(unit, stat)				(D2COMMON_GetUnitStat(unit, stat, 0))

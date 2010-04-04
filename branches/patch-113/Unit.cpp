@@ -25,7 +25,7 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 */
 
 	// First off, check for near units
-	UnitAny* player = *p_D2CLIENT_PlayerUnit;
+	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	if(player && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && 
 		player->pPath->pRoom1->pRoom2->pLevel)
 	{
