@@ -593,8 +593,13 @@ int RemoveColorSpecs(wchar_t *lpwsz)
 
 POINT GetScreenSize()
 {
-	POINT sizes[] = { {800, 600}, {800, 600}, {800, 600} };
-	return sizes[D2GFX_GetScreenSize()];
+	// HACK: p_D2CLIENT_ScreenSize is wrong for out of game, which is hardcoded to 800x600
+	POINT ingame = {*p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY},
+		  oog = {800, 600},
+		  p = {0};
+	if(ClientState() == ClientStateMenu) p = oog;
+	else p = ingame;
+	return p;
 }
 
 int D2GetScreenSizeX()
