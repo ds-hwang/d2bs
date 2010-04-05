@@ -18,10 +18,10 @@ JSAPI_PROP(room_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case ROOM_NUM:
-			if(pRoom2->dwPresetType == 1)
+			if(pRoom2->dwPresetType != 2)
 				*vp = INT_TO_JSVAL(-1);
 			else if(pRoom2->pType2Info)
-				*vp = INT_TO_JSVAL(*pRoom2->pType2Info);
+				*vp = INT_TO_JSVAL(pRoom2->pType2Info->dwRoomNumber);
 			break;
 		case ROOM_XPOS:
 			*vp = INT_TO_JSVAL(pRoom2->dwPosX);

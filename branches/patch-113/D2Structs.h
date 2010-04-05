@@ -254,7 +254,11 @@ struct Room2 {
 	DWORD _1[2];			//0x00
 	Room2** pRoom2Near;		//0x08
 	DWORD _2[5];			//0x0C
-	DWORD* pType2Info;		//0x20
+	struct {
+		DWORD dwRoomNumber; //0x00
+		DWORD _1;			//0x04
+		DWORD* pdwSubNumber;//0x08
+	} *pType2Info;			//0x20
 	Room2* pRoom2Next;		//0x24
 	DWORD dwRoomFlags;		//0x28
 	DWORD dwRoomsNear;		//0x2C
