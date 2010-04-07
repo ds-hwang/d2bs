@@ -34,7 +34,7 @@ enum {DLLNO_D2CLIENT, DLLNO_D2COMMON, DLLNO_D2GFX, DLLNO_D2LANG, DLLNO_D2WIN, DL
 FUNCPTR(D2CLIENT, GetQuestInfo, void* __stdcall, (void), 0x45A00)
 
 FUNCPTR(D2CLIENT, SubmitItem, void __fastcall, (DWORD dwItemId), 0x45FB0)
-FUNCPTR(D2CLIENT, Transmute, void __fastcall, (void), 0xA6560)
+FUNCPTR(D2CLIENT, Transmute, void __fastcall, (void), 0x8CB90)
 
 FUNCPTR(D2CLIENT, FindClientSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B20)
 FUNCPTR(D2CLIENT, FindServerSideUnit, UnitAny* __fastcall, (DWORD dwId, DWORD dwType), 0xA5B40)
@@ -178,7 +178,7 @@ VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11EC80)
 ASMPTR(D2CLIENT, TakeWaypoint_I, 0xAA8B3)
 
 ASMPTR(D2CLIENT, ClickShopItem_I, 0x46EE0)
-ASMPTR(D2CLIENT, ClickBelt_I, 0x51AE0)
+ASMPTR(D2CLIENT, ClickBelt_I, 0x28260)
 ASMPTR(D2CLIENT, ClickBeltRight_I, 0x29990)
 ASMPTR(D2CLIENT, ClickItemRight_I, 0x98B60)
 ASMPTR(D2CLIENT, MercItemAction_I, 0x14A10)
@@ -297,7 +297,7 @@ FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD 
 FUNCPTR(D2GFX, DrawRectangle, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwTrans), -10014)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext* context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10041)
 
-FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10036)
+FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10036) // returns the wrong info--0 always
 
 FUNCPTR(D2GFX, GetHwnd, HWND __stdcall, (void), -10048)
 
