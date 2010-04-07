@@ -595,15 +595,16 @@ struct UnitAny {
 
 struct BnetData {
 	DWORD dwId;					//0x00
-	DWORD dwId2;				//0x04
-	DWORD _1[3];				//0x08
-	DWORD dwId3;				//0x14
-	WORD Unk3;					//0x18
+	DWORD dwId2;				//0x04	
+	BYTE _12[13];				//0xC0
+	//DWORD dwId3;				//0x14
+	//WORD Unk3;					//0x18	
+	BYTE _13[6];				//0xC0
 	char szGameName[22];		//0x1A
 	char szGameIP[16];			//0x30
-	DWORD _2[16];				//0x40
+	DWORD _2[15];				//0x40
 	DWORD dwId4;				//0x80
-	DWORD _3;					//0x84
+	BYTE _3[5];					//0x84
 	char szAccountName[48];		//0x88
 	char szPlayerName[24];		//0xB8
 	char szRealmName[8];		//0xD0
@@ -614,9 +615,9 @@ struct BnetData {
 	BYTE _5[31];				//0x1EC
 	BYTE nDifficulty;			//0x20B
 	void *_6;					//0x20C
-	DWORD _7[5];				//0x210
+	DWORD _7[3];				//0x210
 	WORD _8;					//0x224
-	BYTE _9;					//0x226
+	BYTE _9[7];					//0x226
 	char szRealmName2[24];		//0x227
 	char szGamePass[24];		//0x23F
 	char szGameDesc[256];		//0x257
