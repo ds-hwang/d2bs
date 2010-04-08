@@ -37,7 +37,6 @@ DWORD GetBaseTable(int table, int row)
 {
 	DWORD dwResult = NULL;
 	DWORD dwD2MPQTable = NULL;
-	DWORD dwMaxEntries;
 
 	if(table < sizeof(BaseStatTable))
 	{
@@ -49,6 +48,7 @@ DWORD GetBaseTable(int table, int row)
 
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
 
+		DWORD dwMaxEntries;
 		if(dwMaxEntriesOffset)
 			dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
 		else dwMaxEntries = 0xFF;

@@ -102,30 +102,6 @@ void GetItemCode(UnitAny* pUnit, char* szBuf)
 	}
 }
 
-WORD GetUnitX(UnitAny* pUnit)
-{
-	if(!pUnit)
-		return NULL;
-
-	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
-		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosX : NULL;
-	else
-		return pUnit->pPath ? (WORD)pUnit->pPath->xPos : NULL;
-	//return NULL;
-}
-
-WORD GetUnitY(UnitAny* pUnit)
-{
-	if(!pUnit)
-		return NULL;
-
-	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
-		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosY : NULL;
-	else
-		return pUnit->pPath ? (WORD)pUnit->pPath->yPos : NULL;
-	//return NULL;
-}
-
 bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 	return !!(x >= x2 && x < x2+sizex && y >= y2 && y < y2+sizey);
 }
@@ -292,20 +268,21 @@ char* GetSkillByID(WORD id)
 
 void SendMouseClick(int x, int y, int clicktype)
 {
+	// HACK: Using PostMessage instead of SendMessage--need to fix this ASAP!
 	LPARAM lp = x + (y << 16);
 	switch(clicktype)
 	{
 	case 0:
-		SendMessage(D2GFX_GetHwnd(), WM_LBUTTONDOWN, 0, lp);
+		PostMessage(D2GFX_GetHwnd(), WM_LBUTTONDOWN, 0, lp);
 		break;
 	case 1:
-		SendMessage(D2GFX_GetHwnd(), WM_LBUTTONUP, 0, lp);
+		PostMessage(D2GFX_GetHwnd(), WM_LBUTTONUP, 0, lp);
 		break;
 	case 2:
-		SendMessage(D2GFX_GetHwnd(), WM_RBUTTONDOWN, 0, lp);
+		PostMessage(D2GFX_GetHwnd(), WM_RBUTTONDOWN, 0, lp);
 		break;
 	case 3:
-		SendMessage(D2GFX_GetHwnd(), WM_RBUTTONUP, 0, lp);
+		PostMessage(D2GFX_GetHwnd(), WM_RBUTTONUP, 0, lp);
 		break;
 	}
 }
@@ -403,8 +380,8 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 		dwMoveType,
 		D2CLIENT_GetPlayerUnit(),
 		pUnit,
-		GetUnitX(pUnit),
-		GetUnitY(pUnit),
+		D2CLIENT_GetUnitX(pUnit),
+		D2CLIENT_GetUnitY(pUnit),
 		0, 0
 	};
 

@@ -15,10 +15,6 @@ enum ClientGameState
 
 void	Log(char* szFormat, ...);
 
-WORD GetUnitX(UnitAny* pUnit);
-WORD GetUnitY(UnitAny* pUnit);
-
-
 ClientGameState ClientState(void);
 bool	GameReady(void);
 bool	WaitForGameReady(void);

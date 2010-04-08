@@ -47,11 +47,6 @@ struct TripleArgHelper
 	DWORD arg1, arg2, arg3;
 };
 
-struct QuadArgHelper
-{
-	DWORD arg1, arg2, arg3, arg4;
-};
-
 struct BCastEventHelper
 {
 	jsval* argv;

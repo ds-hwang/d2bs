@@ -50,8 +50,8 @@ FUNCPTR(D2CLIENT, GetMonsterOwner, DWORD __fastcall, (DWORD nMonsterId), 0x216A0
 FUNCPTR(D2CLIENT, GetUnitHPPercent, DWORD __fastcall, (DWORD dwUnitId), 0x21580)
 FUNCPTR(D2CLIENT, InitInventory, void __fastcall, (void), 0x908C0)
 
-FUNCPTR(D2CLIENT, GetUnitX, int __stdcall, (UnitAny* pUnit), 0x1630)
-FUNCPTR(D2CLIENT, GetUnitY, int __stdcall, (UnitAny* pUnit), 0x1660)
+FUNCPTR(D2CLIENT, GetUnitX, int __fastcall, (UnitAny* pUnit), 0x1630)
+FUNCPTR(D2CLIENT, GetUnitY, int __fastcall, (UnitAny* pUnit), 0x1660)
 
 FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x47D60)
 
@@ -392,8 +392,6 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1160)
 #undef VARPTR
 #undef ASMPTR
 
-//#define GetUnitX(Unit)						D2CLIENT_GetUnitX(Unit)
-//#define GetUnitY(Unit)						D2CLIENT_GetUnitY(Unit)
 #define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)		(D2CLIENT_TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
 #define D2CLIENT_GetUIState(dwVarNo)					(D2CLIENT_GetUIVar_STUB(dwVarNo))
 #define D2CLIENT_InitAutomapLayer(layerlvl)				((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))

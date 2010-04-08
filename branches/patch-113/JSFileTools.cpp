@@ -175,7 +175,10 @@ JSAPI_FUNC(filetools_readText)
 	char* contents = new char[size];
 	memset(contents, 0, size);
 	if(fread(contents, 1, size, fptr) != size && ferror(fptr))
+	{
+		delete[] contents;
 		THROW_ERROR(cx, _strerror("Read failed"));
+	}
 	fclose(fptr);
 
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyN(cx, contents, size));

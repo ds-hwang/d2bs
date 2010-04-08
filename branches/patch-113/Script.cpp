@@ -92,8 +92,7 @@ Script::~Script(void)
 	EnterCriticalSection(&lock);
 	Stop(true, true);
 
-	if(!JS_GetContextThread(context))
-		JS_SetContextThread(context);
+	JS_SetContextThread(context);
 
 	JS_BeginRequest(context);
 

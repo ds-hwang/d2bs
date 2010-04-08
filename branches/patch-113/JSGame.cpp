@@ -726,10 +726,10 @@ JSAPI_FUNC(my_getDistance)
 		if(!pUnitA || !pUnitB)
 			return JS_TRUE;
 
-		nX1 = GetUnitX(pUnitA);
-		nY1 = GetUnitY(pUnitA);
-		nX2 = GetUnitX(pUnitB);
-		nY2 = GetUnitY(pUnitB);
+		nX1 = D2CLIENT_GetUnitX(pUnitA);
+		nY1 = D2CLIENT_GetUnitY(pUnitA);
+		nX2 = D2CLIENT_GetUnitX(pUnitB);
+		nY2 = D2CLIENT_GetUnitY(pUnitB);
 
 	}
 	else if(argc == 3)
@@ -746,8 +746,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = GetUnitX(pUnitA);
-			nY1 = GetUnitY(pUnitA);
+			nX1 = D2CLIENT_GetUnitX(pUnitA);
+			nY1 = D2CLIENT_GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[1], &nX2);
 			JS_ValueToECMAInt32(cx, argv[2], &nY2);
 		}
@@ -763,8 +763,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = GetUnitX(pUnitA);
-			nY1 = GetUnitY(pUnitA);
+			nX1 = D2CLIENT_GetUnitX(pUnitA);
+			nY1 = D2CLIENT_GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[0], &nX2);
 			JS_ValueToECMAInt32(cx, argv[1], &nY2);
 		}

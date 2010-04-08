@@ -210,10 +210,10 @@ JSAPI_PROP(unit_getProperty)
 			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
 			break;
 		case UNIT_XPOS:
-			*vp = INT_TO_JSVAL(GetUnitX(pUnit));
+			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitX(pUnit));
 			break;
 		case UNIT_YPOS:
-			*vp = INT_TO_JSVAL(GetUnitY(pUnit));
+			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
 			break;
 		case UNIT_HP:
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
@@ -738,7 +738,7 @@ JSAPI_FUNC(unit_interact)
 	else
 	{
 		*rval = JSVAL_TRUE;
-		ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
+		ClickMap(0, D2CLIENT_GetUnitX(pUnit), D2CLIENT_GetUnitY(pUnit), FALSE, pUnit);
 		//D2CLIENT_Interact(pUnit, 0x45);
 	}
 
@@ -1326,13 +1326,13 @@ JSAPI_FUNC(item_shop)
 		return JS_TRUE;
 
 	//Selling an Item 
-	/*if (dwMode == 1)
+	if(dwMode == 1)
 	{
 		//Check if we own the item!
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
 			return JS_TRUE;
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, 0, 1, 1, NULL);
 	}
 	else
 	{
@@ -1340,10 +1340,10 @@ JSAPI_FUNC(item_shop)
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			return JS_TRUE;
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	}*/
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, 0, dwMode, 1, NULL);
+	}
 
-	BYTE pPacket[17] = {NULL};
+	/*BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
 		pPacket[0] = 0x32;
@@ -1377,7 +1377,7 @@ JSAPI_FUNC(item_shop)
 
 	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
 
-	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
+	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);*/
 	
 	*rval = JSVAL_TRUE;
 
@@ -1708,8 +1708,8 @@ JSAPI_FUNC(unit_move)
 	}
 	else
 	{
-		x = GetUnitX(pUnit);
-		y = GetUnitY(pUnit);
+		x = D2CLIENT_GetUnitX(pUnit);
+		y = D2CLIENT_GetUnitY(pUnit);
 	}
 
 	ClickMap(0, (WORD)x, (WORD)y, FALSE, NULL);

@@ -55,7 +55,6 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
 	DWORD pidInst = 0;
 	HCONV hConv;
 	DWORD dwTimeout = 5000;
-	HDDEDATA DdeSrvData;
 
 	int ret = DdeInitialize(&pidInst, (PFNCALLBACK) DdeCallback, APPCMD_CLIENTONLY, 0);
 	if(ret != DMLERR_NO_ERROR)
@@ -78,10 +77,11 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
 
 	switch(mode)
 	{
-		case 0:
-			DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
+		case 0: {
+			HDDEDATA DdeSrvData = DdeClientTransaction(0, 0, hConv, hszCommand, CF_TEXT, XTYP_REQUEST, dwTimeout, 0);
 			DdeGetData(DdeSrvData, (LPBYTE)result, size, 0);
 			break;
+		}
 		case 1:
 			DdeClientTransaction((LPBYTE)pszData, strlen(pszData)+1, hConv, hszCommand, CF_TEXT, XTYP_POKE, dwTimeout, 0);
 			break;
