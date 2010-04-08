@@ -140,7 +140,7 @@ void Say(const char *szMessage, ...)
 		wBuffer = NULL;
 
 		MSG* aMsg = new MSG;
-		aMsg->hwnd = D2WIN_GetHwnd();
+		aMsg->hwnd = D2GFX_GetHwnd();
 		aMsg->message = WM_CHAR;
 		aMsg->wParam = VK_RETURN;
 		aMsg->lParam = 0x11C0001;
@@ -159,7 +159,7 @@ void Say(const char *szMessage, ...)
 	}
 }
 
-bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
+bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 {
 	if(ClientState() != ClientStateInGame)
 		return false;

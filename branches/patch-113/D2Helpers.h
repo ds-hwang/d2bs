@@ -15,8 +15,6 @@ enum ClientGameState
 
 void	Log(char* szFormat, ...);
 
-WORD	GetUnitX(UnitAny* pUnit);
-WORD	GetUnitY(UnitAny* pUnit);
 ClientGameState ClientState(void);
 bool	GameReady(void);
 bool	WaitForGameReady(void);
@@ -74,13 +72,13 @@ DWORD __fastcall D2CLIENT_GetUIVar_STUB(DWORD varno);
 DWORD __fastcall D2CLIENT_LoadUIImage_ASM(char* Path);
 void  __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny);
 void  __fastcall D2CLIENT_Interact_ASM(DWORD Struct);
-DWORD __fastcall D2CLIENT_clickParty_ASM(DWORD RosterUnit, DWORD Mode);
+DWORD __fastcall D2CLIENT_ClickParty_ASM(DWORD RosterUnit, DWORD Mode);
 DWORD __fastcall FindUnit_STUB(DWORD unitid, DWORD unittype);
 void  __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, DWORD BuyOrSell);
 void  __fastcall D2CLIENT_ShopAction_ASM(DWORD pTable, DWORD pItem, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/, DWORD dwMode, DWORD _2, DWORD _3);
-void  __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD pItem, DWORD pItemPath);
+void  __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD pItem, DWORD pItemPath);
 void  __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, Inventory* pInventoryData);
-void  __fastcall D2CLIENT_clickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos);
+void  __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos);
 void  __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t* pBuffer);
 void  __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit);
 void  __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType, DWORD dwSlot);

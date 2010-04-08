@@ -111,13 +111,13 @@ void Shutdown(void)
 	if(!Vars.bShutdownFromDllMain)
 		WaitForSingleObject(hD2Thread, INFINITE);
 
-	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
+	SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 	RemovePatches();
 	Genhook::Destroy();
 	ShutdownDdeServer();
 
-	KillTimer(D2WIN_GetHwnd(), Vars.uTimer);
+	KillTimer(D2GFX_GetHwnd(), Vars.uTimer);
 
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);

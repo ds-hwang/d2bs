@@ -516,7 +516,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 			if(nClickType == NULL)
 				D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);
 			else
-				D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory, D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
+				D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory, D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
 		}
 		else if(D2CLIENT_GetCursorItem() == pUnit)
 		{
@@ -628,9 +628,9 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				if(nButton == 0)
 					D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);	
 				else if(nButton == 1)
-					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
+					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
 				else if(nButton == 2)
-					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
+					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
 
 				return JS_TRUE;
 			}	
@@ -1142,7 +1142,7 @@ JSAPI_FUNC(my_clickParty)
 	if(nMode == 1)
 		D2CLIENT_HostilePartyUnit(pUnit, 1);
 	else
-		D2CLIENT_clickParty(pUnit, nMode);
+		D2CLIENT_ClickParty(pUnit, nMode);
 
 	*rval = JSVAL_TRUE;
 

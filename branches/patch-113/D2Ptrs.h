@@ -50,6 +50,9 @@ FUNCPTR(D2CLIENT, GetMonsterOwner, DWORD __fastcall, (DWORD nMonsterId), 0x216A0
 FUNCPTR(D2CLIENT, GetUnitHPPercent, DWORD __fastcall, (DWORD dwUnitId), 0x21580)
 FUNCPTR(D2CLIENT, InitInventory, void __fastcall, (void), 0x908C0)
 
+FUNCPTR(D2CLIENT, GetUnitX, int __stdcall, (UnitAny* pUnit), 0x1630)
+FUNCPTR(D2CLIENT, GetUnitY, int __stdcall, (UnitAny* pUnit), 0x1660)
+
 FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x47D60)
 
 FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x48350)
@@ -234,8 +237,10 @@ FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk
 FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10658)
 FUNCPTR(D2COMMON, GetUnitStat, DWORD __stdcall, (UnitAny* pUnit, DWORD dwStat, DWORD dwStat2), -10973)
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10494)
+
 FUNCPTR(D2COMMON, CheckUnitCollision, DWORD __stdcall, (UnitAny* pUnitA, UnitAny* pUnitB, DWORD dwBitMask), -10839)
 FUNCPTR(D2COMMON, GetRoomFromUnit,  Room1* __stdcall, (UnitAny * ptUnit), -10331)
+FUNCPTR(D2COMMON, GetTargetUnitType, Path* __stdcall, (Path* pPath), -10392)
 
 FUNCPTR(D2COMMON, GetSkillLevel, int __stdcall, (UnitAny* pUnit, Skill* pSkill, BOOL bTotal), -10306)
 
@@ -258,6 +263,9 @@ FUNCPTR(D2COMMON, AbsScreenToMap, void __stdcall, (long *pX, long *pY), -10474)
 FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), -11087)
 
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), -10373)
+
+FUNCPTR(D2COMMON, IsTownLevelByLevelNo, BOOL __stdcall, (DWORD dwLevelNo), -10416)
+FUNCPTR(D2COMMON, IsTownLevelByRoom, BOOL __stdcall, (Room1* pRoom1), -10057)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -386,25 +394,23 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1160)
 #undef VARPTR
 #undef ASMPTR
 
-#define GetItemFlag(Unit, Flag)				(D2COMMON_GetItemFlag(Unit, Flag, 0, "?"))
+#define GetUnitX(Unit)						D2CLIENT_GetUnitX(Unit)
+#define GetUnitY(Unit)						D2CLIENT_GetUnitY(Unit)
 #define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)	(TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
-#define GetUnitStat(unit, stat)				(D2COMMON_GetUnitStat(unit, stat, 0))
-#define GetBaseStat(unit, stat)				(D2COMMON_GetBaseStat(unit, stat, 0))
 #define D2CLIENT_GetUIState(dwVarNo)		(D2CLIENT_GetUIVar_STUB(dwVarNo))
 #define D2CLIENT_InitAutomapLayer(layerlvl)	((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))
 #define D2CLIENT_GetUnitName(x)				(wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
 #define D2CLIENT_SetSelectedUnit(x)			(D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
 #define D2CLIENT_LoadUIImage(x)				((CellFile*)D2CLIENT_LoadUIImage_ASM(x))
-#define D2CLIENT_Interact_(x)				(D2CLIENT_Interact_ASM((DWORD)x))
-#define D2CLIENT_clickParty(x,y)			(D2CLIENT_clickParty_ASM((DWORD)x, (DWORD)y))
-#define D2CLIENT_ClickShopItem(x,y,z)		(D2CLIENT_ClickShopItem_ASM(x,y,z))
-#define D2CLIENT_RightClickItem(X,Y,LOCATION, PLAYER, INVENTORYDATA) D2CLIENT_clickItemRight_ASM(X,Y,LOCATION, (DWORD)PLAYER, (DWORD)INVENTORYDATA)
-#define D2CLIENT_clickBeltRight(pPlayer, pInventory, dwShift, dwPotPos)	D2CLIENT_clickBeltRight_ASM((DWORD)pPlayer, (DWORD)pInventory, dwShift, dwPotPos)
+#define D2CLIENT_Interact_STUB(x)				(D2CLIENT_Interact_ASM((DWORD)x))
+#define D2CLIENT_ClickParty(x,y)			(D2CLIENT_ClickParty_ASM((DWORD)x, (DWORD)y))
+#define D2CLIENT_RightClickItem(x, y, loc, player, invdata) D2CLIENT_ClickItemRight_ASM(x,y, loc, (DWORD)player, (DWORD)invdata)
+#define D2CLIENT_ClickBeltRight(pPlayer, pInventory, dwShift, dwPotPos)	D2CLIENT_ClickBeltRight_ASM((DWORD)pPlayer, (DWORD)pInventory, dwShift, dwPotPos)
 #define D2CLIENT_GetItemDesc(pUnit, pBuffer) D2CLIENT_GetItemDesc_ASM((DWORD)pUnit, pBuffer)
-#define D2COMMON_DisplayOverheadMsg(pUnit)			D2COMMON_DisplayOverheadMsg_ASM((DWORD)pUnit)
 #define D2CLIENT_MercItemAction(bPacketType, dwSlotId)	D2CLIENT_MercItemAction_ASM(bPacketType, dwSlotId)
-#define D2CLIENT_PickItem(Unit)				(D2CLIENT_PickItem_ASM((DWORD)Unit))
-#define D2WIN_GetHwnd						D2GFX_GetHwnd
+
+#define D2COMMON_DisplayOverheadMsg(pUnit)			D2COMMON_DisplayOverheadMsg_ASM((DWORD)pUnit)
+
 #define D2GFX_DrawFrame(Rect)				DrawRectFrame_STUB(Rect)
 
 #pragma warning ( pop )

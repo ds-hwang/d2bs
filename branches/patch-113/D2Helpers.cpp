@@ -102,30 +102,6 @@ void GetItemCode(UnitAny* pUnit, char* szBuf)
 	}
 }
 
-WORD GetUnitX(UnitAny* pUnit)
-{
-	if(!pUnit)
-		return NULL;
-
-	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
-		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosX : NULL;
-	else
-		return pUnit->pPath ? (WORD)pUnit->pPath->xPos : NULL;
-	//return NULL;
-}
-
-WORD GetUnitY(UnitAny* pUnit)
-{
-	if(!pUnit)
-		return NULL;
-
-	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
-		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosY : NULL;
-	else
-		return pUnit->pPath ? (WORD)pUnit->pPath->yPos : NULL;
-	//return NULL;
-}
-
 bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 	return !!(x >= x2 && x < x2+sizex && y >= y2 && y < y2+sizey);
 }
@@ -296,16 +272,16 @@ void SendMouseClick(int x, int y, int clicktype)
 	switch(clicktype)
 	{
 	case 0:
-		SendMessage(D2WIN_GetHwnd(), WM_LBUTTONDOWN, 0, lp);
+		SendMessage(D2GFX_GetHwnd(), WM_LBUTTONDOWN, 0, lp);
 		break;
 	case 1:
-		SendMessage(D2WIN_GetHwnd(), WM_LBUTTONUP, 0, lp);
+		SendMessage(D2GFX_GetHwnd(), WM_LBUTTONUP, 0, lp);
 		break;
 	case 2:
-		SendMessage(D2WIN_GetHwnd(), WM_RBUTTONDOWN, 0, lp);
+		SendMessage(D2GFX_GetHwnd(), WM_RBUTTONDOWN, 0, lp);
 		break;
 	case 3:
-		SendMessage(D2WIN_GetHwnd(), WM_RBUTTONUP, 0, lp);
+		SendMessage(D2GFX_GetHwnd(), WM_RBUTTONUP, 0, lp);
 		break;
 	}
 }
@@ -408,7 +384,7 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 		0, 0
 	};
 
-	D2CLIENT_Interact_(&pInteract);
+	D2CLIENT_Interact_STUB(&pInteract);
 }
 
 typedef void (*fnClickEntry) (void);
@@ -759,25 +735,7 @@ void __declspec(naked) __fastcall D2CLIENT_Interact_ASM(DWORD Struct)
 	}
 }
 
-/*
-DWORD __declspec(naked) __fastcall FindUnit_STUB(DWORD unitid, DWORD unittype)
-{
-	__asm
-	{
-		pop eax;
-		push edx;
-		push eax;
-
-		shl edx, 9;
-		mov eax, D2CLIENT_GetUnitFromId_I;
-		add edx, eax;
-		mov eax, ecx;
-		and eax, 0x7F;
-		jmp D2CLIENT_GetUnitFromId_II;
-	}
-}*/
-
-DWORD __declspec(naked) __fastcall D2CLIENT_clickParty_ASM(DWORD RosterUnit, DWORD Mode)
+DWORD __declspec(naked) __fastcall D2CLIENT_ClickParty_ASM(DWORD RosterUnit, DWORD Mode)
 {
 	__asm
 	{
@@ -818,7 +776,7 @@ void __declspec(naked) __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, Inventory
 	}
 }
 
-void __declspec(naked) __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD Player, DWORD pUnitInventory)
+void __declspec(naked) __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD Player, DWORD pUnitInventory)
 {
 	__asm
 	{
@@ -835,7 +793,7 @@ void __declspec(naked) __fastcall D2CLIENT_clickItemRight_ASM(DWORD x, DWORD y, 
 	}
 }
 
-void __declspec(naked) __fastcall D2CLIENT_clickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos)
+void __declspec(naked) __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos)
 {
 	__asm
 	{

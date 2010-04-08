@@ -387,7 +387,7 @@ JSAPI_FUNC(my_sendCopyData)
 		data = "";
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
-	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2WIN_GetHwnd(), (LPARAM)&aCopy));
+	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy));
 
 	return JS_TRUE;
 }

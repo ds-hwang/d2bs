@@ -136,7 +136,7 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case OOG_WINDOWTITLE:
 			char szTitle[128];
-			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
+			GetWindowText(D2GFX_GetHwnd(), szTitle, 128);
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
 			break;
 		case ME_PING:
