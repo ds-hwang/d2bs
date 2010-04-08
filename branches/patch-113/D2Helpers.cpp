@@ -379,8 +379,8 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 		dwMoveType,
 		D2CLIENT_GetPlayerUnit(),
 		pUnit,
-		GetUnitX(pUnit),
-		GetUnitY(pUnit),
+		D2CLIENT_GetUnitX(pUnit),
+		D2CLIENT_GetUnitY(pUnit),
 		0, 0
 	};
 

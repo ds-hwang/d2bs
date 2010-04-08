@@ -394,8 +394,6 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1160)
 #undef VARPTR
 #undef ASMPTR
 
-#define GetUnitX(Unit)						D2CLIENT_GetUnitX(Unit)
-#define GetUnitY(Unit)						D2CLIENT_GetUnitY(Unit)
 #define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)	(TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
 #define D2CLIENT_GetUIState(dwVarNo)		(D2CLIENT_GetUIVar_STUB(dwVarNo))
 #define D2CLIENT_InitAutomapLayer(layerlvl)	((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))
