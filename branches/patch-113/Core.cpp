@@ -176,6 +176,12 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 	Click.x -= *p_D2CLIENT_MouseOffsetX;
 	Click.y -= *p_D2CLIENT_MouseOffsetY;
 
+	POINT OldMouse = {0, 0};
+	OldMouse.x = *p_D2CLIENT_MouseX;
+	OldMouse.y = *p_D2CLIENT_MouseY;
+	*p_D2CLIENT_MouseX = 0;
+	*p_D2CLIENT_MouseY = 0;
+
 	if(pUnit && pUnit != D2CLIENT_GetPlayerUnit())
 	{
 		Vars.dwSelectedUnitId = pUnit->dwUnitId;
@@ -200,5 +206,7 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 		Vars.bClickAction = FALSE;
 	}
 
+	*p_D2CLIENT_MouseX = OldMouse.x;
+	*p_D2CLIENT_MouseY = OldMouse.y;
 	return TRUE;
 }
