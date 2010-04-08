@@ -102,6 +102,30 @@ void GetItemCode(UnitAny* pUnit, char* szBuf)
 	}
 }
 
+WORD GetUnitX(UnitAny* pUnit)
+{
+	if(!pUnit)
+		return NULL;
+
+	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
+		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosX : NULL;
+	else
+		return pUnit->pPath ? (WORD)pUnit->pPath->xPos : NULL;
+	//return NULL;
+}
+
+WORD GetUnitY(UnitAny* pUnit)
+{
+	if(!pUnit)
+		return NULL;
+
+	if(pUnit->dwType == UNIT_ITEM || pUnit->dwType == UNIT_OBJECT || pUnit->dwType == UNIT_TILE)
+		return pUnit->pObjectPath ? (WORD)pUnit->pObjectPath->dwPosY : NULL;
+	else
+		return pUnit->pPath ? (WORD)pUnit->pPath->yPos : NULL;
+	//return NULL;
+}
+
 bool InArea(int x, int y, int x2, int y2, int sizex, int sizey) {
 	return !!(x >= x2 && x < x2+sizex && y >= y2 && y < y2+sizey);
 }
@@ -379,8 +403,8 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 		dwMoveType,
 		D2CLIENT_GetPlayerUnit(),
 		pUnit,
-		D2CLIENT_GetUnitX(pUnit),
-		D2CLIENT_GetUnitY(pUnit),
+		GetUnitX(pUnit),
+		GetUnitY(pUnit),
 		0, 0
 	};
 
@@ -543,28 +567,6 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 	}
 
 	return NULL;
-}
-
-int RemoveColorSpecs(wchar_t *lpwsz)
-{
-	if (lpwsz == NULL)
-		return 0;
-
-	const int LEN = (int)wcslen(lpwsz);
-	wchar_t* p = new wchar_t[LEN + 1];
-	::memset(p, 0, sizeof(wchar_t) * (LEN + 1));
-
-	int nIndex = 0;
-	for(int i = 0; i < LEN; i++)
-	{
-		if (lpwsz[i] == 0xF8F5 || lpwsz[i] == 0xFF)
-			i += 2;
-		else
-			p[nIndex++] = lpwsz[i];
-	}
-
-	wcscpy_s(lpwsz, sizeof(lpwsz), p);
-	return (int)wcslen(lpwsz);
 }
 
 POINT GetScreenSize()
@@ -768,7 +770,7 @@ void __declspec(naked) __fastcall D2CLIENT_ShopAction_ASM(DWORD pItem, DWORD pNp
 	}
 }
 
-void __declspec(naked) __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, Inventory* pInventoryData)
+void __declspec(naked) __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory* pInventoryData)
 {
 	__asm {
 		mov eax, edx
@@ -862,16 +864,6 @@ void __declspec(naked) __fastcall D2CLIENT_PlaySound(DWORD dwSoundId)
 	}
 }
 
-void __declspec(naked) __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelId)
-{
-	__asm
-	{
-		MOV AL, 0x49
-		CALL D2CLIENT_TakeWP_I
-		RETN
-	}
-}
-
 __declspec(naked) void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea)
 {
 	__asm
@@ -908,7 +900,7 @@ _Exit:
 		RETN 8
 	}
 }
-DWORD __declspec(naked) __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
+DWORD __declspec(naked) __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask)
 {
 	__asm 
 	{
@@ -922,7 +914,7 @@ DWORD __declspec(naked) __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2
 	}
 }
 
-void __declspec(naked) __fastcall DrawRectFrame_STUB(RECT* rect)
+void __declspec(naked) __fastcall D2GFX_DrawRectFrame_STUB(RECT* rect)
 {
 	__asm
 	{
@@ -931,104 +923,7 @@ void __declspec(naked) __fastcall DrawRectFrame_STUB(RECT* rect)
 	}
 }
 
-
-void __declspec(naked) __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type)
-{
-	__asm
-	{
-		MOV EAX,DWORD PTR DS:[D2CLIENT_ClickMap_I]
-		MOV EAX, [EAX]
-		SUB ESP,0x20
-		PUSH EBP
-		XOR EBP,EBP
-		CMP EAX,EBP
-		JNZ L012
-		PUSH EAX
-		MOV EAX, [D2CLIENT_ClickMap_II]
-		CMP DWORD PTR DS:[EAX],EBP
-		POP EAX
-		JE L016
-		CMP DWORD PTR SS:[ESP+0x2C],EBP
-		JNZ L012
-		CMP DWORD PTR SS:[ESP+0x30],EBP
-		JE L016
-	L012:
-		XOR EAX,EAX
-		POP EBP
-		ADD ESP,0x20
-		RETN 0x10
-	L016:
-		PUSH EBX
-		PUSH ESI
-		PUSH EDI
-		LEA EDI,DWORD PTR SS:[ESP+0x3C]
-		LEA EBX,DWORD PTR SS:[ESP+0x38]
-		PUSH EAX
-		MOV EAX, [D2CLIENT_ClickMap_II]
-		MOV DWORD PTR DS:[EAX],1
-		POP EAX
-		CALL D2CLIENT_ClickMap_III
-		MOV EBX, [p_D2CLIENT_PlayerUnit]
-		MOV EBX,DWORD PTR DS:[EBX]
-		XOR EAX,EAX
-		MOV DWORD PTR SS:[ESP+0x10],EAX
-		MOV DWORD PTR SS:[ESP+0x14],EAX
-		MOV DWORD PTR SS:[ESP+0x18],EAX
-		MOV DWORD PTR SS:[ESP+0x1C],EAX
-		MOV DWORD PTR SS:[ESP+0x20],EAX
-		MOV DWORD PTR SS:[ESP+0x24],EAX
-		MOV DWORD PTR SS:[ESP+0x28],EAX
-		MOV DWORD PTR SS:[ESP+0x2C],EAX
-		XOR EDI,EDI
-		MOV DWORD PTR SS:[ESP+0x14],EBX	
-		CALL myGetSelectedUnit
-		JMP D2CLIENT_ClickMap_IV
-	}
-/*
-6FB0CE80  /$ A1 7C2BBB6F    MOV EAX,DWORD PTR DS:[6FBB2B7C]
-6FB0CE85  |. 83EC 20        SUB ESP,20
-6FB0CE88  |. 55             PUSH EBP
-6FB0CE89  |. 33ED           XOR EBP,EBP
-6FB0CE8B  |. 3BC5           CMP EAX,EBP
-6FB0CE8D  |. 75 14          JNZ SHORT d2client.6FB0CEA3
-6FB0CE8F  |. 392D D8C1BC6F  CMP DWORD PTR DS:[6FBCC1D8],EBP
-6FB0CE95  |. 74 15          JE SHORT d2client.6FB0CEAC
-6FB0CE97  |. 396C24 2C      CMP DWORD PTR SS:[ESP+2C],EBP
-6FB0CE9B  |. 75 06          JNZ SHORT d2client.6FB0CEA3
-6FB0CE9D  |. 396C24 30      CMP DWORD PTR SS:[ESP+30],EBP
-6FB0CEA1  |. 74 09          JE SHORT d2client.6FB0CEAC
-6FB0CEA3  |> 33C0           XOR EAX,EAX
-6FB0CEA5  |. 5D             POP EBP
-6FB0CEA6  |. 83C4 20        ADD ESP,20
-6FB0CEA9  |. C2 1000        RETN 10
-6FB0CEAC  |> 53             PUSH EBX
-6FB0CEAD  |. 56             PUSH ESI
-6FB0CEAE  |. 57             PUSH EDI
-6FB0CEAF  |. 8D7C24 3C      LEA EDI,DWORD PTR SS:[ESP+3C]
-6FB0CEB3  |. 8D5C24 38      LEA EBX,DWORD PTR SS:[ESP+38]
-6FB0CEB7  |. C705 D8C1BC6F >MOV DWORD PTR DS:[6FBCC1D8],1
-6FB0CEC1  |. E8 DA060000    CALL d2client.6FB0D5A0
-6FB0CEC6  |. 8B1D D0C3BC6F  MOV EBX,DWORD PTR DS:[6FBCC3D0]
-6FB0CECC  |. 33C0           XOR EAX,EAX
-6FB0CECE  |. 894424 10      MOV DWORD PTR SS:[ESP+10],EAX
-6FB0CED2  |. 894424 14      MOV DWORD PTR SS:[ESP+14],EAX
-6FB0CED6  |. 894424 18      MOV DWORD PTR SS:[ESP+18],EAX
-6FB0CEDA  |. 894424 1C      MOV DWORD PTR SS:[ESP+1C],EAX
-6FB0CEDE  |. 894424 20      MOV DWORD PTR SS:[ESP+20],EAX
-6FB0CEE2  |. 894424 24      MOV DWORD PTR SS:[ESP+24],EAX
-6FB0CEE6  |. 894424 28      MOV DWORD PTR SS:[ESP+28],EAX
-6FB0CEEA  |. 894424 2C      MOV DWORD PTR SS:[ESP+2C],EAX
-6FB0CEEE  |. 33FF           XOR EDI,EDI
-6FB0CEF0  |. 895C24 14      MOV DWORD PTR SS:[ESP+14],EBX
-6FB0CEF4  |. E8 A71D0100    CALL d2client.6FB1ECA0
-6FB0CEF9  |. 8B4C24 38      MOV ECX,DWORD PTR SS:[ESP+38]
-
-
-
-*/
-}
-
-DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
+DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 {
 	DWORD dwResult;
 

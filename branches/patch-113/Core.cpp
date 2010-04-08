@@ -167,8 +167,8 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 	POINT Click = {wX, wY};
 	if(pUnit)
 	{
-		Click.x = D2CLIENT_GetUnitX(pUnit);
-		Click.y = D2CLIENT_GetUnitY(pUnit);
+		Click.x = GetUnitX(pUnit);
+		Click.y = GetUnitY(pUnit);
 	}
 
 	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);

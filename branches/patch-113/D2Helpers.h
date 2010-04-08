@@ -15,6 +15,10 @@ enum ClientGameState
 
 void	Log(char* szFormat, ...);
 
+WORD GetUnitX(UnitAny* pUnit);
+WORD GetUnitY(UnitAny* pUnit);
+
+
 ClientGameState ClientState(void);
 bool	GameReady(void);
 bool	WaitForGameReady(void);
@@ -54,7 +58,6 @@ int D2GetScreenSizeX();
 int D2GetScreenSizeY();
 
 CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ = 3);
-int RemoveColorSpecs(wchar_t *lpwsz);
 
 AutomapLayer* InitAutomapLayer(DWORD levelno);
 DWORD __fastcall D2CLIENT_InitAutomapLayer_STUB(DWORD nLayerNo);
@@ -73,22 +76,19 @@ DWORD __fastcall D2CLIENT_LoadUIImage_ASM(char* Path);
 void  __fastcall D2CLIENT_SetSelectedUnit_STUB(DWORD UnitAny);
 void  __fastcall D2CLIENT_Interact_ASM(DWORD Struct);
 DWORD __fastcall D2CLIENT_ClickParty_ASM(DWORD RosterUnit, DWORD Mode);
-DWORD __fastcall FindUnit_STUB(DWORD unitid, DWORD unittype);
 void  __fastcall D2CLIENT_ClickShopItem_ASM(DWORD x, DWORD y, DWORD BuyOrSell);
 void  __fastcall D2CLIENT_ShopAction_ASM(DWORD pTable, DWORD pItem, DWORD pNPC, DWORD _1, DWORD pTable2 /* Could be also the ItemCost?*/, DWORD dwMode, DWORD _2, DWORD _3);
 void  __fastcall D2CLIENT_ClickItemRight_ASM(DWORD x, DWORD y, DWORD Location, DWORD pItem, DWORD pItemPath);
-void  __fastcall D2CLIENT_clickBelt(DWORD x, DWORD y, Inventory* pInventoryData);
+void  __fastcall D2CLIENT_ClickBelt(DWORD x, DWORD y, Inventory* pInventoryData);
 void  __fastcall D2CLIENT_ClickBeltRight_ASM(DWORD pInventory, DWORD pPlayer, DWORD HoldShift, DWORD dwPotPos);
 void  __fastcall D2CLIENT_GetItemDesc_ASM(DWORD pUnit, wchar_t* pBuffer);
 void  __fastcall D2COMMON_DisplayOverheadMsg_ASM(DWORD pUnit);
 void  __fastcall D2CLIENT_MercItemAction_ASM(DWORD bPacketType, DWORD dwSlot);
 DWORD __fastcall D2CLIENT_LoadUIImage_ASM(char* lpszPath);
 void __fastcall D2CLIENT_PlaySound(DWORD dwSoundId);
-void __fastcall D2CLIENT_TakeWP(DWORD dwUnitId, DWORD dwLevelId);
-DWORD __fastcall TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
-void __fastcall DrawRectFrame_STUB(RECT* rect);
-void __stdcall myClickMap_ASM(DWORD MouseFlag, DWORD x, DWORD y, DWORD Type);
-DWORD D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
+DWORD __fastcall D2CLIENT_TestPvpFlag_STUB(DWORD planum1, DWORD planum2, DWORD flagmask);
+void __fastcall D2GFX_DrawRectFrame_STUB(RECT* rect);
+DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType);
 void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
 void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
 

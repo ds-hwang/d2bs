@@ -210,10 +210,10 @@ JSAPI_PROP(unit_getProperty)
 			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
 			break;
 		case UNIT_XPOS:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitX(pUnit));
+			*vp = INT_TO_JSVAL(GetUnitX(pUnit));
 			break;
 		case UNIT_YPOS:
-			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
+			*vp = INT_TO_JSVAL(GetUnitY(pUnit));
 			break;
 		case UNIT_HP:
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
@@ -738,7 +738,7 @@ JSAPI_FUNC(unit_interact)
 	else
 	{
 		*rval = JSVAL_TRUE;
-		ClickMap(0, D2CLIENT_GetUnitX(pUnit), D2CLIENT_GetUnitY(pUnit), FALSE, pUnit);
+		ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
 		//D2CLIENT_Interact(pUnit, 0x45);
 	}
 
@@ -1708,8 +1708,8 @@ JSAPI_FUNC(unit_move)
 	}
 	else
 	{
-		x = D2CLIENT_GetUnitX(pUnit);
-		y = D2CLIENT_GetUnitY(pUnit);
+		x = GetUnitX(pUnit);
+		y = GetUnitY(pUnit);
 	}
 
 	ClickMap(0, (WORD)x, (WORD)y, FALSE, NULL);

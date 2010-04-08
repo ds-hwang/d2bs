@@ -514,7 +514,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				y = 460 - (Belt[i].y * 29);
 			}
 			if(nClickType == NULL)
-				D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);
+				D2CLIENT_ClickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);
 			else
 				D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory, D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
 		}
@@ -626,7 +626,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				}
 
 				if(nButton == 0)
-					D2CLIENT_clickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);	
+					D2CLIENT_ClickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);	
 				else if(nButton == 1)
 					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
 				else if(nButton == 2)
@@ -726,10 +726,10 @@ JSAPI_FUNC(my_getDistance)
 		if(!pUnitA || !pUnitB)
 			return JS_TRUE;
 
-		nX1 = D2CLIENT_GetUnitX(pUnitA);
-		nY1 = D2CLIENT_GetUnitY(pUnitA);
-		nX2 = D2CLIENT_GetUnitX(pUnitB);
-		nY2 = D2CLIENT_GetUnitY(pUnitB);
+		nX1 = GetUnitX(pUnitA);
+		nY1 = GetUnitY(pUnitA);
+		nX2 = GetUnitX(pUnitB);
+		nY2 = GetUnitY(pUnitB);
 
 	}
 	else if(argc == 3)
@@ -746,8 +746,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = D2CLIENT_GetUnitX(pUnitA);
-			nY1 = D2CLIENT_GetUnitY(pUnitA);
+			nX1 = GetUnitX(pUnitA);
+			nY1 = GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[1], &nX2);
 			JS_ValueToECMAInt32(cx, argv[2], &nY2);
 		}
@@ -763,8 +763,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = D2CLIENT_GetUnitX(pUnitA);
-			nY1 = D2CLIENT_GetUnitY(pUnitA);
+			nX1 = GetUnitX(pUnitA);
+			nY1 = GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[0], &nX2);
 			JS_ValueToECMAInt32(cx, argv[1], &nY2);
 		}

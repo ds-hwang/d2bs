@@ -167,7 +167,7 @@ VARPTR(D2CLIENT, ExpCharFlag, DWORD, 0x119854)
 VARPTR(D2CLIENT, MapId, DWORD, 0x11C3BC) // unused but I want to add it
 
 VARPTR(D2CLIENT, AlwaysRun, DWORD, 0x11C3EC)
-VARPTR(D2CLIENT, NoPickUp, DWORD, 0x52011) // unused but I want to add it
+VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C2F0) // unused but I want to add it
 
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
 
@@ -203,8 +203,6 @@ ASMPTR(D2CLIENT, TestPvpFlag_I, 0x4FCE0)
 ASMPTR(D2CLIENT, PlaySound_I, 0x88A70)
 
 ASMPTR(D2CLIENT, InputCall_I, 0x147A0)
-
-ASMPTR(D2CLIENT, TakeWP_I, 0x14910)
 
 ASMPTR(D2CLIENT, Say_I, 0x70EC6)
 
@@ -394,22 +392,24 @@ FUNCPTR(D2GAME, Rand, DWORD __fastcall, (DWORD* seed), 0x1160)
 #undef VARPTR
 #undef ASMPTR
 
-#define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)	(TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
-#define D2CLIENT_GetUIState(dwVarNo)		(D2CLIENT_GetUIVar_STUB(dwVarNo))
-#define D2CLIENT_InitAutomapLayer(layerlvl)	((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))
-#define D2CLIENT_GetUnitName(x)				(wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
-#define D2CLIENT_SetSelectedUnit(x)			(D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
-#define D2CLIENT_LoadUIImage(x)				((CellFile*)D2CLIENT_LoadUIImage_ASM(x))
-#define D2CLIENT_Interact_STUB(x)				(D2CLIENT_Interact_ASM((DWORD)x))
-#define D2CLIENT_ClickParty(x,y)			(D2CLIENT_ClickParty_ASM((DWORD)x, (DWORD)y))
+//#define GetUnitX(Unit)						D2CLIENT_GetUnitX(Unit)
+//#define GetUnitY(Unit)						D2CLIENT_GetUnitY(Unit)
+#define D2CLIENT_TestPvpFlag(dwId1, dwId2, dwFlag)		(D2CLIENT_TestPvpFlag_STUB(dwId1, dwId2, dwFlag))
+#define D2CLIENT_GetUIState(dwVarNo)					(D2CLIENT_GetUIVar_STUB(dwVarNo))
+#define D2CLIENT_InitAutomapLayer(layerlvl)				((AutomapLayer*)D2CLIENT_InitAutomapLayer_STUB(layerlvl))
+#define D2CLIENT_GetUnitName(x)							(wchar_t*)D2CLIENT_GetUnitName_STUB((DWORD)x)
+#define D2CLIENT_SetSelectedUnit(x)						(D2CLIENT_SetSelectedUnit_STUB((DWORD)x))
+#define D2CLIENT_LoadUIImage(x)							((CellFile*)D2CLIENT_LoadUIImage_ASM(x))
+#define D2CLIENT_Interact_STUB(x)						(D2CLIENT_Interact_ASM((DWORD)x))
+#define D2CLIENT_ClickParty(x,y)						(D2CLIENT_ClickParty_ASM((DWORD)x, (DWORD)y))
 #define D2CLIENT_RightClickItem(x, y, loc, player, invdata) D2CLIENT_ClickItemRight_ASM(x,y, loc, (DWORD)player, (DWORD)invdata)
 #define D2CLIENT_ClickBeltRight(pPlayer, pInventory, dwShift, dwPotPos)	D2CLIENT_ClickBeltRight_ASM((DWORD)pPlayer, (DWORD)pInventory, dwShift, dwPotPos)
-#define D2CLIENT_GetItemDesc(pUnit, pBuffer) D2CLIENT_GetItemDesc_ASM((DWORD)pUnit, pBuffer)
+#define D2CLIENT_GetItemDesc(pUnit, pBuffer)			D2CLIENT_GetItemDesc_ASM((DWORD)pUnit, pBuffer)
 #define D2CLIENT_MercItemAction(bPacketType, dwSlotId)	D2CLIENT_MercItemAction_ASM(bPacketType, dwSlotId)
 
-#define D2COMMON_DisplayOverheadMsg(pUnit)			D2COMMON_DisplayOverheadMsg_ASM((DWORD)pUnit)
+#define D2COMMON_DisplayOverheadMsg(pUnit)				D2COMMON_DisplayOverheadMsg_ASM((DWORD)pUnit)
 
-#define D2GFX_DrawFrame(Rect)				DrawRectFrame_STUB(Rect)
+#define D2GFX_DrawFrame(Rect)							D2GFX_DrawRectFrame_STUB(Rect)
 
 #pragma warning ( pop )
 #pragma optimize ( "", on )
