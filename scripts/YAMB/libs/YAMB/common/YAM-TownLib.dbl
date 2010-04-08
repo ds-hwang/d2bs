@@ -898,6 +898,7 @@ function DT_ManageStash() {
 	var _DT_StashHeight = (me.gametype == 0) ? 4 : 8;
 	// Make a string with ignored items array
 	var _ignorestring = DT_IgnoredItems.join();
+	var _stashed = false;
 	// If we are not interacted with the stash, display a error msg and return false
 	if(!getUIFlag(0x19)) {
 		DC_DPrint("DT_ManageStash() : You are not interacted with your stash!");
@@ -1022,6 +1023,7 @@ function DT_ManageStash() {
 										if(_numtries > 10) { break; }
 										_numtries+=1;
 									}
+									_stashed = true;
 									// We are done with this item
 									_itemdone = true;
 								}
@@ -1036,7 +1038,8 @@ function DT_ManageStash() {
 			}
 		} while (_invitem.getNext(null,100)); 
 	}
-	return true;
+
+	return _stashed ? 2 : true;
 }
 
 // Function by Xizeta

@@ -419,7 +419,7 @@ function YAM_NPCinteract(npc) {
 		if(YAM_EnableCubing) { // Check if we have stuff to cube
 			DCU_transform();
 		}
-		DT_ManageStash();
+		while( DT_ManageStash() == 2 ); // Keep on stashing .. Dirty fix by Sheppard.
 	}
 	else {
 		switch (me.act) {
