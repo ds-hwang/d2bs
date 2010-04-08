@@ -94,7 +94,6 @@ JSAPI_FUNC(room_getPresetUnits)
 
 	bool bAdded = FALSE;
 	DWORD dwArrayCount = NULL;
-	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -106,6 +105,8 @@ JSAPI_FUNC(room_getPresetUnits)
 	}
 
 
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	JS_AddRoot(&pReturnArray);
 	for(PresetUnit* pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext)
 	{
 		if((pUnit->dwType == nType || nType == NULL) && (pUnit->dwTxtFileNo == nClass || nClass == NULL))
@@ -137,6 +138,7 @@ JSAPI_FUNC(room_getPresetUnits)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	JS_RemoveRoot(&pReturnArray);
 
 	return JS_TRUE;
 }

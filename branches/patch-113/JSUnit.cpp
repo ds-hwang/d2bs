@@ -787,43 +787,39 @@ JSAPI_FUNC(unit_getStat)
 			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
 
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+			*rval = OBJECT_TO_JSVAL(pReturnArray);
 
-			if(pReturnArray)
+			for(UINT i = 0; i < dwStats; i++)
 			{
-				for(UINT i = 0; i < dwStats; i++)
-				{
-					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+				JS_AddRoot(&pArrayInsert);
 
-					if(!pArrayInsert)
-						continue;
+				if(!pArrayInsert)
+					continue;
 
-					jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
-					jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
-					jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
+				jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
+				jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
+				jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
 
-					JS_SetElement(cx, pArrayInsert, 0, &nIndex);
-					JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
-					JS_SetElement(cx, pArrayInsert, 2, &nValue);	
+				JS_SetElement(cx, pArrayInsert, 0, &nIndex);
+				JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
+				JS_SetElement(cx, pArrayInsert, 2, &nValue);	
 
-					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
+				jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
-					JS_SetElement(cx, pReturnArray, i, &aObj);
-				}
-
-				*rval = OBJECT_TO_JSVAL(pReturnArray);
+				JS_SetElement(cx, pReturnArray, i, &aObj);
+				JS_RemoveRoot(&pArrayInsert);
 			}
 		}
-
 	}
 	else if(nStat == -2)
 	{
 		JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
+		*rval = OBJECT_TO_JSVAL(pArray);
 
 	//	InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
-
-		*rval = OBJECT_TO_JSVAL(pArray);
 	}
 	else 
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
@@ -901,10 +897,12 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 			{
 				// it's not an array, build one
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+				JS_AddRoot(&arr);
 				JS_SetElement(cx, arr, 0, &index);
 				JS_SetElement(cx, arr, 1, &obj);
 				jsval arr2 = OBJECT_TO_JSVAL(arr);
 				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
+				JS_RemoveRoot(&arr);
 			}
 			else
 			{
@@ -1205,7 +1203,6 @@ JSAPI_FUNC(unit_getSkill)
 	{
 		WORD wLeftSkillId = pUnit->pInfo->pLeftSkill->pSkillInfo->wSkillId;
 		WORD wRightSkillId = pUnit->pInfo->pRightSkill->pSkillInfo->wSkillId;
-		JSObject* pReturnArray = NULL;
 		switch(nSkillId)
 		{
 			case 0:
@@ -1236,33 +1233,33 @@ JSAPI_FUNC(unit_getSkill)
 				break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
-			case 4:
-				pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-				if(pReturnArray)
-				{
-					int i = 0;
-					for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
-						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+			case 4: {
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				*rval = OBJECT_TO_JSVAL(pReturnArray);
+				int i = 0;
+				for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+					JS_AddRoot(&pArrayInsert);
 
-						if(!pArrayInsert)
-							continue;
+					if(!pArrayInsert)
+						continue;
 
-						jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
-						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
-						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
+					jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
+					jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
+					jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
 
-						JS_SetElement(cx, pArrayInsert, 0, &nId);
-						JS_SetElement(cx, pArrayInsert, 1, &nBase);
-						JS_SetElement(cx, pArrayInsert, 2, &nTotal);
+					JS_SetElement(cx, pArrayInsert, 0, &nId);
+					JS_SetElement(cx, pArrayInsert, 1, &nBase);
+					JS_SetElement(cx, pArrayInsert, 2, &nTotal);
 
-						jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
+					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
-						JS_SetElement(cx, pReturnArray, i, &aObj);
-						i++;
-					}
-					*rval = OBJECT_TO_JSVAL(pReturnArray);
+					JS_SetElement(cx, pReturnArray, i, &aObj);
+					JS_RemoveRoot(&pArrayInsert);
+					i++;
 				}
 				break;
+			}
 			default:
 				*rval = JSVAL_FALSE;
 				break;

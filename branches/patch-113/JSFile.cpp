@@ -314,11 +314,11 @@ JSAPI_FUNC(file_read)
 			else
 			{
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+				*rval = OBJECT_TO_JSVAL(arr);
 				for(int i = 0; i < count; i++) {
 					jsval val = INT_TO_JSVAL(result[i]);
 					JS_SetElement(cx, arr, i, &val);
 				}
-				*rval = OBJECT_TO_JSVAL(arr);
 			}
 		}
 		else
@@ -367,6 +367,7 @@ JSAPI_FUNC(file_readAllLines)
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 	if(fdata && fdata->fptr) {
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+		*rval = OBJECT_TO_JSVAL(arr);
 		int i = 0;
 		while(!feof(fdata->fptr)) {
 			const char* line = readLine(fdata->fptr, fdata->locked);
@@ -376,7 +377,6 @@ JSAPI_FUNC(file_readAllLines)
 			JS_SetElement(cx, arr, i++, &val);
 			delete[] line;
 		}
-		*rval = OBJECT_TO_JSVAL(arr);
 	}
 	return JS_TRUE;
 }

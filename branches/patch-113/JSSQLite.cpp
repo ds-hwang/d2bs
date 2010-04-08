@@ -247,6 +247,7 @@ JSAPI_PROP(sqlite_getProperty)
 			break;
 		case SQLITE_STMTS:
 			JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
+			*vp = OBJECT_TO_JSVAL(stmts);
 			int i = 0;
 			for(StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
 				if((*it)->open) {
@@ -255,7 +256,6 @@ JSAPI_PROP(sqlite_getProperty)
 					JS_SetElement(cx, stmts, i, &tmp);
 				}
 			}
-			*vp = OBJECT_TO_JSVAL(stmts);
 			break;
 	}
 	return JS_TRUE;

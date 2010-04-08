@@ -254,6 +254,7 @@ JSAPI_FUNC(control_getText)
 		return JS_TRUE;
 
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	*rval = OBJECT_TO_JSVAL(pReturnArray);
 	int nArrayCount = 0;
 
 	for(ControlText* pText = pControl->pFirstText; pText; pText = pText->pNext)
@@ -268,8 +269,6 @@ JSAPI_FUNC(control_getText)
 
 		nArrayCount++;
 	}
-
-	*rval = OBJECT_TO_JSVAL(pReturnArray);
 
 	return JS_TRUE;
 }
