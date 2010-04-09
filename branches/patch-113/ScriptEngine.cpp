@@ -285,20 +285,6 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
-{
-	ScriptList* list = (ScriptList*)argv;
-	// only pause running scripts
-	if(script->IsRunning())
-	{
-		// only resume scripts we paused
-		if(!script->IsPaused())
-			list->push_back(script);
-		script->Pause();
-	}
-	return true;
-}
-
 JSBool branchCallback(JSContext* cx, JSScript*)
 {
 	Script* script = (Script*)JS_GetContextPrivate(cx);
@@ -377,7 +363,6 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-	static ScriptList pausedList = ScriptList();
 	if(status == JSGC_BEGIN)
 	{
 //		EnterCriticalSection(&ScriptEngine::lock);
