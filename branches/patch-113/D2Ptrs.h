@@ -303,7 +303,7 @@ FUNCPTR(D2GFX, DrawLine, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD 
 FUNCPTR(D2GFX, DrawRectangle, void __stdcall, (int X1, int Y1, int X2, int Y2, DWORD dwColor, DWORD dwTrans), -10014)
 FUNCPTR(D2GFX, DrawAutomapCell2, void __stdcall, (CellContext* context, DWORD xpos, DWORD ypos, DWORD bright2, DWORD bright, BYTE *coltab), -10041)
 
-FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10036) // returns the wrong info--0 always
+FUNCPTR(D2GFX, GetScreenSize, DWORD __stdcall, (void), -10031) 
 
 FUNCPTR(D2GFX, GetHwnd, HWND __stdcall, (void), -10048)
 
