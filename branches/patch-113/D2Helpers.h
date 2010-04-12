@@ -26,7 +26,6 @@ void	ScreenToWorld(POINT *ptPos);
 void	ScreenToAutomap(POINT* pPos);
 void	AutomapToScreen(POINT* pPos);
 Level*	GetLevel(DWORD dwLevelNo);
-BOOL	IsTownLevel(int nLevel);
 void	D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType);
 void	myDrawText(const char* szwText, int x, int y, int color, int font);
 void	myDrawCenterText(const char* szwText, int x, int y, int color, int font, int div) ;

@@ -331,18 +331,6 @@ void AutomapToScreen(POINT* pPos)
 	pPos->y = 8 + p_D2CLIENT_Offset->y + (pPos->y * (*p_D2CLIENT_AutomapMode));
 }
 
-BOOL IsTownLevel(int nLevel)
-{
-	if(nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
-		nLevel == MAP_A2_LUT_GHOLEIN || 
-		nLevel == MAP_A3_KURAST_DOCKS ||
-		nLevel == MAP_A4_THE_PANDEMONIUM_FORTRESS ||
-		nLevel == MAP_A5_HARROGATH)
-		return TRUE;
-	return FALSE;
-}
-
-
 void myDrawText(const char* szwText, int x, int y, int color, int font) 
 {
 	wchar_t* text = AnsiToUnicode(szwText);

@@ -207,11 +207,11 @@ JSAPI_FUNC(my_getPath)
 	JS_ValueToECMAUint32(cx, argv[4], &y2);
 
 	POINT ptStart = {x, y}, ptEnd = {x2, y2};
-	BOOL UseTele = !IsTownLevel(Area);
+	BOOL UseTele = !D2COMMON_IsTownByLevelNo(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
-	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
+	DWORD Radius = (!D2COMMON_IsTownByLevelNo(Area) && UseTele) ? 35 : 20;
 	if(argc >= 7)
 		JS_ValueToECMAUint32(cx, argv[6], &Radius);
 	if(argc == 8)

@@ -45,7 +45,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 				{
 					if((Vars.dwMaxGameTime && Vars.dwGameTime && 
 							(GetTickCount() - Vars.dwGameTime) > Vars.dwMaxGameTime) ||
-							(!IsTownLevel(GetPlayerArea()) &&
+							(!D2COMMON_IsTownByLevelNo(GetPlayerArea()) &&
 							(Vars.nChickenHP && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
 							(Vars.nChickenMP && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit()))))
 					D2CLIENT_ExitGame();

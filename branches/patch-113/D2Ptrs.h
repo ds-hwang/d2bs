@@ -262,8 +262,8 @@ FUNCPTR(D2COMMON, MapToAbsScreen, void __stdcall, (long *pX, long *pY), -11087)
 
 FUNCPTR(D2COMMON, CheckWaypoint, DWORD __stdcall, (DWORD WaypointTable, DWORD dwLevelId), -10373)
 
-FUNCPTR(D2COMMON, IsTownLevelByLevelNo, BOOL __stdcall, (DWORD dwLevelNo), -10416)
-FUNCPTR(D2COMMON, IsTownLevelByRoom, BOOL __stdcall, (Room1* pRoom1), -10057)
+FUNCPTR(D2COMMON, IsTownByLevelNo, BOOL __stdcall, (DWORD dwLevelNo), -10416)
+FUNCPTR(D2COMMON, IsTownByRoom, BOOL __stdcall, (Room1* pRoom1), -10057)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
