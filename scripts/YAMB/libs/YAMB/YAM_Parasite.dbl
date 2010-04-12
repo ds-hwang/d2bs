@@ -17,15 +17,18 @@ gameMsgExtendHandler = Goauld_GameMsgHandler;
 
 var myLeader       = false;
 var CowPortalReady = false;
+var YAM_TPReady	 = false;
 
 function Goauld_GameMsgHandler(sender, cmd, params, c) {
-	if (YAM_isMyLeader(sender)) {
+	if (YAM_isMyLeader(sender)) 
+	{
+		if( cmd + " " + params == YAM_TPMsg ) { YAM_TPReady = sender; }
 		if (cmd+" "+params == Cow_PortalClearMsg) { CowPortalReady = sender; }
 	}
 }
 
 function hostilesPresent() {
-	player = getParty();
+	var player = getParty();
 	if (player) { 
 		do {
 			if (player.name != me.name &&
@@ -132,7 +135,7 @@ function Goauld() {
 					DC_ThrowException("ParasiteXP()","Portal is suppose to be ready but not found!");
 				}
 				else
-					dest = portal.subarea;
+					dest = portal.objtype;
 				try {
 					// When we have chosen a leader, go into his tp
 					DM_UsePortal ("BluePortal", dest, myLeader, portal);
@@ -162,7 +165,7 @@ function Goauld() {
 			}
 			else if (DC_InTown(me)) { // When we have chosen a leader, go into his tp
 				portal = _DM_FindCorrectPortal(true, myLeader);
-				portOwner = (portal < 0) ? me.name : myLeader;
+				var portOwner = (portal < 0) ? me.name : myLeader;
 				if (portal < 0) {
 					portal = _DM_FindCorrectPortal(true, portOwner);
 					if (portal < 0) {
@@ -170,7 +173,7 @@ function Goauld() {
 					}
 				}
 				else
-					dest = portal.subarea;
+					dest = portal.objtype;
 				try { // When we have chosen a leader, go into his tp
 					DM_UsePortal("BluePortal", dest, portOwner, portal);
 				}
