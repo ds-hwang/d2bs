@@ -40,15 +40,39 @@ function hostilesPresent() {
 	return false;
 }
 
+function checkForAnyLeader()
+{
+	var player = getParty( );
+	
+	if ( player )
+	{
+		do {
+			if( YAM_isMyLeader( player.name ) )
+			{
+				return true;
+			}
+		} while( player.getNext( ) );
+	}
+	
+	return false;
+}
+
 function Goauld() {
 	// Do town stuff in the act we are in
 	YAM_TownManager();
 	PublicMode = 2;
 	print("Waiting for portal clear signal from a leader...");
+		
 	myLeader = false;
 	do {
 		for (i=100; i >=0; i--)
+		{
+			if( checkForAnyLeader( ) == false )
+			{
+				quit( );
+			}
 			delay(10);
+		}
 	} while (!YAM_TPReady && !CowPortalReady);
 
 	// The one who yells "tp up" becomes my true leader
