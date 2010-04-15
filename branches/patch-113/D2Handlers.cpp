@@ -92,20 +92,40 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 	if(Vars.bDontCatchNextMsg)
 	{
 		Vars.bDontCatchNextMsg = FALSE;
-		return NULL;
+		return 0;
 	}
 
-	char* szBuffer = UnicodeToAnsi(wMsg);
 	bool result = false;
 
-	if(szBuffer[0] == '.')
+	if(wMsg[0] == L'.')
 	{
+		char* szBuffer = UnicodeToAnsi(wMsg);
 		result = ProcessCommand(szBuffer+1, false);
+		delete[] szBuffer;
 	}
 
-	delete[] szBuffer;
-
 	return result == true ? -1 : 0;
+}
+
+DWORD __fastcall ChannelInput(wchar_t* wMsg)
+{
+	if(Vars.bDontCatchNextMsg)
+	{
+		Vars.bDontCatchNextMsg = FALSE;
+		return false;
+	}
+
+	bool result = false;
+	if(wMsg[0] == L'.')
+	{
+		char* szBuffer = UnicodeToAnsi(wMsg);
+		result = ProcessCommand(szBuffer+1, false);
+		// TODO: Clear the msg buffer, this DOES NOT clear it
+		//wMsg = L"";
+		delete[] szBuffer;
+	}
+
+	return result;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
@@ -338,6 +358,16 @@ void GameDrawOOG(void)
 void __fastcall WhisperHandler(char* szAcc, char* szText)
 {
 	WhisperEvent(szAcc, szText);
+}
+
+void __fastcall ChannelWhisperHandler(char* szAcc, char* szText)
+{
+	WhisperEvent(szAcc, szText);
+}
+
+void __fastcall ChannelChatHandler(char* szAcc, char* szText)
+{
+	ChatEvent(szAcc, szText);
 }
 
 DWORD __fastcall GameAttack(AttackStruct* pAttack)

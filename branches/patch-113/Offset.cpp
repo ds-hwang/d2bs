@@ -43,11 +43,11 @@ DWORD GetDllOffset(int num)
 void InstallPatches()
 {
 	
-	for(int x = 0; x < ArraySize(pHooks); x++)
+	for(int x = 0; x < ArraySize(Patches); x++)
 	{
-		pHooks[x].bOldCode = new BYTE[pHooks[x].dwLen];
-		::ReadProcessMemory(GetCurrentProcess(), (void*)pHooks[x].dwAddr, pHooks[x].bOldCode, pHooks[x].dwLen, NULL);
-		pHooks[x].pFunc(pHooks[x].dwAddr, pHooks[x].dwFunc, pHooks[x].dwLen);
+		Patches[x].bOldCode = new BYTE[Patches[x].dwLen];
+		::ReadProcessMemory(GetCurrentProcess(), (void*)Patches[x].dwAddr, Patches[x].bOldCode, Patches[x].dwLen, NULL);
+		Patches[x].pFunc(Patches[x].dwAddr, Patches[x].dwFunc, Patches[x].dwLen);
 	}
 	
 }
@@ -55,10 +55,10 @@ void InstallPatches()
 void RemovePatches()
 {
 	
-	for(int x = 0; x < ArraySize(pHooks); x++)
+	for(int x = 0; x < ArraySize(Patches); x++)
 	{
-		WriteBytes((void*)pHooks[x].dwAddr, pHooks[x].bOldCode, pHooks[x].dwLen);
-		delete[] pHooks[x].bOldCode;
+		WriteBytes((void*)Patches[x].dwAddr, Patches[x].bOldCode, Patches[x].dwLen);
+		delete[] Patches[x].bOldCode;
 	}
 	
 }
@@ -119,6 +119,6 @@ void PatchBytes(DWORD dwAddr, DWORD dwValue, DWORD dwLen)
 
 PatchHook *RetrievePatchHooks(PINT pBuffer)
 {
-	*pBuffer = ArraySize(pHooks);
-	return &pHooks[0];
+	*pBuffer = ArraySize(Patches);
+	return &Patches[0];
 }
