@@ -89,7 +89,7 @@ FUNCPTR(D2CLIENT, DrawRectFrame, void __fastcall, (DWORD Rect), 0xBE4C0)
 
 FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0xBFDF0)
 
-FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny*  __stdcall,(),0xA4D60)
+FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny* __stdcall, (void), 0xA4D60)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Client Globals
