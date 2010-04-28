@@ -2,7 +2,7 @@
 #include "D2Ptrs.h"
 #include "D2BS.h"
 
-void __declspec(naked) GamePacketReceived_STUB()
+void __declspec(naked) GamePacketReceived_Intercept()
 {
 	__asm
 	{
@@ -25,7 +25,7 @@ OldCode:
 	}
 }
 
-void __declspec(naked) GameDraw_STUB()
+void __declspec(naked) GameDraw_Intercept()
 {
 	__asm
 	{
@@ -38,35 +38,26 @@ void __declspec(naked) GameDraw_STUB()
 	}
 }
 
-void __declspec(naked) GameInput_Interception()
+void __declspec(naked) GameInput_Intercept()
 {
 	__asm {
-	pushad
+		pushad
 		mov ecx, ebx
 		call GameInput
 		cmp eax, -1
-	popad
-	je BlockIt
-	call D2CLIENT_InputCall_I
-	ret
+		popad
+		je BlockIt
+		call D2CLIENT_InputCall_I
+		ret
 
 BlockIt:
 
-	xor eax,eax
-	ret
+		xor eax,eax
+		ret
 	}
 }
 
-BOOL GameMinimize_Interception()
-{
-//	if(D2CLIENT_GetPlayerUnit() && GetForegroundWindow() != D2GFX_GetHwnd())
-//		return 1;
-
-	return 0;
-}
-
-
-UnitAny* myGetSelectedUnit(void)
+UnitAny* GetSelectedUnit_Intercept(void)
 {
 	if(Vars.bClickAction)
 	{
@@ -98,7 +89,7 @@ void __declspec(naked) Whisper_Intercept()
 	}
 }
 
-void __declspec(naked) GameAttack_STUB()
+void __declspec(naked) GameAttack_Intercept()
 {
 	__asm 
 	{
@@ -124,7 +115,7 @@ OldCode:
 	}
 }
 
-void __declspec(naked) PlayerAssignment_STUB()
+void __declspec(naked) PlayerAssignment_Intercept()
 {
 	__asm
 	{
@@ -136,7 +127,7 @@ void __declspec(naked) PlayerAssignment_STUB()
 	}
 }
 
-void __declspec(naked) GameCrashFix_STUB()
+void __declspec(naked) GameCrashFix_Intercept()
 {
 	__asm
 	{
@@ -149,12 +140,12 @@ Skip:
 	}
 }
 
-void GameDraw_Interception(void)
+void GameDrawOOG_Intercept(void)
 {
 	GameDrawOOG();
 }
 
-void __declspec(naked) GameActChange_STUB(void)
+void __declspec(naked) GameActChange_Intercept(void)
 {
 	__asm
 	{
@@ -167,7 +158,7 @@ void __declspec(naked) GameActChange_STUB(void)
 	}
 }
 
-void __declspec(naked) GameActChange2_STUB(void)
+void __declspec(naked) GameActChange2_Intercept(void)
 {
 	__asm
 	{
@@ -176,11 +167,102 @@ void __declspec(naked) GameActChange2_STUB(void)
 	}
 }
 
-void __declspec(naked) GameLeave_STUB(void)
+void __declspec(naked) GameLeave_Intercept(void)
 {
 	__asm
 	{
 		call GameLeave
 		jmp D2CLIENT_GameLeave_I
+	}
+}
+
+void __declspec(naked) ChannelInput_Intercept(void)
+{
+	__asm
+	{
+		push ecx
+		mov ecx, esi
+
+		call ChannelInput
+
+		test eax, eax
+		pop ecx
+
+		jz SkipInput
+		call D2MULTI_ChannelInput_I
+
+SkipInput:
+		ret
+	}
+}
+
+void __declspec(naked) ChannelWhisper_Intercept(void)
+{
+	__asm
+	{
+		push ecx
+		push edx
+		mov ecx, edi
+		mov edx, ebx
+
+		call ChannelWhisperHandler
+
+		test eax, eax
+		pop edx
+		pop ecx
+
+		jz SkipWhisper
+		jmp D2MULTI_ChannelWhisper_I
+
+SkipWhisper:
+		ret 4
+	}
+}
+
+void __declspec(naked) ChannelChat_Intercept(void)
+{
+	__asm
+	{
+		push ecx
+		push edx
+		mov ecx, dword ptr ss:[esp+0xC]
+		mov edx, dword ptr ss:[esp+0x10]
+
+		call ChannelChatHandler
+
+		test eax, eax
+		pop edx
+		pop ecx
+
+		jz SkipChat
+		sub esp, 0x408
+		jmp D2MULTI_ChannelChat_I
+
+SkipChat:
+		ret 8
+	}
+}
+
+void __declspec(naked) ChannelEmote_Intercept(void)
+{
+	__asm
+	{
+		push ecx
+		push edx
+		mov ecx, dword ptr ss:[esp+0xC]
+		mov edx, dword ptr ss:[esp+0x10]
+
+		call ChannelChatHandler
+
+		test eax, eax
+		pop edx
+		pop ecx
+
+		jz SkipChat
+		sub esp, 0x4F8
+		jmp D2MULTI_ChannelEmote_I
+
+SkipChat:
+		ret 8
 	}
 }

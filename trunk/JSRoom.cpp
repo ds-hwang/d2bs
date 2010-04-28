@@ -3,7 +3,7 @@
 #include "JSPresetUnit.h"
 //#include "JSUnit.h"
 //#include "D2Helpers.h"
-//#include "D2Ptrs.h"
+#include "D2Ptrs.h"
 //#include "Room.h"
 
 EMPTY_CTOR(room)
@@ -18,10 +18,10 @@ JSAPI_PROP(room_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case ROOM_NUM:
-			if(pRoom2->dwPresetType == 1)
+			if(pRoom2->dwPresetType != 2)
 				*vp = INT_TO_JSVAL(-1);
 			else if(pRoom2->pType2Info)
-				*vp = INT_TO_JSVAL(*pRoom2->pType2Info);
+				*vp = INT_TO_JSVAL(pRoom2->pType2Info->dwRoomNumber);
 			break;
 		case ROOM_XPOS:
 			*vp = INT_TO_JSVAL(pRoom2->dwPosX);
@@ -94,7 +94,6 @@ JSAPI_FUNC(room_getPresetUnits)
 
 	bool bAdded = FALSE;
 	DWORD dwArrayCount = NULL;
-	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
@@ -102,10 +101,12 @@ JSAPI_FUNC(room_getPresetUnits)
 	if(!pRoom2->pRoom1)
 	{
 		bAdded = TRUE;
-		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);	
+		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 	}
 
 
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	JS_AddRoot(&pReturnArray);
 	for(PresetUnit* pUnit = pRoom2->pPreset; pUnit; pUnit = pUnit->pPresetNext)
 	{
 		if((pUnit->dwType == nType || nType == NULL) && (pUnit->dwTxtFileNo == nClass || nClass == NULL))
@@ -137,6 +138,7 @@ JSAPI_FUNC(room_getPresetUnits)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	JS_RemoveRoot(&pReturnArray);
 
 	return JS_TRUE;
 }
@@ -182,7 +184,7 @@ JSAPI_FUNC(room_getCollision)
 	int nLimitX = x + nCx;
 	int nLimitY = y + nCy;
 
-	INT nCurrentArrayY = NULL;
+	int nCurrentArrayY = NULL;
 
 	WORD* p = pCol->pMapStart;
 
@@ -190,7 +192,7 @@ JSAPI_FUNC(room_getCollision)
 	{
 		JSObject* jsobjx = JS_NewArrayObject(cx, NULL, NULL);
 		
-		INT nCurrentArrayX = NULL;
+		int nCurrentArrayX = NULL;
 
 		for (int i = x; i < nLimitX; i++)
 		{
@@ -475,8 +477,8 @@ JSAPI_FUNC(my_getRoom)
 			POINT RoomStart = {pRoom->pRoom1->dwXStart, pRoom->pRoom1->dwYStart };
 			POINT RoomEnd = {pRoom->pRoom1->dwXStart + pRoom->pRoom1->dwXSize , pRoom->pRoom1->dwYStart + pRoom->pRoom1->dwYSize};
 
-			for(INT x = RoomStart.x; x < RoomEnd.x; x++)
-				for(INT y = RoomStart.y; y < RoomEnd.y; y++)
+			for(int x = RoomStart.x; x < RoomEnd.x; x++)
+				for(int y = RoomStart.y; y < RoomEnd.y; y++)
 					if(x == nX && y == nY)
 					{
 						if(bAdded)

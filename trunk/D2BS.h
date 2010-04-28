@@ -3,6 +3,8 @@
 
 #pragma once
 
+#define XP_WIN
+#define JS_THREADSAFE
 #define D2BS_VERSION "1.2.920"
 
 #include <windows.h>
@@ -31,8 +33,8 @@ struct Module
 
 struct Variables
 {
-	INT		nChickenHP;
-	INT		nChickenMP;
+	int		nChickenHP;
+	int		nChickenMP;
 	DWORD	dwInjectTime;
 	DWORD	dwGameTime;
 	BOOL	bDontCatchNextMsg;
@@ -53,7 +55,7 @@ struct Variables
 	BOOL	bBlockKeys;
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
-	INT		dwMemUsage;
+	int		dwMemUsage;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];
@@ -62,6 +64,9 @@ struct Variables
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;
 	HHOOK hKeybHook;
+
+	UINT_PTR uTimer;
+	long SectionCount;
 
 	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;

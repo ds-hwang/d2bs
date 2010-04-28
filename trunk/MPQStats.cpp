@@ -4,51 +4,51 @@
 
 MPQTable BaseStatTable[] = {
 	//DWORD dwEntry, DWORD dwMaxEntriesOffset, BinField* pTable, char szTableName, WORD wTableSize, WORD wUnknown
-	{0x6FDF0438,	0x6FDF0434,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
+	{0x6FDEFB98,	0x6FDEFB98,	itemTable,			"items",		ARRAYSIZE(itemTable),			0xFFFF},
 	{0xA78,			0xA80,		monstatsTable,		"monstats",		ARRAYSIZE(monstatsTable),		0xFFFF},
 	{0xB8C,			0xB94,		skilldescTable,		"skilldesc",	ARRAYSIZE(skilldescTable),		0xFFFF},
 	{0xB98,			0xBA0,		skillsTable,		"skills",		ARRAYSIZE(skillsTable),			0xFFFF},
-	{0x6FDF13E4,	0x6FDF13E8,	objectsTable,		"objects",		ARRAYSIZE(objectsTable),		0xFFFF},
+	{0x6FDF0B94,	0x6FDF0B98,	objectsTable,		"objects",		ARRAYSIZE(objectsTable),		0xFFFF},
 	{0xB64,			0xB6C,		missilesTable,		"missiles",		ARRAYSIZE(missilesTable),		0xFFFF},
 	{0xA90,			0xA98,		monstats2Table,		"monstats2",	ARRAYSIZE(monstats2Table),		0xFFFF},
 	{0xBCC,			0xBD4,		itemstatcostTable,	"itemstatcost",	ARRAYSIZE(itemstatcostTable),	0xFFFF},
 	{0xC58,			0xC5C,		levelsTable,		"levels",		ARRAYSIZE(levelsTable),			0xFFFF},
 	{0xC60,			0x00,		leveldefsTable,		"leveldefs",	ARRAYSIZE(leveldefsTable),		0xFFFF},
-	{0x6FDF1430,	0x6FDF1434,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
-	{0x6FDF1438,	0x6FDF143C,	lvlsubTable,		"lvlsub",		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
-	{0x6FDF1428,	0x6FDF142C,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
+	{0x6FDF1434,	0x6FDF1438,	lvlmazeTable,		"lvlmaze",		ARRAYSIZE(lvlmazeTable),		0xFFFF},
+	{0x6FDF143C,	0x6FDF1440,	lvlsubTable,		"lvlsub",		ARRAYSIZE(lvlsubTable),			0xFFFF}, // v
+	{0x6FDF142C,	0x6FDF1430,	lvlwarpTable,		"lvlwarp",		ARRAYSIZE(lvlwarpTable),		0xFFFF}, // v
 	{0xC64,			0xC68,		lvlprestTable,		"lvlprest",		ARRAYSIZE(lvlprestTable),		0xFFFF},
-	{0x6FDF1418,	0x6FDF1424,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
+	{0x6FDF141C,	0x6FDF1428,	lvltypesTable,		"lvltypes",		ARRAYSIZE(lvltypesTable),		0xFFFF}, // v - Fixed to fully dump the same as d2jsp - TechnoHunter
 	{0xBC4,			0xBC8,		charstatsTable,		"charstats",	ARRAYSIZE(charstatsTable),		0xFFFF},
 	{0xC18,			0xC1C,		setitemsTable,		"setitems",		ARRAYSIZE(setitemsTable),		0xFFFF},
 	{0xC24,			0xC28,		uniqueitemsTable,	"uniqueitems",	ARRAYSIZE(uniqueitemsTable),	0xFFFF},
 	{0xC0C,			0xC10,		setsTable,			"sets",			ARRAYSIZE(setsTable),			0xFFFF},
 	{0xBF8,			0xBFC,		itemtypesTable,		"itemtypes",	ARRAYSIZE(itemtypesTable),		0xFFFF},
-	{0x6FDF0478,	0x6FDF0474,	runesTable,			"runes",		ARRAYSIZE(runesTable),			0xFFFF}, // v
-	{0x6FDF148C,	0x6FDF1490,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
-	{0x6FDF0470,	0x6FDF046C,	gemsTable,			"gems",			ARRAYSIZE(gemsTable),			0xFFFF},
-	{0x6FDF13D0,	0x0,		experienceTable,	"experience",	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
+	{0x6FDEFBD8,	0x6FDEFBD4,	runesTable,			"runes",		ARRAYSIZE(runesTable),			0xFFFF}, // v
+	{0x6FDF1464,	0x6FDF1468,	cubemainTable,		"cubemain",		ARRAYSIZE(cubemainTable),		0xFFFF}, //v
+	{0x6FDEFBD0,	0x6FDEFBCC,	gemsTable,			"gems",			ARRAYSIZE(gemsTable),			0xFFFF},
+	{0x6FDF0B50,	0x0,		experienceTable,	"experience",	ARRAYSIZE(experienceTable),		0xFFFF}, // v - doesnt tap the last 2 levels of exp, ends at level 97 - TechnoHunter
 	{0xBE8,			0xBF0,		pettypeTable,		"pettable",		ARRAYSIZE(pettypeTable),		0xFFFF},
 	{0xAD4,			0xADC,		superuniquesTable,	"superuniques",	ARRAYSIZE(superuniquesTable),	0xFFFF},
 	{0}
 };
 
-DWORD GetBaseTable(INT table, INT row)
+DWORD GetBaseTable(int table, int row)
 {
 	DWORD dwResult = NULL;
 	DWORD dwD2MPQTable = NULL;
-	DWORD dwMaxEntries;
 
 	if(table < sizeof(BaseStatTable))
 	{
 		DWORD dwTableOffset = BaseStatTable[table].dwEntry;
 
 		if(dwTableOffset <= 0xFFFF)
-			dwD2MPQTable = (*p_D2COMMON_sqptDataTable);
+			dwD2MPQTable = (*p_D2COMMON_sgptDataTable);
 		else dwD2MPQTable = NULL;
 
 		DWORD dwMaxEntriesOffset = BaseStatTable[table].dwMaxEntriesOffset;
 
+		DWORD dwMaxEntries;
 		if(dwMaxEntriesOffset)
 			dwMaxEntries = *(DWORD*)(dwMaxEntriesOffset + dwD2MPQTable);
 		else dwMaxEntries = 0xFF;
@@ -80,7 +80,7 @@ bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t siz
 	return FillBaseStat(table, row, szStat, result, size);
 }
 
-bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size)
+bool FillBaseStat(char* szTable, int row, int column, void* result, size_t size)
 {
 	int table = -1;
 	for(int i = 0; BaseStatTable[i].pTable != NULL; i++)
@@ -96,11 +96,11 @@ bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size)
 	return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size)
+bool FillBaseStat(int table, int row, char* szStat, void* result, size_t size)
 {
 	BinField* pTable = BaseStatTable[table].pTable;
 
-	INT column = -1;
+	int column = -1;
 	for(int i = 0; i < BaseStatTable[table].wTableSize; i++)
 		if(!_strcmpi(szStat, pTable[i].szFieldName))
 		{
@@ -114,7 +114,7 @@ bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size)
 	return FillBaseStat(table, row, column, result, size);
 }
 
-bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size)
+bool FillBaseStat(int table, int row, int column, void* result, size_t size)
 {
 	BinField* pTable = BaseStatTable[table].pTable;
 	DWORD dwRetValue = GetBaseTable(table, row);
@@ -179,7 +179,7 @@ bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size)
 	return true;
 }
 
-DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT column, char* szTable, char* szStat)
+DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, char* szTable, char* szStat)
 {
 	if(szTable)
 	{

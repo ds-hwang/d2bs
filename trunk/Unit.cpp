@@ -171,12 +171,12 @@ BOOL CheckUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWOR
 	return TRUE;
 }
 
-INT GetUnitHP(UnitAny* pUnit)
+int GetUnitHP(UnitAny* pUnit)
 {
-	return (INT)(GetUnitStat(pUnit, STAT_HP) >> 8);
+	return (int)(D2COMMON_GetUnitStat(pUnit, STAT_HP, 0) >> 8);
 }
 
-INT GetUnitMP(UnitAny* pUnit)
+int GetUnitMP(UnitAny* pUnit)
 {
-	return (INT)(GetUnitStat(pUnit, STAT_MANA) >> 8);
+	return (int)(D2COMMON_GetUnitStat(pUnit, STAT_MANA, 0) >> 8);
 }

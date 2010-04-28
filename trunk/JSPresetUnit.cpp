@@ -1,7 +1,6 @@
 #include "JSPresetUnit.h"
 
-#include "D2Structs.h"
-//#include "D2Ptrs.h"
+#include "D2Ptrs.h"
 #include "CriticalSections.h"
 #include "D2Helpers.h"
 
@@ -64,8 +63,6 @@ JSAPI_FUNC(my_getPresetUnits)
 		return JS_TRUE;
 	}
 
-	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-
 	uint32 levelId;
 	JS_ValueToECMAUint32(cx, argv[0], &levelId);
 	Level* pLevel = GetLevel(levelId);
@@ -87,6 +84,8 @@ JSAPI_FUNC(my_getPresetUnits)
 	bool bAddedRoom = FALSE;
 	DWORD dwArrayCount = NULL;
 
+	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+	JS_AddRoot(&pReturnArray);
 	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
 	{
 		bAddedRoom = FALSE;
@@ -134,6 +133,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	}
 
 	*rval = OBJECT_TO_JSVAL(pReturnArray);
+	JS_RemoveRoot(&pReturnArray);
 
 	return JS_TRUE;
 }

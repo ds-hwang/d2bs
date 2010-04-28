@@ -139,7 +139,7 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case OOG_WINDOWTITLE:
 			char szTitle[128];
-			GetWindowText(D2WIN_GetHwnd(), szTitle, 128);
+			GetWindowText(D2GFX_GetHwnd(), szTitle, 128);
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, szTitle));
 			break;
 		case ME_PING:
@@ -213,10 +213,10 @@ JSAPI_PROP(unit_getProperty)
 			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
 			break;
 		case UNIT_XPOS:
-			*vp = INT_TO_JSVAL(GetUnitX(pUnit));
+			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitX(pUnit));
 			break;
 		case UNIT_YPOS:
-			*vp = INT_TO_JSVAL(GetUnitY(pUnit));
+			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
 			break;
 		case UNIT_HP:
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
@@ -240,7 +240,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 12, 0));
 			break;
 		case ME_RUNWALK:
-			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
+			 if(pUnit == D2CLIENT_GetPlayerUnit())
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_AlwaysRun);
 			break;
 		case UNIT_SPECTYPE:
@@ -397,7 +397,7 @@ JSAPI_PROP(unit_getProperty)
 			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
 			{
 				pRoom = D2COMMON_GetRoomFromUnit(pUnit);
-				if(pRoom && pRoom->pRoom2 && pRoom->pRoom2->pLevel && IsTownLevel(pRoom->pRoom2->pLevel->dwLevelNo))
+				if(pRoom && D2COMMON_IsTownByRoom(pRoom))
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
 				else
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
@@ -408,7 +408,7 @@ JSAPI_PROP(unit_getProperty)
 				*vp = INT_TO_JSVAL( pUnit->pObjectData->ChestLocked );
 			break;
 		case ME_WSWITCH:
-			 if(pUnit == (*p_D2CLIENT_PlayerUnit))
+			 if(pUnit == D2CLIENT_GetPlayerUnit())
 				*vp = INT_TO_JSVAL(*p_D2CLIENT_bWeapSwitch);
 			break;
 		default:
@@ -458,7 +458,7 @@ JSAPI_PROP(unit_setProperty)
 			UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 			if(!pUnit)
 				return JS_TRUE;
-			if(pUnit == (*p_D2CLIENT_PlayerUnit))
+			if(pUnit == D2CLIENT_GetPlayerUnit())
 				*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
 			break;
 
@@ -627,7 +627,7 @@ JSAPI_FUNC(unit_cancel)
 	{
 		// Diablo drops an Item by using the Walk function.
 		// Just perform a clickMap "click" and we drop it
-		D2CLIENT_clickMap(0, 10, 10, 0x08);
+		D2CLIENT_ClickMap(0, 10, 10, 0x08);
 	}
 
 	return JS_TRUE;
@@ -694,7 +694,7 @@ JSAPI_FUNC(unit_interact)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
-	if(!pUnit || pUnit == (*p_D2CLIENT_PlayerUnit))
+	if(!pUnit || pUnit == D2CLIENT_GetPlayerUnit())
 		return JS_TRUE;
 
 	if(pUnit->dwType == UNIT_ITEM && pUnit->dwMode != ITEM_MODE_ON_GROUND && pUnit->dwMode != ITEM_MODE_BEING_DROPPED)
@@ -791,43 +791,39 @@ JSAPI_FUNC(unit_getStat)
 			DWORD dwStats = D2COMMON_CopyStatList(pStatList, (Stat*)aStatList, 256);
 
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+			*rval = OBJECT_TO_JSVAL(pReturnArray);
 
-			if(pReturnArray)
+			for(UINT i = 0; i < dwStats; i++)
 			{
-				for(UINT i = 0; i < dwStats; i++)
-				{
-					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+				JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+				JS_AddRoot(&pArrayInsert);
 
-					if(!pArrayInsert)
-						continue;
+				if(!pArrayInsert)
+					continue;
 
-					jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
-					jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
-					jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
+				jsval nIndex	= INT_TO_JSVAL(aStatList[i].wStatIndex);
+				jsval nSubIndex = INT_TO_JSVAL(aStatList[i].wSubIndex);
+				jsval nValue	= INT_TO_JSVAL(aStatList[i].dwStatValue);
 
-					JS_SetElement(cx, pArrayInsert, 0, &nIndex);
-					JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
-					JS_SetElement(cx, pArrayInsert, 2, &nValue);	
+				JS_SetElement(cx, pArrayInsert, 0, &nIndex);
+				JS_SetElement(cx, pArrayInsert, 1, &nSubIndex);	
+				JS_SetElement(cx, pArrayInsert, 2, &nValue);	
 
-					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
+				jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
-					JS_SetElement(cx, pReturnArray, i, &aObj);
-				}
-
-				*rval = OBJECT_TO_JSVAL(pReturnArray);
+				JS_SetElement(cx, pReturnArray, i, &aObj);
+				JS_RemoveRoot(&pArrayInsert);
 			}
 		}
-
 	}
 	else if(nStat == -2)
 	{
 		JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
+		*rval = OBJECT_TO_JSVAL(pArray);
 
 	//	InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);
 		InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
-
-		*rval = OBJECT_TO_JSVAL(pArray);
 	}
 	else 
 		*rval = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex));
@@ -905,10 +901,12 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 			{
 				// it's not an array, build one
 				JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
+				JS_AddRoot(&arr);
 				JS_SetElement(cx, arr, 0, &index);
 				JS_SetElement(cx, arr, 1, &obj);
 				jsval arr2 = OBJECT_TO_JSVAL(arr);
 				JS_SetElement(cx, pArray, pStat[nStat].wStatIndex, &arr2);
+				JS_RemoveRoot(&arr);
 			}
 			else
 			{
@@ -1024,10 +1022,10 @@ JSAPI_FUNC(item_getPrice)
 	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
-	INT diff = D2CLIENT_GetDifficulty();
+	int diff = D2CLIENT_GetDifficulty();
 	//D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pUnit, diff, *p_D2CLIENT_ItemPriceList, NPCID, buysell)
-	INT buysell = 0;
-	INT NPCID = 148;
+	int buysell = 0;
+	int NPCID = 148;
 
 	myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
 
@@ -1209,7 +1207,6 @@ JSAPI_FUNC(unit_getSkill)
 	{
 		WORD wLeftSkillId = pUnit->pInfo->pLeftSkill->pSkillInfo->wSkillId;
 		WORD wRightSkillId = pUnit->pInfo->pRightSkill->pSkillInfo->wSkillId;
-		JSObject* pReturnArray = NULL;
 		switch(nSkillId)
 		{
 			case 0:
@@ -1240,33 +1237,33 @@ JSAPI_FUNC(unit_getSkill)
 				break;
 			case 2: *rval = INT_TO_JSVAL(wRightSkillId); break;
 			case 3: *rval = INT_TO_JSVAL(wLeftSkillId); break;
-			case 4:
-				pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-				if(pReturnArray)
-				{
-					int i = 0;
-					for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
-						JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+			case 4: {
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				*rval = OBJECT_TO_JSVAL(pReturnArray);
+				int i = 0;
+				for(Skill* pSkill = pUnit->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill) {
+					JSObject* pArrayInsert = JS_NewArrayObject(cx, 0, NULL);
+					JS_AddRoot(&pArrayInsert);
 
-						if(!pArrayInsert)
-							continue;
+					if(!pArrayInsert)
+						continue;
 
-						jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
-						jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
-						jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
+					jsval nId	= INT_TO_JSVAL(pSkill->pSkillInfo->wSkillId);
+					jsval nBase = INT_TO_JSVAL(pSkill->dwSkillLevel);
+					jsval nTotal = INT_TO_JSVAL(D2COMMON_GetSkillLevel(pUnit, pSkill, 1));
 
-						JS_SetElement(cx, pArrayInsert, 0, &nId);
-						JS_SetElement(cx, pArrayInsert, 1, &nBase);
-						JS_SetElement(cx, pArrayInsert, 2, &nTotal);
+					JS_SetElement(cx, pArrayInsert, 0, &nId);
+					JS_SetElement(cx, pArrayInsert, 1, &nBase);
+					JS_SetElement(cx, pArrayInsert, 2, &nTotal);
 
-						jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
+					jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
-						JS_SetElement(cx, pReturnArray, i, &aObj);
-						i++;
-					}
-					*rval = OBJECT_TO_JSVAL(pReturnArray);
+					JS_SetElement(cx, pReturnArray, i, &aObj);
+					JS_RemoveRoot(&pArrayInsert);
+					i++;
 				}
 				break;
+			}
 			default:
 				*rval = JSVAL_FALSE;
 				break;
@@ -1333,13 +1330,13 @@ JSAPI_FUNC(item_shop)
 		return JS_TRUE;
 
 	//Selling an Item 
-	/*if (dwMode == 1)
+	if(dwMode == 1)
 	{
 		//Check if we own the item!
-		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != (*p_D2CLIENT_PlayerUnit)->dwUnitId)
+		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != D2CLIENT_GetPlayerUnit()->dwUnitId)
 			return JS_TRUE;
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, (DWORD)0, 1, 1, NULL);
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 1, 0, 1, 1, NULL);
 	}
 	else
 	{
@@ -1347,10 +1344,10 @@ JSAPI_FUNC(item_shop)
 		if (pItem->pItemData->pOwnerInventory->pOwner->dwUnitId != pNPC->dwUnitId)
 			return JS_TRUE;
 
-		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, (DWORD)0, dwMode, 1, NULL);
-	}*/
+		D2CLIENT_ShopAction(pItem, pNPC, pNPC, 0, 0, dwMode, 1, NULL);
+	}
 
-	BYTE pPacket[17] = {NULL};
+	/*BYTE pPacket[17] = {NULL};
 
 	if(dwMode == 2 || dwMode == 6)
 		pPacket[0] = 0x32;
@@ -1376,7 +1373,7 @@ JSAPI_FUNC(item_shop)
 	else
 		*(BYTE*)&pPacket[9+3] = 0x80;
 
-	INT nBuySell = NULL;
+	int nBuySell = NULL;
 
 	if(dwMode == 2 || dwMode == 6)
 		nBuySell = NULL;
@@ -1384,7 +1381,7 @@ JSAPI_FUNC(item_shop)
 
 	*(DWORD*)&pPacket[13] = D2COMMON_GetItemPrice(D2CLIENT_GetPlayerUnit(), pItem, D2CLIENT_GetDifficulty(), *p_D2CLIENT_ItemPriceList, pNPC->dwTxtFileNo, nBuySell);
 
-	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);
+	D2NET_SendPacket(sizeof(pPacket), 1, pPacket);*/
 	
 	*rval = JSVAL_TRUE;
 
@@ -1715,8 +1712,8 @@ JSAPI_FUNC(unit_move)
 	}
 	else
 	{
-		x = GetUnitX(pUnit);
-		y = GetUnitY(pUnit);
+		x = D2CLIENT_GetUnitX(pUnit);
+		y = D2CLIENT_GetUnitY(pUnit);
 	}
 
 	ClickMap(0, (WORD)x, (WORD)y, FALSE, NULL);
@@ -1744,11 +1741,11 @@ JSAPI_FUNC(unit_getEnchant)
 	if(!pUnit || pUnit->dwType != UNIT_MONSTER)
 		return JS_TRUE;
 
-	INT nEnchant = JSVAL_TO_INT(argv[0]);
+	int nEnchant = JSVAL_TO_INT(argv[0]);
 
 	*rval = INT_TO_JSVAL(0);
 
-	for(INT i = 0; i < 9; i++)
+	for(int i = 0; i < 9; i++)
 		if(pUnit->pMonsterData->anEnchants[i] == nEnchant)
 		{
 			*rval = JSVAL_TRUE;

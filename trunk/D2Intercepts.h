@@ -3,18 +3,21 @@
 
 #include "D2Structs.h"
 
-void GameDraw_STUB();;
-void GameInput_Interception();
-BOOL GameMinimize_Interception(void);
-void GamePacketReceived_STUB();
-UnitAny* myGetSelectedUnit(void);
+void GameDraw_Intercept();
+void GameInput_Intercept();
+void GamePacketReceived_Intercept();
+UnitAny* GetSelectedUnit_Intercept(void);
 void Whisper_Intercept();
-void GameAttack_STUB();
-void PlayerAssignment_STUB();
-void GameCrashFix_STUB();
-void GameDraw_Interception(void);
-void GameActChange_STUB(void);
-void GameActChange2_STUB(void);
-void GameLeave_STUB(void);
+void GameAttack_Intercept();
+void PlayerAssignment_Intercept();
+void GameCrashFix_Intercept();
+void GameDrawOOG_Intercept(void);
+void GameActChange_Intercept(void);
+void GameActChange2_Intercept(void);
+void GameLeave_Intercept(void);
+void ChannelInput_Intercept(void);
+void ChannelWhisper_Intercept(void);
+void ChannelChat_Intercept(void);
+void ChannelEmote_Intercept(void);
 
 #endif

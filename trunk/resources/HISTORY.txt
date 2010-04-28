@@ -1,5 +1,15 @@
 Version History:
 
+Version 1.3 -
+
+	.	Updated to 1.13c
+
+	.	Various leaks and bugs fixed, nothing major
+
+	.	"chatmsg" and "whispermsg" now listen to channel events as well as in-game events.
+
+	.	Lots of little stability fixes and whatnot.
+
 Version 1.2.1 -
 
 	.	Reverted to packet-based shopping, the internal method we were using seems to still be buggy.

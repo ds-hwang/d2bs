@@ -131,7 +131,7 @@ JSAPI_FUNC(my_acceptTrade)
 	}
 	else if(JSVAL_TO_INT(argv[0]) == 2) // Called with a '2' it will return the trade flag
 	{
-		*rval = INT_TO_JSVAL((*p_D2CLIENT_TradeFlag));
+		*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
 		return JS_TRUE;
 	}
 	else if(JSVAL_TO_INT(argv[0]) == 3) // Called with a '3' it will return if the 'check' is red or not
@@ -140,7 +140,10 @@ JSAPI_FUNC(my_acceptTrade)
 		return JS_TRUE;
 	}
 
-	if((*p_D2CLIENT_TradeFlag) == 3 || (*p_D2CLIENT_TradeFlag) == 5 || (*p_D2CLIENT_TradeFlag) == 7)
+	CriticalMisc myMisc;
+	myMisc.EnterSection();
+
+	if((*p_D2CLIENT_RecentTradeId) == 3 || (*p_D2CLIENT_RecentTradeId) == 5 || (*p_D2CLIENT_RecentTradeId) == 7)
 	{
 		if((*p_D2CLIENT_bTradeBlock))
 		{
@@ -188,7 +191,7 @@ JSAPI_FUNC(my_getPath)
 		JS_GetArrayLength(cx, pObject, &dwLength);
 		AreaIds = new DWORD[dwLength];
 		jsval nVal;
-		for (int n = 0; n < (INT)dwLength; n++) {
+		for (int n = 0; n < (int)dwLength; n++) {
 			JS_GetElement(cx, pObject, n, &nVal);
 			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
 		}
@@ -204,11 +207,11 @@ JSAPI_FUNC(my_getPath)
 	JS_ValueToECMAUint32(cx, argv[4], &y2);
 
 	POINT ptStart = {x, y}, ptEnd = {x2, y2};
-	BOOL UseTele = !IsTownLevel(Area);
+	BOOL UseTele = !D2COMMON_IsTownByLevelNo(Area);
 	BOOL Reduction = true;
 	if(argc >= 6)
 		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
-	DWORD Radius = (!IsTownLevel(Area) && UseTele) ? 35 : 20;
+	DWORD Radius = (!D2COMMON_IsTownByLevelNo(Area) && UseTele) ? 35 : 20;
 	if(argc >= 7)
 		JS_ValueToECMAUint32(cx, argv[6], &Radius);
 	if(argc == 8)
@@ -217,7 +220,7 @@ JSAPI_FUNC(my_getPath)
 	CCollisionMap g_collisionMap;
 
 	DWORD nAreas[64] = {0};
-	INT nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
+	int nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
 
 	if (JSVAL_IS_OBJECT(argv[0])) {
 		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
@@ -275,7 +278,8 @@ JSAPI_FUNC(my_getPath)
 	if(dwCount)
 	{
 		JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-		for (DWORD i = 0; i < dwCount; i++)
+		*rval = OBJECT_TO_JSVAL(pReturnArray); 
+		for(DWORD i = 0; i < dwCount; i++)
 			g_collisionMap.RelativeToAbs(lpBuffer[i]);
 		
 		DWORD dwArray = NULL;
@@ -286,6 +290,7 @@ JSAPI_FUNC(my_getPath)
 		while(i < dwCount) 
 		{
 			JSObject* pArrayInsert = JS_NewArrayObject(cx, NULL, NULL);
+			JS_AddRoot(&pArrayInsert);
 
 			jsval x = INT_TO_JSVAL(lpBuffer[i].x);
 			jsval y = INT_TO_JSVAL(lpBuffer[i].y);
@@ -296,11 +301,10 @@ JSAPI_FUNC(my_getPath)
 			jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
 
 			JS_SetElement(cx, pReturnArray, dwArray, &aObj);
+			JS_RemoveRoot(&pArrayInsert);
 			dwArray++;
 			i++;
 		}
-
-		*rval = OBJECT_TO_JSVAL(pReturnArray); 
 	}
 	return JS_TRUE;
 }
@@ -335,7 +339,7 @@ JSAPI_FUNC(my_getCollision)
 
 JSAPI_FUNC(my_clickItem)
 {
-typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT loc);
+typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int loc);
 
 	CriticalMisc myMisc;
 	myMisc.EnterSection();
@@ -352,7 +356,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 	myUnit* pmyUnit = NULL;
 	UnitAny* pUnit = NULL;
 
-	//INT ScreenSize = D2GFX_GetScreenSize();
+	//int ScreenSize = D2GFX_GetScreenSize();
 
 	POINT Belt[] =
 	{
@@ -392,7 +396,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 		if(!pUnit)
 			return JS_TRUE;
 
-		clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_clickLocPtrs + (4 * pUnit->pItemData->BodyLocation));
+		clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * pUnit->pItemData->BodyLocation));
 		
 		if(!click)
 			return JS_TRUE;
@@ -409,7 +413,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 
 		if(nClickType == NULL)
 		{
-			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_clickLocPtrs + (4 * nBodyLoc));
+			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * nBodyLoc));
 			
 			if(!click)
 				return JS_TRUE;
@@ -446,10 +450,10 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 		if(!pUnit || !(pUnit->dwType == UNIT_ITEM) || !pUnit->pItemData)
 			THROW_ERROR(cx, "Object is not an item!");
 
-		INT InventoryLocation = GetItemLocation(pUnit);
+		int InventoryLocation = GetItemLocation(pUnit);
 		
-		INT x = pUnit->pItemPath->dwPosX;
-		INT y = pUnit->pItemPath->dwPosY;
+		int x = pUnit->pItemPath->dwPosX;
+		int y = pUnit->pItemPath->dwPosY;
 
 		*p_D2CLIENT_CursorHoverX = x;
 		*p_D2CLIENT_CursorHoverY = y;
@@ -489,12 +493,13 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 
 			if(nClickType == NULL)
 				D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, nClickType, pLayout, pUnit->pItemData->ItemLocation);
-			else D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+			else
+				D2CLIENT_RightClickItem(x,y, pUnit->pItemData->ItemLocation, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 
 		}
 		else if(InventoryLocation == STORAGE_BELT)
 		{
-			INT i = x;
+			int i = x;
 
 			if( i < 0 || i > 0x0F)
 				return JS_TRUE;
@@ -509,16 +514,16 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 				y = 460 - (Belt[i].y * 29);
 			}
 			if(nClickType == NULL)
-				D2CLIENT_clickBelt(x,y, (DWORD)D2CLIENT_GetPlayerUnit()->pInventory);
+				D2CLIENT_ClickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);
 			else
-				D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory,D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
+				D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit()->pInventory, D2CLIENT_GetPlayerUnit(), nClickType == 1 ? FALSE : TRUE, i);
 		}
 		else if(D2CLIENT_GetCursorItem() == pUnit)
 		{
 			if(nClickType < 1 || nClickType > 12)
 				return JS_TRUE;
 
-			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_clickLocPtrs + (4 * nClickType));
+			clickequip * click = (clickequip*)*(DWORD*)(D2CLIENT_BodyClickTable + (4 * nClickType));
 
 			if(!click)
 				return JS_TRUE;
@@ -578,13 +583,13 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 						break;
 				}
 
-				INT	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
-				INT	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
+				int	x = pLayout->Left + nX * pLayout->SlotPixelWidth + 10; 
+				int	y = pLayout->Top + nY * pLayout->SlotPixelHeight + 10;
 				
 				if(nButton == 0) // Left Click
 					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 1, pLayout, nLoc);
 				else if(nButton == 1) // Right Click
-					D2CLIENT_RightClickItem(x,y,nLoc , D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
+					D2CLIENT_RightClickItem(x, y, nLoc, D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory);
 				else if(nButton == 2) // Shift Left Click
 					D2CLIENT_LeftClickItem(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, x, y, 5, pLayout, nLoc);
 			
@@ -607,8 +612,8 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 				if(z == -1)
 					return JS_TRUE;
 
-				INT x = NULL;
-				INT y = NULL;
+				int x = NULL;
+				int y = NULL;
 
 				if(D2GFX_GetScreenSize() == 2)
 				{
@@ -621,13 +626,11 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, INT
 				}
 
 				if(nButton == 0)
-					D2CLIENT_clickBelt(x,y, (DWORD)D2CLIENT_GetPlayerUnit()->pInventory);	
+					D2CLIENT_ClickBelt(x, y, D2CLIENT_GetPlayerUnit()->pInventory);	
 				else if(nButton == 1)
-					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory,
-						FALSE, z);
+					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, FALSE, z);
 				else if(nButton == 2)
-					D2CLIENT_clickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory,
-						TRUE, z);
+					D2CLIENT_ClickBeltRight(D2CLIENT_GetPlayerUnit(), D2CLIENT_GetPlayerUnit()->pInventory, TRUE, z);
 
 				return JS_TRUE;
 			}	
@@ -671,7 +674,7 @@ JSAPI_FUNC(my_rand)
 
 	long long seed = 0;
 	if(ClientState() == ClientStateInGame)
-		seed = D2GAME_D2Rand((*p_D2CLIENT_PlayerUnit)->dwSeed);
+		seed = D2GAME_Rand(D2CLIENT_GetPlayerUnit()->dwSeed);
 	else
 		seed = rand();
 
@@ -723,10 +726,10 @@ JSAPI_FUNC(my_getDistance)
 		if(!pUnitA || !pUnitB)
 			return JS_TRUE;
 
-		nX1 = GetUnitX(pUnitA);
-		nY1 = GetUnitY(pUnitA);
-		nX2 = GetUnitX(pUnitB);
-		nY2 = GetUnitY(pUnitB);
+		nX1 = D2CLIENT_GetUnitX(pUnitA);
+		nY1 = D2CLIENT_GetUnitY(pUnitA);
+		nX2 = D2CLIENT_GetUnitX(pUnitB);
+		nY2 = D2CLIENT_GetUnitY(pUnitB);
 
 	}
 	else if(argc == 3)
@@ -743,8 +746,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = GetUnitX(pUnitA);
-			nY1 = GetUnitY(pUnitA);
+			nX1 = D2CLIENT_GetUnitX(pUnitA);
+			nY1 = D2CLIENT_GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[1], &nX2);
 			JS_ValueToECMAInt32(cx, argv[2], &nY2);
 		}
@@ -760,8 +763,8 @@ JSAPI_FUNC(my_getDistance)
 			if(!pUnitA)
 				return JS_TRUE;
 
-			nX1 = GetUnitX(pUnitA);
-			nY1 = GetUnitY(pUnitA);
+			nX1 = D2CLIENT_GetUnitX(pUnitA);
+			nY1 = D2CLIENT_GetUnitY(pUnitA);
 			JS_ValueToECMAInt32(cx, argv[0], &nX2);
 			JS_ValueToECMAInt32(cx, argv[1], &nY2);
 		}
@@ -833,6 +836,7 @@ JSAPI_FUNC(my_getMercHP)
 	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
+	// TODO: Can we replace this with D2CLIENT_GetMercUnit()?
 	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
 	{
 		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
@@ -876,7 +880,7 @@ JSAPI_FUNC(my_getSkillByName)
 	if(!(lpszText && lpszText[0]))
 		THROW_ERROR(cx, "Could not convert string");
 
-	for(INT i = 0; i < ArraySize(Game_Skills); i++)
+	for(int i = 0; i < ArraySize(Game_Skills); i++)
 	{
 		if(!_strcmpi(Game_Skills[i].name, lpszText))
 		{
@@ -932,6 +936,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 		pObj = BuildObject(cx, NULL);
 		if(!pObj)
 			THROW_ERROR(cx, "Could not build object");
+		JS_AddRoot(&pObj);
 		if(JS_SetProperty(cx, pObj, "width", &x) == JS_FALSE)
 			THROW_ERROR(cx, "Could not set width property");
 		if(JS_SetProperty(cx, pObj, "height", &y) == JS_FALSE)
@@ -940,10 +945,12 @@ JSAPI_FUNC(my_getTextWidthHeight)
 	else
 	{
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
+		JS_AddRoot(&pObj);
 		JS_SetElement(cx, pObj, 0, &x);
 		JS_SetElement(cx, pObj, 1, &y);
 	}
 	*rval = OBJECT_TO_JSVAL(pObj);
+	JS_RemoveRoot(&pObj);
 
 	return JS_TRUE;
 }
@@ -963,7 +970,7 @@ JSAPI_FUNC(my_getTradeInfo)
 	
 	if(nMode == 0)
 	{
-		*rval = INT_TO_JSVAL((*p_D2CLIENT_TradeFlag));
+		*rval = INT_TO_JSVAL((*p_D2CLIENT_RecentTradeId));
 		return JS_TRUE;
 	}
 	else if(nMode == 1)
@@ -1135,7 +1142,7 @@ JSAPI_FUNC(my_clickParty)
 	if(nMode == 1)
 		D2CLIENT_HostilePartyUnit(pUnit, 1);
 	else
-		D2CLIENT_clickParty(pUnit, nMode);
+		D2CLIENT_ClickParty(pUnit, nMode);
 
 	*rval = JSVAL_TRUE;
 
@@ -1273,6 +1280,7 @@ JSAPI_FUNC(my_getMouseCoords)
 	if(nReturn)
 	{
 		pObj = BuildObject(cx, NULL);
+		JS_AddRoot(&pObj);
 		if(!pObj)
 			THROW_ERROR(cx, "Could not build object");
 		if(JS_SetProperty(cx, pObj, "x", &jsX) == JS_FALSE)
@@ -1283,6 +1291,7 @@ JSAPI_FUNC(my_getMouseCoords)
 	else
 	{
 		pObj = JS_NewArrayObject(cx, NULL, NULL);
+		JS_AddRoot(&pObj);
 		JS_SetElement(cx, pObj, 0, &jsX);
 		JS_SetElement(cx, pObj, 1, &jsY);
 	}
@@ -1291,6 +1300,7 @@ JSAPI_FUNC(my_getMouseCoords)
 		return JS_TRUE;
 
 	*rval = OBJECT_TO_JSVAL(pObj);
+	JS_RemoveRoot(&pObj);
 	return JS_TRUE;
 }
 
@@ -1301,7 +1311,7 @@ JSAPI_FUNC(my_submitItem)
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
-		D2CLIENT_submitItem(pUnit->dwUnitId);
+		D2CLIENT_SubmitItem(pUnit->dwUnitId);
 		*rval = JSVAL_TRUE;
 	}
 	else

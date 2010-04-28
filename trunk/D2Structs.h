@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _D2STRUCTS_H
 #define _D2STRUCTS_H
 
@@ -16,24 +17,21 @@ struct ActMisc;
 struct RosterUnit;
 struct OverheadMsg;
 
-struct InventoryInfo 
-{
+struct InventoryInfo {
 	int nLocation;
 	int nMaxXCells;
 	int nMaxYCells;
 };
 
-struct GameStructInfo
-{
-	DWORD _1[6];					//0x00
-	WORD _1a;						//0x18
-	char szGameName[0x18];			//0x1A
-	char szGameServerIp[0x56];		//0x32
-	char szAccountName[0x30];		//0x88
-	char szCharName[0x18];			//0xB8
-	char szRealmName[0x18];			//0xD0
-	BYTE _2[0x157];					//0xE8
-	char szGamePassword[0x18];		//0x23F
+struct GameStructInfo {
+	BYTE _1[0x1B];					//0x00
+	char szGameName[0x18];			//0x1B
+	char szGameServerIp[0x56];		//0x33
+	char szAccountName[0x30];		//0x89
+	char szCharName[0x18];			//0xB9
+	char szRealmName[0x18];			//0xD1
+	BYTE _2[0x158];					//0xE9
+	char szGamePassword[0x18];		//0x241
 };
 
 struct AutomapCell {
@@ -58,9 +56,7 @@ struct GfxCell {
 	BYTE cols;						//0x20
 };
 
-
-struct InteractStruct
-{
+struct InteractStruct {
 	DWORD dwMoveType;			//0x00
 	UnitAny* lpPlayerUnit;		//0x04
 	UnitAny* lpTargetUnit;		//0x08
@@ -85,13 +81,11 @@ struct CellFile {
 };
 
 struct CellContext {
-	DWORD direction;				//0x00
-	GfxCell *hCell;					//0x04
-	DWORD _1[0xD];					//0x08
-	CellFile* pCellFile;			//0x3C
-	DWORD _2;						//0x40
-	DWORD nCellNo;					//0x44
+	DWORD _1[13];					//0x00
+	CellFile* pCellFile;			//0x34
+	DWORD _2[4];					//0x38
 };
+
 
 struct AutomapLayer {
 	DWORD nLayerNo;					//0x00
@@ -148,7 +142,7 @@ struct Control {
    DWORD _9;						//0x38
    Control* pNext;					//0x3C
    DWORD _10;						//0x40
-   DWORD unkState; 					//0x44 __11 0 when button avail to be clicked 1 when greyed - still need to look at this more
+   DWORD unkState; 					//0x44 _11 0 when button avail to be clicked 1 when greyed - still need to look at this more
    ControlText* pFirstText;			//0x48
    ControlText* pLastText;			//0x4C
    ControlText* pSelectedText;		//0x50
@@ -171,10 +165,10 @@ struct Control {
 #pragma pack(1)
 
 struct RoomTile {
-	DWORD *nNum;					//0x00
-	Room2* pRoom2;					//0x04
-	DWORD _1[2];					//0x08
-	RoomTile* pNext;				//0x10
+	Room2* pRoom2;				//0x00
+	RoomTile* pNext; 			//0x04
+	DWORD _2[2];				//0x08
+	DWORD *nNum; 				//0x10
 };
 
 struct RosterUnit {
@@ -230,127 +224,93 @@ struct CollMap {
 	WORD *pMapEnd;					//0x22
 };
 
-
-
 struct PresetUnit {
-	DWORD dwTxtFileNo;				//0x00
-	DWORD _1[2];					//0x04
-	DWORD dwPosX;					//0x0C
-	DWORD _2;						//0x10
-	DWORD dwPosY;					//0x14
-	PresetUnit* pPresetNext;		//0x18
-	DWORD dwType;					//0x1C
-	/*
-	DWORD dwTxtFileNo;				//0x00
-	DWORD _1[2];					//0x04
-	DWORD dwPosX;					//0x0C
-	DWORD _2[2];					//0x10
-	DWORD dwPosY;					//0x14
-	PresetUnit* pPresetNext;		//0x18
-	DWORD dwType;					//0x1C*/
-	/*
-Routine 1.12: 6FD70BA0  /$ 8B4C24 04      MOV ECX,DWORD PTR SS:[ESP+4]
-Routine 1.11b: 6FD87FA0  /$ 8B4C24 04      MOV ECX,DWORD PTR SS:[ESP+4]
-
-	DWORD _1[2];					//0x00
-	DWORD dwPosY;					//0x08 <- 0x14
-	DWORD dwTxtFileNo;				//0x0C <- 0x00
-	DWORD _2[1];					//0x10
-	PresetUnit *pPresetNext;		//0x14 <- 0x18
-	DWORD dwPosX;					//0x18 <- 0x0C
-	DWORD dwType;					//0x1C <- Gleich
-	*/
+	DWORD _1;						//0x00
+	DWORD dwTxtFileNo;				//0x04
+	DWORD dwPosX;					//0x08
+	PresetUnit* pPresetNext;		//0x0C
+	DWORD _3;						//0x10
+	DWORD dwType;					//0x14
+	DWORD dwPosY;					//0x18
 };
 
 struct Level {
-	BYTE _1[0x50];					//0x00
-	DWORD dwSeed[2];				//0x50
-	DWORD _2;						//0x58
-	Level* pNextLevel;				//0x5C
-	DWORD _56;						//0x60
-	ActMisc *pMisc;					//0x64
-	DWORD _3;						//0x68
-	DWORD dwPosX;					//0x6C
-	DWORD dwPosY;					//0x70
-	DWORD dwSizeX;					//0x74
-	DWORD dwSizeY;					//0x78
-	DWORD _4[6];					//0x7C
-	DWORD dwLevelNo;				//0x94
-	DWORD _5[0x61];					//0x98
-	Room2* pRoom2First;				//0x21C
+	DWORD _1[4];			//0x00
+	Room2* pRoom2First;		//0x10
+	DWORD _2[2];			//0x14
+	DWORD dwPosX;			//0x1C
+	DWORD dwPosY;			//0x20
+	DWORD dwSizeX;			//0x24
+	DWORD dwSizeY;			//0x28
+	DWORD _3[96];			//0x2C
+	Level* pNextLevel;		//0x1AC
+	DWORD _4;				//0x1B0
+	ActMisc* pMisc;			//0x1B4
+	DWORD _5[6];			//0x1BC
+	DWORD dwLevelNo;		//0x1D0
 };
 
 struct Room2 {
-	Level* pLevel;					//0x00
-	DWORD _1;						//0x04
-	DWORD dwRoomsNear;				//0x08
-	RoomTile* pRoomTiles;			//0x0C
-	Room2 **pRoom2Near;				//0x10
-	DWORD _3[6];					//0x14
-	DWORD dwPosX;					//0x2C
-	DWORD dwPosY;					//0x30
-	DWORD dwSizeX;					//0x34
-	DWORD dwSizeY;					//0x38
-	DWORD *pType2Info;				//0x3C
-	DWORD _4[0x20];					//0x40
-	DWORD dwPresetType;				//0xC0
-	PresetUnit*	pPreset;			//0xC4
-	DWORD _5[0x3];					//0xC8
-	Room2* pRoom2Next;				//0xD4
-	Room1* pRoom1;					//0xD8
-//6FDA4613  |> 8BBD C4000000  MOV EDI,DWORD PTR SS:[EBP+C4]            ;  Default case of switch 6FDA45CE
-
-
+	DWORD _1[2];			//0x00
+	Room2** pRoom2Near;		//0x08
+	DWORD _2[5];			//0x0C
+	struct {
+		DWORD dwRoomNumber; //0x00
+		DWORD _1;			//0x04
+		DWORD* pdwSubNumber;//0x08
+	} *pType2Info;			//0x20
+	Room2* pRoom2Next;		//0x24
+	DWORD dwRoomFlags;		//0x28
+	DWORD dwRoomsNear;		//0x2C
+	Room1* pRoom1;			//0x30
+	DWORD dwPosX;			//0x34
+	DWORD dwPosY;			//0x38
+	DWORD dwSizeX;			//0x3C
+	DWORD dwSizeY;			//0x40
+	DWORD _3;				//0x44
+	DWORD dwPresetType;		//0x48
+	RoomTile* pRoomTiles;	//0x4C
+	DWORD _4[2];			//0x50
+	Level* pLevel;			//0x58
+	PresetUnit* pPreset;	//0x5C
 };
 
 #pragma pack(pop)
 
 struct Room1 {
-	Room1 **pRoomsNear;				//0x00
-	DWORD _1[2];					//0x04
-	DWORD dwSeed[2];				//0x0C
-	DWORD _2;						//0x14
-	DWORD dwXStart;					//0x18
-	DWORD dwYStart;					//0x1C
-	DWORD dwXSize;					//0x20
-	DWORD dwYSize;					//0x24
-	DWORD _3[0x4];					//0x28
-	Room1* pRoomNext;				//0x38
-	DWORD _4;						//0x3C
-	UnitAny* pUnitFirst;			//0x40
-	DWORD _5[3];					//0x44
-	CollMap* Coll;					//0x50
-	DWORD _6[0x7];					//0x54
-	Room2* pRoom2;					//0x70
-	DWORD _7;						//0x74
-	DWORD dwRoomsNear;				//0x78
+	Room1** pRoomsNear; 	//0x00
+	DWORD _1[3];			//0x04
+	Room2* pRoom2;			//0x10
+	DWORD _2[3];			//0x14
+	CollMap* Coll;			//0x20
+	DWORD dwRoomsNear;		//0x24
+	DWORD _3[9];			//0x28
+	DWORD dwXStart;			//0x4C
+	DWORD dwYStart;			//0x50
+	DWORD dwXSize;			//0x54
+	DWORD dwYSize;			//0x58
+	DWORD _4[6];			//0x5C
+	UnitAny* pUnitFirst;	//0x74
+	DWORD _5;				//0x78
+	Room1* pRoomNext;		//0x7C
 };
 
-
 struct ActMisc {
-	DWORD _1;				//0x00
-	Act *pAct;				//0x04
-	DWORD _2[238];			//0x3BC
-	DWORD dwStaffTombLevel;	//0x3C0
-	DWORD _3[43];			//0x470
-	Level *pLevelFirst;
+	DWORD _1[37];			//0x00
+	DWORD dwStaffTombLevel; //0x94
+	DWORD _2[245];			//0x98
+	Act* pAct;				//0x46C
+	DWORD _3[3];			//0x470
+	Level* pLevelFirst;		//0x47C
 };
 
 struct Act {
-	BYTE _1[0x34];					//0x00
-	Room1* pRoom1;					//0x34
-	ActMisc* pMisc;					//0x38
-	DWORD _2[2];					//0x40
-	DWORD dwAct;					//0x44
-	/*
-	Act Misc +0x38
-//6FDA4E37  |> 8B40 38        MOV EAX,DWORD PTR DS:[EAX+38] <- Act Misc
-	DWORD _1[2];					//0x00
-	ActMisc *pMisc;					//0x08
-	Room1 *pRoom1;					//0x0C
-	DWORD _2;						//0x10
-	DWORD dwAct;					//0x14
-	DWORD pfnCallBack;				//0x18*/
+	DWORD _1[3];			//0x00
+	DWORD dwMapSeed;		//0x0C
+	Room1* pRoom1;			//0x10
+	DWORD dwAct;			//0x14
+	DWORD _2[12];			//0x18
+	ActMisc* pMisc;			//0x48
 };
 
 struct Path {
@@ -633,18 +593,18 @@ struct UnitAny {
 	UnitAny *pListNext;				//0xE8 -> 0xD8
 };
 
-struct BnetData
-{
+struct BnetData {
 	DWORD dwId;					//0x00
-	DWORD dwId2;				//0x04
-	DWORD _1[3];				//0x08
-	DWORD dwId3;				//0x14
-	WORD Unk3;					//0x18
+	DWORD dwId2;				//0x04	
+	BYTE _12[13];				//0xC0
+	//DWORD dwId3;				//0x14
+	//WORD Unk3;					//0x18	
+	BYTE _13[6];				//0xC0
 	char szGameName[22];		//0x1A
 	char szGameIP[16];			//0x30
-	DWORD _2[16];				//0x40
+	DWORD _2[15];				//0x40
 	DWORD dwId4;				//0x80
-	DWORD _3;					//0x84
+	BYTE _3[5];					//0x84
 	char szAccountName[48];		//0x88
 	char szPlayerName[24];		//0xB8
 	char szRealmName[8];		//0xD0
@@ -655,9 +615,9 @@ struct BnetData
 	BYTE _5[31];				//0x1EC
 	BYTE nDifficulty;			//0x20B
 	void *_6;					//0x20C
-	DWORD _7[5];				//0x210
+	DWORD _7[3];				//0x210
 	WORD _8;					//0x224
-	BYTE _9;					//0x226
+	BYTE _9[7];					//0x226
 	char szRealmName2[24];		//0x227
 	char szGamePass[24];		//0x23F
 	char szGameDesc[256];		//0x257
@@ -666,8 +626,7 @@ struct BnetData
 };
 
 
-struct WardenClientRegion_t
-{
+struct WardenClientRegion_t {
 	DWORD cbAllocSize; //+00
 	DWORD offsetFunc1; //+04
 	DWORD offsetRelocAddressTable; //+08
@@ -694,14 +653,12 @@ struct WardenClient_t {
 	DWORD fnSetupWarden; //+10
 };
 
-struct WardenIATInfo_t
-{
+struct WardenIATInfo_t {
 	DWORD offsetModuleName;
 	DWORD offsetImportTable;
 };
 
-struct AttackStruct
-{
+struct AttackStruct {
 	DWORD dwAttackType;			//0x00
 	UnitAny* lpPlayerUnit;		//0x04
 	UnitAny* lpTargetUnit;		//0x08
@@ -711,20 +668,10 @@ struct AttackStruct
 	DWORD _2;					//0x18
 };
 
-/*
-Akara NPCEntry
-
-0   94 00 00 00 03 00 00 00  î.......
-8   35 0D 44 0D 00 00 00 00  5.D.....
-10  00 00 B0 AA B0 6F 90 BD  ..∞™∞oêΩ
-18  B0 6F 00 00 00 00 00 00  ∞o......
-20  00 00 00 00 00 00 01     .......
-*/
-// Thanks to Darawk for hooking me up with this preprocessor commands!
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct  {
+struct NPCMenu {
 	DWORD dwNPCClassId;
 	DWORD dwEntryAmount;
 	WORD wEntryId1;
@@ -737,7 +684,7 @@ typedef struct  {
 	DWORD dwEntryFunc3; 
 	DWORD dwEntryFunc4;
 	BYTE _2[5];
-} NPCMenu;
+};
 
 struct OverheadMsg {
 	DWORD _1;
@@ -754,8 +701,7 @@ struct D2MSG {
 };
 
 
-struct InventoryLayout
-{
+struct InventoryLayout {
 	BYTE SlotWidth;
 	BYTE SlotHeight;
 	BYTE unk1;
@@ -768,13 +714,9 @@ struct InventoryLayout
 	BYTE SlotPixelHeight;
 };
 
-struct MpqTable
-{
+struct MpqTable;
 
-};
-
-struct sgptDataTable
-{
+struct sgptDataTable {
 	MpqTable*	pPlayerClass;
 	DWORD		dwPlayerClassRecords;
 	MpqTable*	pBodyLocs;
@@ -784,115 +726,7 @@ struct sgptDataTable
 	MpqTable*	pElemTypes;
 };
 
-/*
-Thanks to 99Elite for posting the list at ladderhall.com!
-
-Layout of sgptDataTables
-
-+0     :  ptr to playerclass.bin
-+4     :  num records in playerclass.bin
-+8     :  ptr to bodylocs.bin
-+c     :  num records in bodylocs.bin
-+10   :  ptr to storepage.bin
-+14   :  num records in storepage.bin
-+18   :  ptr to elemtypes.bin
-+1c   :  num records in elemtypes.bin
-+20   :  ptr to hitclass.bin
-+24   :  num records in hitclass.bin
-+28   :  ptr to monmode.bin
-+2c   :  num records in monmode.bin
-+30   :  ptr to plrmode.bin
-+34   :  num records in plrmode.bin
-+38   :  ptr to skillcalc.bin
-+3c   :  num records in skillcalc.bin
-+44   :  ptr to skillscode.bin
-+48   :  num records in skillscode.bin
-+50   :  ptr to skilldesccode.bin
-+54   :  num records in skilldesccode.bin
-+58   :  ptr to misscalc.bin
-+5c   :  num records in misccalc.bin
-+64   :  ptr to misscode.bin
-+68   :  numrecords in misccode.bin
-+70   :  ptr to events.bin
-+74   :  numrecords in events.bin
-+88   :  ptr to monai.bin
-+8c    : num records in monai.bin
-+A4   :  ptr to properties.bin
-+Ac   :  num records in properties.bin
-+b4   :  ptr to hiredesc.bin
-+b8   :  num records in hiredesc.bin
-+194 :  ptr to sounds.bin
-+19c :  num records in sounds.bin
-+1a0 :  ptr to heirling.bin
-+1a4 :  num records in heirling.bin
-+9a8 :  ptr to npc.txt
-+9ac :  num records in npc.txt
-+9b0 :  ptr to colors.bin
-+9b4 :  num records in colors.bin
-+a78 :  ptr to monstats.bin
-+a80 :  num records in monstats.bin
-+a84 :  ptr to monsounds.bin
-+a8c :  num records in monsunds.bin
-+a90 :  ptr to monstats2.bin
-+a98 :  num records in monstats2.bin
-+a9c :  ptr to monplace.bin
-+aa0 :  numrecirds in monplace.bin
-+aa8 :  ptr to monprest.bin
-+aac :  ptr to monprest.bin (again) // check this
-+ad4 :  ptr to superuniques.bin
-+adc :  num records in superuniques.bin
-+b64 :  missiles.bin
-+b6c :  num records in missiles.bin
-+b70 :  ptr to monlvl.bin
-+b74 :  num records in monlvl.bin
-+b78 :  ptr to monseq.bin
-+b7c :  num records in monseq.bin
-+b94 :  num records in skillsdesc.bin
-+b98 :  ptr to skills.bin
-+ba0 :  num records in skills table
-+bbc :  ptr to overlay.bin
-+bc0 :  num records in overlay.bin
-+bc4 :  charstats table
-+bcc :  ptr to itemstatcost table
-+bd4 :  num records in itemstatcost
-+be0 :  ptr to monequip.bin
-+be4 :  num records in monequip.bin
-+bf8  :  ptr to itemtypes.bin
-+bfc  :  num records in itemtypes.bin
-+c0c :  ptr to sets.bin
-+c10 :  num records in sets.bin
-+c18 :  ptr to setitems.bin
-+c1c :  num records in setitems.bin
-+c24 :  ptr to uniqueitems.bin
-+c28 :  num records in uniqueitems.bin
-+c30 :  ptr to monprop.bin
-+c34 :  num records in monprop.bin
-+c3c :  ptr to montype.bin
-+c40 :  num records in montype.bin
-+c50 :  ptr to monumod.bin
-+c54 :  num records in monummod.bin
-+c58 :  ptr to levels.bin
-+c5c :  num records in levels.bin
-+c60 :  ptr to lvldefs.bin
-+c64 :  ptr to lvlPrest.bin
-+c68 :  num records in lvlPrest.bin
-+cb8 :  ptr to chartemplate.bin
-+cbc :  num records in chartemplate.bin
-+cc0 :  ptr to arena.bin
-+cc4 :  ptr to lvlTypes.bin
-+cd0 :  num records in lvlTypes.bin
-+cd4 :  ptr to lvlwarp.bin
-+cd8 :  num records in lvlwarp.bin
-+cdc :  ptr to lvlmaze.bin
-+ce0 :  num records in lvlmaze.bin
-+ce4 :  ptr to levelsub.bin
-+ce8 :  num records in levelsub.bin
-+d04 :  ptr to cubemain.bin
-+d08 :  num records in cubemain.bin
-*/
-
 #pragma warning ( pop )
-
 #pragma optimize ( "", on )
 
 #endif

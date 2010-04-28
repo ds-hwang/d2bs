@@ -20,14 +20,22 @@ JSAPI_FUNC(sandbox_ctor)
 	}
 
 	if(JS_InitStandardClasses(box->context, box->innerObj) == JS_FALSE)
+	{
+		JS_DestroyContext(box->context);
+		delete box;
 		return JS_TRUE;
+	}
 
 	// TODO: add a default include function for sandboxed scripts
 	// how do I do that individually though? :/
 
 	JSObject* res = JS_NewObject(cx, &sandbox_class, NULL, NULL);
 	if(JS_AddRoot(&res) == JS_FALSE)
+	{
+		JS_DestroyContext(box->context);
+		delete box;
 		return JS_TRUE;
+	}
 	if(!res || !JS_DefineFunctions(cx, res, sandbox_methods))
 	{
 		JS_RemoveRoot(&box->innerObj);

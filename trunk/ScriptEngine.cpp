@@ -413,19 +413,6 @@ bool __fastcall StopIngameScript(Script* script, void*, uint)
 	return true;
 }
 
-bool __fastcall GCPauseScript(Script* script, void* argv, uint argc)
-{
-	ScriptList* list = (ScriptList*)argv;
-	// only pause running scripts
-	if(script->GetExecState() == ScriptStateRunning)
-	{
-		// only add currently running scripts to the pause list
-		script->Pause();
-		list->push_back(script);
-	}
-	return true;
-}
-
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
@@ -517,11 +504,9 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 
 JSBool gcCallback(JSContext *cx, JSGCStatus status)
 {
-//	static ScriptList pausedList = ScriptList();
-	if(status == JSGC_MARK_END)
+	if(status == JSGC_BEGIN)
 	{
-//		ScriptEngine::ForEachScript(GCPauseScript, &pausedList, 0);
-
+//		EnterCriticalSection(&ScriptEngine::lock);
 #ifdef DEBUG
 		Log("*** ENTERING GC ***");
 #endif
@@ -531,9 +516,8 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
 #endif
-//		for(ScriptList::iterator it = pausedList.begin(); it != pausedList.end(); it++)
-//			(*it)->Resume();
-//		pausedList.clear();
+#endif
+//		LeaveCriticalSection(&ScriptEngine::lock);
 	}
 	return JS_TRUE;
 }

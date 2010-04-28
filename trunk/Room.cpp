@@ -1,5 +1,6 @@
 #include "Room.h"
 #include "CriticalSections.h"
+#include "D2Ptrs.h"
 
 BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	bool bAdded = false;
@@ -87,7 +88,7 @@ void DrawPresets (Room2 *pRoom2)
 			if (mCell == -1)
 			{
 				//Get the object cell
-				ObjectTxt *obj = D2COMMON_GetObjectTxt(pUnit->dwTxtFileNo);
+				ObjectTxt *obj = D2COMMON_GetObjectText(pUnit->dwTxtFileNo);
 
 				if (mCell == -1)
 				{

@@ -97,15 +97,36 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 		return 0;
 	}
 
-	char* szBuffer = UnicodeToAnsi(wMsg);
 	bool result = false;
 
-	if(szBuffer[0] == '.')
+	if(wMsg[0] == L'.')
+		char* szBuffer = UnicodeToAnsi(wMsg);
 		result = ProcessCommand(szBuffer+1, false);
-
-	delete[] szBuffer;
+		delete[] szBuffer;
+	}
 
 	return result == true ? -1 : 0;
+}
+
+DWORD __fastcall ChannelInput(wchar_t* wMsg)
+{
+	if(Vars.bDontCatchNextMsg)
+	{
+		Vars.bDontCatchNextMsg = FALSE;
+		return false;
+	}
+
+	bool result = false;
+	if(wMsg[0] == L'.')
+	{
+		char* szBuffer = UnicodeToAnsi(wMsg);
+		result = ProcessCommand(szBuffer+1, false);
+		// TODO: Clear the msg buffer, this DOES NOT clear it
+		//wMsg = L"";
+		delete[] szBuffer;
+	}
+
+	return result;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
@@ -120,6 +141,8 @@ DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)
 		case 0x95: return HPMPUpdateHandler(pPacket, dwSize);
 		case 0x9C:
 		case 0x9D: return ItemActionHandler(pPacket, dwSize);
+		// TODO: remove this when we get real a-d
+		//case 0xAE: TerminateProcess(GetCurrentProcess(), 0); break;
 		case 0xA7: return DelayedStateHandler(pPacket, dwSize);
 	}
 
@@ -145,6 +168,7 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
 			return TRUE;
+		// TODO: we don't need this for 1.13
 		case WM_ACTIVATEAPP:
 			if(!wParam && Vars.bBlockMinimize)
 				return NULL;
@@ -172,8 +196,8 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 		bool isUp = previousState && transitionState;
 
 		bool gameState = ClientState() == ClientStateInGame;
-		bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(5) : false;
-		bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(9) : false;
+		bool chatBoxOpen = gameState ? !!D2CLIENT_GetUIState(UI_CHAT_CONSOLE) : false;
+		bool escMenuOpen = gameState ? !!D2CLIENT_GetUIState(UI_ESCMENU_MAIN) : false;
 
 		if(altState && wParam == VK_F4)
 			return CallNextHookEx(NULL, code, wParam, lParam);
@@ -337,6 +361,16 @@ void __fastcall WhisperHandler(char* szAcc, char* szText)
 	WhisperEvent(szAcc, szText);
 }
 
+void __fastcall ChannelWhisperHandler(char* szAcc, char* szText)
+{
+	WhisperEvent(szAcc, szText);
+}
+
+void __fastcall ChannelChatHandler(char* szAcc, char* szText)
+{
+	ChatEvent(szAcc, szText);
+}
+
 DWORD __fastcall GameAttack(AttackStruct* pAttack)
 {
 	if(!pAttack || !pAttack->lpTargetUnit || pAttack->lpTargetUnit->dwType != UNIT_MONSTER)
@@ -359,24 +393,19 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 	PlayerAssignEvent(pPlayer->dwUnitId);
 }
 
-BOOL __stdcall GameLoop(LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg)
+void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	if(Vars.bGameLoopEntered)
 		LeaveCriticalSection(&Vars.cGameLoopSection);
 	else
 		Vars.bGameLoopEntered = true;
 
-	EnterCriticalSection(&Vars.cGameLoopSection);
+	while(Vars.SectionCount)
+		Sleep(0);
 
-	/* 
-	 * Temporary hack needed to avoid issues with WaitForClientState when
-	 * entering Tyreals portal after killing baal for quest, I'm looking
-	 * into a solution.
-	 */
-	//BOOL ret = PeekMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
-	//Sleep(1);
-	return PeekMessage(lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg);
+	EnterCriticalSection(&Vars.cGameLoopSection);	
 }
+
 
 void GameLeave(void)
 {

@@ -11,6 +11,7 @@
 #include "D2Handlers.h"
 #include "Console.h"
 #include "D2BS.h"
+#include "D2Ptrs.h"
 
 #ifdef _MSVC_DEBUG
 #include "D2Loader.h"
@@ -88,6 +89,8 @@ BOOL Startup(void)
 	Vars.bChangedAct = FALSE;
 	Vars.bGameLoopEntered = FALSE;
 
+	Vars.SectionCount = 0;
+
 	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
@@ -108,11 +111,13 @@ void Shutdown(void)
 	if(!Vars.bShutdownFromDllMain)
 		WaitForSingleObject(hD2Thread, INFINITE);
 
-	SetWindowLong(D2WIN_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
+	SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 	RemovePatches();
 	Genhook::Destroy();
 	ShutdownDdeServer();
+
+	KillTimer(D2GFX_GetHwnd(), Vars.uTimer);
 
 	UnhookWindowsHookEx(Vars.hMouseHook);
 	UnhookWindowsHookEx(Vars.hKeybHook);

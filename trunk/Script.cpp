@@ -197,7 +197,7 @@ void Script::Run(void)
 
 void Script::UpdatePlayerGid(void)
 {
-	me->dwUnitId = (*p_D2CLIENT_PlayerUnit == NULL ? NULL : (*p_D2CLIENT_PlayerUnit)->dwUnitId);
+	me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
 }
 
 ScriptExecState Script::GetExecState()

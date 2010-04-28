@@ -125,7 +125,7 @@ void Say(const char *szMessage, ...)
 	va_end(vaArgs);
 	Vars.bDontCatchNextMsg = TRUE;
 
-	if(*p_D2CLIENT_PlayerUnit)
+	if(D2CLIENT_GetPlayerUnit())
 	{
 		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
 		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
@@ -133,7 +133,7 @@ void Say(const char *szMessage, ...)
 		wBuffer = NULL;
 
 		MSG* aMsg = new MSG;
-		aMsg->hwnd = D2WIN_GetHwnd();
+		aMsg->hwnd = D2GFX_GetHwnd();
 		aMsg->message = WM_CHAR;
 		aMsg->wParam = VK_RETURN;
 		aMsg->lParam = 0x11C0001;
@@ -166,8 +166,8 @@ bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift
 	POINT Click = {wX, wY};
 	if(pUnit)
 	{
-		Click.x = GetUnitX(pUnit);
-		Click.y = GetUnitY(pUnit);
+		Click.x = D2CLIENT_GetUnitX(pUnit);
+		Click.y = D2CLIENT_GetUnitY(pUnit);
 	}
 
 	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
@@ -175,14 +175,20 @@ bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift
 	Click.x -= *p_D2CLIENT_MouseOffsetX;
 	Click.y -= *p_D2CLIENT_MouseOffsetY;
 
-	if(pUnit && pUnit != *p_D2CLIENT_PlayerUnit)
+	POINT OldMouse = {0, 0};
+	OldMouse.x = *p_D2CLIENT_MouseX;
+	OldMouse.y = *p_D2CLIENT_MouseY;
+	*p_D2CLIENT_MouseX = 0;
+	*p_D2CLIENT_MouseY = 0;
+
+	if(pUnit && pUnit != D2CLIENT_GetPlayerUnit())
 	{
 		Vars.dwSelectedUnitId = pUnit->dwUnitId;
 		Vars.dwSelectedUnitType = pUnit->dwType;
 
 		Vars.bClickAction = TRUE;
 
-		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 0x08);
+		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 0x08);
 		D2CLIENT_SetSelectedUnit(NULL);
 
 		Vars.bClickAction = FALSE;
@@ -195,9 +201,11 @@ bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift
 		Vars.dwSelectedUnitType = NULL;
 
 		Vars.bClickAction = TRUE;
-		D2CLIENT_clickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
+		D2CLIENT_ClickMap(dwClickType, Click.x, Click.y, bShift ? 0x0C : 8);
 		Vars.bClickAction = FALSE;
 	}
 
+	*p_D2CLIENT_MouseX = OldMouse.x;
+	*p_D2CLIENT_MouseY = OldMouse.y;
 	return TRUE;
 }

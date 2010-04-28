@@ -3,7 +3,6 @@
 #include <list>
 #include <windows.h>
 
-#include "D2Ptrs.h"
 #include "Script.h"
 #include "ScriptEngine.h"
 #include "D2Helpers.h"
@@ -41,7 +40,7 @@ protected:
 	ScreenhookState gameState;
 	Align alignment;
 	jsval clicked, hovered;
-	bool isAutomap, isVisible, isLocked;
+	bool isAutomap, isVisible;
 	ushort opacity, zorder;
 	POINT location;
 	CRITICAL_SECTION hookSection;
@@ -118,7 +117,6 @@ public:
 
 	void Lock() { /*EnterCriticalSection(&hookSection); isLocked = true;*/ }
 	void Unlock() { /*if(!IsLocked()) return; LeaveCriticalSection(&hookSection); isLocked = false;*/ }
-	bool IsLocked() { return isLocked; }
 };
 
 class TextHook : public Genhook

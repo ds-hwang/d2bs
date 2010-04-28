@@ -55,12 +55,12 @@ struct MPQTable
 	WORD wUnknown;
 };
 
-DWORD GetBaseTable(INT nBaseStat, INT nClassId);
+DWORD GetBaseTable(int nBaseStat, int nClassId);
 bool FillBaseStat(char* szTable, int row, char* szStat, void* result, size_t size);
-bool FillBaseStat(char* szTable, int row, INT column, void* result, size_t size);
-bool FillBaseStat(INT table, INT row, char* szStat, void* result, size_t size);
-bool FillBaseStat(INT table, INT row, INT column, void* result, size_t size);
-DWORD FillBaseStat(JSContext* cx, jsval *argv, INT table, INT row, INT column, char* szTable, char* szStat);
+bool FillBaseStat(char* szTable, int row, int column, void* result, size_t size);
+bool FillBaseStat(int table, int row, char* szStat, void* result, size_t size);
+bool FillBaseStat(int table, int row, int column, void* result, size_t size);
+DWORD FillBaseStat(JSContext* cx, jsval *argv, int table, int row, int column, char* szTable, char* szStat);
 
 // Tables dumped by Sheppard
 

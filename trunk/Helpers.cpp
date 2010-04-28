@@ -5,6 +5,7 @@
 #include "string.h"
 #include "D2Handlers.h"
 #include "Control.h"
+#include "D2Ptrs.h"
 
 wchar_t* AnsiToUnicode(const char* str)
 {
@@ -119,13 +120,15 @@ bool InitHooks(void)
 			return false;
 		}
 
-		if(D2WIN_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
+		if(D2GFX_GetHwnd() && (ClientState() == ClientStateMenu || ClientState() == ClientStateInGame))
 		{
-			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2WIN_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
+			Vars.oldWNDPROC = (WNDPROC)SetWindowLong(D2GFX_GetHwnd(), GWL_WNDPROC, (LONG)GameEventHandler);
 			if(!Vars.oldWNDPROC)
 				continue;
 
-			DWORD mainThread = GetWindowThreadProcessId(D2WIN_GetHwnd(),0);
+			Vars.uTimer = SetTimer(D2GFX_GetHwnd(), 1, 0, TimerProc);
+
+			DWORD mainThread = GetWindowThreadProcessId(D2GFX_GetHwnd(),0);
 			if(mainThread)
 			{
 				if(!Vars.hKeybHook)
