@@ -181,15 +181,15 @@ void __declspec(naked) ChannelInput_Intercept(void)
 	__asm
 	{
 		push ecx
-			mov ecx, esi
+		mov ecx, esi
 
-			call ChannelInput
+		call ChannelInput
 
-			test eax, eax
-			pop ecx
+		test eax, eax
+		pop ecx
 
-			jz SkipInput
-			call D2MULTI_ChannelInput_I
+		jz SkipInput
+		call D2MULTI_ChannelInput_I
 
 SkipInput:
 		ret
@@ -237,6 +237,30 @@ void __declspec(naked) ChannelChat_Intercept(void)
 		jz SkipChat
 		sub esp, 0x408
 		jmp D2MULTI_ChannelChat_I
+
+SkipChat:
+		ret 8
+	}
+}
+
+void __declspec(naked) ChannelEmote_Intercept(void)
+{
+	__asm
+	{
+		push ecx
+		push edx
+		mov ecx, dword ptr ss:[esp+0xC]
+		mov edx, dword ptr ss:[esp+0x10]
+
+		call ChannelChatHandler
+
+		test eax, eax
+		pop edx
+		pop ecx
+
+		jz SkipChat
+		sub esp, 0x4F8
+		jmp D2MULTI_ChannelEmote_I
 
 SkipChat:
 		ret 8

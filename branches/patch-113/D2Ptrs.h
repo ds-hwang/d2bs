@@ -327,6 +327,7 @@ VARPTR(D2MULTI, ChatBoxMsg, char*, 0x38F18)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 ASMPTR(D2MULTI, ChannelChat_I, 0x108A6)
+ASMPTR(D2MULTI, ChannelEmote_I, 0x107A6)
 ASMPTR(D2MULTI, ChannelWhisper_I, 0x10000)
 ASMPTR(D2MULTI, ChannelInput_I, 0xD5B0)
 

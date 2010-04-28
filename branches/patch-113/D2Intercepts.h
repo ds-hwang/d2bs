@@ -18,5 +18,6 @@ void GameLeave_Intercept(void);
 void ChannelInput_Intercept(void);
 void ChannelWhisper_Intercept(void);
 void ChannelChat_Intercept(void);
+void ChannelEmote_Intercept(void);
 
 #endif
