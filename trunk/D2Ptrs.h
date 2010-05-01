@@ -77,8 +77,8 @@ FUNCPTR(D2CLIENT, GetUnitY, int __fastcall, (UnitAny* pUnit), 0x1660)
 
 FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x47D60)
 
-FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x48350)
-FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x492F0) // unused but I want to look into using it
+FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x492F0)
+//FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x492F0) // unused but I want to look into using it // wrong function
 FUNCPTR(D2CLIENT, CloseInteract, void __fastcall, (void), 0x43870)
 
 FUNCPTR(D2CLIENT, GetAutomapSize, DWORD __stdcall, (void), 0x5F080)
@@ -241,6 +241,7 @@ ASMPTR(D2CLIENT, ClickMap_II, 0x11C4D8)
 ASMPTR(D2CLIENT, ClickMap_III, 0x3F5F0)
 ASMPTR(D2CLIENT, ClickMap_IV, 0x1BF99)
 
+ASMPTR(D2CLIENT, GameAddUnit_I, 0xA6500)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals

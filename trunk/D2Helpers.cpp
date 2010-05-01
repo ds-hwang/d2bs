@@ -348,18 +348,8 @@ void ScreenToWorld( POINT *pPos)
 
 void ScreenToAutomap(POINT* pPos)
 {
-	// Needed because we can be under chicken setting and recieve life a
-	// life packet while joining game.
-	if(nLevel == 0)
-		return TRUE;
-
-	if(nLevel == MAP_A1_ROGUE_ENCAMPMENT ||
-		nLevel == MAP_A2_LUT_GHOLEIN || 
-		nLevel == MAP_A3_KURAST_DOCKS ||
-		nLevel == MAP_A4_THE_PANDEMONIUM_FORTRESS ||
-		nLevel == MAP_A5_HARROGATH)
-		return TRUE;
-	return FALSE;
+	pPos->x = (pPos->x / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->x + 8;
+	pPos->y = (pPos->y / *p_D2CLIENT_AutomapMode) - p_D2CLIENT_Offset->y - 8;
 }
 
 void AutomapToScreen(POINT* pPos)
@@ -586,13 +576,11 @@ CellFile* LoadCellFile(char* lpszPath, DWORD bMPQ)
 
 POINT GetScreenSize()
 {
-	// HACK: p_D2CLIENT_ScreenSize is wrong for out of game, which is hardcoded to 800x600
-	POINT ingame = {*p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY},
-		  oog = {800, 600},
-		  p = {0};
-	if(ClientState() == ClientStateMenu) p = oog;
-	else p = ingame;
-	return p;
+	POINT result[] = {{800, 600}, {*p_D2CLIENT_ScreenSizeX, *p_D2CLIENT_ScreenSizeY}};
+	// the menu is always 800x600
+	if(ClientState() == ClientStateMenu)
+		return result[0];
+	return result[1];
 }
 
 int D2GetScreenSizeX()

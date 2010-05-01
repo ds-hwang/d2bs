@@ -1,12 +1,16 @@
 #pragma once
 
+#ifndef __CORE_H__
+#define __CORE_H__
+
 #include <windows.h>
 #include <string>
 #include <list>
 
 #include "D2Structs.h"
 
-bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst);
 void Print(const char * szFormat, ...);
 void Say(const char* szMessage, ...);
-bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit);
+bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift = FALSE, UnitAny* pUnit = NULL);
+
+#endif

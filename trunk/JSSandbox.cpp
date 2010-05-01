@@ -2,6 +2,8 @@
 #include "D2BS.h"
 #include "ScriptEngine.h"
 
+// TODO: I should be able to clean this up and make it more functional
+
 JSAPI_FUNC(sandbox_ctor)
 {
 	sandbox* box = new sandbox; // leaked?

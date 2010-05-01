@@ -43,7 +43,7 @@ DWORD HPMPUpdateHandler(BYTE* pPacket, DWORD dwSize)
 	}
 	Mana *= 2;
 
-	if(!IsTownLevel(GetPlayerArea()) &&
+	if(!D2COMMON_IsTownByLevelNo(GetPlayerArea()) &&
 			(Vars.nChickenHP && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
 			(Vars.nChickenMP && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))
 		D2CLIENT_ExitGame();

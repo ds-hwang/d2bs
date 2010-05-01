@@ -11,45 +11,6 @@
 #include "CriticalSections.h"
 #include "Console.h"
 
-bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst)
-{
-	using namespace std;
-
-	if(str.length() < 1 || maxlen < 2)
-		return false;
-
-	size_t pos;
-	string tmp(str);
-
-	while(tmp.length() > maxlen)
-	{
-		// maxlen-1 since std::string::npos indexes from 0
-		pos = tmp.find_last_of(delim, maxlen-1);
-		if(!pos || pos == string::npos)
-		{
-			//Target delimiter was not found, breaking at maxlen
-			// maxlen-1 since std::string::npos indexes from 0
-			lst.push_back(tmp.substr(0, maxlen-1));
-			tmp.erase(0, maxlen-1);
-			continue;
-		}
-		pos = tmp.find_last_of(delim, maxlen-1);
-		if(pos && pos != string::npos)
-		{
-			//We found the last delimiter before maxlen
-			lst.push_back(tmp.substr(0, pos) + delim);
-			tmp.erase(0, pos);
-		}
-		else
-			DebugBreak();
-	}
-
-	ASSERT(tmp.length());
-	lst.push_back(tmp);
-
-	return true;
-}
-
 void Print(const char * szFormat, ...)
 {
 	using namespace std;
@@ -86,7 +47,7 @@ void Print(const char * szFormat, ...)
 				D2CLIENT_PrintGameString(output, 0);
 				delete [] output;
 			}
-			else if(ClientState() == ClientStateMenu && findControl(4, (char *)NULL, -1, 28, 410, 354, 298))
+			else if(ClientState() == ClientStateMenu && FindControl(4, (char *)NULL, -1, 28, 410, 354, 298))
 				D2MULTI_PrintChannelText((char* )it->c_str(), 0);
 		}
 		else
@@ -152,7 +113,7 @@ void Say(const char *szMessage, ...)
 	}
 }
 
-bool ClickMap(DWORD dwClickType, WORD wX = 0xFFFF, WORD wY = 0xFFFF, BOOL bShift = FALSE, UnitAny* pUnit = NULL)
+bool ClickMap(DWORD dwClickType, WORD wX, WORD wY, BOOL bShift, UnitAny* pUnit)
 {
 	if(ClientState() != ClientStateInGame)
 		return false;

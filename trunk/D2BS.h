@@ -4,8 +4,7 @@
 #pragma once
 
 #define XP_WIN
-#define JS_THREADSAFE
-#define D2BS_VERSION "1.2.920"
+#define D2BS_VERSION "2.x"
 
 #include <windows.h>
 

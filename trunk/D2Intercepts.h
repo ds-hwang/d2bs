@@ -19,5 +19,7 @@ void ChannelInput_Intercept(void);
 void ChannelWhisper_Intercept(void);
 void ChannelChat_Intercept(void);
 void ChannelEmote_Intercept(void);
+void AddUnit_Intercept(UnitAny* lpUnit);
+void RemoveUnit_Intercept(UnitAny* lpUnit);
 
 #endif

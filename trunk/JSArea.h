@@ -1,8 +1,8 @@
-#ifndef AREA_H
-#define AREA_H
+#pragma once
+#ifndef JSAREA_H
+#define JSAREA_H
 
 #include "js32.h"
-#include "CollisionMap.h"
 
 CLASS_CTOR(area);
 
@@ -39,12 +39,6 @@ static JSPropertySpec area_props[] = {
 	{"ysize",		AUNIT_YSIZE,		JSPROP_PERMANENT_VAR,	area_getProperty},
 	{"id",			AUNIT_ID,			JSPROP_PERMANENT_VAR,	area_getProperty},
 	{0},
-};
-
-struct myArea {
-	DWORD AreaId;
-	DWORD Exits;
-	JSObject* ExitArray;
 };
 
 #endif

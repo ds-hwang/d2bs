@@ -190,21 +190,26 @@ void Console::Draw(void)
 	EnterCriticalSection(&Vars.cConsoleSection);
 	if(IsVisible())
 	{
+		int font = 0;
 		POINT size = GetScreenSize();
 		int xsize = size.x;
-		int ysize = size.y;
-		// the default console height is 30% of the screen size
-		int height = (int)(((double)ysize)*.3);
-		size = CalculateTextLen(">", 0);
-		int charsize = size.x;
+		size = CalculateTextLen(">", font);
+		// charsize is wrong like this, but it's even more wrong with how it was being determined
+		// we need to see if d2 has a monospaced font, and if not we need to do some trickery to
+		// get it to recognize the real line length per-line
+		int charsize = 7; // size.x;
 		int charheight = size.y-10;
+		// the default console height is enough for lineCount lines
+		int height = (charheight+1)*lineCount;
 		int cx = charsize+9;
-		int linelen = 115;
+		int linelen = (xsize / charsize) - 1;
 		Console::height = height;
 
-		int cmdsize = CalculateTextLen(cmd.str().c_str(), 0).x;
-		if((cmdsize/xsize) > 0)
-			Console::height += (cmdsize/xsize)*charheight + 1;
+		std::string cmdstr = cmd.str();
+		int cmdsize = CalculateTextLen(cmdstr.c_str(), 0).x;
+		cmdsize = (cmdsize+charsize*2)/xsize;
+		if(cmdsize > 0)
+			Console::height += cmdsize * charheight + 1;
 
 		// draw the box large enough to hold the whole thing
 		D2GFX_DrawRectangle(0, 0, xsize, Console::height, 0xdf, 0);
@@ -217,31 +222,30 @@ void Console::Draw(void)
 				std::list<std::string> buf;
 				SplitLines(*it, linelen, ' ', buf);
 				for(std::list<std::string>::iterator it = buf.begin(); it != buf.end(); it++)
-					myDrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, 0);
+					myDrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, font);
 			} else
-				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, 0);
+				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, font);
 		}
 
 		if(IsEnabled())
 		{
-			myDrawText(">", 1, height, 0, 0);
+			myDrawText(">", 1, height, 0, font);
 			int lx = cx + cmdsize - charsize + 5,
 				ly = height-charheight;
 			if(count % 30)
 				D2GFX_DrawLine(lx, ly, lx, height-2, 0xFF, 0xFF);
 
-			std::string cmdstr = cmd.str();
 			if(cmdstr.length() > 0)
 			{
-				if((cmdsize/xsize) > 0)
+				if(((cmdsize+charsize*2)/xsize) > 0)
 				{
 					std::list<std::string> lines;
 					SplitLines(cmdstr, linelen, ' ', lines);
 					int i = 0;
 					for(std::list<std::string>::iterator it = lines.begin(); it != lines.end(); it++, i++)
-						myDrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, 0);
+						myDrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, font);
 				} else
-					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, 0);
+					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, font);
 			}
 		}
 	}

@@ -45,6 +45,45 @@ void StringReplace(char* str, const char find, const char replace, size_t buflen
 	}
 }
 
+bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst)
+{
+	using namespace std;
+
+	if(str.length() < 1 || maxlen < 2)
+		return false;
+
+	size_t pos;
+	string tmp(str);
+
+	while(tmp.length() > maxlen)
+	{
+		// maxlen-1 since std::string::npos indexes from 0
+		pos = tmp.find_last_of(delim, maxlen-1);
+		if(!pos || pos == string::npos)
+		{
+			//Target delimiter was not found, breaking at maxlen
+			// maxlen-1 since std::string::npos indexes from 0
+			lst.push_back(tmp.substr(0, maxlen-1));
+			tmp.erase(0, maxlen-1);
+			continue;
+		}
+		pos = tmp.find_last_of(delim, maxlen-1);
+		if(pos && pos != string::npos)
+		{
+			//We found the last delimiter before maxlen
+			lst.push_back(tmp.substr(0, pos) + delim);
+			tmp.erase(0, pos);
+		}
+		else
+			DebugBreak();
+	}
+
+	ASSERT(tmp.length());
+	lst.push_back(tmp);
+
+	return true;
+}
+
 bool ProfileExists(const char *profile)
 {
 	char file[_MAX_FNAME+_MAX_PATH];
@@ -148,7 +187,7 @@ bool InitHooks(void)
 			Vars.bActive = TRUE;
 
 			if(ClientState() == ClientStateMenu && Vars.bStartAtMenu)
-				clickControl(*p_D2WIN_FirstControl);
+				ClickControl(*p_D2WIN_FirstControl);
 		}
 	}
 	return true;

@@ -1,8 +1,10 @@
 #include "JSArea.h"
-#include "D2Ptrs.h"
-//#include "D2Helpers.h"
-#include "JSExits.h"
+#include "JSExit.h"
 #include "CriticalSections.h"
+#include "Area.h"
+#include "CollisionMap.h"
+
+#include "D2Ptrs.h"
 
 EMPTY_CTOR(area)
 
@@ -49,6 +51,7 @@ JSAPI_PROP(area_getProperty)
 						return JS_TRUE;
 					}
 
+					// TODO: clean this out too
 					LevelExit* ExitArray[255];
 					int count = cMap.GetLevelExits(ExitArray);
 
@@ -71,10 +74,10 @@ JSAPI_PROP(area_getProperty)
 						}
 
 						jsval a = OBJECT_TO_JSVAL(jsUnit);
-						JS_SetElement(cx, pArea->ExitArray, i, &a);
+						JS_SetElement(cx, (JSObject*)pArea->ExitArray, i, &a);
 					}
 				}
-				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
+				*vp = OBJECT_TO_JSVAL((JSObject*)pArea->ExitArray);
 			}
 			break;
 		case AUNIT_NAME:
@@ -84,6 +87,7 @@ JSAPI_PROP(area_getProperty)
 					*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
 			}
 			break;
+		// TODO: turn these into inline function calls or something
 		case AUNIT_X:
 			*vp = INT_TO_JSVAL(pLevel->dwPosX);
 			break;
@@ -109,45 +113,25 @@ JSAPI_FUNC(my_getArea)
 	if(!WaitForClientState())
 		THROW_ERROR(cx, "Game not ready");
 
-	int32 nArea = GetPlayerArea();
-
+	int32 nArea = -1;
 	if(argc == 1)
 	{
 		if(JSVAL_IS_INT(argv[0]))
 			JS_ValueToECMAInt32(cx, argv[0], &nArea);
 		else
 			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
+
+		if(nArea < 0)
+			THROW_ERROR(cx, "Invalid parameter passed to getArea!");
 	}
 
-	if(nArea < 0)
-		THROW_ERROR(cx, "Invalid parameter passed to getArea!");
-	
-	Level* pLevel = GetLevel(nArea);
-
-	if(!pLevel)
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
-	myArea* pArea = new myArea;
-	if(!pArea)
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
-	pArea->AreaId = nArea;
-	pArea->ExitArray = NULL;
-	
+	myArea* pArea = GetArea(nArea);
 	JSObject* unit = BuildObject(cx, &area_class, NULL, area_props, pArea);
 	if(!unit)
 	{
 		delete pArea;
-		pArea = NULL;
-		THROW_ERROR(cx, "Failed to build area unit!");
+		THROW_ERROR(cx, "Failed to build the Area object");
 	}
-
 	*rval = OBJECT_TO_JSVAL(unit);
 
 	return JS_TRUE;

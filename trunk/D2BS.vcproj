@@ -454,6 +454,74 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Internals"
+				>
+				<File
+					RelativePath=".\Area.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Area.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Control.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Control.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Core.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Core.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Game.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Game.h"
+					>
+				</File>
+				<File
+					RelativePath=".\MPQStats.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\MPQStats.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Room.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Room.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ScreenHook.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ScreenHook.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Unit.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Unit.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Misc"
@@ -615,22 +683,6 @@
 					Name="C"
 					>
 					<File
-						RelativePath=".\Control.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Control.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Core.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Core.h"
-						>
-					</File>
-					<File
 						RelativePath=".\dde.cpp"
 						>
 					</File>
@@ -647,51 +699,11 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Game.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Game.h"
-						>
-					</File>
-					<File
 						RelativePath=".\Hash.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\Hash.h"
-						>
-					</File>
-					<File
-						RelativePath=".\MPQStats.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\MPQStats.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Room.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Room.h"
-						>
-					</File>
-					<File
-						RelativePath=".\ScreenHook.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\ScreenHook.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Unit.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Unit.h"
 						>
 					</File>
 				</Filter>
@@ -715,7 +727,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSExits.cpp"
+						RelativePath=".\JSExit.cpp"
 						>
 					</File>
 					<File
@@ -839,7 +851,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSExits.h"
+						RelativePath=".\JSExit.h"
 						>
 					</File>
 					<File

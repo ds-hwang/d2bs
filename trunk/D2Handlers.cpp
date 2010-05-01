@@ -100,6 +100,7 @@ DWORD __fastcall GameInput(wchar_t* wMsg)
 	bool result = false;
 
 	if(wMsg[0] == L'.')
+	{
 		char* szBuffer = UnicodeToAnsi(wMsg);
 		result = ProcessCommand(szBuffer+1, false);
 		delete[] szBuffer;
@@ -354,6 +355,16 @@ void GameDrawOOG(void)
 		Console::Draw();
 	}
 	Sleep(10);
+}
+
+void __stdcall AddUnit(UnitAny* lpUnit)
+{
+	// TODO: build a JSObject around this unit, JS_AddRoot it, and push it onto a list
+}
+
+void __stdcall RemoveUnit(UnitAny* lpUnit)
+{
+	// TODO: JS_RemoveRoot the JSObject this unit represents and set its private data to null... maybe?
 }
 
 void __fastcall WhisperHandler(char* szAcc, char* szText)

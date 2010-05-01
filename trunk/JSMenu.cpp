@@ -52,7 +52,7 @@ JSAPI_FUNC(my_login)
 		switch(location)
 		{
 			case OOG_D2SPLASH:
-				clickControl(*p_D2WIN_FirstControl);
+				ClickControl(*p_D2WIN_FirstControl);
 				break;
 			case OOG_CHAR_SELECT:
 				if (!OOG_SelectCharacter(charname))
@@ -60,47 +60,47 @@ JSAPI_FUNC(my_login)
 				break;
 			case OOG_MAIN_MENU:
 				if (tolower(mode[0])== 's')
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264,324,272,35)))	
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264,324,272,35)))	
 						 errorMsg = "Failed to click the Single button?";
 				if(tolower(mode[0])== 'b')
 				{
 					OOG_SelectGateway(gateway, 256);
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 366, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 366, 272, 35)))
 						 errorMsg = "Failed to click the 'Battle.net' button?";
 				}
 				if(tolower(mode[0])== 'o')
 				{
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 433, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 433, 272, 35)))
 						errorMsg =  "Failed to click the 'Other Multiplayer' button?";
 					else
 						skippedToBnet = FALSE;
 						// Open Battle.net
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 310, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 310, 272, 35)))
 						errorMsg = "Failed to click the 'Open Battle.net' button?";
 				}
 				break;
 			case OOG_LOGIN:
 				if((tolower(mode[0])== 's') || ((tolower(mode[0]) ==  'o') && skippedToBnet))
 				{
-					if(!clickControl(findControl(6, "EXIT", -1,33,572,128,35)))
+					if(!ClickControl(FindControl(6, "EXIT", -1,33,572,128,35)))
 						errorMsg =  "Failed to click the exit button?";
 					break;
 				}
-				pControl = findControl(1, (char *)NULL, -1, 322, 342, 162, 19);
+				pControl = FindControl(1, (char *)NULL, -1, 322, 342, 162, 19);
 				if(pControl)
 					SetControlText(pControl, username);
 				else
 					errorMsg = "Failed to set the 'Username' text-edit box.";
 				// Password text-edit box
-				pControl = findControl(1, (char *)NULL, -1, 322, 396, 162, 19);
+				pControl = FindControl(1, (char *)NULL, -1, 322, 396, 162, 19);
 				if(pControl)
 					SetControlText(pControl, password);
 				else
 					errorMsg = "Failed to set the 'Password' text-edit box.";
 
-				pControl = findControl(6, (char *)NULL, -1, 264, 484, 272, 35);
+				pControl = FindControl(6, (char *)NULL, -1, 264, 484, 272, 35);
 				if(pControl)
-					if(!clickControl(pControl))
+					if(!ClickControl(pControl))
 						errorMsg ="Failed to click the 'Log in' button?";
 				timeout++;
 				break;
@@ -109,17 +109,17 @@ JSAPI_FUNC(my_login)
 				{
 				case 0:
 					// normal button
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 297, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 297, 272, 35)))
 						errorMsg ="Failed to click the 'Normal Difficulty' button?";
 					break;
 				case 1:
 					// nightmare button
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 340, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 340, 272, 35)))
 						errorMsg =  "Failed to click the 'Nightmare Difficulty' button?";
 					break;
 				case 2:
 					// hell button
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 383, 272, 35)))
+					if(!ClickControl(FindControl(6, (char *)NULL, -1, 264, 383, 272, 35)))
 						errorMsg =  "Failed to click the 'Hell Difficulty' button?";
 					break;
 				default:
@@ -254,6 +254,7 @@ JSAPI_FUNC(my_addProfile)
 	if(argc < 6 || argc > 7)
 		THROW_ERROR(cx, "Invalid arguments passed to addProfile");
 
+	// TODO: move to JS_ConvertArguments instead
 	char** args[] = {&profile, &mode, &gateway, &username, &password, &charname};
 	for(uintN i = 0; i < 6; i++)
 	{

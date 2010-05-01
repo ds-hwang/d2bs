@@ -24,7 +24,7 @@ JSAPI_PROP(control_getProperty)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* ctrl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!ctrl)
 		return JS_TRUE;
 
@@ -91,7 +91,7 @@ JSAPI_PROP(control_setProperty)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* ctrl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* ctrl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!ctrl)
 		return JS_TRUE;
 
@@ -146,7 +146,7 @@ JSAPI_FUNC(control_getNext)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(pControl && pControl->pNext)
 		pControl = pControl->pNext;
 	else
@@ -184,7 +184,7 @@ JSAPI_FUNC(control_click)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		*rval = INT_TO_JSVAL(0);
@@ -199,7 +199,7 @@ JSAPI_FUNC(control_click)
 		JS_ValueToECMAUint32(cx, argv[1], &y);
 	}
 
-	clickControl(pControl, x, y);
+	ClickControl(pControl, x, y);
 
 	return JS_TRUE;
 }
@@ -213,7 +213,7 @@ JSAPI_FUNC(control_setText)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		*rval = INT_TO_JSVAL(0);
@@ -243,7 +243,7 @@ JSAPI_FUNC(control_getText)
 	if(!pData)
 		THROW_ERROR(cx, "Could not get control data");
 
-	Control* pControl = findControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
+	Control* pControl = FindControl(pData->dwType, (char *)NULL, -1, pData->dwX, pData->dwY, pData->dwSizeX, pData->dwSizeY);
 	if(!pControl)
 	{
 		JS_ClearScope(cx, obj);
@@ -298,7 +298,7 @@ JSAPI_FUNC(my_getControl)
 		if(JSVAL_IS_INT(argv[i]))
 			JS_ValueToECMAInt32(cx, argv[i], args[i]);
 
-	Control* pControl = findControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
+	Control* pControl = FindControl(nType, (char*)NULL, -1, nX, nY, nXSize, nYSize);
 	if(!pControl)
 	{
 		JS_ClearScope(cx, obj);

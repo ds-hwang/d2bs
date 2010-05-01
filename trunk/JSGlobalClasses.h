@@ -10,7 +10,7 @@
 #include "JSArea.h"
 #include "JSControl.h"
 #include "JSParty.h"
-#include "JSExits.h"
+#include "JSExit.h"
 #include "JSRoom.h"
 
 struct JSClassSpec {

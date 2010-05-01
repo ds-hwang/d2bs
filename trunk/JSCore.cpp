@@ -101,9 +101,9 @@ JSAPI_FUNC(my_load)
 	}
 	else
 	{
-		// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
-		Print("File \"%s\" not found.", file);
-		*rval = JSVAL_FALSE;
+		char msg[_MAX_PATH + _MAX_FNAME + 20];
+		sprintf_s(msg, _MAX_PATH+_MAX_FNAME+20, "File \"%s\" not found.", file);
+		THROW_ERROR(cx, msg);
 	}
 
 	return JS_TRUE;
@@ -242,13 +242,14 @@ JSAPI_FUNC(my_sendCopyData)
 
 	char *windowClassName = NULL, *windowName = NULL, *data = NULL;
 	jsint nModeId = NULL;
+	bool resetClassName = !!!JSVAL_IS_STRING(argv[0]), resetName = !!!JSVAL_IS_STRING(argv[1]);
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ssis", &windowClassName, &windowName, &nModeId, &data))
 		THROW_ERROR(cx, "Could not convert arguments");
 
-	if(_strcmpi(windowClassName, "null") == 0)
+	if(resetClassName)
 		windowClassName = NULL;
-	if(_strcmpi(windowName, "null") == 0)
+	if(resetName)
 		windowName = NULL;
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
@@ -271,10 +272,6 @@ JSAPI_FUNC(my_sendCopyData)
 
 JSAPI_FUNC(my_sendDDE)
 {
-	/*if(argc > 4 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_STRING(argv[1]) && JSVAL_IS_STRING(argv[2])
-		&& JSVAL_IS_STRING(argv[3]) && JSVAL_IS_STRING(argv[4]))
-		return JS_TRUE;*/
-
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
@@ -285,21 +282,6 @@ JSAPI_FUNC(my_sendDDE)
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
 		if(mode == 0)
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer));
-
-	/*if(JS_ValueToInt32(cx, argv[0], &mode) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert value");
-	char *pszDDEServer = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-	if(!strlen(pszDDEServer))
-		pszDDEServer = "\"\"";
-	char *pszTopic = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
-	if(!strlen(pszTopic))
-		pszTopic = "\"\"";
-	char *pszItem = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
-	if(!strlen(pszItem))
-		pszItem = "\"\"";
-	char *pszData = JS_GetStringBytes(JS_ValueToString(cx, argv[4]));
-	if(!strlen(pszData))
-		pszData = "\"\"";*/
 
 	return JS_TRUE;
 }

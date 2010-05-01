@@ -516,7 +516,6 @@ JSBool gcCallback(JSContext *cx, JSGCStatus status)
 #ifdef DEBUG
 		Log("*** LEAVING GC ***");
 #endif
-#endif
 //		LeaveCriticalSection(&ScriptEngine::lock);
 	}
 	return JS_TRUE;
