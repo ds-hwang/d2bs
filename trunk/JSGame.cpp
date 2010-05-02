@@ -1003,6 +1003,9 @@ JSAPI_FUNC(my_getUIFlag)
 	}
 
 	jsint nUIId = JSVAL_TO_INT(argv[0]);
+	if(nUIId < 0 || nUIId > 37)
+		THROW_ERROR(cx, "Invalid UI value range!");
+
 	*rval = BOOLEAN_TO_JSVAL(D2CLIENT_GetUIState(nUIId));
 
 	return JS_TRUE;

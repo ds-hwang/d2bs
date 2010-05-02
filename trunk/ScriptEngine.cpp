@@ -551,11 +551,11 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	if(_stricmp("Command Line", filename) != 0 && _stricmp("<unknown>", filename) != 0)
 		displayName = filename + strlen(Vars.szPath);
 
-	Log("[%s%s] Code(%d) File(%s:%d) %s\nLine: %s", 
-			strict, type, report->errorNumber, filename, report->lineno, message, report->linebuf);
+	Log("[%s%s] File(%s:%d) %s\nLine: %s", 
+			strict, type, filename, report->lineno, message, report->linebuf);
 
-	Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", 
-			(warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
+	Print("[ÿc%d%s%sÿc0] File(%s:%d) %s", 
+			(warn ? 9 : 1), strict, type, displayName, report->lineno, message);
 
 	if(filename)
 		free(filename);
