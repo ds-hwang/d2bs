@@ -271,7 +271,7 @@ JSAPI_PROP(unit_getProperty)
 		case ITEM_CODE: // replace with better method if found
 			if(!(pUnit->dwType == UNIT_ITEM) && pUnit->pItemData)
 				break;
-			ItemTxt* pTxt;
+			ItemText* pTxt;
 			pTxt = D2COMMON_GetItemText(pUnit->dwTxtFileNo);
 			if(!pTxt) {
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, "Unknown"));
@@ -726,10 +726,9 @@ JSAPI_FUNC(unit_interact)
 	if(pUnit->dwType == UNIT_OBJECT && argc == 1 && JSVAL_IS_INT(argv[0]))
 	{
 		// TODO: check the range on argv[0] to make sure it won't crash the game
-		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
+		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
-		//D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
 		return JS_TRUE;
@@ -741,9 +740,7 @@ JSAPI_FUNC(unit_interact)
 	else
 	{
 		*rval = JSVAL_TRUE;
-		//ClickMap(0, GetUnitX(pUnit), GetUnitY(pUnit), FALSE, pUnit);
 		ClickMap(0, 0xFFFF, 0xFFFF, FALSE, pUnit);
-		//D2CLIENT_Interact(pUnit, 0x45);
 	}
 
 	return JS_TRUE;

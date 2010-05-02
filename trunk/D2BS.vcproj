@@ -711,23 +711,11 @@
 					Name="JS"
 					>
 					<File
-						RelativePath=".\JSArea.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSControl.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\JSCore.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\JSDirectory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSExit.cpp"
 						>
 					</File>
 					<File
@@ -787,35 +775,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\JSGame.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\JSHash.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\JSMenu.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSParty.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSPresetUnit.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSRoom.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\JSSandbox.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\JSScreenHook.cpp"
 						>
 					</File>
 					<File
@@ -826,22 +790,54 @@
 						RelativePath=".\JSSQLite.cpp"
 						>
 					</File>
-					<File
-						RelativePath=".\JSUnit.cpp"
+					<Filter
+						Name="Game"
 						>
-					</File>
+						<File
+							RelativePath=".\JSArea.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSControl.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSExit.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSGame.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSMenu.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSParty.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSPresetUnit.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSRoom.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSScreenHook.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\JSUnit.cpp"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="API"
 					>
-					<File
-						RelativePath=".\JSArea.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSControl.h"
-						>
-					</File>
 					<File
 						RelativePath=".\JSCore.h"
 						>
@@ -851,19 +847,11 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSExit.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSFile.h"
 						>
 					</File>
 					<File
 						RelativePath=".\JSFileTools.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSGame.h"
 						>
 					</File>
 					<File
@@ -879,27 +867,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\JSMenu.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSParty.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSPresetUnit.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSRoom.h"
-						>
-					</File>
-					<File
 						RelativePath=".\JSSandbox.h"
-						>
-					</File>
-					<File
-						RelativePath=".\JSScreenHook.h"
 						>
 					</File>
 					<File
@@ -910,10 +878,50 @@
 						RelativePath=".\JSSQLite.h"
 						>
 					</File>
-					<File
-						RelativePath=".\JSUnit.h"
+					<Filter
+						Name="Game"
 						>
-					</File>
+						<File
+							RelativePath=".\JSArea.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSControl.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSExit.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSGame.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSMenu.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSParty.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSPresetUnit.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSRoom.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSScreenHook.h"
+							>
+						</File>
+						<File
+							RelativePath=".\JSUnit.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 			</Filter>
 			<Filter

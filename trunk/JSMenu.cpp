@@ -36,6 +36,7 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString("settings", "MaxLoginTime", "5", maxLoginTime, sizeof(maxLoginTime), file);
 	GetPrivateProfileString("settings", "MaxCharSelectTime", "5", maxCharTime, sizeof(maxCharTime), file);
 
+	// TODO: break this out into its own function
 	char* errorMsg = "";
 	loginTime = abs(atoi(maxLoginTime) * 1000);
 	charTime = abs(atoi(maxCharTime) * 1000);
@@ -209,6 +210,7 @@ JSAPI_FUNC(my_createGame)
 
 	char *name = NULL, *pass = NULL;
 	int32 diff = 3;
+	// TODO: add description, etc to this
 	if(!JS_ConvertArguments(cx, argc, argv, "s/si", &name, &pass, &diff))
 		THROW_ERROR(cx, "Could not convert arguments");
 

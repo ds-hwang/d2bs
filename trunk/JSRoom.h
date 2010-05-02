@@ -13,7 +13,6 @@ JSAPI_FUNC(room_getNext);
 JSAPI_FUNC(room_getPresetUnits);
 JSAPI_FUNC(room_getCollision);
 JSAPI_FUNC(room_getNearby);
-JSAPI_FUNC(room_getStat);
 JSAPI_FUNC(room_getFirst);
 JSAPI_FUNC(room_unitInRoom);
 JSAPI_FUNC(room_reveal);
@@ -58,7 +57,6 @@ static JSFunctionSpec room_methods[] = {
 	{"getPresetUnits",	room_getPresetUnits,	0},
 	{"getCollision",	room_getCollision,		0},
 	{"getNearby",		room_getNearby,			0},
-	{"getStat",			room_getStat,			0},
 	{"getFirst",		room_getFirst,			0},
 	{"unitInRoom",		room_unitInRoom,		1},
 	{0}

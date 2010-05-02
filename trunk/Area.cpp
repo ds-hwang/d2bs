@@ -27,7 +27,7 @@ myArea* GetArea(__int32 area)
 
 const char* GetAreaName(myArea* area)
 {
-	LevelTxt* txt = D2COMMON_GetLevelText(area->AreaId);
+	LevelText* txt = D2COMMON_GetLevelText(area->AreaId);
 	if(txt && txt->szName)
 		return txt->szName;
 	return NULL;

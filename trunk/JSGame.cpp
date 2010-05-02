@@ -551,7 +551,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 				UnitAny* pItem = D2CLIENT_GetCursorItem();
 				if(pItem)
 				{
-					ItemTxt* pTxt = D2COMMON_GetItemText(pItem->dwTxtFileNo);
+					ItemText* pTxt = D2COMMON_GetItemText(pItem->dwTxtFileNo);
 					if(pTxt)
 					{
 						if(pTxt->ySize > 1)

@@ -102,7 +102,7 @@ struct AutomapLayer2 {
 	DWORD nLayerNo;					//0x08
 };
 
-struct LevelTxt {
+struct LevelText {
 	DWORD dwLevelNo;				//0x00
 	DWORD _1[60];					//0x04
 	BYTE _2;						//0xF4
@@ -443,7 +443,7 @@ struct ItemData {
 	UnitAny *pOwner;				//0x84
 };
 
-struct ItemTxt {
+struct ItemText {
 	wchar_t szName2[0x40];			//0x00
 	union {
 		DWORD dwCode;
@@ -460,7 +460,7 @@ struct ItemTxt {
 	BYTE fQuest;					//0x12A
 };
 
-struct MonsterTxt {
+struct MonsterText {
 	BYTE _1[0x6];					//0x00
 	WORD nLocaleTxtNo;				//0x06
 	WORD flag;						//0x08
@@ -501,7 +501,7 @@ struct MonsterData {
 	};								//0x2C
 };
 
-struct ObjectTxt {
+struct ObjectText {
 	char szName[0x40];				//0x00
 	wchar_t wszName[0x40];			//0x40
 	BYTE _1[4];						//0xC0
@@ -520,7 +520,7 @@ struct ObjectTxt {
 };
 
 struct ObjectData {
-	ObjectTxt *pTxt;				//0x00
+	ObjectText *pTxt;				//0x00
 	union {
 		BYTE Type;					//0x04 (0x0F would be a Exp Shrine)
 		struct {

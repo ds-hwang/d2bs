@@ -247,9 +247,9 @@ ASMPTR(D2CLIENT, GameAddUnit_I, 0xA6500)
 // D2Common Ordinals
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-FUNCPTR(D2COMMON, GetLevelText, LevelTxt * __stdcall, (DWORD levelno), -10014)
-FUNCPTR(D2COMMON, GetObjectText, ObjectTxt * __stdcall, (DWORD objno), -10688)
-FUNCPTR(D2COMMON, GetItemText, ItemTxt *__stdcall, (DWORD dwItemNo), -10695)
+FUNCPTR(D2COMMON, GetLevelText, LevelText * __stdcall, (DWORD levelno), -10014)
+FUNCPTR(D2COMMON, GetObjectText, ObjectText * __stdcall, (DWORD objno), -10688)
+FUNCPTR(D2COMMON, GetItemText, ItemText *__stdcall, (DWORD dwItemNo), -10695)
 
 FUNCPTR(D2COMMON, GetLayer, AutomapLayer2* __fastcall, (DWORD dwLevelNo), -10749)
 FUNCPTR(D2COMMON, GetLevel, Level * __fastcall, (ActMisc *pMisc, DWORD dwLevelNo), -10207)

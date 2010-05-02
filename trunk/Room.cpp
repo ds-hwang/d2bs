@@ -88,7 +88,7 @@ void DrawPresets (Room2 *pRoom2)
 			if (mCell == -1)
 			{
 				//Get the object cell
-				ObjectTxt *obj = D2COMMON_GetObjectText(pUnit->dwTxtFileNo);
+				ObjectText *obj = D2COMMON_GetObjectText(pUnit->dwTxtFileNo);
 
 				if (mCell == -1)
 				{

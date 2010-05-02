@@ -82,9 +82,9 @@ JSAPI_PROP(area_getProperty)
 			break;
 		case AUNIT_NAME:
 			{
-				LevelTxt* pTxt = D2COMMON_GetLevelText(pArea->AreaId);
-				if(pTxt)
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, pTxt->szName));
+				char* name = GetAreaName(pArea);
+				if(name)
+					*vp = STRING_TO_JSVAL(JS_InternString((cx, name)));
 			}
 			break;
 		// TODO: turn these into inline function calls or something

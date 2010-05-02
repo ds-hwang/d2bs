@@ -93,6 +93,7 @@ JSAPI_FUNC(room_getPresetUnits)
 	bool bAdded = FALSE;
 	DWORD dwArrayCount = NULL;
 
+	// TODO: make the internal GetPresetUnit/s overload able to take just a room to get the presets from it
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
 
@@ -258,73 +259,6 @@ JSAPI_FUNC(room_getNearby)
 	}
 
 	*rval = OBJECT_TO_JSVAL(jsobj);
-
-	return JS_TRUE;
-}
-
-// Don't know whether it works or not
-JSAPI_FUNC(room_getStat)
-{
-	Room2* pRoom2 = (Room2*)JS_GetPrivate(cx, obj);
-	if(!pRoom2)
-		return JS_TRUE;
-
-	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
-		return JS_TRUE;
-
-	jsint nStat = JSVAL_TO_INT(argv[0]);
-
-	bool bAdded = false;
-
-	CriticalRoom cRoom;
-	cRoom.EnterSection();
-
-	if(!pRoom2->pRoom1)
-	{
-		bAdded = true;
-		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-	}
-
-	if(!pRoom2->pRoom1)
-		return JS_TRUE;
-
-	if(nStat == 0) // xStart
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwXStart);
-	else if(nStat == 1)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYStart);
-	else if(nStat == 2)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwXSize);
-	else if(nStat == 3)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYSize);
-	else if(nStat == 4)
-		*rval = INT_TO_JSVAL(pRoom2->dwPosX);
-	else if(nStat == 5)
-		*rval = INT_TO_JSVAL(pRoom2->dwPosY);
-	else if(nStat == 6)
-		*rval = INT_TO_JSVAL(pRoom2->dwSizeX);
-	else if(nStat == 7)
-		*rval = INT_TO_JSVAL(pRoom2->dwSizeY);
-//	else if(nStat == 8)
-//		*rval = INT_TO_JSVAL(pRoom2->pRoom1->dwYStart); // God knows??!!??!?!?!?!
-	else if(nStat == 9)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameX);
-	else if(nStat == 10)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameY);
-	else if(nStat == 11)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeGameX);
-	else if(nStat == 12)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeGameY);
-	else if(nStat == 13)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosRoomX);
-	else if(nStat == 14)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwPosGameY);
-	else if(nStat == 15)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomX);
-	else if(nStat == 16)
-		*rval = INT_TO_JSVAL(pRoom2->pRoom1->Coll->dwSizeRoomY);
-
-	if(bAdded)
-		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct,pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	return JS_TRUE;
 }

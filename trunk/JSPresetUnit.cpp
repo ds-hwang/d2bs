@@ -84,6 +84,7 @@ JSAPI_FUNC(my_getPresetUnits)
 	bool bAddedRoom = FALSE;
 	DWORD dwArrayCount = NULL;
 
+	// TODO: break this out into a separate function
 	JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 	JS_AddRoot(&pReturnArray);
 	for(Room2 *pRoom = pLevel->pRoom2First; pRoom; pRoom = pRoom->pRoom2Next)
@@ -164,6 +165,7 @@ JSAPI_FUNC(my_getPresetUnit)
 	if(argc >= 3)
 		nClassId = JSVAL_TO_INT(argv[2]);
 
+	// TODO: break this out into a separate function
 	CriticalRoom cRoom;
 	cRoom.EnterSection();
 
