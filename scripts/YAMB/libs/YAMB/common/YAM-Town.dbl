@@ -225,6 +225,7 @@ function YAM_TownManager() {
 			DC_LoadInclude("automule.dbl");
 		}
 		if(!YAM_Automule || !Automule()) {
+			sendCopyData(null, "OOG", 0,"Stop Me");
 			scriptBroadcast( "starter:pause" );
 			DL_AddAbort();
 			DC_Print("To avoid stopping, set YAM_StopFullInv to false");
