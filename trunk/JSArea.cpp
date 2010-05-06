@@ -82,9 +82,9 @@ JSAPI_PROP(area_getProperty)
 			break;
 		case AUNIT_NAME:
 			{
-				char* name = GetAreaName(pArea);
+				const char* name = GetAreaName(pArea);
 				if(name)
-					*vp = STRING_TO_JSVAL(JS_InternString((cx, name)));
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, name));
 			}
 			break;
 		// TODO: turn these into inline function calls or something
