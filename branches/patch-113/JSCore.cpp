@@ -395,35 +395,20 @@ JSAPI_FUNC(my_sendCopyData)
 
 JSAPI_FUNC(my_sendDDE)
 {
-	/*if(argc > 4 && JSVAL_IS_INT(argv[0]) && JSVAL_IS_STRING(argv[1]) && JSVAL_IS_STRING(argv[2])
-		&& JSVAL_IS_STRING(argv[3]) && JSVAL_IS_STRING(argv[4]))
-		return JS_TRUE;*/
-
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
-	if(!JS_ConvertArguments(cx, argc, argv, "isss", &mode, &pszDDEServer, &pszTopic, &pszItem))
+	if(!JS_ConvertArguments(cx, argc, argv, "issss", &mode, &pszDDEServer, &pszTopic, &pszItem, &pszData))
 		return JS_FALSE;
 
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
+	{
 		if(mode == 0)
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer));
-
-	/*if(JS_ValueToInt32(cx, argv[0], &mode) == JS_FALSE)
-		THROW_ERROR(cx, obj, "Could not convert value");
-	char *pszDDEServer = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-	if(!strlen(pszDDEServer))
-		pszDDEServer = "\"\"";
-	char *pszTopic = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
-	if(!strlen(pszTopic))
-		pszTopic = "\"\"";
-	char *pszItem = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
-	if(!strlen(pszItem))
-		pszItem = "\"\"";
-	char *pszData = JS_GetStringBytes(JS_ValueToString(cx, argv[4]));
-	if(!strlen(pszData))
-		pszData = "\"\"";*/
+	}
+	else
+		THROW_ERROR(cx, "DDE Failed! Check the log for the error message.");
 
 	return JS_TRUE;
 }
