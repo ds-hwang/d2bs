@@ -88,5 +88,5 @@ void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, DWORD dwButton);
 void __stdcall D2CLIENT_TakeWaypoint(DWORD dwWaypointId, DWORD dwArea);
 
 double GetDistance(long x1, long y1, long x2, long y2, DistanceType type = Euclidean);
-
+bool IsScrollingText();
 #endif

@@ -21,6 +21,7 @@ JSAPI_FUNC(my_transmute);
 JSAPI_FUNC(my_clickParty);
 
 JSAPI_FUNC(my_getInteractedNPC);
+JSAPI_FUNC(my_getIsTalkingNPC);
 
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_getDistance);

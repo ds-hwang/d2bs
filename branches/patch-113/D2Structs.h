@@ -726,6 +726,35 @@ struct sgptDataTable {
 	MpqTable*	pElemTypes;
 };
 
+struct MessageHandlerList
+{
+	DWORD message;
+	DWORD unk_4;
+	void (__stdcall *handler)(void*);
+	struct MessageHandlerList* next;
+};
+
+struct MessageHandlerHashTable
+{
+	struct MessageHandlerList** table;
+	DWORD length;
+};
+
+struct WindowHandlerHashTable
+{
+	struct WindowHandlerList** table;
+	DWORD length;
+};
+
+struct WindowHandlerList
+{
+	DWORD unk_0;
+	HWND hWnd;
+	DWORD unk_8;
+	struct MessageHandlerHashTable* msgHandlers;
+	struct WindowHandlerList* next;
+};
+
 #pragma warning ( pop )
 #pragma optimize ( "", on )
 

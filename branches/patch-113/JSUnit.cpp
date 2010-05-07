@@ -610,22 +610,23 @@ JSAPI_FUNC(unit_cancel)
 {	
 	if(!WaitForGameReady())
 		THROW_ERROR(cx, "Game not ready");
-
-	if(argc == 1 && JSVAL_IS_INT(argv[0]))
-	{
-		jsint nType = JSVAL_TO_INT(argv[0]);
-
-		if(nType == 0)
-			D2CLIENT_CloseInteract();
-		else if(nType == 1)
+	
+	if(IsScrollingText())
+			D2CLIENT_ClearScreen();
+	else if (D2CLIENT_GetCurrentInteractingNPC())	
 			D2CLIENT_CloseNPCInteract();
-	}
-	else if(D2CLIENT_GetCursorItem())
+	else
+		D2CLIENT_CloseInteract();
+
+	
+	if(D2CLIENT_GetCursorItem())
 	{
 		// Diablo drops an Item by using the Walk function.
 		// Just perform a clickMap "click" and we drop it
 		D2CLIENT_ClickMap(0, 10, 10, 0x08);
-	}
+	
+	
+	}	
 
 	return JS_TRUE;
 }

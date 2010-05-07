@@ -56,7 +56,8 @@ FUNCPTR(D2CLIENT, GetUnitY, int __fastcall, (UnitAny* pUnit), 0x1660)
 FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x47D60)
 
 FUNCPTR(D2CLIENT, CloseNPCInteract, void __fastcall, (void), 0x492F0)
-//FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x492F0) // unused but I want to look into using it // wrong function--needs to be updated still
+FUNCPTR(D2CLIENT, CloseNPCTalk, void __stdcall, (void* unk), 0x7ED30)
+FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x48350) // unused but I want to look into using it // wrong function--needs to be updated still
 FUNCPTR(D2CLIENT, CloseInteract, void __fastcall, (void), 0x43870)
 
 FUNCPTR(D2CLIENT, GetAutomapSize, DWORD __stdcall, (void), 0x5F080)
@@ -385,6 +386,13 @@ FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), -
 
 VARPTR(D2WIN, FirstControl, Control*, 0x214A0)
 VARPTR(D2WIN, FocusedControl, Control*, 0x214B0) // unused, but we ought to use it
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Storm Functions
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+VARPTR(STORM, WindowHandlers, WindowHandlerHashTable, 0x55370)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

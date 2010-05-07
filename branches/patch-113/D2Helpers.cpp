@@ -954,3 +954,43 @@ double GetDistance(long x1, long y1, long x2, long y2, DistanceType type)
 	}
  	return dist;
 }
+bool IsScrollingText(){
+
+if(!WaitForGameReady())
+		return false;
+
+	HWND d2Hwnd = D2GFX_GetHwnd();
+	WindowHandlerList* whl = p_STORM_WindowHandlers->table[(0x534D5347^(DWORD)d2Hwnd)%p_STORM_WindowHandlers->length];
+	MessageHandlerHashTable* mhht;
+	MessageHandlerList* mhl;
+
+	while(whl)
+	{
+		if(whl->unk_0 == 0x534D5347 && whl->hWnd == d2Hwnd)
+		{
+			mhht = whl->msgHandlers;
+			if(mhht != NULL && mhht->table != NULL && mhht->length != 0)
+			{
+				// 0x201 - WM_something click
+				mhl = mhht->table[0x201 % mhht->length];
+
+				if(mhl != NULL)
+				{
+					while(mhl)
+					{
+						if(mhl->message && mhl->unk_4 < 0xffffffff && mhl->handler == D2CLIENT_CloseNPCTalk)
+						{
+							
+							return true;
+						}
+						mhl = mhl->next;
+					}
+				}
+			}
+		}
+		whl = whl->next;
+	}
+
+	
+	return false;
+}

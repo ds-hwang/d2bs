@@ -1320,6 +1320,12 @@ JSAPI_FUNC(my_submitItem)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_getIsTalkingNPC)
+{
+	*rval = BOOLEAN_TO_JSVAL(IsScrollingText());
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_getInteractedNPC)
 {
 	if(!WaitForGameReady())
