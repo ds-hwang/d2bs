@@ -395,10 +395,9 @@ void __fastcall GamePlayerAssignment(UnitAny* pPlayer)
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
 	if(Vars.bGameLoopEntered)
-	{
 		LeaveCriticalSection(&Vars.cGameLoopSection);
-	}
-	else Vars.bGameLoopEntered = true;
+	else
+		Vars.bGameLoopEntered = true;
 
 	while(Vars.SectionCount)
 		Sleep(0);
@@ -410,13 +409,10 @@ void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 void GameLeave(void)
 {
 	if(Vars.bGameLoopEntered)
-	{
 		LeaveCriticalSection(&Vars.cGameLoopSection);
-	}
-	else Vars.bGameLoopEntered = true;
+	else
+		Vars.bGameLoopEntered = true;
 
-	// Stop ingame scripts at this point ..
-	// otherwise we deadlock ...
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 
 	EnterCriticalSection(&Vars.cGameLoopSection);

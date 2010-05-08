@@ -143,8 +143,15 @@ JSAPI_FUNC(my_getScript)
 			return JS_TRUE;
 	}
 	else
-		if(!JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp))
+	{
+		// find the first context that has private data
+		while(JS_ContextIterator(ScriptEngine::GetRuntime(), &iterp) != NULL)
+			if(JS_GetContextPrivate(iterp) != NULL)
+				break;
+
+		if(iterp == NULL)
 			return JS_TRUE;
+	}
 
 	JSObject* res = BuildObject(cx, &script_class, script_methods, script_props, iterp);
 

@@ -1169,10 +1169,7 @@ JSAPI_FUNC(my_getBaseStat)
 		else
 			THROW_ERROR(cx, "Invalid table value");
 
-		if(JSVAL_IS_NUMBER(argv[1]))
-			JS_ValueToECMAInt32(cx, argv[1], &nClassId);
-		else
-			THROW_ERROR(cx, "Invalid row value");
+		JS_ValueToECMAInt32(cx, argv[1], &nClassId);
 
 		if(JSVAL_IS_STRING(argv[2]))
 		{

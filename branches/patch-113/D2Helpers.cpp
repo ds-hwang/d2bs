@@ -121,28 +121,31 @@ void SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation)
 
 ClientGameState ClientState(void)
 {
+	ClientGameState state = ClientStateNull;
+	EnterCriticalSection(&Vars.cGameLoopSection);
+	InterlockedIncrement(&Vars.SectionCount);
+
 	if(D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
 	{
 		if(D2CLIENT_GetPlayerUnit()->pInventory &&
-				D2CLIENT_GetPlayerUnit()->pPath &&
-				D2CLIENT_GetPlayerUnit()->pPath->xPos &&
-				D2CLIENT_GetPlayerUnit()->pPath->pRoom1 &&
-				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2 &&
-				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel &&
-				D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
-			return ClientStateInGame;
+		   D2CLIENT_GetPlayerUnit()->pPath &&
+		   D2CLIENT_GetPlayerUnit()->pPath->xPos &&
+		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1 &&
+		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2 &&
+		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel &&
+		   D2CLIENT_GetPlayerUnit()->pPath->pRoom1->pRoom2->pLevel->dwLevelNo)
+			state = ClientStateInGame;
 		else
-			return ClientStateBusy;
+			state = ClientStateBusy;
 	}
 	else if(!D2CLIENT_GetPlayerUnit() && *p_D2WIN_FirstControl)
-		return ClientStateMenu;
+		state = ClientStateMenu;
 	else if(!D2CLIENT_GetPlayerUnit() && !(*p_D2WIN_FirstControl))
-		return ClientStateNull;
-//#ifdef DEBUG
-//	else
-//		DebugBreak();
-//#endif
-	return ClientStateNull;
+		state = ClientStateNull;
+
+	LeaveCriticalSection(&Vars.cGameLoopSection);
+	InterlockedDecrement(&Vars.SectionCount);
+	return state;
 }
 
 bool GameReady(void)
