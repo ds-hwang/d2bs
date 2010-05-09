@@ -1040,6 +1040,12 @@ const SKILL_VENOM								= 278;
 const SKILL_SHADOW_MASTER						= 279;
 const SKILL_PHOENIX_STRIKE						= 280;
 
+const ACT_I										= AREA_ROGUE_ENCAMPMENT;
+const ACT_II									= AREA_LUT_GHOLEIN;
+const ACT_III									= AREA_KURAST_DOCKTOWN;
+const ACT_IV									= AREA_THE_PANDEMONIUM_FORTRESS;
+const ACT_V										= AREA_HARROGATH;
+
 const AREA_NONE									= 0;
 const AREA_ROGUE_ENCAMPMENT						= 1;
 const AREA_BLOOD_MOOR							= 2;

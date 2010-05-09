@@ -361,7 +361,7 @@ me.moveTo = function moveTo(x, y, callback, area) {
 	function moveTo(point, force) {
 		force = force || false;
 		require([{valid: function validPoint(x) {
-				return isArray(x) || x.hasOwnProperty('UseWP');
+				return isArray(x) || x.hasOwnProperty('WP');
 			}}, {valid: isBoolean, optional: true}], arguments);
 
 		Debug.Write(INFO, 'Moving to point', point.toSource());
