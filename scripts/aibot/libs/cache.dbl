@@ -32,7 +32,7 @@ Cache.Load = function(name)
 	var created = new Date(file.created * 1000 + (cacheTimeLength * 24 * 60 * 60 * 1000));
 	delete file;
 	// if the file's creation date + cacheTimeLength days is less than now, ignore the cache
-	if(created < Date.now())
+	if(created.getTime() < Date.now())
 		FileTools.remove(fname);
 
 	var text = FileTools.readText(fname);

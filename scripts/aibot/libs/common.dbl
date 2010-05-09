@@ -66,9 +66,7 @@ function areaDelay(area) { doDelay(function() { return me.area!=area; }); }
 function neutralDelay() {doDelay(function(){return me.mode!=1&&me.mode!=5;});}
 function UIDelay(type, mode) {
 	mode = isBoolean(mode) ? mode : true;
-	doDelay(function() {
-		return mode ? !getUIFlag(type) : getUIFlag(type);
-	});
+	doDelay(function() { return mode ? !getUIFlag(type) : getUIFlag(type); });
 }
 function modeDelay(modes) {
 	require([{valid: isArray}], arguments);
@@ -125,6 +123,20 @@ Unit.prototype.__defineGetter__('isStarterItem', function() {
 	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
 	return hasFlag(this.flags, FLAG_ITEM_STARTERITEM);
 });
+
+Unit.prototype.buy = function buyItem(shift) {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if(getInteractedNPC() == undefined) throw new Error('Must be interacted with an NPC!');
+
+	shift = shift || false;
+	this.shop(shift ? 2 : 6);
+};
+Unit.prototype.sell = function sellItem() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if(getInteractedNPC() == undefined) throw new Error('Must be interacted with an NPC!');
+
+	this.shop(1);
+};
 
 PresetUnit.prototype.__defineGetter__('realx', function() {
 	return this.roomx * 5 + this.x;
@@ -194,11 +206,11 @@ function click(mode) {
 
 function ClickItem(mode, shift) {
 	var point = null;
-	var hasUnit = isUnit(arguments[1]);
-	var hasPoint = isPoint(arguments[1]);
-	if(arguments.length >= 2 && (hasPoint || hasUnit))
-		point = arguments[1];
-	else if(arguments.length == 4 && isNumber(arguments[1]) &&
+	var hasUnit = isUnit(arguments[2]);
+	var hasPoint = isPoint(arguments[2]);
+	if(arguments.length > 2 && (hasPoint || hasUnit))
+		point = arguments[2];
+	else if(arguments.length == 4 && isBoolean(arguments[1]) &&
 			isNumber(arguments[2]) && isNumber(arguments[3]))
 		point = {x: arguments[1], y: arguments[2]};
 	else
@@ -411,7 +423,7 @@ me.useWaypoint = function useWaypoint(id) {
 		];
 
 		for(var i = 0; i < areas.length; i++)
-			for(var j = 0; j < areas[i].length; i++)
+			for(var j = 0; j < areas[i].length; j++)
 				if(areas[i][j] == id)
 					return {page: i, button: j};
 		return null;
@@ -419,6 +431,9 @@ me.useWaypoint = function useWaypoint(id) {
 	var wp = getWaypointUnit(me.area);
 	if(!isUnit(wp))
 		throw new Error('Failed to find waypoint');
+
+	// get closer to the waypoint if needed
+	wp.moveTo();
 
 	var dest = areaToPage(id);
 	if(dest == null)
@@ -576,5 +591,5 @@ function clearFlag(num, flag) { return (num & flag); }
 function sleep(milliseconds) {
 	// ping/2 + (30 - min(30, fps)) * 10 + delay should be sufficient
 	require([{valid: function greaterThanZero(x){ return x > 0; }}], arguments);
-	delay(milliseconds + (me.ping/2) + (30 - Math.min(30, me.fps) * 10));
+	delay(milliseconds + (me.ping/2) + (30 - Math.min(30, me.fps)) * 10);
 }

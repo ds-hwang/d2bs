@@ -56,7 +56,11 @@ AreaLinker.FindPath = function (start, dest) {
 	while(ppath.Parent != null) {
 		for each(var link in AreaLinker.Areas[ppath.LinkedArea].Links) {
 			if(link.Start == ppath.Parent.LinkedArea) {
-				arealinks.push(link);
+				if(link.End == AREA_WAYPOINT) {
+					link.End = arealinks.pop().End;
+					arealinks.push(link);
+				} else
+					arealinks.push(link);
 				break;
 			}
 		}

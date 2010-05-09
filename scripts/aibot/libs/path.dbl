@@ -40,23 +40,21 @@ function generatePath(start, dest, x, y, x2, y2) {
 					// this is a special case of the objects case
 					// find the waypoint
 					var wp = getWaypointUnit(area.Start);
-					if(isPreset(wp))
-					{
-						// if the waypoint is a preset, path to it
-						let (path = getPath(wp.level, wp.realx, wp.realy)) {
-							for each(let point in path)
-								yield point;
-						}
-						// yield a special "use waypoint" value
-						yield {WP: true, dest: area.End};
+					if(!isPreset(wp) && !isUnit(wp))
+						throw new Error('Failed to find waypoint');
+					// if the waypoint is a preset, path to it
+					let (path = findPath(wp.level, wp.realx, wp.realy)) {
+						for each(let point in path)
+							yield point;
 					}
+					// yield a special "use waypoint" value
+					yield {WP: true, dest: area.End};
 				} else if(area.Objects.length > 0) {
 					// find the object
 					var objects = getPresetUnitsEx(area.Start, TYPE_OBJECT, area.Objects);
 					// path to it, yielding each point
-					for each(let object in objects)
-					{
-						let (path = getPath(object.level, object.realx, object.realy)) {
+					for each(let object in objects) {
+						let (path = findPath(object.level, object.realx, object.realy)) {
 							for each(let point in path)
 								yield point;
 						}
@@ -70,7 +68,8 @@ function generatePath(start, dest, x, y, x2, y2) {
 							'for exit with id', area.End);
 						var exit = null;
 						exits.forEach(function(x) {
-							if(x.target == area.End) exit = x;
+							if(x.target == area.End)
+								exit = x;
 							return exit == null;
 						});
 						if(exit == null)

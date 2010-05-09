@@ -72,7 +72,7 @@ function Config(file) {
 		for each(var value in db['settings'][fname])
 			xml.settings += <value name={value}>{db['settings'][fname][value]}</value>;
 
-			FileTools.writeText(file, xml.toXMLString());
+		FileTools.writeText(file, xml.toXMLString());
 	};
 
 	this.reload();
