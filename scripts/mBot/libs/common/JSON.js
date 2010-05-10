@@ -348,6 +348,7 @@ if (!this.JSON) {
             gap = mind;
             return v;
         }
+		return "undefined";
     }
 
 // If the JSON object does not yet have a stringify method, give it one.

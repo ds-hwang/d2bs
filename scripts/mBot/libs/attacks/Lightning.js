@@ -10,7 +10,7 @@ Name:"Lightning",
 Skill:Skill.get(Skill.Lightning),
 
 //Configuration Values
-Enabled:Interface.read(Name, "Enable", true),
+Enabled:Interface.read("Lightning", "Enable", true),
 
 //Check if we should use Lightning against given monster.
 Predicate:function(mon) {

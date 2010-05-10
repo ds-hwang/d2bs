@@ -7,7 +7,7 @@ var Interface = new function () {
 	this.profileName = "";
 	this.mBotConfig = {};
 	this.config = {};
-	this.cache;
+	this.cache = {};
 	
 	this.Init = function () {
 		this.profileName = "McGod";

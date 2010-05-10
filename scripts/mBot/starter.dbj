@@ -1,9 +1,5 @@
-//include("mBot.js");
-
-if (!isIncluded("common/Interface.js"))
-	include("common/Interface.js");
-if (!isIncluded("mBot/GameManager.js"))
-	include("mBot/GameManager.js");
+include("mBot.js");
+include("mBot/GameManager.js");
 
 function main () {
 	blockMinimize(true);

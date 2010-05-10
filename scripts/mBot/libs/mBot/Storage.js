@@ -142,7 +142,7 @@ var Container = function (name, width, height, location) {
 			var reference = baseRef.slice(0, baseRef.length);
 			//Insure valid reference.
 			if (!isObject(reference) || reference.length != this.buffer.length || reference[0].length != this.buffer[0].length)
-				throw new Error("Unable to compare different containers.");				
+				throw new Error("Unable to compare different containers.");
 			
 			for (var h = 0; h < this.height; h++) {
 				Loop:for (var w = 0; w < this.width; w++) {

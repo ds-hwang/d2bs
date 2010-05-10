@@ -71,7 +71,7 @@ var Town = new function () {
 					
 				//Try to interact with NPC three times
 				for (var n = 0; n < 3; n++) {
-					Interface.message(Debug, "Attempting to interact with " + npcName + " attempt: " + n + 1);
+					Interface.message(Debug, "Attempting to interact with " + npcName + " attempt: " + (n + 1));
 					nUnit.interact();
 					
 					var nTimer = getTickCount();
