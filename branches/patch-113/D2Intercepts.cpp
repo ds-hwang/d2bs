@@ -266,3 +266,30 @@ SkipChat:
 		ret 8
 	}
 }
+
+void __declspec(naked) AddUnit_Intercept(UnitAny* lpUnit)
+{
+	__asm
+	{
+		call [D2CLIENT_GameAddUnit_I]
+		pushad
+		push esi
+		call AddUnit
+		popad
+		retn
+	}
+}
+
+void __declspec(naked) RemoveUnit_Intercept(UnitAny* lpUnit)
+{
+	__asm
+	{
+		pushad
+		push dword ptr ds:[esi+edx*4]
+		call RemoveUnit
+		popad
+		mov eax,dword ptr ds:[ecx+0xE4]
+		mov DWORD PTR ds:[esi+edx*4], eax
+		retn
+	}
+}

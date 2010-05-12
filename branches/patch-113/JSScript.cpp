@@ -28,14 +28,7 @@ JSAPI_PROP(script_getProperty)
 	switch(JSVAL_TO_INT(id))
 	{
 		case SCRIPT_FILENAME:
-			{
-				const char* relName = NULL;
-				if(strcmp(script->GetFilename(), "Command Line") == 0)
-					relName = script->GetFilename();
-				else
-					relName = (script->GetFilename() + strlen(Vars.szScriptPath) + 1);
-				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName));
-			}
+			*vp = STRING_TO_JSVAL(JS_InternString(cx, script->GetShortFilename()));
 			break;
 		case SCRIPT_GAMETYPE:
 			*vp = script->GetState() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
@@ -166,10 +159,8 @@ bool __fastcall FindScriptByName(Script* script, void* argv, uint argc)
 {
 	FindHelper* helper = (FindHelper*)argv;
 	static uint pathlen = strlen(Vars.szScriptPath) + 1;
-	const char* fname = script->GetFilename();
-	// calculate the relative name from the filename
-	const char* relName = (strlen(fname) > pathlen ? fname + pathlen : fname);
-	if(_strcmpi(relName, helper->name) == 0)
+	const char* fname = script->GetShortFilename();
+	if(_strcmpi(fname, helper->name) == 0)
 	{
 		helper->script = script;
 		return false;

@@ -7,7 +7,7 @@ void LifeEvent(DWORD dwLife);
 void ManaEvent(DWORD dwMana);
 void CopyDataEvent(DWORD dwMode, char* lpszMsg);
 void GameMsgEvent(char* lpszMsg);
-void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2);
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2);
 void WhisperEvent(char* lpszNick, char* lpszMsg);
 void KeyDownUpEvent(WPARAM bByte, BYTE bUp);
 void PlayerAssignEvent(DWORD dwUnitId);

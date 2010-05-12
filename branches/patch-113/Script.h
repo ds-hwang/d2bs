@@ -74,7 +74,8 @@ public:
 	bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
 
-	const char* GetFilename(void) { const char* file = _strdup(fileName.c_str()); return file; }
+	const char* GetFilename(void) { return fileName.c_str(); }
+	const char* GetShortFilename(void);
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }

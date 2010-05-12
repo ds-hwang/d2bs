@@ -127,7 +127,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 				strcpy_s(name1, 16, "You");
 			break;
 	}
-	GameActionEvent(mode, param1, name1, name2);
+	GameActionEvent(mode, param1, param2, name1, name2);
 
 	return TRUE;
 }

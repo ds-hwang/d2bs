@@ -9,6 +9,7 @@
 #define D2BS_VERSION "1.3.2"
 
 #include <windows.h>
+#include <vector>
 
 #include "CollisionMap.h"
 #include "ScreenHook.h"
@@ -71,6 +72,7 @@ struct Variables
 
 	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
+	std::vector<std::pair<DWORD, DWORD> > vUnitList;
 
 	CRITICAL_SECTION	cRoomSection;
 	CRITICAL_SECTION	cMiscSection;
@@ -84,6 +86,7 @@ struct Variables
 	CRITICAL_SECTION	cFlushCacheSection;
 	CRITICAL_SECTION	cConsoleSection;
 	CRITICAL_SECTION	cGameLoopSection;
+	CRITICAL_SECTION	cUnitListSection;
 
 	DWORD dwSelectedUnitId;
 	DWORD dwSelectedUnitType;

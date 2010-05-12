@@ -191,6 +191,12 @@ bool Script::IsPaused(void)
 	return isPaused;
 }
 
+const char* Script::GetShortFilename()
+{
+	if(strcmp(fileName.c_str(), "Command Line") == 0) return fileName.c_str();
+	else return (fileName.c_str() + strlen(Vars.szScriptPath) + 1);
+}
+
 void Script::Stop(bool force, bool reallyForce)
 {
 	// if we've already stopped, just return
@@ -396,11 +402,42 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	CreateThread(0, 0, FuncThread, evt, 0, 0);
 }
 
+#ifdef DEBUG
+typedef struct tagTHREADNAME_INFO
+{
+	DWORD dwType; // must be 0x1000
+	LPCSTR szName; // pointer to name (in user addr space)
+	DWORD dwThreadID; // thread ID (-1=caller thread)
+	DWORD dwFlags; // reserved for future use, must be zero
+} THREADNAME_INFO;
+
+void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
+{
+	THREADNAME_INFO info;
+	info.dwType = 0x1000;
+	info.szName = szThreadName;
+	info.dwThreadID = dwThreadID;
+	info.dwFlags = 0;
+
+	__try
+	{
+		RaiseException( 0x406D1388, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
+	}
+	__except(EXCEPTION_CONTINUE_EXECUTION)
+	{
+	}
+}
+#endif
+
+
 DWORD WINAPI ScriptThread(void* data)
 {
 	Script* script = (Script*)data;
 	if(script)
 	{
+#ifdef DEBUG
+		SetThreadName(0xFFFFFFFF, script->GetShortFilename());
+#endif
 		script->Run();
 		if(Vars.bDisableCache)
 			ScriptEngine::DisposeScript(script);

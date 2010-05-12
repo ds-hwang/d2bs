@@ -1,31 +1,38 @@
+#include <vector>
+
 #include "Unit.h"
 #include "Constants.h"
 #include "D2Helpers.h"
+#include "D2BS.h"
 
 #define HAS_BIT(value, bit) ((((value) >> (bit)) & 0x1) == 0x1)
+
+using namespace std;
 
 UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
 {
 	if(ClientState() != ClientStateInGame)
 		return NULL;
-	// check the server list first, then the client list
-/*
-	for(UnitAny* unit = *p_D2CLIENT_ServerUnitList; unit != NULL; unit = unit->pListNext)
+
+	EnterCriticalSection(&Vars.cUnitListSection);
+
+	UnitAny* result = NULL;
+	for(vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin(); it != Vars.vUnitList.end(); it++)
 	{
-		if(CheckUnit(unit, szName, dwClassId, dwType, dwMode, dwUnitId))
-			return unit;
-	}
-	for(UnitAny* unit = *p_D2CLIENT_ClientUnitList; unit != NULL; unit = unit->pListNext)
-	{
-		if(CheckUnit(unit, szName, dwClassId, dwType, dwMode, dwUnitId))
-			return unit;
+		UnitAny* unit = D2CLIENT_FindUnit(it->first, it->second);
+		if(unit != NULL && CheckUnit(unit, szName, dwClassId, dwType, dwMode, dwUnitId))
+		{
+			result = unit;
+			break;
+		}
 	}
 
-	return NULL;
-*/
+	LeaveCriticalSection(&Vars.cUnitListSection);
+
+	return result;
 
 	// First off, check for near units
-	UnitAny* player = D2CLIENT_GetPlayerUnit();
+/*	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	if(player && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && 
 		player->pPath->pRoom1->pRoom2->pLevel)
 	{
@@ -42,7 +49,8 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 			}
 		}
 	}
-	return NULL;
+
+	return NULL;*/
 }
 
 UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
@@ -53,18 +61,38 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	if(!pUnit)
 		return NULL;
 
-/*
-	// only check the list we got the unit from to prevent circular checking
-	for(UnitAny* lpUnit = pUnit->pListNext; lpUnit != NULL; lpUnit = lpUnit->pListNext)
+	EnterCriticalSection(&Vars.cUnitListSection);
+
+	UnitAny* result = NULL;
+	// find where we left off
+	vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin();
+	for(; it != Vars.vUnitList.end(); it++)
 	{
-		if(CheckUnit(lpUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
-			return lpUnit;
+		if(it->first == pUnit->dwUnitId && it->second == pUnit->dwType)
+			// this is where we left off
+			break;
 	}
 
-	return NULL;
-*/
+	if(it != Vars.vUnitList.end())
+	{
+		it++;
 
-	UnitAny* lpUnit = pUnit->pListNext;
+		for(; it != Vars.vUnitList.end(); it++)
+		{
+			UnitAny* unit = D2CLIENT_FindUnit(it->first, it->second);
+			if(unit != NULL && CheckUnit(unit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
+			{
+				result = unit;
+				break;
+			}
+		}
+	}
+
+	LeaveCriticalSection(&Vars.cUnitListSection);
+
+	return result;
+
+/*	UnitAny* lpUnit = pUnit->pListNext;
 	Room1* ptRoom = D2COMMON_GetRoomFromUnit(pUnit);
 	Room2* ptRoomOther = NULL;
 
@@ -91,7 +119,7 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 		}
 	}
 
-	return NULL;
+	return NULL;*/
 }
 
 UnitAny* GetInvUnit(UnitAny* pOwner, char* szName, DWORD dwClassId, DWORD dwMode, DWORD dwUnitId)

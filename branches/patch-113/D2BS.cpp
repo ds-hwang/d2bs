@@ -19,7 +19,7 @@
 
 static HANDLE hD2Thread = INVALID_HANDLE_VALUE;
 
-BOOL WINAPI DllMain(HINSTANCE hDll,DWORD dwReason,LPVOID lpReserved)
+BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason)
 	{
@@ -84,6 +84,7 @@ BOOL Startup(void)
 	InitializeCriticalSection(&Vars.cFlushCacheSection);
 	InitializeCriticalSection(&Vars.cConsoleSection);
 	InitializeCriticalSection(&Vars.cGameLoopSection);
+	InitializeCriticalSection(&Vars.cUnitListSection);
 
 	Vars.bNeedShutdown = TRUE;	
 	Vars.bChangedAct = FALSE;
@@ -134,6 +135,7 @@ void Shutdown(void)
 	DeleteCriticalSection(&Vars.cFlushCacheSection);
 	DeleteCriticalSection(&Vars.cConsoleSection);
 	DeleteCriticalSection(&Vars.cGameLoopSection);
+	DeleteCriticalSection(&Vars.cUnitListSection);
 
 	Log("D2BS Shutdown complete.");
 	Vars.bNeedShutdown = false;

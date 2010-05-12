@@ -28,7 +28,7 @@ struct KeyEventHelper
 struct GameActionEventHelper
 {
 	BYTE mode;
-	DWORD param;
+	DWORD param1, param2;
 	char *name1, *name2;
 };
 
@@ -297,20 +297,21 @@ bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
 	{
-		AutoRoot** argv = new AutoRoot*[4];
+		AutoRoot** argv = new AutoRoot*[5];
 		JS_SetContextThread(ScriptEngine::GetGlobalContext());
 		argv[0] = new AutoRoot(INT_TO_JSVAL(helper->mode));
-		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param));
-		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name1)));
-		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name2)));
+		argv[1] = new AutoRoot(INT_TO_JSVAL(helper->param1));
+		argv[2] = new AutoRoot(INT_TO_JSVAL(helper->param2));
+		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name1)));
+		argv[4] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name2)));
 		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
-		script->ExecEventAsync("gameevent", 4, argv);
+		script->ExecEventAsync("gameevent", 5, argv);
 	}
 	return true;
 }
 
-void GameActionEvent(BYTE mode, DWORD param, char* name1, char* name2)
+void GameActionEvent(BYTE mode, DWORD param1, DWORD param2, char* name1, char* name2)
 {
-	GameActionEventHelper helper = {mode, param, name1, name2};
+	GameActionEventHelper helper = {mode, param1, param2, name1, name2};
 	ScriptEngine::ForEachScript(GameActionEventCallback, &helper, 1);
 }

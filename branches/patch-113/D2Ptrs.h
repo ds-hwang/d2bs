@@ -220,6 +220,8 @@ ASMPTR(D2CLIENT, ClickMap_II, 0x11C4D8)
 ASMPTR(D2CLIENT, ClickMap_III, 0x3F5F0)
 ASMPTR(D2CLIENT, ClickMap_IV, 0x1BF99)
 
+ASMPTR(D2CLIENT, GameAddUnit_I, 0xA6500)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals
