@@ -1,5 +1,28 @@
 Version History:
 
+Version 1.3.2 -
+
+	.	Changed the internal unit finding code to use an internal list instead of room searching.
+
+	.	Fixed sendDDE (multiple bugs, the least of which was an unused parameter...)
+
+	.	Fixed me.cancel once again to detect scrolling text ("summoner bug")
+
+	.	Fixed a rather large memory leak with Script::GetFilename (d'oh!)
+
+	.	Removed some of the strictness checks for getBaseStat (got sick of trying to debug it).
+
+	.	Fixed an issue where getScript could return a script that had no valid parameters, meaning
+		it would just error when you tried to use it.
+
+	.	Added "param2" parameter to the "gameevent" event. You may now detect what kind of party
+		message you just got (hostile vs. invite vs. accept, etc.)
+
+Version 1.3.1 -
+
+	.	Fixed me.cancel(1) (was using the wrong function pointer... whoops!)
+      (this also fixes the "gamble bug")
+
 Version 1.3 -
 
 	.	Updated to 1.13c
