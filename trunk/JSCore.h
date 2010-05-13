@@ -7,6 +7,7 @@ JSAPI_FUNC(my_sleep);
 JSAPI_FUNC(my_rand);
 JSAPI_FUNC(my_load);
 JSAPI_FUNC(my_include);
+JSAPI_FUNC(my_isIncluded);
 JSAPI_FUNC(my_stop);
 JSAPI_FUNC(my_getTickCount);
 JSAPI_FUNC(my_debugLog);
