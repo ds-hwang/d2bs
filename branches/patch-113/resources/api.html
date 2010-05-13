@@ -789,6 +789,26 @@ config.macros.func = {
 	me
 &gt;&gt;</pre>
 </div>
+<div title="How to write a script" modifier="lord2800" created="201005130100" modified="201005130100" changecount="2">
+<pre>As a test, we'll use a continuous spam message while we remain in game.
+
+Here's the code:
+{{{
+while(me.ingame)
+{
+	me.overhead(&quot;Hello, world!&quot;);
+	delay(1500);
+}
+}}}
+
+Save the above code as, for now, &quot;test.dbj&quot; inside of your scripts folder.
+
+Now open the default.dbj and add the following to the top of that file:
+
+{{{load(&quot;test.dbj&quot;);}}}
+
+Then, join a game and watch as your character says &quot;Hello, world!&quot; in his overhead message box!</pre>
+</div>
 <div title="ItemActionEvent" modifier="lord2800" created="201001181022" changecount="1">
 <pre>&lt;&lt;event args:&quot;int gid, int mode, string code, bool global&quot; remarks:&quot;If global is true, the item action is a 'world action', meaning everyone in game got the same event&quot;&gt;&gt;</pre>
 </div>
@@ -1145,8 +1165,8 @@ Difficulties:
 <div title="getTradeInfo" modifier="lord2800" created="200912092236" modified="200912301943" changecount="2">
 <pre>&lt;&lt;func args:&quot;int mode&quot; returnType:&quot;int&quot; returns:&quot;If mode is 0, returns the current trade flags. If mode is 1, returns the name of the most recent trading partner. If mode is 2, returns the gid of the most recent trading partner.&quot; remarks:&quot;&quot; example:&quot;&quot;&gt;&gt;</pre>
 </div>
-<div title="getUIFlag" modifier="lord2800" created="200912092236" modified="200912301952" changecount="2">
-<pre>&lt;&lt;func args:&quot;int flag&quot; returnType:&quot;bool&quot; returns:&quot;True if the specified flag is on, otherwise false&quot; remarks:&quot;Flags:
+<div title="getUIFlag" modifier="lord2800" created="200912092236" modified="201005111434" changecount="4">
+<pre>&lt;&lt;func args:&quot;int flag&quot; returnType:&quot;bool&quot; returns:&quot;True if the specified screen is open, otherwise false&quot; remarks:&quot;Flags:
 0 - Nothing
 1 - Inventory screen
 2 - Character screen
@@ -1162,7 +1182,7 @@ Difficulties:
 12 - Hotkey configuration
 13 - NPC shop menu
 14 - ALT held
-15 - Anvil (...? Need more documentation)
+15 - Item submit screen
 16 - Quest button visible
 17 - Bark scroll (...? Need more documentation)
 18 - Quest screen
