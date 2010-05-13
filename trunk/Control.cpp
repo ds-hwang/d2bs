@@ -286,7 +286,7 @@ BOOL OOG_SelectGateway(char * szGateway, size_t strSize)
 	Control* pControl = FindControl(CONTROL_BUTTON, (char *)NULL, -1, 264, 391, 272, 25);
 
 	// if the control exists and has the text label, check if it matches the selected gateway
-	if(pControl && pControl->wText2)
+	if(pControl != NULL && pControl->wText2)
 	{
 		char* szLine = UnicodeToAnsi(pControl->wText2);
 		if(!szLine)
@@ -408,7 +408,7 @@ OOG_Location OOG_GetLocation(void)
 			if (FindControl(CONTROL_BUTTON, 10018, -1, 264,297,272,35)) //NORMAL
 				return OOG_DIFFICULTY;						//20 single char Difficulty
 			Control* pControl = FindControl(CONTROL_TEXTBOX, (char *)NULL, -1, 37, 178, 200, 92);
-			if(pControl && pControl->pFirstText && pControl->pFirstText->pNext)
+			if(pControl != NULL && pControl->pFirstText && pControl->pFirstText->pNext)
 				return OOG_CHAR_SELECT;						//12 char select
 			else
 			{

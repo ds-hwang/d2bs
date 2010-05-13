@@ -165,8 +165,8 @@ JSAPI_FUNC(dir_create)
 	}
 	else
 	{
-		DirData* d = new DirData(name);
-		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d);
+		DirData* d2 = new DirData(name);
+		JSObject* jsdir = BuildObject(cx, &folder_class, dir_methods, dir_props, d2);
 		*rval = OBJECT_TO_JSVAL(jsdir);
 	}
 

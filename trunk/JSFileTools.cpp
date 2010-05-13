@@ -60,7 +60,8 @@ JSAPI_FUNC(filetools_rename)
 	char pnewName[_MAX_PATH+_MAX_FNAME];
 	sprintf_s(pnewName, sizeof(pnewName), "%s\\%s", Vars.szScriptPath, newName);
 
-	rename(porig, pnewName);
+	if(!rename(porig, pnewName))
+		THROW_ERROR(cx, "Rename failed");
 
 	return JS_TRUE;
 }
@@ -169,6 +170,9 @@ JSAPI_FUNC(filetools_readText)
 
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "r");
+	if(!fptr)
+		THROW_ERROR(cx, "Failed to open file");
+
 	fseek(fptr, 0, SEEK_END);
 	uint size = ftell(fptr);
 	fseek(fptr, 0, SEEK_SET);
@@ -199,6 +203,9 @@ JSAPI_FUNC(filetools_writeText)
 	bool result = true;
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "w");
+	if(!fptr)
+		THROW_ERROR(cx, "Failed to open file");
+
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i], false, false))
 			result = false;
@@ -222,6 +229,9 @@ JSAPI_FUNC(filetools_appendText)
 	bool result = true;
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "a+");
+	if(!fptr)
+		THROW_ERROR(cx, "Failed to open file");
+
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i], false, false))
 			result = false;

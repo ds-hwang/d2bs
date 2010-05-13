@@ -98,13 +98,13 @@ JSAPI_PROP(sandbox_delProperty)
 			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
-		if(box && JS_DeleteProperty(box->context, box->innerObj, name))
+		if(box != NULL && JS_DeleteProperty(box->context, box->innerObj, name))
 			return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
-		if(box && JS_DeleteProperty(box->context, box->innerObj, name))
+		if(box != NULL && JS_DeleteProperty(box->context, box->innerObj, name))
 			return JS_TRUE;
 	}
 	return JS_FALSE;
@@ -122,7 +122,7 @@ JSAPI_PROP(sandbox_getProperty)
 		char name[32];
 		_itoa_s(i, name, 32, 10);
 		*vp = JSVAL_VOID;
-		if(box && JS_LookupProperty(box->context, box->innerObj, name, vp))
+		if(box != NULL && JS_LookupProperty(box->context, box->innerObj, name, vp))
 			return JS_TRUE;
 		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
 			return JS_TRUE;
@@ -131,7 +131,7 @@ JSAPI_PROP(sandbox_getProperty)
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
 		*vp = JSVAL_VOID;
-		if(box && (JS_LookupProperty(box->context, box->innerObj, name, vp)))
+		if(box != NULL && (JS_LookupProperty(box->context, box->innerObj, name, vp)))
 			return JS_TRUE;
 		if(JSVAL_IS_VOID(*vp) && JS_LookupProperty(cx, obj, name, vp))
 			return JS_TRUE;
@@ -150,14 +150,14 @@ JSAPI_PROP(sandbox_setProperty)
 			return JS_TRUE;
 		char name[32];
 		_itoa_s(i, name, 32, 10);
-		if(box)
+		if(box != NULL)
 			if(JS_SetProperty(box->context, box->innerObj, name, vp))
 				return JS_TRUE;
 	}
 	else if(JSVAL_IS_STRING(id))
 	{
 		char* name = JS_GetStringBytes(JSVAL_TO_STRING(id));
-		if(box)
+		if(box != NULL)
 			if(JS_SetProperty(box->context, box->innerObj, name, vp))
 				return JS_TRUE;
 	}
@@ -167,7 +167,8 @@ JSAPI_PROP(sandbox_setProperty)
 void sandbox_finalize(JSContext *cx, JSObject *obj)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
-	if(box) {
+	if(box != NULL)
+	{
 		ScriptEngine::ReleaseContext(box->context);
 		delete box;
 	}
@@ -178,7 +179,7 @@ JSAPI_FUNC(sandbox_eval)
 	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
 	{
 		sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
-		if(!box)
+		if(box == NULL)
 			THROW_ERROR(cx, "Invalid execution object!");
 		char* code = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		jsval result;
@@ -196,7 +197,7 @@ JSAPI_FUNC(sandbox_include)
 	{
 		sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
 		char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		if(file && strlen(file) <= _MAX_FNAME && box)
+		if(file != NULL && strlen(file) <= _MAX_FNAME && box)
 		{
 			char buf[_MAX_PATH+_MAX_FNAME];
 			sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
@@ -225,7 +226,7 @@ JSAPI_FUNC(sandbox_include)
 JSAPI_FUNC(sandbox_isIncluded)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
-	if(argc > 0 && JSVAL_IS_STRING(argv[0]) && box)
+	if(argc > 0 && JSVAL_IS_STRING(argv[0]) && box != NULL)
 	{
 		char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 		char buf[_MAX_PATH+_MAX_FNAME];
@@ -238,7 +239,7 @@ JSAPI_FUNC(sandbox_isIncluded)
 JSAPI_FUNC(sandbox_clear)
 {
 	sandbox* box = (sandbox*)JS_GetInstancePrivate(cx, obj, &sandbox_class, NULL);
-	if(box)
+	if(box != NULL)
 		JS_ClearScope(cx, box->innerObj);
 	return JS_TRUE;
 }

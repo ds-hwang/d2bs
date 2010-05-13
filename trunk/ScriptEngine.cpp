@@ -414,7 +414,8 @@ bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 	EventHelper* helper = (EventHelper*)argv;
 	ASSERT(helper);
 
-	if(script->GetExecState() == ScriptStateRunning && script->IsListenerRegistered(helper->evtName))
+	if(helper != NULL && script->GetExecState() == ScriptStateRunning &&
+		script->IsListenerRegistered(helper->evtName))
 		script->ExecEventAsync(helper->evtName, helper->format, helper->args);
 	//else
 	//	DebugBreak();

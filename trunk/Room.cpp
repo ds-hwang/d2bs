@@ -11,33 +11,31 @@ BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 
 	CriticalRoom room;
 	room.EnterSection();
-	//Make sure we have the room.
-	if (!pRoom2)
+	if(pRoom2 == NULL)
 		return false;
 
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
-	//Check if we have Room1(Needed in order to reveal)
-	if (!(pRoom2 && pRoom2->pRoom1)) {
+	if (!(pRoom2 != NULL && pRoom2->pRoom1 != NULL)) {
 		D2COMMON_AddRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
 		bAdded = true;
 	}
-	if (!(pRoom2 && pRoom2->pRoom1)){// second check added to see if we DID indeed init the room!
+	if (!(pRoom2 != NULL && pRoom2->pRoom1 != NULL))
 		return false;
-	}
 
-	//If we are somewhere other then the given area, init automap layer to be drawn to.
-	if(!(pRoom2 && pRoom2->pLevel && pRoom2->pLevel->dwLevelNo && player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 && player->pPath->pRoom1->pRoom2->pLevel && player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == pRoom2->pLevel->dwLevelNo)){
+	if(!(pRoom2 != NULL && pRoom2->pLevel != NULL && pRoom2->pLevel->dwLevelNo &&
+		player->pPath && player->pPath->pRoom1 && player->pPath->pRoom1->pRoom2 &&
+		player->pPath->pRoom1->pRoom2->pLevel &&
+		player->pPath->pRoom1->pRoom2->pLevel->dwLevelNo == pRoom2->pLevel->dwLevelNo))
+	{
 		InitAutomapLayer(pRoom2->pLevel->dwLevelNo);
 		bInit = true;
 	}
 
-	//Reveal this room!
 	D2CLIENT_RevealAutomapRoom(pRoom2->pRoom1, TRUE, (*p_D2CLIENT_AutomapLayer));
 
 	if(revealPresets)
 		DrawPresets(pRoom2);
 
-	//Remove room data if we have added.
 	if(bAdded)
 		D2COMMON_RemoveRoomData(pRoom2->pLevel->pMisc->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
 	

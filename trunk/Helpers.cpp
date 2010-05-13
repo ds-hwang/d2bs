@@ -182,7 +182,8 @@ bool InArea(int x, int y, int x2, int y2, int sizex, int sizey)
 bool ProfileExists(const char *profile)
 {
 	char file[_MAX_FNAME+_MAX_PATH];
-	char profiles[65535] = "";
+	char* profiles = new char[65535];
+	memset(profiles, 0, 65535);
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
 	int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
@@ -325,7 +326,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 {
 	bool result = false;
 	char* buf = _strdup(command);
-	char* next_token1;
+	char* next_token1 = NULL;
 	char* argv = strtok_s(buf, " ", &next_token1);
 
 	// no command?

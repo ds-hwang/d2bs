@@ -337,9 +337,12 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 			break;
 		}
 	}
-	functions[evtName].remove(func);
-	func->Release();
-	delete func;
+	if(func != NULL)
+	{
+		functions[evtName].remove(func);
+		func->Release();
+		delete func;
+	}
 	LeaveCriticalSection(&lock);
 }
 
@@ -434,7 +437,7 @@ void SpawnEvent(Event* evt)
 {
 	ASSERT(evt);
 
-	if(evt->owner->GetExecState() == ScriptStateRunning)
+	if(evt != NULL && evt->owner->GetExecState() == ScriptStateRunning)
 	{
 		JSContext* cx = ScriptEngine::AcquireContext();
 		JS_SetContextPrivate(cx, evt->owner);
@@ -482,10 +485,10 @@ void SpawnEvent(Event* evt)
 		}
 
 		delete[] argv;
+
+		delete evt->args;
+		delete evt;
 	}
 	else
 		DebugBreak(); // TEMP
-
-	delete evt->args;
-	delete evt;
 }

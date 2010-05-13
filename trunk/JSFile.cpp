@@ -44,7 +44,7 @@ JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 	{
 		FileData* ptr = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 		FileData* ptr2 = (FileData*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &file_class_ex.base, NULL);
-		if(ptr && ptr2 && !_strcmpi(ptr->path, ptr2->path) && ptr->mode == ptr2->mode)
+		if(ptr != NULL && ptr2 != NULL && !_strcmpi(ptr->path, ptr2->path) && ptr->mode == ptr2->mode)
 			*bp = JS_TRUE;
 	}
 	return JS_TRUE;
@@ -164,7 +164,7 @@ JSAPI_FUNC(file_open)
 
 	// check for attempts to break the sandbox and for invalid file name characters
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	if(!(file && file[0] && isValidPath(file)))
+	if(!(file != NULL && isValidPath(file)))
 		THROW_ERROR(cx, "Invalid file name");
 
 	int32 mode;
@@ -287,7 +287,7 @@ JSAPI_FUNC(file_reopen)
 JSAPI_FUNC(file_read)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr)
+	if(fdata != NULL && fdata->fptr != NULL)
 	{
 		clearerr(fdata->fptr);
 		int32 count = 1;
@@ -353,7 +353,7 @@ JSAPI_FUNC(file_read)
 JSAPI_FUNC(file_readLine)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata != NULL && fdata->fptr != NULL) {
 		const char* line = readLine(fdata->fptr, fdata->locked);
 		if(!line)
 			THROW_ERROR(cx, _strerror("Read failed"));
@@ -366,7 +366,7 @@ JSAPI_FUNC(file_readLine)
 JSAPI_FUNC(file_readAllLines)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata != NULL && fdata->fptr != NULL) {
 		JSObject* arr = JS_NewArrayObject(cx, 0, NULL);
 		*rval = OBJECT_TO_JSVAL(arr);
 		int i = 0;
@@ -385,7 +385,7 @@ JSAPI_FUNC(file_readAllLines)
 JSAPI_FUNC(file_readAll)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata != NULL && fdata->fptr != NULL) {
 		if(fdata->locked)
 			fseek(fdata->fptr, 0, SEEK_END);
 		else
@@ -424,7 +424,7 @@ JSAPI_FUNC(file_readAll)
 JSAPI_FUNC(file_write)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata != NULL && fdata->fptr != NULL) {
 		for(uintN i = 0; i < argc; i++)
 			writeValue(fdata->fptr, cx, argv[i], !!(fdata->mode > 2), fdata->locked);
 
@@ -443,7 +443,7 @@ JSAPI_FUNC(file_write)
 JSAPI_FUNC(file_seek)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr)
+	if(fdata != NULL && fdata->fptr != NULL)
 	{
 		if(argc > 0)
 		{
@@ -482,7 +482,7 @@ JSAPI_FUNC(file_seek)
 JSAPI_FUNC(file_flush)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr)
+	if(fdata != NULL && fdata->fptr != NULL)
 		if(fdata->locked)
 			fflush(fdata->fptr);
 		else
@@ -495,7 +495,7 @@ JSAPI_FUNC(file_flush)
 JSAPI_FUNC(file_reset)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr) {
+	if(fdata != NULL && fdata->fptr != NULL) {
 		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_SET)) {
 			THROW_ERROR(cx, _strerror("Seek failed"));
 		} else if(_fseek_nolock(fdata->fptr, 0L, SEEK_SET))
@@ -508,7 +508,7 @@ JSAPI_FUNC(file_reset)
 JSAPI_FUNC(file_end)
 {
 	FileData* fdata = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
-	if(fdata && fdata->fptr)
+	if(fdata != NULL && fdata->fptr != NULL)
 	{
 		if(fdata->locked && fseek(fdata->fptr, 0L, SEEK_END)) {
 			THROW_ERROR(cx, _strerror("Seek failed"));

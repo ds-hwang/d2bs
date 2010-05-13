@@ -291,7 +291,7 @@ JSAPI_FUNC(my_addEventListener)
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
 		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		if(evtName && strlen(evtName))
+		if(evtName != NULL && strlen(evtName))
 		{
 			Script* self = (Script*)JS_GetContextPrivate(cx);
 			self->RegisterEvent(JS_GetStringBytes(JSVAL_TO_STRING(argv[0])), argv[1]);
@@ -307,7 +307,7 @@ JSAPI_FUNC(my_removeEventListener)
 	if(JSVAL_IS_STRING(argv[0]) && JSVAL_IS_FUNCTION(cx, argv[1]))
 	{
 		char* evtName = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-		if(evtName && strlen(evtName))
+		if(evtName != NULL && strlen(evtName))
 		{
 			Script* self = (Script*)JS_GetContextPrivate(cx);
 			self->UnregisterEvent(evtName, argv[1]);

@@ -8,7 +8,9 @@ HSZ hszD2BSns;
 HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1, 
     HSZ hsz2, HDDEDATA hdata, DWORD dwData1, DWORD dwData2)
 {
-	char pszItem[65535];
+	char* pszItem = new char[65535];
+	memset(pszItem, 0, 65535);
+
 	switch(uType) {
 		case XTYP_CONNECT:
 			return (HDDEDATA)TRUE;

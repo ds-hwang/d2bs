@@ -484,7 +484,7 @@ JSAPI_FUNC(sqlite_stmt_skip)
 	DBStmt* stmtobj = (DBStmt*)JS_GetInstancePrivate(cx, obj, &sqlite_stmt, NULL);
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 		THROW_ERROR(cx, "Invalid parameter to SQLiteStatement.skip");
-	for(int i = JSVAL_TO_INT(argv[0])-1; i >= 0; i++) {
+	for(int i = JSVAL_TO_INT(argv[0])-1; i >= 0; i--) {
 		int res = sqlite3_step(stmtobj->stmt);
 		if(res != SQLITE_ROW) {
 			if(res == SQLITE_DONE) {
