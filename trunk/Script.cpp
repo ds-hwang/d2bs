@@ -4,38 +4,31 @@
 #include <algorithm>
 #include <process.h>
 
-#include "Script.h"
-#include "Core.h"
-#include "Constants.h"
 #include "D2Ptrs.h"
-#include "JSUnit.h"
+
+#include "Script.h"
+
+#include "Core.h"
 #include "Helpers.h"
 #include "ScriptEngine.h"
 #include "D2BS.h"
 
 using namespace std;
 
-Script::Script(string file, ScriptType scriptType) :
+Script::Script(string file) :
 		fileName(""), context(NULL), globalObject(NULL), scriptObject(NULL),
-		script(NULL), execCount(0), scriptType(scriptType),
+		script(NULL), execCount(0),
 		scriptExecState(ScriptStateCreation), threadHandle(INVALID_HANDLE_VALUE), threadId(0)
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
 
-	if(scriptType == Command)
-	{
-		fileName = "Command Line";
-	}
-	else
-	{
-		if(!!_access(file.c_str(), 0))
-			throw std::exception("File not found");
+	if(!!_access(file.c_str(), 0))
+		throw std::exception("File not found");
 
-		fileName = file;
-		std::transform(fileName.begin(), fileName.end(), fileName.begin(), tolower);
-		replace(fileName.begin(), fileName.end(), '/', '\\');
-	}
+	fileName = file;
+	std::transform(fileName.begin(), fileName.end(), fileName.begin(), tolower);
+	replace(fileName.begin(), fileName.end(), '/', '\\');
 
 	try
 	{
@@ -55,19 +48,8 @@ Script::Script(string file, ScriptType scriptType) :
 		JS_BeginRequest(context);
 
 		globalObject = JS_GetGlobalObject(context);
-		jsval meVal = JSVAL_VOID;
-		if(JS_GetProperty(context, globalObject, "me", &meVal) != JS_FALSE)
-		{
-			JSObject* meObject = JSVAL_TO_OBJECT(meVal);
-			me = (myUnit*)JS_GetPrivate(context, meObject);
-		}
-		else
-			throw std::exception("Couldn't get me object");
 
-		if(scriptType == Command)
-			script = JS_CompileScript(context, globalObject, file.c_str(), strlen(file.c_str()), "Command Line", 1);
-		else
-			script = JS_CompileFile(context, globalObject, fileName.c_str());
+		script = JS_CompileFile(context, globalObject, fileName.c_str());
 
 		if(!script)
 			throw std::exception("Couldn't compile the script");
@@ -168,36 +150,16 @@ void Script::Run(void)
 
 	scriptExecState = ScriptStateRunning;
 
-	if(GetScriptType() == InGame || GetScriptType() == OutOfGame)
-	{
-		if(JS_ExecuteScript(context, globalObject, script, &dummy) != JS_FALSE &&
-				JS_GetProperty(context, globalObject, "main", &main) != JS_FALSE &&
-				JSVAL_IS_FUNCTION(context, main))
-		{
-			JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
-		}
-	}
-	else if(GetScriptType() == Command)
-	{
-		// if we just processed a command, print the results of the command
-		if(JS_ExecuteScript(context, globalObject, script, &dummy) != JS_FALSE &&
-				!JSVAL_IS_NULL(dummy) && !JSVAL_IS_VOID(dummy))
-		{
-			JS_ConvertValue(context, dummy, JSTYPE_STRING, &dummy);
-			Print(JS_GetStringBytes(JS_ValueToString(context, dummy)));
-		}
-	}
+	if(JS_ExecuteScript(context, globalObject, script, &dummy) != JS_FALSE &&
+	   JS_GetProperty(context, globalObject, "main", &main) != JS_FALSE &&
+	   JSVAL_IS_FUNCTION(context, main))
+		JS_CallFunctionValue(context, globalObject, main, 0, NULL, &dummy);
 
 	JS_EndRequest(context);
 	JS_ClearContextThread(context);
 
 	execCount++;
 	Stop();
-}
-
-void Script::UpdatePlayerGid(void)
-{
-	me->dwUnitId = (D2CLIENT_GetPlayerUnit() == NULL ? NULL : D2CLIENT_GetPlayerUnit()->dwUnitId);
 }
 
 ScriptExecState Script::GetExecState()
@@ -262,7 +224,6 @@ void Script::Stop(bool force)
 	JS_TriggerOperationCallback(context);
 
 	ClearAllEvents();
-	Genhook::Clean(this);
 
 	assert(threadHandle != INVALID_HANDLE_VALUE);
 	if(threadHandle != INVALID_HANDLE_VALUE)
@@ -272,8 +233,7 @@ void Script::Stop(bool force)
 	}
 
 	// FIXME should only be printing substr
-	if(GetScriptType() != Command)
-		Print("Script %s ended", fileName.c_str());
+	Print("Script %s ended", GetShortFilename().c_str());
 
 	LeaveCriticalSection(&lock);
 }
@@ -474,8 +434,7 @@ void SpawnEvent(Event* evt)
 {
 	ASSERT(evt);
 
-	if(evt->owner->GetExecState() == ScriptStateRunning && 
-		!(evt->owner->GetScriptType() == InGame && ClientState() != ClientStateInGame))
+	if(evt->owner->GetExecState() == ScriptStateRunning)
 	{
 		JSContext* cx = ScriptEngine::AcquireContext();
 		JS_SetContextPrivate(cx, evt->owner);

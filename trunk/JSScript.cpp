@@ -44,9 +44,6 @@ JSAPI_PROP(script_getProperty)
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, relName.c_str()));
 			}
 			break;
-		case SCRIPT_GAMETYPE:
-			*vp = script->GetScriptType() == InGame ? INT_TO_JSVAL(0) : INT_TO_JSVAL(1);
-			break;
 		case SCRIPT_RUNNING:
 			*vp = BOOLEAN_TO_JSVAL(script->GetExecState() == ScriptStateRunning);
 			break;

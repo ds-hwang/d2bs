@@ -55,7 +55,7 @@ public:
 	static JSContext* AcquireContext(void);
 	static void ReleaseContext(JSContext*);
 
-	static Script* CompileFile(const std::string &file, ScriptType scriptType, bool recompile = false);
+	static Script* CompileFile(const std::string &file, bool recompile = false);
 	static Script* CompileCommand(const char* command);
 	static void DisposeScript(Script* script);
 

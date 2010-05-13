@@ -1,5 +1,5 @@
 #include "ScriptEngine.h"
-#include "D2Helpers.h"
+#include "Helpers.h"
 #include "dde.h"
 
 DWORD DdeSrvInst = 0;
@@ -63,9 +63,9 @@ BOOL SendDDE(int mode, char* pszDDEServer, char* pszTopic, char* pszItem, char* 
 		return FALSE;
 	}
 
-	HSZ hszDDEServer = DdeCreateStringHandle(pidInst, pszDDEServer, CP_WINANSI);
-	HSZ hszTopic = DdeCreateStringHandle(pidInst, pszTopic, CP_WINANSI);
-	HSZ hszCommand = DdeCreateStringHandle(pidInst, pszItem, CP_WINANSI);
+	HSZ hszDDEServer = DdeCreateStringHandle(pidInst, (strlen(pszDDEServer) == 0 ? "\"\"" : pszDDEServer), CP_WINANSI);
+	HSZ hszTopic = DdeCreateStringHandle(pidInst, (strlen(pszTopic) == 0 ? "\"\"" : pszTopic), CP_WINANSI);
+	HSZ hszCommand = DdeCreateStringHandle(pidInst, (strlen(pszItem) == 0 ? "\"\"" : pszItem), CP_WINANSI);
 
 	if(!hszDDEServer || !hszTopic || !hszCommand)
 	{

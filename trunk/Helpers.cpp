@@ -1,11 +1,19 @@
+#include <sstream>
+#include <algorithm>
+#include <ctime>
+
 #include "D2BS.h"
 #include "Core.h"
 #include "Script.h"
 #include "ScriptEngine.h"
-#include "string.h"
 #include "D2Handlers.h"
 #include "Control.h"
 #include "D2Ptrs.h"
+#include "Helpers.h"
+#include "D2Helpers.h"
+#include "Console.h"
+
+using namespace std;
 
 wchar_t* AnsiToUnicode(const char* str)
 {
@@ -45,6 +53,88 @@ void StringReplace(char* str, const char find, const char replace, size_t buflen
 	}
 }
 
+void Print(const char * szFormat, ...)
+{
+	using namespace std;
+
+	const char REPLACE_CHAR = (unsigned char)0xFE;
+
+	va_list vaArgs;
+	va_start(vaArgs, szFormat);
+	int len = _vscprintf(szFormat, vaArgs);
+	char* str = new char[len+1];
+	vsprintf_s(str, len+1, szFormat, vaArgs);
+	va_end(vaArgs);
+
+	replace(str, str + len, REPLACE_CHAR, '%');
+
+	// Break into lines through \n.
+	list<string> lines;
+	string temp;
+	stringstream ss(str);
+
+	const uint maxlen = 98;
+	while(getline(ss, temp))
+		SplitLines(temp, maxlen, ' ', lines);
+
+	EnterCriticalSection(&Vars.cPrintSection);
+
+	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
+	{
+		if(Vars.bUseGamePrint)
+		{
+			if(ClientState() == ClientStateInGame)
+			{
+				wchar_t *output = AnsiToUnicode(it->c_str());
+				D2CLIENT_PrintGameString(output, 0);
+				delete [] output;
+			}
+			else if(ClientState() == ClientStateMenu && FindControl(4, (char *)NULL, -1, 28, 410, 354, 298))
+				D2MULTI_PrintChannelText((char* )it->c_str(), 0);
+		}
+		else
+			Console::AddLine(*it);
+	}
+
+	delete[] str;
+	str = NULL;
+
+	LeaveCriticalSection(&Vars.cPrintSection);
+}
+
+void Log(char* szFormat, ...)
+{
+	va_list vaArgs;
+
+	va_start(vaArgs, szFormat);
+	int len = _vscprintf(szFormat, vaArgs);
+	char* szString = new char[len+1];
+	vsprintf_s(szString, len+1, szFormat, vaArgs);
+	va_end(vaArgs);
+
+	time_t tTime;
+	time(&tTime);
+	char szTime[128] = "";
+	struct tm time;
+	localtime_s(&time, &tTime);
+	strftime(szTime, sizeof(szTime), "%x %X", &time);
+
+	char path[_MAX_PATH+_MAX_FNAME] = "";
+	sprintf_s(path, sizeof(path), "%sd2bs.log", Vars.szPath);
+
+#ifdef DEBUG
+	FILE* log = stderr;
+#else
+	FILE* log = _fsopen(path, "a+", _SH_DENYNO);
+#endif
+	fprintf(log, "[%s] D2BS %d: %s\n", szTime, GetProcessId(GetCurrentProcess()), szString);
+#ifndef DEBUG
+	fflush(log);
+	fclose(log);
+#endif
+	delete[] szString;
+}
+
 bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::list<std::string> & lst)
 {
 	using namespace std;
@@ -82,6 +172,11 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 	lst.push_back(tmp);
 
 	return true;
+}
+
+bool InArea(int x, int y, int x2, int y2, int sizex, int sizey)
+{
+	return !!(x >= x2 && x < x2+sizex && y >= y2 && y < y2+sizey);
 }
 
 bool ProfileExists(const char *profile)
@@ -193,28 +288,17 @@ bool InitHooks(void)
 	return true;
 }
 
-const char* GetStarterScriptName(void)
-{
-	return (ClientState() == ClientStateInGame ? "default.dbj" : ClientState() == ClientStateMenu ? "starter.dbj" : NULL);
-}
-
-ScriptType GetStarterScriptType(void)
-{
-	// the default return is InGame because that's the least harmful of the options
-	return (ClientState() == ClientStateInGame ? InGame : ClientState() == ClientStateMenu ? OutOfGame : InGame);
-}
-
 bool ExecCommand(const char* command)
 {
 	Script* script = ScriptEngine::CompileCommand(command);
 	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
 }
 
-bool StartScript(const char* scriptname, ScriptType scriptType)
+bool StartScript(const char* scriptname)
 {
 	char file[_MAX_FNAME+_MAX_PATH];
 	sprintf_s(file, _MAX_FNAME+_MAX_PATH, "%s\\%s", Vars.szScriptPath, scriptname);
-	Script* script = ScriptEngine::CompileFile(file, scriptType);
+	Script* script = ScriptEngine::CompileFile(file);
 	return (script && CreateThread(0, 0, ScriptThread, script, 0, 0) != INVALID_HANDLE_VALUE);
 }
 
@@ -231,11 +315,10 @@ void Reload(void)
 	// wait for things to catch up
 	Sleep(500);
 
-	const char* script = GetStarterScriptName();
-	if(StartScript(script, GetStarterScriptType()))
-		Print("ÿc2D2BSÿc0 :: Started %s", script);
+	if(StartScript("default.dbj"))
+		Print("ÿc2D2BSÿc0 :: Started default.dbj");
 	else
-		Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+		Print("ÿc2D2BSÿc0 :: Failed to start default.dbj");
 }
 
 bool ProcessCommand(const char* command, bool unprocessedIsCommand)
@@ -251,11 +334,10 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 
 	if(_strcmpi(argv, "start") == 0)
 	{
-		const char* script = GetStarterScriptName();
-		if(StartScript(script, GetStarterScriptType()))
-			Print("ÿc2D2BSÿc0 :: Started %s", script);
+		if(StartScript("default.dbj"))
+			Print("ÿc2D2BSÿc0 :: Started default.dbj");
 		else
-			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
+			Print("ÿc2D2BSÿc0 :: Failed to start default.dbj");
 		result = true;
 	}
 	else if(_strcmpi(argv, "stop") == 0)
@@ -275,7 +357,7 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	else if(_strcmpi(argv, "load") == 0)
 	{
 		const char* script = command+5;
-		if(StartScript(script, GetStarterScriptType()))
+		if(StartScript(script))
 			Print("ÿc2D2BSÿc0 :: Started %s", script);
 		else
 			Print("ÿc2D2BSÿc0 :: Failed to start %s", script);
@@ -301,21 +383,17 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 
 void GameJoined(void)
 {
-	Print("ÿc2D2BSÿc0 :: Starting default.dbj");
-	if(StartScript(GetStarterScriptName(), GetStarterScriptType()))
-		Print("ÿc2D2BSÿc0 :: default.dbj running.");
-	else
-		Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
+	// TODO: fire event here
 }
 
 void MenuEntered(bool beginStarter)
 {
 	if(beginStarter)
 	{
-		Print("ÿc2D2BSÿc0 :: Starting starter.dbj");
-		if(StartScript(GetStarterScriptName(), GetStarterScriptType()))
-			Print("ÿc2D2BSÿc0 :: starter.dbj running.");
+		Print("ÿc2D2BSÿc0 :: Starting default.dbj");
+		if(StartScript("default.dbj"))
+			Print("ÿc2D2BSÿc0 :: default.dbj running.");
 		else
-			Print("ÿc2D2BSÿc0 :: Failed to start starter.dbj!");
+			Print("ÿc2D2BSÿc0 :: Failed to start default.dbj!");
 	}
 }

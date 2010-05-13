@@ -1,18 +1,14 @@
 #include <vector>
 
-#include "D2Handlers.h"
-#include "D2NetHandlers.h"
-#include "Script.h"
-#include "ScreenHook.h"
-#include "Unit.h"
+#include "D2Helpers.h"
 #include "Helpers.h"
-#include "Core.h"
-#include "Constants.h"
-#include "Events.h"
-#include "CollisionMap.h"
 #include "ScriptEngine.h"
+#include "D2Ptrs.h"
+#include "D2NetHandlers.h"
+#include "Events.h"
+#include "Constants.h"
 #include "Console.h"
-#include "D2BS.h"
+#include "ScreenHook.h"
 
 using namespace std;
 
@@ -169,16 +165,6 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
 			return TRUE;
-		// TODO: we don't need this for 1.13
-		case WM_ACTIVATEAPP:
-			if(!wParam && Vars.bBlockMinimize)
-				return NULL;
-			break;
-		//case WM_NCDESTROY:
-		//	{
-		//		//Vars.bActive = FALSE;
-		//		return TRUE;
-		//	}
 	}
 
 	return (LONG)CallWindowProcA(Vars.oldWNDPROC, hWnd, uMsg, wParam, lParam);
@@ -291,32 +277,22 @@ LRESULT CALLBACK MouseMove(int code, WPARAM wParam, LPARAM lParam)
 	{
 		bool clicked = false;
 
-		HookClickHelper helper = {-1, {pt.x, pt.y}};
 		switch(wParam)
 		{
 			case WM_LBUTTONDOWN:
 				MouseClickEvent(0, pt, false);
-				helper.button = 0;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
-					clicked = true;
 				break;
 			case WM_LBUTTONUP:
 				MouseClickEvent(0, pt, true);
 				break;
 			case WM_RBUTTONDOWN:
 				MouseClickEvent(1, pt, false);
-				helper.button = 1;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
-					clicked = true;
 				break;
 			case WM_RBUTTONUP:
 				MouseClickEvent(1, pt, true);
 				break;
 			case WM_MBUTTONDOWN:
 				MouseClickEvent(2, pt, false);
-				helper.button = 2;
-				if(Genhook::ForEachVisibleHook(ClickHook, &helper, 1))
-					clicked = true;
 				break;
 			case WM_MBUTTONUP:
 				MouseClickEvent(2, pt, true);
@@ -338,7 +314,6 @@ void GameDraw(void)
 {
 	if(Vars.bActive && ClientState() == ClientStateInGame)
 	{
-		Genhook::DrawAll(IG);
 		DrawLogo();
 		Console::Draw();
 	}
@@ -350,7 +325,6 @@ void GameDrawOOG(void)
 	D2WIN_DrawSprites();
 	if(Vars.bActive && ClientState() == ClientStateMenu)
 	{
-		Genhook::DrawAll(OOG);
 		DrawLogo();
 		Console::Draw();
 	}
@@ -424,10 +398,6 @@ void GameLeave(void)
 		LeaveCriticalSection(&Vars.cGameLoopSection);
 	else
 		Vars.bGameLoopEntered = true;
-
-	// Stop ingame scripts at this point ..
-	// otherwise we deadlock ...
-	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
 
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }

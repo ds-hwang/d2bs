@@ -7,10 +7,12 @@
 #include "Core.h"
 #include "JSGlobalFuncs.h"
 #include "JSGlobalClasses.h"
-#include "JSUnit.h"
 #include "Constants.h"
 #include "D2BS.h"
 #include "Console.h"
+#include "D2Ptrs.h"
+#include "Helpers.h"
+#include "D2Helpers.h"
 
 using namespace std;
 
@@ -29,7 +31,7 @@ bool __fastcall DisposeScript(Script* script, void*, uint);
 bool __fastcall StopScript(Script* script, void* argv, uint argc);
 bool __fastcall GCPauseScript(Script* script, void* argv, uint argc);
 
-Script* ScriptEngine::CompileFile(const std::string &file, ScriptType scriptType, bool recompile)
+Script* ScriptEngine::CompileFile(const std::string &file, bool recompile)
 {
 	if(GetState() != Running)
 		return NULL;
@@ -55,7 +57,7 @@ Script* ScriptEngine::CompileFile(const std::string &file, ScriptType scriptType
 				return ret;
 			}
 		}
-		Script* script = new Script(File, scriptType);
+		Script* script = new Script(File);
 		scripts[File] = script;
 		LeaveCriticalSection(&lock);
 
@@ -81,10 +83,11 @@ Script* ScriptEngine::CompileCommand(const char* command)
 			if(scripts.count("Command Line") > 0)
 				DisposeScript(scripts["Command Line"]);
 
-		Script* script = new Script(command, Command);
-		scripts["Command Line"] = script;
+// TODO: fix this later--commands will no longer be just Scripts with the name "Command Line"
+//		Script* script = new Script(command, Command);
+//		scripts["Command Line"] = script;
 		LeaveCriticalSection(&lock);
-		return script;
+		return NULL;
 	}
 	catch(std::exception e)
 	{
@@ -406,13 +409,6 @@ bool __fastcall StopScript(Script* script, void* argv, uint argc)
 	return true;
 }
 
-bool __fastcall StopIngameScript(Script* script, void*, uint)
-{
-	if(script->GetScriptType() == InGame)
-		script->Stop(true);
-	return true;
-}
-
 bool __fastcall ExecEventOnScript(Script* script, void* argv, uint argc)
 {
 	EventHelper* helper = (EventHelper*)argv;
@@ -444,9 +440,7 @@ JSBool branchCallback(JSContext* cx)
 		JS_ResumeRequest(cx, depth);
 	}
 
-	script->UpdatePlayerGid();
-
-	return !!!(script->GetScriptType() != OutOfGame && ClientState() != ClientStateInGame);
+	return JS_TRUE;
 }
 
 JSBool contextCallback(JSContext* cx, uintN contextOp)
@@ -469,27 +463,10 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		if(JS_DefineFunctions(cx, globalObject, global_funcs) == JS_FALSE)
 			return JS_FALSE;
 
-		myUnit* lpUnit = new myUnit;
-		memset(lpUnit, NULL, sizeof(myUnit));
-
-		UnitAny* player = D2CLIENT_GetPlayerUnit();
-		lpUnit->dwMode = (DWORD)-1;
-		lpUnit->dwClassId = (DWORD)-1;
-		lpUnit->dwType = UNIT_PLAYER;
-		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
-		lpUnit->_dwPrivateType = PRIVATE_UNIT;
-
 		int i = 0;
 		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
 			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.funcs, entry.props,
 										entry.static_funcs, entry.static_props);
-
-		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
-		if(!meObject)
-			return JS_FALSE;
-
-		if(JS_DefineProperty(cx, globalObject, "me", OBJECT_TO_JSVAL(meObject), NULL, NULL, JSPROP_PERMANENT_VAR) == JS_FALSE)
-			return JS_FALSE;
 
 #define DEFCONST(vp) ScriptEngine::DefineConstant(cx, globalObject, #vp, vp)
 		DEFCONST(FILE_READ);

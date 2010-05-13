@@ -9,8 +9,6 @@
 #include "ScriptEngine.h"
 #include "Helpers.h"
 #include "D2Handlers.h"
-#include "Console.h"
-#include "D2BS.h"
 #include "D2Ptrs.h"
 
 #ifdef _MSVC_DEBUG
@@ -91,7 +89,6 @@ BOOL Startup(void)
 
 	Vars.SectionCount = 0;
 
-	Genhook::Initialize();
 	DefineOffsets();
 	InstallPatches();
 	CreateDdeServer();
@@ -114,7 +111,6 @@ void Shutdown(void)
 	SetWindowLong(D2GFX_GetHwnd(),GWL_WNDPROC,(LONG)Vars.oldWNDPROC);
 
 	RemovePatches();
-	Genhook::Destroy();
 	ShutdownDdeServer();
 
 	KillTimer(D2GFX_GetHwnd(), Vars.uTimer);

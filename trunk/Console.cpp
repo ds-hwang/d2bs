@@ -3,9 +3,10 @@
 
 #include "Console.h"
 #include "ScriptEngine.h"
-#include "Helpers.h"
 #include "D2Ptrs.h"
 #include "Core.h"
+#include "D2Helpers.h"
+#include "Helpers.h"
 
 bool Console::visible = false;
 bool Console::enabled = false;
@@ -222,14 +223,14 @@ void Console::Draw(void)
 				std::list<std::string> buf;
 				SplitLines(*it, linelen, ' ', buf);
 				for(std::list<std::string>::iterator it = buf.begin(); it != buf.end(); it++)
-					myDrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, font);
+					DrawText(it->c_str(), 2+charheight, 2+charheight+((i--)*charheight), 0, font);
 			} else
-				myDrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, font);
+				DrawText(it->c_str(), 2+charheight, 2+charheight+(i*charheight), 0, font);
 		}
 
 		if(IsEnabled())
 		{
-			myDrawText(">", 1, height, 0, font);
+			DrawText(">", 1, height, 0, font);
 			int lx = cx + cmdsize - charsize + 5,
 				ly = height-charheight;
 			if(count % 30)
@@ -243,9 +244,9 @@ void Console::Draw(void)
 					SplitLines(cmdstr, linelen, ' ', lines);
 					int i = 0;
 					for(std::list<std::string>::iterator it = lines.begin(); it != lines.end(); it++, i++)
-						myDrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, font);
+						DrawText(it->c_str(), charsize+5, height+(charheight*i)+1, 0, font);
 				} else
-					myDrawText(cmdstr.c_str(), charsize+5, height+1, 0, font);
+					DrawText(cmdstr.c_str(), charsize+5, height+1, 0, font);
 			}
 		}
 	}

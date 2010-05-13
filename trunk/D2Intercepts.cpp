@@ -1,6 +1,7 @@
 #include "D2Handlers.h"
 #include "D2Ptrs.h"
 #include "D2BS.h"
+#include "D2Helpers.h"
 
 void __declspec(naked) GamePacketReceived_Intercept()
 {

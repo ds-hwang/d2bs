@@ -28,7 +28,7 @@
 #define UI_NPCSHOP				0x0C
 #define UI_ALTDOWN				0x0D
 #define UI_GROUND_ITEMS			0x0D
-#define UI_ANVIL				0x0E
+#define UI_ITEMSUBMIT			0x0E
 #define UI_QUEST				0x0F
 #define UI_BARKSCROLL			0x10
 #define UI_QUEST_LOG			0x11

@@ -6,10 +6,10 @@
 #define XP_WIN
 #define D2BS_VERSION "2.x"
 
+#include <map>
 #include <windows.h>
 
 #include "CollisionMap.h"
-#include "ScreenHook.h"
 
 struct Variables;
 

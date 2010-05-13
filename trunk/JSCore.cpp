@@ -41,7 +41,7 @@ JSAPI_FUNC(my_print)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(my_delay)
+JSAPI_FUNC(my_sleep)
 {
 	uint32 nDelay = 0;
 	if(!JS_ConvertArguments(cx, argc, argv, "u", &nDelay))
@@ -69,6 +69,37 @@ JSAPI_FUNC(my_delay)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_rand)
+{
+	if(argc < 2 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]))
+	{
+		*rval = INT_TO_JSVAL(0);
+		return JS_TRUE;
+	}
+
+	long long seed = 0;
+		seed = D2GAME_Rand(D2CLIENT_GetPlayerUnit()->dwSeed);
+
+	jsint high;
+	jsint low;
+
+	if(JS_ValueToInt32(cx, argv[0], &low) == JS_FALSE)
+		THROW_ERROR(cx, "Could not convert low value");
+
+	if(JS_ValueToInt32(cx, argv[1], &high) == JS_FALSE)
+		THROW_ERROR(cx, "Could not convert high value");
+
+	if(high > low+1)
+	{
+		int i = (seed % (high - low + 1)) + low;
+		*rval = INT_TO_JSVAL(i);
+	}
+	else
+		*rval = INT_TO_JSVAL(high);
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_load)
 {
 	*rval = JSVAL_FALSE;
@@ -85,15 +116,12 @@ JSAPI_FUNC(my_load)
 		THROW_ERROR(cx, "File name is too long");
 
 	char buf[_MAX_PATH+_MAX_FNAME];
-	ScriptType scriptType = script->GetScriptType();
-	if(scriptType == Command)
-		scriptType = ClientState() == ClientStateInGame ? InGame : OutOfGame;
 
 	sprintf_s(buf, sizeof(buf), "%s\\%s", Vars.szScriptPath, file);
 	
 	_strlwr_s(buf, _MAX_PATH+_MAX_FNAME);
 	StringReplace(buf, '/', '\\', _MAX_PATH+_MAX_FNAME);
-	Script* newScript = ScriptEngine::CompileFile(buf, scriptType);
+	Script* newScript = ScriptEngine::CompileFile(buf);
 	if(newScript)
 	{
 		CreateThread(0, 0, ScriptThread, newScript, 0, 0);
@@ -149,35 +177,9 @@ JSAPI_FUNC(my_stop)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(my_beep)
-{
-	jsint nBeepId = NULL;
-
-	if(argc > 0 && JSVAL_IS_INT(argv[0]))
-		nBeepId = JSVAL_TO_INT(argv[0]);
-
-	MessageBeep(nBeepId);
-
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_blockMinimize)
-{
-	if(argc > 0 && (JSVAL_IS_INT(argv[0]) || JSVAL_IS_BOOLEAN(argv[0])))
-		Vars.bBlockMinimize = !!JSVAL_TO_BOOLEAN(argv[0]);
-
-	return JS_TRUE;
-}
-
 JSAPI_FUNC(my_getTickCount)
 {
 	*rval = INT_TO_JSVAL(GetTickCount());
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_getThreadPriority)
-{
-	*rval = GetThreadPriority(GetCurrentThread());
 	return JS_TRUE;
 }
 
@@ -195,12 +197,6 @@ JSAPI_FUNC(my_isIncluded)
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));
 
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_version)
-{
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
 	return JS_TRUE;
 }
 
@@ -275,23 +271,17 @@ JSAPI_FUNC(my_sendDDE)
 	jsint mode;
 	char *pszDDEServer = "\"\"", *pszTopic = "\"\"", *pszItem = "\"\"", *pszData = "\"\"";
 
-	if(!JS_ConvertArguments(cx, argc, argv, "isss", &mode, &pszDDEServer, &pszTopic, &pszItem))
+	if(!JS_ConvertArguments(cx, argc, argv, "issss", &mode, &pszDDEServer, &pszTopic, &pszItem, &pszData))
 		THROW_ERROR(cx, "Could not convert arguments");
 
 	char buffer[255] = "";
 	if(SendDDE(mode, pszDDEServer, pszTopic, pszItem, pszData, (char**)&buffer, 255))
+	{
 		if(mode == 0)
 			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, buffer));
-
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_keystate)
-{
-	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
-		return JS_TRUE;
-
-	*rval = BOOLEAN_TO_JSVAL(!!GetAsyncKeyState(JSVAL_TO_INT(argv[0])));
+	}
+	else
+		THROW_ERROR(cx, "Failed to send DDE message! Check the error log for more details.");
 
 	return JS_TRUE;
 }
@@ -342,32 +332,6 @@ JSAPI_FUNC(my_clearAllEvents)
 {
 	Script* self = (Script*)JS_GetContextPrivate(cx);
 	self->ClearAllEvents();
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_js_strict)
-{
-	if(argc == NULL)
-	{
-		*rval = BOOLEAN_TO_JSVAL(((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT));
-		return JS_TRUE;
-	}
-
-	if(argc == 1)
-	{
-		bool bFlag = ((JS_GetOptions(cx) & JSOPTION_STRICT) == JSOPTION_STRICT);
-		if(JSVAL_TO_BOOLEAN(argv[0]))
-		{
-			if(!bFlag)
-				JS_ToggleOptions(cx, JSOPTION_STRICT);
-		}
-		else
-		{
-			if(bFlag)
-				JS_ToggleOptions(cx, JSOPTION_STRICT);
-		}
-	}
-
 	return JS_TRUE;
 }
 

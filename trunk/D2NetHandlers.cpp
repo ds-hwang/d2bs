@@ -1,16 +1,20 @@
 #include "D2NetHandlers.h"
-#include "Script.h"
+#include "D2BS.h"
+#include "MPQStats.h"
+#include "D2Ptrs.h"
+#include "Events.h"
+#include "D2Helpers.h"
+#include "Helpers.h"
+#include "Constants.h"
+
+/*#include "Script.h"
 #include "ScreenHook.h"
 #include "Unit.h"
 #include "Helpers.h"
 #include "Core.h"
-#include "Constants.h"
-#include "Events.h"
 #include "CollisionMap.h"
 #include "ScriptEngine.h"
-#include "Console.h"
-#include "D2BS.h"
-#include "MPQStats.h"
+#include "Console.h"*/
 
 using namespace std;
 
@@ -43,7 +47,8 @@ DWORD HPMPUpdateHandler(BYTE* pPacket, DWORD dwSize)
 	}
 	Mana *= 2;
 
-	if(!D2COMMON_IsTownByLevelNo(GetPlayerArea()) &&
+	DWORD area = GetPlayerArea();
+	if(area != 0 && !D2COMMON_IsTownByLevelNo(area) &&
 			(Vars.nChickenHP && Vars.nChickenHP >= GetUnitHP(D2CLIENT_GetPlayerUnit())) ||
 			(Vars.nChickenMP && Vars.nChickenMP >= GetUnitMP(D2CLIENT_GetPlayerUnit())))
 		D2CLIENT_ExitGame();
@@ -165,7 +170,7 @@ DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 				icode = *(INT64 *)(pPacket+17) >> 0x05;
 			break;
 		default:
-			Log("Received invalid item destination...? mode = %d, gid = %d, dest = %d", mode, gid, dest);
+			Log("Received invalid item destination...? mode = %d, dest = %d", mode, gid, dest);
 			break;
 	}
 

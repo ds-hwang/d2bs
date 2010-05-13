@@ -17,6 +17,7 @@
 #include <set>
 
 #include "JSSQLite.h"
+#include "ScriptEngine.h"
 #include "D2BS.h"
 #include "File.h"
 
@@ -60,12 +61,6 @@ void close_db_stmt(DBStmt* stmt) {
 		stmt->stmt = NULL;
 		stmt->open = false;
 	}
-}
-
-JSAPI_FUNC(my_sqlite_version)
-{
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, sqlite3_version));
-	return JS_TRUE;
 }
 
 EMPTY_CTOR(sqlite_stmt)

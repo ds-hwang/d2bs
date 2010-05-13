@@ -10,13 +10,8 @@
 
 #include "js32.h"
 #include "AutoRoot.h"
-#include "JSUnit.h"
 
-enum ScriptType {
-	InGame,
-	OutOfGame,
-	Command
-};
+#include "D2BS.h"
 
 enum ScriptExecState {
 	ScriptStateCreation,
@@ -51,8 +46,6 @@ static JSClass global_obj = {
 
 class Script;
 
-// TODO: replace this with a std::set and use that
-// to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
 typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
@@ -71,15 +64,11 @@ class Script
 private:
 	std::string fileName;
 	int execCount;
-	ScriptType scriptType;
 	ScriptExecState scriptExecState;
 	JSContext* context;
 	JSScript* script;
-	myUnit* me;
 
 	JSObject *globalObject, *scriptObject;
-
-	//bool isReallyPaused;
 
 	IncludeList includes, inProgress;
 	FunctionMap functions;
@@ -87,7 +76,7 @@ private:
 	DWORD threadId;
 	CRITICAL_SECTION lock;
 
-	Script(std::string file, ScriptType type);
+	Script(std::string file);
 	Script(const Script&);
 	Script& operator=(const Script&);
 	~Script(void);
@@ -102,14 +91,12 @@ public:
 	void Stop(bool force = false);
 
 	const std::string& GetFilename(void) { return fileName; }
+	const std::string GetShortFilename(void) { return fileName.substr(strlen(Vars.szScriptPath)); }
 	JSContext* GetContext(void) { return context; }
 	JSObject* GetGlobalObject(void) { return globalObject; }
 	JSObject* GetScriptObject(void) { return scriptObject; }
-	ScriptType GetScriptType(void) { return scriptType; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
-	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts
-	void UpdatePlayerGid(void);
 
 	bool IsIncluded(const std::string &file);
 	bool Include(const std::string &file);

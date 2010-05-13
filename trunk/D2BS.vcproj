@@ -355,15 +355,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\D2Skills.h"
-				>
-			</File>
-			<File
 				RelativePath=".\D2Structs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Patch.h"
+				RelativePath=".\Stubs.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Stubs.h"
 				>
 			</File>
 			<Filter
@@ -433,6 +433,10 @@
 					RelativePath=".\D2Intercepts.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Patch.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Handlers"
@@ -458,11 +462,11 @@
 				Name="Internals"
 				>
 				<File
-					RelativePath=".\Area.cpp"
+					RelativePath=".\CellFile.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Area.h"
+					RelativePath=".\CellFile.h"
 					>
 				</File>
 				<File
@@ -790,50 +794,6 @@
 						RelativePath=".\JSSQLite.cpp"
 						>
 					</File>
-					<Filter
-						Name="Game"
-						>
-						<File
-							RelativePath=".\JSArea.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSControl.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSExit.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSGame.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSMenu.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSParty.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSPresetUnit.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSRoom.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSScreenHook.cpp"
-							>
-						</File>
-						<File
-							RelativePath=".\JSUnit.cpp"
-							>
-						</File>
-					</Filter>
 				</Filter>
 				<Filter
 					Name="API"
@@ -878,50 +838,6 @@
 						RelativePath=".\JSSQLite.h"
 						>
 					</File>
-					<Filter
-						Name="Game"
-						>
-						<File
-							RelativePath=".\JSArea.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSControl.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSExit.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSGame.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSMenu.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSParty.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSPresetUnit.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSRoom.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSScreenHook.h"
-							>
-						</File>
-						<File
-							RelativePath=".\JSUnit.h"
-							>
-						</File>
-					</Filter>
 				</Filter>
 			</Filter>
 			<Filter

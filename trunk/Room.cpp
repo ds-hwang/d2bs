@@ -1,6 +1,7 @@
 #include "Room.h"
 #include "CriticalSections.h"
 #include "D2Ptrs.h"
+#include "D2Helpers.h"
 
 BOOL RevealRoom(Room2* pRoom2, BOOL revealPresets) {
 	bool bAdded = false;

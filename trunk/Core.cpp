@@ -5,60 +5,11 @@
 
 #include "Core.h"
 #include "D2Ptrs.h"
-//#include "D2Helpers.h"
+#include "D2BS.h"
 #include "Helpers.h"
+#include "Constants.h"
 #include "Control.h"
-#include "CriticalSections.h"
-#include "Console.h"
-
-void Print(const char * szFormat, ...)
-{
-	using namespace std;
-
-	const char REPLACE_CHAR = (unsigned char)0xFE;
-
-	va_list vaArgs;
-	va_start(vaArgs, szFormat);
-	int len = _vscprintf(szFormat, vaArgs);
-	char* str = new char[len+1];
-	vsprintf_s(str, len+1, szFormat, vaArgs);
-	va_end(vaArgs);
-
-	replace(str, str + len, REPLACE_CHAR, '%');
-
-	// Break into lines through \n.
-	list<string> lines;
-	string temp;
-	stringstream ss(str);
-
-	const uint maxlen = 98;
-	while(getline(ss, temp))
-		SplitLines(temp, maxlen, ' ', lines);
-
-	EnterCriticalSection(&Vars.cPrintSection);
-
-	for(list<string>::iterator it = lines.begin(); it != lines.end(); ++it)
-	{
-		if(Vars.bUseGamePrint)
-		{
-			if(ClientState() == ClientStateInGame)
-			{
-				wchar_t *output = AnsiToUnicode(it->c_str());
-				D2CLIENT_PrintGameString(output, 0);
-				delete [] output;
-			}
-			else if(ClientState() == ClientStateMenu && FindControl(4, (char *)NULL, -1, 28, 410, 354, 298))
-				D2MULTI_PrintChannelText((char* )it->c_str(), 0);
-		}
-		else
-			Console::AddLine(*it);
-	}
-
-	delete[] str;
-	str = NULL;
-
-	LeaveCriticalSection(&Vars.cPrintSection);
-}
+#include "D2Helpers.h"
 
 void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 {
