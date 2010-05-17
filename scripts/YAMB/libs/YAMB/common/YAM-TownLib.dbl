@@ -448,13 +448,16 @@ function DT_CheckMerc() {
 	if(DT_UseMerc) {
 		// Get the merc
 		var _merc = DC_GetMerc();
+		var _ii;
 		// If we got one, return false because it is alive
 		if(_merc) { 
 			DC_DPrint("DT_CheckMerc(): Merc is alive, returning false");
 			return false; 
 		}
 		// If we dont have a merc, return false and set further merc use to FALSE because it is a waste of time!
-		if(!_merc && !me.mercrevivecost) { 
+		for(_ii=0; _ii<100 && (!_merc && !me.mercrevivecost); ++_ii) delay(10);	// Just in case it's still coming up
+		_merc = DC_GetMerc();
+		if(!_merc && !me.mercrevivecost){ 
 			//DC_DPrint("DT_CheckMerc(): No Merc Owned/Found!");
 			if(!_merc)
 				DC_DPrint("DT_CheckMerc(): Failed to find merc!");

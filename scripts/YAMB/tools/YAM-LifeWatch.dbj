@@ -272,10 +272,12 @@ function YAM_LifeWatch() {
 				_LW_OutOfPots = false;
 			}
 			scriptBroadcast("SM_OutOfPotsReset");
+			sendCopyData(null, me.windowtitle, 0, "SM_OutOfPotsReset");
 			LW_GetMerc();
 			_LW_MyArea          = me.area;
 			_LW_TownQuitAllowed = true;
 			scriptBroadcast(_LW_MyMerc ? "SM_MercAlive" : "SM_MercDead");
+			sendCopyData(null, me.windowtitle, 0, (_LW_MyMerc ? "SM_MercAlive" : "SM_MercDead"));
 		}
 		if (!DC_InTown(me)) {
 			LW_Checker();
@@ -608,6 +610,7 @@ function LW_TownQuit(message, smsg) {
 				smsg = "SM_Town";
 			}
 			scriptBroadcast(smsg);
+			sendCopyData(null, me.windowtitle, 0, smsg);
 			_LW_TownQuitAllowed = false;
 		}
 	}
