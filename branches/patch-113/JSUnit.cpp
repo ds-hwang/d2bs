@@ -1486,7 +1486,7 @@ JSAPI_FUNC(unit_getMerc)
 		{
 			for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 			{
-				for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pListNext)
+				for(UnitAny* pUnit = pRoom->pUnitFirst; pUnit; pUnit = pUnit->pRoomNext)
 				{
 					if(pUnit->dwType != UNIT_MONSTER)
 						continue;
@@ -1517,7 +1517,7 @@ JSAPI_FUNC(unit_getMerc)
 	{
 		for(Room1* pRoom = D2CLIENT_GetPlayerUnit()->pAct->pRoom1; pRoom; pRoom = pRoom->pRoomNext)
 		{
-			for(UnitAny* pMonster = pRoom->pUnitFirst; pMonster; pMonster = pMonster->pListNext)
+			for(UnitAny* pMonster = pRoom->pUnitFirst; pMonster; pMonster = pMonster->pRoomNext)
 			{
 				if(pMonster->dwType == UNIT_MONSTER)
 				{

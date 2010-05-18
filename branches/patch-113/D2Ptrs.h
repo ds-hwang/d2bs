@@ -151,6 +151,9 @@ VARPTR(D2CLIENT, GameInfo, GameStructInfo*, 0x11B980)
 
 VARPTR(D2CLIENT, WaypointTable, DWORD, 0xFCDD1)
 
+VARPTR(D2CLIENT, ServerSideUnitHashTables, UnitHashTable, 0x10A608);
+VARPTR(D2CLIENT, ClientSideUnitHashTables, UnitHashTable, 0x109A08);
+
 VARPTR(D2CLIENT, PlayerUnit, UnitAny*, 0x11BBFC)
 VARPTR(D2CLIENT, SelectedInvItem, UnitAny*, 0x11BC38)
 //VARPTR(D2CLIENT, SelectedUnit, UnitAny*, 0x11C4D8) // unused, but can we use it somewhere maybe? // 1.12 still

@@ -589,8 +589,13 @@ struct UnitAny {
 	DWORD dwFlags2;					//0xC8
 	DWORD _10[5];					//0xCC
 	UnitAny *pChangedNext;			//0xE0
-	UnitAny *pRoomNext;				//0xE4
-	UnitAny *pListNext;				//0xE8 -> 0xD8
+	UnitAny *pListNext;				//0xE4 -> 0xD8
+	UnitAny *pRoomNext;				//0xE8
+};
+
+struct UnitHashTable
+{
+	UnitAny* table[128];
 };
 
 struct BnetData {

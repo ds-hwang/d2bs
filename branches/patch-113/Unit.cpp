@@ -9,12 +9,59 @@
 
 using namespace std;
 
-UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWORD dwUnitId)
+// TODO: If UnitId is the unique id of the unit, we can just look up that
+// location in the table
+static UnitAny* GetUnitFromTables(UnitHashTable* unitTables, DWORD dwTypeLow,
+	DWORD dwTypeHigh, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode,
+	DWORD dwUnitId)
+{
+	unsigned int i, j;
+	unsigned int hashLow, hashHigh;
+	UnitAny* tmpUnit;
+
+	if(dwUnitId != -1)
+		hashLow = hashHigh = dwUnitId & 0x7F;	// % 128
+	else
+	{
+		hashLow = 0;
+		hashHigh = 127;
+	}
+
+	// Go through all the types
+	for(i = dwTypeLow; i <= dwTypeHigh; ++i)
+	{
+		// Go through all the hash values
+		for(j = hashLow; j <= hashHigh; ++j)
+		{
+			// Go through all the units in a given hash value
+			for(tmpUnit = unitTables[i].table[j]; tmpUnit != NULL;
+					tmpUnit = tmpUnit->pListNext)
+				// Check if it matches
+				if(CheckUnit(tmpUnit, szName, dwClassId, dwType, dwMode,
+							dwUnitId))
+					return tmpUnit;
+		}
+	}
+
+	return NULL;
+}
+
+UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode,
+	DWORD dwUnitId)
 {
 	if(ClientState() != ClientStateInGame)
 		return NULL;
 
-	EnterCriticalSection(&Vars.cUnitListSection);
+	// If we have a valid type, just check that value, other wise, check all
+	// values. There are 6 valid types, 0-5
+	if(dwType >= 0 && dwType <= 5)
+		return GetUnitFromTables(p_D2CLIENT_ServerSideUnitHashTables, dwType,
+				dwType, szName, dwClassId, dwType, dwMode, dwUnitId);
+	else
+		return GetUnitFromTables(p_D2CLIENT_ServerSideUnitHashTables, 0, 5,
+				szName, dwClassId, dwType, dwMode, dwUnitId);
+
+/*	EnterCriticalSection(&Vars.cUnitListSection);
 
 	UnitAny* result = NULL;
 	for(vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin(); it != Vars.vUnitList.end(); it++)
@@ -29,7 +76,7 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 
 	LeaveCriticalSection(&Vars.cUnitListSection);
 
-	return result;
+	return result;*/
 
 	// First off, check for near units
 /*	UnitAny* player = D2CLIENT_GetPlayerUnit();
@@ -53,7 +100,62 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode, DWOR
 	return NULL;*/
 }
 
-UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode)
+static DWORD dwMax(DWORD a, DWORD b)
+{
+	return a > b ? a : b;
+}
+
+static UnitAny* GetNextUnitFromTables(UnitAny* curUnit,
+	UnitHashTable* unitTables, DWORD dwTypeLow, DWORD dwTypeHigh, char* szName,
+	DWORD dwClassId, DWORD dwType, DWORD dwMode)
+{
+	unsigned int i, j;
+	UnitAny* tmpUnit;
+
+	// If we're looking for the same type unit, or any type then finish off the
+	// current inner iterations
+	if(dwType == -1 || dwType == curUnit->dwType)
+	{
+		i = curUnit->dwType;
+
+		// Finish off the current linked list
+		for(tmpUnit = curUnit->pListNext; tmpUnit != NULL; tmpUnit = tmpUnit->pListNext)
+			// Check if it matches
+			if(CheckUnit(curUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
+				return tmpUnit;
+
+		// Finish off the current hash table
+		for(j = (curUnit->dwUnitId & 0x7f) + 1; j < 127; ++j)
+			// Go through all the units in this linked list
+			for(tmpUnit = unitTables[i].table[j]; tmpUnit != NULL;
+					tmpUnit = tmpUnit->pListNext)
+				// Check if it matches
+				if(CheckUnit(curUnit, szName, dwClassId, dwType, dwMode,
+							(DWORD)-1))
+					return tmpUnit;
+	}
+
+	// Go through all the remaining types
+	for(i = dwMax(dwTypeLow, curUnit->dwType + 1); i <= dwTypeHigh; ++i)
+	{
+		// Go through all the hash values
+		for(j = 0; j < 127; ++j)
+		{
+			// Go through all the units in a given hash value
+			for(tmpUnit = unitTables[i].table[j]; tmpUnit != NULL;
+					tmpUnit = tmpUnit->pListNext)
+				// Check if it matches
+				if(CheckUnit(tmpUnit, szName, dwClassId, dwType, dwMode,
+							(DWORD)-1))
+					return tmpUnit;
+		}
+	}
+
+	return NULL;
+}
+
+UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId,
+	DWORD dwType, DWORD dwMode)
 {
 	if(ClientState() != ClientStateInGame)
 		return NULL;
@@ -61,7 +163,14 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 	if(!pUnit)
 		return NULL;
 
-	EnterCriticalSection(&Vars.cUnitListSection);
+	if(dwType >= 0 && dwType <= 5)
+		return GetNextUnitFromTables(pUnit, p_D2CLIENT_ServerSideUnitHashTables,
+				dwType, dwType, szName, dwClassId, dwType, dwMode);
+	else
+		return GetNextUnitFromTables(pUnit, p_D2CLIENT_ServerSideUnitHashTables,
+				0, 5, szName, dwClassId, dwType, dwMode);
+
+/*	EnterCriticalSection(&Vars.cUnitListSection);
 
 	UnitAny* result = NULL;
 	// find where we left off
@@ -90,7 +199,7 @@ UnitAny* GetNextUnit(UnitAny* pUnit, char* szName, DWORD dwClassId, DWORD dwType
 
 	LeaveCriticalSection(&Vars.cUnitListSection);
 
-	return result;
+	return result;*/
 
 /*	UnitAny* lpUnit = pUnit->pListNext;
 	Room1* ptRoom = D2COMMON_GetRoomFromUnit(pUnit);
