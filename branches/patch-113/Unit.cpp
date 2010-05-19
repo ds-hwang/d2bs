@@ -121,7 +121,7 @@ static UnitAny* GetNextUnitFromTables(UnitAny* curUnit,
 		// Finish off the current linked list
 		for(tmpUnit = curUnit->pListNext; tmpUnit != NULL; tmpUnit = tmpUnit->pListNext)
 			// Check if it matches
-			if(CheckUnit(curUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
+			if(CheckUnit(tmpUnit, szName, dwClassId, dwType, dwMode, (DWORD)-1))
 				return tmpUnit;
 
 		// Finish off the current hash table
@@ -130,7 +130,7 @@ static UnitAny* GetNextUnitFromTables(UnitAny* curUnit,
 			for(tmpUnit = unitTables[i].table[j]; tmpUnit != NULL;
 					tmpUnit = tmpUnit->pListNext)
 				// Check if it matches
-				if(CheckUnit(curUnit, szName, dwClassId, dwType, dwMode,
+				if(CheckUnit(tmpUnit, szName, dwClassId, dwType, dwMode,
 							(DWORD)-1))
 					return tmpUnit;
 	}
