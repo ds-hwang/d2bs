@@ -681,7 +681,7 @@ var pickitQuality = {
 	unique: 7,
 	crafted: 8
 }
-
+/*
 var itemColor = {
 	inferior: 5,
 	normal: 0,
@@ -691,7 +691,8 @@ var itemColor = {
 	rare: 9,
 	unique: 4,
 	crafted: 8
-}
+}*/
+var itemColor = [0,5,0,3,3,2,9,4,8];
 
 var itemLocation = {
 	Inventory:0,

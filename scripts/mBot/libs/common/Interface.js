@@ -15,7 +15,7 @@ var Interface = new function () {
 			delay(100);
 		this.cache = new Ini("profile/" + this.profileName + "/mBot.ini", true);
 		this.mBotConfig = this.cache.Read();
-		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:2}]);
+		this.config = this.readConfig("Interface", [{Name:"MessageType", Default:0}]);
 	}
 	this.read = function(nSection, nName, nDefault) {
 		if (!this.mBotConfig.hasOwnProperty(nSection))

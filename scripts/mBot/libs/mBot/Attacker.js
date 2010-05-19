@@ -49,16 +49,12 @@ var Attack = new function () {
 		nUnits.sort(this.sort);
 		var nString = "";
 		for (var n in nUnits)
-			nString += nUnits[n].name + " ";
-		print(nString);
-		for (var n in nUnits)
 			if (this.isValidMonster(nUnits[n]))
 				this.attack(nUnits[n]);
 		return true;
 	}
 	
 	this.attackMonster = function(mon) {
-	delay(1000);
 		var nUnit = getUnit(1, mon);
 		if (!nUnit)
 			return false;
@@ -100,7 +96,6 @@ var Attack = new function () {
 			
 		if (Mon.getParent ()) {//Check if unit has a owner, if so, it's going to be a summon.
 			Interface.message(DetailedDebug, Mon.name + " is a summon.");
-			print(Mon.getParent().toSource());
 			return false;
 		}
 		
@@ -171,7 +166,6 @@ var Attack = new function () {
 			this.timedAttack = this.compareMonster(mon, this.timedAttacks, true);
 			this.untimedAttack = this.compareMonster(mon, this.untimedAttacks, true);
 			this.preAttack = this.compareMonster(mon, this.preAttacks);
-			this.postAttack = this.compareMonster(mon, this.postAttacks);
 			
 			//Interface.message(Debug, "Attacking " + mon.name + " with " + this.timedAttack.Name + " and " + this.untimedAttack.Name);
 			
@@ -205,6 +199,8 @@ var Attack = new function () {
 					this.untimedAttack.Func(mon);
 				delay(10);
 			}
+			
+			this.postAttack = this.compareMonster(mon, this.postAttacks);
 			//Last but not least, post-attack functions.
 			for (var n in this.postAttack)
 				this.postAttack[n].Func(mon);

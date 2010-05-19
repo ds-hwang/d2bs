@@ -111,4 +111,25 @@ var mBot = new function () {
 			return nCount;
 		return nItems[0];
 	}
+	
+	this.findUnits = function(type, predicate) {
+		//Get the first unit based on type
+		var unit = getUnit(type);
+		
+		//Create a list to store wanted units.
+		var list = [];
+		
+		//If we have no units, return empty list
+		if (!unit)
+			return list;
+			
+		do {
+			//Check if unit passes the predicate, if so add to list
+			if (predicate(unit))
+				list.push(copyUnit(unit));
+		} while(unit.getNext());
+		
+		//Return list!
+		return list;
+	}
 }

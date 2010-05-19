@@ -124,9 +124,11 @@ var Precast = new function () {
 				Interface.message(DetailedDebug, "We've found " + this.list[n].name + " has " + this.list[n].level + " skill points on tab " + this.list[n].tab);
 			}
 		}
-		currentTab = mBot.switchWeapons(oldTab);
 		//Check for skills on the CTA side first
 		var ctaTab = (this.list[0].tab == -1) ? 0 : this.list[0].tab;
+		//Make sure CTA is always on the secondary tab, never attack/move with it.
+		if (ctaTab == currentTab)
+			mBot.switchWeapons();
 		for (var n in this.list)
 			if (this.list[n].level > 0 && this.list[n].tab == ctaTab && !this.list[n].disable)
 				this.precasts.push(this.list[n]);

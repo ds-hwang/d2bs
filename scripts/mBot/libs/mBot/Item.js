@@ -108,22 +108,30 @@ Unit.prototype.sell = function () {
 		
 		Interface.message(DetailedDebug, "Attempting to sell " + this.name);
 		//Try to buy three times.
+		var flag = false; 
+		var item = this;
+		function SellWatcher(gid, mode, code, global) { if(item.gid == gid) {flag = true; } }
+		addEventListener("itemaction", SellWatcher); 
 		for (var n = 0; n < 3; n++) {
 			this.shop(1);
 			
 			//Wait and check gold
 			var nDelay = getTickCount();
 			while((getTickCount() - nDelay) < 2000) {
-				if (nGold != (me.getStat(14) + me.getStat(15))) {
+				if (flag) {
+					removeEventListener("itemaction", SellWatcher);
 					Interface.message(DetailedDebug, "Successfully sold " + this.name);
 					return true;
 				}
 				delay(10);
 			}
 		}
+		
+		
 		throw new Error("Unable to sell item after 3 tries.");
 		return false;
 	} catch(e) {
+		removeEventListener("itemaction", SellWatcher);
 		mBot.throwError(e)
 		return false;
 	}

@@ -1,25 +1,23 @@
 var Sequencer = new function () {
 	this.config = {};
 	this.sequenceList = [];
-	this.completedSequences = [];
 	
 	this.Init = function () {
 		this.config = Interface.readConfig("Sequencer", [{Name:"RandomizeSequences", Default:true}]);
 		
 		this.GetAllSequences();
-		for (var n in this.sequenceList)
-			this.completedSequences.push(false);
 	}
 	
 	this.Go = function () {
-		for (var n = 0; n < this.sequenceList.length; n++) {
+		Interface.message(Normal, "We have " + this.sequenceList.length + " sequence(s) available.");
+		for (var n = 0; this.sequenceList.length != 0; n++) {
 			var nCurrentSequence = n;
 			if (this.config.RandomizeSequences)
 				nCurrentSequence = this.GetRandomSequence();
 			
 			if (!Interface.read(this.sequenceList[nCurrentSequence], "Enabled", true)) {
-				this.completedSequences[nCurrentSequence] = true;
-				Interface.message(DetailedDebug, this.sequenceList[nCurrentSequence] + " isn't enabled! Skipping.");
+				Interface.message(Normal, this.sequenceList[nCurrentSequence] + " isn't enabled! Skipping.");
+				this.sequenceList.splice(nCurrentSequence, 1);
 				continue;	
 			}
 			
@@ -39,13 +37,14 @@ var Sequencer = new function () {
 			else
 				Interface.message(Normal, "Sequence '" + this.sequenceList[nCurrentSequence] + "' has completed successfully.");
 			
-			this.completedSequences[nCurrentSequence] = true;
+			this.sequenceList.splice(nCurrentSequence, 1);
 		}
 	}
 	
 	this.GetAllSequences = function () {
 		var nDir = dopen("/libs/sequences/");
 		var nFiles = nDir.getFiles();
+		this.sequenceList = [];
 		for (var n in nFiles) {
 			if (nFiles[n].indexOf(".js") == -1)
 				continue;
@@ -54,9 +53,6 @@ var Sequencer = new function () {
 	}
 	
 	this.GetRandomSequence = function () {
-		var nRand = Math.ceil(Math.random() * this.sequenceList.length) - 1;
-		if (this.completedSequences[nRand])
-			return this.GetRandomSequence();
-		return nRand;
+		return Math.ceil(Math.random() * this.sequenceList.length) - 1;
 	}
 }

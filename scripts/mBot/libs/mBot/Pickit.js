@@ -231,7 +231,7 @@ var Pickit = new function () {
 			if (!!pick)
 				pickList.push(pick);
 		} while(item.getNext());
-		print("Found " + pickList.length + " items to pickup.");
+		Interface.message(Normal, "Found " + pickList.length + " items to pickup.");
 		//Sort the items based on priority.
 		pickList.sort(function(a, b) { return b.entry.Priority - a.entry.Priority; });
 		
@@ -243,8 +243,10 @@ var Pickit = new function () {
 				continue;
 			}
 			
+			Pather.itemMove(pickList[n].item);
+				
 			if (pickList[n].item.pickFromGround()) {
-				print("Picked up " + pickList[n].item.name);
+				Interface.message(Normal, "Picked upÿc" + itemColor[pickList[n].item.quality] + " " + pickList[n].item.name);
 			}
 		}
 		return true;

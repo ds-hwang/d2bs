@@ -7,6 +7,7 @@ var Town = new function () {
 			{Name:"MinHealPercent", Default:80}, {Name:"MinManaPercent", Default:70},
 			{Name:"MinTPs", Default:10}, {Name:"MinDurability", Default:70}, {Name:"PotionRows", Default:"hmmj"}, {Name:"HealRows", Default:1},
 			{Name:"ManaRows", Default:2}, {Name:"UseMerc", Default:false}]);
+		this.config.MinManaPots = 8;
 		this.invRef = eval(Interface.read("Internal", "InvRef", Storage.Inventory.toSource()));
 	}
 	
@@ -448,7 +449,10 @@ var Town = new function () {
 				throw new Error("Unable to find ID Scrolls in NPC's Shop.");
 				
 			this.newItems = Storage.Inventory.Compare(this.invRef);
-			print(this.newItems.length);
+			var items = "Identifying:";
+			for (var n in this.newItems)
+				items += " ÿc" + itemColor[this.newItems[n].quality] + " " + this.newItems[n].name;
+			Interface.message(Normal, items);
 			for (var n in this.newItems) {
 				if (!this.newItems[n].getFlag(pickitFlag.identified)) {
 					nIDs[0].buy();
@@ -476,10 +480,15 @@ var Town = new function () {
 	}
 	
 	this.doStash = function () {
-		this.newItems = Storage.Inventory.Compare(this.invRef);
+		if (getUIFlag(UIFlags.NPCMenu)) {
+			me.cancel(0);
+			me.cancel(1);
+		}
 		
+		this.newItems = Storage.Inventory.Compare(this.invRef);
 		for (var n in this.newItems) {
 			if (!!Pickit.checkItem(this.newItems[n])) {
+				Interface.message(Normal, "Keepingÿc" + itemColor[this.newItems[n].quality] + " " + this.newItems[n].name);
 				Storage.Stash.MoveTo(this.newItems[n]);
 			} else {
 				if (getInteractedNPC())

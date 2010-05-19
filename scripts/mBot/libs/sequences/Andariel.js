@@ -1,5 +1,7 @@
+/* Andariel Sequence
+ *	As basic as it gets for andy.
+ */
 function Andariel() {
-	//Move thru waypoint
 	if (!Pather.useWaypoint(Area.Act1.CatacombsLevel2))
 		return false;
 		
@@ -8,6 +10,7 @@ function Andariel() {
 	Pather.moveExit(Area.Act1.CatacombsLevel3, true);
 	Pather.moveExit(Area.Act1.CatacombsLevel4, true);
 	
+	delay(500);
 
 	Attack.attackMonster("Andariel");
 	Pickit.pick();

@@ -4,5 +4,5 @@ if (!isIncluded("mBot.js"))
 function main () {
 	mBot.Init();
 	Sequencer.Go();
-//	quit();
+	quit();
 }

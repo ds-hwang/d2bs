@@ -186,7 +186,7 @@ var Pather = new function () {
 	 */
 	this.moveNode = function(nPos, nUseTele) {
 		try {
-			Interface.message(DetailedDebug, "Moving a node: " + nPos.x + ", " + nPos.y + ", using teleport: " + nUseTele + ", distance from node: " + getDistance(me, nPos.x, nPos.y));
+			//Interface.message(DetailedDebug, "Moving a node: " + nPos.x + ", " + nPos.y + ", using teleport: " + nUseTele + ", distance from node: " + getDistance(me, nPos.x, nPos.y));
 			
 			//Check if we are given a valid spot to move to.
 			if (getCollision(me.area, nPos.x, nPos.y) % 2)
@@ -198,6 +198,8 @@ var Pather = new function () {
 			//Set teleport if we need it
 			if (nUseTele)
 				Skill.get(Skill.Teleport).setSkill();
+			else if(me.classid == Class.Paladin)
+				Skill.get(Skill.Vigor).setSkill();
 				
 			var nFail = 0;
 			var attemptCount = 0;
@@ -209,8 +211,8 @@ var Pather = new function () {
 					this.useDoors();
 					
 				
-				Interface.message(DetailedDebug, "Me X: " + me.x + ", Y: " + me.y + ", nPos.x: " + nPos.x + ", y: " + nPos.y);
-				Interface.message(DetailedDebug, "We are " + getDistance(me, nPos.x, nPos.y) + " yards away from the current node.");
+				//Interface.message(DetailedDebug, "Me X: " + me.x + ", Y: " + me.y + ", nPos.x: " + nPos.x + ", y: " + nPos.y);
+				//Interface.message(DetailedDebug, "We are " + getDistance(me, nPos.x, nPos.y) + " yards away from the current node.");
 				
 				//Let's move out!
 				clickMap(click.Down, Shift.Off, nPos.x, nPos.y);
@@ -278,13 +280,17 @@ var Pather = new function () {
 			if (!nExit)
 				throw new Error("Unable to get our current exits array.");
 				
+			var exitArea = getArea(nLevelId);
+			if (!exitArea)
+				throw new Error("Unable to get area object for level " + nLevelId);
+				
 			//Loop through all the exits in our area.
 			for (var n in nExit) {
 				//Check if this exit goes to where we want.
 				if (nExit[n].target == nLevelId) {
 					//Move to the exit!
 					if (!this.moveTo(nExit[n]))
-						return false;
+						throw new Error("Unable to move to the entrance of " + exitArea.name);
 
 					//Check if we want to move through to the next area.
 					if (nMoveThru) {
@@ -292,7 +298,7 @@ var Pather = new function () {
 						if (nExit[n].type == 2) {
 							//Move through the tile.
 							if (!this.moveThru(nExit[n].tileid))
-								return false;
+								throw new Error("Unable to move through the entrance of " + exitArea.name);
 						} else {
 							var otherExit = getArea(nLevelId).exits;
 							if (!otherExit)
@@ -368,7 +374,7 @@ var Pather = new function () {
 				
 			//Make sure we have a unit.
 			if (!nUnit)
-				throw new Error("moveThru unable to find unit, id: " + nId);
+				stop();
 				
 			//Store our current area for comparison.
 			var nOldArea = me.area;
@@ -384,7 +390,7 @@ var Pather = new function () {
 				
 				//Wait and see if we've moved on through.
 				var nDelay = getTickCount();
-				while((getTickCount() - nDelay) < 2000) {
+				while((getTickCount() - nDelay) < 1000) {
 					if (nOldArea != me.area)
 						break;
 					delay(1);
@@ -547,13 +553,13 @@ var Pather = new function () {
 			//Make sure we have it.
 			if (!nWP)
 				throw new Error("Unable to locate the Waypoint unit.")
-				
-			//Move to waypoint
-			if (!this.moveTo(nWP))
-				return false;
 			
 			Interface.message(Debug, "Trying to use waypoint to move to: " + nAreaId);
 			for (var n = 0; n < 2; n++) {
+				//Move to waypoint
+				if (!this.moveTo(nWP))
+					return false;
+					
 				Interface.message(DetailedDebug, "Attempt #" + (n + 1) + " to use waypoint.");
 				nWP.interact(nAreaId);
 				
@@ -582,6 +588,10 @@ var Pather = new function () {
 				clickMap(ClickType.Right.Down, Shift.Off, mon);
 				delay(5);
 				clickMap(ClickType.Right.Up, Shift.Off, mon);
+			} else {
+				clickMap(ClickType.Right.Down, Shift.Off, mon.x - range, mon.y - range);
+				delay(5);
+				clickMap(ClickType.Right.Up, Shift.Off, mon.x - range, mon.y - range);
 			}
 			var nTimer = getTickCount();
 			while(mBot.checkMode(Mode.Player.Group.Move) && (getTickCount() - nTimer) < 300)
@@ -590,5 +600,22 @@ var Pather = new function () {
 				return true;
 		}
 		return false;
+	}
+	
+	this.itemMove = function(item) {
+		Skill.get(Skill.Teleport).setSkill();
+		
+		clickMap(ClickType.Right.Down, Shift.Off, item.x + 2, item.y + 2);
+		delay(5);
+		clickMap(ClickType.Right.Up, Shift.Off, item.x + 2, item.y + 2);
+		
+		delay(100);
+		
+		var nTimer = getTickCount();
+			while(mBot.checkMode(Mode.Player.Group.Move) && (getTickCount() - nTimer) < 300)
+				delay(2);
+				
+		delay(100);
+		return true;
 	}
 }

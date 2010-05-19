@@ -31,9 +31,8 @@ Func:function(mon) {
 	if (this.LastHP == mon.hp)
 		this.Attempts++;
 	if (this.Attempts >= 5) {
-		print("Realignment.");
 		Pather.monsterMove(mon, 0);
-		this.attempts = 0;
+		this.Attempts = 0;
 	}
 	this.LastHP = mon.hp;
 	this.Conc.setSkill();

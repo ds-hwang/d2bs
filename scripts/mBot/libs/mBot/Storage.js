@@ -21,7 +21,7 @@ var Container = function (name, width, height, location) {
 		//Make sure it is in this container.
 		if (item.location != this.location || item.mode != 0)
 			return false;
-		Interface.message(DetailedDebug, "Marking " + item.name + "ÿc0 in " + this.name + " buffer.");
+		//Interface.message(DetailedDebug, "Marking " + item.name + "ÿc0 in " + this.name + " buffer.");
 		//Mark item in buffer.
 		for(var x = item.x; x < (item.x + item.sizex); x++)
 			for (var y = item.y; y < (item.y + item.sizey); y++) {
@@ -30,8 +30,8 @@ var Container = function (name, width, height, location) {
 			}
 		//Add item to list.
 		this.itemList.push(copyUnit(item));
-		if (this.location == 0)
-			Interface.writeLog("Test.log", JSON.stringify(this.buffer));
+		//if (this.location == 0)
+		//	Interface.writeLog("Test.log", JSON.stringify(this.buffer));
 		
 		return true;
 	}
@@ -151,9 +151,10 @@ var Container = function (name, width, height, location) {
 					if (!item)
 						continue;
 						
-					for (var n = 0; n < itemList.length; n++)
-						if (itemList[n].id == item.id)
+					for (var n = 0; n < itemList.length; n++) {
+						if (itemList[n].gid == item.gid)
 							continue Loop;
+					}
 					//Check if the buffers changed and the current buffer has an item there.
 					if (this.buffer[h][w] > 0 && reference[h][w] == 0) 
 						itemList.push(copyUnit(item));
@@ -204,6 +205,7 @@ var Storage = new function () {
 				break;
 			}
 		} while(item.getNext());
+		debugLog(this.Inventory.toSource());
 		return true;
 	}
 	
