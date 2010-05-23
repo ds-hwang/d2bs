@@ -1,0 +1,59 @@
+////////////////////////////////////////////////////////////////////////////////
+// Lower Kurast Chest script.
+//
+// Author : kolton
+//
+// Source : http://www.edgeofnowhere.cc/viewtopic.php?p=4248740
+////////////////////////////////////////////////////////////////////////////////
+entryFunc = LKXP;
+
+function LKXP() {
+
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	//XP_Precasts();
+	DM_UsePortal("Waypoint",79);
+	XP_Precasts();
+
+	openChestsInArea();
+}
+
+function openChestsInArea(){
+var ChestIds = [5,6,87,92,143,140,141,144,146,147,148, 176, 177, 181, 183, 198, 240 , 241 , 242 , 243, 329, 330, 331,332, 333, 334 , 335, 336,354, 355 , 356 ,371,387 , 389, 390, 391,397 , 405 , 406 , 407 , 413 , 420 , 424 , 425 , 430 , 431 , 432 , 433 , 454 , 455 , 501 , 502 ,504 , 505,580,581 ]
+var ChestLocs =[];
+	var unit = getPresetUnits(me.area);
+		if(unit){		
+		for (var j = 0; j < unit.length; j++){
+			for (var c = 0; c < ChestIds.length; c++){				
+				if (ChestIds[c] == unit[j].id){
+						ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])					
+				}
+			}
+		}
+		}
+		
+		while(ChestLocs.length > 0){
+			ChestLocs.sort(SortRoomInt);
+			var _room = ChestLocs.shift();
+			commPather.GotoDest(_room[0], _room[1]);
+			DC_DoDel(DC_LagDelay + 500);
+					var chest = DC_getObject("chest");
+					if(chest){
+						do{
+							if(getDistance(me.x,me.y,chest.x,chest.y)<5){
+								DC_DoClick(0,0,chest);
+								DC_DoDel(DC_LagDelay);
+								DSN_PickItems(YAM_SafeCheck);	
+							}
+						}while(chest.getNext());
+					}
+		}
+}
+
+function SortRoomInt(a, b)
+{
+	if(getDistance(me.x, me.y, a[0], a[1]) < getDistance(me.x, me.y, b[0], b[1]))
+		return -1;
+
+	return 1;
+}
