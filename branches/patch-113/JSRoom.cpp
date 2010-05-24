@@ -477,21 +477,20 @@ JSAPI_FUNC(my_getRoom)
 			POINT RoomStart = {pRoom->pRoom1->dwXStart, pRoom->pRoom1->dwYStart };
 			POINT RoomEnd = {pRoom->pRoom1->dwXStart + pRoom->pRoom1->dwXSize , pRoom->pRoom1->dwYStart + pRoom->pRoom1->dwYSize};
 
-			for(int x = RoomStart.x; x < RoomEnd.x; x++)
-				for(int y = RoomStart.y; y < RoomEnd.y; y++)
-					if(x == nX && y == nY)
-					{
-						if(bAdded)
-							D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-					
-						JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom);
-						if (!jsroom)
-						return JS_TRUE;
+			if(nX >= RoomStart.x && nX < RoomEnd.x &&
+				nY >= RoomStart.y && nY < RoomStart.y)
+			{
+				if(bAdded)
+					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
-						*rval=OBJECT_TO_JSVAL(jsroom);
+				JSObject *jsroom = BuildObject(cx, &room_class, room_methods, room_props, pRoom);
+				if (!jsroom)
+				return JS_TRUE;
 
-						return JS_TRUE;
-					}
+				*rval=OBJECT_TO_JSVAL(jsroom);
+
+				return JS_TRUE;
+			}
 
 			if(bAdded)
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
