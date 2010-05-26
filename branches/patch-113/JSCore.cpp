@@ -13,6 +13,7 @@
 #include "Events.h"
 #include "Console.h"
 #include "D2Ptrs.h"
+#include "Rev.h"
 
 JSAPI_FUNC(my_print)
 {
@@ -516,5 +517,11 @@ JSAPI_FUNC(my_showConsole)
 JSAPI_FUNC(my_hideConsole)
 {
 	Console::Hide();
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_svnRev)
+{
+	*rval = STRING_TO_JSVAL(JS_InternString(cx, REV_STRING));
 	return JS_TRUE;
 }

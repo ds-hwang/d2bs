@@ -64,6 +64,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"clearAllEvents",		my_clearAllEvents,		0},
 	{"js_strict",			my_js_strict,			0},
 	{"version",				my_version,				0},
+	{"svnRev",				my_svnRev,				0},
 	{"scriptBroadcast",		my_scriptBroadcast,		1},
 	{"sqlite_version",		my_sqlite_version,		0},
 	{"dopen",				my_openDir,				1},
