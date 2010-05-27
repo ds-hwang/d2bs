@@ -366,6 +366,15 @@ OOG_Location OOG_GetLocation(void)
 		return OOG_MAIN_MENU_CONNECTING;					//21 Connecting to Battle.net	
 	else if(findControl(CONTROL_BUTTON, 5102, -1, 335, 412, 128, 35))
 		return OOG_LOGIN_ERROR;								//10 Login Error	
+	else if (findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32))	//5102 =OK
+	{
+		if (findControl(CONTROL_TEXTBOX, 5351, -1, 268,320,264,120))	
+			return OOG_LOST_CONNECTION;						//17 lost connection	
+		else if (findControl(CONTROL_TEXTBOX, 5347, -1, 268,320,264,120))
+			return OOG_DISCONNECTED;						//14  Disconnected
+		else
+			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
+	}
 	else if(findControl(CONTROL_BUTTON, 5103, -1, 433, 433, 96, 32))
 	{ 
 		if (findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 427,234,300,100))
@@ -385,16 +394,7 @@ OOG_Location OOG_GetLocation(void)
 			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
 		if (findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 268,320,264,120))
 			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
-	}
-		else if (findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32))	//5102 =OK
-	{
-		if (findControl(CONTROL_TEXTBOX, 5131, -1, 268,320,264,120))	
-			return OOG_LOST_CONNECTION;						//17 lost connection	
-		else if (findControl(CONTROL_TEXTBOX, 5347, -1, 268,320,264,120))
-			return OOG_DISCONNECTED;						//14  Disconnected
-		else
-			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
-	}
+	}	
 	else if(findControl(CONTROL_BUTTON, 5101, -1, 33,572,128,35))		//5101 = EXIT
 	{
 		if(findControl(CONTROL_BUTTON, 5288, -1, 264, 484, 272, 35))
