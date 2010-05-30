@@ -125,7 +125,7 @@ static UnitAny* GetNextUnitFromTables(UnitAny* curUnit,
 				return tmpUnit;
 
 		// Finish off the current hash table
-		for(j = (curUnit->dwUnitId & 0x7f) + 1; j < 127; ++j)
+		for(j = (curUnit->dwUnitId & 0x7f) + 1; j <= 127; ++j)
 			// Go through all the units in this linked list
 			for(tmpUnit = unitTables[i].table[j]; tmpUnit != NULL;
 					tmpUnit = tmpUnit->pListNext)
