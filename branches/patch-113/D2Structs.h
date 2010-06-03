@@ -17,6 +17,12 @@ struct ActMisc;
 struct RosterUnit;
 struct OverheadMsg;
 
+struct SplitText
+{
+	wchar_t* lpwszText;
+	SplitText* lpsNext;
+};
+
 struct InventoryInfo {
 	int nLocation;
 	int nMaxXCells;

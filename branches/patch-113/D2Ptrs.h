@@ -239,7 +239,7 @@ FUNCPTR(D2COMMON, GetLevel, Level * __fastcall, (ActMisc *pMisc, DWORD dwLevelNo
 
 FUNCPTR(D2COMMON, GetStatList, StatList* __stdcall, (UnitAny* pUnit, DWORD dwUnk, DWORD dwMaxEntries ), -10930)
 FUNCPTR(D2COMMON, CopyStatList, DWORD __stdcall, (StatList* pStatList, Stat* pStatArray, DWORD dwMaxEntries), -10658)
-FUNCPTR(D2COMMON, GetUnitStat, DWORD __stdcall, (UnitAny* pUnit, DWORD dwStat, DWORD dwStat2), -10973)
+FUNCPTR(D2COMMON, GetUnitStat, int __stdcall, (UnitAny* pUnit, DWORD dwStat, DWORD dwStat2), -10973)
 FUNCPTR(D2COMMON, GetUnitState, int __stdcall, (UnitAny *pUnit, DWORD dwStateNo), -10494)
 
 FUNCPTR(D2COMMON, CheckUnitCollision, DWORD __stdcall, (UnitAny* pUnitA, UnitAny* pUnitB, DWORD dwBitMask), -10839)
@@ -383,6 +383,9 @@ FUNCPTR(D2WIN, GetTextSize, DWORD __fastcall, (wchar_t *wStr, DWORD* dwWidth, DW
 FUNCPTR(D2WIN, SetTextSize, DWORD __fastcall, (DWORD dwSize), -10184)
 
 FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), -10042)
+
+FUNCPTR(D2WIN, SplitText, SplitText* __fastcall, (wchar_t* text, int* lineCount, int width), -10059)
+FUNCPTR(D2WIN, FreeSplitText, void __fastcall, (SplitText* text), -10008)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
