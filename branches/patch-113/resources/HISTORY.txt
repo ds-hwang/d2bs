@@ -1,5 +1,11 @@
 Version History:
 
+Version 1.3.3 -
+
+	.	Fixed OOG_GetLocation for Lost Connection
+
+	.	Changed the internal unit finding code to use D2's unit hash tables. (Speeds up Unit finding by a couple orders of magnitude.)
+
 Version 1.3.2 -
 
 	.	Changed the internal unit finding code to use an internal list instead of room searching.

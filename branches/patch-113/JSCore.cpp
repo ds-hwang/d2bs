@@ -13,7 +13,6 @@
 #include "Events.h"
 #include "Console.h"
 #include "D2Ptrs.h"
-#include "Rev.h"
 
 JSAPI_FUNC(my_print)
 {
@@ -292,7 +291,7 @@ JSAPI_FUNC(my_version)
 		return JS_TRUE;
 	}
 
-	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.12a.", D2BS_VERSION); 
+	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.13c.", D2BS_VERSION); 
 
 	return JS_TRUE;
 }
@@ -517,11 +516,5 @@ JSAPI_FUNC(my_showConsole)
 JSAPI_FUNC(my_hideConsole)
 {
 	Console::Hide();
-	return JS_TRUE;
-}
-
-JSAPI_FUNC(my_svnRev)
-{
-	*rval = STRING_TO_JSVAL(JS_InternString(cx, REV_STRING));
 	return JS_TRUE;
 }

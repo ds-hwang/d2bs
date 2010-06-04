@@ -504,10 +504,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Rev.h"
-				>
-			</File>
-			<File
 				RelativePath=".\sqlite3.c"
 				>
 				<FileConfiguration
