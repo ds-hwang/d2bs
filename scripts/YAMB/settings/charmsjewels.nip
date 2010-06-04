@@ -1,116 +1,116 @@
-; ===== 수정 : 파랑 =====
+; = == == 수정 : 파랑 = == ==
 
-;======charm ========
+;= == == =charm = == == == =
 
 
-Name =cm1: Quality = 4 : 7>=18
-Name =cm1: Quality = 4 : 9>= 16
-Name =cm1: Quality = 4 : 7>=16: 9>=10
-Name =cm1: Quality = 4 : 22 >= 3;   
-Name =cm1: Quality = 4 : 79 >= 9;    
-Name =cm1: Quality = 4 : 57 >= 100 ;           
-Name =cm1: Quality = 4 : 49 >= 27 ;   
-Name =cm1: Quality = 4 : 51 >= 65 ;    
-Name =cm1: Quality = 4 : 55 >= 19 ;
-Name =cm1: Quality = 4 : 99=5 : defense>=28;
-Name =cm1: Quality = 4 : 39>=10;
-Name =cm1: Quality = 4 : 41>=10;
-Name =cm1: Quality = 4 : 43>=10;
-Name =cm1: Quality = 4 : 45>=10;
-Name =cm1: Quality = 4 : 39>=3 : 41>=3
-Name =cm1: Quality = 4 : 80>=6
-Name =cm1: Quality = 4 : 7>=14:19>=25
+Name = smallcharm : Quality = 4 : maxhp >= 18
+Name = smallcharm : Quality = 4 : maxmana >= 16
+Name = smallcharm : Quality = 4 : maxhp >= 16: maxmana >= 10
+Name = smallcharm : Quality = 4 : maxdamage >= 3;   
+Name = smallcharm : Quality = 4 : itemgoldbonus >= 9;    
+Name = smallcharm : Quality = 4 : poisonmindam >= 100 ;           
+Name = smallcharm : Quality = 4 : firemaxdam >= 27 ;   
+Name = smallcharm : Quality = 4 : lightmaxdam >= 65 ;    
+Name = smallcharm : Quality = 4 : coldmaxdam >= 19 ;
+Name = smallcharm : Quality = 4 : fhr = 5 : defense >= 28;
+Name = smallcharm : Quality = 4 : fireresist >= 10;
+Name = smallcharm : Quality = 4 : lightresist >= 10;
+Name = smallcharm : Quality = 4 : coldresist >= 10;
+Name = smallcharm : Quality = 4 : poisonresist >= 10;
+Name = smallcharm : Quality = 4 : fireresist >= 3 : lightresist >= 3
+Name = smallcharm : Quality = 4 : itemmagicbonus >= 6
+Name = smallcharm : Quality = 4 : maxhp >= 14: tohit >= 25
 
 ;라지
-Name =cm2: Quality = 4 : 39>=6 : 41>=6
-Name =cm2: Quality = 4 : 22 >= 6;   
-Name =cm2: Quality = 4 : 7>=30:19>=40
-Name =cm2: Quality = 4 : 7>=34
+Name = largecharm : Quality = 4 : fireresist >= 6 : lightresist >= 6
+Name = largecharm : Quality = 4 : maxdamage >= 6;   
+Name = largecharm : Quality = 4 : maxhp >= 30: tohit >= 40
+Name = largecharm : Quality = 4 : maxhp >= 34
 
-Name =cm3: Quality = 4 : 7>=30:9>=30
+Name = grandcharm : Quality = 4 : maxhp >= 30: maxmana >= 30
 
-Name =cm3: Quality = 4 : 22 >= 9;   
+Name = grandcharm : Quality = 4 : maxdamage >= 9;   
 
-Name =cm3: Quality = 4 : 39>=12 : 41>=12
+Name = grandcharm : Quality = 4 : fireresist >= 12 : lightresist >= 12
 
-Name =cm3: Quality = 4 : 39>=30:7>=35
-Name =cm3: Quality = 4 : 41>=30:7>=35
-Name =cm3: Quality = 4 : 43>=30:7>=35
-Name =cm3: Quality = 4 : 45>=30:7>=35
-Name =cm3: Quality = 4 : 39>=20:79>=35;
-Name =cm3: Quality = 4 : 41>=20:79>=35;
-Name =cm3: Quality = 4 : 43>=20:79>=35;
-Name =cm3: Quality = 4 : 45>=20:79>=35;
-Name =cm3: Quality = 4 : 79>=39
-Name =cm3: Quality = 4 : 7>=30:19>=100
+Name = grandcharm : Quality = 4 : fireresist >= 30: maxhp >= 35
+Name = grandcharm : Quality = 4 : lightresist >= 30: maxhp >= 35
+Name = grandcharm : Quality = 4 : coldresist >= 30: maxhp >= 35
+Name = grandcharm : Quality = 4 : poisonresist >= 30: maxhp >= 35
+Name = grandcharm : Quality = 4 : fireresist >= 20: itemgoldbonus >= 35;
+Name = grandcharm : Quality = 4 : lightresist >= 20: itemgoldbonus >= 35;
+Name = grandcharm : Quality = 4 : coldresist >= 20: itemgoldbonus >= 35;
+Name = grandcharm : Quality = 4 : poisonresist >= 20: itemgoldbonus >= 35;
+Name = grandcharm : Quality = 4 : itemgoldbonus >= 39
+Name = grandcharm : Quality = 4 : maxhp >= 30: tohit >= 100
 
-Name =cm3: Quality = 4 : 7>=40: 9>=45
+Name = grandcharm : Quality = 4 : maxhp >= 40: maxmana >= 45
 
 
 
-Name =cm3: Quality = 4 : passiveandmagicskilltab = 1  
-Name =cm3: Quality = 4 : javelinandspearskilltab = 1 
-Name =cm3: Quality = 4 : fireskilltab = 1 
-Name =cm3: Quality = 4 : lightningskilltab = 1 
-Name =cm3: Quality = 4 : coldskilltab = 1
-Name =cm3: Quality = 4 : poisonandboneskilltab = 1 
-Name =cm3: Quality = 4 : necromancersummoningskilltab = 1 
-Name =cm3: Quality = 4 : palicombatskilltab = 1
-Name =cm3: Quality = 4 : offensiveaurasskilltab = 1
-Name =cm3: Quality = 4 : defensiveaurasskilltab = 1 
-Name =cm3: Quality = 4 : warcriesskilltab = 1
-Name =cm3: Quality = 4 : druidsummoningskilltab = 1
-Name =cm3: Quality = 4 : shapeshiftingskilltab = 1
-Name =cm3: Quality = 4 : elementalskilltab = 1 
-Name =cm3: Quality = 4 : trapsskilltab = 1
-Name =cm3: Quality = 4 : shadowdisciplinesskilltab = 1
-Name =cm3: Quality = 4 : martialartsskilltab = 1
+Name = grandcharm : Quality = 4 : passiveandmagicskilltab = 1  
+Name = grandcharm : Quality = 4 : javelinandspearskilltab = 1 
+Name = grandcharm : Quality = 4 : fireskilltab = 1 
+Name = grandcharm : Quality = 4 : lightningskilltab = 1 
+Name = grandcharm : Quality = 4 : coldskilltab = 1
+Name = grandcharm : Quality = 4 : poisonandboneskilltab = 1 
+Name = grandcharm : Quality = 4 : necromancersummoningskilltab = 1 
+Name = grandcharm : Quality = 4 : palicombatskilltab = 1
+Name = grandcharm : Quality = 4 : offensiveaurasskilltab = 1
+Name = grandcharm : Quality = 4 : defensiveaurasskilltab = 1 
+Name = grandcharm : Quality = 4 : warcriesskilltab = 1
+Name = grandcharm : Quality = 4 : druidsummoningskilltab = 1
+Name = grandcharm : Quality = 4 : shapeshiftingskilltab = 1
+Name = grandcharm : Quality = 4 : elementalskilltab = 1 
+Name = grandcharm : Quality = 4 : trapsskilltab = 1
+Name = grandcharm : Quality = 4 : shadowdisciplinesskilltab = 1
+Name = grandcharm : Quality = 4 : martialartsskilltab = 1
 
-;Name = cm1 : Quality = 4 : ilvl>=95; 디아블러네님
-;Name = cm3 : Quality = 4 : ilvl>=95; 
+;Name = smallcharm  : Quality = 4 : ilvl >= 95; 디아블러네님
+;Name = grandcharm  : Quality = 4 : ilvl >= 95; 
 
-;Name = cm3: Quality = 7 : 80= 40
-;Name = cm3: Quality = 7 : 79= 160
-;Name = cm3: Quality = 7 : 87= 15:79>= 140
+;Name = grandcharm : Quality = 7 : itemmagicbonus = 40
+;Name = grandcharm : Quality = 7 : itemgoldbonus = 160
+;Name = grandcharm : Quality = 7 : itemreducedprices = 15: itemgoldbonus >= 140
 
 
 ;jewel
-Name = jew : Quality >= 4 : 21 = 18 ;
-Name = jew : Quality >= 4 : 39>=9 : 41>=9 
-Name = jew : Quality >= 4 : 39>=20
-Name = jew : Quality >= 4 : 41>=25
-Name = jew : Quality >= 4 : 43>=25
-Name = jew : Quality >= 4 : 45>=25
+Name = jewel : Quality >= 4 : mindam = 18 ;
+Name = jewel : Quality >= 4 : fireresist >= 9 : lightresist >= 9 
+Name = jewel : Quality >= 4 : fireresist >= 20
+Name = jewel : Quality >= 4 : lightresist >= 25
+Name = jewel : Quality >= 4 : coldresist >= 25
+Name = jewel : Quality >= 4 : poisonresist >= 25
 
-Name = jew : Quality = 4 : 22 >= 20 ;
-Name = jew : Quality = 4 : enhanceddamage >= 35;
-Name = jew : Quality = 4 : 93=15 :enhanceddamage >= 30;
-Name = jew : Quality = 4 : 22 >= 13 : enhanceddamage >= 30;
-Name = jew : Quality = 4 : 21 >= 10: enhanceddamage >= 30;
+Name = jewel : Quality = 4 : maxdamage >= 20 ;
+Name = jewel : Quality = 4 : enhanceddamage >= 35;
+Name = jewel : Quality = 4 : ias = 15 :enhanceddamage >= 30;
+Name = jewel : Quality = 4 : maxdamage >= 13 : enhanceddamage >= 30;
+Name = jewel : Quality = 4 : mindam >= 10: enhanceddamage >= 30;
 
-Name = jew : Quality = 6 : 22 = 18 ;
-Name = jew : Quality = 6 : enhanceddamage>=25 
-Name = jew : Quality = 6 : 0>=8: 2>=8
-Name = jew : Quality = 6 : 22 >= 13 : enhanceddamage >= 20;
-Name = jew : Quality = 6 : 21 >= 10: enhanceddamage >= 20;
-Name = jew : Quality = 6 : 22>=15:21>=9
+Name = jewel : Quality = 6 : maxdamage = 18 ;
+Name = jewel : Quality = 6 : enhanceddamage>= 25 
+Name = jewel : Quality = 6 : strength >= 8: dexterity >= 8
+Name = jewel : Quality = 6 : maxdamage >= 13 : enhanceddamage >= 20;
+Name = jewel : Quality = 6 : mindam >= 10: enhanceddamage >= 20;
+Name = jewel : Quality = 6 : maxdamage>= 15: mindamage>= 9
 
-Name = jew : Quality = 6  : 0>=6 : 2>=6;
-Name = jew : Quality = 6  : 0>=8 : 2>=5;
-Name = jew : Quality = 6  : 0>=5 : 2>=8;
-Name = jew : Quality = 6  : 99>=7 : 0>=8;
-Name = jew : Quality = 6  : 99>=7 : 2>=8;
-Name = jew : Quality = 6  : 99>=7 : 91=-15;
-Name = jew : Quality = 6  : 91=-15 : 0>=8;
-Name = jew : Quality = 6  : 91=-15 : 2>=8;
+Name = jewel : Quality = 6  : strength >= 6 : dexterity >= 6;
+Name = jewel : Quality = 6  : strength >= 8 : dexterity >= 5;
+Name = jewel : Quality = 6  : strength >= 5 : dexterity >= 8;
+Name = jewel : Quality = 6  : fhr >= 7 : strength >= 8;
+Name = jewel : Quality = 6  : fhr >= 7 : dexterity >= 8;
+Name = jewel : Quality = 6  : fhr >= 7 : itemreqpercent = -15;
+Name = jewel : Quality = 6  : itemreqpercent = -15 : strength >= 8;
+Name = jewel : Quality = 6  : itemreqpercent = -15 : dexterity >= 8;
 
 		
-Name = jew : Quality = 7 : 329 = 5
-Name = jew : Quality = 7 : 330 >=4
-Name = jew : Quality = 7 : 331 = 5 
-Name = jew : Quality = 7 : 332 = 5 
+Name = jewel : Quality = 7 : passivefiremastery = 5
+Name = jewel : Quality = 7 : passiveltngmastery >= 4
+Name = jewel : Quality = 7 : passivecoldemastery = 5 
+Name = jewel : Quality = 7 : passivepoisemastery = 5 
 
-Name = jew : Quality = 7 : 333 = 5
-Name = jew : Quality = 7 : 334 >=4
-Name = jew : Quality = 7 : 335 = 5 
-Name = jew : Quality = 7 : 336 = 5 
+Name = jewel : Quality = 7 : passivefirepierce = 5
+Name = jewel : Quality = 7 : passiveltngpierce >= 4
+Name = jewel : Quality = 7 : passivecoldpierce = 5 
+Name = jewel : Quality = 7 : passivepoispierce = 5 
