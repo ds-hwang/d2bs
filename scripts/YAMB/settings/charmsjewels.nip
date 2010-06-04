@@ -104,11 +104,11 @@ Name = jewel : Quality = 6  : fhr >= 7 : itemreqpercent = -15;
 Name = jewel : Quality = 6  : itemreqpercent = -15 : strength >= 8;
 Name = jewel : Quality = 6  : itemreqpercent = -15 : dexterity >= 8;
 
-		
+
 Name = jewel : Quality = 7 : passivefiremastery = 5
 Name = jewel : Quality = 7 : passiveltngmastery >= 4
-Name = jewel : Quality = 7 : passivecoldemastery = 5 
-Name = jewel : Quality = 7 : passivepoisemastery = 5 
+Name = jewel : Quality = 7 : passivecoldmastery = 5 
+Name = jewel : Quality = 7 : passivepoismastery = 5 
 
 Name = jewel : Quality = 7 : passivefirepierce = 5
 Name = jewel : Quality = 7 : passiveltngpierce >= 4
