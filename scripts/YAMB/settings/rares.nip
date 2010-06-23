@@ -8,124 +8,125 @@
  
 
 ;2스킬어레
-Type = 75 : Quality = 6 : druidskills = 2 :  225 >= 1 ;
-Type = 75 : Quality = 6 : Paladinskills = 2 :  225 >= 1 ;
-Type = 75 : Quality = 6 : Assassinskills = 2 : 0 >= 15 : 225 >= 1 :39>=10:41>=10
-Type = 75 : Quality = 6 : Assassinskills = 2 : 2 >= 15 : 225 >= 1 :39>=10:41>=10
-Type = 75 : Quality = 6 : Assassinskills = 2 : 194 = 2 : 225 >= 1 ; 
+Type = circlet : Quality = rare : druidskills = 2 :  itemtohitpercentperlevel >= 1 ;
+Type = circlet : Quality = rare : Paladinskills = 2 :  itemtohitpercentperlevel >= 1 ;
+Type = circlet : Quality = rare : Paladinskills = 2 ;  itemtohitpercentperlevel >= 1 ;
+Type = circlet : Quality = rare : Assassinskills = 2 : strength >= 15 : itemtohitpercentperlevel >= 1 :fireresist>=10:lightresist>=10
+Type = circlet : Quality = rare : Assassinskills = 2 : dexterity >= 15 : itemtohitpercentperlevel >= 1 :fireresist>=10:lightresist>=10
+Type = circlet : Quality = rare : Assassinskills = 2 : sockets = 2 : itemtohitpercentperlevel >= 1 ; 
 ;부분스킬패캐
-Type = 75 : Quality = 6 : poisonandboneskilltab = 2 : FCR = 20 ;      
-Type = 75 : Quality = 6 : elementalskilltab = 2 : FCR = 20 ; 
-Type = 75 : Quality =6 : palicombatskilltab =  2 : FCR = 20 ; 
-type = 75 : Quality =6: lightningskilltab = 2 : FCR = 20 ;
-Type = 75 : Quality = 6 : fireskilltab = 2 : FCR = 20 ;
+Type = circlet : Quality = rare : poisonandboneskilltab = 2 : FCR = 20 ;      
+Type = circlet : Quality = rare : elementalskilltab = 2 : FCR = 20 ; 
+Type = circlet : Quality = rare : palicombatskilltab =  2 : FCR = 20 ; 
+type = circlet : Quality = rare : lightningskilltab = 2 : FCR = 20 ;
+Type = circlet : Quality = rare : fireskilltab = 2 : FCR = 20 ;
 
 ;부분스킬달려
-Type = 75 : Quality = 6 : passiveandmagicskilltab = 2 : FRW = 30 ;        
+Type = circlet : Quality = rare : passiveandmagicskilltab = 2 : FRW = 30 ;        
 
 ;2솟달려패캐 
-Type = 75 : Quality = 6 : 194 = 2 : FRW = 30 : FCR = 20 ;
+Type = circlet : Quality = rare : sockets = 2 : FRW = 30 : FCR = 20 ;
 
 ;========30달려2솟
 ;10맥뎀 
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 :22>=10  
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 :maxdamage>=10  
 ;9민뎀 
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 : 21>=9
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 : mindamage>=9
 ;25증뎀  
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 :enhanceddamage>=25
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 :enhanceddamage>=25
 ;10올레
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 : 39>=10 : 41>=10 
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 : fireresist>=10 : lightresist>=10 
 ;20힘
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 : 0>=20
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 : strength>=20
 ;15덱
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 : 2>=15
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 : dexterity>=15
 ;30피
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 : 7>=30
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 : maxhp>=30
 ;3마흡
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 :60>=3
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 :lifeleech>=3
 ;3라흡
-Type = 75 : Quality = 6 : FRW = 30: 194 = 2 :62>=3
+Type = circlet : Quality = rare : FRW = 30: sockets = 2 :manaleech>=3
 
 ;=======삥서클
 ;2바바스킬 2솟 70삥 3마흡  
-Type = 75 : Quality = 6: barbarianskills = 2 : 194=2:79 >=70:62 >=3 
+Type = circlet : Quality = rare: barbarianskills = 2 : sockets=2:itemgoldbonus >=70:manaleech >=3 
 ;2워크라이 2솟 70삥 3마흡 
-Type = 75 : Quality = 6: warcriesskilltab = 2 : 194=2:79 >=70:62 >=3 
+Type = circlet : Quality = rare: warcriesskilltab = 2 : sockets=2:itemgoldbonus >=70:manaleech >=3 
 
 ;달려어레
-Type = 75 : Quality = 6:  225 >= 1 : FRW = 30 ;  
+Type = circlet : Quality = rare:  itemtohitpercentperlevel >= 1 : FRW = 30 ;  
 
 ;팔라쌍패2솟
 ;[rare TARGE 2SOCKET FF] 
-TYPE=70   : Quality = 6: Paladin skills = 2:194=2 :102=30
-TYPE=70   : Quality = 6: palicombatskilltab = 2:194=2 :102=30
+TYPE=auricshields   : Quality = rare: Paladin skills = 2:sockets=2 :itemfasterblockrate=30
+TYPE=auricshields   : Quality = rare: palicombatskilltab = 2:sockets=2 :itemfasterblockrate=30
 
 ;[Rare Belt ] 
-Type = 19 : Quality = 6 : 99 >= 24 : 0>=20 : 7>=20;
-Type = 19 : Quality = 6 : 99 >= 24: 0>=20 :79 >=70
-Type = 19 : Quality = 6 : 0>=25 :79 >=75
-Type = 19 : Quality = 6 : 7>=20 :79 >=70:39>=20
-Type = 19 : Quality = 6 :79 >=80
-Type = 19 : Quality = 6 : 99 >= 24 :39>= 25 :41>= 25 :43>= 25 
+Type = belt : Quality = rare : fhr >= 24 : strength>=20 : maxhp>=20;
+Type = belt : Quality = rare : fhr >= 24: strength>=20 :itemgoldbonus >=70
+Type = belt : Quality = rare : strength>=25 :itemgoldbonus >=75
+Type = belt : Quality = rare : maxhp>=20 :itemgoldbonus >=70:fireresist>=20
+Type = belt : Quality = rare :itemgoldbonus >=80
+Type = belt : Quality = rare : fhr >= 24 :fireresist>= 25 :lightresist>= 25 :coldresist>= 25 
 
 ;[Rare Boots ] 
-Type = 15 : Quality = 6 : FRW  >= 30 : 99 = 10 : 39>=20: 41>=20
-Type = 15 : Quality = 6 : FRW  >= 30 : 99 = 10 : 41>=20: 43>=20
-Type = 15 : Quality = 6 : FRW  >= 30 : 99 = 10 : 43>=20: 45>=20
-Type = 15 : Quality = 6 : FRW  >= 30 : 99 = 10 : 45>=20: 39>=20
-Type = 15 : Quality = 6 : FRW  >= 30 : 2>=8 : 39>=20: 41>=20
-Type = 15 : Quality = 6 : FRW  >= 30 : 39>=25:41>=25:43>=25
-Type = 15 : Quality = 6 : FRW  >= 30 : 39>=30: 41>=30
+Type = boots : Quality = rare : FRW  >= 30 : fhr = 10 : fireresist>=20: 41>=20
+Type = boots : Quality = rare : FRW  >= 30 : fhr = 10 : 41>=20: 43>=20
+Type = boots : Quality = rare : FRW  >= 30 : fhr = 10 : 43>=20: 45>=20
+Type = boots : Quality = rare : FRW  >= 30 : fhr = 10 : 45>=20: fireresist>=20
+Type = boots : Quality = rare : FRW  >= 30 : dexterity>=8 : fireresist>=20: 41>=20
+Type = boots : Quality = rare : FRW  >= 30 : fireresist>=25:41>=25:43>=25
+Type = boots : Quality = rare : FRW  >= 30 : fireresist>=30: 41>=30
 
-Type = 15 : Quality = 6 : 79>=80: 80 >= 25 
-Type = 15 : Quality = 6 : 79>=80: FRW  >= 30 
-Type = 15 : Quality = 6 : 79>=70: FRW  >= 30 : 39>=20
-Type = 15 : Quality = 6 : 79>=70: FRW  >= 30 : 99 = 10 
-Type = 15 : Quality = 6 : FRW >= 30 : 39>=20: 41>=20:45>=20: 80 >= 25 
+Type = boots : Quality = rare : itemgoldbonus>=80: itemmagicbonus >= 25 
+Type = boots : Quality = rare : itemgoldbonus>=80: FRW  >= 30 
+Type = boots : Quality = rare : itemgoldbonus>=70: FRW  >= 30 : fireresist>=20
+Type = boots : Quality = rare : itemgoldbonus>=70: FRW  >= 30 : fhr = 10 
+Type = boots : Quality = rare : FRW >= 30 : fireresist>=20: lightresist>=20:poisonresist>=20: itemmagicbonus >= 25 
 
 ;rare glove
-Type = 16 : Quality = 6 : 93 = 20 : 0 >= 15;
-Type = 16 : Quality = 6 : 93 = 20 : 2 >= 15 ;
-Type = 16 : Quality = 6 : 93 = 20 : 0 >= 10: 2 >= 10;
-Type = 16 : Quality = 6 : 93 = 20 : 60  >= 3:bowandcrossbowskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 : 62  >= 3:bowandcrossbowskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 : 60  >= 3:passiveandmagicskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 : 62  >= 3:passiveandmagicskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 : 60  >= 3:javelinandspearskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 : 62  >= 3:javelinandspearskilltab=2
-Type = 16 : Quality = 6 : 93 = 20 :javelinandspearskilltab=2 :39>=20:41>=20
-Type = 16 : Quality = 6 : 93 = 20:39>=25:41>=25:43>=25
-Type = 16 : Quality = 6 : 93 = 20:39>=30:41>=30
-Type = 16 : Quality = 6 : 0>=10 : 2>=10 : 39>=20 : 41>=20;
-Type = 16 : Quality = 6 : 0>=15 : 2>=15 
+Type = gloves : Quality = rare : ias = 20 : strength >= 15;
+Type = gloves : Quality = rare : ias = 20 : dexterity >= 15 ;
+Type = gloves : Quality = rare : ias = 20 : strength >= 10: dexterity >= 10;
+Type = gloves : Quality = rare : ias = 20 : lifeleech  >= 3:bowandcrossbowskilltab=2
+Type = gloves : Quality = rare : ias = 20 : manaleech  >= 3:bowandcrossbowskilltab=2
+Type = gloves : Quality = rare : ias = 20 : lifeleech  >= 3:passiveandmagicskilltab=2
+Type = gloves : Quality = rare : ias = 20 : manaleech  >= 3:passiveandmagicskilltab=2
+Type = gloves : Quality = rare : ias = 20 : lifeleech  >= 3:javelinandspearskilltab=2
+Type = gloves : Quality = rare : ias = 20 : manaleech  >= 3:javelinandspearskilltab=2
+Type = gloves : Quality = rare : ias = 20 :javelinandspearskilltab=2 :fireresist>=20:lightresist>=20
+Type = gloves : Quality = rare : ias = 20:fireresist>=25:lightresist>=25:coldresist>=25
+Type = gloves : Quality = rare : ias = 20:fireresist>=30:coldresist>=30
+Type = gloves : Quality = rare : strength>=10 : dexterity>=10 : fireresist>=20 : 41>=20;
+Type = gloves : Quality = rare : strength>=15 : dexterity>=15 
 
-Type = 16 : Quality = 6 : 39>=20: 41>=20:45>=20: 80 >= 25 :0>=15
+Type = gloves : Quality = rare : fireresist>=20: lightresist>=20:poisonresist>=20: itemmagicbonus >= 25 :strength>=15
 
 ;20공속 10힘 10덱스
-Type = 16 : Quality = 6 : 93 = 20 : 0 >= 10: 2 >= 10
+Type = gloves : Quality = rare : ias = 20 : strength >= 10: dexterity >= 10
 
 ;======= 어쌔===========
 
 ;[Rare Katar]
-type=67 : Quality = 6:  enhanceddamage >=250 : 224>=33 : 218>=4 ;
-type=67 : Quality = 6:  enhanceddamage >=380 ;
-type=67 : Quality = 6:  enhanceddamage >=250 :flag=eth: 252>=1
+type=handtohand : Quality = rare:  enhanceddamage >=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 ;
+type=handtohand : Quality = rare:  enhanceddamage >=380 ;
+type=handtohand : Quality = rare:  enhanceddamage >=250 :flag=eth: itemreplenishdurability>=1
 
-type=88 : Quality = 6:  enhanceddamage >=250 : 224>=33 : 218>=4 ;
-type=88 : Quality = 6:  enhanceddamage >=380 ;
-type=88 : Quality = 6:  enhanceddamage >=250 :flag=eth: 252>=1
+type=assassinclaw : Quality = rare:  enhanceddamage >=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 ;
+type=assassinclaw : Quality = rare:  enhanceddamage >=380 ;
+type=assassinclaw : Quality = rare:  enhanceddamage >=250 :flag=eth: itemreplenishdurability>=1
 
 ;풀스퀵2솟 ㅡ 상악용
-type=67 : Quality = 6:  93>=40 :194=2: 224>=33 : 218>=4 
-type=88 : Quality = 6:  93>=40 :194=2: 224>=33 : 218>=4 
+type=handtohand : Quality = rare:  ias>=40 :sockets=2: itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 
+type=assassinclaw : Quality = rare:  ias>=40 :sockets=2: itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 
 
 ;풀스에테내구회복2솟 
-type=67 : Quality = 6:  224>=33 : 218>=4 :flag=eth:252>=1:194=2 
-type=88 : Quality = 6:  224>=33 : 218>=4 :flag=eth:252>=1:194=2 
+type=handtohand : Quality = rare:  itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :flag=eth:itemreplenishdurability>=1:sockets=2 
+type=assassinclaw : Quality = rare:  itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :flag=eth:itemreplenishdurability>=1:sockets=2 
 
 ;풀스2솟넉백
-type=67 : Quality = 6:  194=2: 224>=33 : 218>=4 :81>0
-type=88 : Quality = 6:  194=2: 224>=33 : 218>=4 :81>0
+type=handtohand : Quality = rare:  sockets=2: itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :81>0
+type=assassinclaw : Quality = rare:  sockets=2: itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :81>0
 
 ;트랩씬용 ㅡ 매직에 포함
 
@@ -134,57 +135,57 @@ type=88 : Quality = 6:  194=2: 224>=33 : 218>=4 :81>0
 ;====에테레어무기=====
 
 ;[Rare sword]
-type=30: Quality = 6 :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4   
-type=30: Quality = 6 :flag=eth: enhanceddamage>=380  
+type=sword: Quality = rare :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4   
+type=sword: Quality = rare :flag=eth: enhanceddamage>=380  
 
 ;[Rare Mace]
-type=36  : Quality = 6 :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4   
-type=36  : Quality = 6 :flag=eth: enhanceddamage>=380  
+type=mace  : Quality = rare :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4   
+type=mace  : Quality = rare :flag=eth: enhanceddamage>=380  
 
 ;[Rare Scepter]
-type=24  : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=24  : Quality = 6  :flag=eth: enhanceddamage>=380   
+type=scepter  : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=scepter  : Quality = rare  :flag=eth: enhanceddamage>=380   
 
 ;[Rare Axe]
-type=28  : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=28  : Quality = 6  :flag=eth: enhanceddamage>=380  
+type=axe  : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=axe  : Quality = rare  :flag=eth: enhanceddamage>=380  
  
 ;[Rare Club]
-type=29  : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=29  : Quality = 6  :flag=eth: enhanceddamage>=380  
+type=club  : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=club  : Quality = rare  :flag=eth: enhanceddamage>=380  
   
 ;[Rare Hammer]
-type=31  : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=31  : Quality = 6  :flag=eth: enhanceddamage>=380   
+type=hammer  : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=hammer  : Quality = rare  :flag=eth: enhanceddamage>=380   
  
 ;[Rare Spear]
-type=33   : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=33   : Quality = 6  :flag=eth: enhanceddamage>=380   
+type=spear   : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=spear   : Quality = rare  :flag=eth: enhanceddamage>=380   
  
 ;[Rare Polearm]
-type=34  : Quality = 6  :flag=eth: enhanceddamage>=270 : 224>=33 : 218>=4  
-type=34  : Quality = 6  :flag=eth: enhanceddamage>=380   
+type=polearm  : Quality = rare  :flag=eth: enhanceddamage>=270 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4  
+type=polearm  : Quality = rare  :flag=eth: enhanceddamage>=380   
  
 
 ;=====rare bow=========
 
 ;레어 보우
-type=27   : Quality = 6 : enhanceddamage>=250 : 224>=33 : 218>=4;
-type=27   : Quality = 6 : enhanceddamage>=380; 
-type=27   : Quality = 6 : enhanceddamage>=270 : 194=2 :93>=20
+type=bow   : Quality = rare : enhanceddamage>=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4;
+type=bow   : Quality = rare : enhanceddamage>=380; 
+type=bow   : Quality = rare : enhanceddamage>=270 : sockets=2 :ias>=20
 
 ;레어 아마존전용 활
-type=85   : Quality = 6 : enhanceddamage>=250 : 224>=33 : 218>=4;
-type=85   : Quality = 6 : enhanceddamage>=380;  
-type=85   : Quality = 6 : enhanceddamage>=270 : 194=2 :93>=20
+type=amazonbow   : Quality = rare : enhanceddamage>=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4;
+type=amazonbow   : Quality = rare : enhanceddamage>=380;  
+type=amazonbow   : Quality = rare : enhanceddamage>=270 : sockets=2 :ias>=20
 
 ;자벨린 에테 수량회복 ㅡ 6년째임신중
-type=44   : Quality = 6 :flag=eth: enhanceddamage>=250 : 224>=33 : 218>=4 :253 >=1
-type=44   : Quality = 6 :flag=eth: enhanceddamage>=380  :253 >=1 
+type=javelin   : Quality = rare :flag=eth: enhanceddamage>=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :itemreplenishquantity >=1
+type=javelin   : Quality = rare :flag=eth: enhanceddamage>=380  :itemreplenishquantity >=1 
 
 ;아마존 자벨린 에테 수량회복 ㅡ 6년째임신중
-type=87   : Quality = 6 :flag=eth: enhanceddamage>=250 : 224>=33 : 218>=4 :253 >=1
-type=87   : Quality = 6 :flag=eth: enhanceddamage>=380  :253 >=1 
+type=amazonjavelin   : Quality = rare :flag=eth: enhanceddamage>=250 : itemtohitperlevel>=33 : itemmaxdamageperlevel>=4 :itemreplenishquantity >=1
+type=amazonjavelin   : Quality = rare :flag=eth: enhanceddamage>=380  :itemreplenishquantity >=1 
 
 
 ;네크방패 ㅡ 매직에 포함
@@ -194,24 +195,24 @@ type=87   : Quality = 6 :flag=eth: enhanceddamage>=380  :253 >=1
 
 ;========레어 바바
 ;함성
-Type = 71 : Quality = 6: barbarianskills = 2 : skillbattleorders = 3:skillshout = 3
-Type = 71 : Quality = 6: warcriesskilltab = 2 : skillbattleorders = 3:skillshout = 3
+Type = primalhelm : Quality = rare: barbarianskills = 2 : skillbattleorders = 3:skillshout = 3
+Type = primalhelm : Quality = rare: warcriesskilltab = 2 : skillbattleorders = 3:skillshout = 3
 ;전투
-Type = 71 : Quality = 6: barbarianskills = 2 :225 >= 1: 99 >= 10: skillbattleorders = 3
-Type = 71 : Quality = 6: barbarianskills = 2 :225 >= 1: 194=2: skillbattleorders = 3
+Type = primalhelm : Quality = rare: barbarianskills = 2 :itemtohitpercentperlevel >= 1: fhr >= 10: skillbattleorders = 3
+Type = primalhelm : Quality = rare: barbarianskills = 2 :itemtohitpercentperlevel >= 1: sockets=2: skillbattleorders = 3
 ;렙당어레증가 2솟 에테 자동수리
-Type = 71 : Quality = 6:225 >= 1: 194=2: flag=eth:252>=1 ; 
+Type = primalhelm : Quality = rare:itemtohitpercentperlevel >= 1: sockets=2: flag=eth:itemreplenishdurability>=1 ; 
 
 ;삥
-Type = 71 : Quality = 6: barbarianskills = 2 : skillbattleorders = 3:194=2
-Type = 71 : Quality = 6: barbarianskills = 2 : skillbattleorders = 3:79 >=70
-Type = 71 : Quality = 6: barbarianskills = 2 : 194=2:79 >=70
-Type = 71 : Quality = 6: barbarianskills = 2 : skillbattleorders = 3: skillfinditem=3
+Type = primalhelm : Quality = rare: barbarianskills = 2 : skillbattleorders = 3:sockets=2
+Type = primalhelm : Quality = rare: barbarianskills = 2 : skillbattleorders = 3:itemgoldbonus >=70
+Type = primalhelm : Quality = rare: barbarianskills = 2 : sockets=2:itemgoldbonus >=70
+Type = primalhelm : Quality = rare: barbarianskills = 2 : skillbattleorders = 3: skillfinditem=3
 
-Type = 71 : Quality = 6: warcriesskilltab = 2 : skillbattleorders = 3:194=2
-Type = 71 : Quality = 6: warcriesskilltab = 2 : skillbattleorders = 3:79 >=70
-Type = 71 : Quality = 6: warcriesskilltab = 2 : 194=2:79 >=70
-Type = 71 : Quality = 6: warcriesskilltab = 2 : skillbattleorders = 3: skillfinditem=3
+Type = primalhelm : Quality = rare: warcriesskilltab = 2 : skillbattleorders = 3:sockets=2
+Type = primalhelm : Quality = rare: warcriesskilltab = 2 : skillbattleorders = 3:itemgoldbonus >=70
+Type = primalhelm : Quality = rare: warcriesskilltab = 2 : sockets=2:itemgoldbonus >=70
+Type = primalhelm : Quality = rare: warcriesskilltab = 2 : skillbattleorders = 3: skillfinditem=3
 
 ;소서오브 ㅡ 매직에 포함
 
