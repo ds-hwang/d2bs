@@ -57,7 +57,7 @@ void Say(const char *szMessage, ...)
 		delete aMsg;
 		aMsg = NULL;
 	}
-	else if(OOG_GetLocation() == OOG_CHANNEL)
+	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
 	{
 		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
