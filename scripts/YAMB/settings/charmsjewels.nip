@@ -75,7 +75,7 @@ Name = grandcharm : Quality = 4 : martialartsskilltab = 1
 
 
 ;jewel
-Name = jewel : Quality >= 4 : mindam = 18 ;
+Name = jewel : Quality >= 4 : mindamage = 18 ;
 Name = jewel : Quality >= 4 : fireresist >= 9 : lightresist >= 9 
 Name = jewel : Quality >= 4 : fireresist >= 20
 Name = jewel : Quality >= 4 : lightresist >= 25
@@ -86,13 +86,13 @@ Name = jewel : Quality = 4 : maxdamage >= 20 ;
 Name = jewel : Quality = 4 : enhanceddamage >= 35;
 Name = jewel : Quality = 4 : ias = 15 :enhanceddamage >= 30;
 Name = jewel : Quality = 4 : maxdamage >= 13 : enhanceddamage >= 30;
-Name = jewel : Quality = 4 : mindam >= 10: enhanceddamage >= 30;
+Name = jewel : Quality = 4 : mindamage >= 10: enhanceddamage >= 30;
 
 Name = jewel : Quality = 6 : maxdamage = 18 ;
 Name = jewel : Quality = 6 : enhanceddamage>= 25 
 Name = jewel : Quality = 6 : strength >= 8: dexterity >= 8
 Name = jewel : Quality = 6 : maxdamage >= 13 : enhanceddamage >= 20;
-Name = jewel : Quality = 6 : mindam >= 10: enhanceddamage >= 20;
+Name = jewel : Quality = 6 : mindamage >= 10: enhanceddamage >= 20;
 Name = jewel : Quality = 6 : maxdamage>= 15: mindamage>= 9
 
 Name = jewel : Quality = 6  : strength >= 6 : dexterity >= 6;
