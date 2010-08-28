@@ -13,8 +13,7 @@ function RefreshPrecasts() {
 function StepCallBack(attack) {
 	// commPather will never pass this arguement
 	if (arguments.length < 1) {
-		//attack = false;
-		attack = true;
+		attack = false;
 	}
 	// Notes:
 	//
