@@ -81,15 +81,22 @@ struct CellFile {
 };
 
 struct CellContext {
-	DWORD _1[13];					//0x00
+	DWORD dwCellFileNo;				//0x00
+	DWORD _1[12];					//0x04
 	CellFile* pCellFile;			//0x34
 	DWORD _2[4];					//0x38
 };
 
+enum TilesetNo {
+	NormalTileset = 0x0,
+	Act2Tileset = 0x1,
+	Act4Tileset = 0x2,
+	LoDTileSet = 0x3
+};
 
 struct AutomapLayer {
 	DWORD nLayerNo;					//0x00
-	DWORD fSaved;					//0x04
+	TilesetNo nTilesetNo;			//0x04
 	AutomapCell *pFloors;			//0x08
 	AutomapCell *pWalls;			//0x0C
 	AutomapCell *pObjects;			//0x10
@@ -598,7 +605,7 @@ struct BnetData {
 	DWORD dwId2;				//0x04	
 	BYTE _12[13];				//0xC0
 	//DWORD dwId3;				//0x14
-	//WORD Unk3;					//0x18	
+	//WORD Unk3;				//0x18	
 	BYTE _13[6];				//0xC0
 	char szGameName[22];		//0x1A
 	char szGameIP[16];			//0x30
@@ -623,39 +630,6 @@ struct BnetData {
 	char szGameDesc[256];		//0x257
 	WORD _10;					//0x348
 	BYTE _11;					//0x34B
-};
-
-
-struct WardenClientRegion_t {
-	DWORD cbAllocSize; //+00
-	DWORD offsetFunc1; //+04
-	DWORD offsetRelocAddressTable; //+08
-	DWORD nRelocCount; //+0c
-	DWORD offsetWardenSetup; //+10
-	DWORD _2[2];
-	DWORD offsetImportAddressTable; //+1c
-	DWORD nImportDllCount; //+20
-	DWORD nSectionCount; //+24
-};
-
-struct SMemBlock_t {
-	DWORD _1[6];
-	DWORD cbSize; //+18
-	DWORD _2[31];
-	BYTE data[1]; //+98
-};
-
-struct WardenClient_t {
-	WardenClientRegion_t* pWardenRegion; //+00
-	DWORD cbSize; //+04
-	DWORD nModuleCount; //+08
-	DWORD param; //+0c
-	DWORD fnSetupWarden; //+10
-};
-
-struct WardenIATInfo_t {
-	DWORD offsetModuleName;
-	DWORD offsetImportTable;
 };
 
 struct AttackStruct {
@@ -725,6 +699,42 @@ struct sgptDataTable {
 	DWORD		dwStorePageRecords;
 	MpqTable*	pElemTypes;
 };
+
+struct D2Menu // size 0x154
+{
+	DWORD dwEntriesNo;		//0x00
+	DWORD dwInterline;		//0x04
+	DWORD dwTextHeight;		//0x08
+	DWORD dwMenuOffset;		//0x0C
+	DWORD dwBarHeight;		//0x10
+	DWORD _1[0x10];			//0x14 unused?
+	char szName[0x100];		//0x24
+	DWORD _2[0x30];			//0x124
+};
+
+struct D2MenuEntry
+{
+	DWORD dwMenuType;								//0x00  //-1 - static text, 0 -selectable, 1- switchbar , 2- with bar
+	DWORD dwExpansion;								//0x04  //if set, shows only in d2exp
+	DWORD dwYOffset;								//0x08  //generated dynamically
+	char szCellFile[260];							//0x0C  DATA\\LOCAL\\UI\\LANG\\%s used only in LoadMenu Func
+	BOOL (__fastcall* EnableCheck)(D2MenuEntry*);	//0x110 if return false, its disabled
+	BOOL (__fastcall* OnPress)(D2MenuEntry*);		//0x114 these all are __thiscall funcs
+	BOOL (__fastcall* OptionHandle)(D2MenuEntry*);	//0x118 called when option value is changed
+	BOOL (__fastcall* ChangeHandle)(D2MenuEntry*);	//0x11C if return true OnPress is called, and option gfx is switched
+	union {
+		DWORD dwMaxValue;							//0x120
+		DWORD dwSwitchesNo;							//0x120  (max 4)
+	};
+	union {
+		DWORD dwCurrentValue;						//0x124
+		DWORD dwCurrentSwitch;
+	};
+	DWORD dwBarType;								//0x128
+	char szSwitchCellFiles[4][260];					//0x12C DATA\\LOCAL\\UI\\LANG\\%s used only in LoadMenu Func
+	CellFile* ptCellFile;							//0x53C
+	CellFile* ptSwitchCellFile[4];					//0x540
+}; 
 
 #pragma warning ( pop )
 #pragma optimize ( "", on )

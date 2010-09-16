@@ -113,6 +113,10 @@ FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0xBFDF0)
 
 FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny* __stdcall, (void), 0xA4D60)
 
+FUNCPTR(D2CLIENT, InitD2Menu, int __stdcall, (D2Menu* pD2Menu, D2MenuEntry* pD2MenuEntry), 0x63E90)
+FUNCPTR(D2CLIENT, DeleteD2Menu, void __stdcall, (D2MenuEntry* pD2MenuEntry, D2Menu* pD2Menu), 0x63270)
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Client Globals
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +198,9 @@ VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C2F0) // unused but I want to add it
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
 
 VARPTR(D2CLIENT, ChatMsg, wchar_t*, 0x11EC80)
+
+VARPTR(D2CLIENT, D2Menu, D2Menu*, 0x11C05C)
+VARPTR(D2CLIENT, D2MenuEntries, D2MenuEntry*, 0x11C060)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,8 +366,8 @@ ASMPTR(D2MULTI, ChannelInput_I, 0xD5B0)
 // D2Cmp Ordinals
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-FUNCPTR(D2CMP, InitCellFile, void __stdcall, (void *cellfile, CellFile **outptr, char *srcfile, DWORD lineno, DWORD filever, char *filename), -10006)
-FUNCPTR(D2CMP, DeleteCellFile, void __stdcall, (CellFile *cellfile), -10106)
+FUNCPTR(D2CMP, InitCellFile, void __stdcall, (void *cellfile, CellFile **outptr, char *srcfile, DWORD lineno, DWORD filever, char *filename), -10065)
+FUNCPTR(D2CMP, DeleteCellFile, void __stdcall, (CellFile *cellfile), -10065)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,6 +397,8 @@ VARPTR(D2LAUNCH, BnData, BnetData *, 0x25ABC)
 
 FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0x18750)
 FUNCPTR(D2WIN, InitMPQ, DWORD __stdcall, (char *dll, char *mpqfile, char *mpqname, int v4, int v5), 0x7E60)
+FUNCPTR(D2WIN, LoadCellFile, CellFile* __fastcall, (const char* szFile, int Type), -10180)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Win Ordinals
