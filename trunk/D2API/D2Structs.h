@@ -56,7 +56,7 @@ struct GfxCell {
 	BYTE cols;						//0x20
 };
 
-struct InteractStruct {
+struct InteractInfo {
 	DWORD dwMoveType;			//0x00
 	UnitAny* lpPlayerUnit;		//0x04
 	UnitAny* lpTargetUnit;		//0x08
@@ -401,12 +401,8 @@ struct Light {
 	int *pnStaticMap;				//0x30
 };
 
-struct SkillInfo {
-	WORD wSkillId;					//0x00
-};
-
 struct Skill {
-	SkillInfo *pSkillInfo;			//0x00
+	WORD* pSkillId;					//0x00
 	Skill *pNextSkill;				//0x04
 	DWORD _1[8];					//0x08
 	DWORD dwSkillLevel;				//0x28
@@ -414,7 +410,7 @@ struct Skill {
 	DWORD dwFlags;					//0x30
 };
 
-struct Info {
+struct SkillInfo {
 	BYTE *pGame1C;					//0x00
 	Skill *pFirstSkill;				//0x04
 	Skill *pLeftSkill;				//0x08
@@ -590,7 +586,7 @@ struct UnitAny {
 	DWORD dwOwnerId;				//0x98
 	DWORD _8[2];					//0x9C
 	OverheadMsg* pOMsg;				//0xA4
-	Info *pInfo;					//0xA8
+	SkillInfo *pSkillInfo;			//0xA8
 	DWORD _9[6];					//0xAC
 	DWORD dwFlags;					//0xC4
 	DWORD dwFlags2;					//0xC8

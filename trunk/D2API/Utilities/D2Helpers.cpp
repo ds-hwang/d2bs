@@ -100,14 +100,14 @@ int GetSkill(WORD wSkillId)
 	if(ClientState() != ClientStateInGame)
 		return -1;
 
-	for(Skill* pSkill = (*p_D2CLIENT_PlayerUnit)->pInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
-		if(pSkill->pSkillInfo->wSkillId == wSkillId)
+	for(Skill* pSkill = (*p_D2CLIENT_PlayerUnit)->pSkillInfo->pFirstSkill; pSkill; pSkill = pSkill->pNextSkill)
+		if(*pSkill->pSkillId == wSkillId)
 			return D2COMMON_GetSkillLevel(*p_D2CLIENT_PlayerUnit, pSkill, true);
 
 	return -1;
 }
 
-BOOL SetSkill(WORD wSkillId, BOOL bLeft)
+BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId = -1)
 {
 	if(ClientState() != ClientStateInGame) 
 		return FALSE;
@@ -121,7 +121,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 	*(WORD*)&aPacket[1] = wSkillId;
 	aPacket[3] = 0;
 	aPacket[4] = (bLeft) ? 0x80 : 0;
-	*(DWORD*)&aPacket[5] = 0xFFFFFFFF;
+	*(DWORD*)&aPacket[5] = dwItemId;
 
 	D2NET_SendPacket(9, 1, aPacket);
 
@@ -131,8 +131,8 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft)
 	Skill* hand = NULL;
 	while(ClientState() == ClientStateInGame && timeout <= 10)
 	{
-		hand = (bLeft ? Me->pInfo->pLeftSkill : Me->pInfo->pRightSkill);
-		if(hand->pSkillInfo->wSkillId != wSkillId)
+		hand = (bLeft ? Me->pSkillInfo->pLeftSkill : Me->pSkillInfo->pRightSkill);
+		if(*hand->pSkillId != wSkillId)
 			timeout++;
 		else
 			return TRUE;
@@ -212,7 +212,7 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType)
 	if(!D2CLIENT_FindUnit(pUnit->dwUnitId, pUnit->dwType))
 		return;
 
-	InteractStruct pInteract = {
+	InteractInfo pInteract = {
 		dwMoveType,
 		D2CLIENT_GetPlayerUnit(),
 		pUnit,
