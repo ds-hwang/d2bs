@@ -710,12 +710,12 @@ struct D2Menu // size 0x154
 
 struct D2MenuEntry
 {
-	DWORD dwMenuType;								//0x00  //-1 - static text, 0 -selectable, 1- switchbar , 2- with bar
-	DWORD dwExpansion;								//0x04  //if set, shows only in d2exp
-	DWORD dwYOffset;								//0x08  //generated dynamically
+	DWORD dwMenuType;								//0x00  -1 - static text, 0 -selectable, 1- switchbar , 2- with bar
+	DWORD dwExpansion;								//0x04  if set, shows only in d2exp
+	DWORD dwYOffset;								//0x08  generated dynamically
 	char szCellFile[260];							//0x0C  DATA\\LOCAL\\UI\\LANG\\%s used only in LoadMenu Func
 	BOOL (__fastcall* EnableCheck)(D2MenuEntry*);	//0x110 if return false, its disabled
-	BOOL (__fastcall* OnPress)(D2MenuEntry*);		//0x114 these all are __thiscall funcs
+	BOOL (__fastcall* OnPress)(D2MenuEntry*);		//0x114 
 	BOOL (__fastcall* OptionHandle)(D2MenuEntry*);	//0x118 called when option value is changed
 	BOOL (__fastcall* ChangeHandle)(D2MenuEntry*);	//0x11C if return true OnPress is called, and option gfx is switched
 	union {

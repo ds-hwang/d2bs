@@ -114,7 +114,6 @@ FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0xBFDF0)
 FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny* __stdcall, (void), 0xA4D60)
 
 FUNCPTR(D2CLIENT, InitD2Menu, int __stdcall, (D2Menu* pD2Menu, D2MenuEntry* pD2MenuEntry), 0x63E90)
-//FUNCPTR(D2CLIENT, DeleteD2Menu, void __stdcall, (D2MenuEntry* pD2MenuEntry, D2Menu* pD2Menu), 0x63270) // called automatically and the wrong return type/calling convention
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -250,6 +249,7 @@ ASMPTR(D2CLIENT, ClickMap_IV, 0x1BF99)
 
 ASMPTR(D2CLIENT, GameAddUnit_I, 0xA6500)
 
+ASMPTR(D2CLIENT, DeleteD2MenuEntry, 0x63270) // int DeleteD2MenuEntry(D2MenuEntry*<eax>, D2Menu*<ecx>)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Common Ordinals
