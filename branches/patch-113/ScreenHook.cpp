@@ -191,21 +191,27 @@ bool Genhook::Click(int button, POINT* loc)
 		return false;
 
 	bool result = false;
-	JS_SetContextThread(ScriptEngine::GetGlobalContext());
-	if(owner && JSVAL_IS_FUNCTION(ScriptEngine::GetGlobalContext(), clicked))
+
+	JSContext* cx = ScriptEngine::GetGlobalContext();
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
+	if(owner && JSVAL_IS_FUNCTION(cx, clicked))
 	{
 		Lock();
 
-		JS_EnterLocalRootScope(ScriptEngine::GetGlobalContext());
+		JS_EnterLocalRootScope(cx);
 		jsval rval = JSVAL_VOID;
 		jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 
-		JS_CallFunctionValue(ScriptEngine::GetGlobalContext(), owner->GetGlobalObject(), clicked, 3, args, &rval);
+		JS_CallFunctionValue(cx, owner->GetGlobalObject(), clicked, 3, args, &rval);
 
 		result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
+		JS_LeaveLocalRootScope(cx);
+
 		Unlock();
 	}
-	JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+	JS_EndRequest(cx);
+	JS_ClearContextThread(cx);
 
 	return result;
 }
@@ -215,21 +221,25 @@ void Genhook::Hover(POINT* loc)
 	if(!IsInRange(loc))
 		return;
 
-	JS_SetContextThread(ScriptEngine::GetGlobalContext());
-	if(owner && (JSVAL_IS_FUNCTION(ScriptEngine::GetGlobalContext(), hovered)))
+	JSContext* cx = ScriptEngine::GetGlobalContext();
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
+	if(owner && (JSVAL_IS_FUNCTION(cx, hovered)))
 	{
 		Lock();
 
-		JS_EnterLocalRootScope(ScriptEngine::GetGlobalContext());
+		JS_EnterLocalRootScope(cx);
 		jsval rval = JSVAL_VOID;
 		jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 
-		JS_CallFunctionValue(ScriptEngine::GetGlobalContext(), owner->GetGlobalObject(), hovered, 2, args, &rval);
+		JS_CallFunctionValue(cx, owner->GetGlobalObject(), hovered, 2, args, &rval);
 
-		JS_LeaveLocalRootScope(ScriptEngine::GetGlobalContext());
+		JS_LeaveLocalRootScope(cx);
+
 		Unlock();
 	}
-	JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+	JS_EndRequest(cx);
+	JS_ClearContextThread(cx);
 }
 
 void Genhook::SetClickHandler(jsval handler)
