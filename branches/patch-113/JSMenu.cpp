@@ -11,7 +11,7 @@ JSAPI_FUNC(my_login)
 		return JS_TRUE;
 
 	char file[_MAX_FNAME+MAX_PATH], *profile,
-		 mode[15], username[48], password[256], gateway[256], charname[24],
+		 mode[256], username[48], password[256], gateway[256], charname[24],
 		 difficulty[10], maxLoginTime[10], maxCharTime[10];
 	
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
@@ -47,6 +47,14 @@ JSAPI_FUNC(my_login)
 	bool loginComplete = FALSE,	skippedToBnet = TRUE;
 	Vars.bBlockKeys = Vars.bBlockMouse = TRUE;
 
+	char ipaddress[16] = "";
+	/*
+		clickedOnce is needed because, when in OOG_OTHER_MULTIPLAYER
+		the clickControl () is done twice and the second time it is
+		failing because the button is not there anymore.
+	*/
+	int clickedOnce = false;
+
 	while(!loginComplete)
 	{
 		location = OOG_GetLocation();
@@ -75,9 +83,6 @@ JSAPI_FUNC(my_login)
 						errorMsg =  "Failed to click the 'Other Multiplayer' button?";
 					else
 						skippedToBnet = FALSE;
-						// Open Battle.net
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 310, 272, 35)))
-						errorMsg = "Failed to click the 'Open Battle.net' button?";
 				}
 				break;
 			case OOG_LOGIN:
@@ -127,7 +132,45 @@ JSAPI_FUNC(my_login)
 					errorMsg =  "Invalid single player difficulty level specified!";
 					break;
 				}
-			
+			case OOG_OTHER_MULTIPLAYER:
+				// Open Battle.net
+				if (tolower(mode[18])== 'o')
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264, 310, 272, 35)))
+						errorMsg = "Failed to click the 'Open Battle.net' button?";
+				// TCP/IP Game
+				if (tolower(mode[18])== 't')
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264,350,272,35)) && !clickedOnce)
+						errorMsg = "Failed to click the 'TCP/IP Game' button?";
+					else
+						clickedOnce = true;
+
+				break;
+			case OOG_TCP_IP:
+				if (tolower(mode[25])== 'h')
+					if(!clickControl(findControl(6, (char *)NULL, -1,265,206,272,35)))
+						errorMsg = "Failed to click the 'Host Game' button?";
+				if (tolower(mode[25])== 'j')
+					if(!clickControl(findControl(6, (char *)NULL, -1,265,264,272,35)))
+						errorMsg = "Failed to click the 'Join Game' button?";
+				break;
+			case OOG_ENTER_IP_ADDRESS:
+				strncpy_s (ipaddress, &mode[30], (size_t)16);
+
+				if (_strcmpi(ipaddress, "")) {
+					pControl = findControl(1, (char *)NULL, -1, 300, 268, -1, -1);
+					if(pControl) {
+						SetControlText(pControl, ipaddress);
+
+						// Click the OK button
+						if(!clickControl(findControl(6, (char *)NULL, -1, 421, 337, 96, 32))) {
+							errorMsg = "Failed to click the OK button";
+						}
+					} else
+						errorMsg = "Failed to find the 'Host IP Address' text-edit box.";
+				} else
+					errorMsg = "Could not get the IP address from the profile in the d2bs.ini file.";
+
+				break;
 			case OOG_MAIN_MENU_CONNECTING: 
 			case OOG_CHARACTER_SELECT_PLEASE_WAIT:
 			case OOG_PLEASE_WAIT: 

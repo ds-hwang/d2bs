@@ -152,12 +152,14 @@ void Genhook::Clean(Script* owner)
 	ForEachHook(CleanHook, owner, 1);
 }
 
-Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
+Genhook::Genhook(Script* nowner, JSObject* nself, uint x, uint y, ushort nopacity, bool nisAutomap, Align nalign, ScreenhookState ngameState) :
 	owner(nowner), isAutomap(nisAutomap), isVisible(true), alignment(nalign), opacity(nopacity), gameState(ngameState), zorder(1)
 {
 	InitializeCriticalSection(&hookSection);
 	clicked = JSVAL_VOID;
 	hovered = JSVAL_VOID;
+	JS_AddRoot(&self);
+	self = nself;
 	SetX(x); SetY(y);
 	visible.push_back(this);
 }
@@ -165,9 +167,10 @@ Genhook::Genhook(Script* nowner, uint x, uint y, ushort nopacity, bool nisAutoma
 Genhook::~Genhook(void) {
 	Lock();
 	if(owner && !JSVAL_IS_VOID(clicked))
-		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &clicked);
+		JS_RemoveRoot(&clicked);
 	if(owner && !JSVAL_IS_VOID(hovered))
-		JS_RemoveRootRT(ScriptEngine::GetRuntime(), &hovered);
+		JS_RemoveRoot(&hovered);
+	JS_RemoveRoot(&self);
 
 	EnterCriticalSection(&globalSection);
 
@@ -203,7 +206,7 @@ bool Genhook::Click(int button, POINT* loc)
 		jsval rval = JSVAL_VOID;
 		jsval args[3] = { INT_TO_JSVAL(button), INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 
-		JS_CallFunctionValue(cx, owner->GetGlobalObject(), clicked, 3, args, &rval);
+		JS_CallFunctionValue(cx, self, clicked, 3, args, &rval);
 
 		result = !!!(JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
 		JS_LeaveLocalRootScope(cx);
@@ -232,7 +235,7 @@ void Genhook::Hover(POINT* loc)
 		jsval rval = JSVAL_VOID;
 		jsval args[2] = { INT_TO_JSVAL(loc->x), INT_TO_JSVAL(loc->y) };
 
-		JS_CallFunctionValue(cx, owner->GetGlobalObject(), hovered, 2, args, &rval);
+		JS_CallFunctionValue(cx, self, hovered, 2, args, &rval);
 
 		JS_LeaveLocalRootScope(cx);
 
