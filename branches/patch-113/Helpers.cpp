@@ -51,30 +51,31 @@ bool SwitchToProfile(const char* profile)
 	if(Vars.bUseProfileScript != TRUE || !ProfileExists(profile))
 		return false;
 
-	char file[_MAX_FNAME+_MAX_PATH],
-		 defaultStarter[_MAX_FNAME],
-		 defaultGame[_MAX_FNAME],
-		 scriptPath[_MAX_PATH];
+	char file[_MAX_FNAME+_MAX_PATH] = "",
+		 defaultStarter[_MAX_FNAME] = "",
+		 defaultGame[_MAX_FNAME] = "",
+		 scriptPath[_MAX_PATH] = "";
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
+	GetPrivateProfileString(profile, "ScriptPath", "scripts", scriptPath, _MAX_PATH, file);
+	GetPrivateProfileString(profile, "DefaultGameScript", "", defaultGame, _MAX_FNAME, file);
+	GetPrivateProfileString(profile, "DefaultStarterScript", "", defaultStarter, _MAX_FNAME, file);
+
 	strcpy_s(Vars.szProfile, 256, profile);
-
-	GetPrivateProfileString(Vars.szProfile, "ScriptPath", "scripts", scriptPath, _MAX_PATH, file);
-	GetPrivateProfileString(Vars.szProfile, "DefaultGameScript", "default.dbj", defaultGame, _MAX_FNAME, file);
-	GetPrivateProfileString(Vars.szProfile, "DefaultStarterScript", "starter.dbj", defaultStarter, _MAX_FNAME, file);
-
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
-	strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
-	strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
+	if(strlen(defaultGame) > 0)
+		strcpy_s(Vars.szDefault, _MAX_FNAME, defaultGame);
+	if(strlen(defaultStarter) > 0)
+		strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
 
 	Vars.bUseProfileScript = FALSE;
+	Reload();
 	return true;
 }
 
 bool ProfileExists(const char *profile)
 {
-	char file[_MAX_FNAME+_MAX_PATH],
-		 profiles[65535] = "";
+	char file[_MAX_FNAME+_MAX_PATH], profiles[65535] = "";
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
 	int count = GetPrivateProfileString(NULL, NULL, NULL, profiles, 65535, file);
@@ -94,21 +95,9 @@ bool ProfileExists(const char *profile)
 
 void InitSettings(void)
 {
-	char fname[_MAX_FNAME+MAX_PATH],
-		 scriptPath[_MAX_PATH],
-		 defaultStarter[_MAX_FNAME],
-		 defaultGame[_MAX_FNAME],
-		 debug[6],
-		 blockMinimize[6],
-		 quitOnHostile[6],
-		 quitOnError[6],
-		 maxGameTime[6],
-		 gameTimeout[6],
-		 startAtMenu[6],
-		 disableCache[6],
-		 memUsage[6],
-		 gamePrint[6],
-		 useProfilePath[6];
+	char fname[_MAX_FNAME+MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME],
+		 debug[6], quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
+		 startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6];
 
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
@@ -117,7 +106,6 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "DefaultStarterScript", "starter.dbj", defaultStarter, _MAX_FNAME, fname);
 	GetPrivateProfileString("settings", "MaxGameTime", "0", maxGameTime, 6, fname);
 	GetPrivateProfileString("settings", "Debug", "false", debug, 6, fname);
-	GetPrivateProfileString("settings", "BlockMinimize", "false", blockMinimize, 6, fname);
 	GetPrivateProfileString("settings", "QuitOnHostile", "false", quitOnHostile, 6, fname);
 	GetPrivateProfileString("settings", "QuitOnError", "false", quitOnError, 6, fname);
 	GetPrivateProfileString("settings", "StartAtMenu", "true", startAtMenu, 6, fname);
@@ -135,7 +123,6 @@ void InitSettings(void)
 	Vars.dwMaxGameTime = abs(atoi(maxGameTime) * 1000);
 	Vars.dwGameTimeout = abs(atoi(gameTimeout) * 1000);
 
-	Vars.bBlockMinimize = StringToBool(blockMinimize);
 	Vars.bQuitOnHostile = StringToBool(quitOnHostile);
 	Vars.bQuitOnError = StringToBool(quitOnError);
 	Vars.bStartAtMenu = StringToBool(startAtMenu);
@@ -293,6 +280,17 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 		Reload();
 		result = true;
 	}
+#if DEBUG
+	else if(_strcmpi(argv, "profile") == 0)
+	{
+		const char* profile = command+8;
+		if(SwitchToProfile(profile))
+			Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+		else
+			Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
+		result = true;
+	}
+#endif
 	else if(_strcmpi(argv, "exec") == 0 && !unprocessedIsCommand)
 	{
 		ExecCommand(command+5);

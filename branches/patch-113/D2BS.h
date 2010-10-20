@@ -49,7 +49,6 @@ struct Variables
 
 	DWORD	dwMaxGameTime;
 	DWORD	dwGameTimeout;
-	BOOL	bBlockMinimize;
 	BOOL	bQuitOnError;
 	BOOL	bQuitOnHostile;
 	BOOL	bStartAtMenu;

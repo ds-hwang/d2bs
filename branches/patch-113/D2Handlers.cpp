@@ -23,6 +23,7 @@ DWORD WINAPI D2Thread(LPVOID lpParam)
 {
 	bool beginStarter = true;
 	bool bInGame = false;
+
 	InitSettings();
 	if(InitHooks())
 	{
@@ -167,7 +168,11 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 				else if(pCopy->dwData == 0x31337) // 0x31337 = Set Profile
 				{
-					SwitchToProfile((char*)pCopy->lpData);
+					const char* profile = (char*)pCopy->lpData;
+					if(SwitchToProfile(profile))
+						Print("ÿc2D2BSÿc0 :: Switched to profile %s", profile);
+					else
+						Print("ÿc2D2BSÿc0 :: Profile %s not found", profile);
 				}
 				else CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
