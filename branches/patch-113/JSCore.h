@@ -22,6 +22,5 @@ JSAPI_FUNC(my_clearAllEvents);
 JSAPI_FUNC(my_js_strict);
 JSAPI_FUNC(my_version);
 JSAPI_FUNC(my_scriptBroadcast);
-JSAPI_FUNC(my_blockMinimize);
 JSAPI_FUNC(my_showConsole);
 JSAPI_FUNC(my_hideConsole);

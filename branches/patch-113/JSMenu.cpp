@@ -10,20 +10,29 @@ JSAPI_FUNC(my_login)
 	if(ClientState() != ClientStateMenu)
 		return JS_TRUE;
 
-	char file[_MAX_FNAME+MAX_PATH], *profile,
+	char file[_MAX_FNAME+MAX_PATH], *profile = NULL,
 		 mode[256], username[48], password[256], gateway[256], charname[24],
 		 difficulty[10], maxLoginTime[10], maxCharTime[10];
 	
 	int loginTime = 0, charTime = 0, SPdifficulty = 0;
+	bool copiedProfile = false;
 
 	if(!JSVAL_IS_STRING(argv[0]))
-		THROW_ERROR(cx, "Invalid profile specified!");
+	{
+		if(Vars.szProfile != NULL)
+		{
+			int size = strlen(Vars.szProfile)+1;
+			profile = new char[size];
+			strcpy_s(profile, size, Vars.szProfile);
+			copiedProfile = true;
+		}
+		else
+			THROW_ERROR(cx, "Invalid profile specified!");
+	} else
+		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 
-	profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	if(!profile)
-		THROW_ERROR(cx, "Could not convert string (profile)");
-	if(!ProfileExists(profile))
-		THROW_ERROR(cx, "Profile does not exist!");
+	if(!profile) THROW_ERROR(cx, "Could not get profile!");
+	if(!ProfileExists(profile)) THROW_ERROR(cx, "Profile does not exist!");
 
 	sprintf_s(file, sizeof(file), "%sd2bs.ini", Vars.szPath);
 
@@ -32,7 +41,10 @@ JSAPI_FUNC(my_login)
 	GetPrivateProfileString(profile, "spdifficulty", "0", difficulty, sizeof(difficulty), file);
 	GetPrivateProfileString(profile, "username", "ERROR", username, sizeof(username), file);
 	GetPrivateProfileString(profile, "password", "ERROR", password, sizeof(password), file);
-	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);		
+	GetPrivateProfileString(profile, "gateway", "ERROR", gateway, sizeof(gateway), file);
+
+	if(copiedProfile)
+		delete[] profile;
 
 	GetPrivateProfileString("settings", "MaxLoginTime", "5", maxLoginTime, sizeof(maxLoginTime), file);
 	GetPrivateProfileString("settings", "MaxCharSelectTime", "5", maxCharTime, sizeof(maxCharTime), file);
@@ -65,11 +77,11 @@ JSAPI_FUNC(my_login)
 				break;
 			case OOG_CHAR_SELECT:
 				if (!OOG_SelectCharacter(charname))
-					 errorMsg = "invalid character name";
+					 errorMsg = "Invalid character name";
 				break;
 			case OOG_MAIN_MENU:
 				if (tolower(mode[0])== 's')
-					if(!clickControl(findControl(6, (char *)NULL, -1, 264,324,272,35)))	
+					if(!clickControl(findControl(6, (char *)NULL, -1, 264,324,272,35)))
 						 errorMsg = "Failed to click the Single button?";
 				if(tolower(mode[0])== 'b')
 				{

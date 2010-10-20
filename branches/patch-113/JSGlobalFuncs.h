@@ -96,7 +96,6 @@ static JSFunctionSpec global_funcs[] = {
 	{"quitGame",			my_quitGame,			0},
 	{"say",					my_say,					1},
 	{"clickParty",			my_clickParty,			1},
-	{"blockMinimize",		my_blockMinimize,		0},
 	{"weaponSwitch",		my_weaponSwitch,		0},
 	{"transmute",			my_transmute,			0},
 

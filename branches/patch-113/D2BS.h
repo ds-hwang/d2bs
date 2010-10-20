@@ -57,11 +57,15 @@ struct Variables
 	BOOL	bBlockKeys;
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
+	BOOL	bUseProfileScript;
 	int		dwMemUsage;
 
 	Module* pModule;
 	char	szPath[_MAX_PATH];
 	char	szScriptPath[_MAX_PATH];
+	char	szProfile[256];
+	char	szStarter[_MAX_FNAME];
+	char	szDefault[_MAX_FNAME];
 
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;

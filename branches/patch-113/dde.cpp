@@ -1,5 +1,6 @@
 #include "ScriptEngine.h"
 #include "D2Helpers.h"
+#include "Helpers.h"
 #include "dde.h"
 
 DWORD DdeSrvInst = 0;
@@ -13,6 +14,9 @@ HDDEDATA CALLBACK DdeCallback(UINT uType, UINT uFmt, HCONV hconv, HSZ hsz1,
 		case XTYP_CONNECT:
 			return (HDDEDATA)TRUE;
 		case XTYP_POKE:
+			DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
+			SwitchToProfile(pszItem);
+			break;
 		case XTYP_EXECUTE:
 			DdeGetData(hdata, (LPBYTE)pszItem, sizeof(pszItem), 0);
 			Script* script = ScriptEngine::CompileCommand(pszItem);

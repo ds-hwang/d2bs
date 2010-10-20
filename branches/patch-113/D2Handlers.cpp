@@ -165,19 +165,13 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(script)
 						CreateThread(0, 0, ScriptThread, script, 0, 0);
 				}
-				CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
+				else if(pCopy->dwData == 0x31337) // 0x31337 = Set Profile
+				{
+					SwitchToProfile((char*)pCopy->lpData);
+				}
+				else CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
 			return TRUE;
-		// TODO: we don't need this for 1.13
-		case WM_ACTIVATEAPP:
-			if(!wParam && Vars.bBlockMinimize)
-				return NULL;
-			break;
-		//case WM_NCDESTROY:
-		//	{
-		//		//Vars.bActive = FALSE;
-		//		return TRUE;
-		//	}
 	}
 
 	return (LONG)CallWindowProcA(Vars.oldWNDPROC, hWnd, uMsg, wParam, lParam);
@@ -358,24 +352,24 @@ void GameDrawOOG(void)
 
 void __stdcall AddUnit(UnitAny* lpUnit)
 {
-	EnterCriticalSection(&Vars.cUnitListSection);
-	Vars.vUnitList.push_back(make_pair<DWORD, DWORD>(lpUnit->dwUnitId, lpUnit->dwType));
-	LeaveCriticalSection(&Vars.cUnitListSection);
+//	EnterCriticalSection(&Vars.cUnitListSection);
+//	Vars.vUnitList.push_back(make_pair<DWORD, DWORD>(lpUnit->dwUnitId, lpUnit->dwType));
+//	LeaveCriticalSection(&Vars.cUnitListSection);
 }
 
 void __stdcall RemoveUnit(UnitAny* lpUnit)
 {
-	EnterCriticalSection(&Vars.cUnitListSection);
+//	EnterCriticalSection(&Vars.cUnitListSection);
 	// no need to check the return--it has to be there or the real game would have bigger issues with it
-	for(vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin(); it != Vars.vUnitList.end(); it++)
-	{
-		if(it->first == lpUnit->dwUnitId && it->second == lpUnit->dwType)
-		{
-			Vars.vUnitList.erase(it);
-			break;
-		}
-	}
-	LeaveCriticalSection(&Vars.cUnitListSection);
+//	for(vector<pair<DWORD, DWORD> >::iterator it = Vars.vUnitList.begin(); it != Vars.vUnitList.end(); it++)
+//	{
+//		if(it->first == lpUnit->dwUnitId && it->second == lpUnit->dwType)
+//		{
+//			Vars.vUnitList.erase(it);
+//			break;
+//		}
+//	}
+//	LeaveCriticalSection(&Vars.cUnitListSection);
 }
 
 void __fastcall WhisperHandler(char* szAcc, char* szText)

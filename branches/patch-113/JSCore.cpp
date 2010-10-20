@@ -228,14 +228,6 @@ JSAPI_FUNC(my_beep)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(my_blockMinimize)
-{
-	if(argc > 0 && (JSVAL_IS_INT(argv[0]) || JSVAL_IS_BOOLEAN(argv[0])))
-		Vars.bBlockMinimize = !!JSVAL_TO_BOOLEAN(argv[0]);
-
-	return JS_TRUE;
-}
-
 JSAPI_FUNC(my_getTickCount)
 {
 	*rval = INT_TO_JSVAL(GetTickCount());
