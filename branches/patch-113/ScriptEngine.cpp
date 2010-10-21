@@ -403,8 +403,7 @@ void reportError(JSContext *cx, const char *message, JSErrorReport *report)
 	Print("[ÿc%d%s%sÿc0 (%d)] File(%s:%d) %s", 
 			(warn ? 9 : 1), strict, type, report->errorNumber, displayName, report->lineno, message);
 
-	if(filename)
-		free(filename);
+	free(filename);
 
 	if(Vars.bQuitOnError && !JSREPORT_IS_WARNING(report->flags) && ClientState() == ClientStateInGame)
 		D2CLIENT_ExitGame();

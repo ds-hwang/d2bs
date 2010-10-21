@@ -143,8 +143,7 @@ public:
 	{ this->text = _strdup(text); }
 	~TextHook(void)
 	{
-		if(text)
-			free(text);
+		free(text);
 	}
 
 protected:

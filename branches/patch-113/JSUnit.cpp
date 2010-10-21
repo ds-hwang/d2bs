@@ -1561,6 +1561,7 @@ JSAPI_FUNC(unit_setskill)
 
 	WORD nSkillId = (WORD)-1;
 	BOOL nHand = FALSE;
+	DWORD itemId = (DWORD)-1;
 	*rval = JSVAL_FALSE;
 
 	if(argc < 1)
@@ -1578,7 +1579,19 @@ JSAPI_FUNC(unit_setskill)
 	else
 		return JS_TRUE;
 
-	if(SetSkill(nSkillId, nHand))
+	if(argc == 3 && JSVAL_IS_OBJECT(argv[2]))
+	{
+		JSObject* obj = JSVAL_TO_OBJECT(argv[2]);
+		if(JS_InstanceOf(cx, obj, &unit_class_ex.base, argv))
+		{
+			myUnit* unit = (myUnit*)JS_GetPrivate(cx, obj);
+			if(unit->dwType == UNIT_ITEM)
+				itemId = unit->dwUnitId;
+		}
+	}
+		
+
+	if(SetSkill(nSkillId, nHand, itemId))
 		*rval = JSVAL_TRUE;
 
 	return JS_TRUE;

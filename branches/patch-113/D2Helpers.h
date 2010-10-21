@@ -38,7 +38,7 @@ int		GetItemLocation(UnitAny *pItem);
 void	SelectInventoryItem(DWORD x, DWORD y, DWORD dwLocation);
 
 int		GetSkill(WORD wSkillId);
-BOOL	SetSkill(WORD wSkillId, BOOL bLeft);
+BOOL	SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId = 0xFFFFFFFF);
 char*	GetSkillByID(WORD id);
 WORD	GetSkillByName(char* szSkillName);
 

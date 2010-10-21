@@ -279,8 +279,7 @@ BOOL CCollisionMap::DumpMap(LPCSTR lpszFilePath, const LPPOINT lpPath, DWORD dwC
 		fprintf(fp, "%c", '\n');
 	}
 
-	if (pPath)
-		delete [] pPath;
+	delete [] pPath;
 
 	//m_map.Unlock();	
 	fclose(fp);

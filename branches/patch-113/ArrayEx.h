@@ -246,8 +246,7 @@ CArrayEx<TYPE, ARG_TYPE>::CArrayEx(const CArrayEx& src)
 template <class TYPE, class ARG_TYPE>
 CArrayEx<TYPE, ARG_TYPE>::~CArrayEx()
 {
-	if (m_pData != 0)
-		delete [] m_pData;
+	delete [] m_pData;
 };
 
 template <class TYPE, class ARG_TYPE>

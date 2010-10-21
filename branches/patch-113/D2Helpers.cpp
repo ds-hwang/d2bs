@@ -209,7 +209,7 @@ int GetSkill(WORD wSkillId)
 	return 0;
 }
 
-BOOL SetSkill(WORD wSkillId, BOOL bLeft)
+BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 {
 	if(ClientState() != ClientStateInGame) 
 		return FALSE;

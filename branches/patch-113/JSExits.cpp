@@ -5,8 +5,7 @@ EMPTY_CTOR(exit)
 void exit_finalize(JSContext *cx, JSObject *obj)
 {
 	myExit* pExit = (myExit*)JS_GetPrivate(cx, obj);
-	if(pExit)
-		delete pExit;
+	delete pExit;
 }
 
 JSAPI_PROP(exit_getProperty)

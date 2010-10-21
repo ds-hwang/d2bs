@@ -208,7 +208,6 @@ JSAPI_PROP(dir_getProperty)
 void dir_finalize(JSContext *cx, JSObject *obj)
 {
 	DirData* d = (DirData*)JS_GetPrivate(cx, obj);
-	if(d)
-		delete d;
+	delete d;
 }
 

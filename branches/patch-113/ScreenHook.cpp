@@ -317,8 +317,7 @@ bool TextHook::IsInRange(int dx, int dy)
 void TextHook::SetText(const char* ntext)
 {
 	Lock();
-	if(text)
-		free(text);
+	free(text);
 	text = NULL;
 	if(ntext)
 		text = _strdup(ntext);
@@ -366,8 +365,7 @@ bool ImageHook::IsInRange(int dx, int dy)
 void ImageHook::SetImage(const char* nimage)
 {
 	Lock();
-	if(location)
-		free(location);
+	free(location);
 	delete[] image;
 
 	location = _strdup(nimage);
