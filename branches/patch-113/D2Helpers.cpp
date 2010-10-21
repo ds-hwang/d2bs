@@ -223,7 +223,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 	*(WORD*)&aPacket[1] = wSkillId;
 	aPacket[3] = 0;
 	aPacket[4] = (bLeft) ? 0x80 : 0;
-	*(DWORD*)&aPacket[5] = 0xFFFFFFFF;
+	*(DWORD*)&aPacket[5] = dwItemId;
 
 	D2NET_SendPacket(9, 1, aPacket);
 
