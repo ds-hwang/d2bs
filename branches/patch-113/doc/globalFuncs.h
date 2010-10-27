@@ -1892,7 +1892,7 @@ bool say(...);
  *
  * 3 - Leave party (doesn't matter which party is passed in)
  */
-bool clickPary(Party player, int nMode);
+bool clickParty(Party player, int nMode);
 
 /** Block the minimization of the window (from <1.13).
  *
