@@ -211,3 +211,8 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 	*p_D2CLIENT_MouseY = OldMouse.y;
 	return TRUE;
 }
+
+void LoadMPQ(const char* mpq)
+{
+	D2WIN_InitMPQ("D2Win.DLL", mpq, NULL, 0, 0);
+}

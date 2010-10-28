@@ -57,6 +57,7 @@ struct Variables
 	BOOL	bBlockMouse;
 	BOOL	bDisableCache;
 	BOOL	bUseProfileScript;
+	BOOL	bLoadedWithCGuard;
 	int		dwMemUsage;
 
 	Module* pModule;

@@ -13,6 +13,7 @@
 #include "Events.h"
 #include "Console.h"
 #include "D2Ptrs.h"
+#include "File.h"
 
 JSAPI_FUNC(my_print)
 {
@@ -508,5 +509,17 @@ JSAPI_FUNC(my_showConsole)
 JSAPI_FUNC(my_hideConsole)
 {
 	Console::Hide();
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_loadMpq)
+{
+	char* path = NULL;
+	if(!JS_ConvertArguments(cx, argc, argv, "s", &path))
+		return JS_FALSE;
+
+	if(isValidPath(path))
+		LoadMPQ(path);
+
 	return JS_TRUE;
 }

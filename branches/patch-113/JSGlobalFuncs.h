@@ -79,6 +79,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"joinGame",			my_joinGame,			2},
 	{"addProfile",			my_addProfile,			6},
 	{"getLocation",			my_getOOGLocation,		0},
+	{"loadMpq",				my_loadMpq,				1},
 
 	// game functions that don't have anything to do with gathering data
 	{"submitItem",			my_submitItem,			0},

@@ -387,6 +387,8 @@ FUNCPTR(D2WIN, SetControlText, void* __fastcall, (Control* box, wchar_t* txt), -
 FUNCPTR(D2WIN, SplitText, SplitText* __fastcall, (wchar_t* text, int* lineCount, int width), -10059)
 FUNCPTR(D2WIN, FreeSplitText, void __fastcall, (SplitText* text), -10008)
 
+FUNCPTR(D2WIN, InitMPQ, DWORD __stdcall, (const char *dll, const char *mpqfile, const char *mpqname, int v4, int v5), 0x7E60)
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Win Globals

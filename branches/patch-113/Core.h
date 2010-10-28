@@ -10,3 +10,4 @@ bool SplitLines(const std::string & str, size_t maxlen, const char delim, std::l
 void Print(const char * szFormat, ...);
 void Say(const char* szMessage, ...);
 bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit);
+void LoadMPQ(const char* mpq);

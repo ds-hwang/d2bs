@@ -34,12 +34,14 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 					return FALSE;
 
 				strcpy_s(Vars.szPath, MAX_PATH, Vars.pModule->szPath);
+				Vars.bLoadedWithCGuard = TRUE;
 			}
 			else
 			{
 				GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
 				PathRemoveFileSpec(Vars.szPath);
 				strcat_s(Vars.szPath, MAX_PATH, "\\");
+				Vars.bLoadedWithCGuard = FALSE;
 			}
 
 #ifdef DEBUG
