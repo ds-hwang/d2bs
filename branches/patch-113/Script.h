@@ -24,8 +24,6 @@ static JSClass global_obj = {
 
 class Script;
 
-// TODO: replace this with a std::set and use that
-// to ensure include compliance, faster/less code
 typedef std::map<std::string, bool> IncludeList;
 typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
@@ -70,16 +68,16 @@ public:
 	void Pause(void);
 	void Resume(void);
 	bool IsPaused(void);
-	void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
-	bool IsReallyPaused(void) { return isReallyPaused; }
+	inline void SetPauseState(bool reallyPaused) { isReallyPaused = reallyPaused; }
+	inline bool IsReallyPaused(void) { return isReallyPaused; }
 	void Stop(bool force = false, bool reallyForce = false);
 
-	const char* GetFilename(void) { return fileName.c_str(); }
+	inline const char* GetFilename(void) { return fileName.c_str(); }
 	const char* GetShortFilename(void);
-	JSContext* GetContext(void) { return context; }
-	JSObject* GetGlobalObject(void) { return globalObject; }
-	JSObject* GetScriptObject(void) { return scriptObject; }
-	ScriptState GetState(void) { return scriptState; }
+	inline JSContext* GetContext(void) { return context; }
+	inline JSObject* GetGlobalObject(void) { return globalObject; }
+	inline JSObject* GetScriptObject(void) { return scriptObject; }
+	inline ScriptState GetState(void) { return scriptState; }
 	int GetExecutionCount(void);
 	DWORD GetThreadId(void);
 	// UGLY HACK to fix up the player gid on game join for cached scripts/oog scripts

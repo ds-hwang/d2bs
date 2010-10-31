@@ -610,6 +610,8 @@ JSAPI_FUNC(unit_cancel)
 {	
 	if(!WaitForGameReady())
 		THROW_ERROR(cx, "Game not ready");
+
+	BOOL automapOn = D2CLIENT_GetUIState(UI_AUTOMAP);
 	
 	if(IsScrollingText())
 			D2CLIENT_ClearScreen();
@@ -618,15 +620,14 @@ JSAPI_FUNC(unit_cancel)
 	else
 		D2CLIENT_CloseInteract();
 
-	
 	if(D2CLIENT_GetCursorItem())
 	{
 		// Diablo drops an Item by using the Walk function.
 		// Just perform a clickMap "click" and we drop it
 		D2CLIENT_ClickMap(0, 10, 10, 0x08);
-	
-	
 	}	
+
+	D2CLIENT_SetUIState(UI_AUTOMAP, automapOn);
 
 	return JS_TRUE;
 }

@@ -5,6 +5,7 @@
 #include "sqlite3.h"
 
 JSAPI_FUNC(my_sqlite_version);
+JSAPI_FUNC(my_sqlite_memusage);
 
 JSAPI_FUNC(sqlite_ctor);
 JSAPI_FUNC(sqlite_execute);
@@ -35,6 +36,7 @@ enum {
 	SQLITE_STMTS,
 	SQLITE_OPEN,
 	SQLITE_LASTROWID,
+	SQLITE_CHANGES
 };
 
 enum {
@@ -69,6 +71,7 @@ static JSPropertySpec sqlite_props[] = {
 	{"statements",	SQLITE_STMTS,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{"isOpen",		SQLITE_OPEN,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR,	sqlite_getProperty},
+	{"changes",		SQLITE_CHANGES,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{0}
 };
 

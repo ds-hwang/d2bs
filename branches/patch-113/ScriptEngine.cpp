@@ -137,6 +137,10 @@ BOOL ScriptEngine::Startup(void)
 
 		// create a context for internal use before we set the callback
 		context = JS_NewContext(runtime, 8192);
+		JS_SetErrorReporter(context, reportError);
+		JS_SetBranchCallback(context, branchCallback);
+		JS_SetOptions(context, JSOPTION_STRICT|JSOPTION_VAROBJFIX|JSOPTION_XML|JSOPTION_NATIVE_BRANCH_CALLBACK);
+		JS_SetVersion(context, JSVERSION_1_7);
 
 		JS_SetContextCallback(runtime, contextCallback);
 		JS_SetGCCallbackRT(runtime, gcCallback);

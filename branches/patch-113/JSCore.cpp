@@ -62,21 +62,6 @@ JSAPI_FUNC(my_delay)
 	else
 		JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
 
-/*	if(argc == 1 && JSVAL_IS_INT(argv[0]))
-	{
-		int nDelay = JSVAL_TO_INT(argv[0]);
-		if(nDelay)
-		{
-			jsrefcount depth = JS_SuspendRequest(cx);
-
-			Sleep(nDelay);
-
-			JS_ResumeRequest(cx, depth);
-		}
-		else
-			JS_ReportWarning(cx, "delay(0) called, argument must be >= 1");
-	}*/
-
 	return JS_TRUE;
 }
 
@@ -121,38 +106,6 @@ JSAPI_FUNC(my_load)
 		*rval = JSVAL_FALSE;
 	}
 
-/*	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-	{
-		Script* execScript = (Script*)JS_GetContextPrivate(cx);
-		ScriptState scriptState = execScript->GetState();
-		if(scriptState == Command)
-			scriptState = (GameReady() ? InGame : OutOfGame);
-
-		char* lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(!(lpszFileName && lpszFileName[0]))
-			THROW_ERROR(cx, obj, "Could not convert or empty string");
-		StringReplace(lpszFileName, '/', '\\');
-		if(strlen(lpszFileName) < (_MAX_FNAME + _MAX_PATH - strlen(Vars.szScriptPath)))
-		{
-			char lpszBuf[_MAX_PATH+_MAX_FNAME];
-			sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\%s", Vars.szScriptPath, lpszFileName);
-			Script* script = ScriptEngine::CompileFile(lpszBuf, scriptState);
-			if(script)
-			{
-				CreateThread(0, 0, ScriptThread, script, 0, 0);
-				*rval = JSVAL_TRUE;
-			}
-			else
-			{
-				// TODO: Should this actually be there? No notification is bad, but do we want this? maybe throw an exception?
-				Print("File \"%s\" not found.", lpszFileName);
-				*rval = JSVAL_FALSE;
-			}
-		}
-		else
-			THROW_ERROR(cx, obj, "File name exceeds max name length");
-	}*/
-
 	return JS_TRUE;
 }
 
@@ -181,23 +134,6 @@ JSAPI_FUNC(my_include)
 	sprintf_s(buf, sizeof(buf), "%s\\libs\\%s", Vars.szScriptPath, file);
 	if(_access(buf, 0) == 0)
 		*rval = BOOLEAN_TO_JSVAL(script->Include(buf));
-
-/*	if(argc > 0 && JSVAL_IS_STRING(argv[0]))
-	{
-		Script* script = (Script*)JS_GetContextPrivate(cx);
-		if(script)
-		{
-			char * lpszFileName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-			if(lpszFileName && strlen(lpszFileName) <= _MAX_FNAME)
-			{
-				char lpszBuf[_MAX_PATH+_MAX_FNAME];
-				sprintf_s(lpszBuf, sizeof(lpszBuf), "%s\\libs\\%s", Vars.szScriptPath, lpszFileName);
-				StringReplace(lpszFileName, '/', '\\');
-				if(_access(lpszBuf, 0) == 0)
-					*rval = BOOLEAN_TO_JSVAL(script->Include(lpszBuf));
-			}
-		}
-	}*/
 
 	return JS_TRUE;
 }
@@ -257,21 +193,6 @@ JSAPI_FUNC(my_isIncluded)
 	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, file);
 	Script* script = (Script*)JS_GetContextPrivate(cx);
 	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));
-
-/*	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
-	char* szFile = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-	if(!(szFile && szFile[0]))
-		THROW_ERROR(cx, obj, "Could not convert string");
-
-	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf_s(path, _MAX_FNAME+_MAX_PATH, "%s\\libs\\%s", Vars.szScriptPath, szFile);
-	Script* script = (Script*)JS_GetContextPrivate(cx);
-	*rval = BOOLEAN_TO_JSVAL(script->IsIncluded(path));*/
 
 	return JS_TRUE;
 }
@@ -340,33 +261,6 @@ JSAPI_FUNC(my_sendCopyData)
 		windowClassName = NULL;
 	if(_strcmpi(windowName, "null") == 0)
 		windowName = NULL;
-
-/*	if(JSVAL_IS_STRING(argv[0]))
-	{
-		windowClassName = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-		if(!windowClassName)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}
-	
-	if(JSVAL_IS_STRING(argv[1]))
-	{
-		windowName = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-		if(!windowName)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}
-	
-	if(JSVAL_IS_INT(argv[2]))
-	{
-		if(JS_ValueToInt32(cx, argv[2], &nModeId) == JS_FALSE)
-			THROW_ERROR(cx, obj, "Could not convert value");
-	}
-	
-	if(JSVAL_IS_STRING(argv[3]))
-	{
-		data = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
-		if(!data)
-			THROW_ERROR(cx, obj, "Could not convert string");
-	}*/
 
 	HWND hWnd = FindWindow(windowClassName, windowName);
 	if(!hWnd)

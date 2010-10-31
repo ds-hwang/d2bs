@@ -66,6 +66,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"version",				my_version,				0},
 	{"scriptBroadcast",		my_scriptBroadcast,		1},
 	{"sqlite_version",		my_sqlite_version,		0},
+	{"sqlite_memusage",		my_sqlite_memusage,		0},
 	{"dopen",				my_openDir,				1},
 	{"debugLog",			my_debugLog,			1},
 	{"showConsole",			my_showConsole,			0},

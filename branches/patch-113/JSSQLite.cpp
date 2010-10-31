@@ -68,6 +68,12 @@ JSAPI_FUNC(my_sqlite_version)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_sqlite_memusage)
+{
+	JS_NewNumberValue(cx, (jsdouble)sqlite3_memory_used(), rval);
+	return JS_TRUE;
+}
+
 EMPTY_CTOR(sqlite_stmt)
 
 JSAPI_FUNC(sqlite_ctor)
@@ -245,17 +251,21 @@ JSAPI_PROP(sqlite_getProperty)
 		case SQLITE_LASTROWID:
 			*vp = INT_TO_JSVAL(sqlite3_last_insert_rowid(dbobj->db));
 			break;
-		case SQLITE_STMTS:
-			JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
-			*vp = OBJECT_TO_JSVAL(stmts);
-			int i = 0;
-			for(StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
-				if((*it)->open) {
-					JSObject* stmt = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, *it);
-					jsval tmp = OBJECT_TO_JSVAL(stmt);
-					JS_SetElement(cx, stmts, i, &tmp);
+		case SQLITE_STMTS: {
+				JSObject *stmts = JS_NewArrayObject(cx, dbobj->stmts.size(), NULL);
+				*vp = OBJECT_TO_JSVAL(stmts);
+				int i = 0;
+				for(StmtList::iterator it = dbobj->stmts.begin(); it != dbobj->stmts.end(); it++, i++) {
+					if((*it)->open) {
+						JSObject* stmt = BuildObject(cx, &sqlite_stmt, sqlite_stmt_methods, sqlite_stmt_props, *it);
+						jsval tmp = OBJECT_TO_JSVAL(stmt);
+						JS_SetElement(cx, stmts, i, &tmp);
+					}
 				}
 			}
+			break;
+		case SQLITE_CHANGES:
+			JS_NewNumberValue(cx, (jsdouble)sqlite3_changes(dbobj->db), vp);
 			break;
 	}
 	return JS_TRUE;

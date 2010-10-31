@@ -258,10 +258,13 @@ bool Script::Include(const char* file)
 		return false;
 	_strlwr_s(fname, strlen(fname)+1);
 	StringReplace(fname, '/', '\\', strlen(fname));
+
+	// don't invoke the string ctor more than once...
+	string currentFileName = string(fname);
 	// ignore already included, 'in-progress' includes, and self-inclusion
-	if(!!includes.count(string(fname)) ||
-	   !!inProgress.count(string(fname)) ||
-	    (fileName == string(fname)))
+	if(!!includes.count(currentFileName) ||
+	   !!inProgress.count(string(currentFileName)) ||
+	    (fileName == string(currentFileName)))
 	{
 		LeaveCriticalSection(&lock);
 		free(fname);
@@ -269,23 +272,25 @@ bool Script::Include(const char* file)
 	}
 	bool rval = false;
 
-	JS_BeginRequest(GetContext());
+	JSContext* cx = ScriptEngine::GetGlobalContext();
 
-	JSScript* script = JS_CompileFile(GetContext(), GetGlobalObject(), fname);
+	JS_BeginRequest(cx);
+
+	JSScript* script = JS_CompileFile(cx, GetGlobalObject(), fname);
 	if(script)
 	{
-		JSObject* scriptObj = JS_NewScriptObject(GetContext(), script);
+		JSObject* scriptObj = JS_NewScriptObject(cx, script);
 		JS_AddRoot(&scriptObj);
 		jsval dummy;
 		inProgress[fname] = true;
-		rval = !!JS_ExecuteScript(GetContext(), GetGlobalObject(), script, &dummy);
+		rval = !!JS_ExecuteScript(cx, GetGlobalObject(), script, &dummy);
 		if(rval)
 			includes[fname] = true;
 		inProgress.erase(fname);
 		JS_RemoveRoot(&scriptObj);
 	}
 
-	JS_EndRequest(GetContext());
+	JS_EndRequest(cx);
 	LeaveCriticalSection(&lock);
 	free(fname);
 	return rval;
