@@ -62,6 +62,8 @@ struct Variables
 	int		dwMemUsage;
 
 	Module* pModule;
+	HMODULE hModule;
+
 	char	szPath[_MAX_PATH];
 	char	szScriptPath[_MAX_PATH];
 	char	szProfile[256];

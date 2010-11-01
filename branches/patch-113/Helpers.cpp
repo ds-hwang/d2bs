@@ -283,6 +283,11 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 		result = true;
 	}
 #if DEBUG
+	else if(_strcmpi(argv, "crash") == 0)
+	{
+		DWORD zero = 0;
+		__asm { jmp zero }
+	}
 	else if(_strcmpi(argv, "profile") == 0)
 	{
 		const char* profile = command+8;
@@ -336,4 +341,23 @@ void MenuEntered(bool beginStarter)
 				Print("ÿc2D2BSÿc0 :: Failed to start %s!", starter);
 		}
 	}
+}
+
+LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
+{
+	EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
+	CONTEXT* ctx = ptrs->ContextRecord;
+
+	Log("*** Exception: 0x%x at 0x%x\n"
+		"Registers:\n"
+		"\tEIP: %x, ESP: %x\n"
+		"\tCS: %x, DS: %x, ES: %x, SS: %x, FS: %x, GS: %x\n"
+		"\tEAX: %x, EBX: %x, ECX: %x, EDX: %x, ESI: %x, EDI: %x, EBP: %x, FLG: %x\n"
+		"D2BS loaded at: 0x%x",
+			rec->ExceptionCode, rec->ExceptionAddress, ctx->Eip, ctx->Esp,
+			ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs,
+			ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags,
+			Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule);
+
+	return EXCEPTION_EXECUTE_HANDLER;
 }

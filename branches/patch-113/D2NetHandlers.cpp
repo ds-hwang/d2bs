@@ -134,6 +134,7 @@ DWORD EventMessagesHandler(BYTE* pPacket, DWORD dwSize)
 
 DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 {
+	// TODO: fix this code later by changing the way it's parsed
 	INT64 icode   = 0;
 	char code[5]  = "";
 	BYTE mode     = pPacket[1];
@@ -146,8 +147,8 @@ DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 		case 2:
 			icode = *(INT64 *)(pPacket+15)>>0x04;
 			break;
-		case 3: 
-		case 4: 
+		case 3:
+		case 4:
 		case 6:
 			if(!((mode == 0 || mode == 2) && dest == 3))
 			{
@@ -160,7 +161,6 @@ DWORD ItemActionHandler(BYTE* pPacket, DWORD dwSize)
 				icode = *(INT64 *)(pPacket+17) >> 0x05;
 			break;
 		default:
-			Log("Received invalid item destination...? mode = %d, gid = %d, dest = %d", mode, gid, dest);
 			break;
 	}
 

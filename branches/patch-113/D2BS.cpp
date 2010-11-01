@@ -38,6 +38,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 			}
 			else
 			{
+				Vars.hModule = hDll;
 				GetModuleFileName(hDll, Vars.szPath, MAX_PATH);
 				PathRemoveFileSpec(Vars.szPath);
 				strcat_s(Vars.szPath, MAX_PATH, "\\");
@@ -56,6 +57,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 #endif
 
 			Vars.bShutdownFromDllMain = FALSE;
+			SetUnhandledExceptionFilter(ExceptionHandler);
 			if(!Startup())
 				return FALSE;
 		}
