@@ -122,12 +122,12 @@ DWORD __fastcall ChannelInput(wchar_t* wMsg)
 	{
 		char* szBuffer = UnicodeToAnsi(wMsg);
 		result = ProcessCommand(szBuffer+1, false);
-		// TODO: Clear the msg buffer, this DOES NOT clear it
-		//wMsg = L"";
+		D2WIN_SetControlText(*p_D2WIN_ChatInputBox, L"");
 		delete[] szBuffer;
 	}
 
-	return result;
+	// false means ignore, true means send
+	return result ? false : true;
 }
 
 DWORD __fastcall GamePacketReceived(BYTE* pPacket, DWORD dwSize)

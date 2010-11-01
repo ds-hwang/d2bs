@@ -397,6 +397,7 @@ FUNCPTR(D2WIN, InitMPQ, DWORD __stdcall, (const char *dll, const char *mpqfile, 
 
 VARPTR(D2WIN, FirstControl, Control*, 0x214A0)
 VARPTR(D2WIN, FocusedControl, Control*, 0x214B0) // unused, but we ought to use it
+VARPTR(D2WIN, ChatInputBox, Control*, 0x12A0D0)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
