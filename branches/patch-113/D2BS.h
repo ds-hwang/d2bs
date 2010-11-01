@@ -58,6 +58,7 @@ struct Variables
 	BOOL	bDisableCache;
 	BOOL	bUseProfileScript;
 	BOOL	bLoadedWithCGuard;
+	BOOL	bLogConsole;
 	int		dwMemUsage;
 
 	Module* pModule;

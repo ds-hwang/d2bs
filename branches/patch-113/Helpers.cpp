@@ -97,7 +97,7 @@ void InitSettings(void)
 {
 	char fname[_MAX_FNAME+MAX_PATH], scriptPath[_MAX_PATH], defaultStarter[_MAX_FNAME], defaultGame[_MAX_FNAME],
 		 debug[6], quitOnHostile[6], quitOnError[6], maxGameTime[6], gameTimeout[6],
-		 startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6];
+		 startAtMenu[6], disableCache[6], memUsage[6], gamePrint[6], useProfilePath[6], logConsole[6];
 
 	sprintf_s(fname, sizeof(fname), "%sd2bs.ini", Vars.szPath);
 
@@ -114,6 +114,7 @@ void InitSettings(void)
 	GetPrivateProfileString("settings", "UseGamePrint", "false", gamePrint, 6, fname);
 	GetPrivateProfileString("settings", "GameReadyTimeout", "5", gameTimeout, 6, fname);
 	GetPrivateProfileString("settings", "UseProfileScript", "false", useProfilePath, 6, fname);
+	GetPrivateProfileString("settings", "LogConsoleOutput", "false", logConsole, 6, fname);
 
 	sprintf_s(Vars.szScriptPath, _MAX_PATH, "%s%s", Vars.szPath, scriptPath);
 	strcpy_s(Vars.szStarter, _MAX_FNAME, defaultStarter);
@@ -129,6 +130,7 @@ void InitSettings(void)
 	Vars.bDisableCache = StringToBool(disableCache);
 	Vars.bUseGamePrint = StringToBool(gamePrint);
 	Vars.bUseProfileScript = StringToBool(useProfilePath);
+	Vars.bLogConsole = StringToBool(logConsole);
 
 	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)

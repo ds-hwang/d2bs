@@ -215,4 +215,6 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 void LoadMPQ(const char* mpq)
 {
 	D2WIN_InitMPQ("D2Win.DLL", mpq, NULL, 0, 0);
+	*p_BNCLIENT_XPacKey = *p_BNCLIENT_ClassicKey = *p_BNCLIENT_KeyOwner = NULL;
+	BNCLIENT_DecodeAndLoadKeys();
 }

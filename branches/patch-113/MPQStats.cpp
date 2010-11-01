@@ -169,7 +169,7 @@ bool FillBaseStat(int table, int row, int column, void* result, size_t size)
 		case FIELDTYPE_DATA_RAW:
 			if(size != 5)
 				return false;
-			memcpy(result, (LPVOID)(dwRetValue+pTable[column].dwFieldOffset), size);
+			memcpy(result, (LPVOID)(dwRetValue+pTable[column].dwFieldOffset), size-1);
 			break;
 		case FIELDTYPE_MONSTER_COMPS:
 			// ..? :E

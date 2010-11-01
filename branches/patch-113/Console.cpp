@@ -94,6 +94,9 @@ void Console::AddLine(std::string line)
 	// add the new line to the list
 	lines.push_back(line);
 
+	if(Vars.bLogConsole)
+		Log(const_cast<char*>(line.c_str()));
+
 	// clear out old lines
 	while(lines.size() > lineCount)
 		lines.pop_front();

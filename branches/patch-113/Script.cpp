@@ -272,7 +272,7 @@ bool Script::Include(const char* file)
 	}
 	bool rval = false;
 
-	JSContext* cx = ScriptEngine::GetGlobalContext();
+	JSContext* cx = GetContext();
 
 	JS_BeginRequest(cx);
 
