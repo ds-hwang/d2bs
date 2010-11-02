@@ -7,6 +7,7 @@
 #include "Control.h"
 #include "D2Ptrs.h"
 #include "Helpers.h"
+#include "DbgHelp.h"
 
 wchar_t* AnsiToUnicode(const char* str)
 {
@@ -286,7 +287,8 @@ bool ProcessCommand(const char* command, bool unprocessedIsCommand)
 	else if(_strcmpi(argv, "crash") == 0)
 	{
 		DWORD zero = 0;
-		__asm { jmp zero }
+		double value = 1/zero;
+		Print("%d", value);
 	}
 	else if(_strcmpi(argv, "profile") == 0)
 	{
@@ -343,21 +345,130 @@ void MenuEntered(bool beginStarter)
 	}
 }
 
+SYMBOL_INFO* GetSymFromAddr(HANDLE hProcess, DWORD64 addr)
+{
+	char* symbols = new char[sizeof(SYMBOL_INFO) + 512];
+	memset(symbols, 0, sizeof(SYMBOL_INFO) + 512);
+
+	SYMBOL_INFO* sym = (SYMBOL_INFO*)(symbols);
+	sym->SizeOfStruct = sizeof(SYMBOL_INFO);
+	sym->MaxNameLen = 512;
+
+	DWORD64 dummy;
+	bool success = SymFromAddr(hProcess, addr, &dummy, sym) == TRUE ? true : false;
+	if(!success)
+	{
+		delete[] symbols;
+		sym = NULL;
+	}
+
+	return sym;
+}
+
+IMAGEHLP_LINE64* GetLineFromAddr(HANDLE hProcess, DWORD64 addr)
+{
+	IMAGEHLP_LINE64* line = new IMAGEHLP_LINE64;
+	line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+
+	DWORD dummy;
+	bool success = SymGetLineFromAddr64(hProcess, addr, &dummy, line) == TRUE ? true : false;
+	if(!success)
+	{
+		delete line;
+		line = NULL;
+	}
+	return line;
+}
+
 LONG WINAPI ExceptionHandler(EXCEPTION_POINTERS* ptrs)
 {
 	EXCEPTION_RECORD* rec = ptrs->ExceptionRecord;
 	CONTEXT* ctx = ptrs->ContextRecord;
+	DWORD base = Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule;
 
-	Log("*** Exception: 0x%x at 0x%x\n"
+	char path[MAX_PATH+_MAX_FNAME] = "";
+	sprintf_s(path, sizeof(path), "%s\\D2BS.bin", Vars.szPath);
+
+	HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, false, GetCurrentProcessId());
+	HANDLE hThread = GetCurrentThread();
+	CONTEXT context = *ctx;
+
+	SymSetOptions(SYMOPT_LOAD_LINES|SYMOPT_FAIL_CRITICAL_ERRORS|SYMOPT_NO_PROMPTS|SYMOPT_DEFERRED_LOADS);
+	SymInitialize(hProcess, Vars.szPath, TRUE);
+	SymLoadModule64(hProcess, NULL, path, NULL, base, 0);
+
+	STACKFRAME64 stack;
+	stack.AddrPC.Offset = context.Eip;
+	stack.AddrPC.Mode = AddrModeFlat;
+	stack.AddrStack.Offset = context.Esp;
+	stack.AddrStack.Mode = AddrModeFlat;
+	stack.AddrFrame.Offset = context.Ebp;
+	stack.AddrFrame.Mode = AddrModeFlat;
+
+	std::string trace;
+
+	for(int i = 0; i < 64; i++)
+	{
+		if(!StackWalk64(IMAGE_FILE_MACHINE_I386, hProcess, hThread, &stack, &context, NULL, SymFunctionTableAccess64, SymGetModuleBase64, NULL))
+			break;
+
+		// infinite loop
+		if(stack.AddrReturn.Offset == stack.AddrPC.Offset)
+			break;
+		// jump to 0
+		if(stack.AddrPC.Offset == 0)
+			break;
+
+		SYMBOL_INFO* sym = GetSymFromAddr(hProcess, stack.AddrPC.Offset);
+
+		if(sym)
+		{
+			char msg[1024];
+			ULONG64 base = (sym->Address - sym->ModBase);
+
+			IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, stack.AddrPC.Offset);
+			if(line)
+				sprintf_s(msg, 1024, "\t%s+0x%08x, File: %s line %d\n",
+						sym->Name, base, strrchr(line->FileName, '\\')+1, line->LineNumber);
+			else
+				sprintf_s(msg, 1024, "\t%s+0x%08x\n", sym->Name, base);
+
+			trace.append(msg);
+			delete line;
+		}
+		else
+		{
+			char addr[100];
+			sprintf_s(addr, sizeof(addr), "\t0x%08x\n", stack.AddrFrame.Offset);
+			trace.append(addr);
+		}
+
+		delete[] (char*)sym;
+	}
+
+	SYMBOL_INFO* sym = GetSymFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
+
+	IMAGEHLP_LINE64* line = GetLineFromAddr(hProcess, (DWORD64)rec->ExceptionAddress);
+
+	Log("EXCEPTION!\n*** 0x%08x at 0x%08x (%s in %s line %d)\n"
+		"D2BS loaded at: 0x%08x\n"
 		"Registers:\n"
-		"\tEIP: %x, ESP: %x\n"
-		"\tCS: %x, DS: %x, ES: %x, SS: %x, FS: %x, GS: %x\n"
-		"\tEAX: %x, EBX: %x, ECX: %x, EDX: %x, ESI: %x, EDI: %x, EBP: %x, FLG: %x\n"
-		"D2BS loaded at: 0x%x",
-			rec->ExceptionCode, rec->ExceptionAddress, ctx->Eip, ctx->Esp,
+		"\tEIP: 0x%08x, ESP: 0x%08x\n"
+		"\tCS: 0x%04x, DS: 0x%04x, ES: 0x%04x, SS: 0x%04x, FS: 0x%04x, GS: 0x%04x\n"
+		"\tEAX: 0x%08x, EBX: 0x%08x, ECX: 0x%08x, EDX: 0x%08x, ESI: 0x%08x, EDI: 0x%08x, EBP: 0x%08x, FLG: 0x%08x\n"
+		"Stack Trace:\n%s\nEnd of stack trace.",
+			rec->ExceptionCode, rec->ExceptionAddress,
+			sym != NULL ? sym->Name : "Unknown", line != NULL ? strrchr(line->FileName, '\\')+1 : "Unknown", line != NULL ? line->LineNumber : 0,
+			base,
+			ctx->Eip, ctx->Esp,
 			ctx->SegCs, ctx->SegDs, ctx->SegEs, ctx->SegSs, ctx->SegFs, ctx->SegGs,
 			ctx->Eax, ctx->Ebx, ctx->Ecx, ctx->Edx, ctx->Esi, ctx->Edi, ctx->Ebp, ctx->EFlags,
-			Vars.pModule ? Vars.pModule->dwBaseAddress : (DWORD)Vars.hModule);
+			trace.c_str());
+
+	delete[] (char*)sym;
+	delete line;
+
+	SymCleanup(hProcess);
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }
