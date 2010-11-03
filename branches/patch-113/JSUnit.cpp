@@ -923,7 +923,12 @@ void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)
 	}
 	else
 	{
-		jsval index = JSVAL_VOID, val = INT_TO_JSVAL(pStat[nStat].dwStatValue);
+		//Make sure to bit shift life, mana and stamina properly!
+		int value = pStat[nStat].dwStatValue;
+		if(pStat[nStat].wStatIndex >= 6 && pStat[nStat].wStatIndex <= 11)
+			value = value >> 8;
+
+		jsval index = JSVAL_VOID, val = INT_TO_JSVAL(value);
 		if(!JS_GetElement(cx, pArray, pStat[nStat].wStatIndex, &index))
 			return;
 		if(index == JSVAL_VOID)
