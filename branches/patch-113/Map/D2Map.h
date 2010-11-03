@@ -10,6 +10,26 @@
 namespace Mapping
 {
 
+enum ExitType
+{
+	Linkage,
+	Tile
+};
+
+struct Exit
+{
+public:
+	DWORD TargetLevel;
+	Point Location;
+	ExitType Type;
+	DWORD TileId;
+
+	Exit(Point location, DWORD levelId, ExitType type, DWORD tileId) :
+		TargetLevel(levelId), Location(location), Type(type), TileId(tileId) {}
+};
+
+typedef std::vector<Exit> ExitArray;
+
 class D2Map : public Map
 {
 private:
@@ -43,8 +63,8 @@ private:
 	typedef std::list<Room2*> RoomList;
 
 	void Build(void);
-	inline void AddRoomData(Room2* room) { D2COMMON_AddRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
-	inline void RemoveRoomData(Room2* room) { D2COMMON_RemoveRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void AddRoomData(Room2* room) const { D2COMMON_AddRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void RemoveRoomData(Room2* room) const { D2COMMON_RemoveRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
 
 	void AddRoom(Room2* const room, RoomList& rooms, UnitAny* player);
 	void AddCollisionMap(const CollMap* const map);
@@ -54,7 +74,7 @@ private:
 	void ShrinkMap(void);
 
 public:
-	D2Map(Act* act, const Level* level);
+	D2Map(const Level* level);
 	~D2Map(void);
 
 	void Dump(const char* file, const PointList& points) const;
@@ -67,6 +87,8 @@ public:
 
 	int GetMapData(const Point& point, bool abs = true) const;
 	bool IsValidPoint(const Point& point, bool abs = true) const;
+
+	void GetExits(ExitArray& exits) const;
 
 	bool SpaceHasFlag(int flag, const Point& point, bool abs = true) const;
 	bool PathHasFlag(int flag, const PointList& points, bool abs = true) const;

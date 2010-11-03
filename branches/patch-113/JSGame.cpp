@@ -184,7 +184,7 @@ JSAPI_FUNC(my_getPath)
 	JSObject* lvl = NULL;
 	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(!JS_InstanceOf(cx, obj, &area_class, argv[0]))
+	if(!JS_InstanceOf(cx, obj, &area_class, &argv[0]))
 		THROW_ERROR(cx, "Invalid area");
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
@@ -199,7 +199,7 @@ JSAPI_FUNC(my_getPath)
 
 	Level* level = GetLevel(area->AreaId);
 
-	D2Map map(level->pMisc->pAct, level);
+	D2Map map(level);
 
 	Point start(x, y), end(dx, dy);
 
@@ -267,7 +267,7 @@ JSAPI_FUNC(my_getCollision)
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
 
-	D2Map map(level->pMisc->pAct, level);
+	D2Map map(level);
 	if(!map.IsValidPoint(point))
 		THROW_ERROR(cx, "Invalid point!");
 
