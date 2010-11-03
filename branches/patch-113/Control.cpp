@@ -375,6 +375,13 @@ OOG_Location OOG_GetLocation(void)
 		else
 			return OOG_CHARACTER_CREATE_ALREADY_EXISTS;		//30 Character Create - Dupe Name									
 	}
+	else if(findControl(CONTROL_BUTTON, 5103, -1, 351,337,96,32))		//5103 = CANCEL
+	{
+		if(findControl(CONTROL_TEXTBOX, 5243, -1, 268, 300, 264, 100))
+			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
+		if (findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 268,320,264,120))
+			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
+	}	
 	else if(findControl(CONTROL_BUTTON, 5103, -1, 433, 433, 96, 32))
 	{ 
 		if (findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 427,234,300,100))
@@ -387,14 +394,7 @@ OOG_Location OOG_GetLocation(void)
 			return OOG_CHANNEL;								//7 "Channel List"
 		else
 			return OOG_LADDER;								//6 "Ladder"		
-	}	
-	else if(findControl(CONTROL_BUTTON, 5103, -1, 351,337,96,32))		//5103 = CANCEL
-	{
-		if(findControl(CONTROL_TEXTBOX, 5243, -1, 268, 300, 264, 100))
-			return OOG_CHARACTER_SELECT_PLEASE_WAIT;		//16 char select please wait...
-		if (findControl(CONTROL_TEXTBOX, (char *)NULL, -1, 268,320,264,120))
-			return OOG_PLEASE_WAIT;							//25 "Please Wait..."single player already exists also
-	}	
+	}		
 	else if(findControl(CONTROL_BUTTON, 5101, -1, 33,572,128,35))		//5101 = EXIT
 	{
 		if(findControl(CONTROL_BUTTON, 5288, -1, 264, 484, 272, 35))
@@ -489,7 +489,7 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 
 	// Battle.net/open game creation
 	OOG_Location loc = OOG_GetLocation();
-	if(!(loc == OOG_LOBBY || loc == OOG_CHAT || loc == OOG_DIFFICULTY))
+	if(!(loc == OOG_LOBBY || loc == OOG_CHAT || loc == OOG_DIFFICULTY || loc == OOG_CREATE))
 		return FALSE;
 
 	if(loc == OOG_DIFFICULTY)
@@ -532,11 +532,13 @@ bool OOG_CreateGame(const char* name, const char* pass, int difficulty)
 	else
 	{
 		// Create button
-		pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 533,469,120,20);
-		if(!pControl || !clickControl(pControl))
-			return FALSE;
-		Sleep(100);
-
+		if (loc != OOG_CREATE)
+		{
+			pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 533,469,120,20);
+			if(!pControl || !clickControl(pControl))
+				return FALSE;
+			Sleep(100);
+		}
 		if(OOG_GetLocation() == OOG_CREATE)
 		{
 			// Game name edit box
@@ -610,15 +612,17 @@ bool OOG_JoinGame(const char* name, const char* pass)
 	Control* pControl = NULL;
 
 	// Battle.net/open lobby/chat area
-	if(!(OOG_GetLocation() == OOG_LOBBY || OOG_GetLocation() == OOG_CHAT))
+	if(!(OOG_GetLocation() == OOG_LOBBY || OOG_GetLocation() == OOG_CHAT || OOG_GetLocation() == OOG_JOIN))
 		return FALSE;
 
 	// JOIN button
-	pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 652,469,120,20);
-	if(!pControl || !clickControl(pControl))
+	if (OOG_GetLocation() != OOG_JOIN)
+	{
+		pControl = findControl(CONTROL_BUTTON, (char *)NULL, -1, 652,469,120,20);
+		if(!pControl || !clickControl(pControl))
 			return FALSE;
-	Sleep(100);
-
+		Sleep(100);
+	}
 	if(OOG_GetLocation() == OOG_JOIN)
 	{
 		// Game name edit box
