@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="false"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Source Code\C++\d2bs-113&quot;"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;DEBUG;_MSVC_DEBUG;WIN32_LEAN_AND_MEAN"
 				StringPooling="true"
 				MinimalRebuild="true"
