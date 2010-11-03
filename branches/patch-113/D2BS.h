@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <vector>
 
-#include "CollisionMap.h"
 #include "ScreenHook.h"
 
 struct Variables;
@@ -77,7 +76,6 @@ struct Variables
 	UINT_PTR uTimer;
 	long SectionCount;
 
-	CCollisionMap cCollisionMap;
 	std::map<unsigned __int32, CellFile*> mCachedCellFiles;
 	std::vector<std::pair<DWORD, DWORD> > vUnitList;
 

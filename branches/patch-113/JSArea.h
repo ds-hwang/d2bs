@@ -1,8 +1,8 @@
 #ifndef AREA_H
 #define AREA_H
 
+#include <windows.h>
 #include "js32.h"
-#include "CollisionMap.h"
 
 CLASS_CTOR(area);
 

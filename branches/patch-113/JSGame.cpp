@@ -1,17 +1,15 @@
+#include "Constants.h"
 #include "JSGame.h"
 #include "D2Helpers.h"
-//#include "JSUnit.h"
-//#include "D2Ptrs.h"
 #include "CriticalSections.h"
-#include "CollisionMap.h"
-#include "TeleportPath.h"
-#include "WalkPath.h"
 #include "D2Skills.h"
 #include "MPQStats.h"
-#include "AreaLinker.h"
 #include "Core.h"
 #include "Helpers.h"
 #include "Game.h"
+#include "JSArea.h"
+
+#include "MapHeader.h"
 
 #include <cmath>
 
@@ -168,6 +166,10 @@ JSAPI_FUNC(my_acceptTrade)
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
+int __fastcall EstimateDistance(const Map& m, const Point& point, const Point& end)
+{
+	return DiagonalShortcut(point, end);
+}
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())
@@ -179,133 +181,66 @@ JSAPI_FUNC(my_getPath)
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	*rval = JSVAL_FALSE;
-	DWORD dwCount = NULL;
-	POINT lpBuffer[255] = {0};
-	DWORD *AreaIds = NULL;
-	jsuint dwLength = 0;
-	DWORD Area = 0;
+	JSObject* lvl = NULL;
+	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if (JSVAL_IS_OBJECT(argv[0])) {
-		JSObject* pObject = JSVAL_TO_OBJECT(argv[0]);
-		JS_GetArrayLength(cx, pObject, &dwLength);
-		AreaIds = new DWORD[dwLength];
-		jsval nVal;
-		for (int n = 0; n < (int)dwLength; n++) {
-			JS_GetElement(cx, pObject, n, &nVal);
-			JS_ValueToECMAUint32(cx, nVal, &(AreaIds[n]));
-		}
-		Area = AreaIds[0];
-	} else {
-		JS_ValueToECMAUint32(cx, argv[0], &Area);
-	}
+	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
+		return JS_FALSE;
 
-	uint32 x, y, x2, y2;
-	JS_ValueToECMAUint32(cx, argv[1], &x);
-	JS_ValueToECMAUint32(cx, argv[2], &y);
-	JS_ValueToECMAUint32(cx, argv[3], &x2);
-	JS_ValueToECMAUint32(cx, argv[4], &y2);
+	if(reductionType == 3 && !(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8])))
+		THROW_ERROR(cx, "Invalid function values for reduction type");
 
-	POINT ptStart = {x, y}, ptEnd = {x2, y2};
-	BOOL UseTele = !D2COMMON_IsTownByLevelNo(Area);
-	BOOL Reduction = true;
-	if(argc >= 6)
-		UseTele = JSVAL_TO_BOOLEAN(argv[5]);
-	DWORD Radius = (!D2COMMON_IsTownByLevelNo(Area) && UseTele) ? 35 : 20;
-	if(argc >= 7)
-		JS_ValueToECMAUint32(cx, argv[6], &Radius);
-	if(argc == 8)
-		Reduction = !!JSVAL_TO_BOOLEAN(argv[7]);
+	myArea* area = (myArea*)JS_GetPrivate(cx, lvl);
+	if(!area)
+		THROW_ERROR(cx, "Could not retrieve area data!");
 
-	CCollisionMap g_collisionMap;
+	Level* level = GetLevel(area->AreaId);
 
-	DWORD nAreas[64] = {0};
-	int nLen = GetAreas(nAreas, 64, Area, (WORD)ptEnd.x, (WORD)ptEnd.y);
+	D2Map map(level->pMisc->pAct, level);
 
-	if (JSVAL_IS_OBJECT(argv[0])) {
-		if (!g_collisionMap.CreateMap(AreaIds, dwLength)) {
-			*rval = JSVAL_FALSE;
-			return JS_TRUE;
-		}
-	} else {
-		if(nLen)
-		{
-			if(!g_collisionMap.CreateMap(nAreas, nLen))
-			{
-				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
-			}			
-		}
-		else
-			if(!g_collisionMap.CreateMap(Area))
-			{
-				*rval = JSVAL_FALSE;
-				return JS_TRUE;	
-			}
-	}
+	Point start(x, y), end(dx, dy);
 
-	if (!g_collisionMap.IsValidAbsLocation(ptStart.x, ptStart.y) ||
-		!g_collisionMap.IsValidAbsLocation(ptEnd.x, ptEnd.y))
-		return JS_TRUE;
+	if(!(map.IsValidPoint(start, true) && map.IsValidPoint(end, true)))
+		THROW_ERROR(cx, "Invalid start or end point!");
 
-	g_collisionMap.AbsToRelative(ptStart);
-	g_collisionMap.AbsToRelative(ptEnd);
-
-	WordMatrix matrix;
-	if(!g_collisionMap.CopyMapData(matrix))
-		return JS_TRUE;
-
-	g_collisionMap.MakeBlank(matrix, ptStart);
-	g_collisionMap.MakeBlank(matrix, ptEnd);
-
-	bool bFix = FALSE;
-
-	if(UseTele)
+	PathReducer* reducer = NULL;
+	switch(reductionType)
 	{
-		CTeleportPath tf(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
-		dwCount = tf.FindTeleportPath(ptStart, ptEnd, lpBuffer, 255, Radius);
+		case 0: reducer = new NoPathReducer(); break;
+		case 1: reducer = new WalkPathReducer(map, DiagonalShortcut, radius); break;
+		case 2: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
+		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8]); break;
+		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
-	else
+
+	PointList list;
+	AStarPath<std::allocator<Node> > path(map, reducer, EstimateDistance);
+	path.GetPath(start, end, list, true);
+
+	int count = list.size();
+
+	JS_EnterLocalRootScope(cx);
+
+	jsval* vec = new jsval[count];
+	for(int i = 0; i < count; i++)
 	{
-		g_collisionMap.ThickenWalls(matrix, 1);
-		CWalkPath wp(matrix.GetData(), matrix.GetCX(), matrix.GetCY());
+		jsval jx = INT_TO_JSVAL(list[i].first),
+			  jy = INT_TO_JSVAL(list[i].second);
 
-		dwCount = (DWORD)wp.FindWalkPath(ptStart, ptEnd, lpBuffer, 255, Radius, !!Reduction);
+		JSObject* point = BuildObject(cx);
+		JS_SetProperty(cx, point, "x", &jx);
+		JS_SetProperty(cx, point, "y", &jy);
+
+		vec[i] = OBJECT_TO_JSVAL(point);
 	}
 
-	if(dwCount > 1)
-		bFix = TRUE;
-	if(dwCount)
-	{
-		JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
-		*rval = OBJECT_TO_JSVAL(pReturnArray); 
-		for(DWORD i = 0; i < dwCount; i++)
-			g_collisionMap.RelativeToAbs(lpBuffer[i]);
-		
-		DWORD dwArray = NULL;
-		DWORD i = 0;
-		if(bFix)
-			i++;
+	JSObject* arr = JS_NewArrayObject(cx, count, vec);
+	*rval = OBJECT_TO_JSVAL(arr);
 
-		while(i < dwCount) 
-		{
-			JSObject* pArrayInsert = JS_NewArrayObject(cx, NULL, NULL);
-			JS_AddRoot(&pArrayInsert);
+	JS_LeaveLocalRootScope(cx);
 
-			jsval x = INT_TO_JSVAL(lpBuffer[i].x);
-			jsval y = INT_TO_JSVAL(lpBuffer[i].y);
+	delete reducer;
 
-			JS_SetElement(cx, pArrayInsert, 0, &x);
-			JS_SetElement(cx, pArrayInsert, 1, &y);	
-
-			jsval aObj = OBJECT_TO_JSVAL(pArrayInsert);
-
-			JS_SetElement(cx, pReturnArray, dwArray, &aObj);
-			JS_RemoveRoot(&pArrayInsert);
-			dwArray++;
-			i++;
-		}
-	}
 	return JS_TRUE;
 }
 
@@ -325,14 +260,15 @@ JSAPI_FUNC(my_getCollision)
 	JS_ValueToECMAUint32(cx, argv[0], &nLevelId);
 	JS_ValueToECMAInt32(cx, argv[1], &nX);
 	JS_ValueToECMAInt32(cx, argv[2], &nY);
-	if (Vars.cCollisionMap.dwLevelId && Vars.cCollisionMap.dwLevelId != nLevelId)
-	{
-		Vars.cCollisionMap.DestroyMap();
-		Vars.cCollisionMap.CreateMap(nLevelId);
-	}
-	
-	if(Vars.cCollisionMap.IsValidAbsLocation(nX, nY))
-		*rval = INT_TO_JSVAL(Vars.cCollisionMap.GetMapData(nX,nY, TRUE));
+
+	Point point(nX, nY);
+	Level* level = GetLevel(nLevelId);
+
+	D2Map map(level->pMisc->pAct, level);
+	if(!map.IsValidPoint(point))
+		THROW_ERROR(cx, "Invalid point!");
+
+	JS_NewNumberValue(cx, map.GetMapData(point, true), rval);
 
 	return JS_TRUE;
 }
@@ -1265,8 +1201,8 @@ JSAPI_FUNC(my_getMouseCoords)
 
 	if(nFlag)
 	{
-		Coords.x += *p_D2CLIENT_MouseOffsetX;
-		Coords.y += *p_D2CLIENT_MouseOffsetY;
+		Coords.x += *p_D2CLIENT_ViewportX;
+		Coords.y += *p_D2CLIENT_ViewportY;
 
 		D2COMMON_AbsScreenToMap(&Coords.x, &Coords.y);
 	}

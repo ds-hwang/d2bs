@@ -174,8 +174,8 @@ bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)
 
 	D2COMMON_MapToAbsScreen(&Click.x, &Click.y);
 
-	Click.x -= *p_D2CLIENT_MouseOffsetX;
-	Click.y -= *p_D2CLIENT_MouseOffsetY;
+	Click.x -= *p_D2CLIENT_ViewportX;
+	Click.y -= *p_D2CLIENT_ViewportY;
 
 	POINT OldMouse = {0, 0};
 	OldMouse.x = *p_D2CLIENT_MouseX;

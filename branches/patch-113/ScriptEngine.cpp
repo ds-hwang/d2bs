@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <vector>
+#include <assert.h>
 
 #include "ScriptEngine.h"
 #include "Core.h"

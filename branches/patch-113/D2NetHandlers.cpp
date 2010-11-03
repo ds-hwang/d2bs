@@ -6,7 +6,6 @@
 #include "Core.h"
 #include "Constants.h"
 #include "Events.h"
-#include "CollisionMap.h"
 #include "ScriptEngine.h"
 #include "Console.h"
 #include "D2BS.h"

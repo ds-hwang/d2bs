@@ -1,6 +1,5 @@
 #include "JSArea.h"
 #include "D2Ptrs.h"
-//#include "D2Helpers.h"
 #include "JSExits.h"
 #include "CriticalSections.h"
 
@@ -41,7 +40,7 @@ JSAPI_PROP(area_getProperty)
 					CriticalRoom cRoom;
 					cRoom.EnterSection();
 
-					CCollisionMap cMap;
+/*					CCollisionMap cMap;
 
 					if(!cMap.CreateMap(pArea->AreaId))
 					{
@@ -72,7 +71,7 @@ JSAPI_PROP(area_getProperty)
 
 						jsval a = OBJECT_TO_JSVAL(jsUnit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
-					}
+					}*/
 				}
 				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
 			}
