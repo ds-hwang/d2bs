@@ -22,7 +22,7 @@ private:
 
 	inline void swap(int* x, int* y) { int t = *x; *x = *y; *y = t; }
 
-	void Line(Point start, Point end, PointList& list)
+	void Line(Point start, Point end, PointList& list, bool absolute)
 	{
 		int x0 = start.first, y0 = start.second,
 			x1 = end.first, y1 = end.second;
@@ -46,8 +46,14 @@ private:
 
 		for(int x = x0; x < x1; x++)
 		{
-			if(steep) list.push_back(Point(y, x));
-			else list.push_back(Point(x, y));
+			Point p((steep ? y : x), (steep ? x : y));
+			list.push_back(p);
+
+			if(!(map.PathIsWalkable(list, absolute) && distance(start, p) < range))
+			{
+				list.pop_back();
+				break;
+			}
 
 			error -= dy;
 			if(error < 0)
@@ -76,7 +82,7 @@ public:
 
 				last = *(it++);
 				path.clear();
-				Line(current, last, path);
+				Line(current, last, path, abs);
 			} while(map.PathIsWalkable(path, abs) && distance(current, last) < range);
 			it--;
 			out.push_back(*it);

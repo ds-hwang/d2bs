@@ -250,7 +250,7 @@
 				UseUnicodeResponseFiles="false"
 				Optimization="3"
 				AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_NDEBUG;WIN32_LEAN_AND_MEAN;_SECURE_SCL#0;_SECURE_SCL_THROWS#0;_HAS_ITERATOR_DEBUGGING#0"
 				StringPooling="true"
 				MinimalRebuild="true"
 				SmallerTypeCheck="false"

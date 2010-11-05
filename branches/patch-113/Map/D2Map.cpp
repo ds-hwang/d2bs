@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <assert.h>
 
+#include "D2BS.h"
+
 #include "D2Map.h"
 
 #include "D2Structs.h"
@@ -70,6 +72,7 @@ void D2Map::Build(void)
 	// calling this invalidates the relative coordinates--we don't want that
 	//ShrinkMap();
 	FillGaps();
+	ThickenWalls();
 
 	LeaveCriticalSection(lock);
 }
@@ -133,23 +136,32 @@ void D2Map::SetCollisionData(int x, int y, WORD value)
 
 bool D2Map::IsGap(int x, int y, bool abs) const
 {
+	const int gapSize = 3;
 	Point pt(x, y);
 	assert(IsValidPoint(pt, abs));
-	if(GetMapData(pt, abs) % 2)
+	if(SpaceIsWalkable(pt, abs))
 		return false;
 
 	int spaces = 0;
 
-	for(int i = x-2; i <= x+2 && spaces < 3; i++)
-		spaces = ((i < 0 || i >= height || GetMapData(Point(i, y), abs) % 2) ? 0 : spaces+1);
+	for(int i = x-gapSize-1; i <= x+gapSize+1 && spaces < gapSize; i++)
+	{
+		Point pt(i, y);
+		if(IsValidPoint(pt, abs))
+			spaces = (SpaceIsWalkable(pt, abs) ? 0 : spaces+1);
+	}
 
-	if(spaces < 3)
+	if(spaces < gapSize)
 		return true;
 
-	for(int i = y-2, spaces = 0; i <= y+2 && spaces < 3; i++)
-		spaces = ((i < 0 || i >= width || GetMapData(Point(x, i), abs) % 2) ? 0 : spaces+1);
+	for(int i = y-gapSize-1, spaces = 0; i <= y+gapSize+1 && spaces < gapSize; i++)
+	{
+		Point pt(x, i);
+		if(IsValidPoint(pt, abs))
+			spaces = (SpaceIsWalkable(pt, abs) ? 0 : spaces+1);
+	}
 
-	return spaces < 3;
+	return spaces < gapSize;
 }
 void D2Map::FillGaps(void)
 {
@@ -198,6 +210,40 @@ void D2Map::ShrinkMap(void)
 
 	LeaveCriticalSection(lock);
 }
+void D2Map::ThickenWalls(void)
+{
+	const int ThickenAmount = 1;
+
+	for(int i = 0; i < height; i++)
+	{
+		for(int j = 0; j < width; j++)
+		{
+			Point pt(i, j);
+			if(SpaceIsWalkable(pt, false) || GetMapData(pt, false) == D2Map::ThickenedWall)
+				continue;
+
+			for(int x = i-ThickenAmount; x <= i+ThickenAmount; x++)
+			{
+				for(int y = j-ThickenAmount; y <= j+ThickenAmount; y++)
+				{
+					Point point(x, y);
+					if(IsValidPoint(point, false) && SpaceIsWalkable(point, false))
+						SetCollisionData(x, y, D2Map::ThickenedWall);
+				}
+			}
+		}
+	}
+
+	for(int i = 0; i < height; i++)
+	{
+		for(int j = 0; j < width; j++)
+		{
+			Point pt(i, j);
+			if(GetMapData(pt, false) == D2Map::ThickenedWall)
+				SetCollisionData(i, j, D2Map::Wall | D2Map::BlockWalk | D2Map::BlockPlayer);
+		}
+	}
+}
 
 Point D2Map::AbsToRelative(const Point& point) const
 {
@@ -223,7 +269,7 @@ int D2Map::GetMapData(const Point& point, bool abs) const
 bool D2Map::IsValidPoint(const Point& point, bool abs) const
 {
 	if(abs) return IsValidPoint(AbsToRelative(point), false);
-	return !!(point.first >= 0 && point.second >= 0 && point.first <= height && point.second <= width);
+	return !!(point.first >= 0 && point.second >= 0 && point.first < height && point.second < width);
 }
 
 void D2Map::GetExits(ExitArray& exits) const
@@ -237,7 +283,7 @@ void D2Map::GetExits(ExitArray& exits) const
 		Point start(i, 0);
 		if(SpaceIsWalkable(start, false))
 		{
-			Point end(i++, 0);
+			Point end(i+1, 0);
 			for(; end.first < height; end.first++)
 			{
 				if(!SpaceIsWalkable(end, false))
@@ -255,12 +301,12 @@ void D2Map::GetExits(ExitArray& exits) const
 	for(int i = 0; i < height; i++)
 	{
 		Point start(i, width-1);
-		if(!SpaceIsWalkable(start, false))
+		if(SpaceIsWalkable(start, false))
 		{
-			Point end(i++, width-1);
+			Point end(i+1, width-1);
 			for(; end.first < height; end.first++)
 			{
-				if(SpaceIsWalkable(end, false))
+				if(!SpaceIsWalkable(end, false))
 				{
 					end.first--;
 					break;
@@ -275,12 +321,12 @@ void D2Map::GetExits(ExitArray& exits) const
 	for(int i = 0; i < width; i++)
 	{
 		Point start(0, i);
-		if(!SpaceIsWalkable(start, false))
+		if(SpaceIsWalkable(start, false))
 		{
-			Point end(0, i++);
+			Point end(0, i+1);
 			for(; end.second < width; end.second++)
 			{
-				if(SpaceIsWalkable(end, false))
+				if(!SpaceIsWalkable(end, false))
 				{
 					end.second--;
 					break;
@@ -295,12 +341,12 @@ void D2Map::GetExits(ExitArray& exits) const
 	for(int i = 0; i < width; i++)
 	{
 		Point start(height-1, i);
-		if(!SpaceIsWalkable(start, false))
+		if(SpaceIsWalkable(start, false))
 		{
-			Point end(height-1, i++);
+			Point end(height-1, i+1);
 			for(end.second++; end.second < width; end.second++)
 			{
-				if(SpaceIsWalkable(end, false))
+				if(!SpaceIsWalkable(end, false))
 				{
 					end.second--;
 					break;
@@ -316,22 +362,22 @@ void D2Map::GetExits(ExitArray& exits) const
 	for(std::vector<std::pair<Point, Point> >::iterator it = potentials.begin(); it != potentials.end(); it++)
 	{
 		Point start = it->first, end = it->second;
-		int dx = end.first - start.first, dy = end.second - start.second;
-		int cx = 0, cy = 0;
+		int xdiff = end.first - start.first, ydiff = end.second - start.second;
+		int xcenter = 0, ycenter = 0;
 
-		if(dx > 0)
-			if((dx % 2) == 1)
-				cx = start.first + ((dx - (dx % 2)) / 2);
-			else
-				cx = start.first + (dx / 2);
+		if(xdiff > 0)
+		{
+			if(xdiff % 2) xcenter = start.first + ((xdiff - (xdiff % 2)) / 2);
+			else xcenter = start.first + (xdiff / 2);
+		}
 
-		if(dy > 0)
-			if((dy % 2) == 1)
-				cy = start.second + ((dy - (dy % 2)) / 2);
-			else
-				cy = start.second + (dy / 2);
+		if(ydiff > 0)
+		{
+			if(ydiff % 2) ycenter = start.second + ((ydiff - (ydiff % 2)) / 2);
+			else ycenter = start.second + (ydiff / 2);
+		}
 
-		Point center(cx ? cx : start.first, cy ? cy : start.second);
+		Point center(xcenter ? xcenter : start.first, ycenter ? ycenter : start.second);
 		center = RelativeToAbs(center);
 		centers.push_back(center);
 	}
@@ -343,14 +389,15 @@ void D2Map::GetExits(ExitArray& exits) const
 		{
 			if(pRooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
 			{
-				int roomx = room->dwPosX * 5, roomy = room->dwPosY * 5;
-				int roomsx = roomx + room->dwSizeX, roomsy = roomy + room->dwSizeY;
+				int roomx = pRooms[i]->dwPosX * 5, roomy = pRooms[i]->dwPosY * 5;
+				int roomh = roomx + (pRooms[i]->dwSizeX * 5), roomw = roomy + (pRooms[i]->dwSizeY * 5);
 
 				for(PointList::iterator it = centers.begin(); it != centers.end(); it++)
 				{
-					if(it->first >= roomx && it->first <= roomsx && it->second >= roomy && it->second <= roomsy)
+					Point p = *it;
+					if(p.first >= roomx && p.first <= roomh && p.second >= roomy && p.second <= roomw)
 					{
-						Exit exit(*it, pRooms[i]->pLevel->dwLevelNo, Linkage, 0);
+						Exit exit(p, pRooms[i]->pLevel->dwLevelNo, Linkage, 0);
 						exits.push_back(exit);
 					}
 				}
@@ -399,6 +446,13 @@ void D2Map::GetExits(ExitArray& exits) const
 			RemoveRoomData(room);
 	}
 
+	char path[520];
+	sprintf_s(path, 520, "%smap.txt", Vars.szPath);
+	PointList pl;
+	for(PointList::iterator it = centers.begin(); it != centers.end(); it++)
+		pl.push_back(AbsToRelative(*it));
+	Dump(path, pl);
+
 	LeaveCriticalSection(lock);
 }
 
@@ -417,12 +471,16 @@ bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 
 bool D2Map::SpaceIsWalkable(const Point& point, bool abs) const
 {
-	return !(SpaceHasFlag(D2Map::BlockWalk, point, abs) || SpaceHasFlag(D2Map::BlockPlayer, point, abs) ||
-			 SpaceHasFlag(D2Map::ClosedDoor, point, abs) || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||
-			 SpaceHasFlag(D2Map::Object, point, abs));
+	return !SpaceHasFlag(D2Map::Avoid, point, abs) && !(SpaceHasFlag(D2Map::BlockWalk, point, abs) ||
+		SpaceHasFlag(D2Map::BlockPlayer, point, abs) || SpaceHasFlag(D2Map::ClosedDoor, point, abs) ||
+		SpaceHasFlag(D2Map::NPCCollision, point, abs) || SpaceHasFlag(D2Map::Object, point, abs));
 }
-bool D2Map::SpaceHasLineOfSight(const Point& point, bool abs) const { return !SpaceHasFlag(D2Map::BlockLineOfSight, point, abs); }
-bool D2Map::SpaceIsInvalid(const Point& point, bool abs) const { return SpaceHasFlag(0xFFF, point, abs); }
+bool D2Map::SpaceHasLineOfSight(const Point& point, bool abs) const
+{
+	return !SpaceHasFlag(D2Map::Avoid, point, abs) && !SpaceHasFlag(D2Map::BlockLineOfSight, point, abs);
+}
+
+bool D2Map::SpaceIsInvalid(const Point& point, bool abs) const { return SpaceHasFlag(D2Map::Avoid, point, abs); }
 
 bool D2Map::PathIsWalkable(const PointList& points, bool abs) const
 {
@@ -446,7 +504,21 @@ void D2Map::Dump(const char* file, const PointList& points) const
 	FILE* f = NULL;
 	fopen_s(&f, file, "wt");
 	if(!f) return;
-	fprintf(f, "Map (%d x %d) at (%d, %d) for area %d:\r\n", width, height, posX, posY, level->dwLevelNo);
+	fprintf(f, "Map (%d x %d) at (%d, %d) for area %d:\n", width, height, posX, posY, level->dwLevelNo);
+
+	fprintf(f, "Exits:\n");
+
+	ExitArray exits;
+	GetExits(exits);
+	int i = 1;
+	for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
+		fprintf(f, "Exit %d: at (%d, %d) of type %s to area %d (tile id: %d)\n", i++, it->Location.first, it->Location.second,
+						it->Type == Linkage ? "Area Linkage" : "Tile", it->TargetLevel, it->TileId);
+
+	fprintf(f, "\n");
+
+	PointList::const_iterator begin = points.begin(), end = points.end();
+	Point first = *begin, last = *(end-1);
 
 	for(int i = 0; i < height; i++)
 	{
@@ -454,15 +526,20 @@ void D2Map::Dump(const char* file, const PointList& points) const
 		{
 			Point pt(i, j);
 			char c = ' ';
-			PointList::const_iterator begin = points.begin(), end = points.end();
-			if(std::find(begin, end, pt) != end)
-				c = 'X';
+			if(SpaceHasFlag(D2Map::Avoid, pt, false))
+				c = 'A';
+			else if(pt == first)
+				c = 'S';
+			else if(pt == last)
+				c = 'E';
+			else if(std::find(begin, end, pt) != end)
+				c = 'P';
 			else if(SpaceIsInvalid(pt, false))
 				c = '?';
-			else if(SpaceIsWalkable(pt, false))
-				c = 'W';
-			else if(SpaceHasLineOfSight(pt, false))
-				c = '.';
+			else if(GetMapData(pt, false) == D2Map::ThickenedWall)
+				c = 'T';
+			else if(!SpaceIsWalkable(pt, false))
+				c = 'X';
 			fprintf(f, "%c", c);
 		}
 		fprintf(f, "\n");

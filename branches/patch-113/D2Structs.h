@@ -254,6 +254,16 @@ struct Level {
 	ActMisc* pMisc;			//0x1B4
 	DWORD _5[6];			//0x1BC
 	DWORD dwLevelNo;		//0x1D0
+	DWORD _6[3];			//0x1D4
+	union {            
+		DWORD RoomCenterX[9];
+		DWORD WarpX[9];
+	};						//0x1E0
+	union {            
+		DWORD RoomCenterY[9];
+		DWORD WarpY[9];
+	};						//0x204
+	DWORD dwRoomEntries;	//0x228
 };
 
 struct Room2 {

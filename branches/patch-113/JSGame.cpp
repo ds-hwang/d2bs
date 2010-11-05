@@ -184,7 +184,7 @@ JSAPI_FUNC(my_getPath)
 	JSObject* lvl = NULL;
 	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(!JS_InstanceOf(cx, obj, &area_class, &argv[0]))
+	if(_strcmpi(JS_GetClass(cx, JSVAL_TO_OBJECT(argv[0]))->name, area_class.name) != 0)
 		THROW_ERROR(cx, "Invalid area");
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))

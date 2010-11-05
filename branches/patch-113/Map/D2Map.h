@@ -34,23 +34,25 @@ class D2Map : public Map
 {
 private:
 	enum CollisionFlag {
-		None				= 0x00000000,
-		BlockWalk			= 0x00000001,
-		BlockLineOfSight	= 0x00000002,
-		Wall				= 0x00000004,
-		BlockPlayer			= 0x00000008,
-		AlternateTile		= 0x00000010,
-		Blank				= 0x00000020,
-		Missile				= 0x00000040,
-		Player				= 0x00000080,
-		NPCLocation			= 0x00000100,
-		Item				= 0x00000200,
-		Object				= 0x00000400,
-		ClosedDoor			= 0x00000800,
-		NPCCollision		= 0x00001000,
-		FriendlyNPC			= 0x00002000,
-		Unknown				= 0x00004000,
-		DeadBody			= 0x00008000 // also portal
+		None				= 0x0000,
+		BlockWalk			= 0x0001,
+		BlockLineOfSight	= 0x0002,
+		Wall				= 0x0004,
+		BlockPlayer			= 0x0008,
+		AlternateTile		= 0x0010,
+		Blank				= 0x0020,
+		Missile				= 0x0040,
+		Player				= 0x0080,
+		NPCLocation			= 0x0100,
+		Item				= 0x0200,
+		Object				= 0x0400,
+		ClosedDoor			= 0x0800,
+		NPCCollision		= 0x1000,
+		FriendlyNPC			= 0x2000,
+		Unknown				= 0x4000,
+		DeadBody			= 0x8000, // also portal
+		ThickenedWall		= 0xFEFE,
+		Avoid				= 0xFFFF
 	};
 
 	Act* act;
@@ -72,6 +74,7 @@ private:
 	bool IsGap(int x, int y, bool abs) const;
 	void FillGaps(void);
 	void ShrinkMap(void);
+	void ThickenWalls(void);
 
 public:
 	D2Map(const Level* level);

@@ -124,7 +124,6 @@ public:
 
 	void GetPath(Point const & start, Point const & end, PointList& list, bool abs = true)
 	{
-		list.clear();
 		Node* result = NULL;
 
 		// if we don't have a valid start and end, don't even bother
