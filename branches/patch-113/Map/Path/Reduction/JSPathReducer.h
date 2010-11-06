@@ -17,14 +17,13 @@ namespace Reducing
 class JSPathReducer : public PathReducer
 {
 private:
-	D2Map& map;
 	JSContext* cx;
 	JSObject* obj;
 	jsval reject, reduce;
 
 public:
-	JSPathReducer(D2Map& m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce) :
-		map(m), reject(_reject), reduce(_reduce) { JS_AddRoot(&reject); JS_AddRoot(&reduce); }
+	JSPathReducer(D2Map* m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce) :
+		reject(_reject), reduce(_reduce) { JS_AddRoot(&reject); JS_AddRoot(&reduce); }
 	~JSPathReducer(void) { JS_RemoveRoot(&reject); JS_RemoveRoot(&reduce); }
 
 	void Reduce(PointList const & in, PointList& out, bool abs)

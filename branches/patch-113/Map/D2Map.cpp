@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <assert.h>
 
-#include "D2BS.h"
-
 #include "D2Map.h"
 
 #include "D2Structs.h"
@@ -16,6 +14,25 @@
 
 namespace Mapping
 {
+
+MapList D2Map::cache = MapList();
+
+D2Map* D2Map::GetMap(Level* level)
+{
+	if(cache.size() != 0)
+		if(cache.count(level->dwLevelNo) > 0)
+			return cache[level->dwLevelNo];
+	D2Map* map = new D2Map(level);
+	cache[level->dwLevelNo] = map;
+	return map;
+}
+
+void D2Map::ClearCache(void)
+{
+	for(MapList::iterator it = cache.begin(); it != cache.end(); it++)
+		delete it->second;
+	cache.clear();
+}
 
 D2Map::D2Map(const Level* level)
 {
@@ -276,142 +293,29 @@ void D2Map::GetExits(ExitArray& exits) const
 {
 	EnterCriticalSection(lock);
 
-	std::vector<std::pair<Point, Point> > potentials;
-
-	for(int i = 0; i < height; i++)
-	{
-		Point start(i, 0);
-		if(SpaceIsWalkable(start, false))
-		{
-			Point end(i+1, 0);
-			for(; end.first < height; end.first++)
-			{
-				if(!SpaceIsWalkable(end, false))
-				{
-					end.first--;
-					break;
-				}
-			}
-
-			potentials.push_back(make_pair(start, end));
-			break;
-		}
-	}
-
-	for(int i = 0; i < height; i++)
-	{
-		Point start(i, width-1);
-		if(SpaceIsWalkable(start, false))
-		{
-			Point end(i+1, width-1);
-			for(; end.first < height; end.first++)
-			{
-				if(!SpaceIsWalkable(end, false))
-				{
-					end.first--;
-					break;
-				}
-			}
-
-			potentials.push_back(make_pair(start, end));
-			break;
-		}
-	}
-
-	for(int i = 0; i < width; i++)
-	{
-		Point start(0, i);
-		if(SpaceIsWalkable(start, false))
-		{
-			Point end(0, i+1);
-			for(; end.second < width; end.second++)
-			{
-				if(!SpaceIsWalkable(end, false))
-				{
-					end.second--;
-					break;
-				}
-			}
-
-			potentials.push_back(make_pair(start, end));
-			break;
-		}
-	}
-
-	for(int i = 0; i < width; i++)
-	{
-		Point start(height-1, i);
-		if(SpaceIsWalkable(start, false))
-		{
-			Point end(height-1, i+1);
-			for(end.second++; end.second < width; end.second++)
-			{
-				if(!SpaceIsWalkable(end, false))
-				{
-					end.second--;
-					break;
-				}
-			}
-
-			potentials.push_back(make_pair(start, end));
-			break;
-		}
-	}
-
-	PointList centers;
-	for(std::vector<std::pair<Point, Point> >::iterator it = potentials.begin(); it != potentials.end(); it++)
-	{
-		Point start = it->first, end = it->second;
-		int xdiff = end.first - start.first, ydiff = end.second - start.second;
-		int xcenter = 0, ycenter = 0;
-
-		if(xdiff > 0)
-		{
-			if(xdiff % 2) xcenter = start.first + ((xdiff - (xdiff % 2)) / 2);
-			else xcenter = start.first + (xdiff / 2);
-		}
-
-		if(ydiff > 0)
-		{
-			if(ydiff % 2) ycenter = start.second + ((ydiff - (ydiff % 2)) / 2);
-			else ycenter = start.second + (ydiff / 2);
-		}
-
-		Point center(xcenter ? xcenter : start.first, ycenter ? ycenter : start.second);
-		center = RelativeToAbs(center);
-		centers.push_back(center);
-	}
+	RoomList potentials, added;
 
 	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
 	{
-		Room2** pRooms = room->pRoom2Near;
-		for(DWORD i = 0; i < room->dwRoomsNear; i++)
-		{
-			if(pRooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
-			{
-				int roomx = pRooms[i]->dwPosX * 5, roomy = pRooms[i]->dwPosY * 5;
-				int roomh = roomx + (pRooms[i]->dwSizeX * 5), roomw = roomy + (pRooms[i]->dwSizeY * 5);
-
-				for(PointList::iterator it = centers.begin(); it != centers.end(); it++)
-				{
-					Point p = *it;
-					if(p.first >= roomx && p.first <= roomh && p.second >= roomy && p.second <= roomw)
-					{
-						Exit exit(p, pRooms[i]->pLevel->dwLevelNo, Linkage, 0);
-						exits.push_back(exit);
-					}
-				}
-
-				break;
-			}
-		}
-
-		bool added = false;
-
 		if(!room->pRoom1)
 		{
 			AddRoomData(room);
-			added = true;
+			added.push_back(room);
+		}
+
+		Room2** pRooms = room->pRoom2Near;
+		for(DWORD i = 0; i < room->dwRoomsNear; i++)
+		{
+			if(!pRooms[i]->pRoom1)
+			{
+				AddRoomData(pRooms[i]);
+				added.push_back(pRooms[i]);
+			}
+
+			if(pRooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
+			{
+				potentials.push_back(pRooms[i]);
+			}
 		}
 
 		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
@@ -441,17 +345,71 @@ void D2Map::GetExits(ExitArray& exits) const
 				}
 			}
 		}
-
-		if(added)
-			RemoveRoomData(room);
 	}
 
-	char path[520];
-	sprintf_s(path, 520, "%smap.txt", Vars.szPath);
-	PointList pl;
-	for(PointList::iterator it = centers.begin(); it != centers.end(); it++)
-		pl.push_back(AbsToRelative(*it));
-	Dump(path, pl);
+	RoomList scanned;
+	RoomList::iterator begin = potentials.begin(), end = potentials.end();
+	for(RoomList::iterator it = begin; it != end; it++)
+	{
+		Point x1((*it)->dwPosX * 5, (*it)->dwPosY * 5),
+			  x2((*it)->dwPosX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
+			  x3((*it)->dwPosX * 5 + (*it)->dwSizeX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
+			  x4((*it)->dwPosX * 5 + (*it)->dwSizeX * 5, (*it)->dwPosY * 5);
+
+		Room2** rooms = (*it)->pRoom2Near;
+		for(DWORD i = 0; i < (*it)->dwRoomsNear; i++)
+		{
+			if(!rooms[i]->pRoom1)
+			{
+				AddRoomData(rooms[i]);
+				added.push_back(rooms[i]);
+			}
+
+			if(std::find(scanned.begin(), scanned.end(), rooms[i]) != scanned.end())
+				continue;
+
+			scanned.push_back(rooms[i]);
+
+			if(rooms[i]->pLevel->dwLevelNo == level->dwLevelNo)
+			{
+				// definitely a link, is it walkable?
+				// find the side most adjacent to this one
+				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
+					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeX * 5),
+					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
+					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
+
+				int s1 = x1.first-y1.first, s2 = x1.second-y1.second,
+					s3 = x2.first-y2.first, s4 = x2.second-y2.second,
+					s5 = x3.first-y3.first, s6 = x3.second-y3.second,
+					s7 = x4.first-y4.first, s8 = x4.second-y4.second;
+
+				Point midpoint(0,0);
+
+				if((s1 == 0 && s2 == 0) && (s3 == 0 && s4 == 0))
+					midpoint = Point((y1.first - y1.first) / 2, (y1.second - y1.second) / 2);
+				else if((s3 == 0 && s4 == 0) && (s5 == 0 && s6 == 0))
+					midpoint = Point((y2.first - y2.first) / 2, (y2.second - y2.second) / 2);
+				else if((s5 == 0 && s6 == 0) && (s7 == 0 && s8 == 0))
+					midpoint = Point((y3.first - y3.first) / 2, (y3.second - y3.second) / 2);
+				else if((s7 == 0 && s8 == 0) && (s1 == 0 && s2 == 0))
+					midpoint = Point((y4.first - y4.first) / 2, (y4.second - y4.second) / 2);
+
+				if(midpoint.first != 0 && midpoint.second != 0)
+				{
+					if(SpaceIsWalkable(midpoint, true))
+					{
+						Exit exit(midpoint, (*it)->pLevel->dwLevelNo, Linkage, 0);
+						exits.push_back(exit);
+					}
+				}
+			}
+		}
+	}
+
+	RoomList::iterator start = added.begin(), last = added.end();
+	for(RoomList::iterator it = start; it != last; it++)
+		RemoveRoomData(*it);
 
 	LeaveCriticalSection(lock);
 }

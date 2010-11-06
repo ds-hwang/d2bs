@@ -16,7 +16,7 @@ namespace Reducing
 class WalkPathReducer : public PathReducer
 {
 private:
-	D2Map& map;
+	D2Map* map;
 	Distance distance;
 	int range;
 
@@ -49,7 +49,7 @@ private:
 			Point p((steep ? y : x), (steep ? x : y));
 			list.push_back(p);
 
-			if(!(map.PathIsWalkable(list, absolute) && distance(start, p) < range))
+			if(!(map->PathIsWalkable(list, absolute) && distance(start, p) < range))
 			{
 				list.pop_back();
 				break;
@@ -65,7 +65,7 @@ private:
 	}
 
 public:
-	WalkPathReducer(D2Map& m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
+	WalkPathReducer(D2Map* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
@@ -83,7 +83,7 @@ public:
 				last = *(it++);
 				path.clear();
 				Line(current, last, path, abs);
-			} while(map.PathIsWalkable(path, abs) && distance(current, last) < range);
+			} while(map->PathIsWalkable(path, abs) && distance(current, last) < range);
 			it--;
 			out.push_back(*it);
 			it++;
@@ -91,7 +91,7 @@ public:
 	}
 	bool Reject(Point const & pt, bool abs)
 	{
-		return !map.SpaceIsWalkable(pt, abs);
+		return !map->SpaceIsWalkable(pt, abs);
 	}
 };
 

@@ -16,12 +16,12 @@ namespace Reducing
 class TeleportPathReducer : public PathReducer
 {
 private:
-	D2Map& map;
+	D2Map* map;
 	Distance distance;
 	int range;
 
 public:
-	TeleportPathReducer(D2Map& m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
+	TeleportPathReducer(D2Map* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
@@ -38,7 +38,7 @@ public:
 	}
 	bool Reject(Point const & pt, bool abs)
 	{
-		return !map.SpaceIsWalkable(pt, abs);
+		return !map->SpaceIsWalkable(pt, abs);
 	}
 };
 

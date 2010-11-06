@@ -3,6 +3,7 @@
 #include "Map.h"
 
 #include <list>
+#include <map>
 
 #include "D2Structs.h"
 #include "D2Ptrs.h"
@@ -28,7 +29,10 @@ public:
 		TargetLevel(levelId), Location(location), Type(type), TileId(tileId) {}
 };
 
+class D2Map;
+
 typedef std::vector<Exit> ExitArray;
+typedef std::map<DWORD, D2Map*> MapList;
 
 class D2Map : public Map
 {
@@ -55,6 +59,10 @@ private:
 		Avoid				= 0xFFFF
 	};
 
+	typedef std::list<Room2*> RoomList;
+
+	static MapList cache;
+
 	Act* act;
 	const Level* level;
 	int width, height;
@@ -62,11 +70,9 @@ private:
 	Matrix<CollisionFlag>* mapPoints;
 	CRITICAL_SECTION* lock;
 
-	typedef std::list<Room2*> RoomList;
-
 	void Build(void);
-	inline void AddRoomData(Room2* room) const { D2COMMON_AddRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
-	inline void RemoveRoomData(Room2* room) const { D2COMMON_RemoveRoomData(act, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void AddRoomData(Room2* room) const { D2COMMON_AddRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void RemoveRoomData(Room2* room) const { D2COMMON_RemoveRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
 
 	void AddRoom(Room2* const room, RoomList& rooms, UnitAny* player);
 	void AddCollisionMap(const CollMap* const map);
@@ -75,11 +81,13 @@ private:
 	void FillGaps(void);
 	void ShrinkMap(void);
 	void ThickenWalls(void);
-
-public:
 	D2Map(const Level* level);
 	~D2Map(void);
 
+public:
+
+	static D2Map* GetMap(Level* level);
+	static void ClearCache(void);
 	void Dump(const char* file, const PointList& points) const;
 
 	Point AbsToRelative(const Point& point) const;

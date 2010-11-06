@@ -10,6 +10,7 @@
 #include "Core.h"
 #include "Constants.h"
 #include "Events.h"
+#include "MapHeader.h"
 #include "ScriptEngine.h"
 #include "Console.h"
 #include "D2BS.h"
@@ -377,17 +378,26 @@ void __stdcall RemoveUnit(UnitAny* lpUnit)
 
 void __fastcall WhisperHandler(char* szAcc, char* szText)
 {
-	WhisperEvent(szAcc, szText);
+	if(!Vars.bDontCatchNextMsg)
+		WhisperEvent(szAcc, szText);
+	else
+		Vars.bDontCatchNextMsg = FALSE;
 }
 
 void __fastcall ChannelWhisperHandler(char* szAcc, char* szText)
 {
-	WhisperEvent(szAcc, szText);
+	if(!Vars.bDontCatchNextMsg)
+		WhisperEvent(szAcc, szText);
+	else
+		Vars.bDontCatchNextMsg = FALSE;
 }
 
 void __fastcall ChannelChatHandler(char* szAcc, char* szText)
 {
-	ChatEvent(szAcc, szText);
+	if(!Vars.bDontCatchNextMsg)
+		ChatEvent(szAcc, szText);
+	else
+		Vars.bDontCatchNextMsg = FALSE;
 }
 
 DWORD __fastcall GameAttack(AttackStruct* pAttack)
@@ -434,6 +444,7 @@ void GameLeave(void)
 		Vars.bGameLoopEntered = true;
 
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
+	D2Map::ClearCache();
 
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }

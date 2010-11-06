@@ -41,9 +41,10 @@ JSAPI_PROP(area_getProperty)
 					CriticalRoom cRoom;
 					cRoom.EnterSection();
 
-					D2Map map(pLevel);
+					D2Map* map = D2Map::GetMap(pLevel);
 					ExitArray exits;
-					map.GetExits(exits);
+					map->GetExits(exits);
+
 					int count = exits.size();
 					for(int i = 0; i < count; i++)
 					{

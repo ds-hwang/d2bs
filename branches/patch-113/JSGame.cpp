@@ -8,6 +8,7 @@
 #include "Helpers.h"
 #include "Game.h"
 #include "JSArea.h"
+#include "JSGlobalClasses.h"
 
 #include "MapHeader.h"
 
@@ -166,7 +167,7 @@ JSAPI_FUNC(my_acceptTrade)
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
-int __fastcall EstimateDistance(const Map& m, const Point& point, const Point& end)
+int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end)
 {
 	return DiagonalShortcut(point, end);
 }
@@ -184,8 +185,8 @@ JSAPI_FUNC(my_getPath)
 	JSObject* lvl = NULL;
 	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(_strcmpi(JS_GetClass(cx, JSVAL_TO_OBJECT(argv[0]))->name, area_class.name) != 0)
-		THROW_ERROR(cx, "Invalid area");
+	if(JS_InstanceOf(cx, JSVAL_TO_OBJECT(argv[0]), global_classes[2].js_class, argv))
+		return JS_FALSE;
 
 	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 		return JS_FALSE;
@@ -199,11 +200,11 @@ JSAPI_FUNC(my_getPath)
 
 	Level* level = GetLevel(area->AreaId);
 
-	D2Map map(level);
+	D2Map* map = D2Map::GetMap(level);
 
 	Point start(x, y), end(dx, dy);
 
-	if(!(map.IsValidPoint(start, true) && map.IsValidPoint(end, true)))
+	if(!(map->IsValidPoint(start, true) && map->IsValidPoint(end, true)))
 		THROW_ERROR(cx, "Invalid start or end point!");
 
 	PathReducer* reducer = NULL;
@@ -217,7 +218,7 @@ JSAPI_FUNC(my_getPath)
 	}
 
 	PointList list;
-	AStarPath<std::allocator<Node> > path(map, reducer, EstimateDistance);
+	AStarPath<> path(map, reducer, EstimateDistance);
 	path.GetPath(start, end, list, true);
 
 	int count = list.size();
@@ -267,11 +268,11 @@ JSAPI_FUNC(my_getCollision)
 	Point point(nX, nY);
 	Level* level = GetLevel(nLevelId);
 
-	D2Map map(level);
-	if(!map.IsValidPoint(point))
+	D2Map* map = D2Map::GetMap(level);
+	if(!map->IsValidPoint(point))
 		THROW_ERROR(cx, "Invalid point!");
 
-	JS_NewNumberValue(cx, map.GetMapData(point, true), rval);
+	JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
 
 	return JS_TRUE;
 }

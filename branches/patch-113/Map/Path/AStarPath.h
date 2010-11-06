@@ -52,7 +52,7 @@ class AStarPath : public Path
 private:
 	Allocator alloc;
 
-	Map& map;
+	Map* map;
 	Reducing::PathReducer* reducer;
 	Estimator estimate;
 	Distance distance;
@@ -100,7 +100,7 @@ private:
 					if(i == 0 && j == 0) continue;
 
 					Point point(current->point.first + i, current->point.second + j);
-					if(!map.IsValidPoint(point, abs) || reducer->Reject(point, abs)) continue;
+					if(!map->IsValidPoint(point, abs) || reducer->Reject(point, abs)) continue;
 
 					Node* next = alloc.allocate(1);
 					// if we don't get a valid node, just return
@@ -115,11 +115,11 @@ private:
 	}
 
 public:
-	AStarPath(Map& _map, Reducing::PathReducer* _reducer, Estimator _estimate, Distance _distance = DiagonalShortcut) :
+	AStarPath(Map* _map, Reducing::PathReducer* _reducer, Estimator _estimate, Distance _distance = DiagonalShortcut) :
 		map(_map), reducer(_reducer), estimate(_estimate), distance(_distance), alloc(Allocator()) {}
 
 	inline Allocator const & GetAllocator() { return alloc; }
-	inline void SetMap(Map& map) { this->map = map; }
+	inline void SetMap(Map* map) { this->map = map; }
 	inline void SetPathReducer(Reducing::PathReducer* reducer) { this->reducer = reducer; }
 
 	void GetPath(Point const & start, Point const & end, PointList& list, bool abs = true)
@@ -127,7 +127,7 @@ public:
 		Node* result = NULL;
 
 		// if we don't have a valid start and end, don't even bother
-		if(!map.IsValidPoint(start, abs) || !map.IsValidPoint(end, abs) ||
+		if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs) ||
 			reducer->Reject(start, abs) || reducer->Reject(end, abs)) return;
 
 		std::vector<Node*> nodes;

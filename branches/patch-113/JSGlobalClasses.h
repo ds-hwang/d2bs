@@ -7,6 +7,8 @@
 #include "JSUnit.h"
 #include "JSScreenHook.h"
 #include "JSPresetUnit.h"
+#include "JSDirectory.h"
+#include "JSFileTools.h"
 #include "JSArea.h"
 #include "JSControl.h"
 #include "JSParty.h"
