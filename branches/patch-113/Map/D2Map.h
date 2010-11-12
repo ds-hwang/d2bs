@@ -66,13 +66,15 @@ private:
 	Act* act;
 	const Level* level;
 	int width, height;
-	int posX, posY;
+	int posX, posY, endX, endY;
 	Matrix<CollisionFlag>* mapPoints;
 	CRITICAL_SECTION* lock;
 
 	void Build(void);
-	inline void AddRoomData(Room2* room) const { D2COMMON_AddRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
-	inline void RemoveRoomData(Room2* room) const { D2COMMON_RemoveRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void AddRoomData(Room2* room) const
+	{ D2COMMON_AddRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
+	inline void RemoveRoomData(Room2* room) const
+	{ D2COMMON_RemoveRoomData(room->pLevel->pMisc->pAct, room->pLevel->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1); }
 
 	void AddRoom(Room2* const room, RoomList& rooms, UnitAny* player);
 	void AddCollisionMap(const CollMap* const map);

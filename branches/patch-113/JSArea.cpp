@@ -25,6 +25,7 @@ JSAPI_PROP(area_getProperty)
 	if(!pArea)
 		return JS_FALSE;
 
+	ExitArray exits;
 	Level* pLevel = GetLevel(pArea->AreaId);
 	if(!pLevel)
 		return JS_FALSE;
@@ -42,7 +43,6 @@ JSAPI_PROP(area_getProperty)
 					cRoom.EnterSection();
 
 					D2Map* map = D2Map::GetMap(pLevel);
-					ExitArray exits;
 					map->GetExits(exits);
 
 					int count = exits.size();

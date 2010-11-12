@@ -46,10 +46,13 @@ D2Map::D2Map(const Level* level)
 	this->act = level->pMisc->pAct;
 
 	// get the map size
-	width  = level->dwSizeX * 5;
-	height = level->dwSizeY * 5;
+	height = level->dwSizeX * 5;
+	width  = level->dwSizeY * 5;
 	posX   = level->dwPosX * 5;
 	posY   = level->dwPosY * 5;
+	endX   = posX + height;
+	endY   = posY + width;
+	
 
 	bool added = false;
 	Room2* room = level->pRoom2First;
@@ -86,8 +89,6 @@ void D2Map::Build(void)
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	AddRoom(level->pRoom2First, addedRooms, player);
 
-	// calling this invalidates the relative coordinates--we don't want that
-	//ShrinkMap();
 	FillGaps();
 	ThickenWalls();
 
@@ -132,13 +133,13 @@ void D2Map::AddCollisionMap(const CollMap* const map)
 		return;
 
 	int	x = map->dwPosGameX - posX, y = map->dwPosGameY - posY,
-		dx = map->dwPosGameX + map->dwSizeGameX - posX, dy = map->dwPosGameY + map->dwSizeGameY - posY;
+		height = map->dwPosGameX + map->dwSizeGameX - posX, width = map->dwPosGameY + map->dwSizeGameY - posY;
 
 	WORD* p = map->pMapStart;
 
-	for(int i = y; i < dy && p != map->pMapEnd; i++)
-		for(int j = x; j < dx && p != map->pMapEnd; j++, p++)
-			SetCollisionData(i, j, *p);
+	for(int i = y; i < width && p != map->pMapEnd; i++)
+		for(int j = x; j < height && p != map->pMapEnd; j++, p++)
+			SetCollisionData(j, i, *p);
 }
 void D2Map::SetCollisionData(int x, int y, WORD value)
 {
@@ -188,42 +189,6 @@ void D2Map::FillGaps(void)
 		for(int j = 0; j < width; j++)
 			if(IsGap(i, j, false))
 				SetCollisionData(i, j, 2);
-
-	LeaveCriticalSection(lock);
-}
-void D2Map::ShrinkMap(void)
-{
-	EnterCriticalSection(lock);
-
-	bool blankRow = true;
-	// walk over the rows, finding all blank (fully unwalkable) ones
-	for(int i = 0; i < height; i++)
-	{
-		for(int j = 0; j < width; j++)
-			if(SpaceIsWalkable(Point(i, j), false))
-				blankRow = false;
-
-		if(blankRow)
-		{
-			// remove that row from the map, since it's irrelevant
-			mapPoints->RemoveRow(i);
-		}
-	}
-
-	bool blankCol = true;
-	// walk over the columns, finding all blank (fully unwalkable) ones
-	for(int i = 0; i < width; i++)
-	{
-		for(int j = 0; j < height; j++)
-			if(SpaceIsWalkable(Point(j, i), false))
-				blankCol = false;
-
-		if(blankCol)
-		{
-			// remove that column from the map, since it's irrelevant
-			mapPoints->RemoveColumn(i);
-		}
-	}
 
 	LeaveCriticalSection(lock);
 }
@@ -293,6 +258,7 @@ void D2Map::GetExits(ExitArray& exits) const
 {
 	EnterCriticalSection(lock);
 
+	PointList midpoints;
 	RoomList potentials, added;
 
 	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
@@ -303,19 +269,15 @@ void D2Map::GetExits(ExitArray& exits) const
 			added.push_back(room);
 		}
 
+		if(room->pLevel->dwLevelNo != level->dwLevelNo)
+			continue;
+
 		Room2** pRooms = room->pRoom2Near;
 		for(DWORD i = 0; i < room->dwRoomsNear; i++)
 		{
-			if(!pRooms[i]->pRoom1)
-			{
-				AddRoomData(pRooms[i]);
-				added.push_back(pRooms[i]);
-			}
-
 			if(pRooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
-			{
-				potentials.push_back(pRooms[i]);
-			}
+				if(std::find(potentials.begin(), potentials.end(), pRooms[i]) == potentials.end())
+					potentials.push_back(pRooms[i]);
 		}
 
 		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
@@ -347,10 +309,17 @@ void D2Map::GetExits(ExitArray& exits) const
 		}
 	}
 
+	midpoints.push_back(Point(0,0));
 	RoomList scanned;
 	RoomList::iterator begin = potentials.begin(), end = potentials.end();
 	for(RoomList::iterator it = begin; it != end; it++)
 	{
+		if(!(*it)->pRoom1)
+		{
+			AddRoomData(*it);
+			added.push_back(*it);
+		}
+
 		Point x1((*it)->dwPosX * 5, (*it)->dwPosY * 5),
 			  x2((*it)->dwPosX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
 			  x3((*it)->dwPosX * 5 + (*it)->dwSizeX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
@@ -375,28 +344,26 @@ void D2Map::GetExits(ExitArray& exits) const
 				// definitely a link, is it walkable?
 				// find the side most adjacent to this one
 				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
-					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeX * 5),
+					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
 					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
 					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
 
-				int s1 = x1.first-y1.first, s2 = x1.second-y1.second,
-					s3 = x2.first-y2.first, s4 = x2.second-y2.second,
-					s5 = x3.first-y3.first, s6 = x3.second-y3.second,
-					s7 = x4.first-y4.first, s8 = x4.second-y4.second;
-
 				Point midpoint(0,0);
 
-				if((s1 == 0 && s2 == 0) && (s3 == 0 && s4 == 0))
-					midpoint = Point((y1.first - y1.first) / 2, (y1.second - y1.second) / 2);
-				else if((s3 == 0 && s4 == 0) && (s5 == 0 && s6 == 0))
-					midpoint = Point((y2.first - y2.first) / 2, (y2.second - y2.second) / 2);
-				else if((s5 == 0 && s6 == 0) && (s7 == 0 && s8 == 0))
-					midpoint = Point((y3.first - y3.first) / 2, (y3.second - y3.second) / 2);
-				else if((s7 == 0 && s8 == 0) && (s1 == 0 && s2 == 0))
-					midpoint = Point((y4.first - y4.first) / 2, (y4.second - y4.second) / 2);
+				if(x1 == y4 && x2 == y3)
+					midpoint = Point(((x1.first+x2.first)/2), ((x1.second+x2.second)/2));
+				else if(x2 == y1 && x3 == y4)
+					midpoint = Point(((x2.first+x3.first)/2), ((x2.second+x3.second)/2));
+				else if(x3 == y2 && x4 == y1)
+					midpoint = Point(((x3.first+x4.first)/2), ((x3.second+x4.second)/2));
+				else if(x4 == y3 && x1 == y2)
+					midpoint = Point(((x1.first+x4.first)/2), ((x1.second+x4.second)/2));
 
 				if(midpoint.first != 0 && midpoint.second != 0)
 				{
+					if(midpoint.first == endX) midpoint.first--;
+					if(midpoint.second == endY) midpoint.second--;
+
 					if(SpaceIsWalkable(midpoint, true))
 					{
 						Exit exit(midpoint, (*it)->pLevel->dwLevelNo, Linkage, 0);
@@ -406,6 +373,9 @@ void D2Map::GetExits(ExitArray& exits) const
 			}
 		}
 	}
+	midpoints.push_back(Point(height-1, width-1));
+
+	Dump("D:\\map.txt", midpoints);
 
 	RoomList::iterator start = added.begin(), last = added.end();
 	for(RoomList::iterator it = start; it != last; it++)
@@ -429,9 +399,10 @@ bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 
 bool D2Map::SpaceIsWalkable(const Point& point, bool abs) const
 {
-	return !SpaceHasFlag(D2Map::Avoid, point, abs) && !(SpaceHasFlag(D2Map::BlockWalk, point, abs) ||
-		SpaceHasFlag(D2Map::BlockPlayer, point, abs) || SpaceHasFlag(D2Map::ClosedDoor, point, abs) ||
-		SpaceHasFlag(D2Map::NPCCollision, point, abs) || SpaceHasFlag(D2Map::Object, point, abs));
+	return !SpaceHasFlag(D2Map::Avoid, point, abs)		  &&
+		   !(SpaceHasFlag(D2Map::BlockWalk, point, abs) || SpaceHasFlag(D2Map::BlockPlayer, point, abs)  ||
+		     SpaceHasFlag(D2Map::ClosedDoor, point, abs) || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||
+		     SpaceHasFlag(D2Map::Object, point, abs));
 }
 bool D2Map::SpaceHasLineOfSight(const Point& point, bool abs) const
 {
@@ -462,18 +433,22 @@ void D2Map::Dump(const char* file, const PointList& points) const
 	FILE* f = NULL;
 	fopen_s(&f, file, "wt");
 	if(!f) return;
-	fprintf(f, "Map (%d x %d) at (%d, %d) for area %d:\n", width, height, posX, posY, level->dwLevelNo);
+	fprintf(f, "Map (%d x %d) at (%d, %d) for area %s (%d):\n", width, height, posX, posY, D2COMMON_GetLevelText(level->dwLevelNo)->szName, level->dwLevelNo);
 
-	fprintf(f, "Exits:\n");
+//	fprintf(f, "Exits:\n");
 
-	ExitArray exits;
-	GetExits(exits);
-	int i = 1;
-	for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
-		fprintf(f, "Exit %d: at (%d, %d) of type %s to area %d (tile id: %d)\n", i++, it->Location.first, it->Location.second,
-						it->Type == Linkage ? "Area Linkage" : "Tile", it->TargetLevel, it->TileId);
+//	ExitArray exits;
+//	GetExits(exits);
+//	int i = 1;
+//	for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
+//	{
+//		Point rel = AbsToRelative(it->Location);
+//		fprintf(f, "Exit %d: at (%d, %d, relative: %d, %d) of type %s to area %d (tile id: %d)\n", i++,
+//						it->Location.first, it->Location.second, rel.first, rel.second,
+//						it->Type == Linkage ? "Area Linkage" : "Tile", it->TargetLevel, it->TileId);
+//	}
 
-	fprintf(f, "\n");
+//	fprintf(f, "\n");
 
 	PointList::const_iterator begin = points.begin(), end = points.end();
 	Point first = *begin, last = *(end-1);
