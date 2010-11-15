@@ -31,8 +31,8 @@ JSAPI_PROP(area_getProperty)
 		return JS_FALSE;
 
 	switch(JSVAL_TO_INT(id))
-		{
-			case AUNIT_EXITS:
+	{
+		case AUNIT_EXITS:
 			{
 				if(pArea->ExitArray == NULL)
 				{
@@ -49,9 +49,9 @@ JSAPI_PROP(area_getProperty)
 					for(int i = 0; i < count; i++)
 					{
 						myExit* exit = new myExit;
-						exit->id = exits[i].TargetLevel;
-						exit->x = exits[i].Location.first;
-						exit->y = exits[i].Location.second;
+						exit->id = exits[i].Target;
+						exit->x = exits[i].Position.first;
+						exit->y = exits[i].Position.second;
 						exit->type = exits[i].Type;
 						exit->tileid = exits[i].TileId;
 						exit->level = pArea->AreaId;

@@ -20,13 +20,13 @@ enum ExitType
 struct Exit
 {
 public:
-	DWORD TargetLevel;
-	Point Location;
+	DWORD Target;
+	Point Position;
 	ExitType Type;
 	DWORD TileId;
 
 	Exit(Point location, DWORD levelId, ExitType type, DWORD tileId) :
-		TargetLevel(levelId), Location(location), Type(type), TileId(tileId) {}
+		Target(levelId), Position(location), Type(type), TileId(tileId) {}
 };
 
 class D2Map;

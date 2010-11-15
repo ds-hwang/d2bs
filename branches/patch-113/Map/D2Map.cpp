@@ -258,8 +258,7 @@ void D2Map::GetExits(ExitArray& exits) const
 {
 	EnterCriticalSection(lock);
 
-	PointList midpoints;
-	RoomList potentials, added;
+	RoomList added;
 
 	for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
 	{
@@ -272,12 +271,67 @@ void D2Map::GetExits(ExitArray& exits) const
 		if(room->pLevel->dwLevelNo != level->dwLevelNo)
 			continue;
 
-		Room2** pRooms = room->pRoom2Near;
+		Point x1(room->dwPosX * 5, room->dwPosY * 5),
+			  x2(room->dwPosX * 5, room->dwPosY * 5 + room->dwSizeY * 5),
+			  x3(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5 + room->dwSizeY * 5),
+			  x4(room->dwPosX * 5 + room->dwSizeX * 5, room->dwPosY * 5);
+
+		Room2** rooms = room->pRoom2Near;
 		for(DWORD i = 0; i < room->dwRoomsNear; i++)
 		{
-			if(pRooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
-				if(std::find(potentials.begin(), potentials.end(), pRooms[i]) == potentials.end())
-					potentials.push_back(pRooms[i]);
+			if(!rooms[i]->pRoom1)
+			{
+				AddRoomData(rooms[i]);
+				added.push_back(rooms[i]);
+			}
+
+			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
+			{
+				// definitely a link, is it walkable?
+				// find the side most adjacent to this one
+				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
+					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
+					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
+					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
+
+				Point start(0,0), end(0,0), empty(0,0);
+
+				if(x1 == y4 && x2 == y3) { start = x1; end = x2; }
+				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
+				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
+				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
+
+				if(start != empty && end != empty)
+				{
+					if(start.first == endX)  start.first--;
+					if(start.second == endY) start.second--;
+					if(end.first == endX)    end.first--;
+					if(end.second == endY)   end.second--;
+
+					int xstep = end.first - start.first,
+						ystep = abs(end.second - start.second);
+					xstep = xstep > 0 ? 1 : (xstep < 0 ? -1 : 0);
+					ystep = ystep > 0 ? 1 : (ystep < 0 ? -1 : 0);
+
+					int spaces = 0;
+					Point midpoint(start.first, start.second);
+					for(int i = 0, j = 0; midpoint != end; i += xstep, j += ystep)
+					{
+						midpoint = Point(start.first + i, start.second + j);
+						if(SpaceIsWalkable(midpoint, true))
+						{
+							spaces++;
+							if(spaces == 3)
+							{
+								Exit exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0);
+								exits.push_back(exit);
+							}
+						}
+						else
+							spaces = 0;
+					}
+				}
+			}
 		}
 
 		for(PresetUnit* preset = room->pPreset; preset; preset = preset->pPresetNext)
@@ -292,7 +346,7 @@ void D2Map::GetExits(ExitArray& exits) const
 
 					for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
 					{
-						if(it->Location.first == loc.first && it->Location.second == loc.second)
+						if(it->Position == loc)
 						{
 							exists = true;
 							break;
@@ -308,74 +362,6 @@ void D2Map::GetExits(ExitArray& exits) const
 			}
 		}
 	}
-
-	midpoints.push_back(Point(0,0));
-	RoomList scanned;
-	RoomList::iterator begin = potentials.begin(), end = potentials.end();
-	for(RoomList::iterator it = begin; it != end; it++)
-	{
-		if(!(*it)->pRoom1)
-		{
-			AddRoomData(*it);
-			added.push_back(*it);
-		}
-
-		Point x1((*it)->dwPosX * 5, (*it)->dwPosY * 5),
-			  x2((*it)->dwPosX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
-			  x3((*it)->dwPosX * 5 + (*it)->dwSizeX * 5, (*it)->dwPosY * 5 + (*it)->dwSizeY * 5),
-			  x4((*it)->dwPosX * 5 + (*it)->dwSizeX * 5, (*it)->dwPosY * 5);
-
-		Room2** rooms = (*it)->pRoom2Near;
-		for(DWORD i = 0; i < (*it)->dwRoomsNear; i++)
-		{
-			if(!rooms[i]->pRoom1)
-			{
-				AddRoomData(rooms[i]);
-				added.push_back(rooms[i]);
-			}
-
-			if(std::find(scanned.begin(), scanned.end(), rooms[i]) != scanned.end())
-				continue;
-
-			scanned.push_back(rooms[i]);
-
-			if(rooms[i]->pLevel->dwLevelNo == level->dwLevelNo)
-			{
-				// definitely a link, is it walkable?
-				// find the side most adjacent to this one
-				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
-					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
-					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
-					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
-
-				Point midpoint(0,0);
-
-				if(x1 == y4 && x2 == y3)
-					midpoint = Point(((x1.first+x2.first)/2), ((x1.second+x2.second)/2));
-				else if(x2 == y1 && x3 == y4)
-					midpoint = Point(((x2.first+x3.first)/2), ((x2.second+x3.second)/2));
-				else if(x3 == y2 && x4 == y1)
-					midpoint = Point(((x3.first+x4.first)/2), ((x3.second+x4.second)/2));
-				else if(x4 == y3 && x1 == y2)
-					midpoint = Point(((x1.first+x4.first)/2), ((x1.second+x4.second)/2));
-
-				if(midpoint.first != 0 && midpoint.second != 0)
-				{
-					if(midpoint.first == endX) midpoint.first--;
-					if(midpoint.second == endY) midpoint.second--;
-
-					if(SpaceIsWalkable(midpoint, true))
-					{
-						Exit exit(midpoint, (*it)->pLevel->dwLevelNo, Linkage, 0);
-						exits.push_back(exit);
-					}
-				}
-			}
-		}
-	}
-	midpoints.push_back(Point(height-1, width-1));
-
-	Dump("D:\\map.txt", midpoints);
 
 	RoomList::iterator start = added.begin(), last = added.end();
 	for(RoomList::iterator it = start; it != last; it++)
