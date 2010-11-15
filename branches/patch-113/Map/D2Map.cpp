@@ -298,9 +298,9 @@ void D2Map::GetExits(ExitArray& exits) const
 				Point start(0,0), end(0,0);
 
 				if(x1 == y4 && x2 == y3)      { start = x1; end = x2; }
-				else if(x2 == y1 && x3 == y4) { start = x4; end = x1; }
+				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
 				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
-				else if(x4 == y3 && x1 == y2) { start = x2; end = x3; }
+				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
 
 				if(start != empty && end != empty)
 				{
@@ -326,6 +326,7 @@ void D2Map::GetExits(ExitArray& exits) const
 							{
 								Exit exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0);
 								exits.push_back(exit);
+								midpoint = end;
 							}
 						}
 						else
