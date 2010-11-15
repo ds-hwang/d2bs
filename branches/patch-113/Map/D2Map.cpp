@@ -256,6 +256,7 @@ bool D2Map::IsValidPoint(const Point& point, bool abs) const
 
 void D2Map::GetExits(ExitArray& exits) const
 {
+	static const Point empty(0,0);
 	EnterCriticalSection(lock);
 
 	RoomList added;
@@ -294,12 +295,12 @@ void D2Map::GetExits(ExitArray& exits) const
 					  y3(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
 					  y4(rooms[i]->dwPosX * 5 + rooms[i]->dwSizeX * 5, rooms[i]->dwPosY * 5);
 
-				Point start(0,0), end(0,0), empty(0,0);
+				Point start(0,0), end(0,0);
 
-				if(x1 == y4 && x2 == y3) { start = x1; end = x2; }
-				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
+				if(x1 == y4 && x2 == y3)      { start = x1; end = x2; }
+				else if(x2 == y1 && x3 == y4) { start = x4; end = x1; }
 				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
-				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
+				else if(x4 == y3 && x1 == y2) { start = x2; end = x3; }
 
 				if(start != empty && end != empty)
 				{
@@ -309,15 +310,15 @@ void D2Map::GetExits(ExitArray& exits) const
 					if(end.second == endY)   end.second--;
 
 					int xstep = end.first - start.first,
-						ystep = abs(end.second - start.second);
+						ystep = end.second - start.second;
 					xstep = xstep > 0 ? 1 : (xstep < 0 ? -1 : 0);
 					ystep = ystep > 0 ? 1 : (ystep < 0 ? -1 : 0);
 
 					int spaces = 0;
 					Point midpoint(start.first, start.second);
-					for(int i = 0, j = 0; midpoint != end; i += xstep, j += ystep)
+					for(int x = 0, y = 0; midpoint != end; x += xstep, y += ystep)
 					{
-						midpoint = Point(start.first + i, start.second + j);
+						midpoint = Point(start.first + x, start.second + y);
 						if(SpaceIsWalkable(midpoint, true))
 						{
 							spaces++;
