@@ -1,7 +1,3 @@
-#define _SECURE_SCL 0
-#define _SECURE_SCL_THROWS 0
-#define _HAS_ITERATOR_DEBUGGING 0
-
 #include <algorithm>
 #include <assert.h>
 
@@ -316,7 +312,8 @@ void D2Map::GetExits(ExitArray& exits) const
 
 					int spaces = 0;
 					Point midpoint(start.first, start.second);
-					for(int x = 0, y = 0; midpoint != end; x += xstep, y += ystep)
+					bool found = false;
+					for(int x = 0, y = 0; !found && midpoint != end; x += xstep, y += ystep)
 					{
 						midpoint = Point(start.first + x, start.second + y);
 						if(SpaceIsWalkable(midpoint, true))
@@ -324,9 +321,9 @@ void D2Map::GetExits(ExitArray& exits) const
 							spaces++;
 							if(spaces == 3)
 							{
-								Exit exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0);
-								exits.push_back(exit);
-								midpoint = end;
+								midpoint = Point((start.first + end.first) / 2, (start.second + end.second) / 2);
+								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+								found = true;
 							}
 						}
 						else
@@ -346,7 +343,8 @@ void D2Map::GetExits(ExitArray& exits) const
 					Point loc((room->dwPosX*5)+preset->dwPosX, (room->dwPosY*5)+preset->dwPosY);
 					bool exists = false;
 
-					for(ExitArray::iterator it = exits.begin(); it != exits.end(); it++)
+					ExitArray::iterator start = exits.begin(), end = exits.end();
+					for(ExitArray::iterator it = start; it != end; it++)
 					{
 						if(it->Position == loc)
 						{
@@ -357,8 +355,7 @@ void D2Map::GetExits(ExitArray& exits) const
 
 					if(!exists)
 					{
-						Exit exit(loc, levelId, Tile, preset->dwTxtFileNo);
-						exits.push_back(exit);
+						exits.push_back(Exit(loc, levelId, Tile, preset->dwTxtFileNo));
 					}
 				}
 			}

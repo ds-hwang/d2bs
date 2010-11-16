@@ -25,7 +25,6 @@ JSAPI_PROP(area_getProperty)
 	if(!pArea)
 		return JS_FALSE;
 
-	ExitArray exits;
 	Level* pLevel = GetLevel(pArea->AreaId);
 	if(!pLevel)
 		return JS_FALSE;
@@ -34,8 +33,8 @@ JSAPI_PROP(area_getProperty)
 	{
 		case AUNIT_EXITS:
 			{
-				if(pArea->ExitArray == NULL)
-				{
+//				if(pArea->ExitArray == NULL)
+//				{
 					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
 					JS_AddRoot(&pArea->ExitArray);
 
@@ -43,6 +42,7 @@ JSAPI_PROP(area_getProperty)
 					cRoom.EnterSection();
 
 					D2Map* map = D2Map::GetMap(pLevel);
+					ExitArray exits;
 					map->GetExits(exits);
 
 					int count = exits.size();
@@ -66,7 +66,7 @@ JSAPI_PROP(area_getProperty)
 						jsval a = OBJECT_TO_JSVAL(pExit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
-				}
+//				}
 				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
 			}
 			break;

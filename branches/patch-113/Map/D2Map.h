@@ -13,8 +13,8 @@ namespace Mapping
 
 enum ExitType
 {
-	Linkage,
-	Tile
+	Linkage = 1,
+	Tile = 2
 };
 
 struct Exit
@@ -101,7 +101,7 @@ public:
 	int GetMapData(const Point& point, bool abs = true) const;
 	bool IsValidPoint(const Point& point, bool abs = true) const;
 
-	void GetExits(ExitArray& exits) const;
+	void GetExits(ExitArray&) const;
 
 	bool SpaceHasFlag(int flag, const Point& point, bool abs = true) const;
 	bool PathHasFlag(int flag, const PointList& points, bool abs = true) const;
