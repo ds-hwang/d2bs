@@ -953,9 +953,11 @@ double GetDistance(long x1, long y1, long x2, long y2, DistanceType type)
 	}
  	return dist;
 }
-bool IsScrollingText(){
 
-if(!WaitForGameReady())
+bool IsScrollingText()
+{
+
+	if(!WaitForGameReady())
 		return false;
 
 	HWND d2Hwnd = D2GFX_GetHwnd();
@@ -979,7 +981,6 @@ if(!WaitForGameReady())
 					{
 						if(mhl->message && mhl->unk_4 < 0xffffffff && mhl->handler == D2CLIENT_CloseNPCTalk)
 						{
-							
 							return true;
 						}
 						mhl = mhl->next;
@@ -990,6 +991,5 @@ if(!WaitForGameReady())
 		whl = whl->next;
 	}
 
-	
 	return false;
 }

@@ -26,6 +26,7 @@
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp = NULL, JSFunctionSpec* funcs = NULL, JSPropertySpec* props = NULL, void* priv = NULL, JSObject* proto = NULL, JSObject* parent = NULL);
 #define THROW_ERROR(cx, msg) { JS_ReportError(cx, msg); return JS_FALSE; }
+#define THROW_WARNING(cx, msg) { JS_ReportWarning(cx, msg); }
 
 #define CLASS_CTOR(name) JSBool name##_ctor (JSContext *cx, JSObject* obj, uintN argc, jsval *argv, jsval *rval)
 #define EMPTY_CTOR(name) \

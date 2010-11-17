@@ -53,7 +53,7 @@ JSAPI_PROP(party_getProperty)
 JSAPI_FUNC(party_getNext)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	RosterUnit *pUnit = (RosterUnit*)JS_GetPrivate(cx, obj);
 
@@ -83,7 +83,7 @@ JSAPI_FUNC(party_getNext)
 JSAPI_FUNC(my_getParty)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	RosterUnit* pUnit = *p_D2CLIENT_PlayerUnitList;
 

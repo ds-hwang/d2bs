@@ -3,7 +3,6 @@
 
 JSObject* BuildObject(JSContext* cx, JSClass* classp, JSFunctionSpec* funcs, JSPropertySpec* props, void* priv, JSObject* proto, JSObject* parent)
 {
-	// always steal the context thread--we have to have it anyway.
 	JSObject* obj = JS_NewObject(cx, classp, proto, parent);
 
 	if(obj)

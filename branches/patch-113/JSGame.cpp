@@ -70,7 +70,7 @@ JSAPI_FUNC(my_copyUnit)
 JSAPI_FUNC(my_clickMap)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	uint16 nClickType = NULL, nShift = NULL, nX = NULL, nY = NULL;
 
@@ -120,7 +120,7 @@ JSAPI_FUNC(my_clickMap)
 JSAPI_FUNC(my_acceptTrade)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	// TODO: Fix this nonsense.
 	if(argc > 0 && JSVAL_TO_INT(argv[0]) == 1) // Called with a '1' it will return if we already accepted it or not
@@ -174,7 +174,7 @@ int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& e
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc < 5)
 		THROW_ERROR(cx, "Not enough parameters were passed to getPath!");
@@ -252,7 +252,7 @@ JSAPI_FUNC(my_getPath)
 JSAPI_FUNC(my_getCollision)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
 		THROW_ERROR(cx, "Invalid parameters were passed to getCollision!");
@@ -286,7 +286,7 @@ typedef void __fastcall clickequip(UnitAny * pPlayer, Inventory * pIventory, int
 	myMisc.EnterSection();
 
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(*p_D2CLIENT_TransactionDialog != 0 || *p_D2CLIENT_TransactionDialogs != 0 || *p_D2CLIENT_TransactionDialogs_2 != 0)
 	{
@@ -642,7 +642,7 @@ JSAPI_FUNC(my_rand)
 JSAPI_FUNC(my_getDistance)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	// TODO: Add the type of distance to the api design
 	jsint nX1 = NULL;
@@ -730,7 +730,7 @@ JSAPI_FUNC(my_getDistance)
 JSAPI_FUNC(my_gold)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	jsint nGold = NULL;
 	jsint nMode = 1;
@@ -748,7 +748,7 @@ JSAPI_FUNC(my_gold)
 JSAPI_FUNC(my_checkCollision)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc == 3 && JSVAL_IS_OBJECT(argv[0]) && JSVAL_IS_OBJECT(argv[1]) && JSVAL_IS_INT(argv[2]))
 	{
@@ -775,7 +775,7 @@ JSAPI_FUNC(my_checkCollision)
 JSAPI_FUNC(my_getMercHP)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	// TODO: Can we replace this with D2CLIENT_GetMercUnit()?
 	if(D2CLIENT_GetPlayerUnit() && D2CLIENT_GetPlayerUnit()->pAct)
@@ -899,7 +899,7 @@ JSAPI_FUNC(my_getTextWidthHeight)
 JSAPI_FUNC(my_getTradeInfo)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc < 1)
 	{
@@ -935,7 +935,7 @@ JSAPI_FUNC(my_getTradeInfo)
 JSAPI_FUNC(my_getUIFlag)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -952,7 +952,7 @@ JSAPI_FUNC(my_getUIFlag)
 JSAPI_FUNC(my_getWaypoint)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc < 1 || !JSVAL_IS_INT(argv[0]))
 	{
@@ -1033,7 +1033,7 @@ JSAPI_FUNC(my_say)
 JSAPI_FUNC(my_clickParty)
 {	
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	*rval = JSVAL_FALSE;
 
@@ -1134,7 +1134,7 @@ JSAPI_FUNC(my_weaponSwitch)
 	*rval = JSVAL_FALSE;
 
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	jsint nParameter = NULL;
 	if(argc > 0)
@@ -1167,7 +1167,7 @@ JSAPI_FUNC(my_weaponSwitch)
 JSAPI_FUNC(my_transmute)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	D2CLIENT_Transmute();
 
@@ -1177,7 +1177,7 @@ JSAPI_FUNC(my_transmute)
 JSAPI_FUNC(my_getPlayerFlag)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
 		return JS_TRUE;
@@ -1245,7 +1245,7 @@ JSAPI_FUNC(my_getMouseCoords)
 JSAPI_FUNC(my_submitItem)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	if(UnitAny* pUnit = D2CLIENT_GetCursorItem())
 	{
@@ -1267,7 +1267,7 @@ JSAPI_FUNC(my_getIsTalkingNPC)
 JSAPI_FUNC(my_getInteractedNPC)
 {
 	if(!WaitForGameReady())
-		THROW_ERROR(cx, "Game not ready");
+		THROW_WARNING(cx, "Game not ready");
 
 	UnitAny* pNPC = D2CLIENT_GetCurrentInteractingNPC();
 	if(!pNPC)
