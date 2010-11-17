@@ -93,6 +93,7 @@ FUNCPTR(D2CLIENT, PerformGoldDialogAction, void __fastcall, (void), 0xBFDF0)
 
 FUNCPTR(D2CLIENT, GetPlayerUnit, UnitAny* __stdcall, (void), 0xA4D60)
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // D2Client Globals
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,6 +226,8 @@ ASMPTR(D2CLIENT, ClickMap_III, 0x3F5F0)
 ASMPTR(D2CLIENT, ClickMap_IV, 0x1BF99)
 
 ASMPTR(D2CLIENT, GameAddUnit_I, 0xA6500)
+
+ASMPTR(D2CLIENT, SendGamePacket_I, 0x143E0)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,6 +451,7 @@ VARPTR(BNCLIENT, KeyOwner, char*, 0x1E8E4)
 #define D2CLIENT_ClickBeltRight(pPlayer, pInventory, dwShift, dwPotPos)	D2CLIENT_ClickBeltRight_ASM((DWORD)pPlayer, (DWORD)pInventory, dwShift, dwPotPos)
 #define D2CLIENT_GetItemDesc(pUnit, pBuffer)			D2CLIENT_GetItemDesc_ASM((DWORD)pUnit, pBuffer)
 #define D2CLIENT_MercItemAction(bPacketType, dwSlotId)	D2CLIENT_MercItemAction_ASM(bPacketType, dwSlotId)
+#define D2CLIENT_SendGamePacket(dwLen, bPacket)			D2CLIENT_SendGamePacket_ASM(dwLen, bPacket)
 
 #define D2COMMON_DisplayOverheadMsg(pUnit)				D2COMMON_DisplayOverheadMsg_ASM((DWORD)pUnit)
 

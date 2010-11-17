@@ -189,7 +189,7 @@ JSAPI_FUNC(my_getPath)
 		return JS_FALSE;
 
 	if(strcmp(JS_GetClass(cx, lvl)->name, area_class.name) != 0)
-		return JS_FALSE;
+		THROW_ERROR(cx, "Invalid area");
 
 	if(reductionType == 3 && !(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8])))
 		THROW_ERROR(cx, "Invalid function values for reduction type");
@@ -1087,6 +1087,28 @@ JSAPI_FUNC(my_clickParty)
 
 	*rval = JSVAL_TRUE;
 
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_useStatPoint)
+{
+	WORD stat = 0;
+	int32 count = 1;
+	if(!JS_ConvertArguments(cx, argc, argv, "c/u", &stat, &count))
+		return JS_FALSE;
+
+	UseStatPoint(stat, count);
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_useSkillPoint)
+{
+	WORD skill = 0;
+	int32 count = 1;
+	if(!JS_ConvertArguments(cx, argc, argv, "c/u", &skill, &count))
+		return JS_FALSE;
+
+	UseSkillPoint(skill, count);
 	return JS_TRUE;
 }
 

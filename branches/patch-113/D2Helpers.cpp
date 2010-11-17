@@ -225,7 +225,7 @@ BOOL SetSkill(WORD wSkillId, BOOL bLeft, DWORD dwItemId)
 	aPacket[4] = (bLeft) ? 0x80 : 0;
 	*(DWORD*)&aPacket[5] = dwItemId;
 
-	D2NET_SendPacket(9, 1, aPacket);
+	D2CLIENT_SendGamePacket(9, aPacket);
 
 	UnitAny* Me = D2CLIENT_GetPlayerUnit();
 
@@ -895,8 +895,8 @@ DWORD __cdecl D2CLIENT_GetMinionCount(UnitAny* pUnit, DWORD dwType)
 	{
 		push eax
 		push esi
-		MOV EAX, pUnit
-		MOV ESI, dwType
+		mov eax, pUnit
+		mov esi, dwType
 		call D2CLIENT_GetMinionCount_I
 		mov [dwResult], eax
 		pop esi
@@ -910,8 +910,21 @@ __declspec(naked) void __fastcall D2CLIENT_HostilePartyUnit(RosterUnit* pUnit, D
 {
 	__asm
 	{
-		MOV EAX, EDX
-		JMP [D2CLIENT_ClickParty_II]
+		mov eax, edx
+		jmp [D2CLIENT_ClickParty_II]
+	}
+}
+
+__declspec(naked) DWORD __fastcall D2CLIENT_SendGamePacket_ASM(DWORD dwLen, BYTE* bPacket)
+{
+	__asm
+	{
+		push ebx
+		mov ebx, ecx
+		push edx
+		call D2CLIENT_SendGamePacket_I
+		pop ebx
+		ret
 	}
 }
 

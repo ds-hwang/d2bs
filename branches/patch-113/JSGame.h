@@ -19,6 +19,8 @@ JSAPI_FUNC(my_say);
 JSAPI_FUNC(my_weaponSwitch);
 JSAPI_FUNC(my_transmute);
 JSAPI_FUNC(my_clickParty);
+JSAPI_FUNC(my_useStatPoint);
+JSAPI_FUNC(my_useSkillPoint);
 
 JSAPI_FUNC(my_getInteractedNPC);
 JSAPI_FUNC(my_getIsTalkingNPC);

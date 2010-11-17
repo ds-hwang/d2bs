@@ -157,6 +157,7 @@ enum OOG_Location {
 #define	STAT_DEXTERITY				2		// dexterity
 #define	STAT_VITALITY				3		// vitality
 #define STAT_STATPOINTSLEFT			4
+#define STAT_SKILLPOINTSLEFT		5
 #define	STAT_HP						6		// life
 #define	STAT_MAXHP					7		// max life
 #define	STAT_MANA					8		// mana

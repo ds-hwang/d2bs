@@ -100,6 +100,8 @@ static JSFunctionSpec global_funcs[] = {
 	{"clickParty",			my_clickParty,			1},
 	{"weaponSwitch",		my_weaponSwitch,		0},
 	{"transmute",			my_transmute,			0},
+	{"useStatPoint",		my_useStatPoint,		1},
+	{"useSkillPoint",		my_useSkillPoint,		1},
 
 	// drawing functions
 	{"screenToAutomap",		screenToAutomap,		1},
