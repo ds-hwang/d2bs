@@ -33,8 +33,8 @@ JSAPI_PROP(area_getProperty)
 	{
 		case AUNIT_EXITS:
 			{
-//				if(pArea->ExitArray == NULL)
-//				{
+				if(pArea->ExitArray == NULL)
+				{
 					pArea->ExitArray = JS_NewArrayObject(cx, 0, NULL);
 					JS_AddRoot(&pArea->ExitArray);
 
@@ -66,7 +66,7 @@ JSAPI_PROP(area_getProperty)
 						jsval a = OBJECT_TO_JSVAL(pExit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
-//				}
+				}
 				*vp = OBJECT_TO_JSVAL(pArea->ExitArray);
 			}
 			break;

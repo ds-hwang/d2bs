@@ -185,10 +185,10 @@ JSAPI_FUNC(my_getPath)
 	JSObject* lvl = NULL;
 	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(JS_InstanceOf(cx, JSVAL_TO_OBJECT(argv[0]), global_classes[2].js_class, argv))
+	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 		return JS_FALSE;
 
-	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
+	if(strcmp(JS_GetClass(cx, lvl)->name, area_class.name) != 0)
 		return JS_FALSE;
 
 	if(reductionType == 3 && !(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8])))
@@ -204,9 +204,6 @@ JSAPI_FUNC(my_getPath)
 
 	Point start(x, y), end(dx, dy);
 
-	if(!(map->IsValidPoint(start, true) && map->IsValidPoint(end, true)))
-		THROW_ERROR(cx, "Invalid start or end point!");
-
 	PathReducer* reducer = NULL;
 	switch(reductionType)
 	{
@@ -216,6 +213,10 @@ JSAPI_FUNC(my_getPath)
 		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8]); break;
 		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
+
+	if(!map->IsValidPoint(start, true) || !map->IsValidPoint(end, true) ||
+		reducer->Reject(start, true) || reducer->Reject(end, true))
+		THROW_ERROR(cx, "Invalid start or end point!");
 
 	PointList list;
 	AStarPath<> path(map, reducer, EstimateDistance);

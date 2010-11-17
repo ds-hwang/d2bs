@@ -36,7 +36,7 @@ typedef std::map<DWORD, D2Map*> MapList;
 
 class D2Map : public Map
 {
-private:
+public:
 	enum CollisionFlag {
 		None				= 0x0000,
 		BlockWalk			= 0x0001,
@@ -59,6 +59,7 @@ private:
 		Avoid				= 0xFFFF
 	};
 
+private:
 	typedef std::list<Room2*> RoomList;
 
 	static MapList cache;
