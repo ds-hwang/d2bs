@@ -232,6 +232,7 @@ JSAPI_FUNC(my_getPath)
 	FILE* f;
 	fopen_s(&f, p, "a+");
 	path.GetAllocator().DumpStats(f);
+	fclose(f);
 #endif
 
 	int count = list.size();
