@@ -28,8 +28,10 @@ JSAPI_FUNC(my_login)
 		}
 		else
 			THROW_ERROR(cx, "Invalid profile specified!");
-	} else
+	} else {
 		profile = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
+		strcpy_s(Vars.szProfile, 256, profile);
+	}
 
 	if(!profile) THROW_ERROR(cx, "Could not get profile!");
 	if(!ProfileExists(profile)) THROW_ERROR(cx, "Profile does not exist!");

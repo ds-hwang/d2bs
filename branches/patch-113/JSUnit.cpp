@@ -67,6 +67,9 @@ JSAPI_PROP(unit_getProperty)
 
 	switch(JSVAL_TO_INT(id))
 	{
+		case ME_PROFILE:
+			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Vars.szProfile));
+			break;
 		case ME_GAMEREADY:
 			*vp = BOOLEAN_TO_JSVAL(GameReady());
 			break;
