@@ -30,7 +30,7 @@ public:
 		while(it != end)
 		{
 			Point prev = *(out.end()-1);
-			while(distance(*it, prev) < range) it++;
+			while(it != end && distance(*it, prev) < range) it++;
 			it--;
 			out.push_back(*it);
 			it++;
