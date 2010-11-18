@@ -320,8 +320,7 @@ void D2Map::GetExits(ExitArray& exits) const
 						{
 							spaces++;
 							if(spaces == 3)
-							{
-								midpoint = Point((start.first + end.first) / 2, (start.second + end.second) / 2);
+							{								
 								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 								found = true;
 							}
