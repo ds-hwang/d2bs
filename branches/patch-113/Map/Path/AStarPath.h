@@ -128,8 +128,7 @@ public:
 		Node* result = NULL;
 
 		// if we don't have a valid start and end, don't even bother
-		if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs) ||
-			reducer->Reject(start, abs) || reducer->Reject(end, abs)) return;
+		if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs)) return;
 
 		std::vector<Node*> nodes;
 		FindPath(start, end, &result, nodes, abs);

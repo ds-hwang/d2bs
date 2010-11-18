@@ -215,8 +215,7 @@ JSAPI_FUNC(my_getPath)
 		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
 
-	if(!map->IsValidPoint(start, true) || !map->IsValidPoint(end, true) ||
-		reducer->Reject(start, true) || reducer->Reject(end, true))
+	if(!map->IsValidPoint(start, true) || !map->IsValidPoint(end, true))
 		THROW_ERROR(cx, "Invalid start or end point!");
 
 	PointList list;
