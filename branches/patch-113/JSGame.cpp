@@ -230,7 +230,7 @@ JSAPI_FUNC(my_getPath)
 	char p[510];
 	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);
 	FILE* f;
-	fopen_s(&f, p, "w+");
+	fopen_s(&f, p, "a+");
 	path.GetAllocator().DumpStats(f);
 #endif
 
