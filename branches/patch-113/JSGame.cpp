@@ -210,7 +210,7 @@ JSAPI_FUNC(my_getPath)
 	{
 		case 0: reducer = new WalkPathReducer(map, DiagonalShortcut, radius); break;
 		case 1: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
-		case 2: reducer = new NoPathReducer(); break;
+		case 2: reducer = new NoPathReducer(map); break;
 		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8]); break;
 		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}

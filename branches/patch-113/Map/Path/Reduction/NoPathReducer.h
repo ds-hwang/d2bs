@@ -11,7 +11,10 @@ namespace Reducing
 
 class NoPathReducer : public PathReducer
 {
+private:
+	D2Map* map;
 public:
+	NoPathReducer(D2Map* map_) : map(map_) {}
 	// the path is not reduced at all
 	inline void Reduce(PointList const & in, PointList& out, bool abs) { out = in; }
 	// accept only walkable nodes
