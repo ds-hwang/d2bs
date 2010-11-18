@@ -132,7 +132,6 @@ void InitSettings(void)
 	Vars.bUseGamePrint = StringToBool(gamePrint);
 	Vars.bUseProfileScript = StringToBool(useProfilePath);
 	Vars.bLogConsole = StringToBool(logConsole);
-	Vars.szProfile = "";
 
 	Vars.dwMemUsage = abs(atoi(memUsage));
 	if(Vars.dwMemUsage < 1)

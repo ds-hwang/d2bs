@@ -552,6 +552,10 @@
 				RelativePath=".\stringhash.h"
 				>
 			</File>
+			<File
+				RelativePath=".\TimedAlloc.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Spidermonkey Engine"
