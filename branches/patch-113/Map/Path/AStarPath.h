@@ -5,6 +5,7 @@
 #include "Reduction\PathReducer.h"
 
 #include <vector>
+#include <set>
 #include <queue>
 #include <cmath>
 
@@ -67,7 +68,7 @@ private:
 	void FindPath(Point const & start, Point const & end, Node** result, std::vector<Node*>& nodes, bool abs)
 	{
 		std::priority_queue<Node*, std::vector<Node*>, NodeComparer> open;
-		std::vector<Point> closed;
+		std::set<Point> closed;
 
 		Node* begin = alloc.allocate(1);
 		// if we don't get a valid node, just return
@@ -82,8 +83,7 @@ private:
 			Node* current = open.top();
 			open.pop();
 
-			std::vector<Point>::iterator lbegin = closed.begin(), lend = closed.end();
-			if(std::find(lbegin, lend, current->point) != lend) continue;
+			if(closed.find(current->point) != closed.end()) continue;
 
 			if(current->point == end)
 			{
@@ -91,7 +91,8 @@ private:
 				return;
 			}
 
-			closed.push_back(current->point);
+			bool result = closed.insert(current->point).second;
+			assert(result == true);
 
 			for(int i = 1; i >= -1; i--)
 			{
