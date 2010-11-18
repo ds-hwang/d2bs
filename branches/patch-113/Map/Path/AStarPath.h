@@ -101,7 +101,7 @@ private:
 					if(i == 0 && j == 0) continue;
 
 					Point point(current->point.first + i, current->point.second + j);
-					if(!map->IsValidPoint(point, abs) || reducer->Reject(point, abs)) continue;
+					if(!map->IsValidPoint(point, abs) || (reducer->Reject(point, abs) && point != end)) continue;
 
 					Node* next = alloc.allocate(1);
 					// if we don't get a valid node, just return
