@@ -220,13 +220,13 @@ JSAPI_FUNC(my_getPath)
 		THROW_ERROR(cx, "Invalid start or end point!");
 
 	PointList list;
-#if defined(_DEBUG) && defined(_TIME)
+#if defined(_TIME)
 	AStarPath<TimedAlloc<Node, std::allocator<Node> > > path(map, reducer, EstimateDistance);
 #else
 	AStarPath<> path(map, reducer, EstimateDistance);
 #endif
 	path.GetPath(start, end, list, true);
-#if defined(_DEBUG) && defined(_TIME)
+#if defined(_TIME)
 	char p[510];
 	sprintf_s(p, 510, "%s\\stats.txt", Vars.szPath);
 	FILE* f;
