@@ -67,7 +67,7 @@ Area.Act1.NPCNames = {
 	155:"Warriv"
 }
 
-Area.Act1.Jobs = {	
+Area.Act1.Jobs = {
 	Heal:Area.Act1.NPCs.Akara,
 	Gamble:Area.Act1.NPCs.Gheed,
 	Repair:Area.Act1.NPCs.Charsi,
@@ -130,11 +130,11 @@ Area.Act2.NPCNames = {
 	177:"Drognan"
 };
 
-Area.Act2.Jobs = {	
+Area.Act2.Jobs = {
 	Heal:Area.Act2.NPCs.Fara,
 	Gamble:Area.Act2.NPCs.Elzix,
 	Repair:Area.Act2.NPCs.Fara,
-	Pots:Area.Act2.NPCs.Lysander,
+	Pots:Area.Act2.NPCs.Drognan,
 	Aarows:Area.Act2.NPCs.Fara,
 	Merc:Area.Act2.NPCs.Greiz,
 	Scrolls:Area.Act2.NPCs.Drognan,
@@ -182,14 +182,14 @@ Area.Act3.NPCNames = {
 	252:"Asheara",
 	254:"Alkor",
 	253:"Hratli"
-}	
+}
 
 Area.Act3.Tiles = {
 	DuranceTile1:67,
 	DuranceTile2:68
 }
 
-Area.Act3.Jobs = {	
+Area.Act3.Jobs = {
 	Heal:Area.Act3.NPCs.Ormus,
 	Gamble:Area.Act3.NPCs.Alkor,
 	Repair:Area.Act3.NPCs.Hratli,
@@ -215,7 +215,7 @@ Area.Act3.Objects = {
 	Waypoint:237,
 	Stash:267
 }
-	
+
 //Everything for Act 4
 Area.Act4 = {ThePandemoniumFortress:103, OuterSteppes:104, PlainsOfDespair:105, CityOfTheDamned:106, RiverOfFlame:107, ChaosSanctuary:108};
 Area[4] = Area.Act4;
@@ -234,7 +234,7 @@ Area.Act4.NPCNames = {
 	367:"Tyrael"
 }
 
-Area.Act4.Jobs = {	
+Area.Act4.Jobs = {
 	Heal:Area.Act4.NPCs.Jamella,
 	Gamble:Area.Act4.NPCs.Jamella,
 	Repair:Area.Act4.NPCs.Halbu,
@@ -287,7 +287,7 @@ Area.Act5.Tiles = {
 	WorldStoneDown:82
 }
 
-Area.Act5.Jobs = {	
+Area.Act5.Jobs = {
 	Heal:Area.Act5.NPCs.Malah,
 	Gamble:Area.Act5.NPCs.Anya,
 	Repair:Area.Act5.NPCs.Larzuk,
@@ -396,7 +396,7 @@ var State = { None:0, Freeze:1, Poison:2, ResistFire:3, ResistCold:4, ResistLigh
 	Burning:115, DragonFlight:116, Maul:117, CorpseNoSelect:118, ShadowWarrior:119, FeralRage:120, SkillDelay:121, ProgressiveDamage:122, ProgressiveSteal:123,
 	ProgressiveOther:124, ProgressiveFire:125, ProgressiveCold:126, ProgressiveLightning:127, ShrineArmor:128, ShrineCombat:129, ShrineResistLightning:130,
 	ShrineResistFire:131, ShrineResistCold:132, ShrineResistPoison:133, ShrineSkill:134, ShrineManaRegen:135, ShrineStamina:136, ShrineExperience:137,
-	FenrisRage:138, Wolf:139, Bear:140, BloodLust:141, ChangeClass:142, Attached:143, Hurricane:144, Armageddon:145, Invis:146, Barbs:147, Wolverine:148, OakSage:149, 
+	FenrisRage:138, Wolf:139, Bear:140, BloodLust:141, ChangeClass:142, Attached:143, Hurricane:144, Armageddon:145, Invis:146, Barbs:147, Wolverine:148, OakSage:149,
 	VineBeast:150, CycloneArmor:151, ClawMastery:152, CloakOfShadows:153, Recycled:154, WeaponBlock:155, Cloaked:156, Quickness:157, BladeShield:158, Fade:159 };
 
 State.name = function(id) { for (var n in this) { if (id == this[n]) { return n; }} return false; };
@@ -500,8 +500,8 @@ var Stats = {
 }
 
 Stats.AddSkillTab = {
-	Id:188, 
-	Bow:0, Passive:1, Javelin:2, 
+	Id:188,
+	Bow:0, Passive:1, Javelin:2,
 	Fire:8, Lightning:9, Cold:10,
 	Curses:16, PoisonBone:17, NecroSummon:18,
 	PalCombat:24, OffensiveAuras:25, DefensiveAuras:26,
@@ -565,13 +565,13 @@ var BodyLocation = {
 	LeftSlotII:12
 }
 
-var pickitStats = {strength:0, energy:1, dexterity:2, vitality:3, life:7, maxlife:7, mana:9, maxmana:9, stamina:11, 
-maxstamina:11, gold:14, enhanceddefense:16, maxdamagepercent:17, enhanceddamage:18, tohit:19, toblock:20, mindamage:21, 
+var pickitStats = {strength:0, energy:1, dexterity:2, vitality:3, life:7, maxlife:7, mana:9, maxmana:9, stamina:11,
+maxstamina:11, gold:14, enhanceddefense:16, maxdamagepercent:17, enhanceddamage:18, tohit:19, toblock:20, mindamage:21,
 maxdamage:22, secondarymindamage:23, secondarymaxdamage:24, damagepercent:25, manarecovery:26, manarecoverybonus:27,
 staminarecoverybonus:28, defense:31, defensevsmissile:32, defensevshth:33, normaldamagereduction:34,
 magicdamagereduction:35, damagereduce:36, magicresist:37, maxmagicresist:38, fireresist:39, maxfireresist:40,
 lightresist:41, maxlightresist:42, coldresist:43, maxcoldresist:44, poisonresist:45, maxpoisonresist:46,
-damageaura:47, firemindamage:48, firemaxdamage:49, lightmindamage:50, lightmaxdamage:51, magicmindamage:52, 
+damageaura:47, firemindamage:48, firemaxdamage:49, lightmindamage:50, lightmaxdamage:51, magicmindamage:52,
 magicmaxdamage:53, coldmindamage:54, coldmaxdamage:55, coldlength:56, poisonmindamage:57, poisonmaxdamage:58,
 poisonlength:59, lifeleech:60, maxlifeleech:61, manaleech:61, maxmanaleech:62, staminaleech:63, maxstaminaleech:64,
 stunlength:65, velcocitypercent:66,attackrating:68,otheranimrate:69,
@@ -637,7 +637,7 @@ var skillTypes = {"onattack":195, "ondeath":197, "onhit":198, "onlevelup":199, "
 for (var type in skillTypes)
 	for (var ski in Skill)
 		pickitStats[ski.toLowerCase () + type] = [skillTypes[type], Skill[ski]];
-		
+
 for (var type in Stats.AddSkillTab)
 {
 	if (type == "Id")
@@ -787,7 +787,7 @@ var categories = {
 	'runes': ['r01','r02','r03','r04','r05','r06','r07','r08','r09','r10','r11',
 			  'r12','r13','r14','r15','r16','r17','r18','r19','r20','r21','r22',
 			  'r23','r24','r25','r26','r27','r28','r29','r30','r31','r32','r33'],
-	
+
 	'perfect gems': ['gpw','gpv','gpb','gpy','gpr','skz','gpg'],
 	'flawless gems': ['gzv','glw','glg','glr','glb','skl','gly'],
 	'normal gems': ['gsv','gsw','gsg','gsr','gsb','sku','gsy'],
@@ -837,148 +837,148 @@ categories['socketables'] = categories.runes.concat(categories.gems, ['jew']);
 
 categories['potions'] = categories['healing potions'].concat(categories['mana potions'],
 				categories['rejuvenation potions'], categories['misc potions']);
-				
+
 var itemCodes = {"cap":"cap", "skull cap":"skp", "helm":"hlm", "full helm":"fhl", "great helm":"ghm", "crown":"crn",
 "mask":"msk", "bone helm":"bhm", "war hat":"xap", "sallet":"xkp", "casque":"xhm", "basinet":"xhl", "winged helm":"xhm",
 "grand crown":"xrn", "death mask":"xsk", "grim helm":"xh9", "shako":"uap", "hydraskull":"ukp", "armet":"ulm",
 "giant conch":"uhl", "spired helm":"uhm", "corona":"urn", "demonhead":"usk", "bone visage":"uh9",
 
 "quilted armor":"qui", "leather armor":"lea", "hard armor":"hla", "studded leather":"stu", "ring mail":"rng",
-"scale mail":"scl", "chain mail":"chn", "breast plate":"brs", "splint mail":"spl", "plate mail":"plt", 
+"scale mail":"scl", "chain mail":"chn", "breast plate":"brs", "splint mail":"spl", "plate mail":"plt",
 "field plate":"fld", "gothic plate":"gth", "full plate mail":"ful", "ancient armor":"aar", "ghost armor":"xui",
 "serpentskin armor":"xea", "demonhide armor":"xla", "trellised armor":"xtu", "mesh armor":"xhn", "cuirass":"xrs",
 "russet armor":"xpl", "templar coat":"xlt", "sharktooth armor":"xld", "embossed plate":"xth", "chaos armor":"xul",
-"ornate armor":"xar", "Mage Plate":"xtp", "dusk shroud":"uui", "wyrmhide":"uea", "scarab husk":"ula", 
+"ornate armor":"xar", "Mage Plate":"xtp", "dusk shroud":"uui", "wyrmhide":"uea", "scarab husk":"ula",
 "wire fleece":"utu", "diamond mail":"ung", "loricated mail":"ucl", "boneweave":"uhn", "great hauberk":"urs",
 "balrog skin":"upl", "hellforge plate":"ult", "kraken shell":"uld", "lacquered plate":"uth", "shadow plate":"uul",
 "sacred armor":"uar", "archon plate":"utp",
 
-"buckler":"buc", "defender":"xuc", "heater":"uuc", "small shield":"sml", "round shield":"xml", "luna":"uml", 
-"large shield":"lrg", "scutum":"xrg", "hyperion":"urg", "kite shield":"kit", "dragon shield":"xit", 
-"monarch":"uit", "tower shield":"tow", "pavise":"xow", "aegis":"uow", "gothic shield":"gts", "ancient shield":"xts", 
-"ward":"uts", "bone shield":"bsh", "grim shield":"xsh", "troll nest":"ush", "spiked shield":"spk", "barbed shield":"xpk", 
+"buckler":"buc", "defender":"xuc", "heater":"uuc", "small shield":"sml", "round shield":"xml", "luna":"uml",
+"large shield":"lrg", "scutum":"xrg", "hyperion":"urg", "kite shield":"kit", "dragon shield":"xit",
+"monarch":"uit", "tower shield":"tow", "pavise":"xow", "aegis":"uow", "gothic shield":"gts", "ancient shield":"xts",
+"ward":"uts", "bone shield":"bsh", "grim shield":"xsh", "troll nest":"ush", "spiked shield":"spk", "barbed shield":"xpk",
 
-"leather gloves":"lgl", "demonhide glove":"xlg", "bramble mitts":"ulg", "heavy gloves":"vgl", "sharkskin glove":"xvg", 
-"vampirebone gloves":"uvg", "chain gloves":"mgl", "heavy bracers":"xmg", "vambraces":"umg", "light gauntlets":"tgl", 
-"battle gauntlet":"xtg", "crusader gaunt":"ulg", "gauntlets":"hgl", "war gauntlets":"xhg", "ogre gauntlets":"uhg", 
+"leather gloves":"lgl", "demonhide glove":"xlg", "bramble mitts":"ulg", "heavy gloves":"vgl", "sharkskin glove":"xvg",
+"vampirebone gloves":"uvg", "chain gloves":"mgl", "heavy bracers":"xmg", "vambraces":"umg", "light gauntlets":"tgl",
+"battle gauntlet":"xtg", "crusader gaunt":"ulg", "gauntlets":"hgl", "war gauntlets":"xhg", "ogre gauntlets":"uhg",
 
-"boots":"lbt", "demonhide boots":"xlb", "wyrmhide boots":"ulb", "heavy boots":"vbt", "sharkskin boots":"xvb", 
-"scarabshell boots":"uvb", "chain boots":"mbt", "mesh boots":"xmb", "boneweave boots":"umb", 
-"light plate":"tbt", "battle boots":"xtb", "mirrored boots":"utb", "greaves":"hbt", "war boots":"xhb", 
+"boots":"lbt", "demonhide boots":"xlb", "wyrmhide boots":"ulb", "heavy boots":"vbt", "sharkskin boots":"xvb",
+"scarabshell boots":"uvb", "chain boots":"mbt", "mesh boots":"xmb", "boneweave boots":"umb",
+"light plate":"tbt", "battle boots":"xtb", "mirrored boots":"utb", "greaves":"hbt", "war boots":"xhb",
 "greaves":"hbt", "war boots":"xhb", "myrmidon greaves":"uhb",
 
-"sash":"lbl", "demonhide sash":"zlb", "spiderweb sash":"ulc", "light belt":"vbl", "sharkskin belt":"zvb", 
-"vampirefang blt":"uvc", "belt":"mbl", "mesh belt":"zmb", "mithril coil":"umc", "heavy belt":"tbl", 
-"battle belt":"ztb", "troll belt":"utc", "plated belt":"hbl", "war belt":"zhb", "colossus girdle":"uhc", 
+"sash":"lbl", "demonhide sash":"zlb", "spiderweb sash":"ulc", "light belt":"vbl", "sharkskin belt":"zvb",
+"vampirefang blt":"uvc", "belt":"mbl", "mesh belt":"zmb", "mithril coil":"umc", "heavy belt":"tbl",
+"battle belt":"ztb", "troll belt":"utc", "plated belt":"hbl", "war belt":"zhb", "colossus girdle":"uhc",
 
-"wolf head":"dr1", "alpha helm":"dr6", "blood spirit":"drb", "hawk helm":"dr2", "griffon headress":"dr7", 
-"sun spirit":"drc", "antlers":"dr3", "hunter's guise":"dr8", "earth spirit":"drd", "falcon mask":"dr4", 
-"sacred feathers":"dr9", "sky spirit":"dre", "spirit mask":"dr5", "totemic mask":"dra", "dream spirit":"drf", 
+"wolf head":"dr1", "alpha helm":"dr6", "blood spirit":"drb", "hawk helm":"dr2", "griffon headress":"dr7",
+"sun spirit":"drc", "antlers":"dr3", "hunter's guise":"dr8", "earth spirit":"drd", "falcon mask":"dr4",
+"sacred feathers":"dr9", "sky spirit":"dre", "spirit mask":"dr5", "totemic mask":"dra", "dream spirit":"drf",
 
-"jawbone cap":"ba1", "jawbone visor":"ba6", "carnage helm":"bab", "fanged helm":"ba2", "lion helm":"ba7", 
-"fury visor":"bac", "horned helm":"ba3", "rage mask":"ba8", "destroyer helm":"bad", "assualt helmet":"ba4", 
-"savage helmet":"ba9", "conqueror crown":"bae", "avenger guard":"ba5", "slayer guard":"baa", 
+"jawbone cap":"ba1", "jawbone visor":"ba6", "carnage helm":"bab", "fanged helm":"ba2", "lion helm":"ba7",
+"fury visor":"bac", "horned helm":"ba3", "rage mask":"ba8", "destroyer helm":"bad", "assualt helmet":"ba4",
+"savage helmet":"ba9", "conqueror crown":"bae", "avenger guard":"ba5", "slayer guard":"baa",
 "guardian crown":"baf",
 
-"targe":"pa1", "akaran targe":"pa6", "sacred targe":"pab", "rondache":"pa2", 
-"akaran rondache":"pa7", "sacred rondache":"pac", "heraldic shield":"pa3", "protector shld":"pa8", 
-"ancient shield":"pad", "aerin shield":"pa4", "gilded shield":"pa9", "zakarum shield":"pae", 
-"crown shield":"pa5", "royal shield":"paa", "vortex shield":"paf", 
+"targe":"pa1", "akaran targe":"pa6", "sacred targe":"pab", "rondache":"pa2",
+"akaran rondache":"pa7", "sacred rondache":"pac", "heraldic shield":"pa3", "protector shld":"pa8",
+"ancient shield":"pad", "aerin shield":"pa4", "gilded shield":"pa9", "zakarum shield":"pae",
+"crown shield":"pa5", "royal shield":"paa", "vortex shield":"paf",
 
-"preserved head":"ne1", "mummified trphy":"ne6", "minion skull":"neb", "zombie head":"ne2", "fetish trophy":"ne7", 
-"hellspawn skull":"nec", "unraveller head":"ne3", "sexton trophy":"ne8", "overseer skull":"ned", 
-"gargoyle head":"ne4", "cantor trophy":"ne9", "succubae skull":"nee", "demon head":"ne5", 
-"heirophant trophy":"nea", "bloodlord skull":"nef", 
+"preserved head":"ne1", "mummified trphy":"ne6", "minion skull":"neb", "zombie head":"ne2", "fetish trophy":"ne7",
+"hellspawn skull":"nec", "unraveller head":"ne3", "sexton trophy":"ne8", "overseer skull":"ned",
+"gargoyle head":"ne4", "cantor trophy":"ne9", "succubae skull":"nee", "demon head":"ne5",
+"heirophant trophy":"nea", "bloodlord skull":"nef",
 
-"hand axe":"hax", "hatchet":"9ha", "tomahawk":"7ha", 
-"axe":"axe", "cleaver":"9ax", "small crescent":"7ax", "double axe":"2ax", "twin axe":"92a", 
-"ettin axe":"72a", "military pick":"mpi", "crowbill":"9mp", "war spike":"7mp", "war axe":"wax", 
-"naga":"9wa", "berserker axe":"7wa", "large axe":"lax", "military axe":"9la", "feral axe":"7la", 
-"broad axe":"bax", "bearded axe":"9ba", "silver edged ax":"7ba", "battle axe":"btx", "tabar":"9bt", 
-"decapitator":"7bt", "great axe":"gax", "gothic axe":"9ga", "champion axe":"7ga", "giant axe":"gix", 
-"ancient axe":"9gi", "glorious axe":"7gi", "club":"clb", "cudgel":"9cl", "truncheon":"7cl", 
-"spiked club":"spc", "barbed club":"9sp", "tyrant club":"7sp", "mace":"mac", "flanged mace":"9ma", 
-"reinforced mace":"7ma", "morning star":"mst", "jagged star":"9mt", "devil star":"7mf", "flail":"fla", 
-"knout":"9fl", "scourge":"7fl", "war hammer":"whm", "battle hammer":"9wh", "legendary mallt":"7wh", 
-"maul":"mau", "war club":"9m9", "ogre maul":"7m7", "great maul":"gma", "martel de fer":"9gm", 
-"thunder maul":"7gm", "short sword":"ssd", "gladius":"9ss", "falcata":"7ss", "scimitar":"scm", 
-"cutlass":"9sm", "ataghan":"7sm", "sabre":"sbr", "shamshir":"9sb", "elegant blade":"7sb", 
-"falchion":"flc", "tulwar":"9fc", "hydra edge":"7fc", "crystal sword":"crs", "dimensional bld":"9cr", 
-"phase blade":"7cr", "broad sword":"bsd", "battle sword":"9bs", "conquest sword":"7bs", "long sword":"lsd", 
-"rune sword":"9ls", "cryptic sword":"7ls", "war sword":"wsd", "ancient sword":"9wd", "mythical sword":"7wd", 
-"two-handed swrd":"2hs", "espadon":"92h", "legend sword":"72h", "claymore":"clm", "dacian falx":"9cm", 
-"highland blade":"7cm", "giant sword":"gis", "tusk sword":"9gs", "balrog blade":"7gs", "bastard sword":"bsw", 
-"gothic sword":"9b9", "champion sword":"7b7", "flamberge":"flb", "zweihander":"9fb", "colossal sword":"7fb", 
-"great sword":"gsd", "executioner swr":"9gd", "colossus blade":"7gd", "dagger":"dgr", "poignard":"9dg", 
-"bone knife":"7dg", "dirk":"dir", "rondel":"9di", "mithral point":"7di", "kriss":"kri", "cinquedeas":"9kr", 
-"fanged knife":"7kr", "blade":"bld", "stilleto":"9bl", "legend spike":"7bl", "throwing knife":"tkf", 
-"battle dart":"9tk", "flying knife":"7tk", "throwing axe":"tax", "francisca":"9ta", "flying axe":"7ta", 
-"balanced knife":"bkf", "war dart":"9bk", "winged knife":"7bk", "balanced axe":"bal", "hurlbat":"9b8", 
-"winged axe":"7b8", "javelin":"jav", "war javelin":"9ja", "hyperion javeln":"7ja", "pilum":"pil", 
-"great pilum":"9pi", "stygian pilum":"7pi", "short spear":"ssp", "simbilan":"9s9", "balrog spear":"7s7", 
-"glaive":"glv", "spiculum":"9gl", "ghost glaive":"7gl", "throwing spear":"tsp", "harpoon":"9ts", 
-"winged harpoon":"7ts", "spear":"spr", "war spear":"9sr", "hyperion spear":"7sr", "trident":"tri", 
-"fuscina":"9tr", "stygian pike":"7tr", "brandistock":"brn", "war fork":"9br", "mancatcher":"7br", 
-"spetum":"spt", "yari":"9st", "ghost spear":"7st", "pike":"pik", "lance":"9p9", "war pike":"7p7", 
-"bardiche":"bar", "lochaber axe":"9b7", "ogre axe":"7o7", "voulge":"vou", "bill":"9vo", "colossus voulge":"7vo", 
-"scythe":"scy", "battle scythe":"9s8", "thresher":"7s8", "poleaxe":"pax", "partizan":"9pa", 
-"cryptic axe":"7pa", "halberd":"hal", "bec-de-corbin":"9h9", "great poleaxe":"7h7", "war scythe":"wsc", 
-"grim scythe":"9wc", "giant thresher":"7wc", "short bow":"sbw", "edge bow":"8sb", "spider bow":"6sb", 
-"hunter's bow":"hbw", "razor bow":"8hb", "blade bow":"6hb", "long bow":"lbw", "cedar bow":"8lb", 
-"shadow bow":"6lb", "composite bow":"cbw", "double bow":"8cb", "great bow":"6cb", "shrt battle bow":"sbb", 
-"short siege bow":"8s8", "diamond bow":"6s7", "long battle bow":"lbb", "long siege bow":"8l8", 
-"crusader bow":"6l7", "short war bow":"swb", "rune bow":"8sw", "ward bow":"6sw", "long war bow":"lwb", 
-"gothic bow":"8lw", "hydra bow":"6lw", "light crossbow":"lxb", "arbalest":"8lx", "pellet bow":"6lx", 
-"crossbow":"mxb", "siege crossbow":"8mx", "gorgon crossbow":"6mx", "heavy crossbow":"hxb", 
-"ballista":"8hx", "colossus x-bow":"6hx", "repeating x-bow":"rxb", "chu-ko-nu":"8rx", "demon crossbow":"6rx", 
-"short staff":"sst", "jo staff":"8ss", "walking stick":"6ss", "long staff":"lst", "quarterstaff":"8ls", 
-"stalagmite":"6ls", "gnarled staff":"gst", "cedar staff":"8cs", "elder staff":"6cs", "battle staff":"bst", 
-"gothic staff":"8bs", "shillelagh":"6bs", "war staff":"wst", "rune staff":"8ws", "archon staff":"6ws", 
-"wand":"wnd", "burnt wand":"9wn", "polished wand":"7wn", "yew wand":"ywn", "petrified wand":"9yw", 
-"ghost wand":"7yw", "bone wand":"bwn", "tomb wand":"9bw", "lich wand":"7bw", "grim wand":"gwn", 
-"grave wand":"9gw", "unearthed wand":"7gw", "sceptre":"scp", "rune sceptre":"9sc", "mighty sceptre":"7sc", 
-"grand sceptre":"gsc", "holy water spri":"9qs", "seraph rod":"7qs", "war sceptre":"wsp", "divine sceptre":"9ws", 
-"caduceus":"7ws", "katar":"ktr", "quhab":"9ar", "suwayyah":"7ar", "wrist blade":"wrb", "wrist spike":"9wb", 
-"wrist sword":"7wb", "hatchet hands":"axf", "fascia":"9xf", "war fist":"7xf", "cestus":"ces", 
-"hand scythe":"9cs", "battle cestus":"7cs", "claws":"clw", "greater claws":"9lw", "feral claws":"7lw", 
-"blade talons":"btl", "greater talons":"9hw", "runic talons":"7hw", "scissors katar":"skr", 
-"scissors quhab":"9qr", "scissors suwayh":"7qr", 
-"eagle orb":"ob1", "glowing orb":"ob6", "heavenly stone":"obb", 
-"sacred globe":"ob2", "crystalline glb":"ob7", "eldritch orb":"obc", "smoked sphere":"ob3", 
-"cloudy sphere":"ob8", "demon heart":"obd", "clasped orb":"ob4", "sparkling ball":"ob9", "vortex orb":"obe", 
-"dragon stone":"ob5", "swirling crystal":"oba", "dimensional shard":"obf", "stag bow":"am1", 
-"ashwood bow":"am6", "matriarchal bow":"amb", "reflex bow":"am2", "ceremonial bow":"am7", 
-"grand matron bow":"amc", "maiden spear":"am3", "ceremonial spr":"am8", "matriarchal spr":"amd", 
-"maiden pike":"am4", "ceremonial pike":"am9", "matriarchal pik":"ame", "maiden javelin":"am5", 
-"ceremonial jav":"ama", "matriarchal jav":"amf", "circlet":"ci0", "coronet":"ci1", "tiara":"ci2", 
-"diadem":"ci3", "rancid gas pot":"gps", "oil potion":"ops", "choking gas pot":"gpm", "exploding pot":"opm", 
-"strangling gas":"gpl", "fulminating pot":"opl", "wirt's leg":"leg", "horadric malus":"hdm", 
-"scroll of inifuss 1":"bks", "scroll of inifuss 2":"bkd", "book of skill":"ass", "horadric cube":"box", 
-"horadric scroll":"tr1", "staff of kings":"msf", "viper amulet":"vip", "horadric staff":"hst", 
-"potion of life":"xyz", "a jade figurine":"j34", "the golden bird":"g34", "lam esen's tome":"bbb", 
-"gidbinn":"g33", "khalim's flail":"qf1", "khalim's will":"qf2", "khalim's eye":"qey", "khalim's heart":"qhr", 
-"khalim's brain":"qbr", "mephisto's soulstone":"mss", "hellforge hammr":"hfh", "malah's potion":"ice", 
-"scroll of resistance":"tr2", "chipped amethyst":"gcv", "chipped diamond":"gcw", "chipped emerald":"gcg", 
-"chipped ruby":"gcr", "chipped saphire":"gcb", "chipped skull":"skc", "chipped topaz":"gcy", 
-"flawed amethyst":"gfv", "flawed diamond":"gfw", "flawed emerald":"gfg", "flawed ruby":"gfr", 
-"flawed saphire":"gfb", "flawed skull":"skf", "flawed topaz":"gfy", "amethyst":"gsv", "diamond":"gsw", 
-"emerald":"gsg", "ruby":"gsr", "saphire":"gsb", "skull":"sku", "topaz":"gsy", "flawless amethyst":"gzv", 
-"flawless diamond":"glw", "flawless emerald":"glg", "flawless ruby":"glr", "flawless saphire":"glb", 
-"flawless skull":"skl", "flawless topaz":"gly", "perfect diamond":"gpw", "perfect amethyst":"gpv", 
-"perfect sapphire":"gpb", "perfect topaz":"gpy", "perfect ruby":"gpr", "perfect skull":"skz", 
-"perfect emerald":"gpg", "el rune":"r01", "eld rune":"r02", "tir rune":"r03", "nef rune":"r04", 
-"eth rune":"r05", "ith rune":"r06", "tal rune":"r07", "ral rune":"r08", "ort rune":"r09", 
-"thul rune":"r10", "amn rune":"r11", "sol rune":"r12", "shael rune":"r13", "dol rune":"r14", 
-"hel rune":"r15", "io rune":"r16", "lum rune":"r17", "ko rune":"r18", "fal rune":"r19", "lem rune":"r20", 
-"pul rune":"r21", "um rune":"r22", "mal rune":"r23", "ist rune":"r24", "gul rune":"r25", "vex rune":"r26", 
-"ohm rune":"r27", "lo rune":"r28", "sur rune":"r29", "ber rune":"r30", "jah rune":"r31", "cham rune":"r32", 
-"zod rune":"r33", "antidote potion":"yps", "stamina potion":"vps", "thawing potion":"wms", 
-"minor healing potion":"hp1", "minor mana potion":"mp1", "light healing potion":"hp2", "light mana potion":"mp2", 
-"healing potion":"hp3", "mana potion":"mp3", "greater healing potion":"hp4", "greater mana potion":"mp4", 
-"super healing potion":"hp5", "super mana potion":"mp5", "rejuv potion":"rvs", "full rejuv potion":"rvl", 
-"small charm":"cm1", "large charm":"cm2", "grand charm":"cm3", "identify scroll":"isc", "town portal scroll":"tsc", 
-"tome of town portal":"tbk", "tome of identify":"ibk", "arrows":"aqv", "bolts":"cqv", "jewel":"jew", 
-"amulet":"amu", "gold":"gld", "ring":"rin", "ear":"ear", "torch":"tch", 
+"hand axe":"hax", "hatchet":"9ha", "tomahawk":"7ha",
+"axe":"axe", "cleaver":"9ax", "small crescent":"7ax", "double axe":"2ax", "twin axe":"92a",
+"ettin axe":"72a", "military pick":"mpi", "crowbill":"9mp", "war spike":"7mp", "war axe":"wax",
+"naga":"9wa", "berserker axe":"7wa", "large axe":"lax", "military axe":"9la", "feral axe":"7la",
+"broad axe":"bax", "bearded axe":"9ba", "silver edged ax":"7ba", "battle axe":"btx", "tabar":"9bt",
+"decapitator":"7bt", "great axe":"gax", "gothic axe":"9ga", "champion axe":"7ga", "giant axe":"gix",
+"ancient axe":"9gi", "glorious axe":"7gi", "club":"clb", "cudgel":"9cl", "truncheon":"7cl",
+"spiked club":"spc", "barbed club":"9sp", "tyrant club":"7sp", "mace":"mac", "flanged mace":"9ma",
+"reinforced mace":"7ma", "morning star":"mst", "jagged star":"9mt", "devil star":"7mf", "flail":"fla",
+"knout":"9fl", "scourge":"7fl", "war hammer":"whm", "battle hammer":"9wh", "legendary mallt":"7wh",
+"maul":"mau", "war club":"9m9", "ogre maul":"7m7", "great maul":"gma", "martel de fer":"9gm",
+"thunder maul":"7gm", "short sword":"ssd", "gladius":"9ss", "falcata":"7ss", "scimitar":"scm",
+"cutlass":"9sm", "ataghan":"7sm", "sabre":"sbr", "shamshir":"9sb", "elegant blade":"7sb",
+"falchion":"flc", "tulwar":"9fc", "hydra edge":"7fc", "crystal sword":"crs", "dimensional bld":"9cr",
+"phase blade":"7cr", "broad sword":"bsd", "battle sword":"9bs", "conquest sword":"7bs", "long sword":"lsd",
+"rune sword":"9ls", "cryptic sword":"7ls", "war sword":"wsd", "ancient sword":"9wd", "mythical sword":"7wd",
+"two-handed swrd":"2hs", "espadon":"92h", "legend sword":"72h", "claymore":"clm", "dacian falx":"9cm",
+"highland blade":"7cm", "giant sword":"gis", "tusk sword":"9gs", "balrog blade":"7gs", "bastard sword":"bsw",
+"gothic sword":"9b9", "champion sword":"7b7", "flamberge":"flb", "zweihander":"9fb", "colossal sword":"7fb",
+"great sword":"gsd", "executioner swr":"9gd", "colossus blade":"7gd", "dagger":"dgr", "poignard":"9dg",
+"bone knife":"7dg", "dirk":"dir", "rondel":"9di", "mithral point":"7di", "kriss":"kri", "cinquedeas":"9kr",
+"fanged knife":"7kr", "blade":"bld", "stilleto":"9bl", "legend spike":"7bl", "throwing knife":"tkf",
+"battle dart":"9tk", "flying knife":"7tk", "throwing axe":"tax", "francisca":"9ta", "flying axe":"7ta",
+"balanced knife":"bkf", "war dart":"9bk", "winged knife":"7bk", "balanced axe":"bal", "hurlbat":"9b8",
+"winged axe":"7b8", "javelin":"jav", "war javelin":"9ja", "hyperion javeln":"7ja", "pilum":"pil",
+"great pilum":"9pi", "stygian pilum":"7pi", "short spear":"ssp", "simbilan":"9s9", "balrog spear":"7s7",
+"glaive":"glv", "spiculum":"9gl", "ghost glaive":"7gl", "throwing spear":"tsp", "harpoon":"9ts",
+"winged harpoon":"7ts", "spear":"spr", "war spear":"9sr", "hyperion spear":"7sr", "trident":"tri",
+"fuscina":"9tr", "stygian pike":"7tr", "brandistock":"brn", "war fork":"9br", "mancatcher":"7br",
+"spetum":"spt", "yari":"9st", "ghost spear":"7st", "pike":"pik", "lance":"9p9", "war pike":"7p7",
+"bardiche":"bar", "lochaber axe":"9b7", "ogre axe":"7o7", "voulge":"vou", "bill":"9vo", "colossus voulge":"7vo",
+"scythe":"scy", "battle scythe":"9s8", "thresher":"7s8", "poleaxe":"pax", "partizan":"9pa",
+"cryptic axe":"7pa", "halberd":"hal", "bec-de-corbin":"9h9", "great poleaxe":"7h7", "war scythe":"wsc",
+"grim scythe":"9wc", "giant thresher":"7wc", "short bow":"sbw", "edge bow":"8sb", "spider bow":"6sb",
+"hunter's bow":"hbw", "razor bow":"8hb", "blade bow":"6hb", "long bow":"lbw", "cedar bow":"8lb",
+"shadow bow":"6lb", "composite bow":"cbw", "double bow":"8cb", "great bow":"6cb", "shrt battle bow":"sbb",
+"short siege bow":"8s8", "diamond bow":"6s7", "long battle bow":"lbb", "long siege bow":"8l8",
+"crusader bow":"6l7", "short war bow":"swb", "rune bow":"8sw", "ward bow":"6sw", "long war bow":"lwb",
+"gothic bow":"8lw", "hydra bow":"6lw", "light crossbow":"lxb", "arbalest":"8lx", "pellet bow":"6lx",
+"crossbow":"mxb", "siege crossbow":"8mx", "gorgon crossbow":"6mx", "heavy crossbow":"hxb",
+"ballista":"8hx", "colossus x-bow":"6hx", "repeating x-bow":"rxb", "chu-ko-nu":"8rx", "demon crossbow":"6rx",
+"short staff":"sst", "jo staff":"8ss", "walking stick":"6ss", "long staff":"lst", "quarterstaff":"8ls",
+"stalagmite":"6ls", "gnarled staff":"gst", "cedar staff":"8cs", "elder staff":"6cs", "battle staff":"bst",
+"gothic staff":"8bs", "shillelagh":"6bs", "war staff":"wst", "rune staff":"8ws", "archon staff":"6ws",
+"wand":"wnd", "burnt wand":"9wn", "polished wand":"7wn", "yew wand":"ywn", "petrified wand":"9yw",
+"ghost wand":"7yw", "bone wand":"bwn", "tomb wand":"9bw", "lich wand":"7bw", "grim wand":"gwn",
+"grave wand":"9gw", "unearthed wand":"7gw", "sceptre":"scp", "rune sceptre":"9sc", "mighty sceptre":"7sc",
+"grand sceptre":"gsc", "holy water spri":"9qs", "seraph rod":"7qs", "war sceptre":"wsp", "divine sceptre":"9ws",
+"caduceus":"7ws", "katar":"ktr", "quhab":"9ar", "suwayyah":"7ar", "wrist blade":"wrb", "wrist spike":"9wb",
+"wrist sword":"7wb", "hatchet hands":"axf", "fascia":"9xf", "war fist":"7xf", "cestus":"ces",
+"hand scythe":"9cs", "battle cestus":"7cs", "claws":"clw", "greater claws":"9lw", "feral claws":"7lw",
+"blade talons":"btl", "greater talons":"9hw", "runic talons":"7hw", "scissors katar":"skr",
+"scissors quhab":"9qr", "scissors suwayh":"7qr",
+"eagle orb":"ob1", "glowing orb":"ob6", "heavenly stone":"obb",
+"sacred globe":"ob2", "crystalline glb":"ob7", "eldritch orb":"obc", "smoked sphere":"ob3",
+"cloudy sphere":"ob8", "demon heart":"obd", "clasped orb":"ob4", "sparkling ball":"ob9", "vortex orb":"obe",
+"dragon stone":"ob5", "swirling crystal":"oba", "dimensional shard":"obf", "stag bow":"am1",
+"ashwood bow":"am6", "matriarchal bow":"amb", "reflex bow":"am2", "ceremonial bow":"am7",
+"grand matron bow":"amc", "maiden spear":"am3", "ceremonial spr":"am8", "matriarchal spr":"amd",
+"maiden pike":"am4", "ceremonial pike":"am9", "matriarchal pik":"ame", "maiden javelin":"am5",
+"ceremonial jav":"ama", "matriarchal jav":"amf", "circlet":"ci0", "coronet":"ci1", "tiara":"ci2",
+"diadem":"ci3", "rancid gas pot":"gps", "oil potion":"ops", "choking gas pot":"gpm", "exploding pot":"opm",
+"strangling gas":"gpl", "fulminating pot":"opl", "wirt's leg":"leg", "horadric malus":"hdm",
+"scroll of inifuss 1":"bks", "scroll of inifuss 2":"bkd", "book of skill":"ass", "horadric cube":"box",
+"horadric scroll":"tr1", "staff of kings":"msf", "viper amulet":"vip", "horadric staff":"hst",
+"potion of life":"xyz", "a jade figurine":"j34", "the golden bird":"g34", "lam esen's tome":"bbb",
+"gidbinn":"g33", "khalim's flail":"qf1", "khalim's will":"qf2", "khalim's eye":"qey", "khalim's heart":"qhr",
+"khalim's brain":"qbr", "mephisto's soulstone":"mss", "hellforge hammr":"hfh", "malah's potion":"ice",
+"scroll of resistance":"tr2", "chipped amethyst":"gcv", "chipped diamond":"gcw", "chipped emerald":"gcg",
+"chipped ruby":"gcr", "chipped saphire":"gcb", "chipped skull":"skc", "chipped topaz":"gcy",
+"flawed amethyst":"gfv", "flawed diamond":"gfw", "flawed emerald":"gfg", "flawed ruby":"gfr",
+"flawed saphire":"gfb", "flawed skull":"skf", "flawed topaz":"gfy", "amethyst":"gsv", "diamond":"gsw",
+"emerald":"gsg", "ruby":"gsr", "saphire":"gsb", "skull":"sku", "topaz":"gsy", "flawless amethyst":"gzv",
+"flawless diamond":"glw", "flawless emerald":"glg", "flawless ruby":"glr", "flawless saphire":"glb",
+"flawless skull":"skl", "flawless topaz":"gly", "perfect diamond":"gpw", "perfect amethyst":"gpv",
+"perfect sapphire":"gpb", "perfect topaz":"gpy", "perfect ruby":"gpr", "perfect skull":"skz",
+"perfect emerald":"gpg", "el rune":"r01", "eld rune":"r02", "tir rune":"r03", "nef rune":"r04",
+"eth rune":"r05", "ith rune":"r06", "tal rune":"r07", "ral rune":"r08", "ort rune":"r09",
+"thul rune":"r10", "amn rune":"r11", "sol rune":"r12", "shael rune":"r13", "dol rune":"r14",
+"hel rune":"r15", "io rune":"r16", "lum rune":"r17", "ko rune":"r18", "fal rune":"r19", "lem rune":"r20",
+"pul rune":"r21", "um rune":"r22", "mal rune":"r23", "ist rune":"r24", "gul rune":"r25", "vex rune":"r26",
+"ohm rune":"r27", "lo rune":"r28", "sur rune":"r29", "ber rune":"r30", "jah rune":"r31", "cham rune":"r32",
+"zod rune":"r33", "antidote potion":"yps", "stamina potion":"vps", "thawing potion":"wms",
+"minor healing potion":"hp1", "minor mana potion":"mp1", "light healing potion":"hp2", "light mana potion":"mp2",
+"healing potion":"hp3", "mana potion":"mp3", "greater healing potion":"hp4", "greater mana potion":"mp4",
+"super healing potion":"hp5", "super mana potion":"mp5", "rejuv potion":"rvs", "full rejuv potion":"rvl",
+"small charm":"cm1", "large charm":"cm2", "grand charm":"cm3", "identify scroll":"isc", "town portal scroll":"tsc",
+"tome of town portal":"tbk", "tome of identify":"ibk", "arrows":"aqv", "bolts":"cqv", "jewel":"jew",
+"amulet":"amu", "gold":"gld", "ring":"rin", "ear":"ear", "torch":"tch",
 "key of terror":"pk1", "key of hate":"pk2", "key of destruction":"pk3", "diablos horn":"dhn", "baals eye":"bey",
 "mephistos brain":"mbr"}
 

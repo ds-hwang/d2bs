@@ -32,14 +32,14 @@
  */
 var Pather = new function () {
 	this.config = {};
-	
+
 	/* Pather.Init()
 	 *	Initalizes pather, reads configuration.
 	 */
 	this.Init = function () {
-		this.config = Interface.readConfig("Pather", [{Name:"TeleRange", Default:35}, {Name:"WalkRange", Default:20}]);
+		this.config = Interface.readConfig("Pather", [{Name:"TeleRange", Default:35}, {Name:"WalkRange", Default:14}]);
 	}
-	
+
 	/* Pather.moveTo(nArgs)
 	 *		Moves to a given place based on arguments.
 	 *	Arguments:
@@ -54,7 +54,7 @@ var Pather = new function () {
 	this.moveTo = function(nArgs) {
 		try {
 			Interface.message(Debug, "moveTo called with " + arguments.length + " argument(s)");
-			
+
 			//Setup teleport and range variables
 			this.nPos = {x:0,y:0};
 			this.useTele = (!mBot.inTown() && Skill.get(Skill.Teleport).level > 0);
@@ -62,26 +62,26 @@ var Pather = new function () {
 			this.pop = false;
 			this.level = me.area;
 			this.distance = 3;
-				
+
 			//Check for specified unit/preset, incase they want other args
 			if (nArgs.hasOwnProperty("unit")) {
 				this.nPos.x = nArgs.unit.x;
 				this.nPos.y = nArgs.unit.y;
 			}
-			
+
 			//Checks if we are given an x/y argument, ethier static or from a unit/area/exit.
 			if (nArgs.hasOwnProperty("x") && nArgs.hasOwnProperty("y")) {
 				Interface.message(DetailedDebug, "Given an x/y argument, x: " + nArgs.x + ", y: " + nArgs.y);
 				this.nPos = {x:nArgs.x, y:nArgs.y};
 			}
-				
+
 			//Checks if we are given a preset argument, and calculates the end point.
 			if (nArgs.hasOwnProperty("preset")) {
 				Interface.message(DetailedDebug, "Given a preset unit, type: " + nArgs.preset.type + ", id: " + nArgs.preset.id);
 				this.nPos.x = (nArgs.preset.roomx * 5) + nArgs.preset.x;
 				this.nPos.y = (nArgs.preset.roomy * 5) + nArgs.preset.y;
 			}
-			
+
 			//Checks if we are given a static level we are pathing through.
 			if (nArgs.hasOwnProperty("level")) {
 				Interface.message(DetailedDebug, "Given a level to use: " + nArgs.level);
@@ -91,55 +91,55 @@ var Pather = new function () {
 			if (nArgs.hasOwnProperty("range")) {
 				this.range = nArgs.range;
 			}
-			
+
 			//Checks if we are given a distance from the end point before returning.
 			if (nArgs.hasOwnProperty("distance")) {
 				Interface.message(DetailedDebug, "Given a distance to use: " + nArgs.distance);
 				this.distance = nArgs.distance;
 			}
-			
+
 			//Checks if we told to pop the last node.
 			if (nArgs.hasOwnProperty("pop") && nArgs.pop) {
 				Interface.message(DetailedDebug, "Told to pop the last coordinate in the path.");
 				this.pop = true;
 			}
-			
+
 			//Make sure we got a valid set of coordinates
 			if (this.nPos.x == 0 || this.nPos.y == 0)
 				throw new Error("Was not given coordinates to move to.");
-				
+
 			//Check if it is a valid end point.
 			if (getCollision(me.area, this.nPos.x, this.nPos.y) % 2)
 				throw new Error("The end position is not a valid spot.");
-			
+
 			var nArea = me.area;
-			
+
 			//Main moving loop, won't end until we are there or have failed miserably.
 			while(getDistance(me, this.nPos.x, this.nPos.y) > (this.distance + (this.pop ? (this.range + 1) : 0))) {
 				//Checks if we can teleport.
 				this.useTele = (!mBot.inTown() && Skill.get(Skill.Teleport).level > 0);
-				
+
 				//Determines the path based on all the arguments given.
-				var nPath = getPath(this.level, me.x, me.y, this.nPos.x, this.nPos.y, this.useTele, this.range);
-				
+				var nPath = getPath(getArea(this.level), me.x, me.y, this.nPos.x, this.nPos.y, this.useTele, this.range);
+
 				//Pops the last coordinate if wanted
 				if (this.pop)
 					nPath.pop();
-				
+
 				//If we can't determine a path then kick out of the loop.
 				if (nPath.length == 0)
 					break;
-					
+
 				Interface.message(DetailedDebug, "Moving a path with " + nPath.length + " nodes, with teleport: " + this.useTele + ", range: " + this.range);
-				
+
 				//Checks if the the path given is we're we already are!
-				if (getDistance(me, nPath[0][0], nPath[0][1]) == 0)
+				if (getDistance(me, nPath[nPath.length-1].x, nPath[nPath.length-1].y) == 0)
 					break;
-					
+
 				//Loop thru the nodes
 				for (var n in nPath) {
 					//Actually move the node.
-					if (!this.moveNode({x:nPath[n][0], y:nPath[n][1]}, this.useTele))
+					if (!this.moveNode({x:nPath[n].x, y:nPath[n].y}, this.useTele))
 						break;
 					//Checks if we have moved from town.
 					if (nArea != me.area && (nArea == 1 || nArea == 40 || nArea == 75 || nArea == 103 || nArea == 109)) {
@@ -151,32 +151,32 @@ var Pather = new function () {
 						break;
 					}
 				}
-				
+
 				//Check if we have made it!
 				if (getDistance(me, this.nPos.x, this.nPos.y) > (this.distance + (this.pop ? (this.range + 1) : 0)))
 					break;
-				
+
 				//Reduce the distance between movements.
 				this.range -= 2;
 				Interface.message(DetailedDebug, "Reducing the range by 2 to: " + this.range);
-				
+
 				//If we have reduced it to nothing, we've failed miserably.
 				if (this.range <= 0)
 					throw new Error("Unable to move to location.");
 			}
-			
+
 			//Check if we want to force a move onto the endpoint.
 			if (nArgs.hasOwnProperty("force")) {
 				this.moveNode({x:this.nPos.x, y:this.nPos.y}, this.useTele, true);
 			}
-			
+
 			return true;
 		} catch (e) {
 			mBot.throwError(e);
 			return false;
 		}
 	}
-	
+
 	/* Pather.moveNode(nPos, nUseTele)
 	 *		Physically moves the bot to the given node.
 	 *	Arguments:
@@ -187,39 +187,39 @@ var Pather = new function () {
 	this.moveNode = function(nPos, nUseTele) {
 		try {
 			//Interface.message(DetailedDebug, "Moving a node: " + nPos.x + ", " + nPos.y + ", using teleport: " + nUseTele + ", distance from node: " + getDistance(me, nPos.x, nPos.y));
-			
+
 			//Check if we are given a valid spot to move to.
 			if (getCollision(me.area, nPos.x, nPos.y) % 2)
 				throw new Error("Given invalid position to move to.");
-			
+
 			//Determine how we are clicking.
 			var click = (nUseTele) ? ClickType.Right : ClickType.Left;
-			
+
 			//Set teleport if we need it
 			if (nUseTele)
 				Skill.get(Skill.Teleport).setSkill();
 			else if(me.classid == Class.Paladin)
 				Skill.get(Skill.Vigor).setSkill();
-				
+
 			var nFail = 0;
 			var attemptCount = 0;
 			//Main loop to get to the node.
 			MoveLoop:while(getDistance(me, nPos.x, nPos.y) > 2 || arguments.length == 3) {
-			
+
 				//If we're walking, then we need to check for doors.
 				if (!nUseTele)
 					this.useDoors();
-					
-				
+
+
 				//Interface.message(DetailedDebug, "Me X: " + me.x + ", Y: " + me.y + ", nPos.x: " + nPos.x + ", y: " + nPos.y);
 				//Interface.message(DetailedDebug, "We are " + getDistance(me, nPos.x, nPos.y) + " yards away from the current node.");
-				
+
 				//Let's move out!
 				clickMap(click.Down, Shift.Off, nPos.x, nPos.y);
-				delay(5);
-				clickMap(click.Up, Shift.Off, nPos.x, nPos.y);
+				delay(40);
+				//clickMap(click.Up, Shift.Off, nPos.x, nPos.y);
 				attemptCount++;
-				
+
 				//Watch for movement.
 				var nTimer = getTickCount();
 				while(!mBot.checkMode(Mode.Player.Group.Move)) {
@@ -235,20 +235,20 @@ var Pather = new function () {
 						//Try moving in a random direction to un-stick ourselves.
 						Interface.message(Debug, "We got stuck! Random click time, attempt #" + nFail);
 						clickMap(click.Down, Shift.Off, me.x+rand(-2,2), me.y+rand(-2,2));
-						delay(5);
-						clickMap(click.Up, Shift.Off, me.x+rand(-2,2), me.y+rand(-2,2));
+						delay(40);
+						//clickMap(click.Up, Shift.Off, me.x+rand(-2,2), me.y+rand(-2,2));
 						continue MoveLoop;
 					}
 				}
-				
+
 				//Since we've confirmed we are moving, wait until we aren't.
 				while(!mBot.checkMode(Mode.Player.Group.Neutral))
-					delay(1);
-					
+					delay(10);
+
 				//If we have forced the movement, we are done here.
 				if (arguments.length == 3)
 					return true;
-					
+
 				//Check if we have tried and failed to move, and repath if so.
 				if (attemptCount >= 3) {
 					Interface.message(DetailedDebug, "Tried three times to move to given node, re-path.");
@@ -261,7 +261,7 @@ var Pather = new function () {
 		}
 		return true;
 	}
-	
+
 	/* Pather.moveExit(nLevelId, nMoveThru)
 	 *	Moves to an exit to the given level.
 	 *	Arguments:
@@ -274,16 +274,16 @@ var Pather = new function () {
 			var nArea = getArea(me.area);
 			if (!nArea)
 				throw new Error("Unable to get our current area object.");
-				
+
 			//Since we have our area, get the exits.
 			var nExit = nArea.exits;
 			if (!nExit)
 				throw new Error("Unable to get our current exits array.");
-				
+
 			var exitArea = getArea(nLevelId);
 			if (!exitArea)
 				throw new Error("Unable to get area object for level " + nLevelId);
-				
+
 			//Loop through all the exits in our area.
 			for (var n in nExit) {
 				//Check if this exit goes to where we want.
@@ -303,7 +303,7 @@ var Pather = new function () {
 							var otherExit = getArea(nLevelId).exits;
 							if (!otherExit)
 								throw new Error("Unable to obtain opposite exit to move through.");
-							
+
 							//Loop through the other sides exits to find ours.
 							for (var l = 0; l < otherExit.length; l++) {
 								//Check if the exit is the opposite the one we're at.
@@ -312,7 +312,7 @@ var Pather = new function () {
 									for (var n = 0; n < 3; n++) {
 										//Try to click the side we want to move to.
 										clickMap(ClickType.Left.Down, Shift.Off, otherExit[l].x, otherExit[l].y);
-										
+
 										//Wait and see if we moved through
 										var nDelay = getTickCount();
 										while((getTickCount() - nDelay) < 500) {
@@ -320,7 +320,7 @@ var Pather = new function () {
 												break;
 											delay(1);
 										}
-										
+
 										//Check if we have moved through
 										if (me.area != nArea.id)
 											break;
@@ -331,7 +331,7 @@ var Pather = new function () {
 								}
 							}
 						}
-						
+
 						//Make sure we've moved through to where we want to be.
 						var nDelay = getTickCount();
 						while((getTickCount() - nDelay) < 3000) {
@@ -350,12 +350,12 @@ var Pather = new function () {
 		}
 		return false;
 	}
-	
+
 	/* Pather.moveThru(nId, [nType])
 	 *		Interacts with a given unit to move thru areas.
 	 *	Arguments:
 	 *		nId - The id of the unit
-	 *		nType - The type of unit 
+	 *		nType - The type of unit
 	 */
 	this.moveThru = function(nId) {
 		try {
@@ -371,23 +371,23 @@ var Pather = new function () {
 			} else
 				//We're given both a id and a type.
 				nUnit = getUnit(arguments[1], nId);
-				
+
 			//Make sure we have a unit.
 			if (!nUnit)
 				stop();
-				
+
 			//Store our current area for comparison.
 			var nOldArea = me.area;
-			
+
 			//Try three times to move through
 			for (var n = 0; n < 3; n++) {
 				//Move to the place we want to move through.
 				if (!this.moveTo({unit:nUnit}))
 					return false;
-				
+
 				//Interact with it.
 				nUnit.interact();
-				
+
 				//Wait and see if we've moved on through.
 				var nDelay = getTickCount();
 				while((getTickCount() - nDelay) < 1000) {
@@ -399,7 +399,7 @@ var Pather = new function () {
 				if (nOldArea != me.area)
 					break;
 			}
-			
+
 			//Sometimes, Diablo likes to put us in a void, while it loads the new area.
 			for (var n = 0; n < 15; n++) {
 				if (me.area != 0)
@@ -412,14 +412,14 @@ var Pather = new function () {
 				mBot.Print("Entering " + getArea(me.area).name);
 				return true;
 			}
-			
+
 			throw new Error("We couldn't move through into the new area.");
 		} catch(e) {
 			mBot.throwError(e);
 			return false;
 		}
 	}
-	
+
 	/* Pather.movePreset(nType, nId, [nId1, nId2, ...])
 	 *		Finds and moves to a preset.
 	 *	Arguments:
@@ -431,20 +431,20 @@ var Pather = new function () {
 			//Check to make sure we're given a valid type.
 			if (nType < 0 || nType > 5)
 				throw new Error("Given invalid preset type: " + nType);
-			
+
 			//Loop through the given id's
 			for (var n = 1; n < arguments.length; n++) {
 				//Check for given preset
 				var preset = getPresetUnits(me.area, nType, arguments[n]);
-				
+
 				//If we didn't find any, continue.
 				if (preset.length == 0)
 					continue;
-					
+
 				//Move to the first found preset.
 				if (!this.moveTo({preset:preset[0]}))
 					continue;
-					
+
 				return true;
 			}
 			throw new Error("Unable to find preset to move to.");
@@ -453,7 +453,7 @@ var Pather = new function () {
 			return false;
 		}
 	}
-	
+
 	/* Pather.useDoors()
 	 *		Looks through all objects, and opens doors in range.
 	 */
@@ -468,19 +468,19 @@ var Pather = new function () {
 			//Make sure we have an object
 			if (!door)
 				continue;
-				
+
 			//Make sure we are within distance
 			if (getDistance(me, door) > 4)
 				continue;
-				
+
 			//Make sure it's a door
 			if (door.name != "Door")
 				continue;
-				
+
 			//Check if it is already open.
 			if (door.mode == Mode.Object.Opened)
 				continue;
-				
+
 			Interface.message(DetailedDebug, "Opening a door!");
 			//Open the door!
 			clickMap(ClickType.Left.Down, Shift.Off, door);
@@ -490,22 +490,22 @@ var Pather = new function () {
 		} while(door && door.getNext ());
 		Interface.message(DetailedDebug, "Finished looking for doors.");
 	}
-	
+
 	this.moveToTown = function() {
 		try {
 			if (mBot.inTown())
 				return true;
-				
+
 			var tome = Unit.findItem({code:"tbk", location:0, mode:0, ownerid:me.gid});
-			
+
 			if (tome.length == 0)
 				throw new Error("Unable to TP to town! No tome.");
-				
+
 			var nUnit = false;
 			for (var n = 0; n < 3; n++) {
 				if (!getUnit(2, 59))
 					tome[0].interact();
-				
+
 				var nDelay = getTickCount();
 				while((getTickCount() - nDelay) < 3000) {
 					var nTp = getUnit(2,59);
@@ -525,44 +525,44 @@ var Pather = new function () {
 			}
 			if (!nUnit)
 				throw new Error("Unable to find our portal!");
-				
+
 			if (arguments.length == 1)
 				return true;
-				
+
 			if (!this.moveThru(nUnit))
 				throw new Error("Couldn't move thru the portal.");
-				
+
 			return true;
 		} catch(e) {
 			mBot.throwError(e);
 			return false;
 		}
 	}
-	
+
 	this.useWaypoint = function(nAreaId) {
-		
+
 		try {
 			//Look for waypoint, if not there move to preset.
 			if (!getUnit(2, "Waypoint"))
 				if (!this.movePreset(2, 119, 157, 156, 402, 323, 288, 237, 324, 238, 496, 511, 494))
 					return false;
-					
+
 			//Check again for waypoint
 			var nWP = getUnit(2, "Waypoint");
-			
+
 			//Make sure we have it.
 			if (!nWP)
 				throw new Error("Unable to locate the Waypoint unit.")
-			
+
 			Interface.message(Debug, "Trying to use waypoint to move to: " + nAreaId);
 			for (var n = 0; n < 2; n++) {
 				//Move to waypoint
 				if (!this.moveTo(nWP))
 					return false;
-					
+
 				Interface.message(DetailedDebug, "Attempt #" + (n + 1) + " to use waypoint.");
 				nWP.interact(nAreaId);
-				
+
 				var nDelay = getTickCount();
 				while((getTickCount() - nDelay) < 3000) {
 					if (nAreaId == me.area)
@@ -572,17 +572,17 @@ var Pather = new function () {
 			}
 			throw new Error("Unable to move thru waypoint after three tries.");
 			return false;
-			
+
 		} catch(e) {
 			mBot.throwError(e);
 			return false;
 		}
 	}
-	
+
 	this.monsterMove = function(mon, range) {
 		Skill.get(Skill.Teleport).setSkill();
 		var oldPos = {x:me.x, y:me.y};
-		
+
 		for (var n = 0; n < 3; n++) {
 			if (range == 0) {
 				clickMap(ClickType.Right.Down, Shift.Off, mon);
@@ -601,20 +601,20 @@ var Pather = new function () {
 		}
 		return false;
 	}
-	
+
 	this.itemMove = function(item) {
 		Skill.get(Skill.Teleport).setSkill();
-		
+
 		clickMap(ClickType.Right.Down, Shift.Off, item.x + 2, item.y + 2);
 		delay(5);
 		clickMap(ClickType.Right.Up, Shift.Off, item.x + 2, item.y + 2);
-		
+
 		delay(100);
-		
+
 		var nTimer = getTickCount();
 			while(mBot.checkMode(Mode.Player.Group.Move) && (getTickCount() - nTimer) < 300)
 				delay(2);
-				
+
 		delay(100);
 		return true;
 	}

@@ -6,7 +6,7 @@ var GameManager = new function () {
 	this.Mode = {SinglePlayer:0, BattleNet:1};
 	this.leechBot = {GameName:"", GamePass:""};
 	this.inChannel = false;
-	
+
 	this.Init = function () {
 		this.config = Interface.readConfig("GameManager", [{Name:"Mode", Default:0},{Name:"AccountName", Default:""},{Name:"AccountPass", Default:""},{Name:"CharSlot", Default:1},
 		{Name:"UseChannel", Default:false}, {Name:"ChannelName", Default:""},{Name:"GamePrefix", Default:""},{Name:"GamePass", Default:""},
@@ -15,7 +15,7 @@ var GameManager = new function () {
 		{Name:"GameCreateMax", Default:10000}, {Name:"ChannelJoin", Default:2000}, {Name:"JoinGameDelay", Default:3000}]);
 		addEventListener("chatmsg", this.chatMsg);
 	}
-	
+
 	this.chatMsg = function(nWho, nMsg) {
 		if (nWho.toLowerCase() == this.config.LeechMaster && this.config.LeechBot) {
 			var nSplit = nMsg.split("//");
@@ -23,7 +23,7 @@ var GameManager = new function () {
 			this.leechBot.GamePass = nSplit[1];
 		}
 	}
-	
+
 	this.checkScreen = function(nScreen) {
 		var Controls = {};
 		for (var nControl in nScreen.Controls)
@@ -31,7 +31,7 @@ var GameManager = new function () {
 				return false;
 		return Controls;
 	}
-	
+
 	this.Tick = function () {
 		for (var nScreen in this.screens) {
 			var Controls = {};
@@ -46,7 +46,7 @@ var GameManager = new function () {
 		}
 		return true;
 	}
-	
+
 	this.delay = function (nMsg, nType) {
 		var nTimer = getTickCount();
 		if (arguments.length == 3) {
@@ -62,17 +62,17 @@ var GameManager = new function () {
 		nText.remove();
 		return true;
 	}
-	
+
 	this.chooseMode = function(nControls) {
 		for (var n in this.Mode)
 			if (this.Mode[n] == this.config.Mode) {
 				nControls[n].click();
-				delay(50);
+				delay(200);
 				return nControls[n].click();
 			}
 		return true;
 	}
-	
+
 	this.login = function(nControls) {
 		this.delay("General Delay", "Gen");
 		nControls.AccountName.setText(this.config.AccountName);
@@ -82,22 +82,22 @@ var GameManager = new function () {
 		delay(50);
 		nControls.LoginButton.click();
 	}
-	
+
 	this.UnableToConnect = function(nControls) {
 		debugLog("You are unable to connect");
 		nControls.Ok.click();
 	}
-	
+
 	this.OnCDKeyUse = function(nControls) {
 		debugLog("Your CD-Key is in use by: " + nControls.ByWho.text);
 		nControls.Ok.click();
 	}
-	
+
 	this.CDKeyInvalid = function(nControls) {
 		debugLog("Your CD-Key is invalid");
 		nControls.Ok.click();
 	}
-	
+
 	this.SelectChar = function(nControls) {
 		var nSlots = ["", "SlotOne", "SlotTwo", "SlotThree", "SlotFour", "SlotFive", "SlotSix", "SlotSeven", "SlotEight"];
 		if (this.config.CharSlot < 1 && this.config.CharSlot > 8)
@@ -108,7 +108,7 @@ var GameManager = new function () {
 		delay(50);
 		nControls[nSlots[this.config.CharSlot]].click();
 	}
-	
+
 	this.LobbyScreen = function(nControls) {
 		delay(rand(1000, 1500));
 		if (this.config.UseChannel) {
@@ -119,7 +119,7 @@ var GameManager = new function () {
 		}
 		this.ChatScreen(nControls);
 	}
-	
+
 	this.ChatScreen = function(nControls) {
 		delay(rand(1000, 1500));
 		if (this.config.UseChannel && !this.inChannel) {
@@ -133,7 +133,7 @@ var GameManager = new function () {
 		}
 		nControls.CreateGame.click();
 	}
-	
+
 	this.createGame = function(nControls) {
 		delay(rand(1000, 1500));
 		this.gameCount++;
@@ -145,16 +145,16 @@ var GameManager = new function () {
 		nControls.Create.click();
 	}
 	this.joinGame = function(nControls) {
-	
+
 	}
-	
+
 	this.chooseDiff = function(nControls) {
 		delay(rand(250,500));
 		var nDiff = ["Normal", "Nightmare", "Hell"];
 		nControls[nDiff[this.config.GameDiff]].click();
 		nControls[nDiff[this.config.GameDiff]].click();
 	}
-	
+
 	this.screens.MainScreen = {Name:"Main Screen", Subscreen: [
 		{Name:"Unable To Connect", Controls:{Body:[4,162,420,477,100], Ok:[6,335,450,128,35]}, Event:this.UnableToConnect},
 		{Name:"CD-Key In Use", Controls:{ByWho:[4,158,310,485,40], Ok:[6,335,450,128,35]}, Event:this.OnCDKeyUse},
@@ -163,7 +163,7 @@ var GameManager = new function () {
 	this.screens.Login = {Name:"Login", Controls:{AccountName:[1,322,342,162,19], AccountPass:[1,322,396,162,19], LoginButton:[6,264,484,272,35]}, Event:this.login};
 	this.screens.CharacterSelect = {Name:"Character Select", Subscreen:[
 		{Name:"Select Difficulty", Controls:{Normal:[6,264,297,272,35], Nightmare:[6,264,340,272,35], Hell:[6,264,383,272,35]}, Event:this.chooseDiff},
-		{Name:"Character Select", Controls:{SlotOne:[4,237,178,72,93], SlotTwo:[4,509,178,72,93], SlotThree:[4,237,271,72,93], 
+		{Name:"Character Select", Controls:{SlotOne:[4,237,178,72,93], SlotTwo:[4,509,178,72,93], SlotThree:[4,237,271,72,93],
 		SlotFour:[4,509,271,72,93], SlotFive:[4,237,364,72,93], SlotSix:[4,509,364,72,93], SlotSeven:[4,237,457,72,93], SlotEight:[4,509,457,72,93]}, Event:this.SelectChar},]};
 	this.screens.Lobby = {Name:"Lobby", Subscreen: [
 		{Name:"Create Game", Controls:{GameName:[1,432,162,158,20], GamePass:[1,432,217,158,20], Normal:[6,430,381,16,16], Nightmare:[6,555,381,16,16], Hell:[6,698,381,16,16], Create:[6,594,433,172,32]}, Event:this.createGame},
