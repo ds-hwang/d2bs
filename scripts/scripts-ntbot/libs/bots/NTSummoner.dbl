@@ -1,0 +1,88 @@
+function NT_Summoner()
+{
+	print("ÿc3Starting Summoner Script");
+
+	if (!NTTM_CheckAct())
+	{
+		return false;
+	}
+
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Arcane Sanctuary");
+
+	if (!NTTM_TownMove("waypoint")){
+	print("moving to wp failed")
+		return false;
+	}
+	if (!NTM_UsePortal("Waypoint", 74))
+	{
+		print("ÿc8Seems we need the waypoint, Lets go get it! Traveling to Arcane Sanctuary");
+		NTM_TravelTO(74);
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(74, true, 10000);
+	}
+
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+
+	if (NTConfig_FireEyeExtension)
+	{
+		print("ÿc3Starting Fire Eye Extension");
+		var _arcaneportal
+		
+                if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0))
+                      return false
+                _arcaneportal = NTC_GetUnit(NTC_UNIT_OBJECT, 298);
+		if (_arcaneportal ){
+			_arcaneportal.interact();
+			_arcaneportal.interact();
+		}
+
+		delay(4000);
+                if (!NTM_UsePortal("Portal", 54))
+			return false;
+		NTA_KillBoss(getLocaleString(2885))		
+		NTA_ClearPosition(40);
+		NTSI_PickItems();
+		
+         if (!NTM_UsePortal("Portal", 74))
+			return false;
+   }//end of red eye ext   
+
+		
+
+	
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 357, 357, 0, 0))
+        return false
+	 var _unit = NTC_GetUnit(NTC_UNIT_OBJECT, 357);
+    _unit.interact();
+    _unit.interact();
+    NTC_Delay(250);
+    me.cancel(0);
+    NTC_Delay(250);	
+		
+		print("ÿc8Killing The Summoner");
+
+		if (!NTA_KillBoss(getLocaleString(927))) //The Summoner
+			return false;
+
+		if (NTConfig_ClearPosition)
+			NTA_ClearPosition();
+
+		NTSI_PickItems();
+
+		if (!NTM_UsePortal("Portal", 46))
+			return false;
+
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 402, 402, 0, 0))
+			return false;
+
+		if (SumXP_GoAct4)
+		{
+			if (!NTM_UsePortal("Waypoint", 103))
+				return false;
+		}
+
+		return true;
+	}

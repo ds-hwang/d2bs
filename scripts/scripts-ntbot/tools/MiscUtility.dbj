@@ -1,0 +1,147 @@
+// soj clone hostile manager
+var jUnitArray=[];
+var idle = false;
+var idleTimeOut = false;
+var hostalWatch = false; // gets set on hostile event
+var badplayerlist =[];
+function main()
+{
+	include("common/NTCommon.dbl");
+	
+	include("itemlogger.dbl");  	
+  	NTC_IncludeLibs(); 
+	NTC_IncludeConfig();
+	 NT_LoadConfig(); 
+	addEventListener("gameevent", function(mode, param,name1,name2) {	
+	print("Game event mode:"+mode +" , " +param +" , "+name1 +" , "+name2+","+NT_HostileAction )   
+			// NT_IdleOnClone = false;
+			// NT_IdleOnSOJ = false;
+			// NT_IdleOnSOJTimeoutSec = 0;
+			// NT_HostileAction = 0; //0 = nothing 1 = quit 2 = kill
+		if(NT_IdleOnClone && mode ==12){
+			SendMsgToDefault("Pause Default")
+			sendCopyData(null, "OOG", 0,"Stop Me" );
+			idle =  true;	
+			idleTimeOUt= false;
+		}	
+		if(NT_IdleOnSOJ && mode ==11){
+			SendMsgToDefault("Pause Default")
+			sendCopyData(null, "OOG", 0,"Stop Me" );
+			idle =  true;	
+			if(NT_IdleOnSOJTimeoutSec >0){
+				idleTimeOut =getTickcount() +(1000*NT_IdleOnSOJTimeoutSec)
+			}
+		}	
+		if(NT_HostileAction == 1 && mode ==7 && name1 == 3){
+			quit();
+		}
+		if(NT_HostileAction == 2 && mode ==7 && name1 == 3 ){
+			hostalWatch = true;			
+			badplayerlist.push(name2)
+		}
+		if(mode ==7 && (name1 == 4 || name1 == 5 || name1==8 || name1== 7))
+			remFromBadList(name2)
+	});
+
+	//Thread KeepAlive
+	while(1){
+		if(idle){
+			NTM_TravelTO(1);
+			NTTM_TownMove("akara");
+			delay(10000);
+			NTTM_TownMove("charsi");
+			delay(10000);
+		}
+		if(idleTimeOut){
+			if(getTickCount()>idleTimeOut){
+				sendCopyData(null, "OOG", 0,"Start Me" );
+				quit();
+			}
+		}
+		if(hostalWatch){ // player killer
+			var pker =findHostalPlayer();
+			
+			if(pker){
+				pker.update();
+			}
+			if(!NTC_InTown(me) && !NTC_InTown(pker)){
+				if (NTA_IsValidTarget(pker)){
+					print ("Killing"+pker.name)
+					SendMsgToDefault("Pause Default");
+					NTA_Attack(pker,false,500);
+					SendMsgToDefault("Resume Default");
+				}
+			}
+		}
+		delay(1000);
+	}	
+}
+
+function findHostalPlayer(){
+var closePlayer = false;
+var plist= getUnit(0)
+	if(plist){
+		do{          	
+      			for (var j = 0 ;j < badplayerlist.length ; j++){
+					if (plist.name == badplayerlist[j] && plist.name != me.name) {					
+						closePlayer=plist.name
+						return HostilePlayer = new jUnit(plist);
+					}             		
+				}		
+		}while(plist.getNext());   
+	
+
+	}
+	return false;
+}
+function SendMsgToDefault(msg){
+	if (!msg)
+		return false;
+	var a =getScript();             
+	do{             
+      		if (a.name == "default.dbj") 
+	        a.send("msg");                         
+	}while(a.getNext());    
+return true;
+}
+function remFromBadList(player){
+			for (var j = 0 ;j < badplayerlist.length ; j++){
+					if (player == badplayerlist[j] ) 
+             				badplayerlist[j]="";
+				}		
+
+}
+function jUnit(un) {
+
+this.unit = copyUnit(un)
+this.x=this.unit.x;
+this.y=this.unit.y;
+this.name=this.unit.name;
+this.hp = 0
+this.area = this.unit.area;
+this.type =0;
+this.classid = this.unit.classid;
+this.mode =this.unit.mode;
+this.name = this.unit.name
+this.update();
+jUnitArray.push(this)
+}
+jUnit.prototype.update = function () {
+		var a = getParty();
+		do { 
+			if (a.name==this.name){
+				
+				this.hp =a.life
+			}
+		}while(a.getNext());    
+}
+jUnit.prototype.getStat =function(num){
+return this.unit.getStat(num);
+
+}
+function rnd(min,max){ //keeping up with d2bs 1.5
+if(typeof(rand) == 'function')
+	return rand(min,max);
+else	
+	return Math.floor(Math.random()*(max-min)+1)+min;
+}

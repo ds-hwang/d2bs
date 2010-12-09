@@ -1,0 +1,139 @@
+var Objective =""; 
+var Leader = ""; 
+function main() 
+{ 
+    //addEventListener("copydata",function(mode,msg, param,param2) {       
+   addEventListener("scriptmsg", function(msg, param,param2) {   // think script.send is crashable    
+      var clauses = msg.split(":"); 
+       
+      if (Objective =="") 
+         Objective = clauses[0]; 
+         Leader = clauses[1];       
+   }); 
+
+   include("common/NTCommon.dbl"); 
+   //include("itemlogger.dbl"); 
+   NTC_IncludeConfig(); 
+   NTC_IncludeLibs(); 
+   NTC_Include("bots/SimonSays.dbl"); 
+   NT_LoadConfig(); 
+   //NTSI_LoadNIPFiles(); 
+   NTA_Initialize(); 
+   NTC_IncludeConfig(); 
+    
+   while(Objective == ""){ 
+      delay(250); 
+   } 
+   switch(Objective) 
+      { 
+      case "SimonNextLevel": NTM_TravelTO(getNextArea(me.area)); 
+         break; 
+      case "SimonPrevousLevel": NTM_TravelTO(NTAR_PreviousAreas[me.area],true); 
+         break;          
+      case "SimonPOI": gotoPOI(); 
+         break;          
+      case "GetWps": getwaypoints(); 
+         break;
+      case "GiveWps1": GiveWps1();
+         break; 
+      case "GiveWps2": GiveWps2(); 
+         break; 
+      case "GiveWps3": GiveWps3(); 
+         break; 
+      case "GiveWps4": GiveWps4(); 
+         break; 
+      case "GiveWps5": GiveWps5();
+         break;
+      case "GiveWpsAll": 
+         GiveWps1() 
+         GiveWps2() 
+         GiveWps3() 
+         GiveWps4() 
+         GiveWps5()    
+         break;   
+   // following actions need these too sometimes 
+    
+    NTSI_LoadNIPFiles(); 
+    case "RushAll": 
+      Rush1() 
+      Rush2() 
+      Rush3() 
+      Rush4() 
+      Rush5()    
+      break; 
+   case "Rush1": Rush1(); 
+      break;    
+   case "Rush2": Rush2(); 
+      break;    
+   case "Rush3": Rush3(); 
+      break;    
+   case "Rush4": Rush4(); 
+      break; 
+   case "Rush5": Rush5(); 
+      break;
+   case "FastRush": FastRush(); 
+      break;
+   case "DoCain": DoCain(); 
+      break;
+   case "DoRaven": DoRaven(); 
+      break;
+   case "DoSmith": DoSmith(); 
+      break;
+   case "DoAndariel": DoAndariel(); 
+      break;
+   case "DoRadament": DoRadament(); 
+      break;
+   case "DoCube": DoCube(); 
+      break;
+   case "DoStaff": DoStaff(); 
+      break;
+   case "DoSummoner": DoSummoner(); 
+      break;
+   case "DoDuriel": DoDuriel(); 
+      break;
+   case "DoTome": DoTome(); 
+      break;
+   case "DoTravincal": DoTravincal(); 
+      break;
+   case "DoMephisto": DoMephisto(); 
+      break;
+   case "DoIzual": DoIzual(); 
+      break;
+   case "DoForge": DoForge(); 
+      break;
+   case "DoDiablo": DoDiablo(); 
+      break;
+   case "DoShenk": DoShenk(); 
+      break;
+   case "DoAnya": DoAnya(); 
+      break;
+   case "DoAncients": DoAncients(); 
+      break;
+   case "DoBaal": DoBaal(); 
+      break;  
+   case "ClearArea": 
+      NTA_ClearRooms();    
+      break;    
+   case "FollowLead": 
+      followLeader(); 
+      break; 
+   } 
+    
+    
+   var a =getScript();             
+   do{             
+      if (a.name == "default.dbj") 
+         a.send("Complete");                
+         //sendCopyData(null, me.windowtitle, 0,"Complete" ); 
+   }while(a.getNext());    
+    
+} 
+function rnd(min,max){ //keeping up with d2bs 1.5 
+if(typeof(rand) == 'function') 
+   return rand(min,max); 
+else    
+   return Math.floor(Math.random()*(max-min)+1)+min; 
+} 
+function writeLog(item, me, isEthereal, _mode) { 
+return true; 
+}

@@ -1,0 +1,365 @@
+//Universal Config v. 2
+
+if(!isIncluded("config/NTConfig.dbl")) include("config/NTConfig.dbl");
+
+
+NT_logItems = true;  // enable logging
+NT_LoggingMaxLines = 1000000;
+bobDebug = false; //debugs to oog
+NT_MinGameTime=0;  //in seconds to wait in town if runs finishs too quick
+function NT_LoadConfig()
+{
+
+NT_IdleOnClone = false;
+NT_IdleOnSOJ = false;
+NT_IdleOnSOJTimeoutSec = 0; // stop idling after no more soj ticks in seconds
+NT_HostileAction = 0; //0 = nothing 1 = quit 2 = kill
+//["SimonSays","Mausoleum","Countess","Pit","Tristram","BoneAsh","Andariel","Sewers","AncientTunnels","ClawViper","Summoner","Duriel","Kurast","Travincal","Mephisto","Izual","Hephasto","Diablo","FastDiablo","LeechD","Eldritch","Frozenstein","Nihlathak","Pindleskin","WPpindle","ThreshSocket","Baal","Leech"]
+	
+NTConfig_Script = ["SimonSays"]
+NTConfig_PublicMode = true; 
+NTConfig_PublicMode = true;			// Set to false to not party
+
+NT_LeechType = 2;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner	
+NT_Leader=["LeaderName"]
+	
+
+SimonNextLevel = 109; 	// keypad -
+SimonPOI = 106;			// keypad *
+SimonPrevousLevel = 111;// keypad /
+SimonEscToTown = 69;	// key "e"
+SimonEnableSnagging = true; 
+SimonAutoReveal = true; 
+SimonStopLifeWatch = false; 
+SimonEnableCommands = false; 
+NTConfig_ClearPitLevel1 = true; 	// Set to true to clear level1
+NTConfig_FireEyeExtension = true
+NTConfig_KillFangskin = true 
+NTConfig_CouncilExtension = true; 	// Set this to false to not kill council
+NTConfig_Moattrick = false;
+DiabloTPMsg = "HOT TP!!";	
+KillingDiabloMsg = "Killing Diablo!"; 
+NTConfig_NihlathakExtension = true;	// Set true to continue to Nihl 
+NTConfig_PindleskinExtension = true;	// Set true if you want to continue to Pindle 
+NTConfig_ShenkExtension = true; 
+NTConfig_DacFarrenExtension = true ;
+NTConfig_KillBaal = true; 
+BaalTPMsg = "HOT TP"; 
+BaalTPSafeMsg = "1 Clear";	
+KillBaalMsg = "Lets Kill Baal!"; 
+BaalNextGameMsg = "Next Game!";
+
+
+	//-------------------------------------------------------------------------------------------------
+	// Potion, Merc, and Chicken Settings:
+	// For the most part, the below settings should be self explanatory.
+	// For the life settings "80" would represent 80% life
+	//-------------------------------------------------------------------------------------------------
+
+NT_PickUtility = false; // tries to fill belt and tombs with pickit
+FastSnag = true; // picks after each attack. based on itemdrop event
+	NTConfig_StartDelay = 0;	// Delay time in milliseconds to start;
+	NTConfig_AreaDelay = 500;	// Delay time in milliseconds to change area;
+	NTConfig_SnagDelay = 500;	// Delay time in milliseconds to wait before starting picking items
+
+NTConfig_SkipHealLife = 90; // If you have more than this percent of life, you won't go to a healer
+NTConfig_SkipHealMana = 70; // If you have more than this percent of mana, you won't go to a healer
+NTConfig_SkipHealCurses = false; // If you want to skip curses, set to true
+NTConfig_UseMerc = true; // Set to true if you use a mercenary, will revive merc at a reviver npc.
+	NTConfig_ResetWeapon = false;	// Set to true to reset weapon when reviving merc
+
+NTConfig_LifeThresh = 80; // Drink a normal potion if under this percent of life.
+NTConfig_LifeRejuvThresh = 65; // Drink a rejuvenation potion if under this percent of life.
+NTConfig_ManaThresh = 0; // Drink a normal potion if under this percent of mana.
+NTConfig_ManaRejuvThresh = 0; // Drink a rejuvenation potion if under this percent of mana.
+NTConfig_LifeChicken = 50; // This is your chicken life percent. If you go below this life total, exit game.
+NTConfig_ManaChicken = 0; // This is your chicken mana percent. If you go below this mana total, exit game.
+
+NTConfig_MercLifeThresh = 30; // This is the threshold to use a life potion on your merc in percent.
+NTConfig_MercRejuvThresh = 0; // This is the threshold to use a rejuv potion on your merc in percent.
+NTConfig_MercChicken = 0; // This is your mercs chicken life percent. If he goes below this, exit game.
+
+	NTConfig_FreeSpace = 4;		// Number of free columns. If less full columns are free stashing is set.
+
+	// The numbers correspond to your inventory. Set 0 to keep whatever is there, 1 to stash it.
+	NTConfig_Columns[0] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[1] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[2] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[3] = [1,1,1,1,0,0,0,0,0,0];
+
+	NTConfig_MinGoldToStash = 100000;	// Maximum gold amount carried before going to stash
+
+	//----------------------------------------------------------------------------------------------
+	// Type of potion used in each belt column
+	// Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too.
+	// Keep equal types at adjacent columns. First HP then MP and then HP again is a bad choice.
+	// Keep HP and MP at the beginning of the belt (in case you want to use rejuv and other types).
+	// Rejuvenations MUST, I REPEAT MUST be at the end of the belt (last x columns).
+	// To use rejuvenations only, put "rv" in all columns.
+	//----------------------------------------------------------------------------------------------
+	NTConfig_BeltColType[0] = "hp";
+	NTConfig_BeltColType[1] = "mp";
+	NTConfig_BeltColType[2] = "rv";
+	NTConfig_BeltColType[3] = "rv";
+
+	//----------------------------------------------------------------------------
+	// Minimum amount of potions in each column before needing refilling
+	// If there's less potions then this number in the column we go and shop.
+	// Set to 4 to go shopping as soon as there's a potion missing.
+	// Recommend leaving columns set to "rv" at 0. Since shops won't carry rejuvs.
+	//----------------------------------------------------------------------------
+	NTConfig_BeltColMin[0] = 4;
+	NTConfig_BeltColMin[1] = 4;
+	NTConfig_BeltColMin[2] = 0;
+	NTConfig_BeltColMin[3] = 0;
+
+	//-----------------------------------------------------------------------------------
+	// SnagIt configuration
+	// Here is a list of preset nip files assuming you use nip package.
+	// If you want to add your own .nip files, just copy any line and enter the
+	// To disable a .nip file, just add "//" at the start of the line or delete the line.
+	//-----------------------------------------------------------------------------------
+	NTConfig_NIPFilePath = ["uniques.nip","sets.nip","whites.nip","runes.nip","magics.nip","gems.nip","charmsjewels.nip","ringsamulets.nip","potions.nip","moneymaker.nip","keys.nip"]
+	
+	NTConfig_SnagRange = 40;	// Radius to check for dropped items. 40 is a good number here
+
+	//------------------------------------------------------------------------------
+	// GambleIt configuration
+	// To specify what items to gamble, adjust the array with the desired item codes
+	//------------------------------------------------------------------------------
+	NTConfig_GambleIt = true;		// Enable gambling
+	NTConfig_GambleStopGold = 300000;	// Gold amount to stop the gambling
+
+	NTConfig_GambleItem.push("rin");	// Rings
+	NTConfig_GambleItem.push("amu");	// Amulets
+	NTConfig_GambleItem.push("ci0");	// Circlets
+	NTConfig_GambleItem.push("ci1");	// Coronets
+	//NTConfig_GambleItem.push("lgl");	// Leather Gloves
+	//NTConfig_GambleItem.push("vgl");	// Heavy Gloves
+	//NTConfig_GambleItem.push("mgl");	// Chain Gloves
+	//NTConfig_GambleItem.push("tgl");	// Light Gauntlets
+	//NTConfig_GambleItem.push("hgl");	// Gauntlets
+
+	NTConfig_OpenChest = true;	// Set to true to open chest
+
+	//------------------------------------------------------------------------------
+	// Attack configuration
+	//------------------------------------------------------------------------------
+	
+NTConfig_AttackSkill[0] = 0; // Cast your first spell once. Set to 0 if you won't 
+NTConfig_AttackSkill[1] = 56; // Cast your primary spell to boss. 
+NTConfig_AttackSkill[2] = 56; // Cast your primary spell to others. 
+NTConfig_AttackSkill[3] = 47; // Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't 
+NTConfig_AttackSkill[4] = 64; // Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't 
+NTConfig_AttackSkill[5] = 0; // Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
+
+NTConfig_ClearPosition = false;	// Set to true if you want to clear area after killing boss.
+NTConfig_CheckSafe = true;	// Set to true to check for curses, merc and potion (go to town if needed)
+NTConfig_CastStatic = 60; // Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't
+
+// sin stuff
+NTConfig_UseTraps = true;			// traps are hardcoded for 3 light sentrys and 2 death sentrys and do not need to be set with skills
+NTConfig_CastShadowMaster = true;	// Set to "true" if bot uses "Shadow Mastera".
+NTConfig_CastShadowWarrior = false;	// Set to "true" if bot uses "Shadow Warrior".
+NTConfig_CastBrustOfSpeed = false;	// Set to "true" if bot uses "Brust Of Speed" Cannot be used simultaneously with fade.
+NTConfig_CastFade = true;		// Set to "true" if bot uses "Fade" cannot be used simultaneously with burst of speed".
+NTConfig_CastBladeShield = true;	// Set to "true" if bot uses "Blade Shield".
+NTConfig_CastCloakOfShadows = true;	// Set to "true" if bot uses "Cloak Of Shadows".
+
+// pally stuff
+NTConfig_PutAura = 113;		// What aura do you want to use on attack. Set to 0 if you won't
+	NTConfig_AttackFirst = 0;	// Cast your first spell once. Set to 0 if you won't
+	NTConfig_AttackBoss = 112;	// Cast your primary spell to boss.
+	NTConfig_AttackOthers = 112;	// Cast your primary spell to others.
+	NTConfig_AttackSecondary = 0;	// Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't
+	NTConfig_UseRedemption = true;	// Set to true to use Redemption after killing monster.
+	
+//necro stuff
+	NTConfig_AttackBoss = 84; 	// 84 = bonespear, 93 = bone spirit
+	NTConfig_AttackOthers = 84; 
+	XP_Curse =91;  				//curse to use after army threshold is meet		
+    XP_BuildArmyCurse = 87;     //66 = Amplify Damage, 76 =iron maden ,82 = life tap, 87 = Decrepify, 91 = lower resist	
+	XP_Golm = 0;  				//0 = clay, 1 = blood, 2 = fire, 3 =iron (will not make)
+    XP_useSkel = true;
+    XP_useSkelMage = true;
+    XP_useRevive = true;
+    XP_CorpseExplosion = true;	
+	XP_BuildArmyThresh =4; // change curse and to closer attacks =skel +mage +revives
+	
+		//-----------------------------------------------------------------------------------------------------------------------------------------------
+	// Super unique script section.
+	// enable the monsters you want to kill with true, or set to false for the ones you don't want to kill
+	// WARNING Chest function may be very dangerous on some mobs depending on your class
+	//------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+		NTConfig_Funnytext = true;			// enables Random Funny text during script, May be offensive to some.
+
+	NTConfig_Act1 = true;					// Act 1 must be true if you are going to kill any monsters in Act 1
+		NTConfig_SuperCorpsefire = true;		// enables Corpsefire in the den
+			NTConfig_CorpsefireChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperBishibosh = true;			// enables Bishibosh in cold plains
+			NTConfig_BishiboshChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperColdcrow = true;			// enables Coldcrow in the cave
+			NTConfig_ColdcrowChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperRaven = true;			// enables Blood Raven in the burial grounds
+			NTConfig_RavenChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperBonebreaker = true;		// enables Bonebreaker in the crypt
+			NTConfig_BonebreakerChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperRakanishu = true;			// enables Rakanishu in stoney field
+			NTConfig_RakanishuChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperGriswold = true;			// enables Griswold in tristram
+			NTConfig_GriswoldChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperTreehead = true;			// enables Treehead in dark woods
+			NTConfig_TreeheadChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperCountess = true;			// enables Countess in the forgotten tower
+			NTConfig_CountessChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperSmith = true;			// enables The Smith in the barraks
+			NTConfig_SmithChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperPitspawn = true;			// enables Pitspawn in the jail level 2
+			NTConfig_PitspawnChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperBoneAsh = true;			// enables Bone Ash in the cathedral
+			NTConfig_BoneAshChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperAndariel = true;			// enables Andariel
+			NTConfig_AndarielChest = true;		// Set to true to open chests in corresponding area
+
+	NTConfig_Act2 = true;					// Act 2 must be true if you are going to kill any monsters in Act 2
+		NTConfig_SuperDarkElder = true;			// enables Dark Elder in the lost city
+			NTConfig_DarkElderChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperBloodWitch = true;		// enables Blood Witch in the halls of the dead level 3
+			NTConfig_BloodWitchChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperColdworm = true;			// enables Coldworm in maggot liar level 3
+			NTConfig_ColdwormChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperCreepingFeature = true;		// enables Creeping Feature in stoney tomb level 2
+			NTConfig_CreepingFeatureChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperFireEye = true;			// enables Fire Eye in the palace celler level 3
+			NTConfig_FireEyeChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperRadament = true;			// enables Radament in the sewers level 3
+			NTConfig_RadamentChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperSummoner = true;			// enables summoner in arcane way
+			NTConfig_SummonerChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperDuriel = true;			// enables Duriel
+			NTConfig_DurielChest = true;		// Set to true to open chests in corresponding area
+
+	NTConfig_Act3 = true;					// Act 3 must be true if you are going to kill any monsters in Act 3
+		NTConfig_SuperSarina = true;			// enables Sarina in the ruined temple
+			NTConfig_SarinaChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperStormtree = true;			// enables Stormtree in lower kurast
+			NTConfig_StormtreeChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperEndugu = true;			// enables endugu in the flayer dungeon level 3
+			NTConfig_EnduguChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperSszark = true;			// enables Sszark in the spider caverns
+			NTConfig_SszarkChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperIcehawk = true;			// enables icehawk in sewers level 1
+			NTConfig_IcehawkChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperMephisto = true;			// enables Mephisto
+			NTConfig_Moat = true;			// Set this to true to kill meph by using the moat trick
+			NTConfig_Council = true;		// Kills Council after meph, meph must be set to true to run this
+			NTConfig_MephistoChest = true;		// Set to true to open chests in corresponding area
+
+	NTConfig_Act4 = true;					// Act 4 must be true if you are going to kill any monsters in Act 4
+		NTConfig_SuperHephasto = true;			// enables Hephasto the armorer in river of flame
+			NTConfig_HephastoChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperIzual = true;			// enables Izual in the plains of despair
+			NTConfig_IzualChest = true;		// Set to true to open chests in corresponding area
+
+	NTConfig_Act5 = true;					// Act 5 must be true if you are going to kill any monsters in Act 5
+		NTConfig_SuperDacFarren = true;			// enables Dac in the bloody foothills
+			NTConfig_DacFarrenChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperShenk = true;			// enables shenk in the bloody foothills
+		NTConfig_SuperEldritch = true;			// enables eldrich in frigid
+			NTConfig_EldritchChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperBonesaw = true;			// enables bonesaw in frigid
+		NTConfig_SuperEyeback = true;			// enables eyeback in frigid
+		NTConfig_SuperSharptooth = true;		// enables sharptooth in frigid
+		NTConfig_SuperThreshSocket = true;		// enables thresh in arreat plateau
+			NTConfig_ThreshSocketChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperFrozenstein = true;		// enables frozenstein in frozen river
+			NTConfig_FrozensteinChest = true;	// Set to true to open chests in corresponding area
+		NTConfig_SuperPindleskin = true;		// enables pindle in nihlathaks temple
+		NTConfig_SuperSnapchip = true;			// enables snapchip in icy cellar
+			NTConfig_SnapchipChest = true;		// Set to true to open chests in corresponding area
+		NTConfig_SuperNihlathak = true;			// enables Nihlathak
+			NTConfig_NihlathakChest = true;		// Set to true to open chests in corresponding area
+	NTConfig_DoCain = true;               // enables Cain quest
+    NTConfig_DoRaven = true;                  // enables Blood Raven quest
+    NTConfig_DoSmith = true;                   // enables Charsi's hammer quest
+    NTConfig_DoRadament = true;                // enables Radament quest
+    NTConfig_DoTome = true;            // enables tome quest in act 3
+    NTConfig_DoIzual = true;                   // enables Izual quest  
+    NTConfig_DoForge = true;                   // enables Hell forge quest
+    NTConfig_DoShenk = true;                   // enables Shenk quest
+    NTConfig_DoAnya = true;               // enables Anya quest
+    NTConfig_DoAncients = true;                // enables Ancients quest
+    NTConfig_DoBaal = true;               // enables baal quest "Kills Baal"
+	
+	
+	// enabling these recipies will add ingredients to pickit
+	// (["Name = Pul rune", true ,"Name = Pul rune", true ,"Name = Flawed Diamond"])
+	// flawed dimond wont be picked up till you carry 2 pul's
+NT_EnableCubing=true;	
+//NT_RecipieBox.push(["Name = Chipped Diamond","Name = Chipped Diamond","Name = Chipped Diamond"])
+//NT_RecipieBox.push(["Name = Chipped Amethyst","Name = Chipped Amethyst","Name = Chipped Amethyst"])
+//NT_RecipieBox.push(["Name = Chipped Emerald","Name = Chipped Emerald","Name = Chipped Emerald"])
+//NT_RecipieBox.push(["Name = Chipped Ruby","Name = Chipped Ruby","Name = Chipped Ruby"])
+//NT_RecipieBox.push(["Name = Chipped Sapphire","Name = Chipped Sapphire","Name = Chipped Sapphire"])
+//NT_RecipieBox.push(["Name = Chipped Skull","Name = Chipped Skull","Name = Chipped Skull"])
+//NT_RecipieBox.push(["Name = Chipped Topaz","Name = Chipped Topaz","Name = Chipped Topaz"])
+//NT_RecipieBox.push(["Name = Flawed Diamond","Name = Flawed Diamond","Name = Flawed Diamond"])
+//NT_RecipieBox.push(["Name = Flawed Amethyst","Name = Flawed Amethyst","Name = Flawed Amethyst"])
+//NT_RecipieBox.push(["Name = Flawed Emerald","Name = Flawed Emerald","Name = Flawed Emerald"])
+//NT_RecipieBox.push(["Name = Flawed Ruby","Name = Flawed Ruby","Name = Flawed Ruby"])
+//NT_RecipieBox.push(["Name = Flawed Sapphire","Name = Flawed Sapphire","Name = Flawed Sapphire"])
+//NT_RecipieBox.push(["Name = Flawed Skull","Name = Flawed Skull","Name = Flawed Skull"])
+//NT_RecipieBox.push(["Name = Flawed Topaz","Name = Flawed Topaz","Name = Flawed Topaz"])
+//NT_RecipieBox.push(["Name =  Diamond","Name =  Diamond","Name =  Diamond"])
+//NT_RecipieBox.push(["Name =  Amethyst","Name =  Amethyst","Name =  Amethyst"])
+//NT_RecipieBox.push(["Name =  Emerald","Name =  Emerald","Name =  Emerald"])
+//NT_RecipieBox.push(["Name =  Ruby","Name =  Ruby","Name =  Ruby"])
+//NT_RecipieBox.push(["Name =  Sapphire","Name =  Sapphire","Name =  Sapphire"])
+//NT_RecipieBox.push(["Name =  Skull","Name =  Skull","Name =  Skull"])
+//NT_RecipieBox.push(["Name =  Topaz","Name =  Topaz","Name =  Topaz"])
+//NT_RecipieBox.push(["Name = Flawless Diamond","Name = Flawless Diamond","Name = Flawless Diamond"])
+//NT_RecipieBox.push(["Name = Flawless Amethyst","Name = Flawless Amethyst","Name = Flawless Amethyst"])
+//NT_RecipieBox.push(["Name = Flawless Emerald","Name = Flawless Emerald","Name = Flawless Emerald"])
+//NT_RecipieBox.push(["Name = Flawless Ruby","Name = Flawless Ruby","Name = Flawless Ruby"])
+//NT_RecipieBox.push(["Name = Flawless Sapphire","Name = Flawless Sapphire","Name = Flawless Sapphire"])
+//NT_RecipieBox.push(["Name = Flawless Skull","Name = Flawless Skull","Name = Flawless Skull"])
+//NT_RecipieBox.push(["Name = Flawless Topaz","Name = Flawless Topaz","Name = Flawless Topaz"])
+//NT_RecipieBox.push(["Name = El rune","Name = El rune","Name = El rune"])
+//NT_RecipieBox.push(["Name = Eld rune","Name = Eld rune","Name = Eld rune"])
+//NT_RecipieBox.push(["Name = Tir rune","Name = Tir rune","Name = Tir rune"])
+//NT_RecipieBox.push(["Name = Nef rune","Name = Nef rune","Name = Nef rune"])
+//NT_RecipieBox.push(["Name = Eth rune","Name = Eth rune","Name = Eth rune"])
+//NT_RecipieBox.push(["Name = Ith rune","Name = Ith rune","Name = Ith rune"])
+//NT_RecipieBox.push(["Name = Tal rune","Name = Tal rune","Name = Tal rune"])
+//NT_RecipieBox.push(["Name = Ral rune","Name = Ral rune","Name = Ral rune"])
+//NT_RecipieBox.push(["Name = Ort rune","Name = Ort rune","Name = Ort rune"])
+//NT_RecipieBox.push(["Name = Thul rune", true ,"Name = Thul rune", true ,"Name = Thul rune", true ,"Name = Chipped Topaz"])
+//NT_RecipieBox.push(["Name = Amn rune", true ,"Name = Amn rune", true ,"Name = Amn rune", true ,"Name = Chipped Amethyst"])
+//NT_RecipieBox.push(["Name = Sol rune", true ,"Name = Sol rune", true ,"Name = Sol rune", true ,"Name = Chipped sapphire"])
+//NT_RecipieBox.push(["Name = Shael rune", true ,"Name = Shael rune", true ,"Name = Shael rune", true ,"Name = Chipped Ruby"])
+//NT_RecipieBox.push(["Name = Dol rune", true ,"Name = Dol rune", true ,"Name = Dol rune", true ,"Name = Chipped Emerald"])
+//NT_RecipieBox.push(["Name = Hel rune", true ,"Name = Hel rune", true ,"Name = Hel rune", true ,"Name = Chipped Diamond"])
+//NT_RecipieBox.push(["Name = Io rune", true ,"Name = Io rune", true ,"Name = Io rune", true ,"Name = Flawed Topaz"])
+//NT_RecipieBox.push(["Name = Lum rune", true ,"Name = Lum rune", true ,"Name = Lum rune", true ,"Name = Flawed Amethyst"])
+//NT_RecipieBox.push(["Name = Ko rune", true ,"Name = Ko rune", true ,"Name = Ko rune", true ,"Name = Flawed sapphire"])
+//NT_RecipieBox.push(["Name = Fal rune", true ,"Name = Fal rune", true ,"Name = Fal rune", true ,"Name = Flawed Ruby"])
+//NT_RecipieBox.push(["Name = Lem rune", true ,"Name = Lem rune", true ,"Name = Lem rune", true ,"Name = Flawed Emerald"])
+
+NT_RecipieBox.push(["Name = Pul rune", true ,"Name = Pul rune", true ,"Name = Flawed Diamond"])
+NT_RecipieBox.push(["Name = Um rune", true ,"Name = Um rune", true ,"Name = Topaz"])
+NT_RecipieBox.push(["Name = Mal rune", true ,"Name = Mal rune", true ,"Name = Amethyst"])
+NT_RecipieBox.push(["Name = Ist rune", true ,"Name = Ist rune", true ,"Name = sapphire"])
+NT_RecipieBox.push(["Name = Gul rune", true ,"Name = Gul rune", true ,"Name = Ruby"])
+NT_RecipieBox.push(["Name = Vex rune", true ,"Name = Vex rune", true ,"Name = Emerald"])
+NT_RecipieBox.push(["Name = Ohm rune", true ,"Name = Ohm rune", true ,"Name = Diamond"])
+NT_RecipieBox.push(["Name = Lo rune", true ,"Name = Lo rune", true ,"Name = Flawless Topaz"])
+NT_RecipieBox.push(["Name = Sur rune", true ,"Name = Sur rune", true ,"Name = Flawless Amethyst"])
+//NT_RecipieBox.push(["Name = Ber rune", true ,"Name = Ber rune", true ,"Name = Flawless sapphire"])
+//NT_RecipieBox.push(["Name = Jah rune", true ,"Name = Jah rune", true ,"Name = Flawless Ruby"])
+//NT_RecipieBox.push(["Name = Cham rune", true ,"Name = Cham rune", true ,"Name = Flawless Emerald"])
+
+
+	
+}

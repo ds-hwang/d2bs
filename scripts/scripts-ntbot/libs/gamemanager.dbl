@@ -1,0 +1,56 @@
+js_strict(true);
+
+const GM_MESSAGE		= 1;
+const GM_DEBUGMSG		= 2;
+const GM_DISABLERELOAD	= 3;
+const GM_ENABLERELOAD	= 4;
+const GM_MULE			= 5;
+const GM_HEARTBEAT		= 6;
+const GM_LEADERJOINED	= 7;
+const GM_JOINGAME		= 8;
+const GM_REQUESTPROFILE	= 9;
+
+var GameManager = {
+	_window: 'D2Driver',
+	get window () { return this._window; },
+	set window (w) { this._window = w; },
+	sendMessage: function(msg) {
+		sendCopyData(null, this._window, GM_MESSAGE, msg);
+	},
+	sendDebugMessage: function(msg) {
+		sendCopyData(null, this._window, GM_DEBUGMSG, msg);
+	},
+	set reload (b) {
+		sendCopyData(null, this._window, (b ? GM_ENABLERELOAD : GM_DISABLERELOAD), '');
+	},
+	requestMuling: function() {
+		sendCopyData(null, this._window, GM_MULE, '');
+	},
+	sendKeepalive: function() {
+		sendCopyData(null, this._window, GM_HEARTBEAT, '');
+	},
+	joinedGame: function(name, pass) {
+		sendCopyData(null, this._window, GM_JOINGAME, name+'/'+pass);
+	},
+	requestProfile: function() {
+		sendCopyData(null, this._window, GM_REQUESTPROFILE, '');
+	}
+};
+
+addEventListener('copydata', function (mode, msg) {
+	var script = getScript(true);
+	switch(mode) {
+		case GM_HEARTBEAT:
+			GameManager.sendKeepalive();
+			break;
+		case GM_LEADERJOINED:
+			var game, pass;
+			[game, pass] = msg.split('/');
+			GameManager.sendMessage('Leader joined game ' + game + '/' + pass);
+			script.send('joingame', game, pass);
+			break;
+		case GM_REQUESTPROFILE:
+			script.send('profile', msg);
+			break;
+	}
+});

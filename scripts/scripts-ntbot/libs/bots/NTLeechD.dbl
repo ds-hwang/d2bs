@@ -1,0 +1,106 @@
+
+function NT_LeechD(){
+	var leader="bobadin";
+	var i;
+	var _wave;
+	var _starttick;
+
+	print("ÿc3Start D Leech script");
+
+	if(!NTTM_CheckAct())
+		return false;
+
+	NTTMGR_TownManager();
+	
+	if(me.area!=103){
+		NTTM_TownMove("waypoint");
+		NTM_UsePortal("Waypoint", 103);
+		}
+
+	if(!NTTM_TownMove("portalspot"))
+		return false;
+		
+	
+	for(var i = 0 ; i < 100 ; i++)
+	{
+		if (findLead(leader))
+			break;
+		for (var j = 0 ; j < NT_Leader.length ; j++){
+			if (findLead(NT_Leader[j]))
+				leader = NT_Leader[j];		
+		}
+		delay (100);
+	}
+	QuitWithLeader = leader;
+	while(me.area==103){	
+		NTM_UsePortal("BluePortal", 108,leader);
+		delay (1000);
+		if (!findLead(leader)) return false;
+	}
+	NTP_DoPrecast();
+	while(me.area==108){
+		if (!moveToLead(leader)) return false;		
+		NTA_ClearPosition(30);
+		NTSI_PickItems();
+		if (findLead(leader)>108 )
+			return true;
+	}
+return true;
+}
+function findLead(leader)
+{
+var _lead= getUnit(0, leader)
+	if(_lead)
+	return _lead.area;
+// leader not found look in party
+var area =0;
+ var a = getParty();
+if(!a)
+	return false;
+	
+   do { 
+      if (a.name==leader){
+		return (a.area >0 )? a.area :true;
+		}
+   } while(a.getNext()); 
+	if (area==0) {
+		//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+		return false;
+
+	}
+return area;
+}
+function moveToLead(leader){
+
+var _lead= getUnit(0, leader)
+	if(_lead){
+	//print("moving to:"+_lead.x);
+	if (getDistance(_lead.x,_lead.y,me.x,me.y) >5)
+	NTM_MoveTo(_lead.x,_lead.y);
+	return true;
+	}
+	var area=0;
+	var leadx =0;
+	var leady =0;
+	var a = getParty(); 
+      do { 
+      if (a.name==leader){
+		area=a.area;
+		leadx=a.x
+		leady=a.y	
+      }
+   } while(a.getNext()); 
+	if (area==0) {
+		return false;
+	}
+	if (leadx!=0){
+	NTM_MoveTo(leadx,leady);    
+	}
+return true;
+}
+
+function LeaveWithLeader(mode, param,name1,name2){	//event is called from default
+ 	if (mode == 0 || mode == 1 || mode ==3 )			
+		if (name1 == QuitWithLeader)
+			quit();
+}

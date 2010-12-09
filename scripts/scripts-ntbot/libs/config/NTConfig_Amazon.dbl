@@ -1,0 +1,150 @@
+if(!isIncluded("config/NTConfig.dbl")) include("config/NTConfig.dbl");
+
+NT_logItems=true;
+NT_LoggingMaxLines=1000000;  //item log cap
+bobDebug = false; //debugs to oog
+NT_MinGameTime=0;  //in seconds to wait in town if runs finishs too quick
+function NT_LoadConfig()
+{
+	//--------------------------------------------------------------------------------------
+	// Boss configuration:
+	// For each boss you want to run below, remove the // from the beginning on the line
+	// If there is a boss that you DO NOT want to do, then add the //
+	// NOTE: Only add, or remove the // from the beginning of the line (NOWHERE ELSE)
+	//--------------------------------------------------------------------------------------
+	// Pay close attention to the act 5 bosses.  Pindle and nihl can get confusing
+	// Read the notes to the right of these bosses
+	//--------------------------------------------------------------------------------------
+
+
+	NTConfig_PublicMode = true;			// Set to false to not party
+	NT_Leader.push("");				// Enter the character name of the leader (Exact Spelling)
+	NT_LeechType = 2;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner
+	
+	//NTConfig_Script.push("Leech"); NTConfig_KillBaal = true; //baal leaching script (enters as soon as portal is made)
+	//NTConfig_Script.push("LeechD"); 		// chaos helper
+
+	//NTConfig_Script.push("Gamble")  		// 1.13 ptr gamble bot
+
+		SimonNextLevel = 109; 	// keypad -
+		SimonPOI = 106;			// keypad *
+		SimonPrevousLevel = 111;// keypad /
+		SimonEscToTown = 69;	// key "e"
+		SimonEnableSnagging = true;
+		SimonAutoReveal = true;
+		SimonStopLifeWatch = false;
+		SimonEnableCommands = false;  // obey commands like "Rush Me","Rush 1","Get Wps" from chat.
+	NTConfig_Script.push("SimonSays")
+	
+	
+
+	//-------------------------------------------------------------------------------------------------
+	// Potion, Merc, and Chicken Settings:
+	// For the most part, the below settings should be self explanatory.
+	// For the life settings "80" would represent 80% life
+	//-------------------------------------------------------------------------------------------------
+
+	NT_PickUtility = false;		// tries to fill belt and tombs with pickit
+	FastSnag =false;		// picks after each attack. based on itemdrop event
+	NTConfig_StartDelay = 0;	// Delay time in milliseconds to start;
+	NTConfig_AreaDelay = 500;	// Delay time in milliseconds to change area;
+	NTConfig_SnagDelay = 500;	// Delay time in milliseconds to wait before starting picking items
+
+	NTConfig_SkipHealLife = 90;	// If you have more than this percent of life, you won't go to a healer
+	NTConfig_SkipHealMana = 70;	// If you have more than this percent of mana, you won't go to a healer
+	NTConfig_SkipHealCurses = false;// If you want to skip curses, set to true
+	NTConfig_UseMerc = true;	// Set to true if you use a mercenary, will revive merc at a reviver npc.
+	NTConfig_ResetWeapon = false;	// Set to true to reset weapon when reviving merc
+
+	NTConfig_LifeThresh = 80;	// Drink a normal potion if under this percent of life.
+	NTConfig_LifeRejuvThresh = 65;	// Drink a rejuvenation potion if under this percent of life.
+	NTConfig_ManaThresh = 0;	// Drink a normal potion if under this percent of mana.
+	NTConfig_ManaRejuvThresh = 0;	// Drink a rejuvenation potion if under this percent of mana.
+	NTConfig_LifeChicken = 50;	// This is your chicken life percent. If you go below this life total, exit game.
+	NTConfig_ManaChicken = 0;	// This is your chicken mana percent. If you go below this mana total, exit game.
+
+	NTConfig_MercLifeThresh = 30;	// This is the threshold to use a life potion on your merc in percent.
+	NTConfig_MercRejuvThresh = 0;	// This is the threshold to use a rejuv potion on your merc in percent.
+	NTConfig_MercChicken = 0;	// This is your mercs chicken life percent. If he goes below this, exit game.
+
+	NTConfig_FreeSpace = 4;		// Number of free columns. If less full columns are free stashing is set.
+
+	// The numbers correspond to your inventory. Set 0 to keep whatever is there, 1 to stash it.
+	NTConfig_Columns[0] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[1] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[2] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[3] = [1,1,1,1,0,0,0,0,0,0];
+
+	NTConfig_MinGoldToStash = 100000;	// Maximum gold amount carried before going to stash
+
+	//----------------------------------------------------------------------------------------------
+	// Type of potion used in each belt column
+	// Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too.
+	// Keep equal types at adjacent columns. First HP then MP and then HP again is a bad choice.
+	// Keep HP and MP at the beginning of the belt (in case you want to use rejuv and other types).
+	// Rejuvenations MUST, I REPEAT MUST be at the end of the belt (last x columns).
+	// To use rejuvenations only, put "rv" in all columns.
+	//----------------------------------------------------------------------------------------------
+	NTConfig_BeltColType[0] = "hp";
+	NTConfig_BeltColType[1] = "mp";
+	NTConfig_BeltColType[2] = "rv";
+	NTConfig_BeltColType[3] = "rv";
+
+	//----------------------------------------------------------------------------
+	// Minimum amount of potions in each column before needing refilling
+	// If there's less potions then this number in the column we go and shop.
+	// Set to 4 to go shopping as soon as there's a potion missing.
+	// Recommend leaving columns set to "rv" at 0. Since shops won't carry rejuvs.
+	//----------------------------------------------------------------------------
+	NTConfig_BeltColMin[0] = 4;
+	NTConfig_BeltColMin[1] = 4;
+	NTConfig_BeltColMin[2] = 0;
+	NTConfig_BeltColMin[3] = 0;
+
+	//-----------------------------------------------------------------------------------
+	// SnagIt configuration
+	// Here is a list of preset nip files assuming you use nip package.
+	// If you want to add your own .nip files, just copy any line and enter the
+	// To disable a .nip file, just add "//" at the start of the line or delete the line.
+	//-----------------------------------------------------------------------------------
+	NTConfig_NIPFilePath.push("uniques.nip");
+	NTConfig_NIPFilePath.push("sets.nip");
+	NTConfig_NIPFilePath.push("whites.nip");
+	NTConfig_NIPFilePath.push("runes.nip");
+	NTConfig_NIPFilePath.push("rares.nip");
+	NTConfig_NIPFilePath.push("magics.nip");
+	NTConfig_NIPFilePath.push("gems.nip");
+	NTConfig_NIPFilePath.push("charmsjewels.nip");
+	NTConfig_NIPFilePath.push("ringsamulets.nip");
+	NTConfig_NIPFilePath.push("potions.nip");
+	//NTConfig_NIPFilePath.push("moneymaker.nip");
+	NTConfig_NIPFilePath.push("keys.nip");
+
+	NTConfig_SnagRange = 40;	// Radius to check for dropped items. 40 is a good number here
+
+	//------------------------------------------------------------------------------
+	// GambleIt configuration
+	// To specify what items to gamble, adjust the array with the desired item codes
+	//------------------------------------------------------------------------------
+	NTConfig_GambleIt = true;		// Enable gambling
+	NTConfig_GambleStopGold = 300000;	// Gold amount to stop the gambling
+
+	NTConfig_GambleItem.push("rin");	// Rings
+	NTConfig_GambleItem.push("amu");	// Amulets
+	NTConfig_GambleItem.push("ci0");	// Circlets
+	NTConfig_GambleItem.push("ci1");	// Coronets
+	//NTConfig_GambleItem.push("lgl");	// Leather Gloves
+	//NTConfig_GambleItem.push("vgl");	// Heavy Gloves
+	//NTConfig_GambleItem.push("mgl");	// Chain Gloves
+	//NTConfig_GambleItem.push("tgl");	// Light Gauntlets
+	//NTConfig_GambleItem.push("hgl");	// Gauntlets
+
+	NTConfig_OpenChest = true;	// Set to true to open chest
+
+	//------------------------------------------------------------------------------
+	// Attack configuration
+	//------------------------------------------------------------------------------
+	// Not Supported atm.
+
+	
+}

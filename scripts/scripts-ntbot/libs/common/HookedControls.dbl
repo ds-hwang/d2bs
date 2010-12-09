@@ -1,0 +1,719 @@
+
+addEventListener("mouseclick", GlobalCheckBoxClick);
+var GlobalCheckBoxArray = new Array;
+var GlobalTextBoxArray = new Array;
+var GlobalVScrollArray = new Array;
+var GlobalDropDownArray = new Array;
+var clickCount = 2;
+
+
+function CheckBox(x, y,Txt,Checked) {
+ 	//text "text",x,y,color,font,alingment
+ this.x = x; 
+ this.y = y; 
+ this.boxSize = 10;
+ this.textColor =2;
+ this.font = 6;
+ this.boxColor=6
+ this.boxOnRight = true;
+ this.text = Txt;
+ this.checked = Checked;
+ this.checkedColor = 8; 
+ this.visible = true;
+ //this.width = width; 
+ //this.height = height; 
+// this.hooks = new Array;
+ 
+ 
+  this.textHook = new Text(this.text,this.x ,this.y+this.boxSize,this.textColor,this.font,1)
+  this.boxLine1 = new Line(this.x,this.y,this.x+this.boxSize,this.y,this.boxColor)
+  this.boxLine2 = new Line(this.x,this.y,this.x,this.y+this.boxSize,this.boxColor)
+  this.boxLine3 = new Line(this.x,this.y+this.boxSize,this.x+this.boxSize,this.y + this.boxSize,this.boxColor)
+  this.boxLine4 = new Line(this.x+this.boxSize,this.y,this.x+this.boxSize,this.y +this.boxSize,this.boxColor)
+  if (this.checked)
+	this.box = new Box(this.x,this.y,this.boxSize,this.boxSize,this.checkedColor,7)
+  else 
+	this.box = new Box(this.x,this.y,this.boxSize,this.boxSize,0,7)
+ 	
+	this.watch("text", function(id,oldval,newval) {
+		this.text = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("x", function(id,oldval,newval) {
+		this.x = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("y", function(id,oldval,newval) {
+		this.y = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("checked", function(id,oldval,newval) {
+		this.checked = newval;
+		Checked=newval;
+		this.update();
+		return newval;	
+	});
+	this.watch("visible", function(id,oldval,newval) {
+		this.visible = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("boxOnRight", function(id,oldval,newval) {
+		this.boxOnRight = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("textColor", function(id,oldval,newval) {
+		this.textColor = newval
+		this.update();
+		return newval;	
+	});
+	this.watch("boxColor", function(id,oldval,newval) {
+		this.boxColor = newval
+		this.update();
+		return newval;	
+	});
+//print(this.box.toSource());
+GlobalCheckBoxArray.push (this);
+}
+
+CheckBox.prototype.update = function () {
+		this.textHook.text=this.text;
+		this.textHook.x= (this.boxOnRight ? this.x -5 : this.x + this.boxSize +5);
+		this.textHook.y = this.y+ this.boxSize;
+		this.textHook.color = this.textColor;
+		this.textHook.font = this.font;
+		this.textHook.align=(this.boxOnRight ? 1 : 3);
+		this.textHook.visible=this.visible
+		
+		this.boxLine1.x=this.x;
+		this.boxLine1.y = this.y;
+		this.boxLine1.x1 = this.x+this.boxSize;
+		this.boxLine1.y1 = this.y;
+		this.boxLine1.color= this.boxColor;
+		this.boxLine1.visible=this.visible
+		
+		this.boxLine2.x=this.x;
+		this.boxLine2.y = this.y;
+		this.boxLine2.x1 = this.x;
+		this.boxLine2.y1 = this.y+this.boxSize;
+		this.boxLine2.color= this.boxColor;
+		this.boxLine2.visible=this.visible
+		
+		this.boxLine3.x=this.x;
+		this.boxLine3.y = this.y+this.boxSize;
+		this.boxLine3.x1 = this.x+this.boxSize;
+		this.boxLine3.y1 = this.y+this.boxSize;
+		this.boxLine3.color= this.boxColor;
+		this.boxLine3.visible=this.visible
+		
+		this.boxLine4.x=this.x+this.boxSize;
+		this.boxLine4.y = this.y;
+		this.boxLine4.x1 = this.x+this.boxSize;
+		this.boxLine4.y1 = this.y+this.boxSize;
+		this.boxLine4.color= this.boxColor;
+		this.boxLine4.visible=this.visible
+		
+		this.box.x= this.x+1;
+		this.box.y= this.y+1;
+		this.box.xsize=this.boxSize-1;
+		this.box.ysize=this.boxSize-1;
+		this.box.color=(this.checked ? this.boxColor : 0);
+		if (this.visible){
+			this.box.color=(this.checked ? this.checkedColor : 0);
+		}else{
+			this.box.color= 0;
+		}
+		this.box.opacity=(this.visible ? 7 : 0)
+		this.box.visible=this.visible;
+}
+
+function updateControls(){
+	for (var j = 0 ; j < GlobalCheckBoxArray.length; j++){					
+		GlobalCheckBoxArray[j].update();
+	}
+}
+function GlobalCheckBoxClick(b,x,y,up){
+
+clickCount = clickCount +1;
+ //click event dosent tell up or down so every other event is good enough for me
+//print(" b "+b+" x" + x+" y" +y)
+ if (b == 0 && clickCount % 2 == 1){	
+	for (var j = 0 ; j < GlobalCheckBoxArray.length; j++){	
+		if (GlobalCheckBoxArray[j].x < x && GlobalCheckBoxArray[j].y < y && GlobalCheckBoxArray[j].x + GlobalCheckBoxArray[j].boxSize > x && GlobalCheckBoxArray[j].y + GlobalCheckBoxArray[j].boxSize > y && GlobalCheckBoxArray[j].visible){			
+			GlobalCheckBoxArray[j].checked = (!GlobalCheckBoxArray[j].checked);
+			GlobalCheckBoxArray[j].update(); //this isnt working			
+		}
+	}
+	for (var j = 0; j < GlobalVScrollArray.length; j++){
+		if(GlobalVScrollArray[j].x <x && GlobalVScrollArray[j].y < y && GlobalVScrollArray[j].x +GlobalVScrollArray[j].xSize > x && GlobalVScrollArray[j].y+GlobalVScrollArray[j].ySize >y && GlobalVScrollArray[j].visible){
+		
+			if (GlobalVScrollArray[j].verticle && y > GlobalVScrollArray[j].slider.y - 10 && y < GlobalVScrollArray[j].slider.y ){
+				GlobalVScrollArray[j].dragMode = true;
+				break;
+			}
+			
+			if (!GlobalVScrollArray[j].verticle && x > GlobalVScrollArray[j].slider.x - 5 && x < GlobalVScrollArray[j].slider.x+5 ){			
+				GlobalVScrollArray[j].dragMode = true;
+				break;
+			}
+			if (y < GlobalVScrollArray[j].y+GlobalVScrollArray[j].weight && x < GlobalVScrollArray[j].x +GlobalVScrollArray[j].weight){
+				GlobalVScrollArray[j].value -= 1;
+				break;
+			}
+			if ((y < GlobalVScrollArray[j].slider.y && GlobalVScrollArray[j].verticle)||(!GlobalVScrollArray[j].verticle && x < GlobalVScrollArray[j].slider.x)){
+				GlobalVScrollArray[j].value -= GlobalVScrollArray[j].bigChange;
+				break;
+			}			
+			if ((GlobalVScrollArray[j].verticle && y < GlobalVScrollArray[j].y+GlobalVScrollArray[j].ySize-GlobalVScrollArray[j].weight)||(!GlobalVScrollArray[j].verticle && x < GlobalVScrollArray[j].x+GlobalVScrollArray[j].xSize-GlobalVScrollArray[j].weight)){
+			GlobalVScrollArray[j].value += GlobalVScrollArray[j].bigChange;
+				break;
+			}
+			GlobalVScrollArray[j].value +=1;			
+		}
+	}
+	for (var j = 0; j < GlobalTextBoxArray.length; j++){
+		if(GlobalTextBoxArray[j].enableRowSelection && GlobalTextBoxArray[j].x <x && GlobalTextBoxArray[j].y < y && GlobalTextBoxArray[j].x +GlobalTextBoxArray[j].xSize > x && GlobalTextBoxArray[j].y+GlobalTextBoxArray[j].ySize >y && GlobalTextBoxArray[j].visible){		
+			if(typeof(GlobalTextBoxArray[j].clickFunction) == 'function')
+				GlobalTextBoxArray[j].clickFunction();
+			for (var l = 0; l < GlobalTextBoxArray[j].lines.length; l++){	
+				//print(GlobalTextBoxArray[j].lines[l].y +" > "+ y)
+				if(GlobalTextBoxArray[j].lines[l].y  > y ){				
+					GlobalTextBoxArray[j].selectedRow=l;
+					GlobalTextBoxArray[j].selectedText=GlobalTextBoxArray[j].lines[l].text;						
+					break;				
+				}				
+			}				
+		}
+	}
+	
+	
+ }
+else {
+	for (var j = 0; j < GlobalVScrollArray.length; j++){
+		if (GlobalVScrollArray[j].dragMode){
+			if (GlobalVScrollArray[j].verticle)
+				GlobalVScrollArray[j].value =parseInt(GlobalVScrollArray[j].max * (y - GlobalVScrollArray[j].scrollBox.y  )/GlobalVScrollArray[j].scrollBox.ysize);			
+			else
+				GlobalVScrollArray[j].value =parseInt(GlobalVScrollArray[j].max * (x - GlobalVScrollArray[j].scrollBox.x  )/GlobalVScrollArray[j].scrollBox.xsize);	
+			
+		}
+		GlobalVScrollArray[j].dragMode= false;	
+	}
+ 
+ }	
+  for (var j = 0; j < GlobalDropDownArray.length; j++){
+	if (GlobalDropDownArray[j].droped)
+		if (x < GlobalDropDownArray[j].x || x > GlobalDropDownArray[j].x +GlobalDropDownArray[j].autoWide+20 || y < GlobalDropDownArray[j].y || y> GlobalDropDownArray[j].y+120){
+			GlobalDropDownArray[j].droped=false;
+			GlobalDropDownArray[j].update();
+		}
+  }
+}
+function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
+ 	//text "text",x,y,color,font,alingment
+
+ this.x = x; 
+ this.y = y; 
+ this.xSize = xSize;
+ this.ySize = ySize;
+ this.scrollIndex = 0;
+ this.boxSize = 10;
+ this.textColor =0;
+ this.font = 6;
+ this.boxColor=0;
+ this.boxOnRight = true;
+ this.ShowOutline = true;
+ this.text = Txt;
+ this.backColor = (backColor) ? backColor : 18;  //2 = gray
+ this.textColor = (txtColor) ? txtColor :13;
+ this.visible = true;
+ this.fillFromTop = true;
+ this.parent = false;  //place holder for linked controls
+ this.child = false;	//place holder for linked controls
+  this.enableRowSelection =true;
+ this.selectedRow = 0;
+ this.selectedText = "";
+ this.selectedColor = 9;
+ this.oldScrollVal=0; // hack
+ this.listboxMode = false;
+ this.clickFunction = false;
+ // this.textHook = new Text(this.text1,this.x ,this.y+this.ySize,this.textColor,this.font,1)
+  this.boxLine1 = new Line(this.x,this.y,this.x+this.xSize,this.y,this.boxColor)
+  this.boxLine2 = new Line(this.x,this.y,this.x,this.y+this.ySize,this.boxColor)
+  this.boxLine3 = new Line(this.x,this.y+this.ySize,this.x+this.xSize,this.y + this.ySize,this.boxColor)
+  this.boxLine4 = new Line(this.x+this.xSize,this.y,this.x+this.xSize,this.y +this.ySize,this.boxColor)
+ 
+  this.background = new Box(this.x+1,this.y+1,this.xSize-1,this.ySize-1,this.backColor,1)
+  
+  this.lines = new Array;
+  this.textLines = new Array;
+  for (var l = this.y; l < this.y +this.ySize; l += 10){
+	var line = new Text("",this.x+2,l+10,this.textColor, this.font,3)
+	this.lines.push (line)  
+  }
+
+ //this.redrawHooks()
+//if  (this.textLines.length > this.lines.length){
+	this.scrollbar = new ScrollBar(this.x+this.xSize,this.y,this.ySize,this.backColor,this.textColor)
+	this.scrollbar.max =Math.abs(this.textLines.length - this.lines.length);
+	this.scrollbar.parent = this;
+	if (!this.fillFromTop)
+		this.scrollbar.value=this.scrollbar.max;
+//}
+ this.updateText();
+//print (this.background.toSource())
+ //this.scrollbar.visible = (this.textLines.length > this.lines.length);
+ //this.scrollbar.update();
+ this.watch("scrollIndex", function(id,oldval,newval) {	 
+	this.selectedRow=this.selectedRow +(this.oldScrollVal - this.scrollbar.value)
+	this.oldScrollVal=this.scrollbar.value  //hack oldval and new dont seem to work nfc	
+	this.lineArrayToHooks();	
+	return newval;
+	});	
+ this.watch("x", function(id,oldval,newval) {
+	this.x = newval
+	this.redrawHooks()
+	return newval;
+	});
+ this.watch("y", function(id,oldval,newval) {
+	this.y = newval
+	this.redrawHooks()
+	return newval;
+	});
+this.watch("xSize", function(id,oldval,newval) {
+	this.xSize = newval
+	this.redrawHooks();
+	this.updateText();
+	return newval;
+	});
+this.watch("ySize", function(id,oldval,newval) {
+	this.ySize = newval
+	this.redrawHooks();
+	this.updateText();
+	return newval;
+	});
+this.watch("textColor", function(id,oldval,newval) {
+	this.textColor = newval
+	this.redrawHooks();	
+	return newval;
+	});
+this.watch("backColor", function(id,oldval,newval) {
+	this.textColor = newval
+	this.redrawHooks();	
+	return newval;
+	});
+this.watch("text", function(id,oldval,newval) {
+	this.text = newval
+	this.redrawHooks();	
+	this.updateText();
+	return newval;
+	
+	});
+this.watch("selectedRow", function(id,oldval,newval) {
+	this.selectedRow = newval
+	this.redrawHooks();	
+	this.updateText();
+	if (this.parent)
+		if (typeof(this.parent.childUpate) == 'function'){
+			this.parent.childUpate();
+		}
+	return newval;	
+	});
+this.watch("textLines", function(id,oldval,newval) {
+	this.textLines = newval
+	this.lineArrayToHooks()	
+	return newval;	
+	});
+this.watch("font", function(id,oldval,newval) {
+	this.font = newval
+	this.redrawHooks()	
+	return newval;	
+	});
+this.watch("visible", function(id,oldval,newval) {
+	this.visible = newval
+	this.redrawHooks()	
+	return newval;	
+	});
+ GlobalTextBoxArray.push (this);
+ }
+ 
+ TextBox.prototype.redrawHooks = function () {	
+		this.boxLine1.x= this.x;
+		this.boxLine1.y = this.y;
+		this.boxLine1.xsize = this.x+this.xSize;
+		this.boxLine1.ysize = this.y;
+		this.boxLine1.color = this.boxColor;
+		this.boxLine1.visible = (this.visible && this.ShowOutline);
+		
+		this.boxLine2.x=this.x;
+		this.boxLine2.y=this.y;
+		this.boxLine2.xSize=this.x;
+		this.boxLine2.ysize= this.y +this.ySize;
+		this.boxLine2.color=this.boxColor;
+		this.boxLine2.visible = (this.visible && this.ShowOutline);
+		
+		this.boxLine3.x= this.x;
+		this.boxLine3.y=this.y+this.ySize;
+		this.boxLine3.xsize=this.x+this.xSize;
+		this.boxLine3.ysize=this.y+this.ySize;
+		this.boxLine3.color=this.boxColor;
+		this.boxLine3.visible = (this.visible && this.ShowOutline);
+		
+		this.boxLine4.x= this.x+this.xSize;
+		this.boxLine4.y=this.y;
+		this.boxLine4.xsize=this.x+this.xSize;
+		this.boxLine4.ysize=this.y+this.ySize;
+		this.boxLine4.color=this.boxColor;
+		this.boxLine4.visible = (this.visible && this.ShowOutline);
+		
+		//this.background = new Box(this.x+1,this.y+1,this.xSize-1,this.ySize-1,this.backColor,1)
+		this.background.x=this.x+1;
+		this.background.y = this.y+1;
+		this.background.ysize=this.ySize-1
+		this.background.xsize=this.xSize-1
+		this.background.visible=(this.visible && this.ShowOutline);
+		if (this.visible)
+			this.scrollbar.visible = (this.textLines.length > this.lines.length);
+		else 
+			this.scrollbar.visible=false;
+		
+		var fontSize= 10;
+		if (this.font == 5)
+			fontSize =18;
+		if (this.font == 3)
+			fontSize =40;
+	for (var j = 0; j < this.lines.length; j ++){
+		//var line = new Text("",this.x+2,l+10,this.textColor, this.font,3)
+			this.lines[j].x=this.x+2;
+			this.lines[j].y= this.y+fontSize+(j*fontSize);
+			this.lines[j].color=(j== this.selectedRow)? this.selectedColor : this.textColor;
+			this.lines[j].font=this.font;
+			this.lines[j].visible= this.visible;
+	}		
+ }
+ TextBox.prototype.updateText = function () {	//rebuild fron .text	
+	if (this.listboxMode)
+		return true;
+		//print("rebuilding text")
+		this.textLines.remove(0,this.textLines.length-1)
+		var templine ="";
+		var linenum = (this.fillFromTop) ? 0 : this.lines.length -1;
+		var spaceAt = 0;
+  if (this.text){
+		for (var t = 0; t<this.text.length ; t++){
+			templine=templine+ this.text[t];  
+			if (getTextWidthHeight(templine,this.font)[0] >this.xSize -4){ // 8 controls how close to get to the edge
+				spaceAt =templine.lastIndexOf(" "); //wrap at space
+				if (spaceAt){
+					t=t-(templine.length-spaceAt)+1;
+					templine = templine.substring(0,spaceAt) ;		
+				}		
+				this.textLines.push(templine)
+				templine = "";		
+			}	
+		}		
+	if (templine.length >0)
+		this.textLines.push(templine)	
+	}
+	this.lineArrayToHooks();
+return true;
+ }
+
+TextBox.prototype.lineArrayToHooks = function () {
+
+this.scrollbar.max =Math.abs(this.textLines.length - this.lines.length);
+	if (this.visible)
+			this.scrollbar.visible = (this.textLines.length > this.lines.length);
+		else 
+			this.scrollbar.visible=false;
+  	var sboffset = (this.scrollbar) ? this.scrollbar.value : 0;
+	
+	if (this.fillFromTop == true){	
+		for(var f = 0 ; f < this.lines.length ; f++){	
+			if (this.textLines[f+sboffset])
+				this.lines[f].text = this.textLines[f+sboffset];
+			else	
+				this.lines[f].text =""
+		}
+	}
+	else{
+		var index = this.textLines.length-1;
+		for(var f = this.lines.length -1; f>-1 ; f--){			
+		this.lines[f].text = this.textLines[index];
+			index --;
+			if (index == -1)
+				break;		
+		}
+	}
+}
+TextBox.prototype.deleteSelectedRow = function () {
+	this.textLines.remove(this.selectedRow)
+	
+	if (this.textLines[this.selectedRow])
+		this.selectedText=this.textLines[this.selectedRow]
+	else
+		this.selectedText ="";
+	this.lineArrayToHooks();
+	this.redrawHooks();
+
+}
+TextBox.prototype.moveSelectedRow = function (dir) {//1=down;	
+	var temp = this.textLines[this.selectedRow];	
+	if (dir == 1){ //1=down;	
+		this.textLines.remove(this.selectedRow)
+		this.textLines.splice(this.selectedRow+1,0,temp)
+		this.selectedRow ++;
+		this.selectedText=this.textLines[this.selectedRow];
+	}
+	if (dir == -1 && this.selectedRow >0){
+		this.textLines.remove(this.selectedRow)
+		this.textLines.splice(this.selectedRow-1,0,temp)
+		this.selectedRow =this.selectedRow -1
+		this.selectedText=this.textLines[this.selectedRow];	
+	}
+	print (this.textLines.toSource());
+	this.lineArrayToHooks();
+	this.redrawHooks();
+
+}
+
+function DP(text){
+sendCopyData(null, "OOG", 0,text+" ")
+}
+TextBox.prototype.addLine = function (text) {
+this.textLines.push(text)
+//print(this.textLines.toSource())
+this.scrollbar.max =this.textLines.length - this.lines.length;
+this.lineArrayToHooks();
+
+}
+function ScrollBar(x, y,length,backColor,forColor,initalValue) {
+ 	//text "text",x,y,color,font,alingment
+ this.x = x; 
+ this.y = y; 
+ this.verticle = true;
+ this.length = length;
+ this.xSize = (this.verticle) ?  15 :length  ;
+ this.ySize = (this.verticle) ?  length :15  ;
+ 
+ this.boxSize = 10;
+ this.backColor = backColor
+ this.forColor = forColor
+ this.weight = 15 //thickness
+ this.dragMode=false;
+ this.value =0;
+ this.max = 100;
+ this.bigChange = 5;
+ this.visible = true;
+ this.parent =false;
+
+ // this.textHook = new Text(this.text1,this.x ,this.y+this.ySize,this.textColor,this.font,1)
+  this.topBox = new Box(this.x,this.y,this.weight,this.weight,this.backColor,2)
+  this.botBox = new Box(this.x,this.y+this.ySize-this.weight,this.weight,this.weight,this.backColor,2)
+  this.scrollBox = new Box(this.x,this.y+this.weight+1,this.weight,this.ySize -(this.weight *2),this.backColor,1)
+  this.uptext=new Text(String.fromCharCode(47,92),this.x+3,this.y+15,this.forColor,5)
+  this.downtext = new Text(String.fromCharCode(92,47),this.x+3,this.y+this.ySize,this.forColor,5)
+  this.slider = new Text("=",this.x+1, this.y+(this.ySize/2),this.forColor,5)
+	this.watch("visible", function(id,oldval,newval) {
+			this.visible = newval;
+	this.update();	
+	return newval;
+	});
+	this.watch("value", function(id,oldval,newval) {
+		if (newval <0)
+			newval=0;
+		if (newval > this.max)
+			newval = this.max;
+			
+		this.value = newval;
+		this.update();	
+		if (this.parent){			
+			this.parent.scrollIndex=this.index;
+		}
+	return newval;
+	});
+	this.watch("dragMode", function(id,oldval,newval) {					
+		this.dragMode = newval;		
+	return newval;
+	});
+	this.watch("x", function(id,oldval,newval) {					
+		this.x = newval;	
+		this.update();			
+	return newval;
+	});
+	this.watch("y", function(id,oldval,newval) {					
+		this.y = newval;	
+		this.update();			
+	return newval;
+	});
+	this.watch("backColor", function(id,oldval,newval) {					
+		this.backColor = newval;	
+		this.update();			
+	return newval;
+	});
+	this.watch("forColor", function(id,oldval,newval) {					
+		this.forColor = newval;	
+		this.update();			
+	return newval;
+	});
+	this.watch("bigChange", function(id,oldval,newval) {					
+		this.bigChange = newval;	
+		this.update();			
+	return newval;
+	});
+	this.watch("max", function(id,oldval,newval) {					
+		this.max = newval;	
+		this.update();			
+	return newval;
+	});
+	this.update = function(){
+		this.xSize = (this.verticle) ? 15: this.length;
+		this.ySize = (this.verticle) ?  this.length :15 ;
+ 
+	//this.topBox = new Box(this.x,this.y,this.weight,this.weight,this.backColor,2)
+	this.topBox.visible=this.visible;
+	this.topBox.x=this.x;
+	this.topBox.y=this.y;
+	this.topBox.ysize =this.weight;
+	this.topBox.xsize=this.weight;
+	this.topBox.color=this.backColor;
+	//this.botBox = new Box(this.x,this.y+this.ySize-this.weight,this.weight,this.weight,this.backColor,2)	
+	this.botBox.visible=this.visible;	
+	this.botBox.x= (this.verticle) ? this.x : this.xSize +this.x -this.weight
+	this.botBox.y= (this.verticle) ? this.y+this.ySize-this.weight : this.y ;
+	this.botBox.ysize =this.weight;
+	this.botBox.xsize=this.weight;
+	this.botBox.color=this.backColor;	
+	//this.scrollBox = new Box(this.x,this.y+this.weight+1,this.weight,this.ySize -(this.weight *2),this.backColor,1)
+	this.scrollBox.visible=this.visible;
+	this.scrollBox.x= (this.verticle) ? this.x : this.x +this.weight
+	this.scrollBox.y=(this.verticle) ? this.y+this.weight : this.y;
+	this.scrollBox.ysize=(this.verticle) ? this.ySize-(this.weight *2):this.weight;
+	this.scrollBox.xsize=(this.verticle) ? this.weight: this.xSize-(this.weight *2)
+	this.scrollBox.color = this.backColor;
+	
+	//this.uptext=new Text(String.fromCharCode(47,92),this.x+3,this.y+15,this.forColor,5)
+	this.uptext.visible=this.visible;
+	this.uptext.x=this.x+3;
+	this.uptext.y=(this.verticle) ? this.y+15 : this.y+17;
+	this.uptext.color =this.forColor;
+	this.uptext.text = (this.verticle) ? String.fromCharCode(47,92) : "<";	
+	 //this.downtext = new Text(String.fromCharCode(92,47),this.x+3,this.y+this.ySize,this.forColor,5)	
+	this.downtext.visible=this.visible;
+	this.downtext.x= (this.verticle) ? this.x+3: this.x+this.xSize- this.weight;
+	this.downtext.y=(this.verticle) ? this.y+this.ySize: this.y+this.weight+2;
+	this.color=this.forColor;
+	this.downtext.text = (this.verticle) ? String.fromCharCode(92,47) : ">";
+	//this.slider = new Text("=",this.x+1, this.y+(this.ySize/2),this.forColor,5)
+	if (this.value <0)
+		this.value=0;
+	if (this.value > this.max)
+		this.value = this.max;
+	this.slider.visible=this.visible;
+	this.slider.x= (this.verticle) ? this.x : this.x+this.weight+parseInt(this.value*this.scrollBox.xsize/this.max) -4 
+	this.slider.y=(this.verticle) ? this.y+this.weight+parseInt(this.value*this.scrollBox.ysize/this.max) +8 : this.y+this.weight
+	this.slider.text = (this.verticle) ? "=" : "|"
+	this.color=this.forColor;
+	
+	}
+		
+	GlobalVScrollArray.push (this);
+	
+	
+}
+function SliderWText(x, y,text,maxVal,initVal,txtColor,backColor) {
+	this.x=x;
+	this.y=y;
+	this.backColor = (backColor) ? backColor : 18;  //2 = gray
+	this.textColor = (txtColor) ? txtColor :13;
+	this.font=6;
+	this.value =initVal;
+	this.text = text;
+	this.maxVal = maxVal;
+	this.visible = true;
+	this.infoText = new Text(this.text,this.x,this.y,this.textColor,this.font,3)
+//function ScrollBar(x, y,length,backColor,forColor,initalValue) {
+	this.slider= new ScrollBar( this.x,this.y,115,this.backColor,this.textColor,this.value)
+	this.slider.max =this.maxVal;
+	this.slider.verticle=false; this.slider.value =initVal;
+	//this.valueText = new Text("boobs",this.x+120,this.y,this.textColor,this.font,1)
+this.scrollIndex =this.value;
+this.slider.parent = this;
+this.slider.update();
+this.infoText.text =this.text +": "+this.slider.value ;
+this.watch("scrollIndex", function(id,oldval,newval) {		
+		this.scrollIndex = this.slider.value;	
+		this.value = this.slider.value;
+		this.infoText.text =this.text +": "+this.slider.value ;
+		return newval;
+		});	
+this.watch("visible", function(id,oldval,newval) {		
+		this.visible = newval;	
+		this.slider.visible=this.visible;
+		this.infoText.visible=this.visible;		
+		return newval;
+		});		
+}
+function DropDownBox(x, y,text,txtColor,backColor,textList,heading) {
+this.x=x;
+this.head=(heading)?heading :"testing ";
+this.y=y;
+this.text=text;
+this.textColor=txtColor;
+this.backColor=this.backColor;
+this.font = 6;
+this.visible = true;;
+this.textList=(textList)? textList :[];
+this.droped = false;
+this.autoWide =getTextWidthHeight(text,this.font)[0]+5;
+
+for (var j = 0; j < this.textList.length; j++){
+	if (getTextWidthHeight(this.textList[j],this.font)[0]+5 > this.autoWide)
+		this.autoWide = getTextWidthHeight(this.textList[j],this.font)[0]+5;
+}
+this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
+this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
+this.dropDown.parent = this;
+	this.dropDown.clickFunction  = function(){
+		this.parent.droped = !this.parent.droped
+		this.parent.update();
+	}
+
+this.topText = new TextBox(this.x,this.y,this.autoWide,getTextWidthHeight(text,this.font)[1],this.text,this.textColor,this.backColor)
+	
+this.listbox = new TextBox(this.x,this.y+getTextWidthHeight(text,this.font)[1],this.autoWide,100," ");
+
+
+
+
+this.listbox.visible=false;
+this.listbox.listboxMode = true;
+this.listbox.selectedRow = 0; this.listbox.selectedText=this.listbox.textLines[this.listbox.selectedRow];
+this.listbox.textLines =this.textList;
+this.listbox.parent = this;
+
+this.watch("visible", function(id,oldval,newval) {		
+		this.visible = newval;	
+		this.update();
+		return newval;
+		});		
+
+
+GlobalDropDownArray.push(this)
+}
+DropDownBox.prototype.childUpate = function () {	
+		if (this.topText.text != this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value]){
+			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];		
+			this.listbox.visible = false;
+		}
+}
+DropDownBox.prototype.update = function () {
+	this.headText.visible= this.visible;
+	this.topText.visible = this.visible;
+	this.dropDown.visible = this.visible;
+	this.listbox.visible = (this.visible && this.droped);
+}

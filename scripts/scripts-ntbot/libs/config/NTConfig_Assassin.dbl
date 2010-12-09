@@ -1,0 +1,245 @@
+if(!isIncluded("config/NTConfig.dbl")) include("config/NTConfig.dbl");
+
+
+NT_logItems=true;
+NT_LoggingMaxLines=1000000;  //item log cap
+bobDebug = false; 			 //debugs to oog
+NT_MinGameTime=0;  			 //in seconds to wait in town if runs finishs too quick
+function NT_LoadConfig()
+{
+	//--------------------------------------------------------------------------------------
+	// Boss configuration:
+	// For each boss you want to run below, remove the // from the beginning on the line
+	// If there is a boss that you DO NOT want to do, then add the //
+	// NOTE: Only add, or remove the // from the beginning of the line (NOWHERE ELSE)
+	//--------------------------------------------------------------------------------------
+	// Pay close attention to the act 5 bosses.  Pindle and nihl can get confusing
+	// Read the notes to the right of these bosses
+	//--------------------------------------------------------------------------------------
+
+
+	NTConfig_PublicMode = true;			// Set to false to not party
+	NT_Leader.push("");				// Enter the character name of the leader (Exact Spelling)
+	NT_LeechType = 2;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner
+	
+	//NTConfig_Script.push("Leech"); NTConfig_KillBaal = true; //baal leaching script (enters as soon as portal is made)
+	//NTConfig_Script.push("LeechD"); 		// chaos helper
+
+	//NTConfig_Script.push("Gamble")  		// 1.13 ptr gamble bot
+	
+	SimonNextLevel = 109; 	// keypad -
+	SimonPOI = 106;			// keypad *
+	SimonPrevousLevel = 111;// keypad /
+	SimonEscToTown = 69;	// key "e"
+	SimonEnableSnagging = true;
+	SimonAutoReveal = false;
+	SimonStopLifeWatch = false;
+	SimonEnableCommands = true;  // obey commands like "Rush Me","Rush 1","Get Wps" from chat.
+	NTConfig_Script.push("SimonSays")
+
+	//---------------
+	// Act 1 bosses 
+	//---------------
+
+	//NTConfig_Script.push("Mausoleum");		// In the Buriel Grounds Next to Blood Raven in a1
+
+	//NTConfig_Script.push("Countess");
+
+	//NTConfig_Script.push("Pit"); 			// Tomahoe Islands a1
+		NTConfig_ClearPitLevel1 = true; 
+
+	//NTConfig_Script.push("BoneAsh");		// Located in the cathedral in a1
+	
+	//NTConfig_Script.push("Andariel");
+
+	//---------------
+	// Act 2 bosses 
+	//---------------
+
+	//NTConfig_Script.push("AncientTunnels");	// Found in the Lost City in a2
+
+	//NTConfig_Script.push("Summoner");
+		NTConfig_FireEyeExtension = true
+
+	//NTConfig_Script.push("Duriel");
+
+	//NTConfig_Script.push("ClawViper"); 		// This run is DANGEROUS, However can be a good way to waste time if you set it to false.
+		NTConfig_KillFangskin = true 
+
+	//---------------
+	// Act 3 bosses 
+	//---------------
+
+	//NTConfig_Script.push("Mephisto"); 		// Kills Council on Durance of Hate Level 3
+		NTConfig_CouncilExtension = true; 
+
+	//NTConfig_Script.push("Travincal");
+
+	//---------------
+	// Act 4 bosses 
+	//---------------
+	
+	//NTConfig_Script.push("Izual");		// This run can be dangerous, make sure you have lighting resist or absorb
+
+	//NTConfig_Script.push("Hephasto");		// Hell Forge
+
+	//NTConfig_Script.push("FastDiablo");		// This will rush seals
+
+	//NTConfig_Script.push("Diablo");		// Full Chaos (DO NOT confuse with fast Diablo)
+		DiabloTPMsg = "Hot TP";	
+		KillingDiabloMsg = "Killing Diablo"; 
+		DiabloNewGameMsg = "Baal Time";
+	
+	//---------------
+	// Act 5 bosses 
+	//---------------
+	
+	//NTConfig_Script.push("WPpindle");		// This will try WP and if not exist it will try Portal
+
+	//NTConfig_Script.push("Pindleskin"); 		// This is WITHOUT the WP and with red portal ONLY
+		NTConfig_NihlathakExtension = true; 
+
+	//NTConfig_Script.push("Nihlathak"); 		// without red portal and with WP
+		NTConfig_PindleskinExtension = true; 
+
+	//NTConfig_Script.push("Eldritch"); 
+		NTConfig_ShenkExtension = true; 
+		NTConfig_DacFarrenExtension = true ;
+
+	//NTConfig_Script.push("ThreshSocket");		// End of Arreat Plateau
+
+	//NTConfig_Script.push("Frozenstein");		// Super Unique next to Frozen Anya a5
+
+	//NTConfig_Script.push("Baal"); 
+		NTConfig_KillBaal = true; 
+		BaalTPMsg = "Hot TP"; 
+		BaalTPSafeMsg = "1 safe";	
+		KillBaalMsg = "Baal!"; 
+		BaalNextGameMsg = "Next Game!";
+
+
+	//-------------------------------------------------------------------------------------------------
+	// Potion, Merc, and Chicken Settings:
+	// For the most part, the below settings should be self explanatory.
+	// For the life settings "80" would represent 80% life
+	//-------------------------------------------------------------------------------------------------
+
+	NT_PickUtility = false;		// tries to fill belt and tombs with pickit
+	FastSnag =false;		// picks after each attack. based on itemdrop event
+	NTConfig_StartDelay = 0;	// Delay time in milliseconds to start;
+	NTConfig_AreaDelay = 500;	// Delay time in milliseconds to change area;
+	NTConfig_SnagDelay = 500;	// Delay time in milliseconds to wait before starting picking items
+
+	NTConfig_SkipHealLife = 90;	// If you have more than this percent of life, you won't go to a healer
+	NTConfig_SkipHealMana = 70;	// If you have more than this percent of mana, you won't go to a healer
+	NTConfig_SkipHealCurses = false;// If you want to skip curses, set to true
+	NTConfig_UseMerc = true;	// Set to true if you use a mercenary, will revive merc at a reviver npc.
+	NTConfig_ResetWeapon = false;	// Set to true to reset weapon when reviving merc
+
+	NTConfig_LifeThresh = 80;	// Drink a normal potion if under this percent of life.
+	NTConfig_LifeRejuvThresh = 65;	// Drink a rejuvenation potion if under this percent of life.
+	NTConfig_ManaThresh = 0;	// Drink a normal potion if under this percent of mana.
+	NTConfig_ManaRejuvThresh = 0;	// Drink a rejuvenation potion if under this percent of mana.
+	NTConfig_LifeChicken = 50;	// This is your chicken life percent. If you go below this life total, exit game.
+	NTConfig_ManaChicken = 0;	// This is your chicken mana percent. If you go below this mana total, exit game.
+
+	NTConfig_MercLifeThresh = 30;	// This is the threshold to use a life potion on your merc in percent.
+	NTConfig_MercRejuvThresh = 0;	// This is the threshold to use a rejuv potion on your merc in percent.
+	NTConfig_MercChicken = 0;	// This is your mercs chicken life percent. If he goes below this, exit game.
+
+	NTConfig_FreeSpace = 4;		// Number of free columns. If less full columns are free stashing is set.
+
+	// The numbers correspond to your inventory. Set 0 to keep whatever is there, 1 to stash it.
+	NTConfig_Columns[0] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[1] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[2] = [1,1,1,1,0,0,0,0,0,0];
+	NTConfig_Columns[3] = [1,1,1,1,0,0,0,0,0,0];
+
+	NTConfig_MinGoldToStash = 100000;	// Maximum gold amount carried before going to stash
+
+	//----------------------------------------------------------------------------------------------
+	// Type of potion used in each belt column
+	// Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too.
+	// Keep equal types at adjacent columns. First HP then MP and then HP again is a bad choice.
+	// Keep HP and MP at the beginning of the belt (in case you want to use rejuv and other types).
+	// Rejuvenations MUST, I REPEAT MUST be at the end of the belt (last x columns).
+	// To use rejuvenations only, put "rv" in all columns.
+	//----------------------------------------------------------------------------------------------
+	NTConfig_BeltColType[0] = "hp";
+	NTConfig_BeltColType[1] = "mp";
+	NTConfig_BeltColType[2] = "rv";
+	NTConfig_BeltColType[3] = "rv";
+
+	//----------------------------------------------------------------------------
+	// Minimum amount of potions in each column before needing refilling
+	// If there's less potions then this number in the column we go and shop.
+	// Set to 4 to go shopping as soon as there's a potion missing.
+	// Recommend leaving columns set to "rv" at 0. Since shops won't carry rejuvs.
+	//----------------------------------------------------------------------------
+	NTConfig_BeltColMin[0] = 4;
+	NTConfig_BeltColMin[1] = 4;
+	NTConfig_BeltColMin[2] = 0;
+	NTConfig_BeltColMin[3] = 0;
+
+	//-----------------------------------------------------------------------------------
+	// SnagIt configuration
+	// Here is a list of preset nip files assuming you use nip package.
+	// If you want to add your own .nip files, just copy any line and enter the
+	// To disable a .nip file, just add "//" at the start of the line or delete the line.
+	//-----------------------------------------------------------------------------------
+	NTConfig_NIPFilePath.push("uniques.nip");
+	NTConfig_NIPFilePath.push("sets.nip");
+	NTConfig_NIPFilePath.push("whites.nip");
+	NTConfig_NIPFilePath.push("runes.nip");
+	NTConfig_NIPFilePath.push("rares.nip");
+	NTConfig_NIPFilePath.push("magics.nip");
+	NTConfig_NIPFilePath.push("gems.nip");
+	NTConfig_NIPFilePath.push("charmsjewels.nip");
+	NTConfig_NIPFilePath.push("ringsamulets.nip");
+	NTConfig_NIPFilePath.push("potions.nip");
+	//NTConfig_NIPFilePath.push("moneymaker.nip");
+	NTConfig_NIPFilePath.push("keys.nip");
+	NTConfig_NIPFilePath.push("RuneWords.nip");
+
+	NTConfig_SnagRange = 40;	// Radius to check for dropped items. 40 is a good number here
+
+	//------------------------------------------------------------------------------
+	// GambleIt configuration
+	// To specify what items to gamble, adjust the array with the desired item codes
+	//------------------------------------------------------------------------------
+	NTConfig_GambleIt = true;		// Enable gambling
+	NTConfig_GambleStopGold = 300000;	// Gold amount to stop the gambling
+
+	NTConfig_GambleItem.push("rin");	// Rings
+	NTConfig_GambleItem.push("amu");	// Amulets
+	NTConfig_GambleItem.push("ci0");	// Circlets
+	NTConfig_GambleItem.push("ci1");	// Coronets
+	//NTConfig_GambleItem.push("lgl");	// Leather Gloves
+	//NTConfig_GambleItem.push("vgl");	// Heavy Gloves
+	//NTConfig_GambleItem.push("mgl");	// Chain Gloves
+	//NTConfig_GambleItem.push("tgl");	// Light Gauntlets
+	//NTConfig_GambleItem.push("hgl");	// Gauntlets
+
+	NTConfig_OpenChest = true;	// Set to true to open chest
+
+	//------------------------------------------------------------------------------
+	// Attack configuration
+	//------------------------------------------------------------------------------
+	
+	NTConfig_AttackSkill[0] = 253;		// Cast your first spell once. Set to 0 if you won't
+	NTConfig_AttackSkill[1] = 256;		// The primary skill used to attack the boss.
+	NTConfig_AttackSkill[2] = 256;		// Cast your primary spell to others.
+	NTConfig_AttackSkill[3] = 256;		// Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't
+	NTConfig_AttackSkill[4] = 0;		// Secondary untimed skill if boss is immune to primary untimed skill!
+	NTConfig_AttackSkill[5] = 0;		// Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
+	
+	NTConfig_ClearPosition = true;		// Set this to "True" if you want the bot to clear the area after killing the boss
+	NTConfig_CheckSafe = false;		// Set to true to check for curses, merc and potion (go to town if needed)
+	NTConfig_UseTraps = true;			// traps are hardcoded for 3 light sentrys and 2 death sentrys and do not need to be set with skills
+	NTConfig_CastShadowMaster = true;	// Set to "true" if bot uses "Shadow Mastera".
+	NTConfig_CastShadowWarrior = false;	// Set to "true" if bot uses "Shadow Warrior".
+	NTConfig_CastBrustOfSpeed = false;	// Set to "true" if bot uses "Brust Of Speed" Cannot be used simultaneously with fade.
+	NTConfig_CastFade = true;		// Set to "true" if bot uses "Fade" cannot be used simultaneously with burst of speed".
+	NTConfig_CastBladeShield = true;	// Set to "true" if bot uses "Blade Shield".
+	NTConfig_CastCloakOfShadows = true;	// Set to "true" if bot uses "Cloak Of Shadows".
+}

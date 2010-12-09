@@ -1,0 +1,221 @@
+/*
+	dump base stats
+	by njaguar
+*/
+
+
+include("baseStats/base_items.d2l")
+include("baseStats/base_monstats.d2l")
+include("baseStats/base_skilldesc.d2l")
+include("baseStats/base_skills.d2l")
+include("baseStats/base_objects.d2l");
+include("baseStats/base_missiles.d2l");
+include("baseStats/base_monstats2.d2l");
+include("baseStats/base_itemstatcost.d2l");
+include("baseStats/base_levels.d2l");
+include("baseStats/base_leveldefs.d2l");
+include("baseStats/base_lvlmaze.d2l");
+include("baseStats/base_lvlsub.d2l");
+include("baseStats/base_lvlwarp.d2l");
+include("baseStats/base_lvlprest.d2l");
+include("baseStats/base_lvltypes.d2l");
+include("baseStats/base_charstats.d2l");
+include("baseStats/base_setitems.d2l");
+include("baseStats/base_uniqueitems.d2l");
+include("baseStats/base_sets.d2l");
+include("baseStats/base_itemtypes.d2l");
+include("baseStats/base_runes.d2l");
+include("baseStats/base_cubemain.d2l");
+include("baseStats/base_gems.d2l");
+include("baseStats/base_experience.d2l");
+include("baseStats/base_pettype.d2l");
+include("baseStats/base_superuniques.d2l");
+
+var mazeentries = [8,9,10,11,12,0,13,14,15,16,18,19,21,22,23,24,25,28,29,30,31,34,35,36,37,47,48,49,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,74,84,85,86,87,88,89,90,91,92,93,100,101,107,113,115,118,114,116,119,122,123,125,126,127,128,129,130,132];
+
+var dumpBaseStats = true;
+var dumpRunewords = true;
+var dumpCubeRecipes = true;
+
+function main() {
+	print("Dumping base stats...");
+
+	if(dumpBaseStats) {
+		dbs(0, "items", D2JSP_BASE_ITEMS_NAMES, 0 , 2000);
+		dbs(1, "monstats", D2JSP_BASE_MONSTATS_NAMES, 0 , 2000);
+		dbs(2, "skilldesc", D2JSP_BASE_SKILLDESC_NAMES, 0 , 400);
+		dbs(3, "skills", D2JSP_BASE_SKILLS_NAMES, 0 , 1000);
+		dbs(4, "objects", D2JSP_BASE_OBJECTS_NAMES, 0 , 1000);
+		dbs(5, "missiles", D2JSP_BASE_MISSILES_NAMES, 0, 1000);
+		dbs(6, "monstats2", D2JSP_BASE_MONSTATS2_NAMES, 0, 1000);
+		dbs(7, "itemstatcost", D2JSP_BASE_ITEMSTATCOST_NAMES, 0, 359);
+		dbs(8, "levels", D2JSP_BASE_LEVELS_NAMES, 1, 133);
+		dbs(9, "leveldefs", D2JSP_BASE_LEVELDEFS_NAMES, 1, 133);
+		dbs(10, "lvlmaze", D2JSP_BASE_LVLMAZE_NAMES, 0, 133);
+		dbs(11, "lvlsub", D2JSP_BASE_LVLSUB_NAMES, 0, 13);
+		dbs(12, "lvlwarp", D2JSP_BASE_LVLWARP_NAMES, 0, 71);
+		dbs(13, "lvlprest", D2JSP_BASE_LVLPREST_NAMES, 0, 1090);
+		dbs(14, "lvltypes", D2JSP_BASE_LVLTYPES_NAMES, 0, 36);
+		dbs(15, "charstats", D2JSP_BASE_CHARSTATS_NAMES, 0, 7);
+		dbs(16, "setitems", D2JSP_BASE_SETITEMS_NAMES, 0, 300);
+		dbs(17, "uniqueitems", D2JSP_BASE_UNIQUEITEMS_NAMES, 0, 900);
+		dbs(18, "sets", D2JSP_BASE_SETS_NAMES, 0, 300);
+		dbs(19, "itemtypes", D2JSP_BASE_ITEMTYPES_NAMES, 0, 1000);
+		dbs(20, "runes", D2JSP_BASE_RUNES_NAMES, 0, 2000);
+		dbs(21, "cubemain", D2JSP_BASE_CUBEMAIN_NAMES, 0, 2000);
+		dbs(22, "gems", D2JSP_BASE_GEMS_NAMES, 0, 1000);
+		dbs(23, "experience", D2JSP_BASE_EXPERIENCE_NAMES, 0, getBaseStat(23,0,0) );
+		dbs(24, "pettype", D2JSP_BASE_PETTYPE_NAMES, 0, 200 );
+		dbs(25, "superuniques", D2JSP_BASE_SUPERUNIQUES_NAMES, 0, 200 );
+	}
+	
+	if(dumpRunewords) buildRunewords();
+	if(dumpCubeRecipes) buildCupeRecipes();
+	
+	print("All done.");
+}
+
+function buildRunewords() {
+//Eld Rune	Eld	979	2	18	101	0	100	100	99	0	150	150	-1	0	0	0	116	0	30	30	-1	0	0	0	-1	0	0	0	16	0	14	14	-1	0	0	0	-1	0	0	0
+	print("Now building runeword list");
+	file = fileOpen( "output//dbs_runeword_list.txt", 1 );
+	if(file) {
+		for(i=0;i<2000;i++) {
+			line = "";
+			statval = getBaseStat( 20, i, 1 );
+			if(statval != undefined) {
+				line = statval + " = ";
+				cats = "";
+				for(j=4;j<10;j++) {
+					cat = getBaseStat( 20, i, j );
+					if(cat!=0) cats += (cats==""?"":", ") + getBaseStat(19, cat, 0);
+				}
+				line += "[" + cats + "] ";
+				runes = "";
+				for(j=13;j<19;j++) {
+					statval = getBaseStat( 20, i, j );
+					if(statval!=-1) runes += (runes==""?"":", ") + String(getLocaleString( getBaseStat( 0, statval, D2JSP_BASE_ITEMS_NAMESTR ) ) ).replace(/\xff+(c.)/g, "");
+				}
+				line += runes;
+			}
+			if(line!="") file.writeLine(line);
+			file.flush();
+		}
+		file.close();
+	}
+	print("Runeword build complete.");
+}
+
+var qualities=["","Low Quality","Normal","Superior","Magic","Set","Rare","Unique","Tempered"];
+var itypes=["Normal","Exceptional","Elite"];
+
+var outputTypes=[];
+outputTypes[252]="252";
+outputTypes[253]="253";
+outputTypes[254]="Use Item";
+outputTypes[255]="Use Type";
+
+function buildCupeRecipes() {
+	print("Now building cube recipe list");
+	file = fileOpen( "output//dbs_cuberecipes_list.txt", 1 );
+	if(file) {
+		for(i=0;i<2000;i++) {
+			line = "";
+			statval = getBaseStat( 21, i, 0 );
+			if(statval != undefined) {
+				line = (statval==0 ? "[D]" : "[E]") + "\t";
+				line += "Total Items: " + getBaseStat( 21, i, 7 ) + "\t";
+				
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_2_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_3_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_4_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_5_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_6_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_7_ITEM_CODE_FLAG );
+				
+				oflag = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS);
+				oqual = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_QUALITY);
+				oitype = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_TYPE);
+				oitem = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM);
+				otype = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_TYPE);
+				
+				line += " = " + (oqual!=0 ? qualities[oqual] + " " : "");
+				
+				if(oitype!=0) line += itypes[oitype] + " ";
+				
+				if(otype==252) {
+					line += String( getLocaleString( getBaseStat(0, oitem, D2JSP_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
+				} else {
+					line += outputTypes[otype];
+				}
+//				line += "," + oitype + "," + oflag;
+/*
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS = 100;
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_ID = 103;
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_QUANTITY = 105;
+var D2JSP_BASE_CUBEMAIN_LVL = 107;
+var D2JSP_BASE_CUBEMAIN_PLVL = 108;
+var D2JSP_BASE_CUBEMAIN_ILVL = 109;
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_PREFIX_ID = 110;
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_UNKNOWN = 111;
+var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_SUFFIX_ID = 112;
+*/
+			}
+			if(line!="") file.writeLine(line);
+			file.flush();
+		}
+		file.close();
+	}
+	print("Cube recipe build complete.");
+}
+
+function buildCubeComponent( _i, _flag ) {
+	useCode = getBaseStat( 21, _i, _flag );
+	icode = getBaseStat( 21, _i, _flag+9 );
+	iquant = getBaseStat( 21, _i, _flag+12 );
+	iqual = getBaseStat(21, _i, _flag+11 );
+	itype = getBaseStat(21, _i, _flag+8 );
+	retStr = "";
+	if(icode!=0) {
+		if(D2JSP_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG!=_flag) retStr = " + ";
+		if(itype!=0) retStr += itypes[itype] + " ";
+		if(iqual!=0) retStr += qualities[iqual] + " ";
+		if(useCode==0) {
+			retStr += "Category " + getBaseStat(19, icode, 0);
+		} else {
+			if(icode==65535) {
+				retStr += "Any";
+			} else {
+				retStr += String( getLocaleString( getBaseStat(0, icode, D2JSP_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
+			}
+		}
+		if(iquant!=0) retStr += " (x" + iquant + ")";
+	}
+	return retStr;	
+}
+
+function dbs( bstat, txt, arr, min, max ) {
+	print( "Now dumping '" + txt + "'" );
+	if(!max) max = 1250;
+	file = fileOpen( "output//dbs_" + txt + ".txt", 1);
+	if(file) {
+		header="";
+		for(i=0;i<arr.length;i++) header+=(header==""?"":"\t")+arr[i];
+		file.writeLine(header);
+		for(j=min;j<max;j++) {
+			line="";
+			for(i=0;i<arr.length;i++) {
+				statval = getBaseStat(bstat, j, i);
+				if(statval != undefined) {
+					if(bstat==1 && i==3) statval=getLocaleString(statval)+" ("+statval+")";
+					line+=(line==""?"":"\t")+statval;
+				}
+			}
+			if(line!="") file.writeLine(line);
+			file.flush();
+		}
+		file.close();
+	}
+}
+

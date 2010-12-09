@@ -1,0 +1,31 @@
+function NT_Frozenstein() {
+    print("ÿc3Starting Frozenstein Script");
+    if (!NTTM_CheckAct()) {
+        return false;
+    }
+    NTTMGR_TownManager();
+
+    print("ÿc8Going to Crystalline Passage");
+    if (!NTTM_TownMove("waypoint")) return false;
+    if (!NTM_UsePortal("Waypoint", 113)) {
+        print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Crystalline Passage");
+        NTM_TravelTO(113);
+        print("ÿc8Interacting with Waypoint as we don't have it.");
+        NTM_GotoWaypoint(113, true, 10000);
+    }
+    print("ÿc5Precasting");
+    NTP_DoPrecast();
+    print("ÿc8Going to Frozen River");
+    NTM_TravelTO(114);
+
+    if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 460, 460, -8, -8)) return false;
+
+    print("ÿc1Killing Frozenstein");
+    if (!NTA_KillBoss(getLocaleString(22504))) return false;
+
+    if (NTConfig_ClearPosition) NTA_ClearPosition();
+
+    NTSI_PickItems();
+
+    return true;
+}

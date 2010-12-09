@@ -1,0 +1,326 @@
+function NT_Diablo() {
+	print("ÿc3Starting Diablo Script");
+	if (!NTTM_CheckAct()) {
+		return false;
+	}
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to River of Flame");
+	if (!NTTM_TownMove("waypoint")) return false;
+	if (!NTM_UsePortal("Waypoint", 107)) {
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to River of Flame");
+		NTM_TravelTO(107);
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(107, true, 10000);
+	}
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	print("ÿc8Going to Chaos Sanctuary");
+	if (!NTM_MoveTo(7797, 5600)) return false;
+	if (!NTM_TeleportTo(7797, 5560)) return false;
+
+	if (NTConfig_PublicMode) {
+		var _attackpos = [7792, 5525, 7793, 5501, 7773, 5495, 7768, 5480, 7767, 5458, 7770, 5438, 7774, 5417, 7767, 5391, 7768, 5369, 7769, 5345, 7770, 5320, 7780, 5308];
+
+		if (!NTM_MoveTo(7790, 5544)) return false;
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+
+		NTM_MoveTo(7790, 5544);
+
+		NTC_PingDelay(1000);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+
+		NTM_MoveTo(7790, 5544);
+
+		NTM_MakeTP();
+		say(DiabloTPMsg);
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTC_Delay(1000);
+		NTM_MoveTo(7790, 5544);
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTC_Delay(1000);
+		print("ÿc5Precasting for party members benifit.");
+		NTP_DoPrecast();
+
+		NTA_ClearRooms(false,7828,5320,7760,5573)
+		
+		NTT_CleanPotions();
+	}
+
+	if (!NT_OpenSealsInt()) return false;
+
+	if (NTConfig_PublicMode) say(KillingDiabloMsg);
+
+	NTT_CleanPotions();
+
+	if (!NTM_MoveTo(7800, 5294)) return false;
+
+	if (NTConfig_CheckSafe) {
+		if (!NTTMGR_CheckSafe(3)) return false;
+	}
+
+	
+	NTC_DoCast(112, 2);
+	NTC_DoCast(112, 2);
+	NTC_DoCast(112, 2);
+	NTC_Delay(250);
+	print("ÿc1Killing Diablo");
+	if (!NTA_KillBoss(243)) //diablo
+	return false;
+
+	NTSI_PickItems();
+
+	if (NTConfig_PublicMode) say(DiabloNewGameMsg);
+
+	return true;
+}
+
+function NT_OpenSealsInt() {
+	var _unit;
+	var _result;
+
+	_unit = NTC_GetPresetUnits(NTC_UNIT_OBJECT, 396);
+
+	if (!_unit) return false;
+
+	if (_unit[0].roomy * 5 + _unit[0].y == 5275) _result = NT_OpenVizierSealInt(1);
+	else _result = NT_OpenVizierSealInt(2);
+
+	if (!_result) return false;
+
+	NTT_CleanPotions();
+
+	_unit = NTC_GetPresetUnits(NTC_UNIT_OBJECT, 394);
+
+	if (!_unit) return false;
+
+	if (_unit[0].roomx * 5 + _unit[0].x == 7773) _result = NT_OpenDeSeisSealInt(1);
+	else _result = NT_OpenDeSeisSealInt(2);
+
+	if (!_result) return false;
+
+	NTT_CleanPotions();
+
+	NTP_DoPrecast();
+
+	_unit = NTC_GetPresetUnits(NTC_UNIT_OBJECT, 392);
+
+	if (!_unit) return false;
+
+	if (_unit[0].roomx * 5 + _unit[0].x == 7893) _result = NT_OpenVenomSealInt(1);
+	else _result = NT_OpenVenomSealInt(2);
+
+	return _result;
+}
+
+function NT_OpenVizierSealInt(type) {
+	var i, n;
+	var _attackpos = [7740, 5300, 7740, 5280, 7720, 5280, 7720, 5300];
+
+	for (i = 0; i < _attackpos.length; i += 2) {
+		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+	}
+
+	for (i = 0; i < 3; i++) {
+		if (type == 1) {
+			NT_OpenSealInt(395, 7654, 5310);
+			NT_OpenSealInt(396, 7659, 5277);
+
+			NTM_MoveTo(7665, 5277);
+		} else {
+			NT_OpenSealInt(395, 7650, 5276);
+			NT_OpenSealInt(396, 7651, 5310);
+		}
+
+		for (n = 0; n < 8; n++) {
+			NTC_Delay(250);
+
+			if (NTA_KillBoss(getLocaleString(2851))) //Grand Vizier of Chaos
+			{
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+
+				return NTM_MoveTo(7750, 5280);
+			}
+		}
+	}
+
+	return false;
+}
+
+function NT_OpenDeSeisSealInt(type) {
+	var i, n;
+	var _attackpos = [7780, 5255, 7800, 5255, 7800, 5235, 7780, 5235];
+
+	for (i = 0; i < _attackpos.length; i += 2) {
+		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+	}
+
+	for (i = 0; i < 3; i++) {
+		if (type == 1) {
+			NT_OpenSealInt(394, 7769, 5158);
+
+			NTM_MoveTo(7771, 5196);
+		} else {
+			NT_OpenSealInt(394, 7810, 5156);
+
+			NTM_MoveTo(7770, 5169);
+		}
+
+		for (n = 0; n < 8; n++) {
+			NTC_Delay(250);
+
+			if (NTA_KillBoss(getLocaleString(2852))) //Lord De Seis
+			{
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+
+				return NTM_MoveTo(7800, 5255);
+			}
+		}
+	}
+
+	return false;
+}
+
+function NT_OpenVenomSealInt(type) {
+	var i, n;
+	var _attackpos = [7835, 5280, 7835, 5300, 7855, 5300, 7855, 5280];
+
+	for (i = 0; i < _attackpos.length; i += 2) {
+		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+	}
+
+	for (i = 0; i < 3; i++) {
+		if (type == 1) {
+			NT_OpenSealInt(393, 7915, 5280);
+			NT_OpenSealInt(392, 7895, 5318);
+
+			NTM_MoveTo(7892, 5298);
+		} else {
+			NT_OpenSealInt(393, 7905, 5277);
+			NT_OpenSealInt(392, 7916, 5310);
+
+			NTM_MoveTo(7937, 5305);
+		}
+
+		for (n = 0; n < 8; n++) {
+			NTC_Delay(250);
+
+			if (NTA_KillBoss(getLocaleString(2853))) //"Infector of Souls"
+			{
+				NTSI_PickItems();
+
+				if (NTC_PutSkill(124, NTC_HAND_RIGHT)) NTC_PingDelay(1000);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+function NT_OpenSealInt(classid, x, y) {
+	var _seal;
+
+	NTM_MoveTo(x, y);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+		NTA_ClearPosition(35, 0x04);
+		NTA_ClearPosition(35);
+		NTA_ClearPosition();
+		NTSI_PickItems();
+
+	_seal = NTC_GetUnit(NTC_UNIT_OBJECT, classid);
+
+	if (!_seal) return false;
+
+	if (_seal.mode > 0) return true;
+
+	for (var i = 0; i < 4; i++) {
+		if ((i % 2) == 0) {
+			if (getDistance(me, _seal) > 2) NTM_MoveTo(_seal.x, _seal.y);
+
+			_seal.interact();
+		}
+
+		NTC_Delay(500);
+
+		if (_seal.mode > 0) return true;
+	}
+
+	return false;
+}

@@ -1,0 +1,57 @@
+function NT_Eldritch() {
+    print("ÿc3Starting Eldritch Script");
+    if (!NTTM_CheckAct()) return false;
+
+    NTTMGR_TownManager();
+    print("ÿc8Going to Frigid Highlands");
+    if (!NTTM_TownMove("waypoint")) return false;
+    if (!NTM_UsePortal("Waypoint", 111)) {
+        print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Frigid Highlands");
+        NTM_TravelTO(111);
+        print("ÿc8Interacting with Waypoint as we don't have it.");
+        NTM_GotoWaypoint(111, true, 10000);
+    }
+    print("ÿc5Precasting");
+    NTP_DoPrecast();
+    print("ÿc8Going to Eldritch");
+    if (!NTM_MoveTo(3750, 5085)) return false;
+    print("ÿc1Killing Eldritch");
+    if (NTA_KillBoss(getLocaleString(22500))) //"Eldritch"
+    {
+        if (NTConfig_ClearPosition) NTA_ClearPosition();
+        NTSI_PickItems();
+    }
+
+    else if (!NTConfig_ShenkExtension) return false;
+
+    if (NTConfig_ShenkExtension) {
+        print("ÿc3Starting Shenk Extension");
+        print("ÿc8Going to Shenk the Overseer");
+        if (!NTM_MoveTo(3876, 5120)) return false;
+        if (me.classid != NTC_CHAR_CLASS_PALADIN && me.classid != NTC_CHAR_CLASS_BARBARIAN) {
+            if (NTA_ClearPosition()) NTSI_PickItems();
+        }
+        if (NTConfig_CheckSafe) {
+            if (!NTTMGR_CheckSafe(2)) return false;
+        }
+        print("ÿc1Killing Shenk the Overseer");
+        if (!NTA_KillBoss(getLocaleString(22435))) //Shenk the Overseer
+        return false;
+        if (NTConfig_ClearPosition) NTA_ClearPosition();
+        NTSI_PickItems();
+    }
+
+    else if (!NTConfig_DacFarrenExtension) return false;
+
+    if (NTConfig_DacFarrenExtension) {
+        print("ÿc3Starting DacFarren Extension");
+        print("ÿc8Going to DacFarren");
+        if (!NTM_MoveTo(4507, 5115)) return false;
+        print("ÿc1Killing DacFarren");
+        if (!NTA_KillBoss(getLocaleString(22501))) //DacFarren
+        return false;
+        if (NTConfig_ClearPosition) NTA_ClearPosition();
+        NTSI_PickItems();
+    }
+    return true;
+}

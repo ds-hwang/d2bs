@@ -1,0 +1,42 @@
+function NT_Travincal() 
+{ 
+   print("ÿc3Starting Travinical Script"); 
+   if (!NTTM_CheckAct()) { 
+      return false; 
+   } 
+   NTTMGR_TownManager(); 
+
+   print("ÿc8Going to Travinical"); 
+   if (!NTTM_TownMove("waypoint")) return false; 
+   if (!NTM_UsePortal("Waypoint", 83)) { 
+      print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Travinical"); 
+      NTM_TravelTO(83); 
+      print("ÿc8Interacting with Waypoint as we don't have it."); 
+      NTM_GotoWaypoint(83, true, 10000); 
+   } 
+   print("ÿc5Precasting"); 
+   NTP_DoPrecast(); 
+   print("ÿc8Going to Council"); 
+       
+   NTM_GotoLevel(100,false); 
+   var ox=me.x; var oy=me.y; 
+      NTM_MoveTo(ox-6,oy+16); 
+   print("ÿc1Killing Council"); 
+   if (!NTA_KillBoss(getLocaleString(2860))) return false; //Toorc Icefist 
+   if (!NTA_KillBoss(getLocaleString(2862))) return false; //Geleb Flamefinger 
+   if (!NTA_KillBoss(getLocaleString(2863))) return false; //Ismail Vilehand 
+   NTA_ClearPosition(25); 
+      NTM_MoveTo(ox-18,oy+28); 
+   NTA_ClearPosition(25); 
+      NTM_MoveTo(ox-27,oy+16); 
+   NTA_ClearPosition(25); 
+      NTM_MoveTo(ox-27,oy-5); 
+   NTA_ClearPosition(25); 
+      NTM_MoveTo(ox-17,oy+9); 
+   NTA_ClearPosition(25); 
+      NTM_MoveTo(ox-18,oy+28); 
+   NTA_ClearPosition(35); 
+      NTSI_PickItems(); 
+       
+   return true; 
+} 

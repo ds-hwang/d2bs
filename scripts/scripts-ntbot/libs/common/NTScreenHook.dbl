@@ -1,0 +1,45 @@
+function NTSH_DrawText(obj, x, y, font, color, text)
+{
+	obj.x = x;
+	obj.y = y;
+	obj.font = font;
+	obj.color = color;
+	obj.text = text;
+	obj.enabled = true;
+}
+
+function NTSH_DrawTextRect(obj, x, y, width, height, font, color, text)
+{
+	var WidthHeight = getTextWidthHeight(text, font);
+
+	if(width > WidthHeight[0])
+		obj.x = x + Math.ceil((width-WidthHeight[0])/2);
+	else
+		obj.x = x;
+
+	if(height > WidthHeight[1])
+		obj.y = y + Math.ceil((height-WidthHeight[1])/2);
+	else
+		obj.y = y;
+
+	obj.font = font;
+	obj.color = color;
+	obj.text = text;
+	obj.enabled = true;
+}
+
+function NTSH_DrawBox(obj, x, y, width, height, color, transparent)
+{
+	obj.x = x;
+	obj.y = y;
+	obj.x2 = x + width - 1;
+	obj.y2 = y + height - 1;
+	obj.color = color;
+	obj.transparency = transparent;
+	obj.enabled = true;
+}
+
+function NTSH_ShowObject(obj, visible)
+{
+	obj.enabled = visible;
+}

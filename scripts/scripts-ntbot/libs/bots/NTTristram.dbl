@@ -1,0 +1,51 @@
+function NT_Tristram() {
+    print("ÿc3Starting Tristram script");
+  	if(!NTTM_CheckAct()) {
+		return false;
+	}
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Stoney Field");
+	if (!NTTM_TownMove("waypoint")) return false;
+	if (!NTM_UsePortal("Waypoint", 4)) {
+	print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Stoney Field");
+	NTM_TravelTO(4);
+	print("ÿc8Interacting with Waypoint as we don't have it.");
+	NTM_GotoWaypoint(4, true, 10000);
+	}
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	print("ÿc8Going to kill Rakanishu");
+	NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5)
+	print("ÿc8Killing Rakanishu");
+
+	if (NTA_KillBoss(getLocaleString(2872)))   //"Rakanishu" 
+	{
+	if (NTConfig_ClearPosition) NTA_ClearPosition();
+	NTSI_PickItems();
+	}
+        	print("ÿc8Going to Tristram");
+                    NTM_TravelTO(38)
+        	if (NTConfig_CheckSafe) {
+            	if (!NTTMGR_CheckSafe(2)) return false;
+	}
+                    if(NTConfig_PublicMode)
+	{
+	NTM_MakeTP();
+	say("Tristram TP is up");
+                    }
+	NTC_Delay(500);
+	NTP_DoPrecast();
+
+        	print("ÿc1Clearing Tristram");
+
+                    if(!NTA_ClearRooms())
+                    return false;
+	
+                    if(NTConfig_PublicMode)
+	{
+	say("New Game");
+                    }
+
+	return true;
+}

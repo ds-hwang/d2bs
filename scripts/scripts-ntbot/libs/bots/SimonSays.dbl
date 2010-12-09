@@ -1,0 +1,1315 @@
+/**
+ * Simon Says script! 
+ * List of in game commands can be found below
+ * All in game commands are case sensitave!
+ * 
+ * RUSH COMMANDS!
+ * Rush 1, Rush 2, Rush 3, Rush 4, Rush 5, = Select these for rushing individual acts
+ * Rush All, for the entire script,
+ * Fast Rush = for the basics only, no quests or additional objectives ran < great for hardcore players! >
+ * 
+ * WAYPOINT COMMANDS!
+ * Get Wps = will give you all the way points you are missing in that difficulty, minus halls of pain
+ * Give Wps 1, Give Wps 2, Give Wps 3, Give Wps 4, Give Wps 5, will give other people the waypoints in an individual act
+ * Give Wps All = gives every waypoint in the game except halls of pain
+ * 
+ * BOSS COMMANDS!
+ * By typing these commands below, you can do individual tasks, without having to run the entire act.
+ * Do Cain, Do Raven, Do Smith, Do Andariel, Do Radament, Do Cube, Do Summoner, Do Duriel
+ * Do Tome, Do Travincal, Do Mephisto, Do Izual, Do Forge, Do Diablo, Do Shenk, Do Anya, Do Ancients, Do Baal.
+ * 
+ * MISC COMMANDS
+ * Follow Me = will make the bot follow whoever sent the message
+ * Clear Area = will clear the surrounding area wherever the bot is
+ */
+var Scolor = 0 ;
+var UseLifewatch = !SimonStopLifeWatch;
+function NT_SimonSays() 
+{ 
+	print("ÿc3Starting SimonSays script");
+	print("ÿc9Supported commands can be found in the top section of SimonSays.dbl")
+	print("ÿc9You can also Do each event by saying Do eventname for example Do Cube, or Do Andariel")
+	print("ÿc9Auto Teleport keys: keypad (/ * -) Previous Lvl, Point of Intrest, Next Level. quick town: 'e'" );
+	var cbShowOptions=new CheckBox(650,5,"View Options",false)	 
+	cbShowOptions.checked = false;		
+	var cbEnableSnaging = new CheckBox(650,30,"Enable Snaging",SimonEnableSnagging)	 
+	cbEnableSnaging.visible = cbShowOptions.checked
+	var cbAutoReveal = new CheckBox(650,45,"Auto Reveal",SimonAutoReveal)	
+	var cbSimonEnableCommands = new CheckBox(650,60,"EnableCommands",SimonEnableCommands)
+	var cbSimonStopLifeWatch = new CheckBox(650,75,"LifeWatch/Chicken Enabled",!SimonStopLifeWatch)
+	var cbShowLoc = new CheckBox (650,90,"Loction Hook",false)
+	cbShowLoc.visible=cbShowOptions.checked
+	cbSimonStopLifeWatch.visible=cbShowOptions.checked
+	var levelInfoHook1 = new Text("",  795, 450, 2, 6, 1);
+	var levelInfoHook2 = new Text("",  795, 465, 2, 6, 1);
+	var levelInfoHook3 = new Text("",  795, 480, 2, 6, 1);
+	//var commandsHook = new Text("Rush Me, Get Wps, Rush 1-5",  400, 400, 2, 6, 2,testFunc);
+	//commandsHook.visible=false;
+	cbSimonEnableCommands.visible=cbShowOptions.checked;	
+	cbAutoReveal.visible=cbShowOptions.checked		
+	load("tools/SimonsHelper.dbj"); 
+   addEventListener("chatmsg", SimonMsg);
+ 
+  
+//	if (NTC_InTown())
+//		NTTMGR_TownManager(); 
+	var Hook = new Text(currentAction, 400, 550, 2, 6, 2,testFunc);		
+//	 var hook = new Box(...); hook.click = function (b, x, y) { /* b is the button, x/y is the location */ };
+	var ShowOptions = cbShowOptions.checked
+	var currentArea = 0;
+   while(me.ingame){  ///////////////////Main Loop
+		if(cbShowLoc.checked)
+			LoctionHook.text ="Area: "+me.area +" X: "+me.x+" Y: "+me.y;
+		
+		Hook.text = currentAction;		
+		if (cbEnableSnaging.checked){
+			FastSnag=true;
+			NTSI_FastSnag();
+			NTSI_PickItems(); // adding for utility snag		
+		}
+		SimonEnableCommands =cbSimonEnableCommands.checked;
+		if (ShowOptions != cbShowOptions.checked){		
+			ShowOptions = cbShowOptions.checked			
+			cbEnableSnaging.visible = cbShowOptions.checked
+			cbAutoReveal.visible = cbShowOptions.checked
+			cbSimonEnableCommands.visible=cbShowOptions.checked;
+			cbSimonStopLifeWatch.visible=cbShowOptions.checked;	
+			cbShowLoc.visible=cbShowOptions.checked;
+			//commandsHook.visible=(cbSimonEnableCommands.checked && cbSimonEnableCommands.visible)	
+		}
+		if (UseLifewatch != cbSimonStopLifeWatch.checked){
+			UseLifewatch = cbSimonStopLifeWatch.checked;
+			setLifeWatch(UseLifewatch);
+		}
+		if (me.area != currentArea){
+			updatelevelInfoHook(levelInfoHook1,levelInfoHook2,levelInfoHook3);
+			if (cbAutoReveal.checked){
+				var exits = getArea().exits;
+				for (var j = 0 ; j < exits.length ; j++){
+					if(exits[j].tileid == 0)
+						RevealArea(exits[j].target)				
+				}
+				RevealArea(me.area)
+			}
+		currentArea=me.area;
+		}
+		delay (100);
+   }
+}
+function testFunc(){
+print ("test func")
+}
+function setLifeWatch(runLifewatch){
+			if (runLifewatch){ //load lifewatch if it isnt loaded
+				var a =getScript();				
+				do{				
+					if (a.name == "tools\\nttoolsthread.dbj"){
+						return;			
+					}				
+				}while(a.getNext());
+				 load("tools/NTToolsThread.dbj"); 
+			}else{ 				//stop lifewatch
+				var a =getScript();				
+				do{
+				sendCopyData(null, "OOG", 0,a.name);
+					if (a.name == "tools\\nttoolsthread.dbj"){						
+						a.stop();
+						print("seting chicken");
+						me.chickenhp = 0;
+						me.chickenmp = 0;
+						break;						
+					}				
+				}while(a.getNext());	
+			}			
+}
+function updatelevelInfoHook(Hook1,hook2,hook3){
+	var nextLvl,previousLvl, poi;
+	poi = getPOI();
+	nextLvl = getNextArea(me.area);		
+	previousLvl= NTAR_PreviousAreas[me.area];
+	Hook1.text = "Previous: "+NTAR_Areas[previousLvl];
+	hook2.text = " POI "+poi;
+	hook3.text= " next: "+NTAR_Areas[nextLvl]; 		
+}
+function scriptKeyHandler(key){
+print(key);
+	if (key == SimonNextLevel){ //+		
+			currentAction ="Moving to next lvl";
+			SetObjective("SimonNextLevel");				
+	}
+	if (key == SimonPrevousLevel){		
+			currentAction ="Moving to Previous lvl";
+			SetObjective("SimonPrevousLevel");				
+	}
+	if (key == SimonEscToTown) { // escape to town
+		StopObjective();
+		currentAction ="Escaping to town";
+		NTTM_CheckAct();
+		currentAction ="";
+	}
+	if (key == SimonPOI){ 
+		currentAction ="Going to POI";	
+		SetObjective("SimonPOI");			
+	}
+	if (key == 27){ 		
+		currentAction ="";
+		StopObjective();
+	}
+	if (key == 8){	
+		currentAction ="clearing "+ NTAR_Areas[me.area];
+		SetObjective("ClearArea");		
+		//NTA_ClearRooms(customClearAreaAttack);		
+	}
+	if (key == 187){
+		var str = "";
+		for (var j = 0 ; j <30 ;j++){
+			if (getUIFlag (j)){
+				str=str +" "+j;
+			}
+		}
+		print (str);
+	}
+return true;
+}
+function followLeader(){
+	var who = Leader;  //assinged in simon helper
+	if(findLead( who)){
+			while (findLead( who)){
+				if (findLead(who) && me.area != findLead(who)){
+					NTM_TravelTO(findLead(who))
+				}
+				moveToLead(who);				
+				NTA_ClearPosition(30);				
+				NTSI_PickItems();	
+				if (!findLead(who)){
+					currentAction ="";
+				}
+			}
+		}
+	return true;
+}
+function findLead(leader)
+{
+var _lead= getUnit(0, leader)
+	if(_lead)
+	return _lead.area;
+// leader not found look in party
+var area =0;
+ var a = getParty();
+if(!a)
+	return false;	
+   do { 
+      if (a.name==leader){
+		area=a.area;	
+		}
+   } while(a.getNext()); 
+	if (area==0) {
+		//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+		return false;
+	}
+return area;
+}
+function moveToLead(leader){
+var _lead= getUnit(0, leader)
+	if(_lead){
+	//print("moving to:"+_lead.x);
+	if (getDistance(_lead.x,_lead.y,me.x,me.y) >5)
+	NTM_MoveTo(_lead.x,_lead.y);
+	return true;
+	}
+var area=0;
+var leadx =0;
+var leady =0;
+ var a = getParty(); 
+      do { 
+      if (a.name==leader){
+	area=a.area;
+	leadx=a.x
+	leady=a.y	
+      }
+   } 
+   	while(a.getNext()); 
+	if (area==0) {
+		return false;
+	}
+	if (leadx!=0){
+	NTM_MoveTo(leadx,leady);    
+	}
+return true;
+}
+function customClearAreaAttack(){
+	if (currentAction != "clearing "+ NTAR_Areas[me.area])
+		return false;
+	NTA_ClearPosition(40);
+	if (currentAction != "clearing "+ NTAR_Areas[me.area])
+		return false;	
+	NTSI_PickItems();
+	return true;
+}
+function StopObjective(){
+var a =getScript();				
+	do{				
+		if (a.name == "tools\\simonshelper.dbj"){
+			a.stop();	
+			return true;
+		}				
+	}while(a.getNext());	
+return true;
+}
+function SetObjective(objective){			
+	StopObjective();
+	sendCopyData(null, "OOG", 0,"loading script ");
+	load("tools/SimonsHelper.dbj"); 
+	sendCopyData(null, "OOG", 0,"loading script return");
+	delay(500);
+	var a =getScript();	
+	do{				
+		if (a.name == "tools\\simonshelper.dbj"){
+		sendCopyData(null, "OOG", 0,"sending msg");
+			a.send(objective);
+			sendCopyData(null, "OOG", 0,"sending msg return");
+			//sendCopyData(null, me.windowtitle, 0,objective );
+		}				
+	}while(a.getNext());	
+}
+function getNextArea(area){
+ if (NTAR_NextArea[area])
+	return NTAR_NextArea[area];
+ for (var i = 0; i < NTAR_PreviousAreas.length; i++){
+	if (NTAR_PreviousAreas[i] == area)
+		return i;
+ }
+ return area;
+}
+function gotoPOI(){
+	if (me.area ==4){  //going to tris seqence
+			if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17))
+				return false;
+			delay(1500)
+			if(!NTM_UsePortal("Portal", 38))
+				return false;
+	}	
+	if (me.area ==37)
+		return NTM_MoveTo(22545, 9544);		
+	if (me.area ==102)
+		return NTM_MoveTo(17543, 8068);		
+	if (me.area ==108)
+		return NTM_MoveTo(7792, 5292);	
+	if (me.area ==110)
+		return NTM_MoveTo(3906, 5112);
+	if (me.area ==132)
+		return NTM_MoveTo(15137, 5906);
+	var exits = getArea().exits;
+	for (var j = 0 ; j < exits.length ; j++){
+		if(exits[j].target != getNextArea(me.area) && exits[j].target != NTAR_PreviousAreas[me.area] )
+			return NTM_TravelTO(exits[j].target);				
+	}
+	//unique id's
+	var poiID = [ 397,30,108,"act 2->" ,355,397,354,357,356,152,"act 3 >",406,405,407,256,376,"act 5 >",460,"Waypoints->",119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539, 429,580,149];
+	var unit = getPresetUnits(me.area);	
+	if(unit){
+		for (var p =0 ; p < poiID.length; p++){
+			for (var j = 0; j < unit.length; j++){
+			//if (unit[j].id in poiID){ // no clue why that dosent work			
+				if (unit[j].id == poiID[p]){					
+					return NTM_MoveTo(unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y);						
+				}
+			}
+		}
+	}	
+return false;
+}
+function getPOI(){
+var poi = "Nothing"
+	for (var i =0; i<122; i++){
+		if(NTM_AreaWPArray[i] == me.area)
+			poi = "Waypoint";		
+   }
+		if (me.area == 4)
+			poi = "Trist"; 			
+		if (me.area == 14 || me.area ==59 || me.area ==60 || me.area ==64 || me.area ==61 || me.area ==84 || me.area ==93)
+			poi = "Chest"; 	
+		if (me.area == 5)
+			poi = "Inifuss Tree"; 
+		if (me.area == 25)
+			poi = "Countess Chest"; 
+		if (me.area == 28)
+			poi = "Malus";
+		if (me.area == 37)
+			poi = "Andy";
+		if (me.area == 49)
+			poi = "Scroll Chest";
+		if (me.area == 74)
+			poi = "Sommoner";
+		if (me.area == 69)
+			poi = "Orifice";
+		if (me.area == 102)
+			poi = "Meph";
+		if (me.area == 105)
+			poi = "Izzy";
+		if (me.area == 107)
+			poi = "Fordge";
+		if (me.area == 108)
+			poi = "Star";
+		if (me.area == 110)
+			poi = "Shenk";
+		if (me.area == 114)
+			poi = "Anaya";
+		if (me.area == 120)
+			poi = "Ancients";	
+		if (me.area == 132)
+			poi = "Baal";
+	var exits = getArea().exits;
+	for (var j = 0 ; j < exits.length ; j++){
+		if(exits[j].target != getNextArea(me.area) && exits[j].target != NTAR_PreviousAreas[me.area] )
+			return NTAR_Areas[exits[j].target];				
+	}
+return poi;
+}
+function SimonMsg(who,msg){
+  if (SimonEnableCommands){
+	print(who +" said "+msg);
+	if (msg == "Get Wps"){
+		currentAction="Getting Waypoints";
+		SetObjective("GetWps");			
+		//getwaypoints();	currentAction="";		
+	}
+	if(msg =="Rush All"){	
+		currentAction="Rushing "+who;
+		SetObjective("RushAll");	
+	}
+	if(msg =="Fast Rush"){
+		currentAction="Rushing "+who;
+		SetObjective("FastRush");
+	}
+	
+	if(msg =="Rush 1"){
+		currentAction = "Rush 1 " +who;
+		SetObjective("Rush1");
+	}
+	if(msg =="Rush 2"){
+		currentAction = "Rush 2 " +who;
+		SetObjective("Rush2");		
+	}
+	if(msg =="Rush 3"){
+		currentAction = "Rush 3 " +who;
+		SetObjective("Rush3");		
+	}
+	if(msg =="Rush 4"){
+		currentAction = "Rush 4 " +who;
+		SetObjective("Rush4");
+	}
+	if(msg =="Rush 5"){
+		currentAction = "Rush 5 " +who;
+		SetObjective("Rush5");
+	}
+	if (msg == "Clear Area"){
+		currentAction ="clearing "+ NTAR_Areas[me.area];
+		SetObjective("ClearArea");		
+	}
+	if (msg == "Follow Me"){
+		currentAction = "Following "+who;
+		SetObjective("FollowLead:"+who);		
+	}
+	if(msg =="Do Cain"){
+		currentAction = "Cain " +who;
+		SetObjective("DoCain");
+	}
+	if(msg =="Do Raven"){
+		currentAction = "Raven " +who;
+		SetObjective("DoRaven");
+	}
+	if(msg =="Do Smith"){
+		currentAction = "Smith " +who;
+		SetObjective("DoSmith");
+	}
+	if(msg =="Do Andariel"){
+		currentAction = "Andariel " +who;
+		SetObjective("DoAndariel");
+	}
+	if(msg =="Do Radament"){
+		currentAction = "Radament " +who;
+		SetObjective("DoRadament");
+	}
+	if(msg =="Do Cube"){
+		currentAction = "Cube " +who;
+		SetObjective("DoCube");
+	}
+	if(msg =="Do Summoner"){
+		currentAction = "Summoner " +who;
+		SetObjective("DoSummoner");
+	}
+	if(msg =="Do Duriel"){
+		currentAction = "Duriel " +who;
+		SetObjective("DoDuriel");
+	}
+	if(msg =="Do Tome"){
+		currentAction = "Tome " +who;
+		SetObjective("DoTome");
+	}
+	if(msg =="Do Travincal"){
+		currentAction = "Travincal " +who;
+		SetObjective("DoTravincal");
+	}
+	if(msg =="Do Mephisto"){
+		currentAction = "Mephisto " +who;
+		SetObjective("DoMephisto");
+	}
+	if(msg =="Do Izual"){
+		currentAction = "Izual " +who;
+		SetObjective("DoIzual");
+	}
+	if(msg =="Do Forge"){
+		currentAction = "Forge " +who;
+		SetObjective("DoForge");
+	}
+	if(msg =="Do Diablo"){
+		currentAction = "Diablo " +who;
+		SetObjective("DoDiablo");
+	}
+	if(msg =="Do Shenk"){
+		currentAction = "Shenk " +who;
+		SetObjective("DoShenk");
+	}
+	if(msg =="Do Anya"){
+		currentAction = "Anya " +who;
+		SetObjective("DoAnya");
+	}
+	if(msg =="Do Ancients"){
+		currentAction = "Ancients " +who;
+		SetObjective("DoAncients");
+	}
+	if(msg =="Do Baal"){
+		currentAction = "Baal " +who;
+		SetObjective("DoBaal");
+	}
+	if (msg == "Give Wps 1") {
+		currentAction = "Getting Act 1 Waypoints" +who;
+		SetObjective("GiveWps1");
+	}
+	if (msg == "Give Wps 2") {
+		currentAction = "Getting Act 2 Waypoints";
+		SetObjective("GiveWps2");
+	}
+	if (msg == "Give Wps 3") {
+		currentAction = "Getting Act 3 Waypoints";
+		SetObjective("GiveWps3");
+	}
+	if (msg == "Give Wps 4") {
+		currentAction = "Getting Act 4 Waypoints";
+		SetObjective("GiveWps4");
+	}
+	if (msg == "Give Wps 5") {
+		currentAction = "Getting Act 5 Waypoints";
+		SetObjective("GiveWps5");
+	}
+	if (msg == "Give Wps All") {
+		currentAction = "Getting All Waypoints";
+		SetObjective("GiveWpsAll");
+		}
+	}		
+  }// if accepting commands
+function getwaypoints(){
+print("getting Waypoints");
+   for (var i =0; i<122; i++){
+   print(i);
+		if(NTM_AreaWPArray[i] && !NTM_CheckWPInt(NTM_AreaWPArray[i])){
+			NTM_TravelTO(i);
+			NTM_GotoWaypoint(i,true,10000);
+		}		
+   }
+	for (var i =125; i<132; i++){
+		if(NTM_AreaWPArray[i] && !NTM_CheckWPInt(NTM_AreaWPArray[i])){
+			NTM_TravelTO(i);
+			NTM_GotoWaypoint(i,true,10000);
+		}		
+   }
+}	
+function waitForSomeone(){
+NTM_MakeTP();
+	var peeps = 0
+	do{
+	var _target = NTC_GetUnit(0);
+		peeps = 0;
+		if(_target)
+		{	
+			do
+			{
+				peeps=peeps+1;
+			} while(_target.getNext());	
+			NTA_ClearPosition(25);	
+		}
+		NTC_Delay(500);
+	}while (peeps < 2)
+}
+function Rush1() {
+	if (NTConfig_DoCain) {
+		DoCain();
+	}
+	if (NTConfig_DoRaven) {
+		DoRaven();
+	}
+	if (NTConfig_DoSmith) {
+		DoSmith();
+	}
+		DoAndariel();
+		NTM_UsePortal("BluePortal", 1, me.charname);
+	return true;
+}
+function Rush2() {
+	NTTMGR_TownManager();
+	say("Please Standby at the Act 2 Portal Area");
+	if (NTConfig_DoRadament) {
+		DoRadament();
+	}
+	if (me.diff == 0) {
+		DoCube();
+	}
+		DoStaff();
+		DoSummoner();
+		DoDuriel();
+		NTM_TravelTO(40); // have to pop new tp, as there will be no old one in duriels crib
+	return true;
+}
+function Rush3() {
+	NTTMGR_TownManager();
+	say("Please Standby at the Act 3 Portal Area");
+	if (NTConfig_DoTome) {
+		DoTome();
+	}
+		DoTravincal();
+		DoMephisto();
+		NTM_UsePortal("BluePortal", 75, me.charname);
+	return true;	
+}
+function Rush4() {
+	NTTMGR_TownManager();
+	say("Please Standby at the Act 4 Portal Area");
+	if (NTConfig_DoIzual) {
+		DoIzual();
+	}
+	if (NTConfig_DoForge) {
+		DoForge();
+	}
+		DoDiablo();
+		NTM_UsePortal("BluePortal", 103, me.charname);
+	return true;
+}
+function Rush5() {
+	NTTMGR_TownManager();
+	say("Please Standby at the Act 5 Portal Area");
+	if (NTConfig_DoShenk) {
+		DoShenk();
+	}
+	if (NTConfig_DoAnya) {
+		DoAnya();
+	}
+	if (NTConfig_DoAncients) {
+		DoAncients();
+	}
+	if (NTConfig_DoBaal) {
+		DoBaal();
+	}
+		NTM_TravelTO(109); // same as duriel, you will have no old tp in baals throne room!
+	return true;
+}
+function FastRush() {
+	say("Pleae stand by Act 1 TP area.")
+	DoAndariel();
+	say("Please Standby at the Act 2 TP Area");
+	if (me.diff == 0) {
+		DoCube();
+	}
+	DoStaff();
+	DoSummoner();
+	DoDuriel();
+	say("Please Standby at the Act 3 TP Area");
+	DoTravincal();
+	DoMephisto();
+	say("Please Standby at the Act 4 TP Area");
+	DoDiablo();
+	return true;
+	}
+function GiveWps1() {
+	NTTMGR_TownManager();
+	Act1Wps()
+}
+function GiveWps2() {
+	NTTMGR_TownManager();
+	Act2Wps()
+}
+function GiveWps3() {
+	NTTMGR_TownManager();
+	Act3Wps()
+}
+function GiveWps4() {
+	NTTMGR_TownManager();
+	Act4Wps()
+}
+function GiveWps5(){
+	NTTMGR_TownManager();
+	Act5Wps()
+}
+function Act1Wps(){
+	var Act1WpID = [3, 4, 5, 6, 27, 29, 32, 35]
+	   	for(var i = 0; i < Act1WpID.length; i++) {
+			NTM_TravelTO(Act1WpID[i]); 
+			say("up");
+			waitForSomeone();
+			NTM_UsePortal("BluePortal", 1, me.charname);
+        	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		}
+	return true;	
+}
+function Act2Wps(){
+	var Act2WpID = [48, 57, 42, 43, 44, 52, 74, 46]
+	   	for(var i = 0; i < Act2WpID.length; i++) {
+			NTM_TravelTO(Act2WpID[i]); 
+			say("up");
+			waitForSomeone();
+			NTM_UsePortal("BluePortal", 40, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		}
+		return true;	
+}
+function Act3Wps(){
+	var Act3WpID = [76, 77, 78, 79, 80, 81, 83, 101]
+	   	for(var i = 0; i < Act3WpID.length; i++) {
+			NTM_TravelTO(Act3WpID[i]);
+			say("up");
+			waitForSomeone();
+			NTM_UsePortal("BluePortal", 75, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		}
+		return true;	
+}
+function Act4Wps(){
+	var Act4WpID = [106, 107]
+	   	for(var i = 0; i < Act4WpID.length; i++) {
+			NTM_TravelTO(Act4WpID[i]);
+			say("up");
+			waitForSomeone();
+			NTM_UsePortal("BluePortal", 103, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		}
+		return true;	
+}
+function Act5Wps(){
+	var Act5WpID = [111, 112, 113, 115, 117, 118, 129]
+	   	for(var i = 0; i < Act5WpID.length; i++) {
+			NTM_TravelTO(Act5WpID[i]);
+			say("up");
+			waitForSomeone();
+			NTM_UsePortal("BluePortal", 109, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	}
+	return true;	
+}
+function DoCain() {
+	say("Getting Cain")
+		NTM_TravelTO(5);
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 30, 30, 0, 0)) 
+			NTA_ClearPosition(40);
+		say("Scroll Up")
+		say("Go talk to Akara once you have the scroll")
+		waitForSomeone();
+		NTM_UsePortal("BluePortal", 1, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		NTM_TravelTO(4);
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5)) 
+			NTA_ClearPosition(40);
+		say("Stones Up")
+		say("Once you have the portal to tristram open, take my tp to cold plains so we can continue")
+		waitForSomeone();
+		NTM_UsePortal("BluePortal", 1, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		NTM_TravelTO(3);
+		NTA_ClearPosition(20);
+		waitForSomeone();
+		NTM_UsePortal("BluePortal", 1, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		NTM_TravelTO(38);
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 26, 26, 0, 0)) 
+			NTA_ClearPosition(40);
+		say("Come in and get Cain")
+		say("Once he is rescued, go back to town")
+		waitForSomeone();
+		NTM_UsePortal("BluePortal", 1, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		return true;	
+}
+function DoRaven() {
+	NTM_TravelTO(17);
+	NTP_DoPrecast();
+    if (!NTM_MoveToObject(NTC_UNIT_TILE, 7, 8, 0, 15)) return false;
+	say("Blood Raven is up, if you die STAY DEAD")
+	waitForSomeone();
+    NTA_KillBoss(getLocaleString(3111));
+	NTA_ClearPosition(40);
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoSmith() {
+	NTM_TravelTO(28);
+	NTP_DoPrecast();
+	var _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, 754);
+	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 0, 0);
+	var ox=me.x; var oy=me.y;
+	NTM_MoveTo(me.x-7,me.y-10);
+	var tpox=me.x; var tpoy=me.y;
+	NTA_ClearPosition();
+	NTM_MoveTo(tpox,tpoy);
+	waitForSomeone();
+	say("Smith is up. if you die STAY DEAD")	
+	if (!NTA_KillBoss(getLocaleString(2889))) 
+	NTA_ClearPosition(40);
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoAndariel () {
+	NTM_TravelTO(37);
+	NTM_MoveTo(22589,9581);	
+	NTA_ClearPosition(20);	
+	NTM_MoveTo(22589,9581);	
+	say("Andariel up, Stay at the TP, Remember if you die STAY DEAD!");
+	waitForSomeone();
+	NTM_MoveTo(22589,9581);	
+	NTM_MoveTo(22563,9559);	
+	if(!NTA_KillBoss( getLocaleString(3021)))
+	say("Andariel is Dead, Go Speak to Warriv and 'Go East'");
+	NTM_MoveTo(22589,9581);	
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoRadament() {
+		NTM_TravelTO(49);
+		say("Get ready to enter my portal as soon as it opens, if you die STAY DEAD")
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 355, 355, 0, 0))
+				var ox=me.x; var oy=me.y;
+				NTM_MoveTo(me.x-7,me.y-20);
+				var tpox=me.x; var tpoy=me.y;
+				NTM_MoveTo(tpox,tpoy);
+				waitForSomeone();
+				say("get in here ASAP!")
+			if (!NTA_KillBoss(getLocaleString(2879))) //Radament
+				NTA_ClearPosition(40);
+				NTM_UsePortal("BluePortal", 40, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        	NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+				return true;	
+}
+function DoCube() {
+	NTM_TravelTO(60);
+		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
+			return false;
+		NTA_ClearPosition(40);
+		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
+			return false;
+		say("Horadric Cube Up, Please Enter and open the chest and collect your Cube!")
+		say("Once collected go back to town.")	
+		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
+			return false;
+		NTM_UsePortal("BluePortal", 40, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		return true;
+}
+function DoStaff() {
+	NTM_TravelTO(64);
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
+			return false;
+	NTA_ClearPosition(50);
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
+			return false;
+	say("Staff of Kings Up, Please Enter and open the chest and collect your Staff");
+	say("Once collected go back to town.")
+	waitForSomeone();
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
+	return false;
+	NTM_UsePortal("BluePortal", 40, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }	
+	NTM_TravelTO(61);
+	NTM_MoveTo(15042,14045);
+	NTA_ClearPosition(50);
+	if (!NTA_KillBoss(getLocaleString(2881))) //Fangskin
+	NTA_ClearPosition(50);
+	NTM_MoveTo(15042,14045);
+	NTA_ClearPosition(50);
+	NTM_MoveTo(15042,14045);
+	say("Amulet of the Viper Up, Please Enter and break the Tainted Sun Altar and collect your Amulet.");
+	say("Once collected go back to town.")
+	waitForSomeone();
+	NTM_MoveTo(15042,14045);
+	say("Transmute the Staff and Amulet and then Speak to Drognan and Deckard Cain");
+	say("When done talking to Drognan and Cain, take my tp to the dry hills and I will continue to Arcane")
+	NTM_UsePortal("BluePortal", 40, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	NTM_TravelTO(42);
+	NTA_ClearPosition(40);
+	say("just a reminder, don't come to dry hills until AFTER you have talked to Drog and Cain, or you will bug out Arcane")
+	waitForSomeone();
+	NTM_UsePortal("BluePortal", 40, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoSummoner() {
+	NTM_TravelTO(74);	
+	var tomb = NTC_GetPresetUnits(NTC_UNIT_OBJECT);
+	if(!tomb){		
+		return false;		
+	}	
+	for(var i = 0 ; i < tomb.length ; i++)
+	{
+		if(tomb[i].id ==357){
+			var path=getPath(getArea(me.area), me.x, me.y,tomb[i].roomx*5+tomb[i].x, tomb[i].roomy*5+tomb[i].y,true) 			
+		}
+	}		
+	NTM_MoveTo(path[path.length-3].x,path[path.length-3].y) 
+	say("Waiting by Summoner");
+	waitForSomeone();	
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 357, 357, 0, 0))
+		return false;	
+	if(!NTA_KillBoss(getLocaleString(927))) //the summoner
+		return false;	
+	NTA_ClearPosition();		
+return true;	
+}
+function DoDuriel() {
+	NTM_TravelTO(46);
+	gotoCorrectTomb();
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 152, 152, -8, -8))
+		return false;
+	waitForSomeone();	
+	while(!NTM_TakeStairs(100))
+		NTC_Delay(500);
+	if(!NTA_KillBoss(getLocaleString(3054)))
+		return false;	
+return true;
+}
+function gotoCorrectTomb(){
+var _tombs = getRoom();
+	var _correcttomb = _tombs.correcttomb;
+	if(!_correcttomb)
+		return false;
+	var _tileid = _correcttomb - 66 + 38;
+	if(!NTM_MoveToObject(NTC_UNIT_TILE, _tileid))
+		return false;
+	if(!NTM_TakeStairs(_tileid, _tileid))
+		return false;
+return true;
+}
+function DoTome() {
+	NTM_TravelTO(94);
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 193, 193, 0, 0)) 
+			return false;
+		NTA_ClearPosition(40);
+		say("Lam Esen's Tome is up")
+		say("Talk to Cain once you grab it")
+		waitForSomeone();
+		NTM_UsePortal("BluePortal", 75, me.charname);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+		return true;
+}
+function DoTravincal() {
+	NTM_TravelTO(83);
+	NTM_GotoLevel(100,false);
+	var ox=me.x; var oy=me.y;
+	NTM_MoveTo(me.x-7,me.y-40);
+	var tpox=me.x; var tpoy=me.y;
+	NTA_ClearPosition();
+	NTM_MoveTo(tpox,tpoy);
+	say("Council Up, Stay at the TP, Remember if you die STAY DEAD!");
+	waitForSomeone();		
+		NTM_MoveTo(ox-6,oy+16);
+	if (!NTA_KillBoss(getLocaleString(2860))) return false; //Toorc Icefist
+	if (!NTA_KillBoss(getLocaleString(2862))) return false; //Geleb Flamefinger
+	if (!NTA_KillBoss(getLocaleString(2863))) return false; //Ismail Vilehand
+	NTA_ClearPosition(25);
+		NTM_MoveTo(ox-18,oy+28);
+	NTA_ClearPosition(25);
+		NTM_MoveTo(ox-27,oy+16);
+	NTA_ClearPosition(25);
+		NTM_MoveTo(ox-27,oy-5);
+	NTA_ClearPosition(25);
+		NTM_MoveTo(ox-17,oy+9);
+	NTA_ClearPosition(30);
+		NTM_MoveTo(ox-18,oy+28);
+	NTA_ClearPosition(45);
+		NTM_GotoLevel(100,false);
+	NTA_ClearPosition(25);
+		NTM_MoveTo(tpox,tpoy);
+	say("Speak to Deckard Cain and get ready for Mephisto.");
+	NTM_UsePortal("BluePortal", 75, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;	
+}
+function DoMephisto() {
+	NTM_TravelTO(102);
+	NTM_MoveTo(17576,8070);
+	say("Mephisto Up, Stay at the TP, Remember if you die STAY DEAD!");
+	waitForSomeone();
+	NTM_MoveTo(17589, 8071);
+	if(!NTA_KillBoss(getLocaleString(3062) ))//mephisto
+	NTA_ClearPosition(25);
+		return false;
+	say("Mephisto is Dead, Go through the Red Portal.");
+	NTM_MoveTo(17590,8070)
+	NTM_UsePortal("BluePortal", 75, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoIzual() {
+	NTM_TravelTO(105);
+		print("Going to Izual, get ready to enter tp as soon as it opens please");
+		print("if you die, STAY DEAD")
+		    var poiID = [256];
+    		var unit = getPresetUnits(me.area);
+			gotoPOI();
+			var ox=me.x; var oy=me.y;
+			NTM_MoveTo(me.x-7,me.y-30);
+			var tpox=me.x; var tpoy=me.y;
+			NTA_ClearPosition();
+			NTM_MoveTo(tpox,tpoy);
+			say("Izual is up, come in quick!")
+			waitForSomeone();
+	 		NTA_KillBoss(256)
+			return false;
+			NTA_ClearPosition(45); 
+			NTSI_PickItems();
+			NTM_UsePortal("BluePortal", 103, me.charname);
+			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+			return true;
+}
+function DoForge() {
+	NTM_TravelTO(107);
+	NTP_DoPrecast();
+	var _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, 775);
+	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 3, 3);
+	waitForSomeone();
+	say("Forge up, if you die STAY DEAD")
+	if (!NTA_KillBoss(getLocaleString(1067))) 
+	return false;
+	NTA_ClearPosition(45);
+	NTM_UsePortal("BluePortal", 103, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function DoDiablo() {
+	NTM_TravelTO(107);
+	NTP_DoPrecast();
+	say("Going to Chaos Sanctuary, be ready to enter my portal when it opens");
+	if (!NTM_MoveTo(7797, 5600)) return false;
+	if (!NTM_TeleportTo(7797, 5560)) return false;
+	if (!NTM_MoveTo(7771, 5318)) return false;
+	NT_ClearCs();
+	NT_MurderDiablo();
+		NTM_UsePortal("BluePortal", 103, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+        NTC_PutSkill(115, NTC_HAND_RIGHT);
+        }
+	return true;
+}
+function OpenSeal(sealID) {
+	var _unit = NTC_GetUnit(NTC_UNIT_OBJECT, sealID);
+	_unit.interact();
+	_unit.interact();
+}
+function NT_ClearCs() {
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 395, 395)) return false;
+	OpenSeal(395)
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 396, 396)) return false;
+	OpenSeal(396)
+	if (me.y > 5265 && me.y <= 5275) NTM_MoveTo(7677, 5287);
+	else NTM_MoveTo(7675, 5321)
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2851))) //vizier
+		break;
+	}
+	if (NTA_KillBoss(getLocaleString(2851), 20)) {
+		NTSI_PickItems();
+	}
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 394, 394)) return false;
+	OpenSeal(394)
+	if (me.x > 7810 && me.x <= 7825) NTM_MoveTo(7777, 5160);
+	else NTM_MoveTo(7777, 5200);
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2852))) //lord de seis 
+		break;
+	}
+	if (NTA_KillBoss(getLocaleString(2852), 30)) {
+		NTSI_PickItems();
+	}
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 393, 393)) return false;
+	OpenSeal(393)
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 392, 392)) return false;
+	OpenSeal(392)
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2853))) //"Infector of Souls"
+		break;
+	}
+	if (NTA_KillBoss(getLocaleString(2853), 50)) //"Infector of Souls"
+	{
+		NTSI_PickItems();
+		if (NTC_PutSkill(124, NTC_HAND_RIGHT)) NTC_Delay(1600);
+		print("?c5Precasting");
+		NTP_DoPrecast();
+	}
+	NTSI_PickItems();
+	return true;
+}
+function NT_MurderDiablo() {
+	if (!NTM_MoveTo(7800, 5294)) return false;
+	waitForSomeone();
+	if (NTC_PutSkill(113, NTC_HAND_RIGHT));
+	for (var n = 0; n < 30; n++) {
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		if (NTC_FindMonster(243)) {
+			print("?c1Killing Diablo");
+			if (NTA_KillBoss(243, 1000)) {
+				say("Diablo is dead, talk to Tyreal and head to act 5")
+				NTSI_PickItems();
+				return true;
+			}
+		}
+		NTC_Delay(500);
+	}
+	print("ÿc;Diablo not found, Ending Script");
+	return false;
+}
+function DoShenk() {
+		NTM_TravelTO(111);
+		NTM_MoveTo(3850, 5122);
+		NTA_ClearPosition(10);
+		NTM_MoveTo(3873, 5127);
+		NTA_ClearPosition(10);
+		NTM_MoveTo(3857, 5144);
+		NTA_ClearPosition(10);
+		NTM_MoveTo(3865, 5141);
+		NTA_ClearPosition();
+		NTM_MoveTo(3865, 5141);
+		say("Shenk is up")
+		waitForSomeone();
+		if (NTA_KillBoss(getLocaleString(22435)))
+			NTA_ClearPosition(25);
+			NTM_MoveTo(3865, 5141);
+			NTM_UsePortal("BluePortal", 109, me.charname);			
+		return true;	
+}
+function DoAnya() {
+	NTM_TravelTO(114);
+		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 460, 460, -8, -8)) 
+			NTA_ClearPosition();
+		say("Anya up")
+		say("Talk to anya, then go back to town and talk to malah, get the potion, and come back and free Anya")
+		waitForSomeone();
+		if (!NTA_KillBoss(getLocaleString(22504))) //Frozenstien
+			NTSI_PickItems();
+		NTM_UsePortal("BluePortal", 109, me.charname);
+		return true;
+}
+function DoAncients() {
+NTM_TravelTO(118);
+	NTM_GotoLevel(120,false)
+		say("Ancients up, come in and go through the stairs")
+	waitForSomeone();
+	NTM_TravelTO(120);
+	NTP_DoPrecast();
+	say("if you die STAY DEAD!")
+	
+	NTM_OpenAlter()
+	
+	
+	NTM_MoveTo(10062,12620)
+	NTM_OpenAlter()
+	
+	delay(1000)
+	NTA_ClearRooms()
+	return true;
+}
+function NTM_OpenAlter(){
+var myDoor = getUnit(2);
+				if(myDoor){
+					do{					
+						if(myDoor.name == "ancientsaltar" ){
+							if(getDistance(me,myDoor)>10)
+								NTM_MoveTo(myDoor.x,myDoor.y)
+							while(myDoor.mode == 0){
+								clickMap( 0, 0, myDoor );
+								NTC_Delay(rnd(10,20));
+								clickMap( 2, 0, myDoor );
+								NTC_Delay(200);
+								//myDoor.interact();
+							}						
+						}
+					}while(myDoor.getNext());
+					me.cancel()
+				}
+}
+function DoBaal() {
+	var i;
+	var _wave;
+	var _starttick;
+	say("Going to baal");
+	if (!NTTM_CheckAct()) {
+		return false;
+	}
+	NTTMGR_TownManager();
+		NTM_TravelTO(129);
+	NTP_DoPrecast();
+	NTM_TravelTO(131);
+	if (!NTM_MoveTo(15112, 5068))
+	NTA_ClearPosition(20, 0x04);
+	NTA_ClearPosition();
+	NTSI_PickItems();
+		NTM_MoveTo(15116, 5068);
+		if (NTA_ClearPosition()) NTSI_PickItems();
+		NTM_MoveTo(15116, 5068);
+	NT_ClearThroneInt();
+	if (NTConfig_PublicMode) {
+		NTM_MoveTo(15112, 5004, 0, true);
+		NTM_MakeTP();
+		say("safe");
+	}
+	while (1) {
+		if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) NTM_MoveTo(15092, 5028);
+		else NTM_MoveTo(15092, 5040);
+		if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
+		for (i = 0; i < 6; i++) {
+			_wave = NT_ThroneCheckInt();
+			if (_wave > 0) break;
+			NTC_Delay(500);
+		}
+		_starttick = getTickCount();
+		while (_wave == 0) {
+			if (!NT_ThronePreAttackInt()) NTC_Delay(250);
+			if (getTickCount() - _starttick > 15000) {
+				NT_ClearThroneInt();
+				_starttick = getTickCount();
+			}
+			_wave = NT_ThroneCheckInt();
+		}
+		NTA_ClearPosition(40, 0x04);
+		NTA_ClearPosition(40);
+		NTSI_PickItems();
+		NTT_CleanPotions();
+		if (_wave == 1) NTP_DoPrecast();
+		else if (_wave == 3) NT_CheckHydraInt();
+		else if (_wave == 5) break;
+	}
+	if (NTConfig_KillBaal) {
+		var _portal;
+		say("Time for Baal, if you die in baals throne room, STAY DEAD");
+		NTM_MoveTo(15092, 5010);
+		NTP_DoPrecast();
+		while (NTC_FindMonster(getLocaleString(3061))) //543
+		NTC_Delay(250);
+		_portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
+		if (!_portal) return false;
+		if (!NTM_UsePortal("Portal", 132, null, _portal)) return false;
+		NTM_MoveTo(15138, 5916);
+		if (!NTA_KillBoss(getLocaleString(3061))) return false;
+		NTSI_PickItems();
+	}
+	return true;
+}
+function NT_ClearThroneInt() {
+	var _attackpos = [15112, 5068, 15075, 5065, 15114, 5045, 15114, 5012, 15095, 5024, 15078, 5013, 15092, 5040];
+	for (var i = 0; i < _attackpos.length; i += 2) {
+		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTSI_PickItems();
+	}
+	NTT_CleanPotions();
+}
+function NT_ThroneCheckInt() {
+	var _monster;
+	if (!NTC_FindMonster(getLocaleString(3061))) return 5;
+	_monster = NTC_GetUnit(NTC_UNIT_MONSTER);
+	if (_monster) {
+		do {
+			if (NTA_IsValidTarget(_monster)) {
+				if (_monster.classid == 23 || _monster.classid == 62) return 1;
+				if (_monster.classid == 105 || _monster.classid == 381) return 2;
+				if (_monster.classid == 557) return 3;
+				if (_monster.classid == 558) return 4;
+				if (_monster.classid == 571) return 5;
+			}
+		} while (_monster.getNext());
+	}
+	return 0;
+}
+function NT_ThronePreAttackInt() {
+	if (me.classid == NTC_CHAR_CLASS_SORCERESS) {
+		if (NTConfig_AttackOthers == 56 || NTConfig_AttackOthers == 59) return NTC_DoCast(NTConfig_AttackOthers, 2, 15092, 5028);
+	} else if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		if (NTConfig_AttackOthers == 112) {
+			if (NTConfig_PutAura > 0) NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+			return NTC_DoCast(NTConfig_AttackOthers, 2);
+		}
+	}
+	return false;
+}
+function NT_CheckHydraInt() {
+	var _hydra1, _hydra2, _hydra3;
+	_hydra1 = NTC_GetUnit(NTC_UNIT_MONSTER, 351);
+	_hydra2 = NTC_GetUnit(NTC_UNIT_MONSTER, 352);
+	_hydra3 = NTC_GetUnit(NTC_UNIT_MONSTER, 353);
+	if ((_hydra1 && _hydra1.getStat(172) != 2 && _hydra1.getState(105)) || (_hydra2 && _hydra2.getStat(172) != 2 && _hydra2.getState(105)) || (_hydra3 && _hydra3.getStat(172) != 2 && _hydra3.getState(105))) {
+		NTM_MoveTo(15112, 5004);
+		if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
+		NTC_Delay(3000);
+	}
+}

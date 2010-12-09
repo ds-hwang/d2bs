@@ -1,0 +1,283 @@
+var globalvar = false;
+var nextGameVar = false;
+function NT_Leech()
+{
+	var leader="CHARACTERNAME!";
+	var i;
+	var _wave;
+	var _starttick;
+	addEventListener("chatmsg", BaalMsg);
+	if (NT_LeechType == 1)
+	{
+		globalvar = true;
+	}
+
+	print("ÿc3Start Baal Leech script");
+
+		if(!NTTM_CheckAct(5))
+		return false;
+
+	NTTMGR_TownManager();
+		
+	if(!NTTM_TownMove("portalspot"))
+		return false;
+	//delay untill partied with leader
+	for(var i = 0 ; i < 100 ; i++)
+	{
+		if (findLead(leader))
+			break;
+		for (var j = 0 ; j < NT_Leader.length ; j++){
+			if (findLead(NT_Leader[j]))
+				leader = NT_Leader[j];
+		
+		}
+		delay (100);
+	}
+	QuitWithLeader =leader;
+	while(me.area==109){	
+	if (globalvar)
+		NTM_UsePortal("BluePortal", 131,leader);
+		delay (1000);
+		if (!findLead(leader)) {
+			var a = getParty();
+			if(!a)
+				return false;			
+			do { 
+				sendCopyData(null, "OOG", 0,"Leader Not Found-->"+a.name+"<--"  );		
+			} while(a.getNext()); 
+			return false;
+		}
+	}
+	NTP_DoPrecast();
+	if (NT_LeechType != 3)
+		NT_ClearThroneInt();
+
+	
+
+	while(NT_LeechType != 3)
+	{
+	var _attackpos = [7792, 5525, 7793, 5501, 7773, 5495, 7768, 5480, 7767, 5458, 7770, 5438, 7774, 5417, 7767, 5391, 7768, 5369, 7769, 5345, 7770, 5320, 7780, 5308];
+		//print("ÿc5Precasting");
+		//NTP_DoPrecast();
+	
+		if(me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN)
+			NTM_MoveTo(15092, 5028);
+		else
+			NTM_MoveTo(15092, 5040);
+
+		if(me.getState(2))
+			NTC_PutSkill(109, NTC_HAND_RIGHT);
+
+		for(i = 0 ; i < 6 ; i++)
+		{
+			_wave = NT_ThroneCheckInt();
+			if(_wave > 0)
+				break;
+
+			NTC_Delay(500);
+		}
+
+		_starttick = getTickCount();
+
+		while(_wave == 0)
+		{
+			if(!NT_ThronePreAttackInt())
+				NTC_Delay(250);
+
+			if(getTickCount()-_starttick > 15000)
+			{
+				NT_ClearThroneInt();
+
+				_starttick = getTickCount();
+			}
+
+			_wave = NT_ThroneCheckInt();
+		}
+
+		NTA_ClearPosition(40, 0x04);
+		NTA_ClearPosition(40);
+		NTSI_PickItems();
+		NTT_CleanPotions();
+
+		if(_wave == 1){
+			print("ÿc5First Wave");
+			//NTP_DoPrecast();
+		} else if(_wave == 3)
+			NT_CheckHydraInt();
+		else if(_wave == 5)
+			break;
+		if (!findLead(leader)) return false;
+	}
+	
+	while(findLead(leader) && NT_LeechType == 3)
+	{
+		NTC_Delay(500);
+		if(nextGameVar == true) {
+			delay(10000);
+			return false;
+		}
+	}
+
+	if(NTConfig_KillBaal && NT_LeechType != 3)
+	{
+		var _portal;
+
+		NTM_MoveTo(15092, 5010);
+
+		NTP_DoPrecast();
+
+		while(NTC_FindMonster("Baal"))
+			NTC_Delay(250);
+
+		_portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
+
+		if(!_portal)
+			return false;
+
+		if(!NTM_UsePortal("Portal", 132, null, _portal))
+			return false;
+
+		NTM_MoveTo(15138, 5916);
+
+		if(!NTA_KillBoss(544))
+			return false;
+		if (!findLead(leader)) return false;
+		NTSI_PickItems();
+		sendCopyData(null, "OOG", 0,"Quit:Full Run" );
+	}
+
+	
+
+	return true;
+}
+
+// Internal function
+function NT_ClearThroneInt()
+{
+	var _attackpos = [15112, 5068, 15075, 5065, 15114, 5045, 15114, 5012, 15095, 5024, 15078, 5013, 15092, 5040];
+
+	for(var i = 0 ; i < _attackpos.length ; i += 2)
+	{
+		NTM_MoveTo(_attackpos[i], _attackpos[i+1]);
+
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTSI_PickItems();
+	}
+
+	NTT_CleanPotions();
+}
+
+function NT_ThroneCheckInt()
+{
+	var _monster;
+
+	if(!NTC_FindMonster("Baal"))
+		return 5;
+
+	_monster = NTC_GetUnit(NTC_UNIT_MONSTER);
+
+	if(_monster)
+	{
+		do
+		{
+			if(NTA_IsValidTarget(_monster))
+			{
+				if(_monster.classid == 23 || _monster.classid == 62)
+					return 1;
+
+				if(_monster.classid == 105 || _monster.classid == 381)
+					return 2;
+
+				if(_monster.classid == 557)
+					return 3;
+
+				if(_monster.classid == 558)
+					return 4;
+
+				if(_monster.classid == 571)
+					return 5;
+			}
+		} while(_monster.getNext());
+	}
+
+	return 0;
+}
+
+function NT_ThronePreAttackInt()
+{
+	if(me.classid == NTC_CHAR_CLASS_SORCERESS)
+	{
+		if(NTConfig_AttackOthers == 56 || NTConfig_AttackOthers == 59)
+			return NTC_DoCast(NTConfig_AttackOthers, 2, 15092, 5028);
+	}
+	else if(me.classid == NTC_CHAR_CLASS_PALADIN)
+	{
+		if(NTConfig_AttackOthers == 112)
+		{
+			if(NTConfig_PutAura > 0)
+				NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+
+			return NTC_DoCast(NTConfig_AttackOthers, 2);
+		}
+	}
+
+	return false;
+}
+
+function NT_CheckHydraInt()
+{
+	var _hydra1, _hydra2, _hydra3;
+
+	_hydra1 = NTC_GetUnit(NTC_UNIT_MONSTER, 351);
+	_hydra2 = NTC_GetUnit(NTC_UNIT_MONSTER, 352);
+	_hydra3 = NTC_GetUnit(NTC_UNIT_MONSTER, 353);
+
+	if((_hydra1 && _hydra1.getStat(172) != 2 && _hydra1.getState(105))
+		|| (_hydra2 && _hydra2.getStat(172) != 2 && _hydra2.getState(105))
+		|| (_hydra3 && _hydra3.getStat(172) != 2 && _hydra3.getState(105)))
+	{
+		NTM_MoveTo(15112, 5004);
+
+		if(me.getState(2))
+			NTC_PutSkill(109, NTC_HAND_RIGHT);
+
+		NTC_Delay(3000);
+	}
+}
+function findLead(leader)
+{
+var _lead= getUnit(0, leader)
+	if(_lead)
+	return _lead.area;
+// leader not found look in party
+var area =0;
+ var a = getParty();
+if(!a)
+	return false;
+	//sendCopyData(null, "OOG", 0,"party len:"+a.partyid  );
+      do { 
+      if (a.name==leader){
+		return true;
+      }
+   } while(a.getNext()); 
+	if (area==0) {
+		//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+		return false;
+
+	}
+return area;
+}
+
+function LeaveWithLeader(mode, param,name1,name2){	//event is called from default
+ 	if (mode == 0 || mode == 1 || mode ==3 )			
+		if (name1 == QuitWithLeader)
+			quit();
+}
+
+function BaalMsg(who,msg) {
+	if (msg == "1") 
+		globalvar = true
+	if (msg == "Lets Kill Baal!" && NT_LeechType == 3)
+		nextGameVar = true;
+}

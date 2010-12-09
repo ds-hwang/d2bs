@@ -1,0 +1,255 @@
+
+
+//print("ÿc1agor Itemlogger loaded");
+
+// Creating of the itemlog.xml file whenever a Character joins a game
+function CheckLog() {
+	// Check if file already exists
+	if(!FileTools.exists('logs/'+me.name+'_itemlog.xml')) 
+		FileTools.writeText('logs/'+me.name+'_itemlog.xml', '<?xml version="1.0" encoding="iso-8859-1"?>\n<?xml-stylesheet href="itemlog.xsl" type="text/xsl"?>\n<itemlog>\n</itemlog>' ); 	
+}
+
+// Writes items to itemlog.xml via E4X 
+// http://developer.mozilla.org/en/Core_JavaScript_1.5_Guide/Processing_XML_with_E4X 
+// item         = Item Object 
+// me         = me Object 
+// isEthereal   = 1 if Item is Ethereal, 0 if not 
+// _mode      = 0 -> Item Kept 
+// _mode      = 1 -> Item Sold 
+function writeLog(item, me, isEthereal, _mode) { 
+
+
+  	if(!item || !NT_logItems)
+		return true;
+	if (item.code=="tsc" || item.code =="isc" ||item.code =="key")
+		return true;
+	var templine = "";
+	var content = "";
+	var time_now = new Date(); 
+	var timestring = time_now.toLocaleFormat("%a %m/%d/%y %H:%M"); 
+   //+++++++ start replace() +++++++++ 
+   // Replaces new lines with spaces 
+   var itemname = item.fname.replace(/\n/g, " "); 
+   itemname = itemname.replace('\02/g', ""); 
+    
+   
+   // Adds a unique identifier to each item 
+   var itemid = time_now.getTime(); 
+    
+   var itemdesc = item.description.replace(/ÿc(.)/g, ""); 
+   itemdesc = itemdesc.replace(/\n/g, '|'); 
+   if (!itemdesc)
+		itemdesc =" "
+   if(itemdesc == "") { 
+      itemdesc = "Unidented"; 
+   } 
+  
+	var obj = new Array();
+	obj = njipCheckGoodItem(item, 1);
+	itemdesc=itemdesc + "file "+obj.file+" line "+obj.lineno;	
+	itemdesc=itemdesc + "from :"+NTAR_Areas[me.area];
+	
+    WriteSqlItemLog(item,_mode,"file "+obj.file+" line "+obj.lineno)
+   //itemdesc = ""; 
+   // Adds the <item></item> tag into XML 
+   content ='<item id="'+itemid+'" char="'+me.name+'" time="'+timestring+'" quality="'+item.quality+'" ethereal="'+isEthereal+'" mode="'+_mode+'" name="'+itemname+" from :"+NTAR_Areas[me.area]+'">"'+itemdesc+'</item>';
+   
+   // <item id="1262070968341" char="bobode" time="Tue 12/29/09 01:16" quality="4" ethereal="0" mode="1" name="Angel's Amulet ">+1 to Sorceress Skill Levels|</item>
+ //itemlog.item +=<item id={itemid} char={me.charname} time={timestring} quality={item.quality} ethereal={isEthereal} mode={_mode} name={itemname}>{itemdesc}</item>; 
+		var filehandle = File.open('logs/'+me.name+'_itemlog.xml', 2);
+	// Skips XML header lines because they cause errors when creating the E4X object
+	var linecount = 0;
+	while(!filehandle.eof) {
+		templine = filehandle.readLine(); 
+		if(!(templine == "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>" || templine == "<?xml-stylesheet href=\"itemlog.xsl\" type=\"text/xsl\"?>" || templine == "<itemlog>" || templine == "</itemlog>")) {
+			linecount++
+			if (linecount == NT_LoggingMaxLines)
+				break;
+			content += templine;
+		}
+		
+	}
+	filehandle.close();
+	content='<itemlog>'+content+'</itemlog>';
+	var itemlog = new XML(content); 
+    // Creates a Time String 
+   // Format: http://www.opengroup.org/onlinepubs/007908799/xsh/strftime.html 
+	
+     // Creation of the file output, headers first and then the itemlog content 
+
+   FileTools.writeText('logs/'+me.name+'_itemlog.xml', '<?xml version="1.0" encoding="iso-8859-1"?>\n<?xml-stylesheet href="itemlog.xsl" type="text/xsl"?>\n' + itemlog.toXMLString()); 
+   return true;
+} 
+function WriteSqlItemLog(item,mode,nipline){
+	var db = new SQLite('inventories.sqlite')	
+try{	
+	db.execute('CREATE TABLE IF NOT EXISTS "main"."itemLog" (' +
+					'"KeyOwner" TEXT,' + '"TimeStamp" TEXT,' +'"FoundIn" TEXT,' +'"Kept" TEXT,' +'"NipLine" TEXT,' +'"name" TEXT,' +'"x" TEXT,' +'"y" TEXT,' +
+					'"type" TEXT,' +'"classId" TEXT,' +	'"mode" TEXT,' +'"act" TEXT,' +	'"gid" TEXT,' +	'"area" TEXT,' +
+					'"hp" TEXT,' +'"mp" TEXT,' +'"hpMax" TEXT,' +'"mpMax" TEXT,' +'"stamina" TEXT,' +
+					'"staminamax" TEXT,' +'"charlvl" TEXT,' +'"itemcount" TEXT,' +'"owner" TEXT,' +
+					'"ownertype" TEXT,' +'"spectype" TEXT,' +'"direction" TEXT,' +'"uniqueid" TEXT,' +
+					'"code" TEXT,' +'"prefix" TEXT,' +'"suffix" TEXT,' +'"prefixnum" TEXT,' +'"suffixnum" TEXT,' +
+					'"fname" TEXT,' +'"quality" TEXT,' +'"node" TEXT,' +'"location" TEXT,' +'"sizex" TEXT,' +'"sizey" TEXT,' +
+					'"itemType" TEXT,' +'"description" TEXT,' +	'"descrip" TEXT,' +	'"bodylocation" TEXT,' +'"ilvl" TEXT,' +'"lvlreq" TEXT,' +						
+					'"runwalk" TEXT,' +'"weaponswitch" TEXT,' +	'"objtype" TEXT,' +	'"islocked" TEXT,' +'"screenX" TEXT,' +'"screenY" TEXT );');
+}
+catch(error){
+
+}
+	var dis2 =""
+	var classid ="";
+	var dmg =""
+	var soc =""
+	var def ="";
+	var eth =""
+	var screenPT = [0,0];	
+	var key = me.name +"@"+me.account;
+	
+		dmg =((item.getStat(21))? "Damage "+item.getStat(22) +"-"+item.getStat(21) :"")
+		soc =((item.getStat(194))? " Sockets "+item.getStat(194) :"") 
+		def =((item.getStat(31))?" Defence "+item.getStat(31) :"");
+		eth =(item.getFlag(0x400000)) ? " Ethereal" : "";
+		var area = ""
+	
+		for(var j = 0; j<NTSI_GID_AREA.length ; j++){
+			if (NTSI_GID_AREA[j][0] == item.gid)
+				area =NTAR_Areas[NTSI_GID_AREA[j][1]];		
+		}
+		if (area =="")
+			area = NTAR_Areas[me.area];		
+		dis2=dmg +soc+def+eth;
+		var time_now = new Date(); 
+	var timestring = time_now.toLocaleFormat("%a %m/%d/%y %H:%M"); 
+	
+	var sql = 'INSERT INTO itemLog (KeyOwner, TimeStamp,FoundIn,Kept, NipLine,name, x, y, type, classId, mode, act, gid, area, hp, mp, hpMax, mpMax, stamina, staminamax, charlvl, itemcount, owner, ownertype, spectype, direction, uniqueid, code, prefix, suffix, prefixnum, suffixnum, fname, quality, node, location, sizex, sizey, itemType, description, descrip, bodylocation, ilvl, lvlreq, runwalk, weaponswitch, objtype, islocked, screenX, screenY) VALUES ('
+	                                 +'"'+key + '", "'+timestring+'", "'+ area+ '", "'+mode+  '", "'+nipline+'", "' + item.name  +'", "' + item.x + '", "' + item.y  +'", "'  + item.type + '", "'  + item.classid +'", "'  + item.mode + '", "'  + item.act +'", "'  + item.gid + '", "'  + item.area + '", "'  + item.hp +'", "'  + item.mp + '", "'+ '", "'+ '", "'   + item.stamina + '", "'  + item.staminamax +'", "'  + item.charlvl + '", "'  + item.itemcount + '", "'  + item.owner + '", "'  + item.ownertype + '", "'  + item.spectype + '", "'  + item.direction + '", "'  + item.uniqueid + '", "'  + item.code + '", "'  + item.prefix + '", "'  + item.suffix + '", "'  + item.prefixnum + '", "'  + item.suffixnum + '", "' +  item.fname  +'", "'  + item.quality + '", "'  + item.node + '", "'  + item.location + '", "'  + item.sizex + '", "'  + item.sizey + '", "'  + item.itemType + '", "'  + item.description + '", "' +dis2 + '", "'+ item.bodylocation + '", "' + item.ilvl + '", "' + item.lvlreq + '", "' + item.runwalk + '", "' + item.weaponswitch + '", "' + item.objtype + '", "' + item.islocked + '", "' +screenPT[0] + '", "' +screenPT[1] + '")'
+
+	try{
+		db.execute(sql);
+	}
+	catch(error){
+		// got this down to potential lock db
+	
+	}
+
+}
+function SaveInventory(){
+var startTime = getTickCount();
+	var key = me.name +"@"+me.account;
+	var db = new SQLite('inventories.sqlite')	
+try{	
+	db.execute('CREATE TABLE IF NOT EXISTS "main"."inventories" (' +
+					'"KeyOwner" TEXT,' + '"name" TEXT,' +'"x" TEXT,' +'"y" TEXT,' +
+					'"type" TEXT,' +'"classId" TEXT,' +	'"mode" TEXT,' +'"act" TEXT,' +	'"gid" TEXT,' +	'"area" TEXT,' +
+					'"hp" TEXT,' +'"mp" TEXT,' +'"hpMax" TEXT,' +'"mpMax" TEXT,' +'"stamina" TEXT,' +
+					'"staminamax" TEXT,' +'"charlvl" TEXT,' +'"itemcount" TEXT,' +'"owner" TEXT,' +
+					'"ownertype" TEXT,' +'"spectype" TEXT,' +'"direction" TEXT,' +'"uniqueid" TEXT,' +
+					'"code" TEXT,' +'"prefix" TEXT,' +'"suffix" TEXT,' +'"prefixnum" TEXT,' +'"suffixnum" TEXT,' +
+					'"fname" TEXT,' +'"quality" TEXT,' +'"node" TEXT,' +'"location" TEXT,' +'"sizex" TEXT,' +'"sizey" TEXT,' +
+					'"itemType" TEXT,' +'"description" TEXT,' +	'"descrip" TEXT,' +	'"bodylocation" TEXT,' +'"ilvl" TEXT,' +'"lvlreq" TEXT,' +						
+					'"runwalk" TEXT,' +'"weaponswitch" TEXT,' +	'"objtype" TEXT,' +	'"islocked" TEXT,' +'"screenX" TEXT,' +'"screenY" TEXT );');
+	
+	db.execute("DELETE FROM inventories WHERE (KeyOwner = '" + key +"')");
+}
+catch(error){
+
+}
+	var sql =""
+	var dis2 =""
+	var classid ="";
+	var dmg =""
+	var soc =""
+	var def ="";
+	var eth =""
+	var screenPT = [];
+	var items=me.getItems();
+	try{
+		db.execute("BEGIN;");
+	}
+	catch(error){
+	
+	}
+	if(items){	
+		for(var i = 0 ; i < items.length ; i++){
+		dmg =((items[i].getStat(21))? "Damage "+items[i].getStat(22) +"-"+items[i].getStat(21) :"")
+		soc =((items[i].getStat(194))? " Sockets "+items[i].getStat(194) :"") 
+		def =((items[i].getStat(31))?" Defence "+items[i].getStat(31) :"");
+		eth =(items[i].getFlag(0x400000)) ? " Ethereal" : "";
+		screenPT=getScreenXY(items[i]);
+		dis2=dmg +soc+def+eth;
+	
+			classid = (items.classId)? items.classId :"Unidented";
+			sql = 'INSERT INTO inventories (KeyOwner, name, x, y, type, classId, mode, act, gid, area, hp, mp, hpMax, mpMax, stamina, staminamax, charlvl, itemcount, owner, ownertype, spectype, direction, uniqueid, code, prefix, suffix, prefixnum, suffixnum, fname, quality, node, location, sizex, sizey, itemType, description, descrip, bodylocation, ilvl, lvlreq, runwalk, weaponswitch, objtype, islocked, screenX, screenY)'+
+			' VALUES ("' +key + '", "' + items[i].name  +'", "' + items[i].x + '", "' + items[i].y  +'", "'  + items[i].type + '", "'  + classid +'", "'  + items[i].mode + '", "'  + items[i].act +'", "'  + items[i].gid + '", "'  + items[i].area + '", "'  + items[i].hp +'", "'  + items[i].mp + '", "' + '", "'+ '", "'  + items[i].stamina + '", "'  + items[i].staminamax +'", "'  + items[i].charlvl + '", "'  + items[i].itemcount + '", "'  + items[i].owner + '", "'  + items[i].ownertype + '", "'  + items[i].spectype + '", "'  + items[i].direction + '", "'  + items[i].uniqueid + '", "'  + items[i].code + '", "'  + items[i].prefix + '", "'  + items[i].suffix + '", "'  + items[i].prefixnum + '", "'  + items[i].suffixnum + '", "' +  items[i].fname  +'", "'  + items[i].quality + '", "'  + items[i].node + '", "'  + items[i].location + '", "'  + items[i].sizex + '", "'  + items[i].sizey + '", "'  + items[i].itemType + '", "'  + items[i].description + '", "' +dis2 + '", "'+ items[i].bodylocation + '", "' + items[i].ilvl + '", "' + items[i].lvlreq + '", "' + items[i].runwalk + '", "' + items[i].weaponswitch + '", "' + items[i].objtype + '", "' + items[i].islocked + '", "' +screenPT[0] + '", "' +screenPT[1] + '")'
+		
+			try{
+				db.execute(sql);
+			}
+			catch(error){
+			//sendCopyData(null, "OOG", 0,sql + ":"+error);
+				//var db2 = new SQLite('sqlErrorLog.sqlite')		
+				//db2.execute('CREATE TABLE IF NOT EXISTS "main"."errorLog" ("error" TEXT, "SQL" TEXT)' );
+				//db2.execute( "INSERT INTO errorLog (error, SQL) VALUES ('" +error + '", "'+sql+"')");
+	
+			}
+		
+		}
+    }
+	try{
+		db.execute( "END;");
+	}
+	catch(error){
+	
+	}
+	//print ("Dumped in "+((getTickCount())-startTime));
+
+
+}
+function getScreenXY(Item){
+if (Item.location ==0)
+	return [420 + (Item.x * 29),320 + (Item.y * 29)]
+if (Item.location ==4)  //stash
+	return [152 + (Item.x * 29),142 + (Item.y * 29)]
+   if (Item.location ==255){ // 'body
+        if(Item.bodylocation ==1 )// 'hat
+            return [533,67];
+		if(Item.bodylocation ==2 )// amulet
+            return [608,98];
+		if(Item.bodylocation ==3 )// chest
+            return [533,140];
+		if(Item.bodylocation ==4 )// 'wepon
+            return [418,110];
+		if(Item.bodylocation ==5 )// 
+            return [650,110];
+		if(Item.bodylocation ==6 )// 'ring 1
+            return [493,240];
+        if(Item.bodylocation ==7 )// 'ring 2
+            return [605,240];               
+         if(Item.bodylocation ==8 )// 'belt
+            return [533,240];
+		if(Item.bodylocation ==9 )// 'boots
+            return [650,240];
+		if(Item.bodylocation ==10 )// gloves
+            return [420,240];
+		if(Item.bodylocation ==0 ){//pots
+				var tempot = 0;
+                            for (var yy = 568; yy > 477; yy=yy -30){
+                                for(var xx = 425; xx< 516 ;xx=xx+ 30){
+									if( tempot == Item.x)
+										return[xx,yy]
+                                    tempot = tempot + 1;
+								}
+							}
+						
+		}
+		if(Item.bodylocation ==11 )// 'wepon swap
+            return [480,110];
+		if(Item.bodylocation ==12 )// shild swap
+            return [710,110];
+      }            
+        return [Item.x * 29,Item.y * 29];   //cube
+                
+	
+}
+CheckLog();

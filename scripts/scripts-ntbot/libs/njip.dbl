@@ -1,0 +1,378 @@
+/*
+	@title:			njaguar's item parser, add-in library
+	@author:		njaguar (Paul Taulborg)
+        @modification:		Kimsout
+	@version:		3.03
+	@creation date:		11/16/2003
+	@modify date:		05/12/2005
+	@credits:		Thanks to TheDesertWind for original inspiration and ideas for this script!
+
+	License: You may not under any condition redistribute this file in any form or manner. This file is for personal use only.
+*/
+
+// Set this to true to return immediately false if there was an error processing a nip file
+var njipAbortOnError = false;
+
+
+var NJIP_CHECK_SIMPLE = 0, NJIP_CHECK_REPORT = 1;
+
+//parsing keyword categories (all else are assumed to be: string = stat name, number = stat number)
+// this is the array we will be storing our compiled data into
+var njipItems = new Array();
+// the list of file names loaded
+var njipFiles = new Array();
+
+// include our aliases
+include("njipAliases.dbl");
+
+/* njipKeywords = [ processCode, valueLookup, minValue, maxValue ] */
+
+var njipKeywords = new Array();
+njipKeywords["type"]		= [-1,	njipType,	0,	102];	// category of the item, ie, armor, belt, etc, can be string or numeric; item.itemtype
+njipKeywords["name"]		= [-2,	njipClassId,	0,	653]; 	// classid of the item; item.classid, item.code, item.name
+njipKeywords["class"]		= [-3,	njipClass,	0,	2];	// item class, normal, exceptional, elite; item.itemclass
+njipKeywords["quality"]		= [-4,	njipQuality,	1,	9];	// item quality, normal = 2, superior = 3; item.quality
+njipKeywords["flag"]		= [-5,	njipItemFlag,	0,	0];	// item flags, ethereal check only for now
+njipKeywords["levelreq"]	= [-6,	-1,		0,	255];	// item.lvlreq
+njipKeywords["ilvl"]		= [-7,	-1,		0,	255];	// item.ilvl
+njipKeywords["sellvalue"]	= [-8,	-1,		0,	10000000];	// item.getPrice(1);
+
+njipKeywords["category"] = njipKeywords["type"]; // alias
+
+/* item storage prototype
+
+big_array = [list of arguments, all must be true]
+arguments = [[keyword id, value, operator id], [repeat for OR clause, if any match, then true]]
+
+example:
+200% ED+ Exceptional or better
+[[3, 1, >], ...], ... []
+
+item = tests[]; (array of tests)
+tests = [keyword || stat || [stat,substat], value, operator id];
+
+*/
+
+var njipKeywordsStats 		= [99,  -1,		-1,	-1];	// getStat() or getStatEx()
+
+
+function njipOpenFile( fileName ) {
+	var fileHandle = File.open( fileName, 0 );
+	var returnValue = false;
+	if( fileHandle ) {
+		//print( "File :" + fileName );
+		returnValue = njipParseFile( fileHandle, fileName );
+		
+		fileHandle.close();
+	} else {
+		print( "njip Error: File does not exist: " + fileName );
+	}
+	return returnValue;
+}
+
+
+// pass a file object that's already opened in read mode (passing the filename for future support of reporting the error on a specific file name)
+function njipParseFile( fileHandle, fileName ) {
+	var current_line = 0;
+	var add_entry = 0;
+	njipFiles.push(fileName);
+	while(  !fileHandle.eof ) {
+		add_entry = 0;
+		//print(fileHandle.eof);
+		if( !njipErrorReporter( ++current_line, ( add_entry = njipParseLine( fileHandle.readLine() ) ), fileName ) && njipAbortOnError ){
+		//print("returning false")	
+		return false;
+		}
+		if( add_entry[0]==0 && add_entry[1][0] ) {
+			njipItems[njipItems.length] = add_entry[1];
+			njipItems[njipItems.length-1].file = njipFiles.length-1;
+			njipItems[njipItems.length-1].lineno = current_line;
+			//print(current_line +":"+add_entry+"eof:"+fileHandle.eof);
+		}
+	}
+	//print("done parsing");
+	return true;
+}
+
+function njipCheckClause(value_, operator_, stat_) {
+	var rv_ = false;
+	 value_ = parseInt(value_,10);
+	 stat_ = parseInt(stat_,10);
+	switch(operator_) {
+		case 0:
+			rv_ = (stat_ != value_);
+			break;
+		case 1:
+			rv_ = (stat_ >= value_);
+			break;
+		case 2:
+			rv_ = (stat_ <= value_);
+			break;
+		case 3:
+			rv_ = (stat_ == value_);
+			break;
+		case 4:
+			rv_ = (stat_ > value_);
+			break;
+		case 5:
+			rv_ = (stat_ < value_);
+			break;
+	}
+//	print(value_ + " " + njip_operators[operator_] + " " + stat_ + " = " + rv_);
+	return rv_;
+}
+//checks to see if a pot code will fit in the  belt
+
+
+function njipCheckGoodItem(item_, mode_) {
+	var retval = 0;
+	var rv = false;
+	var cv =-1;
+	var matched = -1;
+	if(item_) {
+	var stats = item_.getStat(-1);
+
+		for(var count_9=0;count_9<njipItems.length;count_9++) { // loop all item entries
+			rv = true;
+			for(var count_a=0;count_a<njipItems[count_9].length;count_a++) { // loop all 'and' clauses
+				switch(njipItems[count_9][count_a][0]) {
+					case -1:
+						cv = item_.itemType;
+						break;
+					case -2:
+						cv = item_.classid;
+						break;
+					case -3:
+						cv = item_.itemclass;
+						break;
+					case -4:
+						cv = item_.quality;
+						break;
+					case -5:
+						if(item_.getFlag(njipItems[count_9][count_a][1]))
+							cv = njipItems[count_9][count_a][1];
+						else
+							cv = 0;
+						break;
+					case -6:
+						cv = item_.lvlreq;
+						break;
+					case -7:
+						cv = item_.ilvl;
+						break;
+					case -8:
+						cv = item_.getItemCost(1);
+						break;
+					default:
+						// using a stat, so if unidentified, 'maybe' pick up this item, unless another matches
+						if(!item_.getFlag( ITEM_FLAG_UNIDENTIFIED )) {
+							retval = -1;
+							matched = count_9;
+						}
+
+						if(typeof njipItems[count_9][count_a][0] == "object") {
+							var statId = parseInt(njipItems[count_9][count_a][0][0],10);
+							var subStatId = parseInt(njipItems[count_9][count_a][0][1],10);
+						} else {
+							var statId = parseInt(njipItems[count_9][count_a][0],10);
+							var subStatId = -1;
+						}
+
+						if(subStatId < 0)
+							cv = item_.getStat(statId);
+						else
+						{
+							for(var n = 0 ; n < stats.length ; n++)
+							{
+								if(stats[n][0] == statId && stats[n][1] == subStatId)
+								{
+									cv = stats[n][2];
+									break;
+								}
+							}
+
+							if(n >= stats.length)
+								cv = item_.getStat(statId, subStatId);
+						}
+
+						break;
+				}
+				if(!njipCheckClause(njipItems[count_9][count_a][1], njipItems[count_9][count_a][2], cv)) {
+					rv = false;
+					break;
+				}
+			}
+			if(rv==1) {
+				matched = count_9;
+				retval = 1;
+				break;
+			}
+		}
+	}
+	if(matched == 0 && NT_EnableCubing){ //check cubing utility
+		if(njipCheckGoodItemlist(item_,false,utilityList) > -1){
+			retval=5;
+		}
+	}
+	if( mode_ == NJIP_CHECK_REPORT ) {
+		var obj = new Array();
+		obj.result = retval;
+		obj.lineno = (matched == -1 ? 0 : njipItems[matched].lineno);
+		obj.file = (matched == -1 ? "" : njipFiles[njipItems[matched].file]);
+		retval = obj;
+	}
+	return retval;
+}
+
+// pass a string to parse
+function njipParseLine(input_line) {
+var current_offset = 0;
+var comment_loc = -1;
+if(input_line == undefined )
+	return [0,0];
+if(input_line.length==0)
+return [0,0];
+	
+	//print(input_line);
+	if((comment_loc = input_line.indexOf(";")) != -1) input_line = input_line.substring(0, comment_loc);
+	var clauses = input_line.split(":");
+	var operator_loc = -1;
+	var grab_entry = new Array();
+	var quals ="";
+	var qual_value = 0;
+	var qual_name = 0;
+	var qual_name_arr = ""
+	for(var i=0;i<clauses.length;i++) {
+		if(njipTrim(clauses[i]) != "") {
+			operator_loc = njipFindOperator(clauses[i]);
+			if(operator_loc[0]==-1){
+			 sendCopyData(null, "OOG", 0,"1");
+			 return [1, operator_loc[1]+current_offset];
+			}
+			quals = njipClauseToQualifiers(clauses[i], operator_loc);
+			if(quals[0]==""){
+				sendCopyData(null, "OOG", 0,"2");
+				return [2, current_offset];
+			 }
+			if(quals[1]==""){
+			sendCopyData(null, "OOG", 0,"3");
+				return [3, current_offset+quals[3]];
+			}
+			if(!isNaN(quals[1])) quals[1] = parseInt(quals[1],10);
+			qual_value = 0;
+			qual_name = 0;
+
+			// this needs to be redone to do an if/else for integer/string.. if integer, assume "stat", else try string lookup on keyword, if that fails, try stat, if that fails, return failed lookup
+			if(!isNaN(quals[0]) || !(quals[0] in njipKeywords)) {
+				if(!isNaN(quals[0])) {	// value is a number, assume stat
+					if(quals[0]<0 || quals[0]>358) {
+						sendCopyData(null, "OOG", 0,"9");
+						return [9, current_offset];
+					}
+					qual_name = parseInt(quals[0],10);// + 1000;
+				} else {				// value is a string, look up stat by name
+					if(!(quals[0] in njipStats)) {
+						sendCopyData(null, "OOG", 0,"4");
+						return [4, current_offset];
+					}
+					qual_name = njipStats[quals[0]];// + 1000;
+				}
+				qual_name_arr = njipKeywordsStats;
+			} else {
+				qual_name_arr = njipKeywords[quals[0]];
+				qual_name = qual_name_arr[0];
+			}
+
+			if(!isNaN(quals[1])) {	// match based on number
+				if(qual_name_arr[2] == -1 && qual_name_arr[2] != -1){
+					sendCopyData(null, "OOG", 0,"6");
+					return [6, current_offset+quals[3]];
+				}
+				if(!(qual_name_arr[2] == -1 && qual_name_arr[3] == -1)) {
+					if(quals[1]<qual_name_arr[2] || quals[1]>qual_name_arr[3]){
+						sendCopyData(null, "OOG", 0,"8");
+						return [8, current_offset+quals[3]];
+					}
+				}
+				qual_value = quals[1];
+				if( (qual_name in njipStats256) && qual_value < 256 ) qual_value *= 256; // check to see if we're using a mod 256 stat, and if it's < 256, then * by 256.
+
+			} else {				// match based on string lookup
+				if(qual_name_arr[1] == -1){
+					sendCopyData(null, "OOG", 0,"7");
+					return [7, current_offset+quals[3]];
+				}
+				if(!(quals[1] in qual_name_arr[1])){
+					sendCopyData(null, "OOG", 0,"5"+current_offset+ " "+quals[3]);
+					return [5, current_offset+quals[3]];
+				}
+				qual_value = qual_name_arr[1][quals[1]];
+			}
+			if(qual_name==-1 && qual_value==45) { // hack to make weapon type reflect weapons
+				if(operator_loc[0] == 0 || operator_loc[0] == 3) {
+					qual_name = -2; // classid
+					qual_value = 305;
+					operator_loc[0] = (operator_loc[0] == 0 ? 4 : 2);
+				}
+			}
+			var clause_data = new Array();
+			clause_data[0] = qual_name;
+			clause_data[1] = qual_value;
+			clause_data[2] = operator_loc[0];
+
+//			//print(clause_data);
+
+			var current_clause = grab_entry.length;
+			grab_entry[current_clause] = clause_data;
+
+
+
+			current_offset += clauses[i].length;
+		}
+	}
+	//sendCopyData(null, "OOG", 0,"--"+input_line.toSource() + "++ line");
+	//	sendCopyData(null, "OOG", 0,grab_entry.toSource() + " data "+input_line);
+	
+
+	return [0,grab_entry];
+
+}
+
+function njipClauseToQualifiers(in_string, op_arr) {
+	return [njipTrim(in_string.substring(0,op_arr[1])).toLowerCase().replace(/\s+/g,""), njipTrim(in_string.substring(op_arr[1]+njip_operator_length[op_arr[0]], in_string.length)).toLowerCase().replace(/\s+/g,""), op_arr[1], op_arr[1]+njip_operator_length[op_arr[0]]];
+}
+
+var njip_ErrorCodes = [
+	"Missing Operator",
+	"Missing Qualifier Name",
+	"Missing Qualifier Value",
+	"Invalid Qualifier Name",
+	"Invalid Qualifier Value, Value Not Found",
+	"Invalid Qualifier Value, Expecting String",
+	"Invalid Qualifier Value, Expecting Number",
+	"Invalid Qualifier Value, Number Out of Bounds",
+	"Invalid Qualifier Stat",
+	];
+
+// expects a 2d array, error code, offset
+function njipErrorReporter( line_no, error_arr, fileName ) {
+	if(error_arr && error_arr[0]>0) { // an error occured, report it
+		print("njip Warning: Error in [" + fileName + "] on line #" + line_no + " [" + error_arr[1] + "] : " + njip_ErrorCodes[error_arr[0]-1]);
+		return false;
+	}
+	return true;
+}
+
+var njip_operators = [ "!=", ">=", "<=", "=", ">", "<" ];
+var njip_operator_length = [ 2, 2, 2, 1, 1, 1 ];
+
+function njipFindOperator(in_string) {
+var op_index =-1;
+	for(var fo_1=0;fo_1<njip_operators.length;fo_1++) if((op_index=in_string.indexOf(njip_operators[fo_1]))!=-1) return [fo_1, op_index];
+	return [-1,0];
+}
+
+
+function njipTrim(in_string) {
+	return(in_string.toString().replace(/^\s+|\s+$/g, ""));
+}

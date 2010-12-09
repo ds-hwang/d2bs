@@ -1,0 +1,42 @@
+function NT_Duriel() {
+	var _tombs, _correcttomb;
+	var _tileid;
+
+	print("ÿc3Starting Duriel Script");
+	if (me.area != 46) {
+		if (!NTTM_CheckAct()) return false;
+		NTTMGR_TownManager();
+
+		print("ÿc8Going to Canyon of the Magi");
+		if (!NTTM_TownMove("waypoint")) return false;
+		if (!NTM_UsePortal("Waypoint", 46)) {
+			print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Canyon of the Magi");
+			NTM_TravelTO(46);
+			print("ÿc8Interacting with Waypoint as we don't have it.");
+			NTM_GotoWaypoint(46, true, 10000);
+		}
+	}
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	print("ÿc8Going to Tal Rasha's Chamber");
+
+	gotoCorrectTomb();
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 152, 152, -8, -8)) return false;
+	NTC_Delay(500);
+	while (!NTM_TakeStairs(100))
+	NTC_Delay(500);
+	if (!NTA_KillBoss(getLocaleString(3054))) return false;
+	NTSI_PickItems();
+
+	return true;
+}
+
+function gotoCorrectTomb() {
+	var _tombs = getRoom();
+	var _correcttomb = _tombs.correcttomb;
+	if (!_correcttomb) return false;
+	var _tileid = _correcttomb - 66 + 38;
+	if (!NTM_MoveToObject(NTC_UNIT_TILE, _tileid)) return false;
+	if (!NTM_TakeStairs(_tileid, _tileid)) return false;
+	return true;
+}

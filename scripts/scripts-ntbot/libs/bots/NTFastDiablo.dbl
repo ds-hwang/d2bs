@@ -1,0 +1,125 @@
+function NT_FastDiablo() {
+	print("ÿc3Starting Diablo Script");
+	if (!NTTM_CheckAct()) {
+		return false;
+	}
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to River of Flame");
+	if (!NTTM_TownMove("waypoint")) return false;
+	if (!NTM_UsePortal("Waypoint", 107)) {
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to River of Flame");
+		NTM_TravelTO(107);
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(107, true, 10000);
+	}
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	print("ÿc8Going to Chaos Sanctuary");
+
+	if (!NTM_MoveTo(7797, 5600)) return false;
+	if (!NTM_TeleportTo(7797, 5560)) return false;
+
+	if (!NTM_MoveTo(7771, 5318)) return false;
+
+	NT_ClearCs();
+
+	NT_MurderDiablo();
+
+	return true;
+}
+
+function OpenSeal(sealID) {
+	var _unit = NTC_GetUnit(NTC_UNIT_OBJECT, sealID);
+	_unit.interact();
+	_unit.interact();
+}
+
+function NT_ClearCs() {
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 395, 395)) return false;
+
+	OpenSeal(395)
+
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 396, 396)) return false;
+
+	OpenSeal(396)
+
+	if (me.y > 5265 && me.y <= 5275) NTM_MoveTo(7677, 5287);
+	else NTM_MoveTo(7675, 5321)
+
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2851))) //vizier
+		break;
+	}
+
+	if (NTA_KillBoss(getLocaleString(2851), 20)) {
+		NTSI_PickItems();
+	}
+
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 394, 394)) return false;
+
+	OpenSeal(394)
+
+	if (me.x > 7810 && me.x <= 7825) NTM_MoveTo(7777, 5160);
+	else NTM_MoveTo(7777, 5200);
+
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2852))) //lord de seis 
+		break;
+	}
+
+	if (NTA_KillBoss(getLocaleString(2852), 30)) {
+		NTSI_PickItems();
+	}
+
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 393, 393)) return false;
+
+	OpenSeal(393)
+
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 392, 392)) return false;
+
+	OpenSeal(392)
+
+	for (var n = 0; n < 20; n++) {
+		delay(250);
+		if (NTC_FindMonster(getLocaleString(2853))) //"Infector of Souls"
+		break;
+	}
+
+	if (NTA_KillBoss(getLocaleString(2853), 50)) //"Infector of Souls"
+	{
+		NTSI_PickItems();
+		if (NTC_PutSkill(124, NTC_HAND_RIGHT)) NTC_Delay(1600);
+		print("ÿc5Precasting");
+		NTP_DoPrecast();
+	}
+	NTSI_PickItems();
+	return true;
+}
+
+function NT_MurderDiablo() {
+	if (!NTM_MoveTo(7800, 5294)) return false;
+	if (NTC_PutSkill(113, NTC_HAND_RIGHT));
+	NTT_CleanPotions();
+	for (var n = 0; n < 30; n++) {
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		NTC_DoCast(112, 2);
+		if (NTC_FindMonster(243)) {
+			print("ÿc1Killing Diablo");
+			if (NTA_KillBoss(243, 1000)) {
+				NTSI_PickItems();
+				return true;
+			}
+		}
+
+		NTC_Delay(500);
+	}
+
+	print("ÿc;Diablo not found, Ending Script");
+	return false;
+}

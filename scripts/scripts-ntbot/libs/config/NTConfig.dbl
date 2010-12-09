@@ -1,0 +1,213 @@
+var NTConfig_PublicMode;
+var NTConfig_CastStatic;
+var NTConfig_CastShadowMaster;
+var NTConfig_CastShadowWarrior;
+var NTConfig_CastBrustOfSpeed;
+var NTConfig_CastFade;
+var NTConfig_CastBladeShield;
+var NTConfig_CastCloakOfShadows;
+var NTConfig_UseTraps;
+var NTConfig_PutAura;
+var NTConfig_UseRedemption;
+var True = true;
+var False = false;
+var NTConfig_Script = new Array();
+var NTConfig_CouncilExtension;
+var NTConfig_DacFarrenExtension;
+var NTConfig_ShenkExtension;
+var NTConfig_PindleskinExtension;
+var NTConfig_NihlathakExtension;
+var NTConfig_KillBaal;
+var NTConfig_ClearPitLevel1;
+var NTConfig_KillFangskin;
+var NTConfig_FireEyeExtension;
+var KillBaalMsg;
+var BaalTPMsg;
+var BaalTPSafeMsg;
+var BaalNextGameMsg;
+var DiabloTPMsg;
+var KillingDiabloMsg;
+var DiabloNewGameMsg;
+var NTConfig_Moattrick;
+
+var NTConfig_StartDelay;
+var NTConfig_AreaDelay;
+var NTConfig_SnagDelay;
+
+var NTConfig_SkipHealLife;
+var NTConfig_SkipHealMana;
+var NTConfig_SkipHealCurses;
+var NTConfig_UseMerc;
+var NTConfig_ResetWeapon;
+
+var NTConfig_LifeThresh;
+var NTConfig_LifeRejuvThresh;
+var NTConfig_ManaThresh;
+var NTConfig_ManaRejuvThresh;
+var NTConfig_LifeChicken;
+var NTConfig_ManaChicken;
+
+var NTConfig_MercLifeThresh;
+var NTConfig_MercRejuvThresh;
+var NTConfig_MercChicken;
+
+var NTConfig_FreeSpace;
+
+var NTConfig_Columns = new Array(4);
+NTConfig_Columns[0] = new Array(10);
+NTConfig_Columns[1] = new Array(10);
+NTConfig_Columns[2] = new Array(10);
+NTConfig_Columns[3] = new Array(10);
+
+var NTConfig_MinGoldToStash;
+
+var NTConfig_BeltColType = new Array(4);
+var NTConfig_BeltColMin = new Array(4);
+
+var NTConfig_NIPFilePath = new Array();
+var NTConfig_SnagRange;
+
+var NTConfig_GambleIt;
+var NTConfig_GambleStopGold;
+
+var NTConfig_GambleItem = new Array();
+
+var NTConfig_OpenChest;
+
+var NTConfig_AttackFirst;
+var NTConfig_AttackBoss;
+var NTConfig_AttackOthers;
+var NTConfig_AttackSecondary;
+var NTConfig_ClearPosition;
+var NTConfig_CheckSafe;
+var NTLeader ="";
+var NT_LeechType = 3;
+
+var SimonNextLevel = 109;
+var SimonPrevousLevel = 111;
+var SimonEscToTown = 69;
+var SimonEnableSnagging ;
+var SimonAutoReveal ;
+var SimonStopLifeWatch ;
+var SimonEnableCommands ;  
+var SimonPOI=106;	
+
+// necro attack vars
+var XP_Curse =91;
+var XP_BuildArmyCurse = 87
+var XP_Golm = 0;
+var XP_useSkel = true;
+var XP_useSkelMage = true;
+var XP_useRevive = true;
+var XP_CorpseExplosion = true;	
+var XP_BuildArmyThresh=4;
+
+var QuitWithLeader ="";
+var NT_Leader =[];
+
+//Superunique Script Variables
+var NTConfig_Funnytext= true;	
+var NTConfig_Act1= true;	
+var NTConfig_SuperCorpsefire= true;	
+var NTConfig_CorpsefireChest= true;	
+var NTConfig_SuperBishibosh= true;	
+var NTConfig_BishiboshChest= true;	
+var NTConfig_SuperColdcrow= true;	
+var NTConfig_ColdcrowChest= true;	
+var NTConfig_SuperRaven= true;	
+var NTConfig_RavenChest= true;	
+var NTConfig_SuperBonebreaker= true;	
+var NTConfig_BonebreakerChest= true;	
+var NTConfig_SuperRakanishu= true;	
+var NTConfig_RakanishuChest= true;	
+var NTConfig_SuperGriswold= true;	
+var NTConfig_GriswoldChest= true;	
+var NTConfig_SuperTreehead= true;	
+var NTConfig_TreeheadChest= true;	
+var NTConfig_SuperCountess= true;	
+var NTConfig_CountessChest= true;	
+var NTConfig_SuperSmith= true;	
+var NTConfig_SmithChest= true;	
+var NTConfig_SuperPitspawn= true;	
+var NTConfig_PitspawnChest= true;	
+var NTConfig_SuperBoneAsh= true;	
+var NTConfig_BoneAshChest= true;	
+var NTConfig_SuperAndariel= true;	
+var NTConfig_AndarielChest= true;	
+var NTConfig_Act2= true;	
+var NTConfig_SuperDarkElder= true;	
+var NTConfig_DarkElderChest= true;	
+var NTConfig_SuperBloodWitch= true;	
+var NTConfig_BloodWitchChest= true;	
+var NTConfig_SuperColdworm= true;	
+var NTConfig_ColdwormChest= true;	
+var NTConfig_SuperCreepingFeature= true;	
+var NTConfig_CreepingFeatureChest= true;	
+var NTConfig_SuperFireEye= true;	
+var NTConfig_FireEyeChest= true;	
+var NTConfig_SuperRadament= true;	
+var NTConfig_RadamentChest= true;	
+var NTConfig_SuperSummoner= true;	
+var NTConfig_SummonerChest= true;	
+var NTConfig_SuperDuriel= true;	
+var NTConfig_DurielChest= true;	
+var NTConfig_Act3= true;	
+var NTConfig_SuperSarina= true;	
+var NTConfig_SarinaChest= true;	
+var NTConfig_SuperStormtree= true;	
+var NTConfig_StormtreeChest= true;	
+var NTConfig_SuperEndugu= true;	
+var NTConfig_EnduguChest= true;	
+var NTConfig_SuperSszark= true;	
+var NTConfig_SszarkChest= true;	
+var NTConfig_SuperIcehawk= true;	
+var NTConfig_IcehawkChest= true;	
+var NTConfig_SuperMephisto= true;	
+var NTConfig_MephistoChest= true;	
+var NTConfig_Council= true;	
+
+var NTConfig_Moat= true;	
+var NTConfig_Act4= true;	
+var NTConfig_SuperHephasto= true;	
+var NTConfig_HephastoChest= true;	
+var NTConfig_SuperIzual= true;	
+var NTConfig_IzualChest= true;	
+var NTConfig_Act5= true;	
+var NTConfig_SuperDacFarren= true;	
+var NTConfig_DacFarrenChest= true;	
+var NTConfig_SuperShenk= true;	
+var NTConfig_SuperEldritch= true;	
+var NTConfig_EldritchChest= true;	
+var NTConfig_SuperBonesaw= true;	
+var NTConfig_SuperEyeback= true;	
+var NTConfig_SuperSharptooth= true;	
+var NTConfig_SuperThreshSocket= true;	
+var NTConfig_ThreshSocketChest= true;	
+var NTConfig_SuperFrozenstein= true;	
+var NTConfig_FrozensteinChest= true;	
+var NTConfig_SuperPindleskin= true;	
+var NTConfig_SuperSnapchip= true;	
+var NTConfig_SnapchipChest= true;	
+var NTConfig_SuperNihlathak= true;	
+var NTConfig_NihlathakChest= true;	
+var NTConfig_DoCain=false;
+var	NTConfig_DoRaven=false;
+var	NTConfig_DoSmith=false;
+var	NTConfig_DoRadament=false;
+var	NTConfig_DoTome=false;
+var	NTConfig_DoIzual=false;
+var	NTConfig_DoForge=false;
+var	NTConfig_DoShenk=false;
+var	NTConfig_DoAnya=false;
+var	NTConfig_DoAncients=false;
+var	NTConfig_DoBaal=false;
+
+
+var NT_IdleOnClone = false;
+var NT_IdleOnSOJ = false;
+var NT_IdleOnSOJTimeoutSec = 0;
+var NT_HostileAction = 0; //0 = nothing 1 = quit 2 = kill
+var NT_EnableCubing = false;
+var NT_RecipieBox=[];
+var recipieList = [];
+var utilityList=[];

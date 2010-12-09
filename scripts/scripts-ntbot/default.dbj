@@ -1,0 +1,331 @@
+// default.dbj gets executed upon gamejoin 
+
+var sh = null; 
+var ConfigVar = false;
+var configHook = false;
+js_strict(true);
+function main() 
+{ 
+sendCopyData(null, "OOG", 0,me.classid+" classid");
+while(!me.area ) {
+ sendCopyData(null, "OOG", 0,"pregame delay");
+  delay(100); 
+}
+
+var NT_StartTime= getTickCount();
+
+//print ("me.getItemNew.length "+i.length)
+//var a = new Object();		
+ //a = new NpcGetItem(me,null,null,null);
+	
+	
+   print("ÿc9NTBot by Bobite rev: 288"); 
+   sendCopyData(null, "OOG", 0,"In Game");
+// load("tools/mapper.dbj"); 
+//dumpInventory();
+
+//addEventListener("itemdrop", dropHandler);
+addEventListener("itemaction",dropHandlerNew);
+addEventListener("keyup", KeyHandler);
+addEventListener("keydown", KeyDownHandler);
+
+addEventListener("gameevent", function(mode, param,name1,name2) {	   
+	if (QuitWithLeader == name2){
+		print ("quit with leader "+name2)
+		quit();
+	}
+	
+
+});
+addEventListener("scriptmsg", function(msg, param,param2) {	//taking this out of simon says so anything can use it
+   		if (msg == "Pause Default")
+			NT_Pause =true;
+		if (msg == "Resume Default")
+			NT_Pause = false;
+		if (msg =="Complete")
+			currentAction="";
+
+	});
+var ConfigVar = false;
+function KeyDownHandler(key){
+	if (key == 27){
+	delay(200)
+	if (!configHook.visible)
+		configHook.visible = getUIFlag(9);
+	}
+// ConfigVar = new ShowConfig()
+//	ConfigVar.setVisible(true)
+}
+
+//addEventListener("copydata",ScriptMsg);
+//addEventListener("chatcmd", GameMSG);
+addEventListener("whispermsg", WispMSG);
+addEventListener("gamemsg", GameMSG);
+
+
+include("common/HookedControls.dbl");
+	//configHook = new Text("Config NTBot",400,80,7,3,2)
+	configHook= new TextBox(263,30,275,40,"Config NTBot"); configHook.visible = false; configHook.font = 3; configHook.selectedColor=7;
+    configHook.visible = false; configHook.ShowOutline = false;
+	configHook.clickFunction =function(){
+			me.cancel(0)
+			configHook.visible = false;
+		if (!ConfigVar){
+			ConfigVar = new ShowConfig()		
+		}
+			ConfigVar.setVisible(true)
+	};
+
+   
+	include("config/NTConfigManager.dbl")
+   	include("common/NTCommon.dbl");    
+  	include("itemlogger.dbl");
+	NTC_IncludeLibs(); 
+  	NTC_IncludeConfig(); 
+  	
+	
+	
+	try{
+		NT_LoadConfig(); 
+	}catch(error){
+		load("libs/config/NTConfig_"+NTC_CharClassToNameList[me.classid]+"_"+me.name+".dbl")
+	}
+	try{
+  	NTSI_LoadNIPFiles(); 
+  }catch (error){
+	print ("Loading to find error" +error);
+	load("libs/common/NTAttack.dbl")
+	load("libs/common/NTCommon.dbl")
+	load("libs/config/NTConfigManager.dbl")
+	load("libs/itemlogger.dbl");
+
+	
+	}
+
+  sendCopyData(null, "OOG", 0,"Info "+NTAR_Areas[me.area]);
+   if(NTConfig_StartDelay > 0); 
+      NTC_Delay(NTConfig_StartDelay); 
+	SaveInventory();
+	NTA_Initialize();
+	NTT_GetCorpses();
+	NTSI_PickItems();
+  
+//init cuber for utility pick/ clear inventory
+if(NT_EnableCubing){
+	try{
+		print("Cubing enabled")
+		//include("commmon/NTCuber.dbl")
+		initRecipeList();
+		CheckRecipieList();
+	}catch(error){
+	print(error)
+	load("libs/common/NTCuber.dbl")
+	}
+}
+if (NTCreatedConfig){
+		if (!ConfigVar){
+			ConfigVar = new ShowConfig()		
+		}
+			ConfigVar.setVisible(true)
+	
+	}
+
+   if(NTConfig_Script.length > 0) 
+   { 
+    
+      NTC_Include("bots/NTLoader.dbl"); 
+	if(NTConfig_Script[0] !="SimonSays"){
+     NTT_ClearInventory(); 
+     NTT_ClearBelt(); 
+	}
+      load("tools/NTToolsThread.dbj"); 
+	  load("tools/MiscUtility.dbj")
+     NTC_Delay(500); 
+	
+      NT_Loader(); 
+
+   } 
+sendCopyData(null, "OOG", 0,"Quit:Full Run" );
+   NTC_Delay(500);
+
+	if(NT_MinGameTime){
+		if(getTickCount()-NT_StartTime < NT_MinGameTime *1000){
+			me.overhead ("Stalling for "+parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000)+ " Seconds");
+			NTTM_CheckAct()		
+			NTTMGR_TownManager(); 
+			while (getTickCount()-NT_StartTime < NT_MinGameTime *1000){
+				me.overhead ("Stalling for "+parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000)+ " Seconds");
+				NTC_Delay(1000);
+			}
+		}		
+	}
+   
+   quit(); 
+}
+
+
+function dropHandler(id,code,x,y,mode) 
+{ 
+ //sendCopyData(null, "OOG", 0,"Drop: "+id);
+	for (var i=0 ;  i < Bob_ItemList.length ; i++){
+	if (Bob_ItemList[i]==id) return true; //aready there
+	}
+	Bob_ItemList.push(id);//,code,x,y,mode);
+	return true;
+ } 
+function dropHandlerNew(id,mode,code,global) 
+{ 
+//print("itemaction id:"+id +" mode: "+mode + " code: "+code +" global "+ global);
+ if (mode == 0 || mode == 2 || mode == 3){
+//  sendCopyData(null, "OOG", 0,"Drop: "+id);
+	for (var i=0 ;  i < Bob_ItemList.length ; i++){
+	if (Bob_ItemList[i]==id) return true; //aready there
+	}
+	Bob_ItemList.push(id);//,code,x,y,mode);
+	return true;
+ }
+ return true;
+} 
+
+function KeyHandler(key,arg2)
+{
+sendCopyData(null, "OOG", 0,"key press: "+key);
+	
+	if (key==19){
+		if (getTickCount()-NT_LastPause>200){
+			NT_Pause = !NT_Pause;
+			NT_LastPause=getTickCount();
+			if (NT_Pause){
+				print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
+				me.overhead("Pausing Bot...(Press 'Pause' again to resume)");
+			} else{
+				print("ÿc2Resuming Bot...");
+				me.overhead("Resuming Bot...");
+			}	
+		}
+	}
+	if (key == 34){
+	var a = getUnit(4);
+	do
+			{
+				print(a.toSource())
+				sendCopyData(null, "OOG", 0,a.toSource() + " "+a.getFlag(0x400000)+ " "+a.getStat(152)+" " );
+				//sendCopyData(null, "OOG", 0,getBaseStat(0, a.classid, 59) + " " );
+				//print(a.getStat(-2).toSource());
+				sendCopyData(null, "OOG", 0,"item.getStat(-2).toSource()"+a.getStat(-2).toSource() + " " );
+			} while(a.getNext());
+	
+	}
+	if (key==123){ //f12
+	me.overhead("Reavealing " +NTAR_Areas[me.area]);
+	print("Reavealing " +NTAR_Areas[me.area]);
+	RevealArea(me.area);
+	}
+	if (key==122) { //f11
+	var _target = NTC_GetUnit(0);
+
+		if(_target)
+		{
+		sendCopyData(null, "OOG", 0,"ShowInventory" );
+			do
+			{
+				var items=_target.getItems();
+				if(items){
+					for(var i = 0 ; i < items.length ; i++)
+					{
+					sendCopyData(null, "OOG", 0,"dump "+_target.name+" " +items[i].toSource());
+					}
+				}
+			} while(_target.getNext());
+			sendCopyData(null, "OOG", 0,"ShowInventoryEnd" );
+		}
+	}
+	if(key ==120){//f9
+	print("x: "+me.x+" y: "+me.y)
+	var unit = getPresetUnits(me.area);
+		if(unit){
+		for (var j = 0; j < unit.length; j++)
+			sendCopyData(null, "OOG", 0,"Dist" +parseInt(getDistance(me.x,me.y,unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y) )+"preset id "+unit[j].id+" x: "+(unit[j].roomx*5+unit[j].x)+" y: "+(unit[j].roomy*5+unit[j].y));
+		}
+	}
+	
+	 if(typeof(scriptKeyHandler) == 'function')
+		scriptKeyHandler(key)
+		
+	
+	
+	if (configHook.visible)
+		configHook.visible = getUIFlag(9);
+	
+	//sendCopyData(null, me.windowtitle, 0,"Woohooo" );
+	
+	//var a =getScript();
+	//do{
+	//	print("script name:"+a.name+" running :"+a.running);
+	//}while(a.getNext);
+	
+return true;
+}
+function GameMSG(str1,str2)
+{
+sendCopyData(null, "OOG", 0,str1+":"+str2 );
+print(str1 + " said "+ str2);
+return true;
+}
+function WispMSG(str1,str2)
+{
+sendCopyData(null, "OOG", 0,str1+":"+str2 );
+print(str1 + " wispered "+ str2);
+return true;
+}
+function ScriptMsg(mode,mes){
+	print("Default recived:"+mes);
+}
+function keepAlive(){
+
+}
+function rnd(min,max){ //keeping up with d2bs 1.5
+if(typeof(rand) == 'function')
+	return rand(min,max);
+else	
+	return Math.floor(Math.random()*(max-min)+1)+min;
+}
+function RevealArea(area)
+	{
+		if(area in revealedAreas)
+			return;
+		revealedAreas.push(area);
+		var room = getRoom(area);
+		var roomsRevealed = [];
+		do {
+			if(room == undefined || room.area != area)
+				return; // exit when we've finished with the rooms for this area
+			if([room.x, room.y] in roomsRevealed)
+			{
+				roomsRevealed.push([room.x, room.y]);
+				room.getNext();
+			}
+			else
+			
+					room.reveal(true);
+		} while(room.getNext());
+	}
+function dumpInventory()
+{
+var startTime = getTickCount();
+	var items=me.getItems();
+	if(items){
+		sendCopyData(null, "OOG", 0,"dump_Start "+me.name +"@" +me.account);
+		for(var i = 0 ; i < items.length ; i++)
+		{
+			sendCopyData(null, "OOG", 0,"dump " +items[i].toSource());
+		}
+		sendCopyData(null, "OOG", 0,"dump_End "+me.name +"@" +me.account);
+	}
+	print ("Dumped to oog in "+((getTickCount())-startTime));
+}
+Array.prototype.remove = function(from, to) {
+  var rest = this.slice((to || from) + 1 || this.length);
+  this.length = from < 0 ? this.length + from : from;
+  return this.push.apply(this, rest);
+};

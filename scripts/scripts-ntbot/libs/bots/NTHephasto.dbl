@@ -1,0 +1,39 @@
+function NT_Hephasto()
+{
+	print("ÿc3Starting Hephasto Script");
+	if (!NTTM_CheckAct()) {
+		return false;
+	}
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to River of Flame"); 
+		if(!NTTM_TownMove("waypoint"))
+		return false;
+		if(!NTM_UsePortal("Waypoint", 107))
+		{
+	print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to River of Flame"); 
+		NTM_TravelTO(107);
+	print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(107,true,10000);
+		}
+	print("ÿc5Precasting"); 
+		NTP_DoPrecast(); 
+	print("ÿc8Going to River of Flame");
+		NTM_TravelTO(107);
+		
+	print("ÿc8Going to Hell Force");
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 376, 376)) 
+		return false; 
+	 
+	print("ÿc1Killing Hephasto"); 
+	if(NTA_KillBoss(getLocaleString(1067))) //"Hephasto The Armorer"
+	NTSI_PickItems();
+	
+	{
+		if(NTConfig_ClearPosition)
+			NTA_ClearPosition();
+		NTSI_PickItems();
+	}
+	
+   return true;
+}

@@ -1,0 +1,20 @@
+function NT_Gamble()
+{
+   print("Now running: Gamblebot");
+   
+   if(!NTTM_CheckAct())
+      return false;
+      
+   if(!NTTM_CheckAct(1))
+      return false;
+   var startTime=getTickCount();  	//5minutes
+   while(true)//(getTickCount()-startTime)<(5*60*1000))
+   {
+      NTTMGR_VisitGheed();
+
+      say("gold 990000");
+      delay(500 + me.ping);
+      say("gold 990000");
+      delay(500 + me.ping);
+   }
+} 

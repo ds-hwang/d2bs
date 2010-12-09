@@ -1,0 +1,37 @@
+function NT_WPpindle() {
+    print("ÿc3Starting Waypoint Pindleskin Script");
+    if (!NTTM_CheckAct()) {
+        return false;
+    }
+    NTTMGR_TownManager();
+
+    print("ÿc8Going to Halls of Pain");
+    if (!NTTM_TownMove("waypoint")) return false;
+    if (!NTM_UsePortal("Waypoint", 123)) {
+        print("ÿc8Seems we do not have the waypoint, Traveling to the Red Portal via Harrogath");
+		if(!NTTM_CheckAct(5))
+		return false;
+        if (!NTTM_TownMove("portal")) return false;
+        if (!NTM_UsePortal("Portal", 121)){
+		Print("I can't find the Waypoint or the Red Portal, Please make sure you have completed the Anya Quest.")
+		    return false;
+		}
+    }
+    print("ÿc5Precasting");
+    NTP_DoPrecast();
+    print("ÿc8Going to Nihlathaks Temple");
+    if(me.area == 123) {
+	NTM_TravelTO(122);
+	}
+	NTM_TravelTO(121);
+
+    if (!NTM_MoveTo(10061, 13234)) return false;
+
+    print("ÿc1Killing Pindleskin");
+    if (!NTA_KillBoss(getLocaleString(22497))) return false;
+
+    if (NTConfig_ClearPosition) NTA_ClearPosition(20, 0x08);
+
+    NTSI_PickItems();
+    return true;
+}

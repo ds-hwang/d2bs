@@ -1,0 +1,149 @@
+function NT_Loader() {
+	var _result = false;
+	var curScript;
+	for (var i = 0; i < NTConfig_Script.length; i++) {
+		if (NTConfig_Script[0] != "SimonSays") {
+			NTTM_CheckAct();
+			NTC_Delay(1000);
+		}
+		
+		switch (NTConfig_Script[i]) {
+		case "AncientTunnels":
+			NTC_Include("bots/NTAncientTunnels.dbl");
+			_result = NT_AncientTunnels();
+			break;
+		case "Andariel":
+			NTC_Include("bots/NTAndariel.dbl");
+			_result = NT_Andariel();
+			break;
+		case "Hephasto":
+			NTC_Include("bots/NTHephasto.dbl");
+			_result = NT_Hephasto();
+			break;
+		case "Izual":
+			NTC_Include("bots/NTIzual.dbl");
+			_result = NT_Izual();
+			break;
+		case "Baal":
+			NTC_Include("bots/NTBaal.dbl");
+			_result = NT_Baal();
+			break;
+		case "Countess":
+			NTC_Include("bots/NTCountess.dbl");
+			_result = NT_Countess();
+			break;
+		case "Diablo":
+			NTC_Include("bots/NTDiablo.dbl");
+			//curScript=ScriptEngine.CompileFile("bots/NTDiablo.dbl")//->Run();
+			//curScript.Resume
+			_result = NT_Diablo();
+			break;
+		case "Duriel":
+			NTC_Include("bots/NTDuriel.dbl");
+			_result = NT_Duriel();
+			break;
+		case "Eldritch":
+			NTC_Include("bots/NTEldritch.dbl");
+			_result = NT_Eldritch();
+			break;
+		case "Frozenstein":
+			NTC_Include("bots/NTFrozenstein.dbl");
+			_result = NT_Frozenstein();
+			break;
+		case "Mausoleum":
+			NTC_Include("bots/NTMausoleum.dbl");
+			_result = NT_Mausoleum();
+			break;
+		case "Mephisto":
+			NTC_Include("bots/NTMephisto.dbl");
+			_result = NT_Mephisto();
+			break;
+		case "Nihlathak":
+			NTC_Include("bots/NTPindleskinNihlathak.dbl");
+			_result = NT_Nihlathak();
+			break;
+		case "Pindleskin":
+			NTC_Include("bots/NTPindleskinNihlathak.dbl");
+			_result = NT_Pindleskin();
+			break;
+		case "Pit":
+			NTC_Include("bots/NTPit.dbl");
+			_result = NT_Pit();
+			break;
+		case "Summoner":
+			NTC_Include("bots/NTSummoner.dbl");
+			_result = NT_Summoner();
+			break;
+		case "ThreshSocket":
+			NTC_Include("bots/NTThreshSocket.dbl");
+			_result = NT_ThreshSocket();
+			break;
+		case "Travincal":
+			NTC_Include("bots/NTTravincal.dbl");
+			_result = NT_Travincal();
+			break;
+		case "Leech":
+			NTC_Include("bots/NTLeech.dbl");
+			_result = NT_Leech();
+			break;
+		case "LeechD":
+			NTC_Include("bots/NTLeechD.dbl");
+			//curScript=ScriptEngine.CompileFile("bots/NTLeechD.dbl")//->Run();
+			//curScript.Run
+			_result = NT_LeechD();
+			break;
+		case "FastDiablo":
+			NTC_Include("bots/NTFastDiablo.dbl");
+			_result = NT_FastDiablo();
+			break;
+		case "WPpindle":
+			NTC_Include("bots/NTFastPindle.dbl");
+			_result = NT_WPpindle();
+			break;
+		case "ClawViper":
+			NTC_Include("bots/ClawViper.dbl");
+			_result = NT_ClawViper();
+			break;
+		case "Gamble":
+			NTC_Include("bots/NTGamble.dbl");
+			_result = NT_Gamble();
+			break;
+		case "BoneAsh":
+			NTC_Include("bots/NTBoneAsh.dbl");
+			_result = NT_BoneAsh();
+			break;
+		case "SimonSays":
+			NTC_Include("bots/SimonSays.dbl");
+			_result = NT_SimonSays();
+			break;
+		case "Sewers":
+			NTC_Include("bots/NTSewers.dbl");
+			_result = NT_Sewers();
+			break;
+		case "Kurast":
+			NTC_Include("bots/NTKurast.dbl");
+			_result = NT_Kurast();
+			break;
+		case "Tristram":
+			NTC_Include("bots/NTTristram.dbl");
+			_result = NT_Tristram();
+			break;
+		case "Bishibosh":
+			NTC_Include("bots/NTBishibosh.dbl");
+			_result = NT_Bishi();
+			break;
+		case "SuperUnique":
+			NTC_Include("bots/SuperUnique.dbl");
+			_result = NT_SuperUnique();
+			break;
+
+		
+		
+		default:
+			_result = false;
+			break;
+		}
+
+		if (!_result) NTC_SendLogToOOG(NTConfig_Script[i] + " Error (" + NTAR_GetAreaName(me.area) + ")");
+	}
+}
