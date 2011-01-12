@@ -85,7 +85,7 @@ static JSExtendedClass unit_class_ex = {
 };
 
 enum me_tinyid {
-	ME_ACCOUNT = 100,
+	ME_ACCOUNT = 99,
 	ME_CHARNAME,
 	ME_CHICKENHP,
 	ME_CHICKENMP,
@@ -104,6 +104,7 @@ enum me_tinyid {
 	ME_REALM,
 	ME_REALMSHORT,
 	ME_MERCREVIVECOST,
+	ME_MAPID,
 	OOG_WINDOWTITLE,
 	OOG_SCREENSIZE,
 	OOG_INGAME,
@@ -152,6 +153,7 @@ static JSPropertySpec me_props[] = {
 	{"classid",			UNIT_CLASSID,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"mode",			UNIT_MODE,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"name",			UNIT_NAME,			JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"mapid",			ME_MAPID,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"act",				UNIT_ACT,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"gid",				UNIT_ID,			JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"x",				UNIT_XPOS,			JSPROP_PERMANENT_VAR,	unit_getProperty},

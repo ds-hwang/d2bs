@@ -201,6 +201,9 @@ JSAPI_PROP(unit_getProperty)
 				*vp = STRING_TO_JSVAL(JS_InternString(cx, tmp));
 			}
 			break;
+		case ME_MAPID:
+			*vp = INT_TO_JSVAL(*p_D2CLIENT_MapId);
+			break;
 		case UNIT_ACT:
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
 			break;

@@ -284,7 +284,21 @@ void D2Map::GetExits(ExitArray& exits) const
 
 			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
 			{
-				// definitely a link, is it walkable?
+				// does this link already exist?
+				bool exists = false;
+				ExitArray::iterator begin = exits.begin(), last = exits.end();
+				for(ExitArray::iterator it = begin; it != last; it++)
+				{
+					if(it->Target == rooms[i]->pLevel->dwLevelNo)
+					{
+						exists = true;
+						break;
+					}
+				}
+				if(exists)
+					continue;
+
+				// definitely a link, doesn't exist, is it walkable?
 				// find the side most adjacent to this one
 				Point y1(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5),
 					  y2(rooms[i]->dwPosX * 5, rooms[i]->dwPosY * 5 + rooms[i]->dwSizeY * 5),
@@ -320,7 +334,7 @@ void D2Map::GetExits(ExitArray& exits) const
 						{
 							spaces++;
 							if(spaces == 3)
-							{								
+							{
 								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 								found = true;
 							}

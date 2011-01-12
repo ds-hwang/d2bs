@@ -1,10 +1,53 @@
 Version History:
 
+Version 1.4 -
+
+	.	Fixes:
+		- say() fixed to properly detect the screen location
+		- Multiple problems with screenhook clicking and hovering.
+		- Signed/unsigned problems with stat ids 13, 29 and 30
+		- Channel chat input parsing
+		- unit.getStat(-2) now properly bitshifts life, mana, and stamina
+
+	.	Added partial support for TCP/IP games in login()
+
+	.	Removed CollisionMap in favor of the newly written map, path, and reduction code
+		- Added new reduction types:
+		 . 0 and 1 are still the default values(0: walk, 1: teleport)
+		 . 2 is now no reduction--all nodes are considered, even if they are not walkable, and the path
+		   is not reduced at all
+		 . 3 is a custom reducer. You have to pass two functions (the first is a rejection function, the
+		   second is a reduction function), more details later
+
+	.	Changed the Warden behavior so that you can load D2BS without cGuard, and it will terminate on
+		Warden if not loaded with cGuard
+
+	.	Upgraded the SQLite library to version 3.7.3
+
+	.	Downgraded "Game not ready" exception from an error to a warning.
+
+	.	Added support for setting skills from item charges (me.setSkill(skill, hand [, item object]) where
+		item object is the result of getUnit(TYPE_ITEM))
+
+	.	Added the ability to change the default starting script names, as well as the ability to let the
+		profile specify both the script path and the default starting script names (see the new values in
+		d2bs.ini for more details)
+
+	.	API changes:
+		- Changed getPath--the first parameter is now the result from getArea()
+		- Added useStatPoint(statid, count) and useSkillPoint(skillid, count)--no significant error checking
+		  is done, so be careful or you may cause a crash (or worse, a ban)!
+		- Added loadMpq (this allows you to switch cd keys on the fly)
+
+	.	Added new debug code! D2 will now silently crash when it does crash (no more "Window not found"
+		errors!), and will output debug information to D2BS.log.
+
 Version 1.3.3 -
 
 	.	Fixed OOG_GetLocation for Lost Connection
 
-	.	Changed the internal unit finding code to use D2's unit hash tables. (Speeds up Unit finding by a couple orders of magnitude.)
+	.	Changed the internal unit finding code to use D2's unit hash tables. (Speeds up Unit finding by a
+		couple orders of magnitude.)
 
 Version 1.3.2 -
 
@@ -27,7 +70,7 @@ Version 1.3.2 -
 Version 1.3.1 -
 
 	.	Fixed me.cancel(1) (was using the wrong function pointer... whoops!)
-      (this also fixes the "gamble bug")
+		(this also fixes the "gamble bug")
 
 Version 1.3 -
 
