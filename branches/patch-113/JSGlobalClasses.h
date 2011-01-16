@@ -14,6 +14,7 @@
 #include "JSParty.h"
 #include "JSExits.h"
 #include "JSRoom.h"
+#include "JSScript.h"
 
 struct JSClassSpec {
 	JSClass* js_class;
@@ -41,6 +42,7 @@ static JSClassSpec global_classes[] = {
 	{&sqlite_stmt,			sqlite_stmt_props,	sqlite_stmt_methods,	NULL,			NULL},
 	{&filetools_class,		NULL,				NULL,					NULL,			filetools_s_methods},
 	{&sandbox_class,		NULL,				sandbox_methods,		NULL,			NULL},
+	{&script_class,			script_props,		script_methods,			NULL,			NULL},
 
 	// screenhook objects
 	{&frame_class,			frame_props,		frame_methods,			NULL,			NULL},
