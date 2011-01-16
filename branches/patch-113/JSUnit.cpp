@@ -992,7 +992,7 @@ JSAPI_FUNC(item_getFlags)
 
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 
-	if(!pUnit || pUnit->dwType == UNIT_ITEM)
+	if(!pUnit || pUnit->dwType != UNIT_ITEM)
 		return JS_TRUE;
 
 	*rval = INT_TO_JSVAL(pUnit->pItemData->dwFlags);
