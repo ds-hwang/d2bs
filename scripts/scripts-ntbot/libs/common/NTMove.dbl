@@ -45,7 +45,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 
 	if (!_walk && getDistance(me.x,me.y,x,y)<30) //optimzation  By Fr3DBr
 		return NTM_TeleportTo(x, y);		
-	print("getpath("+me.area+", "+me.x+", "+me.y+", "+x+", "+y+", "+!_walk+")");
+	//print("getpath("+me.area+", "+me.x+", "+me.y+", "+x+", "+y+", "+!_walk+")");
 
 	_path = undefined;
 
@@ -62,7 +62,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 				_path = getPath(getArea(me.area), me.x, me.y, x, y,_walk,40);	
 		//} catch(e) { x--; y--; }
 	//}
-	print("getpath took " + (getTickCount()-start) +" Miliseconds dist :"+getDistance(me.x,me.y,x,y) +" results "+ _path.toSource())
+	//print("getpath took " + (getTickCount()-start) +" Miliseconds, dist :"+ getDistance(me.x,me.y,x,y) +" result " +_path.toSource() )
 	if(!_path)
 	{
 		print("getpath("+me.area+","+me.x+","+me.y+","+x+","+y+","+!_walk+") failed");
@@ -933,9 +933,40 @@ var match = false;
 	}
 	return true;	
 }
+function getColl(area,x,y){
+		try {
+			return getCollision(area,x,y)
+		} catch(e) {
+		
+			return 99;
+		}
 
+
+
+}
 function NTM_EnterArea(id)
 {
+var exit= getArea(id).exits
+var range =10;
+for(var a =0; a< exit.length; a++){
+	if (exit[a].target == me.area){
+		for (var j =range*-1; j< range ; j=j+5){
+	// check laspoint walkable then los line
+			if (getColl(id,exit[a].x+j,exit[a].y+range) %2 ==0) 
+				return NTM_MoveTo( exit[a].x+j,exit[a].y+range)
+			
+			if (getColl(id,exit[a].x+j,exit[a].y-range) %2 ==0) 
+				return NTM_MoveTo( exit[a].x+j,exit[a].y-range)
+			
+			if (getColl(id,exit[a].x+range,exit[a].y+j) %2 ==0) 
+				return NTM_MoveTo( exit[a].x+range,exit[a].y+j)
+			
+			if (getColl(id,exit[a].x+range,exit[a].y-j) %2 ==0) 
+				return NTM_MoveTo( exit[a].x+range,exit[a].y-j)
+		}	
+	}
+}
+	
 	var _room;
 	var _rooms;
 	var rx,ry,path,reachable, tempCR,cx,cy

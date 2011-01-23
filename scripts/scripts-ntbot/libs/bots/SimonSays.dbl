@@ -40,6 +40,7 @@ function NT_SimonSays()
 	var cbShowLoc = new CheckBox (650,90,"Loction Hook",false)
 	cbShowLoc.visible=cbShowOptions.checked
 	cbSimonStopLifeWatch.visible=cbShowOptions.checked
+	var LoctionHook = new Text("",795,430,2,6,1)
 	var levelInfoHook1 = new Text("",  795, 450, 2, 6, 1);
 	var levelInfoHook2 = new Text("",  795, 465, 2, 6, 1);
 	var levelInfoHook3 = new Text("",  795, 480, 2, 6, 1);
@@ -169,6 +170,60 @@ print(key);
 		}
 		print (str);
 	}
+	if (key == 220){
+	print(getArea().toSource()+ " ");
+	var area=getArea();
+	var myrooms = getRoom();
+	print(myrooms.toSource()+ " ");
+	var myArea = KArray2D(area.xsize*myrooms.xsize,area.ysize*myrooms.ysize)
+	
+	print("size"+area.xsize*myrooms.xsize +" X "+area.ysize*myrooms.ysize )
+	var outbit ="";
+	do
+	{
+		var col = myrooms.getCollision();	
+	
+		for (var y =0; y < myrooms.ysize ; y++){
+			for (var x =0; x < myrooms.xsize; x++){
+				//outbit = (col[y][x]+1) % 2 ;			
+				myArea[(1+(myrooms.x*5+x)-(area.x *5))][(1+(myrooms.y*5+y)-(area.y *5))]= col[y][x];		
+			}
+		}
+		
+	} while(myrooms.getNext());
+	print("Dumping")
+	var	file = File.open( "output//lvlDump2.txt", 1 );
+	if(file) {
+	var line; 
+	var car;
+	
+		for(var i=0;i < area.ysize*myrooms.ysize/(myrooms.ysize/5);i++) {
+			line = ">";
+			
+			for (var u=0;u<area.xsize*myrooms.xsize/(myrooms.xsize/5);u++){
+				
+				if (myArea[u][i] ){					
+					if (myArea[u][i] < 10)	
+						car = myArea[u][i] + " "
+					else 
+						car = myArea[u][i]
+					if (myArea[u][i] > 99) 
+						car = "$$"
+					
+				}else
+					car = "  ";
+				line = line+car;
+			}
+			line = line+"<\n"
+			file.write(line);
+			
+		}
+		file.close();
+	}
+	print("lvl dump complete.");
+	}
+	
+
 return true;
 }
 function followLeader(){

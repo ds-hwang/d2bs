@@ -211,3 +211,21 @@ var NT_EnableCubing = false;
 var NT_RecipieBox=[];
 var recipieList = [];
 var utilityList=[];
+// stuff that should be here
+var bobDebug = false; 
+
+var currentAction = "";
+var	NTcfgSellWhenFull = true;
+var Bob_ItemList = new Array;
+var revealedAreas = new Array;
+var FastSnag =false;
+var NT_PickUtility = true; // pickit fills belt and tombs
+var NT_Pause=false;
+var NT_LastPause=getTickCount();
+var SumXP_GoAct4 =true;
+var NT_LoggingMaxLines=1000000; 
+var NT_logItems=true;
+var NT_MinGameTime = false;
+var inFastSnag = false;
+
+

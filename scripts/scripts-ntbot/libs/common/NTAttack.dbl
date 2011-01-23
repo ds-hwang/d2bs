@@ -9,7 +9,7 @@ var _NTA_SkillDamage=[];
 var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
-var cMap= new Array;
+
  const DEAD_MODE      = (1<<29)|(1<<12);
 function NTA_KillBoss(classid)
 {
@@ -625,17 +625,44 @@ return 1;
 
 function getIntoLOS(target){
  		if(checkCollision(me, target,10)){
-			print("moving closer collision 10")
-			NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
+			//print("moving closer collision 10")
+			
+			var los = FindLOS(target,20)
+			if (los){
+			
+		//	print ("found los:"+los[0]+","+los[1])
+			return	NTM_MoveTo(los[0],los[1]);
+			}else return false;
+			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
 		}
 		if(checkCollision(me, target,2)){
-			print("moving closer collision 2")
-			NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
+			//print("moving closer collision 2")
+			var los = FindLOS(target,20)
+			if (los){		
+		//	print ("found los:"+los[0]+","+los[1])
+				return NTM_MoveTo(los[0],los[1]);
+			}else return false;
+			//NTA_MoveCloseInt(target, Math round(getDistance(me, target)/2));
 		}
 		if(checkCollision(me, target,1)){
-			print("moving closer collision 1")
-			NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
+			//print("moving closer collision 1")
+			var los = FindLOS(target,20)
+			if (los){
+			//	print ("found los:"+los[0]+","+los[1])
+			return	NTM_MoveTo(los[0],los[1]);
+			}else return false;
+			
+			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
 		}
+		if (getDistance(me,target)>10){
+		var los = FindLOS(target,20)
+			if (los){
+			//	print ("found los:"+los[0]+","+los[1]+ " Range") 
+				return NTM_MoveTo(los[0],los[1]);
+			}else return false;
+		}
+		
+	return true	
 }
 
 function NTA_NecromancerAttackInt(target, boss, maxattacks){
@@ -1403,11 +1430,12 @@ function NTA_DoCastInt(index, target){
 	var _untimedindex = index < 4 ? 3 : 5;
 	if (NTConfig_AttackSkill[index] == 0)
 		return false;
+	if (me.area != 102)
+		getIntoLOS(target)
 	if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
 		return false;
 
-	if (me.area != 102)
-		getIntoLOS(target)
+	
 	
 	if(_NTA_SkillDelay[index] > 0)
 	{
@@ -1446,126 +1474,114 @@ function SortMonsters(nUnit1, nUnit2) {  // taken from Mbot cred goes to McGod
 		return -1;
 }
 function FindLOS(mob,range){
-//cMap = buildCmap(me.area)
-var LosPos =[];
-buildMiniCmap(me.area,mob.x,mob.y,75)
+
 if (!mob) return false;
+var LosPos =[];
 	for (var j =range*-1; j< range ; j=j+5){
 	// check laspoint walkable then los line
-		if (cMap[mob.x+j][mob.y+range] %2 ==0  && CheckColl(cMap,mob.x,mob.y,mob.x+j,mob.y+range))
+		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)&& CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
 			LosPos.push( [mob.x+j,mob.y+range])
 			
-		if (cMap[mob.x+j][mob.y-range] %2 ==0  && CheckColl(cMap,mob.x,mob.y,mob.x+j,mob.y-range))
-			LosPos.push( [mob.x+j,mob.y+range])
+		if (isPtWalkable(mob.x+j,mob.y-range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y-range)&& CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y-range)&& CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y-range))
+			LosPos.push( [mob.x+j,mob.y-range])
 			
-		if (cMap[mob.x+range][mob.y+j] %2 ==0  && CheckColl(cMap,mob.x,mob.y,mob.x+range,mob.y+j))
-			LosPos.push( [mob.x+j,mob.y+range])
+		if (isPtWalkable(mob.x+range,mob.y+j)  && CheckColl(mob.x,mob.y,mob.x+range,mob.y+j)&& CheckColl(mob.x,mob.y+1,mob.x+range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x+range,mob.y+j-1))
+			LosPos.push( [mob.x+range,mob.y+j])
 			
-		if (cMap[mob.x-range][mob.y+j] %2 ==0  && CheckColl(cMap,mob.x,mob.y,mob.x-range,mob.y+j))
-			LosPos.push([mob.x+j,mob.y+range])
+		if (isPtWalkable(mob.x-range,mob.y+j) && CheckColl(mob.x,mob.y,mob.x-range,mob.y+j)&& CheckColl(mob.x,mob.y+1,mob.x-range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x-range,mob.y+j-1))
+			LosPos.push([mob.x-range,mob.y+j])
 	}	
-	if(LosPos.length == 0)
-		return false;
+	if(LosPos.length == 0 && range >6)
+		return FindLOS(mob,range-5)
+	if(LosPos.length ==0) return false;
 	LosPos.sort(NTA_SortRoomInt);
+	
+
 		return LosPos[0];
 	
 return false
 }
 function blockLos(bit){
-if (bit %2 ==0 || bit <6)
+
+if (bit %2 ==0 || bit <4)
 	return false;
-return true;
+
+	return true;
 
 }
-function CheckColl(cMap,x1,y1,x2,y2){
+function isPtWalkable(x,y){
+
+ try{ 
+	if (getColl(me.area,me.x,me.y) %2 ==0)
+		return true;
+	}catch (e){
+		return false
+	}
+return false; 
+
+}
+
+//#define ROUND(x) ((int)(x+0.5))
+/*
+void DDA(int x0, int y0, int x1, int y1) {
+  int delX = x1-x0, delY = y1-y0, steps, k;
+  float x=x0, y=y0, incX, incY;
+
+  steps = (abs(delX) > abs(delY)) ? abs(delX) : abs(delY) ;
+
+  incX = delX / (float)steps;
+  incY = delY / (float)steps;
+
+  setpixel(ROUND(x), ROUND(y));
+  for(k=0; k<steps; ++k) {
+      x += incX;
+      y += incY;
+      setpixel(ROUND(x), ROUND(y));
+  }
+}
+*/
+function CheckColl(x0, y0, x1, y1){
+if (x0==x1) x0=x0=1;
+if (y0==y1) y0=y0=1;
+   var dx = Math.abs(x1-x0)
+   var dy = Math.abs(y1-y0) 
+   var sx = (x0 < x1) ? 1:-1
+   var sy = (y0 < y1) ? 1 : -1
+   var err = dx-dy
+	var e2 =0
+   while (x0 != x1 && y0 != y1 ){
+     
+     if (blockLos(getColl(me.area,x0,y0))){
+		//print("blockLos retruning false "+getColl(me.area,x0,y0))
+		return false;	
+     }
+	 e2 = 2*err
+     if (e2 > ( -1 *dy)){ 
+       err= err - dy
+       x0 = x0 + sx
+     }
+     if (e2 <  dx){ 
+       err = err + dx
+       y0 = y0 + sy 
+     }
+   }
+  return true;
+ }
+function CheckColl2(x1,y1,x2,y2){
 var mod = 1;
-if((x2-x1)>(y2-y1)){
+if((x2-x1)>(y2-y1)){ //7793,5293,7773,5293
 	if((x2-x1) < 0 ) mod = -1;
-	for (var x = x1; x==x2; x=x+mod){	
-		try{
-			if (blockLos(cMap[x][Math.round(Math.abs(((y2-y1)/(x2-x1))*x))]))
-				return false;		
-			}catch (e){
-				print ("cmap error at("+x +","+parseInt(((y2-y1)/(x2-x1))*x)+")"+x1 +","+y1+","+x2+","+y2)			
-				return false;
-			}
+	for (var x = x1; x==x2; x=x+mod){			
+			if (blockLos(getColl(me.area,x,Math.round(Math.abs(((y2-y1)/(x2-x1))*x)))))
+				return false;				
 	}	
 }else{
 	if((y2-y1) < 0 ) mod = -1;
 	for (var y = y1; y==y2; y=y+mod){		
-		try{
-			if(blockLos(cMap[Math.round(Math.abs(((x2-x1)/(y2-y1))*y))][y]))		
+			if(blockLos(getColl(me.area,Math.round(Math.abs(((x2-x1)/(y2-y1))*y)),y)))		
 				return false;		
-		}catch(e){
-				print ("cmap error at("+Math.round(Math.abs((x2-x1)/(y2-y1))*y) +","+y+")"+x1 +","+y1+","+x2+","+y2)		
-				return false;
-		}
 	}
 }
+//print("checkCol returning true")
 return true;
-}
-function buildMiniCmap(id,x,y,size){
-	var area=getArea(id);
-	var myrooms = getRoom(id);	
-	var hs =Math.round(size/2)
-	var cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)			
-	do
-	{
-		if(x+hs > myrooms.x*5 && x-hs < myrooms.x+myrooms.xsize && y+hs > myrooms.y*5 && y-hs < myrooms.y+myrooms.ysize ){
-			var col = myrooms.getCollision();		
-			for (var yy =0; yy < myrooms.ysize ; yy++){
-				for (var xx =0; xx < myrooms.xsize; xx++){						
-					try{
-				
-					cMap[(myrooms.x*5+xx)][(myrooms.y*5+yy)]= col[yy][xx];		
-					}catch(e){
-					print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-					}
-				}
-			}		
-		}
-	} while(myrooms.getNext());
-	
-
-}
-function buildCmap(id){
-if (cMap && cMap.area == id)
-	return true;	
-	
-	var area=getArea(id);
-	var myrooms = getRoom(id);	
-	
-	
-	var cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)		
-	do
-	{
-		var col = myrooms.getCollision();		
-		for (var y =0; y < myrooms.ysize ; y++){
-			for (var x =0; x < myrooms.xsize; x++){						
-				try{
-				cMap[(myrooms.x*5+x)][(myrooms.y*5+y)]= col[y][x];		
-				}catch(e){
-				print (e + "x:"+(myrooms.x*5+y) +"y: "+(myrooms.y*5+y))
-				}
-			}
-		}		
-	} while(myrooms.getNext());
-	cMap.area =id
-	print(cMap[me.x][me.y]+"test")
-	for (var x = -10; x <10 ;x++ ){
-				var col =[];
-				for (var y = -10; y <10 ;y++){
-					col[y+10]=cMap[me.x+x][me.y+y]
-				}
-				print (col.toSource())
-			}
-		
-	return cMap;
-}
-function Array2D(ymin,ysize){
-var k=new Array;  
-for (var i = ymin; i < ymin+ysize; ++ i)
-	k [i] = new Array; 
-
-return k; 
 }

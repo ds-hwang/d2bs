@@ -99,7 +99,7 @@ const NTC_SHIFT_NONE = 0;
 const NTC_SHIFT_HOLD = 1;
 
 const NTC_DELAY_FRAME = 40;
-
+var NTCreatedConfig = false;
 var NTC_CharClassToNameList = new Array(7);
 NTC_CharClassToNameList[0] = "Amazon";
 NTC_CharClassToNameList[1] = "Sorceress";
@@ -117,7 +117,7 @@ var NTConfig_AttackSkill =[];
 	NTConfig_AttackSkill[4] = 0;		// Secondary untimed skill if boss is immune to primary untimed skill!
 	NTConfig_AttackSkill[5] = 0;		// Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
 	
-	
+var NTCreatedConfig = false;
 var NTC_ItemQualityToNameList = new Array(9);
 NTC_ItemQualityToNameList[0] = "None";
 NTC_ItemQualityToNameList[1] = "Low Quality";
@@ -128,22 +128,7 @@ NTC_ItemQualityToNameList[5] = "Set";
 NTC_ItemQualityToNameList[6] = "Rare";
 NTC_ItemQualityToNameList[7] = "Unique";
 NTC_ItemQualityToNameList[8] = "Crafted";
-var bobDebug = false; 
 
-var currentAction = "";
-var	NTcfgSellWhenFull = true;
-var Bob_ItemList = new Array;
-var revealedAreas = new Array;
-var FastSnag =false;
-var NT_PickUtility = true; // pickit fills belt and tombs
-var NT_Pause=false;
-var NT_LastPause=getTickCount();
-var SumXP_GoAct4 =true;
-var NT_LoggingMaxLines=1000000; 
-var NT_logItems=true;
-var NT_MinGameTime = false;
-var inFastSnag = false;
-var NTCreatedConfig = false;
 function debugPrint(str)
 {
 
