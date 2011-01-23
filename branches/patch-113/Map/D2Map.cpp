@@ -147,7 +147,58 @@ void D2Map::SetCollisionData(int x, int y, WORD value)
 
 	LeaveCriticalSection(lock);
 }
+bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
+{
+	bool bAdded = FALSE;
+	CollMap* pCol = NULL;
+		if(!pRoom2->pRoom1)
+	{
+		bAdded = TRUE;
+		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+	}
 
+	if(pRoom2->pRoom1)
+		pCol = pRoom2->pRoom1->Coll;
+
+	if(!pCol)
+	{
+		if(bAdded)
+			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		return FALSE;
+	}
+	int x = pCol->dwPosGameX - pRoom2->pLevel->dwPosX * 5;
+	int y = pCol->dwPosGameY - pRoom2->pLevel->dwPosY * 5;
+	int nCx = pCol->dwSizeGameX;
+	int nCy = pCol->dwSizeGameY;
+
+	int nLimitX = x + nCx;
+	int nLimitY = y + nCy;
+
+	
+
+	WORD* p = pCol->pMapStart;
+
+
+	
+	for(int j = y; j < nLimitY; j++)		
+	{
+		
+		for (int i = x; i < nLimitX; i++)
+		{
+			if (*p %2 == 0){
+			if(bAdded)
+				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+				return TRUE;
+			}				
+			p++;
+		}
+
+	}
+	if(bAdded)
+		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		return FALSE;
+
+}
 bool D2Map::IsGap(int x, int y, bool abs) const
 {
 	const int gapSize = 3;
@@ -282,7 +333,7 @@ void D2Map::GetExits(ExitArray& exits) const
 				added.push_back(rooms[i]);
 			}
 
-			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
+			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo && D2Map::IsRoomWalkable(rooms[i]))
 			{
 				// does this link already exist?
 				bool exists = false;
@@ -307,10 +358,14 @@ void D2Map::GetExits(ExitArray& exits) const
 
 				Point start(0,0), end(0,0);
 
-				if(x1 == y4 && x2 == y3)      { start = x1; end = x2; }
-				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
-				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
-				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
+				if(x1.first == posX && y3.first == posX) //Left Side
+					{ start = x1; end = x2; }
+				else if(x2.second== endY  && y4.second ==endY )
+					{ start = x2; end = x3; } // bottom side
+				else if(x3.first  == endX && y1.first  == endX)
+					{ start = x3; end = x4; } // Right Side
+				else if(x4.second == posY && y2.second == posY)
+					{ start = x4; end = x1; }//top side
 
 				if(start != empty && end != empty)
 				{
@@ -330,13 +385,13 @@ void D2Map::GetExits(ExitArray& exits) const
 					for(int x = 0, y = 0; !found && midpoint != end; x += xstep, y += ystep)
 					{
 						midpoint = Point(start.first + x, start.second + y);
-						if(SpaceIsWalkable(midpoint, true))
+						if(SpaceIsWalkable(midpoint, true))					
 						{
 							spaces++;
-							if(spaces == 3)
+							if(spaces == 2) // changed to 2 to find exit out of act 4 town
 							{
-								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
-								found = true;
+								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));								
+								found = true;								
 							}
 						}
 						else
@@ -396,7 +451,7 @@ bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 }
 
 bool D2Map::SpaceIsWalkable(const Point& point, bool abs) const
-{
+{	
 	return !SpaceHasFlag(D2Map::Avoid, point, abs)		  &&
 		   !(SpaceHasFlag(D2Map::BlockWalk, point, abs) || SpaceHasFlag(D2Map::BlockPlayer, point, abs)  ||
 		     SpaceHasFlag(D2Map::ClosedDoor, point, abs) || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||

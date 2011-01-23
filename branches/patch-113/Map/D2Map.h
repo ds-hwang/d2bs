@@ -92,7 +92,7 @@ public:
 	static D2Map* GetMap(Level* level);
 	static void ClearCache(void);
 	void Dump(const char* file, const PointList& points) const;
-
+	bool IsRoomWalkable(Room2* const room) const;
 	Point AbsToRelative(const Point& point) const;
 	Point RelativeToAbs(const Point& point) const;
 
