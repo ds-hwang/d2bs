@@ -143,7 +143,7 @@ void D2Map::SetCollisionData(int x, int y, WORD value)
 	EnterCriticalSection(lock);
 
 	assert(IsValidPoint(Point(x, y), false));
-	mapPoints->SetPoint(x, y, (CollisionFlag)value);
+	mapPoints->SetPoint(x, y, (CollisionFlag)(value & DefaultFlags));
 
 	LeaveCriticalSection(lock);
 }
@@ -174,12 +174,8 @@ bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
 	int nLimitX = x + nCx;
 	int nLimitY = y + nCy;
 
-	
-
 	WORD* p = pCol->pMapStart;
 
-
-	
 	for(int j = y; j < nLimitY; j++)		
 	{
 		

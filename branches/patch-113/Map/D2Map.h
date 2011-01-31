@@ -58,6 +58,7 @@ public:
 		ThickenedWall		= 0xFEFE,
 		Avoid				= 0xFFFF
 	};
+	static const CollisionFlag DefaultFlags = (CollisionFlag)(BlockWalk | BlockLineOfSight | Wall | BlockPlayer | ClosedDoor);
 
 private:
 	typedef std::list<Room2*> RoomList;

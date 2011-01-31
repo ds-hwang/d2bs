@@ -93,6 +93,7 @@ private:
 
 			bool result = closed.insert(current->point).second;
 			assert(result == true);
+			(void)(result); // shut up compiler about unused variable warning
 
 			for(int i = 1; i >= -1; i--)
 			{
