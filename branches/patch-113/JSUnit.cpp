@@ -67,6 +67,9 @@ JSAPI_PROP(unit_getProperty)
 
 	switch(JSVAL_TO_INT(id))
 	{
+		case ME_PID:
+			JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);
+			break;
 		case ME_PROFILE:
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Vars.szProfile));
 			break;
@@ -203,6 +206,9 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_MAPID:
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_MapId);
+			break;
+		case ME_NOPICKUP:
+			*vp = INT_TO_JSVAL(*p_D2CLIENT_NoPickUp);
 			break;
 		case UNIT_ACT:
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
@@ -454,17 +460,21 @@ JSAPI_PROP(unit_setProperty)
 				Vars.bBlockMouse = JSVAL_TO_BOOLEAN(*vp);
 			break;
 		case ME_RUNWALK:
-			myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
-			if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
-				return JS_TRUE;
+			{
+				myUnit* lpUnit = (myUnit*)JS_GetPrivate(cx, obj);
+				if(!lpUnit || (lpUnit->_dwPrivateType & PRIVATE_UNIT) != PRIVATE_UNIT)
+					return JS_TRUE;
 
-			UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
-			if(!pUnit)
-				return JS_TRUE;
-			if(pUnit == D2CLIENT_GetPlayerUnit())
-				*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+				UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
+				if(!pUnit)
+					return JS_TRUE;
+				if(pUnit == D2CLIENT_GetPlayerUnit())
+					*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
+			}
 			break;
-
+		case ME_NOPICKUP:
+			*p_D2CLIENT_NoPickUp = !!JSVAL_TO_INT(*vp);
+			break;
 	}
 	return JS_TRUE;
 }
@@ -617,21 +627,16 @@ JSAPI_FUNC(unit_cancel)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
-	BOOL automapOn = D2CLIENT_GetUIState(UI_AUTOMAP);
+	BOOL automapOn = !!D2CLIENT_GetUIState(UI_AUTOMAP);
 	
 	if(IsScrollingText())
-			D2CLIENT_ClearScreen();
-	else if (D2CLIENT_GetCurrentInteractingNPC())	
-			D2CLIENT_CloseNPCInteract();
+		D2CLIENT_ClearScreen();
+	else if(D2CLIENT_GetCurrentInteractingNPC())	
+		D2CLIENT_CloseNPCInteract();
+	else if(D2CLIENT_GetCursorItem())
+		D2CLIENT_ClickMap(0, 10, 10, 0x08);
 	else
 		D2CLIENT_CloseInteract();
-
-	if(D2CLIENT_GetCursorItem())
-	{
-		// Diablo drops an Item by using the Walk function.
-		// Just perform a clickMap "click" and we drop it
-		D2CLIENT_ClickMap(0, 10, 10, 0x08);
-	}	
 
 	D2CLIENT_SetUIState(UI_AUTOMAP, automapOn);
 

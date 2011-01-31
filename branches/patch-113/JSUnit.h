@@ -85,7 +85,7 @@ static JSExtendedClass unit_class_ex = {
 };
 
 enum me_tinyid {
-	ME_ACCOUNT = 99,
+	ME_ACCOUNT = 90,
 	ME_CHARNAME,
 	ME_CHICKENHP,
 	ME_CHICKENMP,
@@ -113,7 +113,9 @@ enum me_tinyid {
 	ME_BLOCKKEYS,
 	ME_BLOCKMOUSE,
 	ME_GAMEREADY,
-	ME_PROFILE
+	ME_PROFILE,
+	ME_NOPICKUP,
+	ME_PID
 };
 
 static JSPropertySpec me_props[] = {
@@ -142,6 +144,8 @@ static JSPropertySpec me_props[] = {
 	{"blockMouse",		ME_BLOCKMOUSE,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
 	{"gameReady",		ME_GAMEREADY,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"profile",			ME_PROFILE,			JSPROP_PERMANENT_VAR,	unit_getProperty},
+	{"nopickup",		ME_NOPICKUP,		JSPROP_STATIC_VAR,		unit_getProperty,	unit_setProperty},
+	{"pid",				ME_PID,				JSPROP_PERMANENT_VAR,	unit_getProperty},
 
 	{"screensize",		OOG_SCREENSIZE,		JSPROP_PERMANENT_VAR,	unit_getProperty},
 	{"windowtitle",		OOG_WINDOWTITLE,	JSPROP_PERMANENT_VAR,	unit_getProperty},

@@ -170,10 +170,10 @@ VARPTR(D2CLIENT, RecentTradeId, DWORD, 0x11C2CC)
 
 VARPTR(D2CLIENT, ExpCharFlag, DWORD, 0x119854)
 
-VARPTR(D2CLIENT, MapId, DWORD, 0x11C3BC) // unused but I want to add it
+VARPTR(D2CLIENT, MapId, DWORD, 0x11C3BC)
 
 VARPTR(D2CLIENT, AlwaysRun, DWORD, 0x11C3EC)
-VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C2F0) // unused but I want to add it
+VARPTR(D2CLIENT, NoPickUp, DWORD, 0x11C2F0)
 
 VARPTR(D2CLIENT, ScreenCovered, DWORD, 0x1E8F9) // unused, appears to be an int specifying which screens (if any) are opened...
 
