@@ -183,23 +183,15 @@ JSAPI_FUNC(my_getPath)
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	JSObject* lvl = NULL;
-	uint x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
+	uint lvl = 0, x = 0, y = 0, dx = 0, dy = 0, reductionType = 0, radius = 20;
 
-	if(!JS_ConvertArguments(cx, argc, argv, "ouuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
+	if(!JS_ConvertArguments(cx, argc, argv, "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 		return JS_FALSE;
-
-	if(strcmp(JS_GetClass(cx, lvl)->name, area_class.name) != 0)
-		THROW_ERROR(cx, "Invalid area");
 
 	if(reductionType == 3 && !(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8])))
 		THROW_ERROR(cx, "Invalid function values for reduction type");
 
-	myArea* area = (myArea*)JS_GetPrivate(cx, lvl);
-	if(!area)
-		THROW_ERROR(cx, "Could not retrieve area data!");
-
-	Level* level = GetLevel(area->AreaId);
+	Level* level = GetLevel(lvl);
 
 	D2Map* map = D2Map::GetMap(level);
 
