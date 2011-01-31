@@ -168,10 +168,6 @@ JSAPI_FUNC(my_acceptTrade)
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
-int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end)
-{
-	return DiagonalShortcut(point, end);
-}
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())
@@ -188,7 +184,8 @@ JSAPI_FUNC(my_getPath)
 	if(!JS_ConvertArguments(cx, argc, argv, "uuuuu/uu", &lvl, &x, &y, &dx, &dy, &reductionType, &radius))
 		return JS_FALSE;
 
-	if(reductionType == 3 && !(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8])))
+	if(reductionType == 3 &&
+		!(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8]) && JSVAL_IS_FUNCTION(cx, argv[9])))
 		THROW_ERROR(cx, "Invalid function values for reduction type");
 
 	Level* level = GetLevel(lvl);
@@ -203,18 +200,15 @@ JSAPI_FUNC(my_getPath)
 		case 0: reducer = new WalkPathReducer(map, DiagonalShortcut, radius); break;
 		case 1: reducer = new TeleportPathReducer(map, DiagonalShortcut, radius); break;
 		case 2: reducer = new NoPathReducer(map); break;
-		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8]); break;
+		case 3: reducer = new JSPathReducer(map, cx, obj, argv[7], argv[8], argv[9]); break;
 		default: THROW_ERROR(cx, "Invalid path reducer value!"); break;
 	}
 
-	if(!map->IsValidPoint(start, true) || !map->IsValidPoint(end, true))
-		THROW_ERROR(cx, "Invalid start or end point!");
-
 	PointList list;
 #if defined(_TIME)
-	AStarPath<TimedAlloc<Node, std::allocator<Node> > > path(map, reducer, EstimateDistance);
+	AStarPath<TimedAlloc<Node, std::allocator<Node> > > path(map, reducer);
 #else
-	AStarPath<> path(map, reducer, EstimateDistance);
+	AStarPath<> path(map, reducer);
 #endif
 	path.GetPath(start, end, list, true);
 #if defined(_TIME)
@@ -258,26 +252,42 @@ JSAPI_FUNC(my_getCollision)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
-	if(argc < 3 || !JSVAL_IS_INT(argv[0]) || !JSVAL_IS_INT(argv[1]) || !JSVAL_IS_INT(argv[2]))
-		THROW_ERROR(cx, "Invalid parameters were passed to getCollision!");
-
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
-	DWORD nLevelId;
-	int32 nX, nY;
-	JS_ValueToECMAUint32(cx, argv[0], &nLevelId);
-	JS_ValueToECMAInt32(cx, argv[1], &nX);
-	JS_ValueToECMAInt32(cx, argv[2], &nY);
+	uint32 nLevelId, nX, nY;
+	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
+		return JS_FALSE;
 
-	Point point(nX, nY);
-	Level* level = GetLevel(nLevelId);
+	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
 
-	D2Map* map = D2Map::GetMap(level);
-	if(!map->IsValidPoint(point))
-		THROW_ERROR(cx, "Invalid point!");
+	if(GetDistance(x, y, nX, nY) > 60) { // if the distance is greater than 1 screen radius
+		Point point(nX, nY);
+		Level* level = GetLevel(nLevelId);
 
-	JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
+		D2Map* map = D2Map::GetMap(level);
+		if(!map->IsValidPoint(point))
+			THROW_ERROR(cx, "Invalid point!");
+
+		JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
+	} else { // otherwise, get live data
+		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
+		Room2** rooms = room->pRoom2Near;
+		int i = 0;
+		do {
+			CollMap* map = room->pRoom1->Coll;
+			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
+				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
+			{
+				// this is the room
+				int index = (nX - map->dwPosGameX) * (map->dwSizeRoomX) + (nY - map->dwPosGameY);
+				if(map->pMapStart + index < map->pMapEnd)
+					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
+				break;
+			}
+			room = rooms[i++];
+		} while(room != NULL);
+	}
 
 	return JS_TRUE;
 }
@@ -858,7 +868,7 @@ JSAPI_FUNC(my_getSkillById)
 	return JS_TRUE;
 }
 
-JSAPI_FUNC(my_getTextWidthHeight)
+JSAPI_FUNC(my_getTextSize)
 {
 	if(argc < 2 || !JSVAL_IS_STRING(argv[0]) || !JSVAL_IS_INT(argv[1]))
 	{
@@ -1195,7 +1205,14 @@ JSAPI_FUNC(my_transmute)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+	bool cubeOn = !!D2CLIENT_GetUIState(UI_CUBE);
+	if(!cubeOn)
+		D2CLIENT_SetUIState(UI_CUBE, TRUE);
+
 	D2CLIENT_Transmute();
+
+	if(!cubeOn)
+		D2CLIENT_SetUIState(UI_CUBE, FALSE);
 
 	return JS_TRUE;
 }

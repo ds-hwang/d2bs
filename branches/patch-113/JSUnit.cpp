@@ -627,7 +627,7 @@ JSAPI_FUNC(unit_cancel)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
-	BOOL automapOn = !!D2CLIENT_GetUIState(UI_AUTOMAP);
+	bool automapOn = !!D2CLIENT_GetUIState(UI_AUTOMAP);
 	
 	if(IsScrollingText())
 		D2CLIENT_ClearScreen();
@@ -638,7 +638,8 @@ JSAPI_FUNC(unit_cancel)
 	else
 		D2CLIENT_CloseInteract();
 
-	D2CLIENT_SetUIState(UI_AUTOMAP, automapOn);
+	if(!automapOn)
+		D2CLIENT_SetUIState(UI_AUTOMAP, FALSE);
 
 	return JS_TRUE;
 }

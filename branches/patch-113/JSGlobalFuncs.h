@@ -29,7 +29,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getSkillByName",		my_getSkillByName,		1},
 	{"getSkillById",		my_getSkillById,		1},
 	{"getLocaleString",		my_getLocaleString,		1},
-	{"getTextWidthHeight",	my_getTextWidthHeight,	2},
+	{"getTextSize",			my_getTextSize,			2},
 	{"getThreadPriority",	my_getThreadPriority,	0},
 	{"getUIFlag",			my_getUIFlag,			1},
 	{"getTradeInfo",		my_getTradeInfo,		0},

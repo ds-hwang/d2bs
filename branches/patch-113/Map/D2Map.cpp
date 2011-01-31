@@ -151,10 +151,10 @@ bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
 {
 	bool bAdded = FALSE;
 	CollMap* pCol = NULL;
-		if(!pRoom2->pRoom1)
+	if(!pRoom2->pRoom1)
 	{
 		bAdded = TRUE;
-		D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		AddRoomData(pRoom2);
 	}
 
 	if(pRoom2->pRoom1)
@@ -163,7 +163,7 @@ bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
 	if(!pCol)
 	{
 		if(bAdded)
-			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+			RemoveRoomData(pRoom2);
 		return FALSE;
 	}
 	int x = pCol->dwPosGameX - pRoom2->pLevel->dwPosX * 5;
@@ -176,25 +176,24 @@ bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
 
 	WORD* p = pCol->pMapStart;
 
-	for(int j = y; j < nLimitY; j++)		
+	for(int j = y; j < nLimitY; j++)
 	{
-		
 		for (int i = x; i < nLimitX; i++)
 		{
-			if (*p %2 == 0){
-			if(bAdded)
-				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+			if((*p % 2) == 0) {
+				if(bAdded)
+					RemoveRoomData(pRoom2);
 				return TRUE;
-			}				
+			}
 			p++;
 		}
 
 	}
 	if(bAdded)
-		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-		return FALSE;
-
+		RemoveRoomData(pRoom2);
+	return FALSE;
 }
+
 bool D2Map::IsGap(int x, int y, bool abs) const
 {
 	const int gapSize = 3;
@@ -386,8 +385,8 @@ void D2Map::GetExits(ExitArray& exits) const
 							spaces++;
 							if(spaces == 2) // changed to 2 to find exit out of act 4 town
 							{
-								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));								
-								found = true;								
+								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
+								found = true;
 							}
 						}
 						else
@@ -433,10 +432,7 @@ void D2Map::GetExits(ExitArray& exits) const
 	LeaveCriticalSection(lock);
 }
 
-bool D2Map::SpaceHasFlag(int flag, const Point& point, bool abs) const
-{
-	return ((GetMapData(point, abs) & flag) == flag);
-}
+bool D2Map::SpaceHasFlag(int flag, const Point& point, bool abs) const { return ((GetMapData(point, abs) & flag) == flag); }
 bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 {
 	int count = points.size();
@@ -448,14 +444,14 @@ bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 
 bool D2Map::SpaceIsWalkable(const Point& point, bool abs) const
 {	
-	return !SpaceHasFlag(D2Map::Avoid, point, abs)		  &&
-		   !(SpaceHasFlag(D2Map::BlockWalk, point, abs) || SpaceHasFlag(D2Map::BlockPlayer, point, abs)  ||
-		     SpaceHasFlag(D2Map::ClosedDoor, point, abs) || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||
-		     SpaceHasFlag(D2Map::Object, point, abs));
+	// ignore closed doors here, because we want to path through them
+	return !SpaceIsInvalid(point, abs) && !(SpaceHasFlag(D2Map::BlockWalk, point, abs) ||
+		    SpaceHasFlag(D2Map::BlockPlayer, point, abs)  || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||
+		    SpaceHasFlag(D2Map::Object, point, abs));
 }
 bool D2Map::SpaceHasLineOfSight(const Point& point, bool abs) const
 {
-	return !SpaceHasFlag(D2Map::Avoid, point, abs) && !SpaceHasFlag(D2Map::BlockLineOfSight, point, abs);
+	return !SpaceIsInvalid(point, abs) && !SpaceHasFlag(D2Map::BlockLineOfSight, point, abs);
 }
 
 bool D2Map::SpaceIsInvalid(const Point& point, bool abs) const { return SpaceHasFlag(D2Map::Avoid, point, abs); }
@@ -508,20 +504,13 @@ void D2Map::Dump(const char* file, const PointList& points) const
 		{
 			Point pt(i, j);
 			char c = ' ';
-			if(SpaceHasFlag(D2Map::Avoid, pt, false))
-				c = 'A';
-			else if(pt == first)
-				c = 'S';
-			else if(pt == last)
-				c = 'E';
-			else if(std::find(begin, end, pt) != end)
-				c = 'P';
-			else if(SpaceIsInvalid(pt, false))
-				c = '?';
-			else if(GetMapData(pt, false) == D2Map::ThickenedWall)
-				c = 'T';
-			else if(!SpaceIsWalkable(pt, false))
-				c = 'X';
+			if(SpaceHasFlag(D2Map::Avoid, pt, false)) c = 'A';
+			else if(pt == first) c = 'S';
+			else if(pt == last) c = 'E';
+			else if(std::find(begin, end, pt) != end) c = 'P';
+			else if(SpaceIsInvalid(pt, false)) c = '?';
+			else if(GetMapData(pt, false) == D2Map::ThickenedWall) c = 'T';
+			else if(!SpaceIsWalkable(pt, false)) c = 'X';
 			fprintf(f, "%c", c);
 		}
 		fprintf(f, "\n");

@@ -34,7 +34,7 @@ JSAPI_FUNC(my_getCursorType);
 JSAPI_FUNC(my_getSkillByName);
 JSAPI_FUNC(my_getSkillById);
 JSAPI_FUNC(my_getLocaleString);
-JSAPI_FUNC(my_getTextWidthHeight);
+JSAPI_FUNC(my_getTextSize);
 JSAPI_FUNC(my_getUIFlag);
 JSAPI_FUNC(my_getTradeInfo);
 JSAPI_FUNC(my_getWaypoint);

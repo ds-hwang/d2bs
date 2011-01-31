@@ -30,6 +30,7 @@ inline int __fastcall Chebyshev(Point const & start, Point const & end)
 	int ydist = (start.second-end.second);
 	return (xdist > ydist ? xdist : ydist);
 }
+inline int __fastcall EstimateDistance(const Map* m, const Point& point, const Point& end) { return DiagonalShortcut(point, end); }
 
 #pragma warning ( disable: 4512 )
 
@@ -117,18 +118,25 @@ private:
 	}
 
 public:
-	AStarPath(Map* _map, Reducing::PathReducer* _reducer, Estimator _estimate, Distance _distance = DiagonalShortcut) :
+	AStarPath(Map* _map, Reducing::PathReducer* _reducer, Estimator _estimate = EstimateDistance, Distance _distance = DiagonalShortcut) :
 		map(_map), reducer(_reducer), estimate(_estimate), distance(_distance), alloc(Allocator()) {}
 
 	inline Allocator const & GetAllocator() { return alloc; }
 	inline void SetMap(Map* map) { this->map = map; }
 	inline void SetPathReducer(Reducing::PathReducer* reducer) { this->reducer = reducer; }
 
-	void GetPath(Point const & start, Point const & end, PointList& list, bool abs = true)
+	void GetPath(Point const & _start, Point const & _end, PointList& list, bool abs = true)
 	{
 		Node* result = NULL;
+		Point start = _start, end = _end;
 
-		// if we don't have a valid start and end, don't even bother
+		// if we don't have a valid start and end, try mutating the points
+		if(!map->IsValidPoint(start, abs))
+			reducer->MutatePoint(start, abs);
+		if(!map->IsValidPoint(end, abs))
+			reducer->MutatePoint(end, abs);
+
+		// if they still get rejected, forget it
 		if(!map->IsValidPoint(start, abs) || !map->IsValidPoint(end, abs)) return;
 
 		std::vector<Node*> nodes;

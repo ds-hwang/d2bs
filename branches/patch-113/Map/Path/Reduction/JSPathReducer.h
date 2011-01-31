@@ -19,12 +19,12 @@ class JSPathReducer : public PathReducer
 private:
 	JSContext* cx;
 	JSObject* obj;
-	jsval reject, reduce;
+	jsval reject, reduce, mutate;
 
 public:
-	JSPathReducer(D2Map* m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce) :
-		reject(_reject), reduce(_reduce) { JS_AddRoot(&reject); JS_AddRoot(&reduce); }
-	~JSPathReducer(void) { JS_RemoveRoot(&reject); JS_RemoveRoot(&reduce); }
+	JSPathReducer(D2Map* m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce, jsval _mutate) :
+		reject(_reject), reduce(_reduce), mutate(_mutate) { JS_AddRoot(&reject); JS_AddRoot(&reduce); JS_AddRoot(&mutate); }
+	~JSPathReducer(void) { JS_RemoveRoot(&reject); JS_RemoveRoot(&reduce); JS_RemoveRoot(&mutate); }
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
 	{
@@ -67,6 +67,19 @@ public:
 		jsval argv[] = { INT_TO_JSVAL(pt.first), INT_TO_JSVAL(pt.second) };
 		JS_CallFunctionValue(cx, obj, reject, 2, argv, &rval);
 		return !!JSVAL_TO_BOOLEAN(rval);
+	}
+	void MutatePoint(Point & pt, bool abs)
+	{
+		jsval rval = JSVAL_FALSE;
+		jsval argv[] = { INT_TO_JSVAL(pt.first), INT_TO_JSVAL(pt.second) };
+		JS_CallFunctionValue(cx, obj, mutate, 2, argv, &rval);
+		if(JSVAL_IS_OBJECT(rval))
+		{
+			JS_GetElement(cx, JSVAL_TO_OBJECT(rval), 0, &argv[0]);
+			JS_GetElement(cx, JSVAL_TO_OBJECT(rval), 1, &argv[1]);
+			pt.first = JSVAL_TO_INT(argv[0]);
+			pt.second = JSVAL_TO_INT(argv[1]);
+		}
 	}
 };
 
