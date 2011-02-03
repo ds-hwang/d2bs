@@ -143,7 +143,7 @@ void D2Map::SetCollisionData(int x, int y, WORD value)
 	EnterCriticalSection(lock);
 
 	assert(IsValidPoint(Point(x, y), false));
-	mapPoints->SetPoint(x, y, (CollisionFlag)(value & DefaultFlags));
+	mapPoints->SetPoint(x, y, (CollisionFlag)value );
 
 	LeaveCriticalSection(lock);
 }

@@ -261,7 +261,7 @@ JSAPI_FUNC(my_getCollision)
 
 	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
 
-	if(GetDistance(x, y, nX, nY) > 60) { // if the distance is greater than 1 screen radius
+	
 		Point point(nX, nY);
 		Level* level = GetLevel(nLevelId);
 
@@ -270,7 +270,8 @@ JSAPI_FUNC(my_getCollision)
 			THROW_ERROR(cx, "Invalid point!");
 
 		JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
-	} else { // otherwise, get live data
+
+	if(GetDistance(x, y, nX, nY) < 60) {
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
 		Room2** rooms = room->pRoom2Near;
 		int i = 0;
@@ -280,10 +281,11 @@ JSAPI_FUNC(my_getCollision)
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
 				// this is the room
-				int index = (nX - map->dwPosGameX) * (map->dwSizeRoomX) + (nY - map->dwPosGameY);
-				if(map->pMapStart + index < map->pMapEnd)
+				
+				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
+				//if(*(map->pMapStart + index) < *(map->pMapEnd))
 					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
-				break;
+					break;			
 			}
 			room = rooms[i++];
 		} while(room != NULL);
