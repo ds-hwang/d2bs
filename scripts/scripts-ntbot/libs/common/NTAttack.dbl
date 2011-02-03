@@ -1420,7 +1420,7 @@ function NTA_Initialize(){
 	{
 		if(NTConfig_AttackSkill[i] > 0)
 		{
-			_NTA_SkillHand[i] = getBaseStat("skills.txt", NTConfig_AttackSkill[i], 166) ? 2 : NTC_HAND_RIGHT;
+			_NTA_SkillHand[i] = getBaseStat("skills", NTConfig_AttackSkill[i], 31) ? NTC_HAND_LEFT : NTC_HAND_RIGHT;
 			_NTA_SkillDamage[i] = NTA_GetDamageType(NTConfig_AttackSkill[i]);
 			_NTA_SkillDelay[i] = NTC_GetCastDelay(NTConfig_AttackSkill[i]);
 		}

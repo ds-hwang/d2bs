@@ -30,8 +30,8 @@ addEventListener("keyup", KeyHandler);
 addEventListener("keydown", KeyDownHandler);
 
 addEventListener("gameevent", function(mode, param,name1,name2) {	   
-	if (QuitWithLeader == name2){
-		print ("quit with leader "+name2)
+	 if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
+		print ("quiting with leader "+name2)
 		quit();
 	}
 	

@@ -54,12 +54,12 @@ function NTM_MoveTo(x, y, retry, clearpath)
 		//try {
 		var start = getTickCount()
 			if (_walk)
-				_path = getPath(getArea(me.area), me.x, me.y, x, y,!_walk);
+				_path = getPath(me.area, me.x, me.y, x, y,!_walk);
 			else
-				_path = getPath(getArea(me.area), me.x, me.y, x, y,!_walk,40);
+				_path = getPath(me.area, me.x, me.y, x, y,!_walk,40);
 				debugPrint ("path.toSource "+_path.toSource());
 			if(!_path && !_walk)  //tele path failed trying walking path
-				_path = getPath(getArea(me.area), me.x, me.y, x, y,_walk,40);	
+				_path = getPath(me.area, me.x, me.y, x, y,_walk,40);	
 		//} catch(e) { x--; y--; }
 	//}
 	//print("getpath took " + (getTickCount()-start) +" Miliseconds, dist :"+ getDistance(me.x,me.y,x,y) +" result " +_path.toSource() )
@@ -96,7 +96,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 		{
 			if(_retry++ < retry)
 			{
-				_path = getPath(getArea(me.area), me.x, me.y, x, y);
+				_path = getPath(me.area, me.x, me.y, x, y,!_walk);
 
 				if(!_path)
 				{

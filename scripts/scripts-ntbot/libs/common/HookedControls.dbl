@@ -6,6 +6,12 @@ var GlobalVScrollArray = new Array;
 var GlobalDropDownArray = new Array;
 var clickCount = 2;
 
+function myGetTextSize (txt,font){
+if (typeof(getTextWidthHeight) == "function")
+	return getTextWidthHeight(txt,font);
+else
+	return getTextSize(txt,font)
+}
 
 function CheckBox(x, y,Txt,Checked) {
  	//text "text",x,y,color,font,alingment
@@ -406,7 +412,7 @@ this.watch("visible", function(id,oldval,newval) {
   if (this.text){
 		for (var t = 0; t<this.text.length ; t++){
 			templine=templine+ this.text[t];  
-			if (getTextWidthHeight(templine,this.font)[0] >this.xSize -4){ // 8 controls how close to get to the edge
+			if (myGetTextSize(templine,this.font)[0] >this.xSize -4){ // 8 controls how close to get to the edge
 				spaceAt =templine.lastIndexOf(" "); //wrap at space
 				if (spaceAt){
 					t=t-(templine.length-spaceAt)+1;
@@ -669,11 +675,11 @@ this.font = 6;
 this.visible = true;;
 this.textList=(textList)? textList :[];
 this.droped = false;
-this.autoWide =getTextWidthHeight(text,this.font)[0]+5;
+this.autoWide =myGetTextSize(text,this.font)[0]+5;
 
 for (var j = 0; j < this.textList.length; j++){
-	if (getTextWidthHeight(this.textList[j],this.font)[0]+5 > this.autoWide)
-		this.autoWide = getTextWidthHeight(this.textList[j],this.font)[0]+5;
+	if (myGetTextSize(this.textList[j],this.font)[0]+5 > this.autoWide)
+		this.autoWide = myGetTextSize(this.textList[j],this.font)[0]+5;
 }
 this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
 this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
@@ -683,9 +689,9 @@ this.dropDown.parent = this;
 		this.parent.update();
 	}
 
-this.topText = new TextBox(this.x,this.y,this.autoWide,getTextWidthHeight(text,this.font)[1],this.text,this.textColor,this.backColor)
+this.topText = new TextBox(this.x,this.y,this.autoWide,myGetTextSize(text,this.font)[1],this.text,this.textColor,this.backColor)
 	
-this.listbox = new TextBox(this.x,this.y+getTextWidthHeight(text,this.font)[1],this.autoWide,100," ");
+this.listbox = new TextBox(this.x,this.y+myGetTextSize(text,this.font)[1],this.autoWide,100," ");
 
 
 
