@@ -251,6 +251,14 @@ LRESULT CALLBACK KeyPress(int code, WPARAM wParam, LPARAM lParam)
 					if(isUp && !isRepeat)
 						Console::NextCommand();
 					break;
+				case VK_NEXT:
+					if(isDown)
+						Console::ScrollDown();
+					break;
+				case VK_PRIOR:
+					if(isDown )
+						Console::ScrollUp();
+					break;
 				default:
 					if(isDown)
 					{

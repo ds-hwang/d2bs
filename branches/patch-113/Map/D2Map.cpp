@@ -251,7 +251,7 @@ void D2Map::ThickenWalls(void)
 				for(int y = j-ThickenAmount; y <= j+ThickenAmount; y++)
 				{
 					Point point(x, y);
-					if(IsValidPoint(point, false) && SpaceIsWalkable(point, false))
+					if(IsValidPoint(point, false) && GetMapData(pt, false) == 0)
 						SetCollisionData(x, y, D2Map::ThickenedWall);
 				}
 			}

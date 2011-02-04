@@ -13,8 +13,8 @@ class Console
 {
 private:
 	static bool visible, enabled;
-	static std::deque<std::string> lines, commands;
-	static unsigned int lineCount, commandPos, height;
+	static std::deque<std::string> lines, commands,history;
+	static unsigned int lineCount, commandPos, height , scrollIndex;
 	static std::stringstream cmd;
 
 public:
@@ -36,7 +36,10 @@ public:
 	static void RemoveLastKey(void);
 	static void PrevCommand(void);
 	static void NextCommand(void);
+	static void ScrollUp(void);
+	static void ScrollDown(void);
 	static void AddLine(std::string line);
+	static void UpdateLines(void);
 	static void Clear(void);
 	static void Draw(void);
 	static unsigned int GetHeight(void);

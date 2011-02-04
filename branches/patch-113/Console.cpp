@@ -9,12 +9,14 @@
 
 bool Console::visible = false;
 bool Console::enabled = false;
+std::deque<std::string> Console::history = std::deque<std::string>();
 std::deque<std::string> Console::lines = std::deque<std::string>();
 std::deque<std::string> Console::commands = std::deque<std::string>();
 std::stringstream Console::cmd = std::stringstream();
 unsigned int Console::lineCount = 14;
 unsigned int Console::commandPos = 0;
 unsigned int Console::height = 0;
+unsigned int Console::scrollIndex = 0;
 
 void Console::AddKey(unsigned int key)
 {
@@ -86,24 +88,55 @@ void Console::NextCommand(void)
 
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
+void Console::ScrollUp(void)
+{
+	if(scrollIndex == 0 || history.size() - scrollIndex ==0)
+		return;
+	EnterCriticalSection(&Vars.cConsoleSection);
+	scrollIndex--;
+	Console::UpdateLines();
+	
+	LeaveCriticalSection(&Vars.cConsoleSection);
+}
+void Console::ScrollDown(void)
+{
+	if(history.size() < lineCount || (history.size()-lineCount == scrollIndex))
+		return;
+
+	EnterCriticalSection(&Vars.cConsoleSection);
+	scrollIndex++;
+	Console::UpdateLines();
+	LeaveCriticalSection(&Vars.cConsoleSection);
+}
 
 void Console::AddLine(std::string line)
 {
 	EnterCriticalSection(&Vars.cConsoleSection);
 
 	// add the new line to the list
-	lines.push_back(line);
-
+	history.push_back(line);
 	if(Vars.bLogConsole)
 		Log(const_cast<char*>(line.c_str()));
 
+	scrollIndex =history.size() < lineCount ? 0 : history.size() - lineCount ;
+	Console::UpdateLines();
 	// clear out old lines
-	while(lines.size() > lineCount)
-		lines.pop_front();
-
+	
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
+void Console::UpdateLines(void)
+{
+//while(lines.size() > lineCount)
+//		lines.pop_front();
+	lines.clear();
+	int lin =0;
+	for(int j = history.size()-scrollIndex ; j>0; j--){
+		lines.push_back(history.at(history.size()-j));
+		lin++;
+		if (lin > lineCount) break;
+	}
 
+}
 void Console::Clear(void)
 {
 	EnterCriticalSection(&Vars.cConsoleSection);
