@@ -252,16 +252,23 @@ void Genhook::SetClickHandler(jsval handler)
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(&clicked);
-	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
+	JSContext* cx = ScriptEngine::GetGlobalContext();
+	JS_SetContextThread(cx);
+	JS_BeginRequest(cx);
+	if(JSVAL_IS_FUNCTION(cx, handler))
 		clicked = handler;
 	if(!JSVAL_IS_VOID(clicked))
 	{
 		if(JS_AddRoot(&clicked) == JS_FALSE)
 		{
 			Unlock();
+			JS_EndRequest(cx);
+			JS_ClearContextThread(cx);
 			return;
 		}
 	}
+	JS_EndRequest(cx);
+	JS_ClearContextThread(cx);
 	Unlock();
 }
 
