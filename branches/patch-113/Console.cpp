@@ -115,12 +115,15 @@ void Console::AddLine(std::string line)
 
 	// add the new line to the list
 	history.push_back(line);
+
+	while(history.size() > 300) //set history cap at 300
+		history.pop_front();
+
 	if(Vars.bLogConsole)
 		Log(const_cast<char*>(line.c_str()));
 
 	scrollIndex =history.size() < lineCount ? 0 : history.size() - lineCount ;
 	Console::UpdateLines();
-	// clear out old lines
 	
 	LeaveCriticalSection(&Vars.cConsoleSection);
 }
@@ -129,7 +132,7 @@ void Console::UpdateLines(void)
 //while(lines.size() > lineCount)
 //		lines.pop_front();
 	lines.clear();
-	int lin =0;
+	unsigned int lin =0;
 	for(int j = history.size()-scrollIndex ; j>0; j--){
 		lines.push_back(history.at(history.size()-j));
 		lin++;
