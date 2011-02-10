@@ -627,8 +627,8 @@ JSAPI_FUNC(unit_cancel)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
-	bool automapOn = !!D2CLIENT_GetUIState(UI_AUTOMAP);
-	
+	DWORD automapOn =*p_D2CLIENT_AutomapOn;
+
 	if(IsScrollingText())
 		D2CLIENT_ClearScreen();
 	else if(D2CLIENT_GetCurrentInteractingNPC())	
@@ -637,10 +637,9 @@ JSAPI_FUNC(unit_cancel)
 		D2CLIENT_ClickMap(0, 10, 10, 0x08);
 	else
 		D2CLIENT_CloseInteract();
-
-	if(!automapOn)
-		D2CLIENT_SetUIState(UI_AUTOMAP, FALSE);
-
+	
+	*p_D2CLIENT_AutomapOn =automapOn;
+	
 	return JS_TRUE;
 }
 
