@@ -191,6 +191,8 @@ function NTM_TeleportTo(x, y)
 function NTM_WalkTo(x, y)
 {
 debugPrint("ntm walkTo" );
+if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A)|| getUIFlag(0x08) || getUIFlag(0x17))
+		me.cancel();
 	var _startx, _starty;
 	var _currdestx, _currdesty;
 	var _thrash = 0;

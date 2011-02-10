@@ -570,6 +570,7 @@ return true;
 function NTTM_MoveToInt(c)
 {
 debugPrint("nttm MovetoINT" );
+return NTM_WalkTo(c.x,c.y)  //wtf do we have 2 walking functions
 	var _mode;
 
 	if(me.mode == 17)

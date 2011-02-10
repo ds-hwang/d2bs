@@ -83,7 +83,18 @@ function CheckBox(x, y,Txt,Checked) {
 		return newval;	
 	});
 //print(this.box.toSource());
+//this.box.parent=this;
+
+
 GlobalCheckBoxArray.push (this);
+
+
+
+this.box.click = function (b, x, y) { 
+// empty function that just blocks the click
+	}
+
+
 }
 
 CheckBox.prototype.update = function () {
@@ -254,7 +265,9 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
   this.boxLine4 = new Line(this.x+this.xSize,this.y,this.x+this.xSize,this.y +this.ySize,this.boxColor)
  
   this.background = new Box(this.x+1,this.y+1,this.xSize-1,this.ySize-1,this.backColor,1)
-  
+  this.background.click = function (b, x, y) { 
+// empty function that just blocks the click
+	}
   this.lines = new Array;
   this.textLines = new Array;
   for (var l = this.y; l < this.y +this.ySize; l += 10){
@@ -587,13 +600,19 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.topBox.ysize =this.weight;
 	this.topBox.xsize=this.weight;
 	this.topBox.color=this.backColor;
+	this.topBox.click = function (b, x, y) { 
+// empty function that just blocks the click
+	}
 	//this.botBox = new Box(this.x,this.y+this.ySize-this.weight,this.weight,this.weight,this.backColor,2)	
 	this.botBox.visible=this.visible;	
 	this.botBox.x= (this.verticle) ? this.x : this.xSize +this.x -this.weight
 	this.botBox.y= (this.verticle) ? this.y+this.ySize-this.weight : this.y ;
 	this.botBox.ysize =this.weight;
 	this.botBox.xsize=this.weight;
-	this.botBox.color=this.backColor;	
+	this.botBox.color=this.backColor;
+	this.botBox.click = function (b, x, y) { 
+// empty function that just blocks the click
+	}	
 	//this.scrollBox = new Box(this.x,this.y+this.weight+1,this.weight,this.ySize -(this.weight *2),this.backColor,1)
 	this.scrollBox.visible=this.visible;
 	this.scrollBox.x= (this.verticle) ? this.x : this.x +this.weight
@@ -601,7 +620,9 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.scrollBox.ysize=(this.verticle) ? this.ySize-(this.weight *2):this.weight;
 	this.scrollBox.xsize=(this.verticle) ? this.weight: this.xSize-(this.weight *2)
 	this.scrollBox.color = this.backColor;
-	
+	this.scrollBox.click = function (b, x, y) { 
+// empty function that just blocks the click
+	}
 	//this.uptext=new Text(String.fromCharCode(47,92),this.x+3,this.y+15,this.forColor,5)
 	this.uptext.visible=this.visible;
 	this.uptext.x=this.x+3;
@@ -683,6 +704,7 @@ for (var j = 0; j < this.textList.length; j++){
 }
 this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
 this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
+
 this.dropDown.parent = this;
 	this.dropDown.clickFunction  = function(){
 		this.parent.droped = !this.parent.droped

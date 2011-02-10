@@ -206,7 +206,7 @@ function NTT_MenuCancel()
 	
 	for(i = 0 ; i < 4 ; i++)
 	{
-		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A))
+		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A)|| getUIFlag(0x08) || getUIFlag(0x17))
 		{
 			me.cancel(0);
 			NTC_Delay(500);
