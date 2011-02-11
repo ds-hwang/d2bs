@@ -272,10 +272,18 @@ JSAPI_FUNC(my_getCollision)
 		JS_NewNumberValue(cx, map->GetMapData(point, true), rval);
 
 	if(GetDistance(x, y, nX, nY) < 60) {
+		Level* level = GetLevel(nLevelId);
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
+
 		Room2** rooms = room->pRoom2Near;
 		int i = 0;
 		do {
+			bool added = false;
+			if(!room->pRoom1) {
+				added = true;
+				D2COMMON_AddRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
+			}
+
 			CollMap* map = room->pRoom1->Coll;
 			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
@@ -287,6 +295,8 @@ JSAPI_FUNC(my_getCollision)
 					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
 					break;			
 			}
+			if(added)
+				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
 			room = rooms[i++];
 		} while(room != NULL);
 	}
@@ -1038,6 +1048,7 @@ JSAPI_FUNC(my_say)
 			char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
 			if(!lpszText)
 				THROW_ERROR(cx, "Could not convert string");
+			std::replace(lpszText, lpszText + strlen(lpszText), '%', (char)(unsigned char)0xFE);
 			Say(lpszText);
 		}
 	}

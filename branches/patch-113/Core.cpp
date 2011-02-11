@@ -57,7 +57,7 @@ void Print(const char * szFormat, ...)
 {
 	using namespace std;
 
-	const char REPLACE_CHAR = (unsigned char)0xFE;
+	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
 
 	va_list vaArgs;
 	va_start(vaArgs, szFormat);
@@ -125,11 +125,19 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 
 void Say(const char *szMessage, ...) 
 { 
-	char szBuffer[255] = {0};
+	using namespace std;
+
+	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
+
 	va_list vaArgs;
 	va_start(vaArgs, szMessage);
-	vsprintf_s(szBuffer, sizeof(szBuffer), szMessage, vaArgs);
+	int len = _vscprintf(szMessage, vaArgs);
+	char* szBuffer = new char[len+1];
+	vsprintf_s(szBuffer, len+1, szMessage, vaArgs);
 	va_end(vaArgs);
+
+	replace(szBuffer, szBuffer + len, REPLACE_CHAR, '%');
+
 	Vars.bDontCatchNextMsg = TRUE;
 
 	if(D2CLIENT_GetPlayerUnit())
@@ -158,6 +166,7 @@ void Say(const char *szMessage, ...)
 		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
 		D2MULTI_DoChat();
 	}
+	delete[] szBuffer;
 }
 
 bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)

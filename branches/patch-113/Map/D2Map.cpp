@@ -7,6 +7,7 @@
 #include "D2Ptrs.h"
 #include "Constants.h"
 #include "D2Helpers.h"
+#include "CriticalSections.h"
 
 namespace Mapping
 {
@@ -149,6 +150,8 @@ void D2Map::SetCollisionData(int x, int y, WORD value)
 }
 bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
 {
+	CriticalRoom cRoom;
+	cRoom.EnterSection();
 	bool bAdded = FALSE;
 	CollMap* pCol = NULL;
 	if(!pRoom2->pRoom1)
