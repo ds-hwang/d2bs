@@ -188,8 +188,10 @@ JSAPI_FUNC(my_getPath)
 		!(JSVAL_IS_FUNCTION(cx, argv[7]) && JSVAL_IS_FUNCTION(cx, argv[8]) && JSVAL_IS_FUNCTION(cx, argv[9])))
 		THROW_ERROR(cx, "Invalid function values for reduction type");
 
+	if (lvl == 0)
+		THROW_ERROR(cx, "Invalid level passed to getPath");
 	Level* level = GetLevel(lvl);
-
+	
 	D2Map* map = D2Map::GetMap(level);
 
 	Point start(x, y), end(dx, dy);
@@ -274,7 +276,7 @@ JSAPI_FUNC(my_getCollision)
 	if(GetDistance(x, y, nX, nY) < 60) {
 		Level* level = GetLevel(nLevelId);
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
-
+		int roomsNear = room->dwRoomsNear;
 		Room2** rooms = room->pRoom2Near;
 		int i = 0;
 		do {
@@ -282,23 +284,23 @@ JSAPI_FUNC(my_getCollision)
 			if(!room->pRoom1) {
 				added = true;
 				D2COMMON_AddRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
-			}
-
+			} 
 			CollMap* map = room->pRoom1->Coll;
 			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
-				// this is the room
-				
+				// this is the room				
 				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
 				//if(*(map->pMapStart + index) < *(map->pMapEnd))
 					JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
-					break;			
+					if(added)			
+						D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
+					break;
 			}
-			if(added)
-				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
+			if(added)			
+				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);				
 			room = rooms[i++];
-		} while(room != NULL);
+		} while(room != NULL && i < roomsNear +1);
 	}
 
 	return JS_TRUE;

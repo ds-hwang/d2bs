@@ -150,7 +150,7 @@ JSAPI_FUNC(room_getCollision)
 		return JS_TRUE;
 
 	JSObject* jsobjy = JS_NewArrayObject(cx, NULL, NULL);
-
+	JS_AddRoot(&jsobjy);
 	if(!jsobjy)
 		return JS_TRUE;
 
@@ -171,6 +171,7 @@ JSAPI_FUNC(room_getCollision)
 
 	if(!pCol)
 	{
+		JS_RemoveRoot(&jsobjy);
 		if(bAdded)
 			D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 		return JS_TRUE;
@@ -202,7 +203,7 @@ JSAPI_FUNC(room_getCollision)
 			{
 				if(bAdded)
 					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-				
+				JS_RemoveRoot(&jsobjy);
 				return JS_TRUE;
 			}
 
@@ -217,10 +218,9 @@ JSAPI_FUNC(room_getCollision)
 		{
 			if(bAdded)
 				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
-
+			JS_RemoveRoot(&jsobjy);
 			return JS_TRUE;
 		}
-		
 		nCurrentArrayY++;
 	}
 
@@ -229,7 +229,7 @@ JSAPI_FUNC(room_getCollision)
 		D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pRoom2->pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
 
 	*rval=OBJECT_TO_JSVAL(jsobjy);
-
+	JS_RemoveRoot(&jsobjy);
 	return JS_TRUE;
 }
 
