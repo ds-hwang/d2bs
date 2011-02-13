@@ -85,6 +85,29 @@ void D2Map::Build(void)
 	RoomList addedRooms;
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
 	AddRoom(level->pRoom2First, addedRooms, player);
+	
+	// fill in missing room data
+	int Xsize = addedRooms.front()->pRoom1->dwXSize;
+	int Ysize = addedRooms.front()->pRoom1->dwYSize;
+	Matrix<int>* missingRooms;
+	missingRooms = new Matrix<int>(height / Xsize, width / Ysize);
+	
+	RoomList::iterator start = addedRooms.begin(), last = addedRooms.end();
+	for(RoomList::iterator it = start; it != last; it++)
+		missingRooms->SetPoint(((*it)->dwPosX - level->dwPosX) / (*it)->dwSizeX, ((*it)->dwPosY - level->dwPosY) / (*it)->dwSizeY, 1);
+	for(int rx = 0; rx < height / Xsize - 1; rx ++){
+		for(int ry = 0; ry < width/Ysize - 1; ry ++){
+			if(missingRooms->GetPoint(rx,ry) == 0){
+				for (int x = rx * Xsize; x < rx * Xsize + Xsize; x++){
+					for (int y = ry * Ysize; y < ry * Ysize + Ysize; y++){
+						Point pt(x, y);
+						if(IsValidPoint(pt, false) && GetMapData(pt, false) == 0)
+							SetCollisionData(x, y, 99);						
+					}
+				}
+			}
+		}
+	}
 
 	FillGaps();
 	ThickenWalls();
