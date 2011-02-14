@@ -80,7 +80,7 @@ void D2Map::Build(void)
 {
 	EnterCriticalSection(lock);
 
-	mapPoints = new Matrix<CollisionFlag>(height, width);
+	mapPoints = new Matrix<CollisionFlag>(height, width, D2Map::Avoid);
 
 	RoomList addedRooms;
 	UnitAny* player = D2CLIENT_GetPlayerUnit();
