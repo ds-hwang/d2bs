@@ -146,6 +146,255 @@ function DA_CheckRunewordSkill(item, whichstat, stattype) {
 	return false;
 }
 
+///////////////////////////////////// Darien Common functions ////////////////////////////////////////
+
+//Kill those in within a certain range
+
+
+function Dead(who) {
+        if (who.hp < 1) {
+                return 1;
+        } else {
+                return 0;
+        }
+}
+
+//return object
+function getMonster (mon_id,spectype)  {
+    if (mon_id) {
+        for (var i = 0; i < 3; i+=1) {
+		    var target = DC_FindMonster(mon_id,spectype);
+		    if (target) {
+			    return target;
+		    }
+        }
+	} else return 0;
+    return 0;
+}
+
+/*
+bit 0 : block walk
+bit 1 : block light + block Line Of Sight (the possibility to see monsters)
+bit 2 : block ranged
+bit 3 : block Player's walk but not Mercenary's walk weird)
+bit 4 : some doors, entry/exits, a few waypoints.
+bit 5 : block light only (not LOS). This is scenery, rocks, trees, etc.
+bit 6 : ?
+bit 7 : Players (yourself and others)
+bit 8 : NPCs & monsters
+bit 9 : Items
+bit 10 : Objects
+bit 11 : Closed doors
+bit 12 : Barricaded Towers, NPC doors and NPC doorways in Act 5
+bit 13 : friendly NPCs
+bit 14 : ?
+bit 15 : dead bodies
+*/
+
+// prop bitmask = 1 << bitnumber;
+// type = 1 for block walk
+// type = 2 for block ranged
+function IsBlocked(target,type) {
+	//0 if path is clear, 1 if blocked.
+	//print("IsBlocked");
+    
+    var _type = type;
+    if(type == "walk")   var _type = 1;
+    if(type == "ranged") var _type = 2;
+    
+	return checkCollision(me,target,_type);
+
+}
+
+
+function canAttack(monsta, ranged) {
+    
+   	if (ranged && IsBlocked(monsta,2)) return false;   // ignore if ranged attack if range is blocked
+    if(!ranged && IsBlocked(monsta,1)) return false;   // ignore if not using ranged attack and walking is blocked
+    
+   	if(IsBlocked(monsta,11)) {
+   	//ingnore if Monster on the other side of a Door
+   		print("Don't Attack Monsters on the other Side of a closed Door!");
+   		return false; 
+   	}
+    if((me.area > 28 && me.area < 32) || (me.area > 50 && me.area < 55)) {
+        if(!pathDistMon && !useTele && IsBlocked(monsta,4) && IsBlocked(monsta,10)) {
+            print("Don't Attack Monsters on the other Side of a special Door!");
+            return false; 
+        }
+    }
+    
+   
+   if(monsta.classid == 111 && monsta.mode == 8) return false;    //ignore flying Scavengers
+   if(monsta.classid == 68 && monsta.mode == 14) return false;    //ignore burrowing Maggots
+   if((monsta.classid == 258 || monsta.classid == 261) && monsta.mode == 14) return false;     //ignore submerged WaterWatchers
+    
+    return true;
+}
+
+
+function ValidMonster(monsta) { 	//some code from mattlant and TDW
+
+    if(monsta.type == 1 && monsta.getStat(172) == 2) return false;  	//exclude whatever is not aligned against you
+   
+   if(monsta.mode == 0) return false;		//exclude if dying
+   if(monsta.mode == 12) return false;		//exclude if dead
+   if(monsta.hp < 1) return false;
+   if(me.mode == 0) return false;		//exclude if you're dying
+   if(me.mode == 17) return false;		//exclude if you're dead   
+      
+   switch(monsta.name) {	//exclude monster based on name
+      case "Dark Wanderer":
+      case "Barbarian Captive":
+      case "Combatant":   // a5 bloodyhills barb
+      case "an evil force":
+      case "Dummy":
+      case "Hadriel":      // a4 near river of flame
+      case "Flavie":      // a1 near cold plainxxs
+      case "Hydra":
+      case "a trap":
+      case "a Trap":
+      case "Trap":
+      case "Tyrael":
+      case "Blade Sentinel":
+      case "Trapped Soul":
+         return false;
+   }   
+  
+   switch(monsta.classid) {   //exclude monster based on classid
+      case 297:
+      case 366: //The compelling orb / "Mind Maw the Slasher" A3Q5 - opens Durance of Hate
+      case 271: //act1 merc
+      case 338: //act2 merc
+      case 359: //act3 merc
+      case 561: //act5 merc
+      case 534: //act5 POW
+      case 543: //baal throne
+      case 545: //baal taunt
+      case 559: //baal stairs
+      case 597: //ws effect
+      case 403: //Trapped Soul Act 4
+      case 404: //Trapped Soul Act 4
+      case 327: //Act3 Tiki Trap
+         return false;
+   }
+   
+   //sorc usually shouldn't attack lightning spire. only physical attacks to well on them
+   if(monsta.classid == 371 && me.classid == 1) return false; //Arcane Lightning Spire -- optional, comment this line out to attack them
+   
+   if(monsta.getParent()) return false;					//exclude your mercs and minions
+   if(monsta.name == "Baal" && me.area != 132) return false;      		//Don't attack Baal unless at final room
+   if(me.area == 132 && monsta.name != "Baal" && getRange(me,monsta) > 2) return false; // Don't attack Baal appendages
+   if(monsta.name == "Izual" && monsta.classid == 406) return false;   		//Don't attack Izual's Ghost
+   if(monsta.name == "Catapult" && monsta.getStat(12) == 0) return false;    	//invisible catapults
+   
+   //if(!useTele && monsta.classid == 435) return false;	//skip barricade towers if you cant teleport 
+   							                                //- otherwise bot gets stuck alot
+    return true;
+}
+
+function killRadius(range, type, spectype) {
+
+    var krx = me.x;
+    var kry = me.y;
+    
+    var center = new Object();
+        center.x = krx;
+        center.y = kry;
+
+    var threat = returnClosestThreat(range, type, spectype, center);
+    
+    while (threat) {
+        print("attacking " + threat.name + " id: " + threat.classid); 
+        XP_Precasts();
+        XP_BossAttack(threat);
+        threat = returnClosestThreat(range, type, spectype, center);
+    }
+}
+
+//Returns closest attackable monster
+//don't use bitmask for spectype, 
+//normal        = 0
+//super unique  = 5 
+//minions       = 8
+//champion      = 6
+//boss          = 4
+function returnClosestThreat(range, classid, spectype, who) {  //add argument attacktype walk or 0 and ranged or 1 -- argument is already in canAttack()
+    
+    if(arguments.length < 4) who = me;
+    var closest_dist = range;
+    var mons = getUnit(1,classid);
+    
+	var closestMON = false;
+	if (mons) do {
+		if (ValidMonster(mons) && canAttack(mons)) {
+			var distance = getRange(who,mons);
+			if (distance < closest_dist) {
+                if(spectype && spectype != "null") {
+                    if(mons.spectype == spectype) {
+                        var closest_dist = distance;
+    	    			var closestMON = copyUnit(mons);
+                    }  
+                } else {
+    				var closest_dist = distance;
+	    			var closestMON = copyUnit(mons);
+                }
+			}
+		}
+	}while(mons.getNext(classid));
+    
+	return (closestMON);
+}
+
+function clearPath(attackskill, hand) {
+
+    var blocker = returnClosestThreat(3);
+    
+    while (threat) {
+        print("attacking " + blocker.name + " to clear the path"); 
+        XP_Precasts();
+        DC_DoCast(attackskill,hand, blocker);
+        blocker = returnClosestThreat(3);
+    }
+}
+
+
+// getRange(object) is distance from you
+// getRange(object1,object2) distance between 2 objects
+// getRange(object,x,y) distance from object to x.y co-ords
+// getRange(x1,y1,x2,y2) distance b/w 2 sets of x,y co-ords
+function getRange (a,b,c,d) {
+        if (arguments.length == 1) { var obj1x = me.x; var obj1y = me.y; var obj2x = a.x; var obj2y = a.y; }
+        if (arguments.length == 2) { var obj1x = a.x;  var obj1y = a.y;  var obj2x = b.x; var obj2y = b.y; }
+        if (arguments.length == 3) { var obj1x = a.x;  var obj1y = a.y;  var obj2x = b;   var obj2y = c;   }
+        if (arguments.length == 4) { var obj1x = a;    var obj1y = b;    var obj2x = c;   var obj2y = d;   }
+
+        return (parseInt (Math.sqrt (Math.pow (obj1x-obj2x, 2) + Math.pow (obj1y-obj2y, 2))));
+}
+
+////////////////////////////////////////////////////////
+//return 0 if not found
+//return 1 if / when dead
+//
+//to choose a spectype enter the corresponding bitmask
+//0x00    Normal Monster
+//0x01    Super Unique
+//0x02    Champion
+//0x04    Boss
+//0x08    Minion
+function attackMonster(mon_id,spectype) {
+
+   var mon = getMonster (mon_id,spectype);
+   
+   if(!mon) return 0;
+   else {
+        if(XP_BossAttack(mon)) print(mon.name + " is Dead!");
+        return 1;
+    }
+}
+
+///////////////////////////  end Darien //////////////////////////////////////////
+
 
 ////////////////////////////////// Immunities check //////////////////////////////////
 

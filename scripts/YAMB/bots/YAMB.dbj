@@ -93,7 +93,7 @@ function YAM_ShowCredits() {
 function YAM_SetTitle() {	// Add the version screenhook -- Modded to accurately center text -TechnoHunter
 	sendCopyData(null, "OOG", 0,"yam set title " );
 	var _shstring = "-- Yet-Another-MultiBot " + YAM_Version + " --";
-	var _width = getTextWidthHeight(_shstring,8);
+	var _width = getTextSize(_shstring,8);
 	var _screenszX = me.screensize == 2 ? 800 : 640;
 	var _screenszY = me.screensize == 2 ? 640 : 480;
 	_sh = null;
@@ -109,7 +109,7 @@ function YAM_SetTitle() {	// Add the version screenhook -- Modded to accurately 
 function YAM_RunTitle(file) {	// Add the title screenhook -- Modded to accurately center text -TechnoHunter
 	sendCopyData(null, "OOG", 0,"yam run title " +file);
 	var _shstring = "-- Now Running " + file + " --";
-	var _width = getTextWidthHeight(_shstring,8);
+	var _width = getTextSize(_shstring,8);
 	var _screenszX = me.screensize == 2 ? 800 : 640;
 	var _screenszY = me.screensize == 2 ? 640 : 480;
 	if(	_tsh == null)

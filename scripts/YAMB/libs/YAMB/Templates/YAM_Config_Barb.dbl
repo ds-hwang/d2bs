@@ -54,8 +54,10 @@ YAMXXP.push("Eldritch");
 //YAMXXP.push("Shenk");
 //YAMXXP.push("ThreshSocket");
 //YAMXXP.push("BloodRaven");
+//YAMXXP.push("Trist");
 //YAMXXP.push("Countess");
 //YAMXXP.push("Andy");
+//YAMXXP.push("Arcane");
 //YAMXXP.push("Summoner");
 //YAMXXP.push("Duriel");
 //YAMXXP.push("Trav");
@@ -72,7 +74,6 @@ YAMXXP.push("Eldritch");
 //YAMXXP.push("Parasite");
 // Follower, enchanter, bo script
 //YAMXXP.push("Symbiote");
-
 //////////////////////////////////////////////////////////////////////
 // IP configuration
 //====================================================================

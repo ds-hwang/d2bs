@@ -739,7 +739,7 @@ function pathMove(_info) {
 			//}
 			// Get and move to the next node
 			_cNode  = this.GetNextNode( pPath, pMoveDist, _cNode );
-			_retval = this.MoveToNode( pPath[_cNode][0], pPath[_cNode][1], _cNode, pDataback, pDoorHandler );
+			_retval = this.MoveToNode( pPath[_cNode].x, pPath[_cNode].y, _cNode, pDataback, pDoorHandler );
 			//DP_DPrint("cNode: " + _cNode);
 			//all below this is testing based on the MoveToNode's return value
 			if(_retval == DP_STEPAHEAD){
@@ -782,16 +782,16 @@ function pathMove(_info) {
 			// sanity check, to make sure we didnt deviate too much
 			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
 			//if(Math.abs(me.x-pPath[_cNode][0])>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode][1])>(bounceOrWalk ? 6 : 3)){
-			if(getDistance(me, pPath[_cNode][0], pPath[_cNode][1]) >(bounceOrWalk ? 6 : 3)){
+			if(getDistance(me, pPath[_cNode].x, pPath[_cNode].y) >(bounceOrWalk ? 6 : 3)){
 			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
 				// If the char is off from the path by nDist, make a new path instead
 				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
-				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode][0], pPath[_cNode][1] ) > (nDist * nDist) ) {
+				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode].x, pPath[_cNode].y ) > (nDist * nDist) ) {
 					//DP_DPrint("MovePath() -> Distance between me and target node farther than " + nDist + ", rebuilding a path");
-					if(Math.abs(me.x-pPath[_cNode][0])>nDist){
+					if(Math.abs(me.x-pPath[_cNode].x)>nDist){
 					//	DP_DPrint("MovePath() -> " + Math.abs(me.x-pPath[_cNode][0]) + " larger than " + nDist + " me.x:" + me.x + " cNode: "+ pPath[_cNode][0] );
 					}
-					if(Math.abs(me.y-pPath[_cNode][1])>nDist){
+					if(Math.abs(me.y-pPath[_cNode].y)>nDist){
 					//	DP_DPrint("MovePath() -> " + Math.abs(me.y-pPath[_cNode][1]) + " larger than " + nDist + " me.y:" + me.y + " cNode: "+ pPath[_cNode][1] );
 					}
 					// If a new path is built, put it in the old path array and reset the vars

@@ -141,7 +141,7 @@ function XP_Precasts() {
 		// Cast only if we want to refresh or if we are in town
 		if (DA_Refresh || DC_InTown(me) || BOed) {
 			switch(XP_ColdArmor) {
-				case 1:	DC_DoCast(40,0);	break;// Frozen Armor
+				case 1: 	DC_DoCast(40,0);	break;// Frozen Armor
 				case 2 :	DC_DoCast(50,0);	break;// Shiver Armor
 				case 3 :	DC_DoCast(60,0);	break;// Chilling Armor
 			}
@@ -165,6 +165,7 @@ function XP_SelectAttack(monster, MonsterSkill, from) {
 			break;
 		}
 	}
+
 	if (ms >= MonsterSkill.length) {
 		if (start > 0) {
 			// Try to find a skill monster is not immune to
@@ -176,13 +177,14 @@ function XP_SelectAttack(monster, MonsterSkill, from) {
 		}
 		if (ms >= start) ms = -1;
 	}
+
 	return ms;
 }
 
 function DA_GetSkillDamageType(skill) {
 	switch (skill) {
-		case 43:	//case "Telekinesis" :
-			return 2;
+		//case 43:	//case "Telekinesis" :
+			//return 2;
 		case 36:	//case "Fire Bolt" :
 		case 41:	//case "Inferno" :
 		case 46:	//case "Blaze" :
@@ -191,6 +193,7 @@ function DA_GetSkillDamageType(skill) {
 		case 52:	//case "Enchant" :
 		case 62:	//case "Hydra" :
 		case 56:	//case "Meteor" :
+            DC_DPrint("GetSkillDamageType() : " + skill + " is Fire damage skill");
 			return 3;
 		case 53:	//case "Chain Lightning" :
 		case 49:	//case "Lightning" :
@@ -198,6 +201,7 @@ function DA_GetSkillDamageType(skill) {
 		case 48:	//case "Nova" :
 		case 42:	//case "Static Field" :
 		case 38:	//case "Charged Bolt" :
+            DC_DPrint("GetSkillDamageType() : " + skill + " is Electric damage skill");
 			return 4;
 		case 64:	//case "Frozen Orb" :
 		case 59:	//case "Blizzard" :
@@ -208,6 +212,7 @@ function DA_GetSkillDamageType(skill) {
 		case 60:	//case "Chilling Armor" :
 		case 50:	//case "Shiver Armor" :
 		case 40:	//case "Frozen Armor" :
+            DC_DPrint("GetSkillDamageType() : " + skill + " is Ice skill");
 			return 5;
 		default:
 			DC_DPrint("GetSkillDamageType() : " + skill + " is not a damage skill");
@@ -223,9 +228,13 @@ function XP_BossAttack(target) {
 	var s = 0;
 	var hand;
 	var staticed = false;
-
+    
+    XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); // added by Darien
+    
 	_XP_CurrentTimed   = XP_SelectAttack(target, _XP_TimedSpells, 0);
 	_XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, 0);
+    DC_DPrint("Timed Skill : " + _XP_CurrentTimed);
+    DC_DPrint("Untimed Skill : " + _XP_CurrentUntimed);
 	_XP_haveTimed      = (_XP_CurrentTimed   >= 0) ? true : false;
 	_XP_haveUntimed    = (_XP_CurrentUntimed >= 0) ? true : false;
 	_XP_EndPosition    = new XP_Coord(me.x,me.y);
@@ -384,6 +393,15 @@ function XP_SetSorcSkills(SorcSkill, MonsterSkill) {
 		if (DC_GetCastDelay(SorcSkill[s])) { _XP_TimedSpells.push(SorcSkill[s]); }
 		else { _XP_UntimedSpells.push(SorcSkill[s]); }
 	}
+    
+	for (var ss = 0; ss < _XP_TimedSpells.length; ss+=1) {
+		DC_DPrint("Ttimed Spell #" + ss + ": " + _XP_TimedSpells[ss]);
+	}
+    
+    for (var ss = 0; ss < _XP_UntimedSpells.length; ss+=1) {
+		DC_DPrint("Unttimed Spell #" + ss + ": " + _XP_UntimedSpells[ss]);
+	}
+    
 	// Reset the vars if they were previously configured - MinionSkills
 	if (_XP_MinionTimedSpells.length > 0) { _XP_MinionTimedSpells.splice(0,_XP_MinionTimedSpells.length); }
 	if (_XP_MinionUntimedSpells.length > 0) { _XP_MinionUntimedSpells.splice(0,_XP_MinionUntimedSpells.length); }
@@ -440,7 +458,7 @@ function XP_ClearPosition1(range,skip,mode,classid,spectypeMask) {
 	var targets = YAM_GetMonsters(range,x,y,mode,classid,spectypeMask);
 	DC_DPrint("Killing " + targets.length + " monsters around me..." + _XP_NumImmune + " Immunes");
 	if (XP_QuitImmune && (_XP_NumImmune >= XP_ImmuneQuit)) {
-		DSN_PickItems(YAM_SafeCheck);
+		DSN_PickItems();
 		DL_AddAbort();
 		DC_ThrowException("XP_AttackMonster()","Too many immune monsters!");
 		return false;
@@ -619,6 +637,8 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 
 function ThroneMonsterChecking(monster) {
 	var n;
+    print("THRONE: attacking " + monster.name + " id: " + monster.classid); 
+    
 	if (monster.classid == 23 || monster.classid == 62) { BossSpawned = true; }
 	else if (monster.classid == 381 || monster.classid == 105) {
 		if (!Mage) {
@@ -700,6 +720,8 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 		DC_DoCast(s,0,monster);
 	}
 
+    print("attacking " + monster.name + " id: " + monster.classid); 
+    
 	while ((monster.hp > 0) && (monster.mode != 12) && (monster.mode != 0) && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range) {
 		// Untimed attack
 		if (_XP_haveUntimed) {
@@ -707,6 +729,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 			hand = (DC_IsLeftSkill(s) ? 2 : 0);
 			for (var r = 0; r < XP_UntimedRepeat; r+=1) {
 				DC_DPrint("XP_AttackMonster() Casting UntimedSkill # " + s + " on index " + _XP_CurrentUntimed);
+                if(monster.hp < 1) return true;  // Darien Fix
 				DC_DoCast(s,hand,monster.x,monster.y);
 			}
 			if (monster.hp < hpprev)

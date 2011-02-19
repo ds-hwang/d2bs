@@ -21,6 +21,7 @@ var DT_Columns        = new Array(4);
 	DT_Columns[2]     = new Array(10);
 	DT_Columns[3]     = new Array(10);
 var _DT_BeltSize      = false;
+_YAM_Town = false;
 
 
 //////////////////////////////////////////////////////////////////////
@@ -298,7 +299,7 @@ function DT_DoInteract(npc) {
 	}while(!getUIFlag(_uiflag) && _timer > 0);
 	// After the loop, if we are still not interacted, display a error
 	if(!getUIFlag(_uiflag)) {
-		DC_ThrowException("DT_DoInteract()", "Failed to interact with " + npc.name);
+		//DC_ThrowException("DT_DoInteract()", "Failed to interact with " + npc.name);
 		return false;
 	}
 	// Wait a certain delay before returning to the caller
@@ -447,7 +448,7 @@ function DT_CheckMerc() {
 	DC_DPrint("DT_CheckMerc(): Entering function.");
 	if(DT_UseMerc) {
 		// Get the merc
-		var _merc = DC_GetMerc();
+		var _merc = me.getMerc();
 		var _ii;
 		// If we got one, return false because it is alive
 		if(_merc) { 
@@ -456,7 +457,7 @@ function DT_CheckMerc() {
 		}
 		// If we dont have a merc, return false and set further merc use to FALSE because it is a waste of time!
 		for(_ii=0; _ii<100 && (!_merc && !me.mercrevivecost); ++_ii) delay(10);	// Just in case it's still coming up
-		_merc = DC_GetMerc();
+		_merc = me.getMerc();
 		if(!_merc && !me.mercrevivecost){ 
 			//DC_DPrint("DT_CheckMerc(): No Merc Owned/Found!");
 			if(!_merc)
@@ -1069,7 +1070,7 @@ function DT_GetTome(type, name, code) {
 	if(type == 0) { type = "ibk"; } else if(type == 1) { type = "tbk"; }
 
 	// Get the book
-	var _tome = (name == me.name) ? DC_getMyItem(type, code) : me.getInteractedNPC().getItem(type, code);
+	var _tome = (name == me.name) ? DC_getMyItem(type, code) : getInteractedNPC().getItem(type, code); //Darien Fix took "me." off of me.getInteractedNPC()
 
 	// Loop availiable tomes checking owner and return the tome object if we found it
 	do {
@@ -2042,10 +2043,10 @@ function DT_ShopIt(npc) {
 	DC_DPrint("DT_ShopIt() : Entering Function.");
 	var ShopArray = npc.getItems();
 	var itemnum = 0;
-	DC_DPrint("DT_ShopIt() : "+ShopArray.length+"# items found in shop.");
-	if(ShopArray.length > 0) {
+	//DC_DPrint("DT_ShopIt() : "+ShopArray.length+"# items found in shop.");
+	if(ShopArray && ShopArray.length > 0) {
 		do {
-			_shopitem = ShopArray[itemnum];
+			var _shopitem = ShopArray[itemnum];
 			//DC_DPrint("DT_ShopIt() : Name of item to test " + _shopitem.name);
 			// If the item fit a item parser entry, buy it
 			checkResults = false;

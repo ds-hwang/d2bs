@@ -20,8 +20,8 @@ function DM_MoveToAttack(x,y,nowalk,noattack) {
 	DC_DPrint("X:"+x+" Y:"+y);
 	DM_MoveTo(x,y,nowalk,true); //use true tele
 	if (!noattack) {
-		XP_ClearPosition(26,false,ATTACKING_MODE);
-		XP_ClearPosition(26,false,ALIVE_MODE);
+		//XP_ClearPosition(26,false,ATTACKING_MODE);
+		//XP_ClearPosition(26,false,ALIVE_MODE);
 		//DSN_PickItems(YAM_SafeCheck); //too dangerous
 		DM_CheckPosition(x,y,nowalk);
 	}
@@ -36,12 +36,13 @@ function DM_MoveToPick(x,y,nopick) {
 	y = y + (_TrXP_wp.y - _TrXP_ybase);
 	DM_MoveTo(x,y,true,true); //use true tele
 	if (!nopick) {
-		DSN_PickItems(YAM_SafeCheck);
+		DSN_PickItems();
 		DM_CheckPosition(x,y,true);
 	}
 }
 
 function TrXP_GoToTrav() {
+
    DM_MoveToAttack(5720,1587,true,true);
    DM_MoveToAttack(5720,1563,true,true);
    DM_MoveToAttack(5739,1557,true,true);
@@ -52,8 +53,59 @@ function TrXP_GoToTrav() {
    DM_MoveToAttack(5799,1526,true,TrXP_Kamikaze);
    DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze); //before entry arch
 
+
+   //////////////////////////////////////////////////////////////////////////
+   //Changes by Darien kill 3 bosses then the rest of council
+   //Clear porch first then clear inside
+   
+    print("Clear Porch First")
+    killRadius(30, null, 5);         //Kill Council
+    killRadius(30, "Council Member");   //Kill Minions
+    
+    DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze);
+    killRadius(30, null, 5);         //Kill Council
+    killRadius(30, "Council Member");   //Kill Minions
+    
+    DM_MoveToAttack(5780,1514,true,TrXP_Kamikaze);
+    //second porch check
+    killRadius(30, null, 5);         //Kill Council
+    killRadius(30, "Council Member");   //Kill Minions
+    
+    //Check if any are left, if so go inside and finish them off -- only needed if you can't teleport or Jump
+    if(councilCheck(2860) || councilCheck(2862) || councilCheck(2863) || getMonster("Council Member")) {
+        DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze);
+        killRadius(30, null, 5);         //Kill Council
+        killRadius(30, "Council Member");   //Kill Minions
+        
+        DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze);
+        print("Now go inside to finish them off!");
+        DM_MoveToAttack(5797,1494,true,TrXP_Kamikaze);
+    
+        killRadius(30, null, 5);         //Kill Council
+        killRadius(30, "Council Member");   //Kill Minions
+    }
 }
 
+//////////////////////////////////////////////////////////////////////////
+//depreciated function by Darien
+function killCouncil()  {
+   attackMonster(getLocaleString(2860),0x01); //Toorc
+   attackMonster(getLocaleString(2862),0x01); //Geleb
+   attackMonster(getLocaleString(2863),0x01); //Vile
+}
+
+//////////////////////////////////////////////////////////////////////////
+//Quickie function by Darien
+function councilCheck(num) {
+    var _toorc = getMonster(getLocaleString(num),0x01);
+    if(!_toorc) return false;  //monster not found
+    
+    if (_toorc && _toorc.hp > 0)  return true;
+    else {
+        print(_toorc.name + " is Dead!");
+        return false;
+    }
+}
 
 //Toorc Icefist=345  Ismail Vilehand=345  Geleb Flamefinger=346
 //Council Member=345/346
@@ -108,11 +160,24 @@ function TravXP() {
 	XP_Precasts();
 	// Goto the Travincal Lair
 	TrXP_GoToTrav();
-	// Clear the Travincal Lair
-	if (TrXP_AttackTrav()) {
-		DL_AddKill();
-	}
+    
+    
+	// Clear the Travincal Lair - shut off by Darien, made improvements
+	//if (TrXP_AttackTrav()) {
+	//	DL_AddKill();
+	//}
+    
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog(); 
 	}
+    
+    // End in Act 4
+    	// Do town stuff in the act we are in
+	//YAM_TownManager();
+	//if (me.area != 103) {
+	//	YAM_PathToWayPoint();
+	//	DM_UsePortal("Waypoint",0x67); //0x6a = City  0x6b = River
+    //YAM_InitCommTown()
+	//}
+    
 }

@@ -12,6 +12,8 @@ var XP_UseBerserk=true;
 var XP_UseFindItem=false;
 var XP_ChangeWpnHork=false;
 
+
+
 ///////////////////////////////////// Common functions ////////////////////////////////////////
 
 function DA_DoPrecasts() {
@@ -40,7 +42,7 @@ function DA_DoPrecasts() {
 			if(!me.getState(32) && DC_CheckSkill(149) >= 1 && me.mp > 30) {
 
 				// Funtion to set time of BO cast and renew 2 seconds before expiration
-				_bolevel = DC_CheckSkill(149);
+				var _bolevel = DC_CheckSkill(149);
 
 				if(((new Date().getTime()-_DA_BOTimer)/1000) >= ((_bolevel*6)+28)) {
 
@@ -68,6 +70,7 @@ function DA_DoPrecasts() {
 
 			DA_BOSwitch("attack");
 		}
+        return true;
 }
 
 function XP_Precasts() {
@@ -174,7 +177,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 			var body = getBodyTarget(range);
 			while (body && me.mp > 7) {
 				XP_UseHork(body);
-				DSN_PickItems(YAM_SafeCheck);
+				DSN_PickItems();
 				body = getBodyTarget(range);
 			}
 		}
@@ -189,7 +192,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 
 	return retval;
 }
-
+/*
 function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 	if (!monster || monster.hp < 1) return false;
@@ -242,7 +245,8 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 	return true;
 }
-
+*/
+/*
 function XP_BossAttack(target) {
 
 	_XP_AttackCompleted=0; 
@@ -285,6 +289,73 @@ function XP_BossAttack(target) {
 	// After the target death, use Find Item if we want
 	if (XP_UseFindItem && DC_CheckSkill(142)) { XP_UseHork(target); }
 }
+*/
+
+function XP_AttackMonster(monster,range,x,y,attackSkills) {
+
+	if (!monster || monster.hp < 1) return false;
+
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
+
+		XP_BossAttack(monster);
+	}
+
+	DSN_PickItems();
+
+	return true;
+}
+
+function XP_BossAttack(target) {
+
+	_XP_AttackCompleted=0; 
+
+	_XP_EndPosition = new XP_Coord(me.x,me.y);
+
+	while (target.hp > 0) {
+    
+    
+        // Three choices to close the distance
+        //  #1 Big Jump under 25 to avoid detection
+        if ((DA_GetRange(target) > 15) && (DA_GetRange(target) < 25) && !checkCollision(me,target,14)) { 
+             if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!");              
+        }
+        
+        // #2 Can't walk but have LOS - jump
+        else if (checkCollision(me,target,1) && !checkCollision(me,target,14) && (DA_GetRange(target) < 25)) { 
+            print("Target Blocked, but I can see him - Jumping!");
+            if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!!");
+        } 
+        
+        // #3 too far to hit, nothing blocking, walk
+		else if ((DA_GetRange(target) > 5) && (!checkCollision(me,target,1))) { 
+        
+            // if walk fails (usally blocked my monsters), then Jump Attack
+            if(!DM_WalkTo(target.x, target.y)) {
+                if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!!!");              
+            }
+        }
+                
+        //if can't walk and can't jump, don't get stuck in endless loop - return false
+        if (checkCollision(me,target,1) && checkCollision(me,target,14)) {
+            print("Can't walk, can't jump, forget him");
+            return false;
+        }            
+        
+        // the distance is closed, if still alive - Attack
+        if(target.hp > 0) DC_DoCast(XP_BarbAttack,1,target);
+        XP_CheckAttacks();
+        
+	}
+
+	// After the target death, use Find Item if we want
+	if (XP_UseFindItem && DC_CheckSkill(142)) { XP_UseHork(target); }
+    
+    DSN_PickItems();
+    return true;
+}
 
 // ToDo : Mod it so we figure which axis to move (this can be changed on certain maps)
 function XP_WWAttack(enemy) {
@@ -306,6 +377,7 @@ function XP_WWAttack(enemy) {
 		if (XP_CheckUtil(enemy)) { return; }
 		delay(100);
 	}
+    DSN_PickItems();
 }
 
 function XP_WW_Berserk(target) {

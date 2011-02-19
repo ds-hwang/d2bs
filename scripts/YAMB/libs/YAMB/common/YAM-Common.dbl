@@ -5,12 +5,12 @@ DC_LoadInclude("baseStats/base_skills.dbl");
 //////////////////////////////////////////////////////////////////////
 // Public global variables
 //////////////////////////////////////////////////////////////////////
-var DC_DebugLevel     = 0; 	// 0 = no debug messages, 1 = file only, 2= screen only, 3 = on screen and on file
+var DC_DebugLevel     = 3; 	// 0 = no debug messages, 1 = file only, 2= screen only, 3 = on screen and on file
 var DC_DebugPrintDel  = 0;
 var DC_AbortPrintDel  = 2000;
 var DC_Verbose        = true;
 var DC_Language       = 0; 	// 0 = english, 1 = german, 2 = french
-var DC_Timeout        = 3;
+var DC_Timeout        = 8;
 var DC_SwitchTimeout  = 3;
 var DC_RandomDel      = true;
 var DC_LagDelay       = 10;
@@ -216,6 +216,36 @@ var commonLib = function() {}
 //////////////////////////////////////////////////////////////////////
 // Public Functions
 //////////////////////////////////////////////////////////////////////
+
+// Function by Darien
+// Parameters:
+// -name enter a text object or enter a string and it will create an object from the string
+// -X,Y screen co-ords
+// -Color of the text displayed
+// -Font of the text displayed
+// -string = the text to be displayed
+// -align 0,1 or 2 = right, left or center
+// -clickHandler function
+// -hoverHandler function == me thinks this parameter of text object is broken
+// Return value : 
+// -if name is a string it returns the text object
+// -if name is an object it just changes the object properties so it returns false
+function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
+
+    if(typeof name == "string") {
+        name = new Text (string, X, Y, Color, Font, align, null, click, hover);
+        return name;
+    } else {
+        name.x      = X;
+        name.y      = Y;
+        name.color  = Color;
+        name.font   = Font;
+        if(arguments.length > 5) name.text = string;
+        if(arguments.length > 6) name.align = align;
+    }
+    return false;
+}
+
 
 // Function by HolyCoitus
 // Modified by Xizeta
@@ -896,7 +926,7 @@ function DC_OpenChest(chest) {
 	// if the object is opened, return false
 	if(chest.mode) { return false; }
 	// If the chest is locked, check if we have a free key
-	if(chest.islocked!=0) {
+	if(chest.islocked != 0) {
 		// Get the key stack object for usage
 		var key = DC_GetKeys();
 		// If we don't have a key object or is the key stack empty, return false

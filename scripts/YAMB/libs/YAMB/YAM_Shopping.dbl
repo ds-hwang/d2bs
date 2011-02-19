@@ -1,4 +1,5 @@
 //Infinite ShopBot Module - by darkspirit
+// v.2.0 by Darien - modified standard functions and pathing to improve success and added screen hooks
 
 //A YAMB module doesnt have to be coded to kill any bosses. This small module would 
 //not kill bosses but would make the bot go to act5 town, shop for the items that you 
@@ -26,26 +27,59 @@
 entryFunc = Shopping;
 
 function Shopping() {
+    
 	var _idlestartTime = new Date();
 	var _idlerunTime = 0;
 	var _tmpdate = new Date();
 	var _lastdate = new Date() - 60000;
-	var count = 1;
+	var count = 0;
+    var success = 0;
+    var percent = 0;
+    var _shtX = me.screensize == 2 ? 800 : 640;
+	var _shtY = me.screensize == 2 ? 640 : 480;
+    var _string = ("Shopping Trips: " + count + " ------- Successful Trips: " + success + " ------------ Percent: " + percent + "%");
+    var _width = getTextSize(_string,8);
+	var _sht = null;
+	var _sht = new Text(_string,220,500,-1);
+    _sht.font = 1;
+    _sht.color = 2;
+	var _shtxx = parseInt((_shtX - _width[0])/2,10);
+    _sht.x = _shtxx - 25;
+    var firstrun = 1;
+    
+    
 	print ("Setting Infinite Game Length!");
 	me.maxgametime = 0;
 	if (!YAM_ShopIt) {
 		print ("ÿc1Warning: Forcing YAM_ShopIt to TRUE for this module!ÿc0");
 		YAM_ShopIt = true;
 	}
-	print ("Warning: This module would run in an infinite loop!");
+
 	// Do town stuff in the act we are in
 	YAM_TownManager();
 	// Use the WP to Act 5 if need be
 	if (me.area != 109) { YAM_PathToWayPoint(); DM_UsePortal("Waypoint",0x6d); YAM_InitCommTown(); }
+    print ("Warning: This module would run in an infinite loop!");
+
 	while (true) {
 		count++;
-		// Do town stuff in the act we are in
-		YAM_TownManager();
+        commTown5.GotoLarzuk();
+        
+        //if(!firstrun) DM_MoveTo(me.x+6, me.y-10);
+        var _merc = me.getMerc();
+        if (getRange(me, _merc) > 30) commTown5.GotoStash();
+        
+		if(!NPCinteract(DC_getNPC(511))) {
+            print("Lag, correcting");
+            commTown5.GotoStash();
+            delay(1000);
+            commTown5.GotoLarzuk();
+            DM_MoveTo(me.x+3, me.y-5);
+            if(!NPCinteract(DC_getNPC(511))) {
+                print("Bummer, failed to interact... oh well");
+            } else success++;
+        } else success++;
+        
 		if (YAM_VisitAnya) {
 			commTown5.GotoAnya();
 			YAM_NPCinteract(DC_getNPC(512));
@@ -56,16 +90,87 @@ function Shopping() {
 		_tmpdate = new Date();
 		if (_tmpdate -_lastdate > 120000) {
 			_lastdate = _tmpdate;
-			DC_LogToautod2jsp("Number of Shopping Trips: " + count + " Gametime: " + _idlerunTime);
+			DC_LogToautod2jsp("Shopping Trips: " + count + " Successful Trips: " + success + "Gametime: " + _idlerunTime);
 		}
+        percent = getPercent(success, count);
+        _string = "Shopping Trips: " + count + " ----------- Successful Trips: " + success + " ---------------- Percent: " + percent + "%";
+        _width = getTextSize(_string,8);
+        _shtxx = parseInt((_shtX - _width[0])/2,10);
+        _sht.x = _shtxx - 15;
+        _sht.text = _string;
+        
+        firstrun=0;
+        
 		YAM_PathToWayPoint();
 		// Do precasts before going into the portal
 		//XP_Precasts();
+        
 		// Take WP to Frigid
-		DM_UsePortal("Waypoint",0x6f);
+		UsePortal("Waypoint",0x6f);
+        
 		// Do precasts after going into the portal
 		//XP_Precasts();
-		XP_ClearPosition(30);
-		DM_UsePortal("Waypoint",109);
+		killRadius(10);
+		UsePortal("Waypoint",109);
 	}
+    _sht.remove();
+}
+
+function getPercent(t,b) {
+    return Math.round((t/b)*100);
+}
+
+function NPCinteract(npc) {
+	// If the npc object is not present, abort the game
+	if(!npc) {
+		return false;
+	}
+    
+	// Interact with the npc
+	if(!DT_DoInteract(npc)) {
+        //print("Failed to interact");
+        return false;
+	}
+	
+	// if it is not the stash, Kashya, Greiz, Tyrael or Qual-Kehk, shop the npc
+	if(npc.classid!=267 && npc.classid!=150 && npc.classid!=198 && npc.classid!=367 && npc.classid!=515) {
+		if(!getUIFlag(0x0c)) {
+			DT_DoTrade(npc); 
+		}
+		DT_ShopIt(npc);
+	}
+	// Use the right cancel method depending on if it is a npc or object
+	DT_MenuCancel(npc, npc.classid == 267 ? 0 : 1);
+	return true;
+}
+
+function UsePortal(how, dest, ownername, portal) {
+	// no need to use this function when we're already in the destination area
+	if(me.area == dest) { return true;}
+	if(how == "myPortal") how = "BluePortal";
+	// try to change the area
+	var _msg_select = _DM_ChangeArea(how, dest, ownername, portal);
+	// success message
+	if(_msg_select > 0) {
+		DC_DPrint("Changed Area in " + _msg_select + "msec !");
+		// Stall a little to let the game catch up (until the area is loaded in memory)
+		var _delLoop = YAM_GameCatchup;
+		do {
+			delay(50);
+			_delLoop -= 50;
+		} while(_delLoop >= 0);
+		return true;
+	}
+	// darkspirit: attempt to recover from unable to reach dest
+	if(_msg_select == -7) {
+		// Random click
+		DC_DoClick(0, 0, me.x+rand(-2,2), me.y+rand(-2,2));
+		DC_DoDel(50);
+		if(me.area == dest) return true;
+	}
+	// error messages
+    print ("use wp failed");
+    YAM_MakeTP();
+
+	return false;
 }
