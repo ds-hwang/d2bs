@@ -45,7 +45,7 @@ JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 		return JS_TRUE;
 
 	JSObject *obj2 = JSVAL_TO_OBJECT(v);
-	if(obj2 == null)
+	if(obj2 == NULL)
 		return JS_TRUE;
 
 	JSClass* c1 = JS_GET_CLASS(cx, obj);
