@@ -221,7 +221,8 @@ JSAPI_FUNC(filetools_appendText)
 
 	bool result = true;
 	FILE* fptr = NULL;
-	fopen_s(&fptr, porig, "a+");
+	if(fopen_s(&fptr, porig, "a+") != 0)
+		THROW_ERROR(cx, _strerror("Failed to open file"));
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i], false, true))
 			result = false;
