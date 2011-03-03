@@ -237,12 +237,12 @@ function NTC_DoCast(skillid, usehand, x, y, retrys)
 		if(usehand == NTC_HAND_RIGHT)
 		{
 			_hand = NTC_CLICK_RDOWN;
-			_shift = NTC_SHIFT_NONE;
+			_shift = NTC_SHIFT_HOLD;
 		}
 		else if(usehand == NTC_HAND_LEFT)
 		{
 			_hand = NTC_CLICK_LDOWN;
-			_shift = NTC_SHIFT_NONE;
+			_shift = NTC_SHIFT_HOLD;
 		}
 		else
 		{
