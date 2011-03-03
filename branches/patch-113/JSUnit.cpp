@@ -43,11 +43,16 @@ JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 	myUnit* unit1 = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
 	if(!JSVAL_IS_OBJECT(v))
 		return JS_TRUE;
+
 	JSObject *obj2 = JSVAL_TO_OBJECT(v);
+	if(obj2 == null)
+		return JS_TRUE;
+
 	JSClass* c1 = JS_GET_CLASS(cx, obj);
 	JSClass* c2 = JS_GET_CLASS(cx, obj2);
 	if(!obj2 || _strcmpi(c1->name, c2->name) != 0)
 		return JS_TRUE;
+
 	myUnit* unit2 = (myUnit*)JS_GetPrivate(cx, obj2);
 
 	UnitAny* pUnit1 = D2CLIENT_FindUnit(unit1->dwUnitId, unit1->dwType);
