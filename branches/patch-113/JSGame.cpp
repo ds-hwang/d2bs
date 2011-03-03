@@ -91,7 +91,7 @@ JSAPI_FUNC(my_clickMap)
 
 	if(argc == 3 && JSVAL_IS_INT(argv[0]) &&
 		(JSVAL_IS_INT(argv[1]) || JSVAL_IS_BOOLEAN(argv[1])) &&
-		JSVAL_IS_OBJECT(argv[2]))
+		JSVAL_IS_OBJECT(argv[2]) && !JSVAL_IS_NULL(argv[2]))
 	{
 		myUnit* mypUnit = (myUnit*)JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[2]));
 
