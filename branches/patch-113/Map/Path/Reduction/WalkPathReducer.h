@@ -91,7 +91,8 @@ public:
 	}
 	bool Reject(Point const & pt, bool abs)
 	{
-		return map->SpaceHasFlag(D2Map::Avoid, pt, abs) ||
+		return !map->IsValidPoint(pt, abs) ||
+			   map->SpaceHasFlag(D2Map::Avoid, pt, abs) ||
 			   map->SpaceHasFlag(D2Map::BlockWalk, pt, abs) ||
 			   map->SpaceHasFlag(D2Map::BlockPlayer, pt, abs);
 	}

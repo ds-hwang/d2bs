@@ -131,9 +131,9 @@ public:
 		Point start = _start, end = _end;
 
 		// if we don't have a valid start and end, try mutating the points
-		if(!map->IsValidPoint(start, abs))
+		if(!reducer->Reject(start, abs))
 			reducer->MutatePoint(start, abs);
-		if(!map->IsValidPoint(end, abs))
+		if(reducer->Reject(end, abs))
 			reducer->MutatePoint(end, abs);
 
 		// if they still get rejected, forget it
