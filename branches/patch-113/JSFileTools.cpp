@@ -200,7 +200,7 @@ JSAPI_FUNC(filetools_writeText)
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "w");
 	for(uintN i = 1; i < argc; i++)
-		if(!writeValue(fptr, cx, argv[i], false, false))
+		if(!writeValue(fptr, cx, argv[i], false, true))
 			result = false;
 	fflush(fptr);
 	fclose(fptr);
@@ -223,7 +223,7 @@ JSAPI_FUNC(filetools_appendText)
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "a+");
 	for(uintN i = 1; i < argc; i++)
-		if(!writeValue(fptr, cx, argv[i], false, false))
+		if(!writeValue(fptr, cx, argv[i], false, true))
 			result = false;
 	fflush(fptr);
 	fclose(fptr);
