@@ -386,7 +386,9 @@ void D2Map::GetExits(ExitArray& exits) const
 						if(SpaceIsWalkable(midpoint, true))					
 						{
 							spaces++;
-							if(spaces == 2) // changed to 2 to find exit out of act 4 town
+							// HACK: act 4 town must use 2 as a gap detector amount
+							// everywhere else should use 3
+							if(spaces == (level->dwLevelNo == 0x67 ? 2 : 3))
 							{
 								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 								found = true;
