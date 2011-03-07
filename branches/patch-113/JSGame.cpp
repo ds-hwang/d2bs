@@ -1353,3 +1353,9 @@ JSAPI_FUNC(my_getInteractedNPC)
 	*rval = OBJECT_TO_JSVAL(jsunit);
 	return JS_TRUE;
 }
+
+JSAPI_FUNC(my_takeScreenshot)
+{
+	D2WIN_TakeScreenshot();
+	return JS_TRUE;
+}

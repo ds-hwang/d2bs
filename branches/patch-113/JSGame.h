@@ -25,6 +25,7 @@ JSAPI_FUNC(my_useSkillPoint);
 JSAPI_FUNC(my_getInteractedNPC);
 JSAPI_FUNC(my_getIsTalkingNPC);
 
+JSAPI_FUNC(my_takeScreenshot);
 JSAPI_FUNC(my_getMouseCoords);
 JSAPI_FUNC(my_getDistance);
 JSAPI_FUNC(my_getPath);

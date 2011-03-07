@@ -381,6 +381,8 @@ FUNCPTR(D2WIN, DrawSprites, void __fastcall, (void), 0x18750)
 // D2Win Ordinals
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+FUNCPTR(D2WIN, TakeScreenshot, void __fastcall, (), 0x17EB0) // Updated 1.13c
+
 FUNCPTR(D2WIN, DrawText, void __fastcall, (wchar_t *wStr, int xPos, int yPos, DWORD dwColor, DWORD dwUnk), -10150)
 
 FUNCPTR(D2WIN, GetTextSize, DWORD __fastcall, (wchar_t *wStr, DWORD* dwWidth, DWORD* dwFileNo), -10177)

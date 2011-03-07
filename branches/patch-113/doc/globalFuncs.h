@@ -1937,6 +1937,8 @@ bool weaponSwitch(int32_t dummy);
  */
 void transmute();
 
+void takeScreenshot();
+
 /** Convert a point from screen coordinates to automap coordinates.
  *
  * \ingroup globalFunctions
