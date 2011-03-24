@@ -118,6 +118,8 @@ private:
 	}
 
 public:
+	AStarPath(const AStarPath&);
+	AStarPath& operator=(const AStarPath&);
 	AStarPath(Map* _map, Reducing::PathReducer* _reducer, Estimator _estimate = EstimateDistance, Distance _distance = DiagonalShortcut) :
 		map(_map), reducer(_reducer), estimate(_estimate), distance(_distance), alloc(Allocator()) {}
 

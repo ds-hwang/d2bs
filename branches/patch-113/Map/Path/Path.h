@@ -14,6 +14,9 @@ typedef int (__fastcall *Distance)(Point const &, Point const &);
 class Path
 {
 public:
+	Path(const Path&);
+	Path& operator=(const Path&);
+	Path() {}
 	virtual void GetPath(Point const & start, Point const & end, PointList& list, bool abs) = 0;
 
 	virtual void SetMap(Map* map) = 0;

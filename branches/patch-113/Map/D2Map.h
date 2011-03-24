@@ -90,6 +90,9 @@ private:
 	~D2Map(void);
 
 public:
+	// disable copy/assignment
+	D2Map(const D2Map&);
+	D2Map& operator=(const D2Map&);
 
 	static D2Map* GetMap(Level* level);
 	static void ClearCache(void);

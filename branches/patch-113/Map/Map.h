@@ -13,6 +13,11 @@ typedef std::vector<Point> PointList;
 class Map
 {
 public:
+	Map() {}
+	// disable copy/assignment
+	Map(const Map&);
+	Map& operator=(const Map&);
+
 	virtual void Dump(const char* file, const PointList& points) const = 0;
 
 	virtual int GetWidth() const = 0;
@@ -35,6 +40,8 @@ private:
 	int width, height;
 
 public:
+	Matrix(const Matrix&);
+	Matrix& operator=(const Matrix&);
 	Matrix() : width(0), height(0), fill(0) {}
 	Matrix(int height, int width, T fill = (T)0) {
 		this->width = width; this->height = height;

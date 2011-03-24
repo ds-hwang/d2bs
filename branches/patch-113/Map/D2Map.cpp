@@ -387,8 +387,8 @@ void D2Map::GetExits(ExitArray& exits) const
 						{
 							spaces++;
 							// HACK: act 4 town must use 2 as a gap detector amount
-							// everywhere else should use 3
-							if(spaces == (level->dwLevelNo == 0x67 ? 2 : 3))
+							// everywhere else should use 4
+							if(spaces == (level->dwLevelNo == 0x67 ? 2 : 4))
 							{
 								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 								found = true;

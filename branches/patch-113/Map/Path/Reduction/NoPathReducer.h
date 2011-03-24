@@ -14,6 +14,8 @@ class NoPathReducer : public PathReducer
 private:
 	D2Map* map;
 public:
+	NoPathReducer(const NoPathReducer&);
+	NoPathReducer& operator=(const NoPathReducer&);
 	NoPathReducer(D2Map* map_) : map(map_) {}
 	// the path is not reduced at all
 	inline void Reduce(PointList const & in, PointList& out, bool abs) { out = in; }

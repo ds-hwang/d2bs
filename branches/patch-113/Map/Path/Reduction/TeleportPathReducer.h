@@ -21,6 +21,8 @@ private:
 	int range;
 
 public:
+	TeleportPathReducer(const TeleportPathReducer&);
+	TeleportPathReducer& operator=(const TeleportPathReducer&);
 	TeleportPathReducer(D2Map* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)

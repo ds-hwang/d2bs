@@ -65,6 +65,8 @@ private:
 	}
 
 public:
+	WalkPathReducer(const WalkPathReducer&);
+	WalkPathReducer& operator=(const WalkPathReducer&);
 	WalkPathReducer(D2Map* m, Distance d, int _range = 20) : map(m), distance(d), range(_range*10) {}
 
 	void Reduce(PointList const & in, PointList& out, bool abs)
