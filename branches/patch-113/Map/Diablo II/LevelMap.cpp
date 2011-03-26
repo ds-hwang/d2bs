@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <assert.h>
 
-#include "D2Map.h"
+#include "LevelMap.h"
 
 #include "D2Structs.h"
 #include "D2Ptrs.h"
@@ -12,26 +12,26 @@
 namespace Mapping
 {
 
-MapList D2Map::cache = MapList();
+LevelMapList LevelMap::cache = LevelMapList();
 
-D2Map* D2Map::GetMap(Level* level)
+LevelMap* LevelMap::GetMap(Level* level)
 {
-	if(cache.size() != 0)
-		if(cache.count(level->dwLevelNo) > 0)
-			return cache[level->dwLevelNo];
-	D2Map* map = new D2Map(level);
+	if(cache.count(level->dwLevelNo) > 0)
+		return cache[level->dwLevelNo];
+	LevelMap* map = new LevelMap(level);
 	cache[level->dwLevelNo] = map;
 	return map;
 }
 
-void D2Map::ClearCache(void)
+void LevelMap::ClearCache(void)
 {
-	for(MapList::iterator it = cache.begin(); it != cache.end(); it++)
+	LevelMapList::iterator end = cache.end();
+	for(LevelMapList::iterator it = cache.begin(); it != end; it++)
 		delete it->second;
 	cache.clear();
 }
 
-D2Map::D2Map(const Level* level)
+LevelMap::LevelMap(const Level* level)
 {
 	lock = new CRITICAL_SECTION;
 	InitializeCriticalSection(lock);
@@ -68,31 +68,30 @@ D2Map::D2Map(const Level* level)
 	posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);
 }
 
-D2Map::~D2Map(void)
+LevelMap::~LevelMap(void)
 {
-	delete mapPoints;
 	DeleteCriticalSection(lock);
 	delete lock;
 	lock = NULL;
 }
 
-void D2Map::Build(void)
+void LevelMap::Build(void)
 {
 	EnterCriticalSection(lock);
 
-	mapPoints = new Matrix<CollisionFlag>(height, width, D2Map::Avoid);
+	mapPoints = Matrix<CollisionFlag>(height, width, LevelMap::Avoid);
 
 	RoomList addedRooms;
-	UnitAny* player = D2CLIENT_GetPlayerUnit();
+	UnitAny* player = GetPlayerUnit();
 	AddRoom(level->pRoom2First, addedRooms, player);
-	
+
 	FillGaps();
 	ThickenWalls();
 
 	LeaveCriticalSection(lock);
 }
 
-void D2Map::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
+void LevelMap::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
 {
 	if(!room || room->pLevel->dwLevelNo != level->dwLevelNo)
 		return;
@@ -124,7 +123,7 @@ void D2Map::AddRoom(Room2* const room, RoomList& rooms, UnitAny* player)
 	if(added)
 		RemoveRoomData(room);
 }
-void D2Map::AddCollisionMap(const CollMap* const map)
+void LevelMap::AddCollisionMap(const CollMap* const map)
 {
 	if(map == NULL)
 		return;
@@ -138,66 +137,18 @@ void D2Map::AddCollisionMap(const CollMap* const map)
 		for(int j = x; j < height && p != map->pMapEnd; j++, p++)
 			SetCollisionData(j, i, *p);
 }
-void D2Map::SetCollisionData(int x, int y, WORD value)
+void LevelMap::SetCollisionData(int x, int y, int value)
 {
 	// sync this to ensure that we don't try to add to a dead map or something
 	EnterCriticalSection(lock);
 
 	assert(IsValidPoint(Point(x, y), false));
-	mapPoints->SetPoint(x, y, (CollisionFlag)value );
+	mapPoints.SetPoint(x, y, (CollisionFlag)value);
 
 	LeaveCriticalSection(lock);
 }
-bool D2Map::IsRoomWalkable(Room2* const pRoom2) const
-{
-	CriticalRoom cRoom;
-	cRoom.EnterSection();
-	bool bAdded = FALSE;
-	CollMap* pCol = NULL;
-	if(!pRoom2->pRoom1)
-	{
-		bAdded = TRUE;
-		AddRoomData(pRoom2);
-	}
 
-	if(pRoom2->pRoom1)
-		pCol = pRoom2->pRoom1->Coll;
-
-	if(!pCol)
-	{
-		if(bAdded)
-			RemoveRoomData(pRoom2);
-		return FALSE;
-	}
-	int x = pCol->dwPosGameX - pRoom2->pLevel->dwPosX * 5;
-	int y = pCol->dwPosGameY - pRoom2->pLevel->dwPosY * 5;
-	int nCx = pCol->dwSizeGameX;
-	int nCy = pCol->dwSizeGameY;
-
-	int nLimitX = x + nCx;
-	int nLimitY = y + nCy;
-
-	WORD* p = pCol->pMapStart;
-
-	for(int j = y; j < nLimitY; j++)
-	{
-		for (int i = x; i < nLimitX; i++)
-		{
-			if((*p % 2) == 0) {
-				if(bAdded)
-					RemoveRoomData(pRoom2);
-				return TRUE;
-			}
-			p++;
-		}
-
-	}
-	if(bAdded)
-		RemoveRoomData(pRoom2);
-	return FALSE;
-}
-
-bool D2Map::IsGap(int x, int y, bool abs) const
+bool LevelMap::IsGap(int x, int y, bool abs) const
 {
 	const int gapSize = 3;
 	Point pt(x, y);
@@ -226,18 +177,18 @@ bool D2Map::IsGap(int x, int y, bool abs) const
 
 	return spaces < gapSize;
 }
-void D2Map::FillGaps(void)
+void LevelMap::FillGaps(void)
 {
 	EnterCriticalSection(lock);
 
 	for(int i = 0; i < height; i++)
 		for(int j = 0; j < width; j++)
 			if(IsGap(i, j, false))
-				SetCollisionData(i, j, 2);
+				SetCollisionData(i, j, LevelMap::Avoid);
 
 	LeaveCriticalSection(lock);
 }
-void D2Map::ThickenWalls(void)
+void LevelMap::ThickenWalls(void)
 {
 	const int ThickenAmount = 1;
 
@@ -246,7 +197,7 @@ void D2Map::ThickenWalls(void)
 		for(int j = 0; j < width; j++)
 		{
 			Point pt(i, j);
-			if(SpaceIsWalkable(pt, false) || GetMapData(pt, false) == D2Map::ThickenedWall)
+			if(SpaceIsWalkable(pt, false) || GetMapData(pt, false) == LevelMap::ThickenedWall)
 				continue;
 
 			for(int x = i-ThickenAmount; x <= i+ThickenAmount; x++)
@@ -254,52 +205,42 @@ void D2Map::ThickenWalls(void)
 				for(int y = j-ThickenAmount; y <= j+ThickenAmount; y++)
 				{
 					Point point(x, y);
-					if(IsValidPoint(point, false) && GetMapData(pt, false) == 0)
-						SetCollisionData(x, y, D2Map::ThickenedWall);
+					if(IsValidPoint(point, false) && SpaceIsWalkable(point, false))
+						SetCollisionData(x, y, LevelMap::ThickenedWall);
 				}
 			}
 		}
 	}
-
-	for(int i = 0; i < height; i++)
-	{
-		for(int j = 0; j < width; j++)
-		{
-			Point pt(i, j);
-			if(GetMapData(pt, false) == D2Map::ThickenedWall)
-				SetCollisionData(i, j, D2Map::Wall | D2Map::BlockWalk | D2Map::BlockPlayer);
-		}
-	}
 }
 
-Point D2Map::AbsToRelative(const Point& point) const
+Point LevelMap::AbsToRelative(const Point& point) const
 {
 	return Point(point.first - posX, point.second - posY);
 }
-Point D2Map::RelativeToAbs(const Point& point) const
+Point LevelMap::RelativeToAbs(const Point& point) const
 {
 	return Point(point.first + posX, point.second + posY);
 }
 
-int D2Map::GetMapData(const Point& point, bool abs) const
+int LevelMap::GetMapData(const Point& point, bool abs) const
 {
 	if(abs) return GetMapData(AbsToRelative(point), false);
 
 	assert(IsValidPoint(point, abs));
 
 	EnterCriticalSection(lock);
-	CollisionFlag value = mapPoints->GetPoint(point.first, point.second);
+	CollisionFlag value = mapPoints.GetPoint(point.first, point.second);
 	LeaveCriticalSection(lock);
 
 	return value;
 }
-bool D2Map::IsValidPoint(const Point& point, bool abs) const
+bool LevelMap::IsValidPoint(const Point& point, bool abs) const
 {
 	if(abs) return IsValidPoint(AbsToRelative(point), false);
 	return !!(point.first >= 0 && point.second >= 0 && point.first < height && point.second < width);
 }
 
-void D2Map::GetExits(ExitArray& exits) const
+void LevelMap::GetExits(ExitArray& exits) const
 {
 	static const Point empty(0,0);
 	EnterCriticalSection(lock);
@@ -331,7 +272,7 @@ void D2Map::GetExits(ExitArray& exits) const
 				added.push_back(rooms[i]);
 			}
 
-			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo && D2Map::IsRoomWalkable(rooms[i]))
+			if(rooms[i]->pLevel->dwLevelNo != level->dwLevelNo)
 			{
 				// does this link already exist?
 				bool exists = false;
@@ -356,14 +297,10 @@ void D2Map::GetExits(ExitArray& exits) const
 
 				Point start(0,0), end(0,0);
 
-				if(x1.first == posX && y3.first == posX) //Left Side
-					{ start = x1; end = x2; }
-				else if(x2.second== endY  && y4.second ==endY )
-					{ start = x2; end = x3; } // bottom side
-				else if(x3.first  == endX && y1.first  == endX)
-					{ start = x3; end = x4; } // Right Side
-				else if(x4.second == posY && y2.second == posY)
-					{ start = x4; end = x1; }//top side
+				if(x1 == y4 && x2 == y3)      { start = x1; end = x2; }
+				else if(x2 == y1 && x3 == y4) { start = x2; end = x3; }
+				else if(x3 == y2 && x4 == y1) { start = x3; end = x4; }
+				else if(x4 == y3 && x1 == y2) { start = x4; end = x1; }
 
 				if(start != empty && end != empty)
 				{
@@ -383,13 +320,14 @@ void D2Map::GetExits(ExitArray& exits) const
 					for(int x = 0, y = 0; !found && midpoint != end; x += xstep, y += ystep)
 					{
 						midpoint = Point(start.first + x, start.second + y);
-						if(SpaceIsWalkable(midpoint, true))					
+						if(SpaceIsWalkable(midpoint, true))
 						{
 							spaces++;
 							// HACK: act 4 town must use 2 as a gap detector amount
 							// everywhere else should use 4
 							if(spaces == (level->dwLevelNo == 0x67 ? 2 : 4))
 							{
+								midpoint = Point((start.first + end.first) / 2, (start.second + end.second) / 2);
 								exits.push_back(Exit(midpoint, rooms[i]->pLevel->dwLevelNo, Linkage, 0));
 								found = true;
 							}
@@ -437,8 +375,8 @@ void D2Map::GetExits(ExitArray& exits) const
 	LeaveCriticalSection(lock);
 }
 
-bool D2Map::SpaceHasFlag(int flag, const Point& point, bool abs) const { return ((GetMapData(point, abs) & flag) == flag); }
-bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
+bool LevelMap::SpaceHasFlag(int flag, const Point& point, bool abs) const { return ((GetMapData(point, abs) & flag) == flag); }
+bool LevelMap::PathHasFlag(int flag, const PointList& points, bool abs) const
 {
 	int count = points.size();
 	for(int i = 0; i < count; i++)
@@ -447,21 +385,23 @@ bool D2Map::PathHasFlag(int flag, const PointList& points, bool abs) const
 	return true;
 }
 
-bool D2Map::SpaceIsWalkable(const Point& point, bool abs) const
+bool LevelMap::SpaceIsWalkable(const Point& point, bool abs) const
 {	
 	// ignore closed doors here, because we want to path through them
-	return !SpaceIsInvalid(point, abs) && !(SpaceHasFlag(D2Map::BlockWalk, point, abs) ||
-		    SpaceHasFlag(D2Map::BlockPlayer, point, abs)  || SpaceHasFlag(D2Map::NPCCollision, point, abs) ||
-		    SpaceHasFlag(D2Map::Object, point, abs));
+	return !SpaceIsInvalid(point, abs) && !SpaceIsThickenedWall(point, abs) && 
+		   !(SpaceHasFlag(LevelMap::BlockWalk, point, abs) || SpaceHasFlag(LevelMap::BlockPlayer, point, abs)  ||
+		     SpaceHasFlag(LevelMap::NPCCollision, point, abs) || SpaceHasFlag(LevelMap::Object, point, abs));
 }
-bool D2Map::SpaceHasLineOfSight(const Point& point, bool abs) const
+bool LevelMap::SpaceHasLineOfSight(const Point& point, bool abs) const
 {
-	return !SpaceIsInvalid(point, abs) && !SpaceHasFlag(D2Map::BlockLineOfSight, point, abs);
+	return !SpaceHasFlag(LevelMap::BlockLineOfSight, point, abs);
 }
 
-bool D2Map::SpaceIsInvalid(const Point& point, bool abs) const { return SpaceHasFlag(D2Map::Avoid, point, abs); }
+bool LevelMap::SpaceIsInvalid(const Point& point, bool abs) const { return SpaceHasFlag(LevelMap::Avoid, point, abs); }
 
-bool D2Map::PathIsWalkable(const PointList& points, bool abs) const
+bool LevelMap::SpaceIsThickenedWall(const Point& point, bool abs) const { return GetMapData(point, abs) == LevelMap::ThickenedWall; }
+
+bool LevelMap::PathIsWalkable(const PointList& points, bool abs) const
 {
 	int count = points.size();
 	for(int i = 0; i < count; i++)
@@ -469,7 +409,7 @@ bool D2Map::PathIsWalkable(const PointList& points, bool abs) const
 			return false;
 	return true;
 }
-bool D2Map::PathHasLineOfSight(const PointList& points, bool abs) const
+bool LevelMap::PathHasLineOfSight(const PointList& points, bool abs) const
 {
 	int count = points.size();
 	for(int i = 0; i < count; i++)
@@ -478,12 +418,12 @@ bool D2Map::PathHasLineOfSight(const PointList& points, bool abs) const
 	return true;
 }
 
-void D2Map::Dump(const char* file, const PointList& points) const
+void LevelMap::Dump(const char* file, const PointList& points) const
 {
 	FILE* f = NULL;
 	fopen_s(&f, file, "wt");
 	if(!f) return;
-	fprintf(f, "Map (%d x %d) at (%d, %d) for area %s (%d):\n", width, height, posX, posY, D2COMMON_GetLevelText(level->dwLevelNo)->szName, level->dwLevelNo);
+	fprintf(f, "Map (%d x %d) at (%d, %d) for area %s (id %d):\n", width, height, posX, posY, D2COMMON_GetLevelText(level->dwLevelNo)->szName, level->dwLevelNo);
 
 //	fprintf(f, "Exits:\n");
 
@@ -509,12 +449,11 @@ void D2Map::Dump(const char* file, const PointList& points) const
 		{
 			Point pt(i, j);
 			char c = ' ';
-			if(SpaceHasFlag(D2Map::Avoid, pt, false)) c = 'A';
-			else if(pt == first) c = 'S';
+			if(pt == first) c = 'S';
 			else if(pt == last) c = 'E';
 			else if(std::find(begin, end, pt) != end) c = 'P';
-			else if(SpaceIsInvalid(pt, false)) c = '?';
-			else if(GetMapData(pt, false) == D2Map::ThickenedWall) c = 'T';
+			else if(SpaceIsInvalid(pt, false)) c = 'A';
+			else if(GetMapData(pt, false) == LevelMap::ThickenedWall) c = 'T';
 			else if(!SpaceIsWalkable(pt, false)) c = 'X';
 			fprintf(f, "%c", c);
 		}

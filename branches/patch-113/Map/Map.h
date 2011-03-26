@@ -41,8 +41,7 @@ private:
 
 public:
 	Matrix(const Matrix&);
-	Matrix& operator=(const Matrix&);
-	Matrix() : width(0), height(0), fill(0) {}
+	Matrix() : width(0), height(0) {}
 	Matrix(int height, int width, T fill = (T)0) {
 		this->width = width; this->height = height;
 		points = std::vector<TList>(height);

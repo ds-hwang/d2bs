@@ -2,7 +2,7 @@
 
 #include "PathReducer.h"
 #include "../Path.h"
-#include "../../D2Map.h"
+#include "../../Diablo II/LevelMap.h"
 #include "../../../js32.h"
 
 namespace Mapping
@@ -24,7 +24,7 @@ private:
 public:
 	JSPathReducer(const JSPathReducer&);
 	JSPathReducer& operator=(const JSPathReducer&);
-	JSPathReducer(D2Map* m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce, jsval _mutate) :
+	JSPathReducer(LevelMap* m, JSContext* cx, JSObject* obj, jsval _reject, jsval _reduce, jsval _mutate) :
 		reject(_reject), reduce(_reduce), mutate(_mutate) { JS_AddRoot(&reject); JS_AddRoot(&reduce); JS_AddRoot(&mutate); }
 	~JSPathReducer(void) { JS_RemoveRoot(&reject); JS_RemoveRoot(&reduce); JS_RemoveRoot(&mutate); }
 

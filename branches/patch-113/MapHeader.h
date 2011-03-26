@@ -1,5 +1,5 @@
 #include "Map\Map.h"
-#include "Map\D2Map.h"
+#include "Map\Diablo II\LevelMap.h"
 #include "Map\Path\AStarPath.h"
 #include "Map\Path\Reduction\NoPathReducer.h"
 #include "Map\Path\Reduction\JSPathReducer.h"

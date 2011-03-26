@@ -370,14 +370,6 @@
 				Name="Map"
 				>
 				<File
-					RelativePath=".\Map\D2Map.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Map\D2Map.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Map\Map.h"
 					>
 				</File>
@@ -420,6 +412,18 @@
 							>
 						</File>
 					</Filter>
+				</Filter>
+				<Filter
+					Name="Diablo II"
+					>
+					<File
+						RelativePath=".\Map\Diablo II\LevelMap.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Map\Diablo II\LevelMap.h"
+						>
+					</File>
 				</Filter>
 			</Filter>
 			<Filter

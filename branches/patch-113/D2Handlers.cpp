@@ -452,7 +452,7 @@ void GameLeave(void)
 		Vars.bGameLoopEntered = true;
 
 	ScriptEngine::ForEachScript(StopIngameScript, NULL, 0);
-	D2Map::ClearCache();
+	LevelMap::ClearCache();
 
 	EnterCriticalSection(&Vars.cGameLoopSection);
 }

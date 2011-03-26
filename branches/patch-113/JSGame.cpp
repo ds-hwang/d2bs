@@ -192,7 +192,7 @@ JSAPI_FUNC(my_getPath)
 		THROW_ERROR(cx, "Invalid level passed to getPath");
 	Level* level = GetLevel(lvl);
 	
-	D2Map* map = D2Map::GetMap(level);
+	LevelMap* map = LevelMap::GetMap(level);
 
 	Point start(x, y), end(dx, dy);
 
@@ -267,7 +267,7 @@ JSAPI_FUNC(my_getCollision)
 		Point point(nX, nY);
 		Level* level = GetLevel(nLevelId);
 
-		D2Map* map = D2Map::GetMap(level);
+		LevelMap* map = LevelMap::GetMap(level);
 		if(!map->IsValidPoint(point))
 			THROW_ERROR(cx, "Invalid point!");
 

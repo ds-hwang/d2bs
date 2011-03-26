@@ -744,15 +744,14 @@ JSAPI_FUNC(unit_interact)
 		D2CLIENT_TakeWaypoint(pUnit->dwUnitId, JSVAL_TO_INT(argv[0])); //updated by shep rev 720
 		if(!D2CLIENT_GetUIState(UI_GAME))
 			D2CLIENT_CloseInteract();
-		//D2CLIENT_TakeWP(pUnit->dwUnitId, JSVAL_TO_INT(argv[0]));
 		
 		*rval = JSVAL_TRUE;
 		return JS_TRUE;
 	}
-	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
-	{
+//	else if(pUnit->dwType == UNIT_PLAYER && argc == 1 && JSVAL_IS_INT(argv[0]) && JSVAL_TO_INT(argv[0]) == 1)
+//	{
 		// Accept Trade
-	}
+//	}
 	else
 	{
 		*rval = JSVAL_TRUE;
