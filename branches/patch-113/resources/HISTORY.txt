@@ -3,26 +3,26 @@ Version History:
 Version 1.4 -
 
 	.	Fixes:
-		- say() fixed to properly detect the screen location
+		- say() fixed to properly detect the screen location and correctly encode % characters
 		- Multiple problems with screenhook clicking and hovering.
 		- Signed/unsigned problems with stat ids 13, 29 and 30
 		- Channel chat input parsing
 		- unit.getStat(-2) now properly bitshifts life, mana, and stamina
+		- clickMap no longer crashes with a null 'unit' argument
+		- FileTools functions now correctly use the locking API
+		- Unit.getFlags() now correctly works
+		- me.cancel no longer affects the automap
+		- The D2BSScript object is now initialized properly like all the others
 
 	.	Added partial support for TCP/IP games in login()
 
-	.	Removed CollisionMap in favor of the newly written map, path, and reduction code
-		- Added new reduction types:
-		 . 0 and 1 are still the default values(0: walk, 1: teleport)
-		 . 2 is now no reduction--all nodes are considered, even if they are not walkable, and the path
-		   is not reduced at all
-		 . 3 is a custom reducer. You have to pass two functions (the first is a rejection function, the
-		   second is a reduction function), more details later
+	.	Had to revert the new map code--it wasn't working for all area exits, and existing scripts rely
+		on that behavior. :(
 
 	.	Changed the Warden behavior so that you can load D2BS without cGuard, and it will terminate on
 		Warden if not loaded with cGuard
 
-	.	Upgraded the SQLite library to version 3.7.3
+	.	Upgraded the SQLite library to version 3.7.5
 
 	.	Downgraded "Game not ready" exception from an error to a warning.
 
@@ -33,14 +33,36 @@ Version 1.4 -
 		profile specify both the script path and the default starting script names (see the new values in
 		d2bs.ini for more details)
 
+	.	Added the ability to specify the profile to use *before* calling login():
+		- The profile is activated by the first time you call login() OR
+		- The first WM_COPYDATA message with an ID of 0x31337 (the data is treated as a profile name) OR
+		- The first XTYP_POKE sent via DDE (the data is treated as a profile name) OR
+		- Setting the profile via the "profile" command on the console.
+		- After the first profile is set, you cannot change it. However, specifying a different profile
+		  via login() will allow you to login using a different profile (but me.profile will *not* be
+		  updated, it will remain as-is, and the script path will remain the same)
+
+	.	The console is now scrollable using page up/down. Only the last 300 lines are saved.
+
 	.	API changes:
-		- Changed getPath--the first parameter is now the result from getArea()
 		- Added useStatPoint(statid, count) and useSkillPoint(skillid, count)--no significant error checking
 		  is done, so be careful or you may cause a crash (or worse, a ban)!
-		- Added loadMpq (this allows you to switch cd keys on the fly)
+		- Added loadMpq(string mpqname) (this allows you to switch cd keys on the fly)
+		- Added me.revive()--no error checking is done, so you may cause a ban if you're not dead
+		- Added takeScreenshot()--this is the same as pressing the print screen key in D2
+		- Added me.pid--this returns the process id for the current D2 that D2BS is loaded to
+		- Added me.nopickup--returns the current nopickup setting, and allows you to enable/disable nopickup
+		- Added me.mapid--returns the current map seed
+		- Added me.profile--returns the last profile used for login() OR the profile set as the default
+		- Renamed getTextWidthHeight to getTextSize
 
 	.	Added new debug code! D2 will now silently crash when it does crash (no more "Window not found"
 		errors!), and will output debug information to D2BS.log.
+
+	.	Known issues:
+		- Calling say() in game causes a crash. Dunno exactly why yet. Just don't do it.
+		- getBaseStat does not correctly detect the end of the the item table. Calling it with a rowid greater
+		  than the last rowid will cause a crash.
 
 Version 1.3.3 -
 
