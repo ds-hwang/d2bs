@@ -128,6 +128,8 @@ BOOL ScriptEngine::Startup(void)
 		state = Starting;
 		InitializeCriticalSection(&lock);
 		EnterCriticalSection(&lock);
+		// set UTF-8 to enabled--currently not supported, need to recompile spidermonkey
+		//JS_SetCStringsAreUTF8();
 		// create the runtime with the requested memory limit
 		runtime = JS_NewRuntime(Vars.dwMemUsage);
 		if(!runtime)

@@ -1650,6 +1650,16 @@ JSAPI_FUNC(my_overhead)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_revive)
+{
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
+	BYTE pPacket[] = {0x41};
+	D2NET_SendPacket(1, 1, pPacket);
+	return JS_TRUE;
+}
+
 
 JSAPI_FUNC(unit_getItem)
 {	

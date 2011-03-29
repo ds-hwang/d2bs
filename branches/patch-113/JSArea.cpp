@@ -2,7 +2,7 @@
 #include "D2Ptrs.h"
 #include "JSExits.h"
 #include "CriticalSections.h"
-#include "MapHeader.h"
+#include "CollisionMap.h"
 
 EMPTY_CTOR(area)
 
@@ -41,29 +41,36 @@ JSAPI_PROP(area_getProperty)
 					CriticalRoom cRoom;
 					cRoom.EnterSection();
 
-					LevelMap* map = LevelMap::GetMap(pLevel);
-					ExitArray exits;
-					map->GetExits(exits);
+					CCollisionMap cMap;
 
-					int count = exits.size();
+					if(!cMap.CreateMap(pArea->AreaId))
+					{
+						*vp = JSVAL_FALSE;
+						return JS_TRUE;
+					}
+
+					LevelExit* ExitArray[255];
+					int count = cMap.GetLevelExits(ExitArray);
+
 					for(int i = 0; i < count; i++)
 					{
-						myExit* exit = new myExit;
-						exit->id = exits[i].Target;
-						exit->x = exits[i].Position.first;
-						exit->y = exits[i].Position.second;
-						exit->type = exits[i].Type;
-						exit->tileid = exits[i].TileId;
-						exit->level = pArea->AreaId;
+						myExit* pExit = new myExit;
+						pExit->id		= ExitArray[i]->dwTargetLevel;
+						pExit->x		= ExitArray[i]->ptPos.x;
+						pExit->y		= ExitArray[i]->ptPos.y;
+						pExit->type		= ExitArray[i]->dwType;
+						pExit->tileid	= ExitArray[i]->dwId;
+						pExit->level	= pArea->AreaId;
 
-						JSObject* pExit = BuildObject(cx, &exit_class, NULL, exit_props, exit);
-						if(!pExit)
+						JSObject* jsUnit = BuildObject(cx, &exit_class, NULL, exit_props, pExit);
+						if(!jsUnit)
 						{
-							delete exit;
+							delete pExit;
+							pExit = NULL;
 							THROW_ERROR(cx, "Failed to create exit object!");
 						}
 
-						jsval a = OBJECT_TO_JSVAL(pExit);
+						jsval a = OBJECT_TO_JSVAL(jsUnit);
 						JS_SetElement(cx, pArea->ExitArray, i, &a);
 					}
 				}

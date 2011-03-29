@@ -25,6 +25,7 @@ JSAPI_FUNC(item_getFlags);
 JSAPI_FUNC(item_getPrice);
 JSAPI_FUNC(item_shop);
 JSAPI_FUNC(my_overhead);
+JSAPI_FUNC(my_revive);
 JSAPI_FUNC(unit_getEnchant);
 JSAPI_FUNC(unit_getQuest);
 JSAPI_FUNC(unit_getMinionCount);
@@ -255,6 +256,7 @@ static JSFunctionSpec unit_methods[] = {
 	{"getSkill",		unit_getSkill,		0},
 	{"getParent",		unit_getParent,		0},
 	{"overhead",		my_overhead,		0},
+	{"revive",			my_revive,			0},
 	{"getFlags",		item_getFlags,		1},
 	{"getFlag",			item_getFlag,		1},
 	{"getStat",			unit_getStat,		1},
