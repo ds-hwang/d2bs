@@ -323,11 +323,42 @@ JSAPI_FUNC(my_getCollision)
 	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
 		return JS_FALSE;
 
-	CCollisionMap cCollisionMap;
-	cCollisionMap.CreateMap(nLevelId);
-	
-	if(cCollisionMap.IsValidAbsLocation(nX, nY))
-		*rval = INT_TO_JSVAL(cCollisionMap.GetMapData(nX,nY, TRUE));
+	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
+	if(GetDistance(x, y, nX, nY) < 60) {
+		Level* level = GetLevel(nLevelId);
+		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
+		int roomsNear = room->dwRoomsNear;
+		Room2** rooms = room->pRoom2Near;
+		int i = 0;
+		do {
+			bool added = false;
+			if(!room->pRoom1) {
+				added = true;
+				D2COMMON_AddRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);
+			} 
+			CollMap* map = room->pRoom1->Coll;
+			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
+				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
+			{
+				// this is the room				
+				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
+				//if(*(map->pMapStart + index) < *(map->pMapEnd))
+				JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
+				if(added)			
+					D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
+				break;
+			}
+			if(added)			
+				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);				
+			room = rooms[i++];
+		} while(room != NULL && i < roomsNear +1);
+	} else {
+		CCollisionMap cCollisionMap;
+		cCollisionMap.CreateMap(nLevelId);
+		
+		if(cCollisionMap.IsValidAbsLocation(nX, nY))
+			JS_NewNumberValue(cx, cCollisionMap.GetMapData(nX, nY, TRUE), rval);
+	}
 
 	return JS_TRUE;
 }
