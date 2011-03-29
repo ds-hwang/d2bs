@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 397;
+var ntbotRevision = 1215;
 
 js_strict(true);
 
@@ -23,6 +23,7 @@ function main()
 	//var a = new Object();		
 	//a = new NpcGetItem(me,null,null,null);
 	
+	print('ÿc2D2BS v'+ version());
 	print("ÿc9NTBot by Bobite rev: "+ ntbotRevision); 
 	sendCopyData(null, "OOG", 0,"In Game");
 	//load("tools/mapper.dbj"); 
