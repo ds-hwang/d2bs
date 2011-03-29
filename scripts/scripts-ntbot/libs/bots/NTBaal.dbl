@@ -1,198 +1,215 @@
-function NT_Baal() {
-        var i;
-        var _wave;
-        var _starttick;
+function NT_Baal() 
+{
+	var i;
+	var _wave;
+	var _starttick;
 
-        print("?c3Starting Baal Script");
-        if (!NTTM_CheckAct()) {
-                return false;
-        }
-        NTTMGR_TownManager();
+	print("ÿc3Starting Baal Script");
+	
+	if (!NTTM_CheckAct())
+		throw new Error();
+		
+	NTTMGR_TownManager();
 
-        print("?c8Going to The Worldstone Keep Level 2");
-        if (!NTTM_TownMove("waypoint")) return false;
-        if (!NTM_UsePortal("Waypoint", 129)) {
-                print("?c8Seems we do not have the waypoint, Lets go get it! Traveling to The Worldstone Keep Level 2");
-                NTM_TravelTO(129);
-                print("?c8Interacting with Waypoint as we don't have it.");
-                NTM_GotoWaypoint(129, true, 10000);
-        }
-        print("?c5Precasting");
-        NTP_DoPrecast();
-        print("?c8Going to Throne of Destruction");
-        NTM_TravelTO(131);
+	print("ÿc8Going to The Worldstone Keep Level 2");
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 129)) 
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to The Worldstone Keep Level 2");
+		NTM_TravelTO(129);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(129, true, 10000);
+	}
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	
+	print("ÿc8Going to Throne of Destruction");
+	NTM_TravelTO(131);
 
-        if (!NTM_MoveTo(15112, 5068)) return false;
+	if (!NTM_MoveTo(15112, 5068))
+		throw new Error();
 
-        NTA_ClearPosition(20, 0x04);
-        NTA_ClearPosition();
-        NTSI_PickItems();
+	NTA_ClearPosition(20, 0x04);
+	NTA_ClearPosition();
+	NTSI_PickItems();
 
-        if (NTConfig_PublicMode) {
-                NTM_MoveTo(15116, 5068);
+	if (NTConfig_PublicMode) 
+	{
+		NTM_MoveTo(15116, 5068);
 
-                NTC_PingDelay(1000);
+		NTC_PingDelay(1000);
 
-                NTM_MakeTP();
-                say(BaalTPMsg);
+		NTM_MakeTP();
+		say(BaalTPMsg);
 
-                if (NTA_ClearPosition()) NTSI_PickItems();
+		if (NTA_ClearPosition()) 
+			NTSI_PickItems();
 
-                NTM_MoveTo(15116, 5068);
-        }
+		NTM_MoveTo(15116, 5068);
+	}
 
-        NT_ClearThroneInt();
+	NT_ClearThroneInt();
 
-        if (NTConfig_PublicMode) {
-                NTM_MoveTo(15112, 5004, 0, true);
+	if (NTConfig_PublicMode) {
+		NTM_MoveTo(15112, 5004, 0, true);
 
-                NTM_MakeTP();
-                say(BaalTPSafeMsg);
-        }
+		NTM_MakeTP();
+		say(BaalTPSafeMsg);
+	}
 
-        while (1) {
-                if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) NTM_MoveTo(15092, 5028);
-                else NTM_MoveTo(15092, 5040);
+	while(true) 
+	{
+		if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) NTM_MoveTo(15092, 5028);
+		else NTM_MoveTo(15092, 5040);
 
-                if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
+		if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
 
-                for (i = 0; i < 6; i++) {
-                        _wave = NT_ThroneCheckInt();
-                        if (_wave > 0) break;
+		for (i = 0; i < 6; i++) {
+			_wave = NT_ThroneCheckInt();
+			if (_wave > 0) break;
 
-                        NTC_Delay(500);
-                }
+			NTC_Delay(500);
+		}
 
-                _starttick = getTickCount();
+		_starttick = getTickCount();
 
-                while (_wave == 0) {
-                        if (!NT_ThronePreAttackInt()) NTC_Delay(250);
+		while (_wave == 0) {
+			if (!NT_ThronePreAttackInt()) NTC_Delay(250);
 
-                        if (getTickCount() - _starttick > 15000) {
-                                NT_ClearThroneInt();
+			if (getTickCount() - _starttick > 15000) {
+				NT_ClearThroneInt();
 
-                                _starttick = getTickCount();
-                        }
+				_starttick = getTickCount();
+			}
 
-                        _wave = NT_ThroneCheckInt();
-                }
+			_wave = NT_ThroneCheckInt();
+		}
 
-                NTA_ClearPosition(40, 0x04);
-                NTA_ClearPosition(40);
-                NTSI_PickItems();
-                NTT_CleanPotions();
+		NTA_ClearPosition(40, 0x04);
+		NTA_ClearPosition(40);
+		NTSI_PickItems();
+		NTT_CleanPotions();
 
-                if (_wave == 1) NTP_DoPrecast();
-                else if (_wave == 3) NT_CheckHydraInt();
-                else if (_wave == 5) break;
-        }
+		if (_wave == 1) NTP_DoPrecast();
+		else if (_wave == 3) NT_CheckHydraInt();
+		else if (_wave == 5) break;
+	}
 
-        if (NTConfig_KillBaal) {
-                var _portal;
+	if (NTConfig_KillBaal) {
+		var _portal;
 
-                if (NTConfig_PublicMode) {
-                print("?c1Killing Baal");
-                say(KillBaalMsg);
-                }
+		if (NTConfig_PublicMode) {
+		print("ÿc1Killing Baal");
+		say(KillBaalMsg);
+		}
 
-                if (NTConfig_CheckSafe) {
-                        if (!NTTMGR_CheckSafe(3)) return false;
-                }
+		if (NTConfig_CheckSafe) 
+		{
+			if (!NTTMGR_CheckSafe(3))
+				throw new Error();
+		}
 
-                NTM_MoveTo(15092, 5010);
+		NTM_MoveTo(15092, 5010);
 
-                NTP_DoPrecast();
+		NTP_DoPrecast();
 
-                while (NTC_FindMonster(getLocaleString(3061))) //543
-                NTC_Delay(250);
+		while(NTC_FindMonster(getLocaleString(3061))) //544
+			NTC_Delay(400);
 
-                _portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
+		_portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
 
-                if (!_portal) return false;
+		if (!_portal)
+			throw new Error();
 
-                if (!NTM_UsePortal("Portal", 132, null, _portal)) return false;
+		if (!NTM_UsePortal("Portal", 132, null, _portal))
+			throw new Error();
 
-                NTM_MoveTo(15138, 5916);
+		NTM_MoveTo(15138, 5916);
 
-                var baal = getUnit(1,544);
-                while(baal && !(baal.mode == 0 || baal.mode == 12 || baal.hp <= 0))
-                NTA_KillBoss(544);
-                NTSI_PickItems();
-        }
+		var baal = getUnit(1,544);
+		while(baal && !(baal.mode == 0 || baal.mode == 12 || baal.hp <= 0))
+			NTA_KillBoss(544);
+			
+		NTSI_PickItems();
+	}
 
-        if (NTConfig_PublicMode) {
-                say(BaalNextGameMsg);
-        }
-        sendCopyData(null, "OOG", 0, "Quit:Full Run");
-        return true;
+	if (NTConfig_PublicMode) 
+		say(BaalNextGameMsg);
+		
+	sendCopyData(null, "OOG", 0, "Quit:Full Run");
+	
+	return true;
 }
 
 function NT_ClearThroneInt() {
-        var _attackpos = [15112, 5068, 15075, 5065, 15114, 5045, 15114, 5012, 15095, 5024, 15078, 5013, 15092, 5040];
+	var _attackpos = [15112, 5068, 15075, 5065, 15114, 5045, 15114, 5012, 15095, 5024, 15078, 5013, 15092, 5040];
 
-        for (var i = 0; i < _attackpos.length; i += 2) {
-                NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
+	for (var i = 0; i < _attackpos.length; i += 2) {
+		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
 
-                NTA_ClearPosition(25, 0x04);
-                NTA_ClearPosition(25);
-                NTSI_PickItems();
-        }
+		NTA_ClearPosition(25, 0x04);
+		NTA_ClearPosition(25);
+		NTSI_PickItems();
+	}
 
-        NTT_CleanPotions();
+	NTT_CleanPotions();
 }
 
 function NT_ThroneCheckInt() {
-        var _monster;
+	var _monster;
 
-        if (!NTC_FindMonster(getLocaleString(3061))) return 5;
+	if (!NTC_FindMonster(getLocaleString(3061))) return 5;
 
-        _monster = NTC_GetUnit(NTC_UNIT_MONSTER);
+	_monster = NTC_GetUnit(NTC_UNIT_MONSTER);
 
-        if (_monster) {
-                do {
-                        if (NTA_IsValidTarget(_monster)) {
-                                if (_monster.classid == 23 || _monster.classid == 62) return 1;
+	if (_monster) {
+		do {
+			if (NTA_IsValidTarget(_monster)) {
+				if (_monster.classid == 23 || _monster.classid == 62) return 1;
 
-                                if (_monster.classid == 105 || _monster.classid == 381) return 2;
+				if (_monster.classid == 105 || _monster.classid == 381) return 2;
 
-                                if (_monster.classid == 557) return 3;
+				if (_monster.classid == 557) return 3;
 
-                                if (_monster.classid == 558) return 4;
+				if (_monster.classid == 558) return 4;
 
-                                if (_monster.classid == 571) return 5;
-                        }
-                } while (_monster.getNext());
-        }
+				if (_monster.classid == 571) return 5;
+			}
+		} while (_monster.getNext());
+	}
 
-        return 0;
+	return 0;
 }
 
 function NT_ThronePreAttackInt() {
-        if (me.classid == NTC_CHAR_CLASS_SORCERESS) {
-                if (NTConfig_AttackOthers == 56 || NTConfig_AttackOthers == 59) return NTC_DoCast(NTConfig_AttackOthers, 2, 15092, 5028);
-        } else if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-                if (NTConfig_AttackOthers == 112) {
-                        if (NTConfig_PutAura > 0) NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+	if (me.classid == NTC_CHAR_CLASS_SORCERESS) {
+		if (NTConfig_AttackOthers == 56 || NTConfig_AttackOthers == 59) return NTC_DoCast(NTConfig_AttackOthers, 2, 15092, 5028);
+	} else if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		if (NTConfig_AttackOthers == 112) {
+			if (NTConfig_PutAura > 0) NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
 
-                        return NTC_DoCast(NTConfig_AttackOthers, 2);
-                }
-        }
+			return NTC_DoCast(NTConfig_AttackOthers, 2);
+		}
+	}
 
-        return false;
+	return false;
 }
 
 function NT_CheckHydraInt() {
-        var _hydra1, _hydra2, _hydra3;
+	var _hydra1, _hydra2, _hydra3;
 
-        _hydra1 = NTC_GetUnit(NTC_UNIT_MONSTER, 351);
-        _hydra2 = NTC_GetUnit(NTC_UNIT_MONSTER, 352);
-        _hydra3 = NTC_GetUnit(NTC_UNIT_MONSTER, 353);
+	_hydra1 = NTC_GetUnit(NTC_UNIT_MONSTER, 351);
+	_hydra2 = NTC_GetUnit(NTC_UNIT_MONSTER, 352);
+	_hydra3 = NTC_GetUnit(NTC_UNIT_MONSTER, 353);
 
-        if ((_hydra1 && _hydra1.getStat(172) != 2 && _hydra1.getState(105)) || (_hydra2 && _hydra2.getStat(172) != 2 && _hydra2.getState(105)) || (_hydra3 && _hydra3.getStat(172) != 2 && _hydra3.getState(105))) {
-                NTM_MoveTo(15112, 5004);
+	if ((_hydra1 && _hydra1.getStat(172) != 2 && _hydra1.getState(105)) || (_hydra2 && _hydra2.getStat(172) != 2 && _hydra2.getState(105)) || (_hydra3 && _hydra3.getStat(172) != 2 && _hydra3.getState(105))) {
+		NTM_MoveTo(15112, 5004);
 
-                if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
+		if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
 
-                NTC_Delay(3000);
-        }
+		NTC_Delay(3000);
+	}
 }

@@ -1,0 +1,46 @@
+function NT_SewerQ()
+{
+	print("ÿc<Starting Sewers Quest");
+	
+	if (!NTTM_CheckAct()) {
+		throw new Error();
+	}
+	
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Sewer Level 3");
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 48))
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Sewer Level 2");
+		NTM_TravelTO(48);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(48, true, 10000);
+	}
+	
+   	print("ÿc2Precasting");
+   	NTP_DoPrecast();
+  
+	print("ÿc8Going to Sewer Level 3");
+	NTM_TravelTO(49);
+
+	var _mobid = 744; 
+	var _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, _mobid);
+	
+	print("ÿc7Going to kill Radament"); 
+	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 3, 3);
+	
+	print("ÿc7Killing Radament"); 
+	if (!NTA_KillBoss(getLocaleString(2879)))   //Radament 
+		throw new Error();
+		
+	if (NTConfig_ClearPosition) 
+			NTA_ClearPosition();
+			
+	NTSI_PickItems(); 
+
+   	return true; 
+}

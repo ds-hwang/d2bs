@@ -1,149 +1,130 @@
-function NT_Loader() {
-	var _result = false;
-	var curScript;
-	for (var i = 0; i < NTConfig_Script.length; i++) {
-		if (NTConfig_Script[0] != "SimonSays") {
+/* 	**NOTE** - alogwe made major changes to NT_Loader(); 
+// 
+// 	NT_Loader() function has been changed to be more dynamic, 
+// 	so installing scripts will no longer require editing this file if done properly. 
+// 
+// 	To install a new script follow these instructions: 
+// 
+// 		1) Make sure the filename contains no spaces, or illegal JavaScript characters. 
+// 		2) Make sure the file has a prefix of 'NT' and a *.dbl file extension. (See examples below.) 
+// 		3) Make sure the file's MAIN function is named in the format 'NT_' + filename , but without the file extension. 
+// 
+// 			Examples: 	NTDiablo.dbl needs to have its main script function named NT_Diablo() 
+// 						NTBloodyFoothills.dbl needs to have its main script function named NT_BloodyFoothills() 
+// 						NTSomeRandomScript.dbl needs to have its main script function named NT_SomeRandomScript() 
+// 
+// 		4) Ensure that the script is located in the 'scripts-ntbot/libs/bots/' directory. 
+// 		5) Add to your script array in your character config file by referencing the name of the file without the 'NT' prefix or the file extension. 
+// 
+// 			Examples: 	NTConfig_Script = ['Diablo','BloodyFoothills','SomeRandomScript']; 
+//
+// 						OR... 
+//
+// 						NTConfig_Script.push('Diablo'); 
+// 						NTConfig_Script.push('BloodyFoothills'); 
+// 						NTConfig_Script.push('SomeRandomScript'); 
+// 		6) Run. 
+// 
+*/ 
+
+function NT_Loader() 
+{ 
+	var scriptName = false;
+	var scriptFunction = false;
+	var errorText = "";
+	
+	for (var i = 0; i < NTConfig_Script.length; i++)
+	{ 
+		scriptName = 'NT'+ NTConfig_Script[i] +'.dbl';
+		scriptFunction = 'NT_'+ NTConfig_Script[i];
+		
+		//this if() was left in from previous NT_Loader() and merged with same if() from default.dbj;
+		if (NTConfig_Script[0] != "SimonSays")
+		{ 
 			NTTM_CheckAct();
 			NTC_Delay(1000);
+			NTT_ClearInventory(); 	//from default.dbj;
+			NTT_ClearBelt();		//from default.dbj;
 		}
 		
-		switch (NTConfig_Script[i]) {
-		case "AncientTunnels":
-			NTC_Include("bots/NTAncientTunnels.dbl");
-			_result = NT_AncientTunnels();
-			break;
-		case "Andariel":
-			NTC_Include("bots/NTAndariel.dbl");
-			_result = NT_Andariel();
-			break;
-		case "Hephasto":
-			NTC_Include("bots/NTHephasto.dbl");
-			_result = NT_Hephasto();
-			break;
-		case "Izual":
-			NTC_Include("bots/NTIzual.dbl");
-			_result = NT_Izual();
-			break;
-		case "Baal":
-			NTC_Include("bots/NTBaal.dbl");
-			_result = NT_Baal();
-			break;
-		case "Countess":
-			NTC_Include("bots/NTCountess.dbl");
-			_result = NT_Countess();
-			break;
-		case "Diablo":
-			NTC_Include("bots/NTDiablo.dbl");
-			//curScript=ScriptEngine.CompileFile("bots/NTDiablo.dbl")//->Run();
-			//curScript.Resume
-			_result = NT_Diablo();
-			break;
-		case "Duriel":
-			NTC_Include("bots/NTDuriel.dbl");
-			_result = NT_Duriel();
-			break;
-		case "Eldritch":
-			NTC_Include("bots/NTEldritch.dbl");
-			_result = NT_Eldritch();
-			break;
-		case "Frozenstein":
-			NTC_Include("bots/NTFrozenstein.dbl");
-			_result = NT_Frozenstein();
-			break;
-		case "Mausoleum":
-			NTC_Include("bots/NTMausoleum.dbl");
-			_result = NT_Mausoleum();
-			break;
-		case "Mephisto":
-			NTC_Include("bots/NTMephisto.dbl");
-			_result = NT_Mephisto();
-			break;
-		case "Nihlathak":
-			NTC_Include("bots/NTPindleskinNihlathak.dbl");
-			_result = NT_Nihlathak();
-			break;
-		case "Pindleskin":
-			NTC_Include("bots/NTPindleskinNihlathak.dbl");
-			_result = NT_Pindleskin();
-			break;
-		case "Pit":
-			NTC_Include("bots/NTPit.dbl");
-			_result = NT_Pit();
-			break;
-		case "Summoner":
-			NTC_Include("bots/NTSummoner.dbl");
-			_result = NT_Summoner();
-			break;
-		case "ThreshSocket":
-			NTC_Include("bots/NTThreshSocket.dbl");
-			_result = NT_ThreshSocket();
-			break;
-		case "Travincal":
-			NTC_Include("bots/NTTravincal.dbl");
-			_result = NT_Travincal();
-			break;
-		case "Leech":
-			NTC_Include("bots/NTLeech.dbl");
-			_result = NT_Leech();
-			break;
-		case "LeechD":
-			NTC_Include("bots/NTLeechD.dbl");
-			//curScript=ScriptEngine.CompileFile("bots/NTLeechD.dbl")//->Run();
-			//curScript.Run
-			_result = NT_LeechD();
-			break;
-		case "FastDiablo":
-			NTC_Include("bots/NTFastDiablo.dbl");
-			_result = NT_FastDiablo();
-			break;
-		case "WPpindle":
-			NTC_Include("bots/NTFastPindle.dbl");
-			_result = NT_WPpindle();
-			break;
-		case "ClawViper":
-			NTC_Include("bots/ClawViper.dbl");
-			_result = NT_ClawViper();
-			break;
-		case "Gamble":
-			NTC_Include("bots/NTGamble.dbl");
-			_result = NT_Gamble();
-			break;
-		case "BoneAsh":
-			NTC_Include("bots/NTBoneAsh.dbl");
-			_result = NT_BoneAsh();
-			break;
-		case "SimonSays":
-			NTC_Include("bots/SimonSays.dbl");
-			_result = NT_SimonSays();
-			break;
-		case "Sewers":
-			NTC_Include("bots/NTSewers.dbl");
-			_result = NT_Sewers();
-			break;
-		case "Kurast":
-			NTC_Include("bots/NTKurast.dbl");
-			_result = NT_Kurast();
-			break;
-		case "Tristram":
-			NTC_Include("bots/NTTristram.dbl");
-			_result = NT_Tristram();
-			break;
-		case "Bishibosh":
-			NTC_Include("bots/NTBishibosh.dbl");
-			_result = NT_Bishi();
-			break;
-		case "SuperUnique":
-			NTC_Include("bots/SuperUnique.dbl");
-			_result = NT_SuperUnique();
-			break;
-
-		
-		
-		default:
-			_result = false;
-			break;
-		}
-
-		if (!_result) NTC_SendLogToOOG(NTConfig_Script[i] + " Error (" + NTAR_GetAreaName(me.area) + ")");
+		try 
+		{ 
+			if(FileTools.exists('libs/bots/'+ scriptName)) 
+			{ 
+				//Attempt to include() current script;
+				NTC_Include('bots/'+ scriptName);
+				
+				if(!isIncluded('bots/'+ scriptName))
+					throw new Error('INCLUDE_ERROR');
+				else
+					runScript(NTConfig_Script[i]);
+			} 
+			else 
+				throw new Error('FILE_NOT_FOUND_ERROR');
+		} 
+		catch(error) 
+		{ 
+			//switch() to set error text;
+			switch(error.message)
+			{
+				case 'FILE_NOT_FOUND_ERROR':
+					errorText = 'ÿc1Error: Script file not found (ÿc0"libs/bots/'+ scriptName +'"ÿc1)\n'+ 
+								'ÿc0  Please read comments at top of "libs/bots/NTLoader.dbl" for troubleshooting assistance.'
+					break;
+					
+				case 'INCLUDE_ERROR':
+					errorText = 'ÿc1Error: Could not include() script (ÿc0"libs/bots/'+ scriptName +'"ÿc1)\n'+
+								'ÿc0  Attempting load("libs/bots/'+ scriptName +'") to expose any errors..';
+					break;
+					
+				case 'SCRIPT_FUNCTION_MISSING_ERROR':
+					errorText = 'ÿc1Error: '+ scriptFunction +'() is not a defined function in script (ÿc0"libs/bots/'+ scriptName +'"ÿc1)\n'+ 
+								'ÿc0  Please read comments at top of "libs/bots/NTLoader.dbl" for troubleshooting assistance.';
+					break;
+					
+				case 'RETURN_FALSE_ERROR':
+					errorText = 'ÿc1Error: Script (ÿc0"libs/bots/'+ scriptName +'"ÿc1) has returned false while in '+ NTAR_GetAreaName(me.area);
+					break;
+								
+				default:
+					errorText = 'ÿc1Error: '+ scriptName +'('+ error.lineNumber +') : '+ error.message;
+			}
+			
+			//error message to OOG for review;
+			sendCopyData(null, "OOG", 0, scriptName + " --- "+ errorText); 
+			
+			//error message to console for review;
+			print(errorText);
+			
+			//load() scriptName to possibly expose errors;
+			if(error.message == 'INCLUDE_ERROR')
+			{
+				print('------------------------------');
+				load('libs/bots/'+ scriptName);
+				print('------------------------------');
+			}
+			
+			//if not the last script in script array; 
+			if(i < (NTConfig_Script.length - 1)) 
+				print('ÿc0Continuing with next script:ÿc9 NT'+ NTConfig_Script[i+1] +'.dbl');
+		} 
 	}
+	
+	
+	function runScript(functionName) 
+	{ 
+		scriptFunction = 'NT_'+ functionName;
+		
+		if(typeof(this[scriptFunction]) == 'function') 
+		{ 
+			//if main function execution returns false to NT_Loader();
+			if(!(this[scriptFunction]()))
+				throw new Error('RETURN_FALSE_ERROR'); 
+		}
+		else 
+			throw new Error('SCRIPT_FUNCTION_MISSING_ERROR'); 
+	}
+
+	
 }
+

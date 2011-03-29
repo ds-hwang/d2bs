@@ -1,37 +1,46 @@
 function NT_ThreshSocket() {
     print("ÿc3Starting ThreshSocket Script");
-    if (!NTTM_CheckAct()) {
-        return false;
-    }
+    if (!NTTM_CheckAct())
+        throw new Error();
+		
     NTTMGR_TownManager();
 
     print("ÿc8Going to Arreat Plateau");
-    if (!NTTM_TownMove("waypoint")) return false;
-    if (!NTM_UsePortal("Waypoint", 112)) {
+    if (!NTTM_TownMove("waypoint")) 
+		throw new Error();
+		
+    if (!NTM_UsePortal("Waypoint", 112)) 
+	{
         print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Arreat Plateau");
         NTM_TravelTO(112);
+		
         print("ÿc8Interacting with Waypoint as we don't have it.");
         NTM_GotoWaypoint(112, true, 10000);
     }
+	
     print("ÿc5Precasting");
     NTP_DoPrecast();
+	
     print("ÿc8Going to ThreshSocket");
 
-    if (!NTM_MoveToObject(NTC_UNIT_TILE, 71)) return false;
+    if (!NTM_MoveToObject(NTC_UNIT_TILE, 71)) 
+		throw new Error();
 
     if (NTConfig_CheckSafe) {
         if (!NTTMGR_CheckSafe(2)) {
             print("The Summoner Safe Check = Failed!");
-            return false;
+            throw new Error();
         }
     }
 
     print("ÿc1Killing ThreshSocket");
     if (!NTA_KillBoss(getLocaleString(22498))) //"Thresh Socket"
-    return false;
+		throw new Error();
 
-    if (NTConfig_ClearPosition) NTA_ClearPosition();
-    NTSI_PickItems();
+    if (NTConfig_ClearPosition) 
+		NTA_ClearPosition();
+    
+	NTSI_PickItems();
 
     return true;
 }

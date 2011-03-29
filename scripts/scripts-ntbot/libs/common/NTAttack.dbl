@@ -185,7 +185,7 @@ function NTA_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
 		maxX = minX;
 		minX = tempx;
 	}
-	if (minX > maxX){
+	if (minY > maxY){
 		var tempy = maxY;
 		maxY = minY;
 		minY = tempy;
@@ -226,7 +226,7 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 	{
 		_rooms.sort(NTA_SortRoomInt);
 		_room = _rooms.shift();
-		print(_rooms.toSource());		
+		attackPrint(_rooms.toSource());		
 			NTM_MoveTo(_room[0], _room[1]);		
 			if(typeof(AttackRoutine) == 'function'){
 				if(!AttackRoutine(size))
@@ -332,7 +332,7 @@ function NTA_IsValidTarget(monster, simple){
 	//if(getBaseStat(1, monster.classid, 23))
 	//	return false;
 	if(checkCollision(monster, monster, 3)){
-		print("mob off wall")
+		attackPrint("mob off wall");
 		
 	}
 	return true;
@@ -486,20 +486,20 @@ function NTA_SorceressAttackInt(target, boss, maxattacks){
 	switch(_attackprimary)
 	{
 	case 48: // Nova
-		_range1 = 10;
+		_range1 = 20;
 		break;
 	default:
-		_range1 = 20;
+		_range1 = 25;
 		break;
 	}
 
 	switch(NTConfig_AttackSecondary)
 	{
 	case 48: // Nova
-		_range2 = 10;
+		_range2 = 20;
 		break;
 	default:
-		_range2 = 20;
+		_range2 = 25;
 		break;
 	}
 
@@ -625,7 +625,7 @@ return 1;
 
 function getIntoLOS(target){
  		if(checkCollision(me, target,10)){
-			//print("moving closer collision 10")
+			//attackPrint("moving closer collision 10");
 			
 			var los = FindLOS(target,20)
 			if (los){
@@ -636,7 +636,7 @@ function getIntoLOS(target){
 			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
 		}
 		if(checkCollision(me, target,2)){
-			//print("moving closer collision 2")
+			//attackPrint("moving closer collision 2");
 			var los = FindLOS(target,20)
 			if (los){		
 		//	print ("found los:"+los[0]+","+los[1])
@@ -645,7 +645,7 @@ function getIntoLOS(target){
 			//NTA_MoveCloseInt(target, Math round(getDistance(me, target)/2));
 		}
 		if(checkCollision(me, target,1)){
-			//print("moving closer collision 1")
+			//attackPrint("moving closer collision 1");
 			var los = FindLOS(target,20)
 			if (los){
 			//	print ("found los:"+los[0]+","+los[1])
@@ -654,7 +654,7 @@ function getIntoLOS(target){
 			
 			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
 		}
-		if (getDistance(me,target)>10){
+		if (getDistance(me,target)>20){
 		var los = FindLOS(target,20)
 			if (los){
 			//	print ("found los:"+los[0]+","+los[1]+ " Range") 
@@ -901,11 +901,11 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 	}
 
 	_prehp1 = target.hp;
-print(target.hp +target.name)
+attackPrint(target.hp +target.name);
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true) && target.hp > 0)
 	{
 		//print("--Sub Step 1");
-		print(target.hp +target.name+"in loop")
+		attackPrint(target.hp +target.name+"in loop");
 		if(checkCollision(me, target, 3))
 		{
 			if(boss)
@@ -920,7 +920,7 @@ print(target.hp +target.name)
 		_prehp2 = target.hp;
 		
 		//print("--Sub Step 2");
-print(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attack:"+_attackprimary)
+attackPrint(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attack:"+_attackprimary);
 		if(NTA_GetResistance(target, _damagetype1) < 100)
 		{
 			//print("--Sub Step 3A");
@@ -947,7 +947,7 @@ print(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attac
 			}
 			
 			//print("--Sub Step 3A-E");			
-	print("casting "+_attackprimary+" on "+target.name)
+	attackPrint("casting "+_attackprimary+" on "+target.name);
 			NTC_DoCast(_attackprimary, _usehand1, target);
 			
 			//print("--Sub Step 3A-F");						
@@ -971,6 +971,11 @@ print(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attac
 				{
 					if(!NTA_MoveCloseInt(target, _range2) && !boss)
 						return false;
+					
+					if(NTConfig_AttackSecondary == 101)	//Thanks to menellerhur for this ! (walks to other side of enemy, so bolts don't hit merc);
+					{
+						NTA_GoToOtherSide(target);
+					}
 				}
 
 				if(NTConfig_PutAura > 0)
@@ -1045,8 +1050,103 @@ print(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attac
 	return true;
 }
 
-function NTA_BarbarianAttackInt(target, boss, maxattacks){
-	return false;
+//NTA_BarbarianAttackInt() function written by kolton.  Thanks very much kolton!
+function NTA_BarbarianAttackInt(target, boss, maxattacks)
+{
+   var _attackprimary;
+   var _maxattacks = 0;
+   var _usehand1, _usehand2;
+   var _damagetype1, _damagetype2;
+   var _range1, _range2;
+   var _castx, _casty;
+
+   _attackprimary = boss ? NTConfig_AttackBoss : NTConfig_AttackOthers;
+   
+   if(_attackprimary == 152)
+      _damagetype1 = NTA_DAMAGE_MAGIC;
+   else
+      _damagetype1 = NTA_GetDamageType(_attackprimary);
+   _usehand1 = NTC_IsLeftSkill(_attackprimary) ? 2 : NTC_HAND_RIGHT;
+   
+   if(NTConfig_AttackSecondary > 0)
+   {
+      _usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
+      if(NTConfig_AttackSecondary == 152)
+         _damagetype2 = NTA_DAMAGE_MAGIC;
+      else
+         _damagetype2 = NTA_GetDamageType(NTConfig_AttackSecondary);
+   }
+   
+   switch(_attackprimary)
+   {
+      case 151:
+         _range1 = 7;
+         break;
+      default:
+         _range1 = 3;
+         break;
+   }
+   
+   switch(NTConfig_AttackSecondary)
+   {
+      case 152:
+         _range2 = 2;
+         break;
+      default:
+         _range2 = 3;
+         break;
+   }
+   
+   while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true) && target.hp > 0)
+   {
+      if(_attackprimary == 151 && NTA_GetResistance(target, _damagetype1) < 100)
+      {
+         if(getDistance(me, target) > _range1)
+            NTA_MoveCloseInt(target, _range1);
+
+         _castx =  target.x > me.x ? target.x+3 : target.x-3;
+         _casty =  target.y > me.y ? target.y+3 : target.y-3;
+
+         if(me.mp > 30)
+            NTC_DoCast(_attackprimary, _usehand1, _castx, _casty);
+         else{
+            //NTA_MoveCloseInt(target, 2);
+            NTC_DoCast(144, NTC_HAND_RIGHT, target);
+         }
+            
+         if(_maxattacks%10 == 1 && NTConfig_WarcryBoss > 0 && (target.spectype&0x01 || boss) && target.hp > 0)
+            NTC_DoCast(NTConfig_WarcryBoss, NTC_HAND_RIGHT, target);
+         else if(_maxattacks%5 == 1 && NTConfig_WarcryOthers > 0 && target.hp > 0 && !boss && !(target.spectype&0x01))
+            NTC_DoCast(NTConfig_WarcryOthers, NTC_HAND_RIGHT, target);
+      }
+      else if(_attackprimary != 151 && NTA_GetResistance(target, _damagetype1) < 100)
+      {
+         if(getDistance(me, target) > _range1)
+            NTA_MoveCloseInt(target, _range1);
+
+         NTC_DoCast(_attackprimary, _usehand1, target);
+      }
+      else if(NTConfig_AttackSecondary > 0 && NTA_GetResistance(target, _damagetype2) < 100)
+      {
+         if(getDistance(me, target) > _range2)
+            NTA_MoveCloseInt(target, _range2);
+
+         NTC_DoCast(NTConfig_AttackSecondary, _usehand2, target);
+      }
+
+      //probably needs some more checks added later
+   
+      if(NTConfig_CheckSafe)
+      {
+         if(!NTTMGR_CheckSafe(1))
+            return false;
+      }
+      
+      NTC_Delay(10);
+   }
+
+   NTSI_FastSnag();
+   return true;
 }
 
 function NTA_DruidAttackInt(target, boss, maxattacks) { 
@@ -1420,7 +1520,7 @@ function NTA_Initialize(){
 	{
 		if(NTConfig_AttackSkill[i] > 0)
 		{
-			_NTA_SkillHand[i] = getBaseStat("skills", NTConfig_AttackSkill[i], 31) ? NTC_HAND_LEFT : NTC_HAND_RIGHT;
+			_NTA_SkillHand[i] = getBaseStat(3, NTConfig_AttackSkill[i], 31) ? 2 : NTC_HAND_RIGHT;
 			_NTA_SkillDamage[i] = NTA_GetDamageType(NTConfig_AttackSkill[i]);
 			_NTA_SkillDelay[i] = NTC_GetCastDelay(NTConfig_AttackSkill[i]);
 		}
@@ -1473,6 +1573,7 @@ function SortMonsters(nUnit1, nUnit2) {  // taken from Mbot cred goes to McGod
 			return 1;
 		return -1;
 }
+
 function FindLOS(mob,range){
 
 if (!mob) return false;
@@ -1584,4 +1685,40 @@ if((x2-x1)>(y2-y1)){ //7793,5293,7773,5293
 }
 //print("checkCol returning true")
 return true;
+	}
+
+//Thanks and credit goes to menellerhur for this function and it's implementation in the paladin attack function;
+function NTA_GoToOtherSide(target) 
+{
+	var toX;
+	var toY;
+	var directionX;
+	var directionY;
+	var merc = me.getMerc();
+	
+	directionX = (target.x - merc.x);
+	directionY = (target.y - merc.y);
+
+	if (directionX < 0)
+	  directionX = -1;
+	else
+	  directionX = 1;
+
+	if (directionY < 0)
+	  directionY = -1;
+	else
+	  directionY = 1;
+			   
+	toX = target.x + 2 * directionX;
+	toY = target.y + 2 * directionY;
+
+	NTC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, toX, toY);
+
+	var delayLoops = 25;
+	
+	while ((me.mode == 2 || me.mode == 3 || me.mode == 6) && delayLoops > 0)
+	{
+	  delay(20);
+	  delayLoops--;
+	}
 }

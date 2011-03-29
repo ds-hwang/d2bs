@@ -1,0 +1,515 @@
+/****************************************************************/
+/*	NT_Cow script for D2BS v.1.3.3 written by Shaggi	*/
+/****************************************************************/
+
+
+/*			Globals.		*/
+var _cowpos = [0,0];
+var CowKing;
+var _version = "1.2";
+var Cow_Debug = true;
+var TextHook = false;
+
+var _cowhp;
+
+function NT_Cow()
+{
+	var _redtp, _result = false;
+	if(Cow_Debug) {
+		TextHook = new Text("ÿc3NT_Cow version " + _version,480,550);
+		TextHook.visible = true;
+	};
+	COW_Print("Starting NT_Cow version " + _version);
+	load("libs/bots/NTCowThread.js");
+	if (!NTTM_CheckAct(1))
+		throw new Error();
+	_redtp = NTC_GetUnit(NTC_UNIT_OBJECT, 60); // 59 is a blue portal, 60 is a red
+	if(!_redtp) {
+		if(!COW_MakePortal()) {
+			NTT_MenuCancel();
+			COW_Print("ÿc1Couldn't create the portal to The Secret Cow Level.");
+			throw new Error();
+		}
+		_redtp = NTC_GetUnit(NTC_UNIT_OBJECT, 60); // 59 is a blue portal, 60 is a red
+	} else {
+		COW_Print("Portal already open.")
+	};
+	NTTMGR_TownManager();
+	scriptBroadcast("NTCOW :: KingChicken = " + NTCOW_KingChicken);
+	if(_redtp) {
+		COW_Print("ÿc8Going to The Secret Cow Level.");
+		NTM_MoveTo(_redtp.x, _redtp.y);
+		_redtp.interact();
+		NTC_PingDelay(1000);
+		NTM_TeleportTo(me.x - 10, me.y - 10); // this is helpful for bot to clear area
+		COW_Print("ÿc5Precasting");
+		NTP_DoPrecast();
+		_result = COW_ClearRooms();
+	} else {
+		COW_Print("ÿc1Couldn't find portal to The Secret Cow Level.");
+	};
+	if(TextHook) TextHook.remove();
+	NTT_MenuCancel();
+	scriptBroadcast("NTCOW :: Exit");
+	return _result;
+}
+
+function COW_MakePortal()
+{
+	var _myitems = me.getItems();
+	var _LegInCube = 0;
+	var _BookInCube = 0;
+	var _leg, _npc,_items, _tpbook, _stash, _cube;
+	var _tbk1,_tkb2, _tbk_old;
+	var _tbkcount = 0;
+	_items = me.getItems();
+	if(_items) {
+		for(var i = 0; i < _items.length ; i++) {
+			if(_items[i].location == 0) {
+				if(_items[i].code == "tbk") {
+					if(_tbk_old && _items[i] != _tbk_old) {
+						_tpbook = _items[i];
+						break;
+					};
+					_tbk_old = _items[i];
+				}
+			}
+		}
+	};
+
+
+	/*		See if leg is on ground.		*/
+	for (i = 0; i < 10; i++)
+	{
+		_leg = NTC_GetUnit(NTC_UNIT_ITEM, 88);
+		if (_leg)
+			break;
+	}
+	if(!_leg) {
+		_leg = COW_GetLeg();
+		NTM_MakeTP();
+		NTC_PingDelay(500);
+		NTM_UsePortal("BluePortal",1);
+		if(!_leg) {
+			COW_Print("Cannot find leg...");
+			return false;
+		}
+	} else {
+		if(!NTT_CheckSpace(_leg.sizex, _leg.sizey))
+		NTTMGR_TownManager();
+
+		for (i = 0; i < 20; i++)
+		{
+			if ((i % 5) == 0)
+			{
+				if (_leg.mode == 3 || _leg.mode == 5)
+				{
+					if (NTC_ClearCursor())
+						NTC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _leg);
+				}
+			}
+			NTC_PingDelay(1000);
+			if(_leg.mode != 3 && _leg.mode != 5)
+			{
+				COW_Print("ÿc4Found leg on ground.");
+				NTC_PingDelay(1000);
+				break;
+			}
+		}
+	}
+
+	/*		Got leg now, buying extra tome, if needed		*/
+	if(!_tpbook) {
+		NTTM_TownMove("akara");
+		for(var i = 0 ; i < 10 ; i++)
+		{
+			_npc = NTC_GetUnit(NTC_UNIT_NPC, NTC_NPC_ID_AKARA);
+			if(_npc)
+				break;
+		}
+		if(_npc)
+		{
+			NTT_DoInteract(_npc);
+			NTT_DoTrade(_npc, 0);
+			_items = NTC_GetItems(_npc);
+			if(_items)
+			{
+				for(var _count = 0;_count < _items.length;_count++)
+				{
+					if(_items[_count].code == "tbk"){
+						NTC_Delay(500);
+						if(!NTT_ShopItem(_items[_count],_npc,3)) {
+							NTT_MenuCancel();
+							COW_Print("ÿc1Error while shopping for Townportal book!")
+							return false;
+						} else {
+							NTT_MenuCancel();
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	/*		Got extra tome, moving to stash to cube em		*/
+
+    NTTM_TownMove("stash");
+	for(var i = 0 ; i < 10 ; i++)
+	{
+		_stash = NTC_GetUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH);
+		if(_stash)
+			break;
+	}
+	if(NTT_DoInteract(_stash)) {
+		/*		Inside stash now. Checking cube n stuff		*/
+		for(var i = 0; i < 10; i++) {
+			_cube = NTC_GetUnit(4,"box")
+			if(_cube)
+				break;
+		}
+		if(_cube) {
+			_items = 0;
+			_items = me.getItems();
+			_tpbook = 0;
+			if(_items) {
+				for(var i = 0; i < _items.length ; i++) {
+					if(_items[i].location == 3) {
+						COW_Print("ÿc1Please clean your cube before using this script!");
+						return false;
+					}
+					if(!_tpbook) {
+						if(_items[i].code == "tbk" && _items[i] != _tbk_old) {
+								_tpbook = _items[i];
+						}
+					}
+				}
+
+		/*		Verified that user got a cube and it's empty. going to transmute	*/
+
+				COW_Print("Transmuting.");
+				NTC_PingDelay(1000);
+				if(!NTC_ItemToCursor(_tpbook))
+					return false;
+				NTC_PingDelay(1000);
+				COW_ItemToCube(_tpbook,_cube)
+				NTC_PingDelay(1000);
+				if(!NTC_ItemToCursor(_leg))
+					return false;
+				NTC_PingDelay(1000);
+				COW_ItemToCube(_leg,_cube)
+				NTC_PingDelay(1000);
+
+		/*		Transmuting			*/
+
+				clickItem(1,_cube);
+				NTC_PingDelay(1000);
+				transmute();
+				NTC_PingDelay(1000);
+				NTT_MenuCancel();
+			}
+		} else {
+			COW_Print("ÿc1Please get a cube before using this script!");
+			return false;
+		}
+	} else {
+		return false;
+	}
+
+	return true;
+}
+
+
+function COW_ItemToCube(item,cube) {
+	if(arguments.length < 2)
+		return false;
+	if(me.itemoncursor)
+		clickItem(0,cube);
+	NTC_Delay(NTC_DELAY_FRAME);
+	return !me.itemoncursor;
+}
+
+
+function COW_GetLeg() {
+	var _unit, _leg, _wirtbody, _prearea;
+	NTTMGR_TownManager();
+	COW_Print("ÿc8Going to Tristram");
+	NTTM_TownMove("waypoint");
+	if (!NTM_UsePortal("Waypoint", 4))
+	{
+		COW_Print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Cold Plains.");
+		NTM_TravelTO(4);
+		COW_Print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(4, true, 10000);
+	}
+	COW_Print("ÿc5Precasting");
+	NTP_DoPrecast();
+
+	/*		We should be in cold plains now
+			Going for trist...				*/
+
+    _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, 737);
+	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 3, 3);
+	NTA_ClearPosition(10);
+	NTSI_PickItems();
+	if(!NTM_UsePortal("Portal", 38))
+		return false;
+
+	/*		We should be in trist now, moving to leg	*/
+
+	NTM_MoveTo(25047, 5178);
+	NTA_ClearPosition(10);
+	NTSI_PickItems();
+	_wirtbody = NTC_GetUnit(NTC_UNIT_OBJECT, 268);
+
+
+	if(NTM_MoveTo(_wirtbody.x+3, _wirtbody.y))
+	{
+		if(NTC_OpenChest(_wirtbody))
+		{
+			NTC_PingDelay(1000);
+			for (i = 0; i < 10; i++)
+			{
+			   _leg = NTC_GetUnit(NTC_UNIT_ITEM, 88);
+			   if (_leg)
+				  break;
+			}
+
+			if(!NTT_CheckSpace(_leg.sizex, _leg.sizey))
+			{
+				_prearea = me.areaid;
+				if(NTTM_CheckAct())
+				{
+					NTTMGR_TownManager();
+					NTTM_TownMove("portalspot")
+					NTM_UsePortal("BluePortal", _prearea)
+				}
+			}
+			for (var i = 0; i < 20; i++)
+			{
+				if ((i % 5) == 0)
+				{
+					if (_leg.mode == 3 || _leg.mode == 5)
+					{
+						if(NTC_ClearCursor())
+							NTC_DoClick(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _leg);
+					}
+				}
+				NTC_PingDelay(1000);
+				if (_leg.mode != 3 && _leg.mode != 5)
+				{
+					COW_Print("ÿc4Got Leg.");
+					NTC_PingDelay(1000);
+					return _leg;
+				}
+			}
+		}
+	}
+	return	false;
+}
+
+function COW_GetKing() {
+	var possiblecow = NTC_GetUnit(NTC_UNIT_MONSTER), _king = false;
+	do
+	{
+		if(NTA_IsValidTarget(possiblecow)) {
+			if(possiblecow.uniqueid == 39) {
+				_king = possiblecow;
+				break;
+			}
+		}
+	}while(possiblecow.getNext())
+	return _king;
+}
+
+function COW_Print(szMsg) {
+	if(arguments.length < 1) return false;
+	return print("ÿc2NTCow ÿc1:: ÿc3" + szMsg);
+}
+
+
+function COW_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
+{
+
+	if (minX > maxX){
+		var tempx = maxX;
+		maxX = minX;
+		minX = tempx;
+	}
+	if (minX > maxX){
+		var tempy = maxY;
+		maxY = minY;
+		minY = tempy;
+	}
+	var _room;
+	var _rooms;
+	var rx,ry,path,reachable;
+	var temproom;
+	var cowPresetUnit;
+	_room = getRoom();
+	var _myOldPos = [me.x,me.y];
+	if(!_room)
+		return false;
+
+	_rooms = new Array();
+	var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
+	do
+	{
+		rx = parseInt(_room.x*5 + _room.xsize/2);
+		ry = parseInt(_room.y*5 + _room.ysize/2);
+
+		reachable = isRoomReachable(_room);
+		if (reachable){
+			if (maxX && maxY){
+				if (rx <maxX && ry <maxY && rx > minX && ry > minY){
+					_rooms.push([reachable[0],reachable[1]]);
+				}
+			}else{
+				_rooms.push([reachable[0],reachable[1]]);
+			}
+		}
+
+	} while(_room.getNext());
+	/*			Why the fuck does this crash?		*/
+	//cowPresetUnit = getPresetUnit(me.area, NTC_UNIT_MONSTER, 743+30);
+	//if(cowPresetUnit) NTM_MoveToObject(NTC_UNIT_MONSTER, cowPresetUnit.id, cowPresetUnit.id, 20, 20);
+/*
+	cowPresetUnit = getPresetUnits(me.area);
+	if(cowPresetUnit) {
+		for(var i = 0; i < cowPresetUnit.length ; i++) {
+			if(cowPresetUnit[i].id == 743 || cowPresetUnit[i].id == 773)
+				NTM_MoveTo(cowPresetUnit[i].roomx*5+cowPresetUnit[i].x+20, cowPresetUnit[i].roomy*5+cowPresetUnit[i].y+20, 3, false);
+		}
+	}
+*/
+	CowKing = COW_GetKing();
+
+	if(!CowKing) {
+		temproom = _rooms;
+		while(!CowKing) {
+			CowKing = COW_GetKing();
+			temproom.sort(NTA_SortRoomInt);
+			_room = temproom.shift();
+			NTM_MoveTo(_room[0], _room[1]);
+		}
+		temproom = 0;
+	}
+
+	NTM_MoveTo(_myOldPos[0],_myOldPos[1]);
+	COW_Print("Got king, clearing lvl");
+	while(_rooms.length > 0)
+	{
+		_rooms.sort(NTA_SortRoomInt);
+		_room = _rooms.shift();
+		NTM_MoveTo(_room[0], _room[1]);
+
+		if(!CowKing)
+			CowKing = COW_GetKing();
+		if(CowKing) {
+			if(CowKing.x > 0) {
+				_cowpos[0] = CowKing.x;
+				_cowpos[1] = CowKing.y;
+			};
+		};
+		if(_cowpos[0]) {
+			if(getDistance(_cowpos[0],_cowpos[1],_room[0],_room[1]) > (NTCOW_DistanceToKing/3)) {
+
+				COW_ClearPosition(size);     //clear as big as the room are some are up to 60
+				NTSI_PickItems();
+				NTP_UpdatePrecast();
+			}
+		} else {
+			COW_ClearPosition(size);     //clear as big as the room are some are up to 60
+			NTSI_PickItems();
+			NTP_UpdatePrecast();
+		}
+	}
+	return true;
+}
+
+
+
+function COW_ClearPosition(range, spectype)
+{
+	var _orgx, _orgy;
+	var _target;
+	var _killnum = 0;
+	var _units = 0;
+	var _myDist;
+	if(arguments.length < 1)
+		range = 20;
+
+	if(arguments.length < 2)
+		spectype = 0;
+
+	_orgx = me.x;
+	_orgy = me.y;
+
+	_target = NTC_GetUnit(NTC_UNIT_MONSTER);
+	if(!CowKing)
+		CowKing = COW_GetKing();
+	_units = 0;
+	if(_target)
+	{
+		do
+		{
+			if(NTA_IsValidTarget(_target) && (spectype == 0 || (_target.spectype & spectype)) && getDistance(_orgx, _orgy, _target.x, _target.y) < range)
+			{
+				if(!CowKing) {
+					CowKing = COW_GetKing();
+				} else {
+					if(CowKing.x > 0) {
+						_cowpos[0] = CowKing.x;
+						_cowpos[1] = CowKing.y;
+					};
+					_myDist = getDistance(me,_cowpos[0],_cowpos[1]);
+					if((_target.uniqueid != 39) && (_myDist > NTCOW_DistanceToKing ) && (getDistance(_target,_cowpos[0],_cowpos[1]) > NTCOW_DistanceToKing)) {
+
+						if(Cow_Debug) TextHook.text = "ÿc3Distance of Cow King: ÿc4"+parseInt(_myDist) + "ÿc3, HP: ÿc4" + parseInt((CowKing.hp / CowKing.hpmax) * 100);
+						_target = copyUnit(_target);
+
+						if(_killnum == 0 && _target.hp > 0)
+						{
+
+							if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
+							{
+								if(NTC_IsLeftSkill(NTConfig_AttackFirst))
+								{
+									NTC_DoCast(NTConfig_AttackFirst, 2, _target);
+								} else {
+									NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);
+								}
+								NTSI_FastSnag();
+							}
+						}
+						if(NTA_Attack(_target, false, 20))
+						{
+							_killnum++;
+						}
+					}
+				}
+			}
+		}while(_target.getNext() && _target);
+	}
+	if (me.classid == NTC_CHAR_CLASS_NECROMANCER){ //build army
+		if (XP_useSkel) {
+			var success = XP_CheckRevives(70,363);
+		}
+		// Check Skeleton Mages
+		if (XP_useSkelMage && success) {
+			success = XP_CheckRevives(80,364);
+		}
+		// Check Revives
+		if (XP_useRevive && success) {
+			success = XP_CheckRevives(95);
+		}
+	}
+	if(me.classid == NTC_CHAR_CLASS_PALADIN)
+	{
+		if(NTConfig_UseRedemption && _killnum > 1 && NTC_PutSkill(124, NTC_HAND_RIGHT))
+		{
+			NTC_PingDelay(1000);
+		}
+	}
+
+	return (_killnum > 0);
+}

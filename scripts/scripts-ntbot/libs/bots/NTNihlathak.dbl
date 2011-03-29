@@ -1,0 +1,130 @@
+var _NTNihlathak_Locations = new Array(8, 4);
+
+_NTNihlathak_Locations[0] = [12519, 5203, 12522, 5227]; // Top Left
+_NTNihlathak_Locations[1] = [12704, 5019, 12692, 5022]; // Top Right
+_NTNihlathak_Locations[2] = [12705, 5391, 12723, 5413]; // Bottom Right
+_NTNihlathak_Locations[3] = [12889, 5206, 12898, 5228]; // Bottom Left
+_NTNihlathak_Locations[4] = [12519, 5203, 12522, 5196]; // Top Left
+_NTNihlathak_Locations[5] = [12704, 5019, 12692, 5413]; // Top Right
+_NTNihlathak_Locations[6] = [12705, 5391, 12727, 5022]; // Bottom Right
+_NTNihlathak_Locations[7] = [12889, 5206, 12898, 5192]; // Bottom Left
+
+function NT_Nihlathak()
+{
+	var _location;
+
+	print("ÿc3Start Nihlathak script");
+
+	if(!NTTM_CheckAct())
+		throw new Error();
+
+	NTTMGR_TownManager();
+
+	if(!NTTM_TownMove("waypoint"))
+		throw new Error();
+
+	if(!NTM_UsePortal("Waypoint", 123))
+		throw new Error();
+
+	NTP_DoPrecast();
+
+	if(!NTM_MoveToObject(NTC_UNIT_TILE, 77))
+		throw new Error();
+
+	if(!NTM_TakeStairs(77, 77))
+		throw new Error();
+
+	_location = NT_FindNihlathakInt();
+
+	if(_location == -1)
+		throw new Error();
+
+	if(!NTM_MoveTo(_NTNihlathak_Locations[_location][2], _NTNihlathak_Locations[_location][3]))
+		throw new Error();
+
+	if(NTConfig_CheckSafe)
+	{
+		if(!NTTMGR_CheckSafe(2))
+			throw new Error();
+	}
+
+	if(NTA_KillBoss( getLocaleString(22483))) //nihlathak
+	{
+		if(NTConfig_ClearPosition)
+			NTA_ClearPosition();
+
+		NTSI_PickItems();
+	}
+
+	if(NTConfig_PindleskinExtension)
+	{
+		var _tileid = [78,78];
+
+		for(var i = 0 ; i < _tileid.length ; i++)
+		{
+			if(!NTM_MoveToObject(NTC_UNIT_TILE, _tileid[i]))
+				throw new Error();
+
+			if(!NTM_TakeStairs(_tileid[i], _tileid[i]))
+				throw new Error();
+		}
+
+		if(!NTM_MoveToObject(NTC_UNIT_TILE, 78))
+			throw new Error();
+
+		if(NTConfig_CheckSafe)
+		{
+			if(!NTTMGR_CheckSafe(2))
+				throw new Error();
+		}
+
+		NTP_DoPrecast();
+
+		if(!NTM_TakeStairs(78, 78))
+			throw new Error();
+
+		if(!NTM_MoveTo(10061, 13234))
+			throw new Error();
+
+		if(!NTA_KillBoss(getLocaleString(22497))) //pindleskin
+			throw new Error();
+
+		if(NTConfig_ClearPosition)
+			NTA_ClearPosition(20, 0x08);
+
+		NTSI_PickItems();
+	}
+
+	return true;
+}
+
+// Internal function
+function NT_FindNihlathakInt()
+{
+	var i, x, y;
+	var _nihlathak;
+	var _mindist = 999999;
+	var _currdist;
+	var _location = -1;
+
+	_nihlathak = NTC_GetPresetUnits(NTC_UNIT_OBJECT, 462);
+
+	if(!_nihlathak)
+		return _location;
+
+	x = _nihlathak[0].roomx*5 + _nihlathak[0].x;
+	y = _nihlathak[0].roomy*5 + _nihlathak[0].y;
+
+	for(i = 0 ; i < 8 ; i++)
+	{
+		_currdist = getDistance(_NTNihlathak_Locations[i][0], _NTNihlathak_Locations[i][1], x, y);
+
+		if(_currdist < _mindist)
+		{
+			_mindist = _currdist;
+			_location = i;
+		}
+	}
+
+	return _location;
+}

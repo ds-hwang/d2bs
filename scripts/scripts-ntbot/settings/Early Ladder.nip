@@ -1,0 +1,69 @@
+;; Unique Glove
+Name = Chain Gloves : Quality = Unique
+Name = Vambraces : Quality = Unique
+Name = Ogre Gauntlets : Quality = Unique
+Name = Vampirebone Gloves : Quality = Unique
+Name = Heavy Gloves : Quality = Unique
+Name = Light Gauntlets : Quality = Unique
+Name = Gauntlets : Quality = Unique
+
+;; Unique Belt
+Name = Heavy Belt : Quality = Unique
+Name = Demonhide Sash : Quality = Unique
+Name = Battle Belt : Quality = Unique
+Name = War Belt : Quality = Unique
+Name = Spiderweb Sash : Quality = Unique
+Name = Vampirefang Belt : Quality = Unique 
+Name = Mithril Coil : Quality = Unique
+
+;; Unique Boot
+Name = Greaves : Quality = Unique
+Name = Boots : Quality = Unique
+Name = Demonhide Boots : Quality = Unique
+Name = Sharkskin Boots : Quality = Unique
+Name = Mesh Boots : Quality = Unique
+Name = Battle Boots : Quality = Unique
+Name = War Boots : Quality = Unique
+Name = Scarabshell Boots : Quality = Unique
+Name = Boneweave Boots : Quality = Unique
+Name = Myrmidon Greaves : Quality = Unique
+
+;; Unique Hats
+Name = Casque : Quality = Unique
+Name = Grand Crown : Quality = Unique
+Name = Skull Cap : Quality = Unique
+Name = War Hat : Quality = Unique
+Name = Shako : Quality = Unique
+Name = Grim Helm : Quality = Unique
+Name = Spired Helm : Quality = Unique
+Name = Demonhead : Quality = Unique
+Name = Bone Visage : Quality = Unique
+Name = Tiara : Quality = Unique
+Name = Diadem
+: Quality = Unique
+Name = Corona
+: Quality = Unique
+
+;; Unique Body
+Name = Studded Leather : Quality = Unique
+Name = Ring Mail
+
+: Quality = Unique Name = Full Plate Mail : Quality = Unique Name = Ghost Armor
+: Quality = Unique
+Name = Mage Plate
+: Quality = Unique
+Name = Dusk Shroud
+: Quality = Unique
+Name = Balrog Skin
+: Quality = Unique
+Name = Wire Fleece
+: Quality = Unique
+Name = Kraken Shell
+: Quality = Unique
+Name = Shadow Plate
+: Quality = Unique
+Name = Sacred Armor
+: Quality = Unique
+Name = Mesh Armor : Quality = Unique
+Name = Russet Armor : Quality = Unique
+Name = Templar Coat : Quality = Unique

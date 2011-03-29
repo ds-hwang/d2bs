@@ -1,283 +1,281 @@
-var globalvar = false;
-var nextGameVar = false;
-function NT_Leech()
+/**	
+*	@title		Baal Leech Bot
+*
+*	@filename	NTLeech.dbl
+*	@author		ImprisonedPride
+*	@version	1.5
+*
+*	@modified	alogwe
+*	@modified	03/16/11
+*	
+*	@TODO		Clean up function Unit_findItemByFname()
+*	@TODO		Reimplement Ondal's Wisdom swapping for leechtype 3 (pure leeching)
+*	@TODO		Consider use of a LeechSettings object (global?)
+*	@TODO		Add support for leech types 1 and 2
+*	@TODO		Use case-insensitive regex search for tp safe message matching
+*	@TODO		Set accepted safe tp phrases in char config file (an array to iterate and use elements for the RegEx matching)
+*	@TODO		Add option to call pickit between waves independent of leechtype
+*/
+
+function NT_Leech() 
 {
-	var leader="CHARACTERNAME!";
-	var i;
-	var _wave;
-	var _starttick;
-	addEventListener("chatmsg", BaalMsg);
-	if (NT_LeechType == 1)
-	{
-		globalvar = true;
-	}
+	print('ÿc1Starting Baal-Leech Script');
+	
+	var _helpPreClear = NTConfig_HelpPreClear;							// REVISION 1.4: 	This settings makes bot skip 10 second delay after portal and clear the area
+																		// 						before the first wave (if leader is having trouble with souls, set true).
+	var _helpWithWaves = NTConfig_HelpWithWaves;						// REVISION 1.1: 	Set true to help kill the waves. False to leech behind pillars.
+	
+	var _helpWithBaal = NTConfig_HelpWithBaal;							// REVISION 1.1: 	Set true to help kill Baal. False to leech outside of moat.
+	
+	var _getBaalItems = NTConfig_GetBaalItems;							// REVISION 1.1: 	Set true to jump to Baal's location for items if using leechtype 3.
+	
+	var _clearLeechPosition = NTConfig_ClearLeechPosition;				// REVISION 1.2: 	Added so that low levels don't attack monsters.
+	
+	var _wave = 0;														// REVISION 1.3: 	Added because instead of checking for leader, we check the wave number.
+	
 
-	print("ÿc3Start Baal Leech script");
+	if(!NTTM_CheckAct()) 
+		throw new Error();
 
-		if(!NTTM_CheckAct(5))
-		return false;
-
+	print('ÿc2Calling town manager');
 	NTTMGR_TownManager();
-		
-	if(!NTTM_TownMove("portalspot"))
-		return false;
-	//delay untill partied with leader
-	for(var i = 0 ; i < 100 ; i++)
+	print('ÿc2...Town manager finished.');
+	
+	if(me.area != 109) 
 	{
-		if (findLead(leader))
+		print('ÿc2Heading to Harrogath...');
+		NTTM_TownMove("waypoint");
+		while(me.area != 109) {
+				NTM_UsePortal("Waypoint", 109);
+				delay(1000);
+		}
+	}
+
+	if(!NTTM_TownMove('portalspot')) 
+	{
+		print('ÿc8Error: PortalSpot is not found.');
+		throw new Error();
+	}
+	
+	for(var i = 0; i < 100; i++) 
+	{
+		if(findLead(leader)) 
 			break;
-		for (var j = 0 ; j < NT_Leader.length ; j++){
-			if (findLead(NT_Leader[j]))
+		
+		for( var j = 0; j < NT_Leader.length; j++) 
+		{
+			if(findLead(NT_Leader[j])) 
 				leader = NT_Leader[j];
+		}
 		
-		}
-		delay (100);
+		delay(100);
 	}
-	QuitWithLeader =leader;
-	while(me.area==109){	
-	if (globalvar)
-		NTM_UsePortal("BluePortal", 131,leader);
-		delay (1000);
-		if (!findLead(leader)) {
-			var a = getParty();
-			if(!a)
-				return false;			
-			do { 
-				sendCopyData(null, "OOG", 0,"Leader Not Found-->"+a.name+"<--"  );		
-			} while(a.getNext()); 
-			return false;
-		}
-	}
-	NTP_DoPrecast();
-	if (NT_LeechType != 3)
-		NT_ClearThroneInt();
 
+	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;
 	
-
-	while(NT_LeechType != 3)
+	while(me.area == 109) 
 	{
-	var _attackpos = [7792, 5525, 7793, 5501, 7773, 5495, 7768, 5480, 7767, 5458, 7770, 5438, 7774, 5417, 7767, 5391, 7768, 5369, 7769, 5345, 7770, 5320, 7780, 5308];
-		//print("ÿc5Precasting");
-		//NTP_DoPrecast();
+		NTM_UsePortal("BluePortal", 131, leader);
+		delay(1000);
+		
+		if(!findLead(leader)) 
+			throw new Error();
+	}
 	
-		if(me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN)
-			NTM_MoveTo(15092, 5028);
-		else
-			NTM_MoveTo(15092, 5040);
+	print("ÿc2Waiting for Throne of Destruction to be cleared...");
+	NTP_DoPrecast();													// REVISION 1.3: 	Precast (for example, Holy Shield for paladins for extra def while leeching)
+																		//					Also done after entering Worldstone Chamber
+	if(_clearLeechPosition) 
+		NTA_ClearPosition(10);
+	
+	if(!_helpPreClear)													// REVISION 1.4: 	If leader has trouble with souls, don't wait and help kill them. 
+	{
+		delay(10000);													// REVISION 1.1: 	Despite this large delay, this prevents players from getting killed by souls by staying in the corner while the leader kills them.																		
+		NTM_MoveTo(me.x-2, me.y-2, 5, false);							// REVISION 1.1:	Fixes the candle glitch where players get stuck.
+	} 
+	else 
+	{
+		NTA_ClearPosition(50);
+	}
+	
+																		/**
+																		*	@author	alogwe
+																		*	@TODO	Consider getting a few leech positions and 
+																		*			set position based on user-defined vars in char config
+																		*/
+	delay(500);
+	NTM_MoveTo(15113, 5037, 5, false);									// Moves to third Pillar. Second pillar is X:15113 Y:5037
 
-		if(me.getState(2))
-			NTC_PutSkill(109, NTC_HAND_RIGHT);
-
-		for(i = 0 ; i < 6 ; i++)
+	while(true)															// REVISION 1.3: 	Remain at leech position until baal has passed through the red portal.
+	{
+		if(_clearLeechPosition)											// REVISION 1.3:	If not low-level, clear any stray monsters
+			NTA_ClearPosition(10);
+		
+		if(_helpWithWaves)												// REVISOIN 1.3: 	If we want to help with waves... will clear entire throne room.
 		{
-			_wave = NT_ThroneCheckInt();
-			if(_wave > 0)
-				break;
-
-			NTC_Delay(500);
+			NTA_ClearPosition(40);
+			NTSI_PickItems();
+			NTM_MoveTo(15113, 5037, 5, false);
 		}
-
-		_starttick = getTickCount();
-
-		while(_wave == 0)
-		{
-			if(!NT_ThronePreAttackInt())
-				NTC_Delay(250);
-
-			if(getTickCount()-_starttick > 15000)
-			{
-				NT_ClearThroneInt();
-
-				_starttick = getTickCount();
-			}
-
-			_wave = NT_ThroneCheckInt();
-		}
-
-		NTA_ClearPosition(40, 0x04);
-		NTA_ClearPosition(40);
-		NTSI_PickItems();
-		NTT_CleanPotions();
-
-		if(_wave == 1){
-			print("ÿc5First Wave");
-			//NTP_DoPrecast();
-		} else if(_wave == 3)
-			NT_CheckHydraInt();
-		else if(_wave == 5)
+		
+		NTT_CleanPotions();												// REVISION 1.3: 	Check your potions
+		
+		_wave = NT_ThroneCheckInt();									// REVISION 1.3: 	Get the current wave index
+		
+		if(_wave == 5)													// REVISION 1.3:	If Minion wave is going, stop waiting 
 			break;
-		if (!findLead(leader)) return false;
+		
+		delay(1000);													// REVISION 1.3:	Check position/wave delay
 	}
 	
-	while(findLead(leader) && NT_LeechType == 3)
+	while(NT_ThroneCheckInt() == 5)										// REVISION 1.3: 	If Minion wave is still going, wait
 	{
-		NTC_Delay(500);
-		if(nextGameVar == true) {
-			delay(10000);
-			return false;
+		delay(100);
+	}
+	
+	print('ÿc2Throne of Destruction clear');
+	print('ÿc2Moving to Worldstone Chamber...');
+	NTM_MoveTo(15092, 5010);
+	NTP_DoPrecast();													// REVISION 1.3:	Precast while waiting for Baal to move his fat ass
+	while (NTC_FindMonster(getLocaleString(3061)))						// REVISION 1.3:	Wait for Baal-clone to take the red portal
+	{
+		NTC_Delay(250);
+	}
+	
+	var _portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);					// REVISION 1.3: 	After baal leaves, find the red portal
+
+	if (!_portal) 
+		throw new Error();												// Couldn't find the portal;
+
+	if (!NTM_UsePortal("Portal", 132, null, _portal)) 
+		throw new Error();												// Found the portal but couldn't use it for some reason;
+
+	print("ÿc2Entering Worldstone Chamber. Waiting for Baal to die...");
+	//delay(1000);
+	//NTP_DoPrecast();
+	if (!_helpWithBaal) 
+	{
+		print("ÿc2...I'll just stay right here to leech.");
+		NTM_MoveTo(15166, 5923, 5, false);
+		
+		while(withLeader(leader)) 										// Wait until the leader isn't there (usually they left game).
+		{
+			if(_clearLeechPosition) 
+				NTA_ClearPosition(10);									// Clear our position in the case of tentacles.
+			
+			if(getDistance(me.x, me.y, 15166, 5923)>5) 
+				NTM_MoveTo(15166, 5923, 5, false);						// See explanation at line 63.
+			
+			delay(1000);
 		}
-	}
-
-	if(NTConfig_KillBaal && NT_LeechType != 3)
+	} 
+	else 
 	{
-		var _portal;
-
-		NTM_MoveTo(15092, 5010);
-
-		NTP_DoPrecast();
-
-		while(NTC_FindMonster("Baal"))
-			NTC_Delay(250);
-
-		_portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
-
-		if(!_portal)
-			return false;
-
-		if(!NTM_UsePortal("Portal", 132, null, _portal))
-			return false;
-
-		NTM_MoveTo(15138, 5916);
-
-		if(!NTA_KillBoss(544))
-			return false;
-		if (!findLead(leader)) return false;
-		NTSI_PickItems();
-		sendCopyData(null, "OOG", 0,"Quit:Full Run" );
+		print("ÿc2...Helping kill Baal.");
+		NTM_MoveTo(15138, 5916);										// Move to the moat.
+		
+		if (!NTA_KillBoss(getLocaleString(3061))) 
+			throw new Error();											// Kill Baal.
+		
+		print("ÿc2\\o/ BAAL IS DEAD! \\o/");
 	}
-
 	
-
+	NTSI_PickItems();
+	
 	return true;
 }
 
-// Internal function
-function NT_ClearThroneInt()
-{
-	var _attackpos = [15112, 5068, 15075, 5065, 15114, 5045, 15114, 5012, 15095, 5024, 15078, 5013, 15092, 5040];
+function NT_ThroneCheckInt() {
+        var _monster;
 
-	for(var i = 0 ; i < _attackpos.length ; i += 2)
-	{
-		NTM_MoveTo(_attackpos[i], _attackpos[i+1]);
+        if (!NTC_FindMonster(getLocaleString(3061))) return 5;
 
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTSI_PickItems();
-	}
+        _monster = NTC_GetUnit(NTC_UNIT_MONSTER);
 
-	NTT_CleanPotions();
+        if (_monster) {
+                do {
+                        if (NTA_IsValidTarget(_monster)) {
+                                if (_monster.classid == 23 || _monster.classid == 62) return 1;
+
+                                if (_monster.classid == 105 || _monster.classid == 381) return 2;
+
+                                if (_monster.classid == 557) return 3;
+
+                                if (_monster.classid == 558) return 4;
+
+                                if (_monster.classid == 571) return 5;
+                        }
+                } while (_monster.getNext());
+        }
+
+        return 0;
 }
 
-function NT_ThroneCheckInt()
-{
-	var _monster;
-
-	if(!NTC_FindMonster("Baal"))
-		return 5;
-
-	_monster = NTC_GetUnit(NTC_UNIT_MONSTER);
-
-	if(_monster)
-	{
-		do
-		{
-			if(NTA_IsValidTarget(_monster))
-			{
-				if(_monster.classid == 23 || _monster.classid == 62)
-					return 1;
-
-				if(_monster.classid == 105 || _monster.classid == 381)
-					return 2;
-
-				if(_monster.classid == 557)
-					return 3;
-
-				if(_monster.classid == 558)
-					return 4;
-
-				if(_monster.classid == 571)
-					return 5;
-			}
-		} while(_monster.getNext());
-	}
-
-	return 0;
+function withLeader(leader) {   // Check if the leader is with us or in town.
+        var party = getParty();
+        if (!party) return false;
+        do {
+                if (party.name==leader) {
+                        return (me.area == party.area || party.area == 108);
+                }
+        } while (party.getNext());
+        return false;
 }
 
-function NT_ThronePreAttackInt()
-{
-	if(me.classid == NTC_CHAR_CLASS_SORCERESS)
-	{
-		if(NTConfig_AttackOthers == 56 || NTConfig_AttackOthers == 59)
-			return NTC_DoCast(NTConfig_AttackOthers, 2, 15092, 5028);
-	}
-	else if(me.classid == NTC_CHAR_CLASS_PALADIN)
-	{
-		if(NTConfig_AttackOthers == 112)
-		{
-			if(NTConfig_PutAura > 0)
-				NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
-
-			return NTC_DoCast(NTConfig_AttackOthers, 2);
-		}
-	}
-
-	return false;
-}
-
-function NT_CheckHydraInt()
-{
-	var _hydra1, _hydra2, _hydra3;
-
-	_hydra1 = NTC_GetUnit(NTC_UNIT_MONSTER, 351);
-	_hydra2 = NTC_GetUnit(NTC_UNIT_MONSTER, 352);
-	_hydra3 = NTC_GetUnit(NTC_UNIT_MONSTER, 353);
-
-	if((_hydra1 && _hydra1.getStat(172) != 2 && _hydra1.getState(105))
-		|| (_hydra2 && _hydra2.getStat(172) != 2 && _hydra2.getState(105))
-		|| (_hydra3 && _hydra3.getStat(172) != 2 && _hydra3.getState(105)))
-	{
-		NTM_MoveTo(15112, 5004);
-
-		if(me.getState(2))
-			NTC_PutSkill(109, NTC_HAND_RIGHT);
-
-		NTC_Delay(3000);
-	}
-}
-function findLead(leader)
-{
-var _lead= getUnit(0, leader)
-	if(_lead)
-	return _lead.area;
-// leader not found look in party
-var area =0;
- var a = getParty();
-if(!a)
-	return false;
-	//sendCopyData(null, "OOG", 0,"party len:"+a.partyid  );
-      do { 
-      if (a.name==leader){
-		return true;
-      }
-   } while(a.getNext()); 
-	if (area==0) {
-		//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
-		return false;
-
-	}
+function findLead(leader) {             // Check if the leader in bot config is present in the game.
+        var _lead = getUnit(0, leader);
+                if(_lead) return _lead.area;
+        // leader not found look in party
+        var area =0;
+        var a = getParty();
+        if(!a) return false;
+        do { 
+                if (a.name==leader){
+                        return (a.area >0 )? a.area :true;
+                }
+        } while(a.getNext()); 
+        if (area==0) {
+                //sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+                return false;
+        }
 return area;
 }
 
-function LeaveWithLeader(mode, param,name1,name2){	//event is called from default
- 	if (mode == 0 || mode == 1 || mode ==3 )			
-		if (name1 == QuitWithLeader)
-			quit();
+function LeaveWithLeader(mode, param, name1, name2){      //event is called from default
+        if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
+                if(_getBaalItems) {
+                        NTM_MoveTo(15138, 5916); // Move to the moat.
+                        NTSI_PickItems();
+                }
+                quit();
+        }
 }
 
-function BaalMsg(who,msg) {
-	if (msg == "1") 
-		globalvar = true
-	if (msg == "Lets Kill Baal!" && NT_LeechType == 3)
-		nextGameVar = true;
+function Unit_findItemByFname(_fname)
+{
+        //This item search function will only find the FIRST matching result of _fname string argument in any UNIT.fname and return the UNIT Object that caused the RegEx match;
+
+        var _unitItem;
+
+        //check for correct input; to make sure it exists and make sure it is a string;
+        if((arguments.length < 1) || (typeof(_fname) != "string")) return false;
+        
+        var myItems = me.getItems();    //get all items owned by char (Unit objects in inventory, cube, stash, on body, and merc's body) and put in array myItems;
+                        
+        for(var item_num = 0; item_num < myItems.length; item_num++)    //loop through all items in array; 
+        {
+                //print("Testing item index "+ item_num); //TESTING PURPOSE: used to watch progress in console;
+
+                if((RegExp(_fname,"ig").test(myItems[item_num].fname))) //test if current item unit object in myItems array matches function input in item's fname attribute;
+                {
+                        //found match;
+                        //storing Unit to var _unitItem;
+                        _unitItem = myItems[item_num];
+                        //print("Found match for \""+_fname+"\", at location: "+_unitItem.location);    //TESTING PURPOSE: used to watch progress in console;
+                        return _unitItem;       //returning _unitItem Unit object to caller function;
+                }
+        }
+        
+        //print("No match found for \""+_fname+"\"");
+        return false;
 }

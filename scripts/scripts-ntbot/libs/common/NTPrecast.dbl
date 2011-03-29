@@ -219,18 +219,77 @@ if(!NTC_InTown()){
 	}
 
 }
+
+
 function NTP_GetPet(classid)
 {
-var pet=NTC_GetUnit(NTC_UNIT_MONSTER);
-	
-	if (pet){
+	var pet = NTC_GetUnit(NTC_UNIT_MONSTER);
+	if (pet)
+	{
 		do{
-			if (pet.classid == classid &&  pet.mode != 12){
+			if (pet.classid == classid && pet.mode != 12)
+			{
 				print("petfound");
 				return pet;			
 			}		 
 		}while(pet.getNext())
-	
 	}
-return false;
+	return false;
 }
+
+
+function NTP_DoEnchantAll(force)
+{
+	var result = true;
+	
+	if(arguments.length == 0)
+		force = false;
+
+	//Set target as any NPC-type units;
+	var target = NTC_GetUnit(NTC_UNIT_NPC);
+	do
+	{
+		if(!NTP_DoEnchant(target, force))
+			result = false;
+	}while(target.getNext());
+
+	//Set target as any Player-type units;
+	target = NTC_GetUnit(NTC_UNIT_PLAYER);
+	do
+	{
+		if(!NTP_DoEnchant(target, force))
+			result = false;
+	}while(target.getNext());
+
+	return result;
+}
+
+
+function NTP_DoEnchant(target, force)
+{
+	if(arguments.length == 0)
+		return false;
+	if(arguments.length < 2)
+		force = false;
+	
+	if(me.inTown)
+		return false;
+	
+	if(target.isEnchanted && !force)
+		return true;
+		
+	var haveEnchant = me.getSkill(52, 1) > 0;
+	
+	//	TODO : Add support to allow enchanting from item charges in future;
+	if(!me.isSorceress || !haveEnchant)
+		return false;
+	
+	//	TODO : Check if getDistance() is really needed here? Should it just rely on getUnit() search distance?
+	if(target.isEnchantable && getDistance(me, target) <= 60)
+		NTC_DoCast(52, NTC_HAND_RIGHT, target);
+	
+	// if(!target.isEnchanted)	print('missed enchantment on '+ target.name);	//alogwe debugging;
+	//	TODO : Rewrite so function will return true if(NTC_DoCast()) else false;
+	return true;
+}
+

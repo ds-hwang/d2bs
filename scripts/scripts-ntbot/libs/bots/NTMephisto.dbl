@@ -1,57 +1,75 @@
-function NT_Mephisto() {
+function NT_Mephisto()
+{
     var _area;
     var _exits;
     var _destx, _desty;
+	
 	print("ÿc3Starting Mephisto Script");
-    if (!NTTM_CheckAct()) {
-        return false;
-    }
+	
+    if (!NTTM_CheckAct())
+		throw new Error();
+		
     NTTMGR_TownManager();
 
     print("ÿc8Going to Durance of Hate Level 2");
-    if (!NTTM_TownMove("waypoint")) return false;
-    if (!NTM_UsePortal("Waypoint", 101)) {
+    if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+    if (!NTM_UsePortal("Waypoint", 101))
+	{
         print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Durance of Hate Level 2");
         NTM_TravelTO(101);
+		
         print("ÿc8Interacting with Waypoint as we don't have it.");
         NTM_GotoWaypoint(101, true, 10000);
     }
+	
     print("ÿc5Precasting");
     NTP_DoPrecast();
-    print("ÿc8Going to Durance of Hate Level 3");
+    
+	print("ÿc8Going to Durance of Hate Level 3");
     NTM_TravelTO(102);
 
-    if (NTConfig_CheckSafe) {
-        if (!NTTMGR_CheckSafe(2)) {
+    if (NTConfig_CheckSafe) 
+	{
+        if (!NTTMGR_CheckSafe(2)) 
+		{
             print("Mephisto Safe Check = Failed!");
-            return false;
+            throw new Error();
         }
     }
 
-   if (NTConfig_Moattrick) {
+   if (NTConfig_Moattrick)
+   {
 		NTM_MoveTo(17560, 8072);
 		delay(1500);
-		NTM_MoveTo(17563, 8072)
+		NTM_MoveTo(17563, 8072);
 		delay(500);
-		NTM_MoveTo(17585, 8095)
+		NTM_MoveTo(17585, 8095);
 		delay(1500);
-		NTM_MoveTo(17611, 8085)
+		NTM_MoveTo(17611, 8085);
+		
 		print("ÿc1Killing Mephisto");
 		NTA_KillBoss(getLocaleString(3062)) //Mephisto
 	}
-	else {
+	else 
+	{
 		NTM_MoveTo(17565, 8070); 
+		
 		print("ÿc1Killing Mephisto");
 		NTA_KillBoss(getLocaleString(3062)) //Mephisto
 	}
 
 
     if (NTConfig_ClearPosition) 
-	NTA_ClearPosition();
+		NTA_ClearPosition();
+		
     NTSI_PickItems();
 
-    if (NTConfig_CouncilExtension) {
+    if (NTConfig_CouncilExtension) 
+	{
         print("ÿc;Killing Council");
+		
 		NTM_MoveTo(17595, 8015);
 		NTA_KillBoss(getLocaleString(2859)) //Wyand Voidbringer
 		NTA_ClearPosition();
@@ -77,7 +95,8 @@ function NT_Mephisto() {
         NTSI_PickItems();
     }
 
-    if (NTConfig_OpenChest) {
+    if (NTConfig_OpenChest)
+	{
         var _chest;
         if (NTM_MoveTo(17512,8062)) {
             if (NTA_ClearPosition(30)) NTSI_PickItems();

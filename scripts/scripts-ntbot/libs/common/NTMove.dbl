@@ -89,7 +89,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 				NTSI_PickItems();
 				NTT_CleanPotions();
 
-				NTM_MoveTo(_path[i][0], _path[i][1], 2);
+				NTM_MoveTo(_path[i].x, _path[i].y, 2);
 			}
 		}
 		else
@@ -190,7 +190,7 @@ function NTM_TeleportTo(x, y)
 
 function NTM_WalkTo(x, y)
 {
-debugPrint("ntm walkTo" );
+	debugPrint("ntm walkTo" );
 if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A)|| getUIFlag(0x08) || getUIFlag(0x17))
 		me.cancel();
 	var _startx, _starty;
@@ -254,7 +254,7 @@ if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || g
 
 function NTM_TakeStairs(low, high, area)
 {
-debugPrint("ntm takeStairs low:"+low+" High:"+high+" area:"+area );
+	debugPrint("ntm takeStairs low:"+low+" High:"+high+" area:"+area );
 	var _unit;
 	var _prearea;
 
@@ -285,7 +285,7 @@ debugPrint("ntm takeStairs low:"+low+" High:"+high+" area:"+area );
 		if(me.area != _prearea)
 			break;
 	}
-preWalkDelay();
+	preWalkDelay();
 
 	while(me.area == 0)
 		NTC_Delay(NTC_DELAY_FRAME);
@@ -294,13 +294,13 @@ preWalkDelay();
 		return false;
 
 	//NTC_PingDelay(NTConfig_AreaDelay);
-debugPrint("ntm takeStairsDelay" );
-postWalkDelay();
+	debugPrint("ntm takeStairsDelay" );
+	postWalkDelay();
 	delay(50);
    	return true;
 }
 function postWalkDelay(){
-debugPrint("ntm postWalkDelay" );
+	debugPrint("ntm postWalkDelay" );
 	while (me.mode == 2 || me.mode == 6){
 	delay(40);
 	debugPrint("ntm takeStairsDelay walking" );	
@@ -309,9 +309,10 @@ debugPrint("ntm postWalkDelay" );
 	me.cancel(0);
 	 sendCopyData(null, "OOG", 0,"Info "+NTAR_Areas[me.area]);
 }
+
 function preWalkDelay(){
 	var pwTimeouts =0;
-debugPrint("preWalkDelay" );
+	debugPrint("preWalkDelay" );
 	while ((!(me.mode == 2 || me.mode == 6)) && (pwTimeouts < 10)){
 	delay(40);
 		pwTimeouts = pwTimeouts +1;
@@ -320,9 +321,10 @@ debugPrint("preWalkDelay" );
 	}
 
 }
+
 function NTM_UsePortal(how, dest, ownername, portal)
 {
-debugPrint("ntm usePortal" );
+	debugPrint("ntm usePortal" );
 	if(me.area == dest)
 		return true;
 
@@ -343,9 +345,40 @@ debugPrint("ntm usePortal" );
 	return false;
 }
 
+function NTM_GoToTown()
+{
+	// NTC_DebugPrint('');
+	// Check if in town;
+	if(me.inTown)
+		return true;
+	// Attempt to locate a nearby portal
+	var portal = NTC_GetUnit(NTC_UNIT_OBJECT, 'Portal');
+	
+	if(portal)
+	{
+		//	TODO : Have this find the CLOSEST party portal, not just the first match
+		do
+		{
+			if(portal.type == NTC_UNIT_OBJECT && portal.mode == 2 && portal.parentInParty)
+			{
+				NTM_MoveTo(portal.x, portal.y, 5, false);
+				portal.interact();
+				return true;
+			}
+		}while(portal.getNext());
+	}
+	
+	// Attempt to make portal as a backup plan
+	var destination = NTC_ActNumberToTownID[(me.act - 1)];
+	if(!NTM_MakeTP(destination))
+		return false;
+		
+	return true;
+}
+
 function NTM_MakeTP(dest)
 {
-debugPrint("makeTp" );
+	debugPrint("makeTp" );
 	var _usetp = true;
 	var _portal;
 
@@ -387,7 +420,7 @@ debugPrint("makeTp" );
 // Internal function
 function NTM_ChangeAreaInt(how, dest, ownername, myportal)
 {
-debugPrint("ntm changeAreaint how:"+how+" Dest:"+dest );
+	debugPrint("ntm changeAreaint how:"+how+" Dest:"+dest );
 	var _portal, _wpHex;
 	var _playerportal = false;
 	var _prearea;
@@ -513,7 +546,7 @@ debugPrint("ntm changeAreaint how:"+how+" Dest:"+dest );
 		}
 	}
 
-postWalkDelay();
+	postWalkDelay();
 	if(how == "Waypoint"){
 	var timeout = 0
 		while(me.area != dest)
@@ -529,13 +562,13 @@ postWalkDelay();
 	if(me.area != dest)
 		return -7;
 
-delay(50);
+	delay(50);
 	return 1;
 }
 
 function NTM_GetStairsInt(lo, hi, area)
 {
-debugPrint("ntm getstairsint" );
+	debugPrint("ntm getstairsint" );
 	var _tile = NTC_GetUnit(NTC_UNIT_TILE);
 
 	if(_tile)
@@ -555,7 +588,7 @@ debugPrint("ntm getstairsint" );
 
 function NTM_CheckWPInt(wpHex)
 {
-debugPrint("ntm checkwpInt" );
+	debugPrint("ntm checkwpInt" );
 	for(var i = 0 ; i < 39 ; i++)
 	{
 		if(wpHex == NTM_Waypoints[i])
@@ -566,7 +599,7 @@ return false;
 
 function NTM_FindCorrectPortalInt(blueportal, ownername)
 {
-debugPrint("ntm findCorrectPortal" );
+	debugPrint("ntm findCorrectPortal" );
 	var _portal = NTC_GetUnit(NTC_UNIT_OBJECT, "Portal");
 
 	if(blueportal)
@@ -596,7 +629,7 @@ debugPrint("ntm findCorrectPortal" );
 
 function NTM_FindPortalAreaInt(dest)
 {
-debugPrint("ntm FindPortalareaInt" );
+	debugPrint("ntm FindPortalareaInt" );
 	var _portal = NTC_GetUnit(NTC_UNIT_OBJECT, "Portal");
 
 	if(_portal)
@@ -621,12 +654,13 @@ debugPrint("ntm FindPortalareaInt" );
 
 function NTM_GetCloserInt(object)
 {
-debugPrint("ntm getCloser" );
+	debugPrint("ntm getCloser" );
 	if(getDistance(me, object) > 2)
 		return NTM_MoveTo(object.x, object.y);
 
 	return true;
 }
+
 function NTM_TravelTO(area)
 { 
 	var tries = 0;// moved this out of loop
@@ -712,6 +746,58 @@ function NTM_TravelTO(area)
 	}
 	return true;
 }
+
+function NTM_TravelToUser(username, minRange)
+{
+	// NTC_DebugPrint(arguments.callee.name + ' error, username not a string : '+ arguments.toArray().toSource());
+	// Validate and handle arguments
+	if(arguments.length == 0)
+		return false;
+	if(arguments.length < 2)
+		minRange = 5;
+	if(!(username.isString) || !(minRange.isNumber))
+		return false;
+
+	// Get user's area
+	var userArea = NTAR_GetUserArea(username);
+	
+	// Move to user's area
+	if(userArea && (me.area != userArea))
+		NTM_TravelTO(userArea);
+	
+	// Locate user Unit and MoveTo user 
+	var user = getUnit(0, username);
+	if(user)
+	{
+		// NTC_DebugPrint('Moving to: '+ user.x +', '+ user.y);
+		if(getDistance(user.x, user.y, me.x, me.y) > minRange)
+			NTM_MoveTo(user.x, user.y);
+			
+		return true;
+	}
+	
+	// Couldn't find user Unit, so trying to get coordinates from Party 
+	var area = 0;
+	var leadx = 0;
+	var leady = 0;
+	user = getParty().getUser(username);
+	
+	if(user)
+	{
+		area = user.area;
+		leadx = user.x;
+		leady = user.y;
+	}
+	
+	if (area == 0)
+		return false;
+		
+	if (leadx != 0)
+		NTM_MoveTo(leadx, leady);
+
+	return true;
+}
+
 function NTM_OpenDoor(){ // only opens act 4 town door atm
 var myDoor = getUnit(2);
 				if(myDoor){
@@ -728,6 +814,7 @@ var myDoor = getUnit(2);
 					}while(myDoor.getNext());					
 				}
 }
+
 function NTM_GotoLevel( exitAreaId, goThru) {
 		if(typeof(getExits) == 'function'){
 			var exit = getExits(getArea(me.area));
@@ -860,7 +947,7 @@ function NTM_GotoLevel( exitAreaId, goThru) {
 		return false;
 	}
 
-	function NTM_takeTile(tileId) {		
+function NTM_takeTile(tileId) {		
 			//Obtain the unit for the tile and store old area
 			var tileUnit = (arguments.length > 1) ? getUnit(arguments[1], tileId) : getUnit(5, tileId);
 			var oldArea = me.area;
@@ -893,9 +980,10 @@ function NTM_GotoLevel( exitAreaId, goThru) {
    	return true;
 
 }
+
 function NTM_GotoWaypoint( pArea ,get,maxDist) {
-print("gotowp");
-var match = false;
+	print("gotowp");
+	var match = false;
 	var _wpidarray = [ 119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539 ];
 	var _presetobjects = getPresetUnits( pArea, 2, null, null );	
 	if ( _presetobjects.length == 0 ) {	
@@ -935,6 +1023,7 @@ var match = false;
 	}
 	return true;	
 }
+
 function getColl(area,x,y){
 		try {
 			return getCollision(area,x,y)
@@ -946,6 +1035,7 @@ function getColl(area,x,y){
 
 
 }
+
 function NTM_EnterArea(id)
 {
 var exit= getArea(id).exits
@@ -1004,6 +1094,7 @@ for(var a =0; a< exit.length; a++){
 	
 	return false;
 }
+
 // vector class
 function vector()
 {

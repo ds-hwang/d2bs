@@ -1,0 +1,210 @@
+function MoorLVL() {
+	var _leader = "";
+	var _leaderunit;
+
+	addEventListener("gameevent", QuitFunction);
+	
+	print("ÿc3Starting Moor leveling script");
+
+	NTC_PutSkill(0, NTC_HAND_LEFT);
+	
+	NTTMGR_TownManager();
+	
+	if(me.name == _leader)
+	{
+		NTM_TravelTO(2);
+		
+		var _room, _rx, _ry;
+		_room = getRoom();
+		var _distance = getDistance(me.x, me.y, _room.x*5 + _room.xsize/2, _room.y*5 + _room.ysize/2);
+		
+		while(_room.getNext()){
+			if(getDistance(me.x, me.y, _room.x*5 + _room.xsize/2, _room.y*5 + _room.ysize/2) < _distance){
+				_rx = _room.x*5 + _room.xsize/2;
+				_ry = _room.y*5 + _room.ysize/2;
+			}
+		}
+		
+		NTM_MoveTo(_rx, _ry);
+		
+		NTM_MakeTP();
+		while(!IsPlayerOut(1))
+			NTC_Delay(250);
+			
+		NTAT_ClearRooms();
+	}
+	else
+	{
+		while(me.area == 1)
+		{
+			NTTM_TownMove("portalspot");
+			NTM_UsePortal("BluePortal", 2, _leader);
+			NTC_Delay(250);
+		}
+		
+		_leaderunit = NTC_GetUnit(NTC_UNIT_PLAYER, _leader)
+		
+		while(1)
+		{
+			NTM_MoveTo(_leaderunit.x, _leaderunit.y);
+			NTAT_ClearPosition();
+			NTSI_PickItems();
+		}
+	}
+	
+	return true;
+}
+
+function NTAT_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
+{
+	if (minX > maxX){
+		var tempx = maxX;
+		maxX = minX;
+		minX = tempx;
+	}
+	if (minX > maxX){
+		var tempy = maxY;
+		maxY = minY;
+		minY = tempy;
+	}
+	var _room;
+	var _rooms;
+	var rx,ry,path,reachable;
+	_room = getRoom();
+
+	if(!_room)
+		return false;
+
+	_rooms = new Array();
+	var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
+	do
+	{
+		rx = parseInt(_room.x*5 + _room.xsize/2);
+		ry = parseInt(_room.y*5 + _room.ysize/2)
+		
+		reachable = isRoomReachable(_room);
+		if (reachable){	
+			if (maxX && maxY){
+				if (rx < maxX && ry < maxY && rx > minX && ry > minY){
+					_rooms.push([parseInt(_room.x*5 + _room.xsize/2), parseInt(_room.y*5 + _room.ysize/2)]);
+					//([reachable[0],reachable[1]])
+				}			
+			}else{
+				_rooms.push([parseInt(_room.x*5 + _room.xsize/2), parseInt(_room.y*5 + _room.ysize/2)]);
+				//([reachable[0],reachable[1]])
+			}
+		}
+	} while(_room.getNext());
+
+	while(_rooms.length > 0)
+	{
+		_rooms.sort(NTA_SortRoomInt);
+		_room = _rooms.shift();
+		NTM_MoveTo(_room[0], _room[1]);		
+		if(typeof(AttackRoutine) == 'function'){
+			if(!AttackRoutine(size))
+				return false;
+		}else{
+			NTAT_ClearPosition(60);     //clear as big as the room are some are up to 60   
+			NTSI_PickItems();
+			NTP_UpdatePrecast();
+		}		
+	}	
+	return true;
+}
+
+function NTAT_ClearPosition(range, spectype)
+{
+	var _orgx, _orgy;
+	var _target;
+	var _killnum = 0;
+	var _mindist;
+	var _mingid;
+	var _dist;
+	
+	if(arguments.length < 1)
+		range = 20;
+
+	if(arguments.length < 2)
+		spectype = 0;
+	
+	_orgx = me.x
+	_orgy = me.y
+	
+	for(var a = 0 ; a < 200 ; a++)
+	{
+		_mindist = 1000;
+		
+		_target = getUnit(NTC_UNIT_MONSTER);
+		
+		if(_target)
+		{
+			do
+			{
+				if(NTA_IsValidTarget(_target) && (spectype == 0 || (_target.spectype & spectype)) && getDistance(_orgx, _orgy, _target.x, _target.y) < range)
+				{
+					_dist = getDistance(me.x, me.y, _target.x, _target.y);
+					if(_dist < _mindist)
+					{
+						_mindist = _dist;
+						_mingid = _target.gid;
+					}
+				}
+			}
+			while(_target.getNext());
+		}
+				
+		if(_mindist < 1000)
+		{
+			_target = getUnit(NTC_UNIT_MONSTER, null, null, _mingid);
+
+			if(getDistance(_orgx, _orgy, _target.x, _target.y) > range)
+				continue;
+			
+			if(_target && NTA_IsValidTarget(_target))
+			{
+				NTA_MoveCloseInt(_target, 1);
+				clickMap(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _target);
+			}
+		}
+		else
+			break;
+		
+		delay(50);
+	}
+
+	return;
+}
+
+function QuitFunction(mode, param, name1, name2)
+{
+	if(mode == 0 || mode == 3)
+	{
+		delay(500);
+		quit();
+	}
+}
+
+function IsPlayerOut(area) { 
+	var _player;
+	var _myPartyId;
+	var _area;
+	
+	_player = getParty();
+	_myPartyId = _player.partyid;
+
+	if(arguments.length < 1)
+		_area = me.area;
+	else
+		_area = area;
+
+	do {
+		if(_player.area == _area && _myPartyId == _player.partyid)
+			return false;
+
+		NTC_Delay(100);
+
+	} while(_player.getNext());
+	
+	return true;
+}

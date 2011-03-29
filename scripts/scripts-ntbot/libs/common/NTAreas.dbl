@@ -1,5 +1,4 @@
 var NTAR_Areas = new Array(133);
-
 NTAR_Areas[0] = "None";
 NTAR_Areas[1] = "Rogue Encampment";
 NTAR_Areas[2] = "Blood Moor";
@@ -324,3 +323,39 @@ NTAR_NextArea[76]=78;
 NTAR_NextArea[115]=117;
 NTAR_NextArea[113]=115;
 NTAR_NextArea[118]=120;
+
+
+function NTAR_GetUserArea(username)
+{
+	// Validate arguments
+	if(arguments.length == 0)
+		return false;
+	if(!username.isString)
+	{
+		// NTC_DebugPrint('');
+		print(arguments.callee.name + ' error, username not a string : '+ username.toSource());
+		return false;
+	}
+	
+	//	Check if username is my name
+	if(username == me.charname)
+		return me.area;
+		
+	//	Check if user is nearby
+	var playerUnit = getUnit(0, username);
+	if(playerUnit)
+		return playerUnit.area;
+	
+	//	Did not find user nearby, search in party
+	//	NOTE:	This will return 0 for matching players
+	//			that aren't partied, even if they are in game
+	playerUnit = getParty().getUser(username);
+	// if(!areaid)
+		// NTC_DebugPrint('');
+	if(!playerUnit)
+		return false;
+		
+	return playerUnit.area;
+}	
+
+

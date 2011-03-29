@@ -1,36 +1,31 @@
 function NT_Sewers()
 {
-print("ÿc3Start Sewers script");
+	print("ÿc3Starting Sewers script");
 
-
- NTM_TravelTO(80)
-print("ÿc8Going to Kurast");
+	print("ÿc8Going to Kurast");
+	NTM_TravelTO(80);
 	
-	
-NTP_DoPrecast();
+	NTP_DoPrecast();
 
-if(!NTM_MoveToObject(NTC_UNIT_TILE, 57))
-return false;
+	if(!NTM_MoveToObject(NTC_UNIT_TILE, 57))
+		throw new Error();
 
-if(!NTM_TakeStairs(57, 57))
-return false;
+	if(!NTM_TakeStairs(57, 57))
+		throw new Error();
 
-   if(NTConfig_OpenChest)
-   {
-    openChestsInArea()
-   }
+	if(NTConfig_OpenChest)
+		openChestsInArea();
 
-if(!NTM_MoveToObject(NTC_UNIT_TILE, 60))
-return false;
+	if(!NTM_MoveToObject(NTC_UNIT_TILE, 60))
+		throw new Error();
 
-if(!NTM_TakeStairs(60, 60))
-return false;
+	if(!NTM_TakeStairs(60, 60))
+		throw new Error();
 
-if(NTConfig_OpenChest)
-openChestsInArea()
+	if(NTConfig_OpenChest)
+		openChestsInArea();
 
-
-return true;
+	return true;
 }
 
 function openChestsInArea(){

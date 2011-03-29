@@ -1,24 +1,33 @@
-function NT_AncientTunnels() {
+function NT_AncientTunnels() 
+{
 	print("ÿc3Starting AncientTunnels Script");
-	if (!NTTM_CheckAct()) {
-		return false;
-	}
+	
+	if (!NTTM_CheckAct()) 
+		throw new Error();
+	
 	NTTMGR_TownManager();
 
 	print("ÿc8Going to Lost City");
-	if (!NTTM_TownMove("waypoint")) return false;
-	if (!NTM_UsePortal("Waypoint", 44)) {
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 44)) 
+	{
 		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Lost City");
 		NTM_TravelTO(44);
+		
 		print("ÿc8Interacting with Waypoint as we don't have it.");
 		NTM_GotoWaypoint(44, true, 10000);
 	}
+	
 	print("ÿc5Precasting");
 	NTP_DoPrecast();
+	
 	print("ÿc8Going to Ancient Tunnels");
 	NTM_TravelTO(65);
 
-	if (!NTA_ClearRooms()) return false;
-
+	if (!NTA_ClearRooms())
+		throw new Error();
+		
 	return true;
 }

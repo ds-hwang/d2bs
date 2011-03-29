@@ -1,24 +1,21 @@
 function NT_Kurast()
 {
+	print("ÿc3Starting Kurast script");
 
- 
-   print("ÿc3Start Kurast script");
-   
-   if(!NTTM_CheckAct())
-           return false;
-     
-   NTTMGR_TownManager();
+	if(!NTTM_CheckAct())
+		throw new Error();
 
-     NTM_TravelTO(79)
-	
+	NTTMGR_TownManager();
+
+	NTM_TravelTO(79);
+
 	NTP_DoPrecast();
-	openChestsInArea()
-	
-	NTM_TravelTO(80)
-	openChestsInArea()
-	
-	
-   return true;
+	openChestsInArea();
+
+	NTM_TravelTO(80);
+	openChestsInArea();
+
+	return true;
 }
 
 function openChestsInArea(){

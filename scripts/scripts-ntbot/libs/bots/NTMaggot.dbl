@@ -1,0 +1,32 @@
+function NT_Maggot() 
+{
+	print("ÿc<Starting Maggot Lair Level 3 Script");
+	if (!NTTM_CheckAct())
+		throw new Error();
+		
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Maggot Lair Level 3");
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 43))
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Lost City");
+		NTM_TravelTO(43);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(43, true, 10000);
+	}
+	
+    print("ÿc2Precasting");
+    NTP_DoPrecast();
+  
+	print("ÿc8Going to Clear Maggot Lair Level 3");
+	NTM_TravelTO(64);
+
+	if (!NTA_ClearRooms())
+		throw new Error();
+
+	return true;
+}

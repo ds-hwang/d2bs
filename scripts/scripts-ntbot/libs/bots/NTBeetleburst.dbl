@@ -1,0 +1,40 @@
+function NT_Beetleburst()
+{ 
+	print("ÿc<Starting Beetleburst script"); 
+	
+	if(!NTTM_CheckAct())
+		throw new Error();
+	
+	NTTMGR_TownManager(); 
+
+	print("ÿc8Going to Far Oasis"); 
+	
+	if (!NTTM_TownMove("waypoint")) 
+		throw new Error();
+	
+	if (!NTM_UsePortal("Waypoint", 43)) 
+	{ 
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Far Oasis"); 
+		NTM_TravelTO(43);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it."); 
+		NTM_GotoWaypoint(43, true, 10000); 
+	} 
+
+	print("ÿc2Precasting"); 
+	NTP_DoPrecast(); 
+
+	var _mobid = 747; 
+	var _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, _mobid); 
+	print("ÿc7Going to kill Beetleburst"); 
+	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 3, 3); 
+	
+	print("ÿc7Killing Beetleburst"); 
+	if (NTA_KillBoss(getLocaleString(2882)))   //"Beetleburst" 
+		if (NTConfig_ClearPosition)
+			NTA_ClearPosition(); 
+	
+	NTSI_PickItems(); 
+	
+	return true; 
+} 

@@ -1,0 +1,106 @@
+//ShopBot Script, written by Shaggi for D2BS 1.3.3 using NTBot rev. 288
+
+var ShopBot_version = "1.0";
+var shop_debug = true;
+function NT_ShopBot()
+{
+	print("ÿc2NTSB ÿc1:: ÿc3Starting ShopBot version ÿc4" + ShopBot_version);
+	var _moneyleft = (NTC_MyGold() > NTSB_StopShopping) ? true : false;
+	if(!_moneyleft)
+	{
+		print("ÿc2NTSB ÿc1:: ÿc3Not enough money, stopping script");
+		return true;
+	};
+	
+	_print("ÿc3Checking act");
+	if(!NTTM_CheckAct())
+		throw new Error();
+		
+	_print("ÿc3Running NTTMGR_TownManager");
+	NTTMGR_TownManager();
+	
+	_print("ÿc3Going to act 5");
+	if(!NTTM_CheckAct(5))
+		throw new Error();
+		
+	_print("ÿc3Going to portalspot");
+	if(!NTTM_TownMove("portal"))
+		throw new Error();
+
+	var _items;
+	var _npc;
+	var _count;
+	var _needchange = true;
+	NTSB_ShopOnNpcVisit = false;
+	
+	_print("ÿc3Going into main loop");
+	while(_moneyleft)
+	{
+		_print("ÿc3Getting npc");
+		_npc = NTC_GetUnit(NTC_UNIT_NPC,NTC_NPC_ID_ANYA_TOWN);
+		if(_npc)
+		{
+			_print("ÿc3Got npc! Interacting and trading.");
+			NTT_DoInteract(_npc);
+			NTT_DoTrade(_npc, 0);
+			_print("ÿc3Getting items");
+			_items = NTC_GetItems(_npc);
+			if(_items)
+			{
+				_print("ÿc3Got items!");
+				for(_count = 0;_count < _items.length;_count++)
+				{
+					if(njipCheckGoodItem(_items[_count], NJIP_CHECK_SIMPLE) != 0){
+						print("ÿc2NTSB ÿc1:: ÿc3"+_items[_count].name+"ÿc1 -> item was good!");
+						NTC_Delay(500);
+						if(!NTT_ShopItem(_items[_count],_npc,3)) {
+							NTT_MenuCancel();
+							_print("ÿc2Error while shopping!")
+							throw new Error();
+						} else {
+							writeLog(_items[_count], me, 0, 0);
+							NTT_MenuCancel();
+							NTTMGR_TownManager()
+							_moneyleft = (NTC_MyGold() > NTSB_StopShopping) ? true : false;
+							_needchange = false;
+						};
+					} else {
+						_needchange = true;
+						//_print("ÿc3"+_items[_count].name+" ->  item was bad!");
+					};
+				};
+			};
+			_print("ÿc3Done. Canceling.");
+			NTT_MenuCancel();
+			if(_needchange)
+			{
+				_print("ÿc3Trying to go out and in.");
+				if(!NTTM_TownMove("portal"))
+					throw new Error();
+				if(!NTM_UsePortal("Portal", 121))
+					throw new Error();
+				while(me.area != 121) delay(10);
+				if(!NTM_UsePortal("Portal", 109))
+					throw new Error();
+				while(me.area != 109) delay(10);
+			} else {
+				if(!NTTM_TownMove("portal"))
+					throw new Error();
+			};
+			_print("ÿc3Succesful run!");
+		};
+		NTC_Delay(200);
+	};
+	print("ÿc2NTSB ÿc1:: ÿc3Stopping ShopBot version ÿc4" + ShopBot_version);
+	NTSB_ShopOnNpcVisit = true;
+	return true;
+};
+
+function _print(szMsg)
+{
+	if(arguments.length < 1) return false;
+		if(shop_debug)
+			return print(szMsg);
+			
+	return false;
+};

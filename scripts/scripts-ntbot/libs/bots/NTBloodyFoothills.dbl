@@ -1,0 +1,46 @@
+function NT_BloodyFoothills()
+{
+	print("ÿc<Starting BloodyFoothills Script");
+	
+	if(!NTTM_CheckAct()) 
+		throw new Error();
+		
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Frigid Highlands");
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 111)) 
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Lost City");
+		NTM_TravelTO(111);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(111, true, 10000);
+	}
+	
+    print("ÿc2Precasting");
+    NTP_DoPrecast();
+    
+	print("ÿc7Going to Eldritch");
+    if (!NTM_MoveTo(3750, 5085))
+		throw new Error();
+    
+	print("ÿc7Killing Eldritch");
+    if (NTA_KillBoss(getLocaleString(22500))) //"Eldritch"
+    {
+        if (NTConfig_ClearPosition) 
+			NTA_ClearPosition();
+        
+		NTSI_PickItems();
+    }
+	
+	print("ÿc8Going to Bloody Foothills");
+	NTM_TravelTO(110);
+
+	if (!NTA_ClearRooms())
+		throw new Error();
+
+	return true;
+}

@@ -18,8 +18,11 @@ function NT_LoadConfig()
 
 
 	NTConfig_PublicMode = true;			// Set to false to not party
-	NT_Leader.push("");				// Enter the character name of the leader (Exact Spelling)
-	NT_LeechType = 2;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner
+	leader = "";			//Leaders Name Case Sensitive
+	NT_Leader.push(leader);			// Do not edit this line
+	NT_LeechType = 1;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner
+	QuitWith = ""; //ONLY edit this line if you want to quit from the game with someone OTHER THAN your leader;
+	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;	//Do not edit this line;
 	
 	//NTConfig_Script.push("Leech"); NTConfig_KillBaal = true; //baal leaching script (enters as soon as portal is made)
 	//NTConfig_Script.push("LeechD"); 		// chaos helper
@@ -35,6 +38,117 @@ function NT_LoadConfig()
 		SimonStopLifeWatch = false;
 		SimonEnableCommands = false;  // obey commands like "Rush Me","Rush 1","Get Wps" from chat.
 	NTConfig_Script.push("SimonSays")
+
+	//---------------
+	// Shop Bot
+	//---------------
+
+	//NTSB_StopShopping = 100000;
+	//NTSB_ShopOnNpcVisit = true;
+	//NTConfig_Script.push("ShopBot");
+
+	//---------------
+	// Skill Quests
+	//--------------
+
+	//NTConfig_Script.push("Den");			// Clear Den Of Evil
+
+	//NTConfig_Script.push("SewerQ");		//Kills Radament
+	
+	//---------------
+	// Act 1 bosses 
+	//---------------
+
+	//NTConfig_Script.push("Mausoleum");		// In the Buriel Grounds Next to Blood Raven in a1
+
+	//NTConfig_Script.push("Countess");
+
+	//NTConfig_Script.push("Pit"); 			// Tomahoe Islands a1
+		NTConfig_ClearPitLevel1 = true; 	// Set to true to clear level1
+
+	//NTConfig_Script.push("BoneAsh");		// Located in the cathedral in a1
+
+	//NTConfig_Script.push("Andariel");
+
+	//---------------
+	// Act 2 bosses 
+	//---------------
+
+	//NTConfig_Script.push("Maggot");	// Clears all 3 Maggot Levels
+
+	//NTConfig_Script.push("AncientTunnels");	// Found in the Lost City in a2
+
+	//NTConfig_Script.push("Beetleburst");
+
+	//NTConfig_Script.push("Summoner");
+		NTConfig_FireEyeExtension = true
+
+	//NTConfig_Script.push("Duriel");
+
+	//NTConfig_Script.push("ClawViper"); 		// This run is DANGEROUS, However can be a good way to waste time if you set it to false.
+		NTConfig_KillFangskin = true 
+
+	//---------------
+	// Act 3 bosses 
+	//---------------
+	
+	//NTConfig_Script.push("KurastTemples");		// Clears out all temples
+		NTConfig_RuinedExtension = true;
+		NTConfig_DisusedExtension = true;
+
+	//NTConfig_Script.push("Travincal");
+
+	//NTConfig_Script.push("Mephisto"); 		
+		NTConfig_CouncilExtension = false; 	// Set this to false to not kill council
+		NTConfig_Moattrick = false;
+	
+	//---------------
+	// Act 4 bosses 
+	//---------------
+	
+	//NTConfig_Script.push("Izual");		// This run can be dangerous, make sure you have lighting resist or absorb
+
+	//NTConfig_Script.push("Hephasto");		// Hell Forge
+
+	//NTConfig_Script.push("FastDiablo");		// This will rush seals
+
+	//NTConfig_Script.push("Diablo");		// Full Chaos (DO NOT confuse with fast Diablo)	
+		DiabloTPMsg = "HOT TP!!";	
+		KillingDiabloMsg = "Killing Diablo!"; 
+		DiabloNewGameMsg = "Baal Time";
+	
+	//---------------
+	// Act 5 bosses 
+	//---------------
+	
+	//NTConfig_Script.push("WPpindle");		// This will try WP and if not exist it will try Portal
+
+	//NTConfig_Script.push("Pindleskin"); 		// This is WITHOUT the WP ONLY and with portal
+		NTConfig_NihlathakExtension = false;	// Set true to continue to Nihl 
+
+	//NTConfig_Script.push("Nihlathak"); 		// without red portal and with WP
+		NTConfig_PindleskinExtension = true;	// Set true if you want to continue to Pindle 
+
+	//NTConfig_Script.push("Eldritch"); 		// Set the extensions to true to kill
+		NTConfig_ShenkExtension = true; 
+		NTConfig_DacFarrenExtension = true ;
+
+	//NTConfig_Script.push("ThreshSocket");		// End of Arreat Plateau
+
+	//NTConfig_Script.push("Frozenstein");		// Super Unique next to Frozen Anya a5
+
+	//NTConfig_Script.push("AncientsWay");		// Clears Ancients Way before arreat summit
+
+	//NTConfig_Script.push("Worldstone");		// Clears all 3 levels of WSK
+		NTConfig_WSK2Extension = true; 
+		NTConfig_WSK3Extension = true;	
+
+	//NTConfig_Script.push("Baal"); 
+		NTConfig_KillBaal = true; 
+		BaalTPMsg = "Hot"; 
+		BaalTPSafeMsg = "Safe, Op Bh.cc";	
+		KillBaalMsg = "Baal"; 
+		BaalNextGameMsg = "NG!, Op Bh.cc";
 	
 	
 
@@ -119,6 +233,8 @@ function NT_LoadConfig()
 	NTConfig_NIPFilePath.push("potions.nip");
 	//NTConfig_NIPFilePath.push("moneymaker.nip");
 	NTConfig_NIPFilePath.push("keys.nip");
+	NTConfig_NIPFilePath.push("RuneWords.nip");
+	NTConfig_NIPFilePath.push("Shop Bot.nip");
 
 	NTConfig_SnagRange = 40;	// Radius to check for dropped items. 40 is a good number here
 

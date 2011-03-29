@@ -73,6 +73,13 @@ const NTC_AREA_ID_ACT_3 = 75;
 const NTC_AREA_ID_ACT_4 = 103;
 const NTC_AREA_ID_ACT_5 = 109;
 
+var NTC_ActNumberToTownID = new Array(5);
+NTC_ActNumberToTownID[0] = 1;
+NTC_ActNumberToTownID[1] = 40;
+NTC_ActNumberToTownID[2] = 75;
+NTC_ActNumberToTownID[3] = 103;
+NTC_ActNumberToTownID[4] = 109;
+
 // COLOR types
 const NTC_COLOR_BASE_WHITE = 0;
 const NTC_COLOR_BASE_RED = 1;
@@ -129,11 +136,16 @@ NTC_ItemQualityToNameList[6] = "Rare";
 NTC_ItemQualityToNameList[7] = "Unique";
 NTC_ItemQualityToNameList[8] = "Crafted";
 
+function attackPrint(nString)
+{
+	if(NTConfig_PrintAttack)
+		print(nString);
+}
+
 function debugPrint(str)
 {
-
-if  (bobDebug) 
-sendCopyData(null, "OOG", 0,str+" " );
+	if(bobDebug) 
+		sendCopyData(null, "OOG", 0,str+" " );
 }
 function NTC_Include(filepath)
 {
@@ -769,28 +781,37 @@ function NTC_InMyParty(playerName)
 	return false;
 }
 
-function NTC_GetUnit(unittype, classid)
+function NTC_GetUnit(unittype, classid, retries)
 {
-	debugPrint("ntc get Unit" );
+	if(arguments.length < 3)
+		retries = 3;
+		
+	debugPrint('called NTC_GetUnit('+ unittype +', '+ classid +', '+ retries +')');
 	
 	var _unit;
 
-	for(var i = 0 ; i < 3 ; i++)
+	for(var i = 0 ; i < retries ; i++)
 	{
-		if(arguments.length < 2){
+		if(arguments.length < 2)
+		{
 			debugPrint("getUnit("+unittype+")");
 			_unit = getUnit(unittype);
-		}else{
+		}
+		else
+		{
 			debugPrint("getUnit("+unittype+","+classid+")");
 			_unit = getUnit(unittype, classid);
 		}
 		
-		if(_unit && _unit.type == unittype){
-		debugPrint("_unit.toSource()"+_unit.toSource());
+		if(_unit && _unit.type == unittype)
+		{
+			
 			return _unit;
 		}
 	}
-debugPrint("Unit Not found");
+	
+	debugPrint("Unit Not found");
+	
 	return false;
 }
 

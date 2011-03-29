@@ -1,3 +1,9 @@
+//	NTConfig.dbl is used to declare variables and set their default values..
+//
+//	If you need to change any of these values,
+//	please ONLY do so in your char config file.
+//
+
 var NTConfig_PublicMode;
 var NTConfig_CastStatic;
 var NTConfig_CastShadowMaster;
@@ -17,10 +23,19 @@ var NTConfig_DacFarrenExtension;
 var NTConfig_ShenkExtension;
 var NTConfig_PindleskinExtension;
 var NTConfig_NihlathakExtension;
+var NTConfig_WSK2Extension;
+var NTConfig_WSK3Extension;
+var NTConfig_RuinedExtension;
+var NTConfig_DisusedExtension;
 var NTConfig_KillBaal;
 var NTConfig_ClearPitLevel1;
 var NTConfig_KillFangskin;
 var NTConfig_FireEyeExtension;
+var NTConfig_HelpPreClear = false;
+var NTConfig_HelpWithWaves = false;
+var NTConfig_HelpWithBaal = false;
+var NTConfig_GetBaalItems = false;
+var NTConfig_ClearLeechPosition = true;
 var KillBaalMsg;
 var BaalTPMsg;
 var BaalTPSafeMsg;
@@ -80,7 +95,6 @@ var NTConfig_AttackOthers;
 var NTConfig_AttackSecondary;
 var NTConfig_ClearPosition;
 var NTConfig_CheckSafe;
-var NTLeader ="";
 var NT_LeechType = 3;
 
 var SimonNextLevel = 109;
@@ -90,7 +104,8 @@ var SimonEnableSnagging ;
 var SimonAutoReveal ;
 var SimonStopLifeWatch ;
 var SimonEnableCommands ;  
-var SimonPOI=106;	
+var SimonPOI=106;
+var SimonFollowMode = 0;
 
 // necro attack vars
 var XP_Curse =91;
@@ -102,8 +117,17 @@ var XP_useRevive = true;
 var XP_CorpseExplosion = true;	
 var XP_BuildArmyThresh=4;
 
-var QuitWithLeader ="";
-var NT_Leader =[];
+// barb attack vars
+var NTConfig_WarcryBoss;
+var NTConfig_WarcryOthers;
+
+//	Leader Variables
+//	Do not edit any of these lines concerning the leader vars here (that's what the char config file is for!)
+var leader = "";
+var NT_Leader = [];
+var QuitWithLeader = "";
+var QuitWith = "";
+
 
 //Superunique Script Variables
 var NTConfig_Funnytext= true;	
@@ -202,6 +226,8 @@ var	NTConfig_DoAnya=false;
 var	NTConfig_DoAncients=false;
 var	NTConfig_DoBaal=false;
 
+var NTSB_StopShopping;
+var NTSB_ShopOnNpcVisit;
 
 var NT_IdleOnClone = false;
 var NT_IdleOnSOJ = false;
@@ -211,6 +237,8 @@ var NT_EnableCubing = false;
 var NT_RecipieBox=[];
 var recipieList = [];
 var utilityList=[];
+
+
 // stuff that should be here
 var bobDebug = false; 
 
@@ -227,5 +255,24 @@ var NT_LoggingMaxLines=1000000;
 var NT_logItems=true;
 var NT_MinGameTime = false;
 var inFastSnag = false;
+
+var NTSB_StopShopping;
+var NTSB_ShopOnNpcVisit;
+
+var NTConfig_BeepOnFull = false;
+var NTConfig_PrintAttack = false;
+
+var NTConfig_CastBOForParty = false;
+var NTConfig_BOMsg = "Precasting for party benefit in";
+var NTConfig_BODelay = 5;
+
+var NTCOW_DistanceToKing = 40;
+var NTCOW_KingChicken = 50;
+
+
+
+
+
+
 
 

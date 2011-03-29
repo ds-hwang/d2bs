@@ -192,7 +192,7 @@ function NTT_DoTrade(npc, type)
 		if(getUIFlag(0x0C))
 		{
 			NTC_PingDelay(1000);
-
+			if(NTSB_ShopOnNpcVisit && !type) NTSB_QuickShop(npc);
 			return true;
 		}
 	}
@@ -1684,191 +1684,251 @@ return true;
 }
 
 
-// cubeing stuff
-function initRecipeList(){
-var count =0;
-var temp =[];
-	for (var r =0; r< NT_RecipieBox.length;r++){
+// cubing stuff
+function initRecipeList()
+{
+	var count = 0;
+	var temp = [];
+	
+	for (var r =0; r< NT_RecipieBox.length;r++)
+	{
 		var newrep = new Recipie();
-			for(var i = 0; i < NT_RecipieBox[r].length; i++){
-				if(typeof(NT_RecipieBox[r][i]) == 'string'){
-					newrep.ingredients.push(NT_RecipieBox[r][i]);		
-					newrep.ingredients[newrep.ingredients.length-1].key=false;
-					//newrep.ingredients[count].nip= ;
-					temp=njipParseLine(NT_RecipieBox[r][i])
-					
-					if (temp.length != 2){
-						print ("problem parsing "+NT_RecipieBox[r][i])
-						delay(500)
-					}else	
-						newrep.list.push(temp[1]);
-					count++
-				}else{
-					newrep.ingredients[newrep.ingredients.length-1].key = NT_RecipieBox[r][i];
-				}
-				count=0;
-				
-			
-			}
-			recipieList.push(newrep)
-	}
-
-}
-
-function Recipie() {
-
-
-this.list = [];
-this.matchlist=[]; 	
-this.ingredients=new Array();
-this.preMakeFunc = false;
-
-	
-
-this.foundGids =[];
-}
-
-Recipie.prototype.doCube = function(){
-//print("do Cube"+this.toSource())
-if(typeof(this.preMakeFunc) == 'function')
-	this.preMakeFunc();
- openStash();
- if(!ClearCube()){
-	print("failed to clear cube");
- return false;
-}
-var cube=false;
-var meItems =me.getItems();
-	for (var j = 0 ; j < meItems.length; j++){
-		if (meItems[j].code =="box"){
-			cube=copyUnit(meItems[j]);
-		}
-	}	
-if(!cube)
-	return false;	
-	for (var k = 0 ; k < this.matchlist.length; k++){
-		print("Moving "+this.matchlist[k].name+" to Cube")
-		MoveItemToCube(this.matchlist[k],cube)
 		
+		for(var i = 0; i < NT_RecipieBox[r].length; i++)
+		{
+			if(typeof(NT_RecipieBox[r][i]) == 'string')
+			{
+				newrep.ingredients.push(NT_RecipieBox[r][i]);		
+				newrep.ingredients[newrep.ingredients.length-1].key = false;
+				//newrep.ingredients[count].nip= ;
+				temp = njipParseLine(NT_RecipieBox[r][i]);
+
+				if (temp.length != 2)
+				{
+					print("problem parsing "+NT_RecipieBox[r][i]);
+					delay(500);
+				}
+				else
+				{
+					newrep.list.push(temp[1]);
+				}
+				
+				count++;
+			}
+			else
+			{
+				newrep.ingredients[newrep.ingredients.length-1].key = NT_RecipieBox[r][i];
+			}
+			
+			count = 0;
+		}
+		recipieList.push(newrep);
 	}
-	print("Transmuting")
-	NTT_DoInteract(cube);
-transmute();
-delay(500)
-me.cancel()
-print("Clearing Cube")
- openStash();
-ClearCube();
-return true;
+}
 
 
+function Recipie() 
+{
+	this.list = [];
+	this.matchlist = []; 	
+	this.ingredients = new Array();
+	this.preMakeFunc = false;
+	this.foundGids = [];
 }
-function MoveItemToCube(item,cube){
-if(!cube){
-	var meItems =me.getItems();
-	for (var j = 0 ; j > meItems.length; j++){
-		if (meItems[j].code =="box")
-			cube=copyUnit(meItems[j]);
+
+
+Recipie.prototype.doCube = 
+	function()
+	{
+		//print("do Cube"+this.toSource())
+		if(typeof(this.preMakeFunc) == 'function')
+			this.preMakeFunc();
+			
+		openStash();
+		
+		if(!ClearCube())
+		{
+			print("failed to clear cube");
+			return false;
+		}
+		
+		var cube = false;
+		var meItems = me.getItems();
+		
+		for (var j = 0 ; j < meItems.length; j++)
+		{
+			if (meItems[j].code =="box")
+			{
+				cube = copyUnit(meItems[j]);
+			}
+		}
+		
+		if(!cube)
+			return false;
+			
+		for (var k = 0 ; k < this.matchlist.length; k++)
+		{
+			print("Moving "+this.matchlist[k].name+" to Cube");
+			MoveItemToCube(this.matchlist[k],cube);
+		}
+		
+		print("Transmuting");
+		NTT_DoInteract(cube);
+		transmute();
+		
+		delay(500);
+		me.cancel();
+		print("Clearing Cube");
+		
+		openStash();
+		ClearCube();
+		return true;
+	};
+
+
+function MoveItemToCube(item,cube)
+{
+	if(!cube)
+	{
+		var meItems = me.getItems();
+		
+		for (var j = 0 ; j > meItems.length; j++)
+		{
+			if(meItems[j].code =="box")
+				cube = copyUnit(meItems[j]);
+		}
 	}
-}
-var cloc= cube.location;
-var cx=cube.x;
-var cy=cube.y;
-if(!cube)
-	return false;
-if(!item)
-	return false;
 	
-NTC_ItemToCursor(item)
+	var cloc = cube.location;
+	var cx = cube.x;
+	var cy = cube.y;
 	
-	for(var i = 0 ; i < 30 ; i++){
-		if((i % 10) == 0){	
-			clickItem(0,cx,cy,cloc);
+	if(!cube)
+		return false;
+	
+	if(!item)
+		return false;
+
+	NTC_ItemToCursor(item);
+
+	for(var i = 0 ; i < 30 ; i++)
+	{
+		if((i % 10) == 0)
+		{	
+			clickItem(0, cx, cy, cloc);
 			NTC_PingDelay(50);
-		}		
+		}
+		
 		if(!me.itemoncursor)
-		{		
+		{
 			NTC_PingDelay(200);
-			if(!me.itemoncursor){
-				NTSI_PickItems()
+			
+			if(!me.itemoncursor)
+			{
+				NTSI_PickItems();
 				return true;
 			}
 		}
 	}
-	if(me.itemoncursor){
-		if(me.itemoncursor.code=="box"){ // crap we picked up box
-			if (cloc==0)
+	
+	if(me.itemoncursor)
+	{
+		if(me.itemoncursor.code=="box")	// crap we picked up box
+		{
+			if(cloc==0)
 				MoveItemToInv(me.itemoncursor);
 			else
 				MoveItemToStash(me.itemoncursor);
 		}
 	}
-return true;
-}
-function CheckRecipieList(){
-
-var utilityCubeList =[];
-var meItems = me.getItems();
-var tempvar = -1;
-for (var meI = 0 ; meI < meItems.length; meI++){
-	for (var r = 0; r<  recipieList.length; r++){	
-
-	//print(recipieList[r].list.toSource())
-		tempvar=njipCheckGoodItemlist(meItems[meI],false,recipieList[r].list) 
-		
-		if ( tempvar > -1 ){ // matchlist[j]?
-			recipieList[r].matchlist[tempvar] =copyUnit( meItems[meI]);
-			
-			
-			tempvar =-1;
-		}				
-	} // next r	
-} // next meI
-
-var matches = 0;
-	for (var r = 0; r<  recipieList.length; r++){		
-		tempvar = false;
-		matches=0;
-		for (var i=0; i < recipieList[r].ingredients.length; i++){
 	
-			if(recipieList[r].matchlist[i]){
+	return true;
+}
+
+
+function CheckRecipieList()
+{
+	var utilityCubeList = [];
+	var meItems = me.getItems();
+	var tempvar = -1;
+	for (var meI = 0 ; meI < meItems.length; meI++)
+	{
+		for (var r = 0; r<  recipieList.length; r++)
+		{	
+			//print(recipieList[r].list.toSource())
+			tempvar = njipCheckGoodItemlist(meItems[meI],false,recipieList[r].list);
+			
+			if ( tempvar > -1 )	// matchlist[j]?
+			{ 
+				recipieList[r].matchlist[tempvar] = copyUnit( meItems[meI]);
+				tempvar = -1;
+			}
+		} // next r	
+	} // next meI
+
+	var matches = 0;
+	
+	for (var r = 0; r<  recipieList.length; r++)
+	{		
+		tempvar = false;
+		matches = 0;
+		
+		for (var i=0; i < recipieList[r].ingredients.length; i++)
+		{
+			if(recipieList[r].matchlist[i])
+			{
 				matches ++;
-				if (recipieList[r].ingredients[i].key)  //key ingredient
+				
+				if(recipieList[r].ingredients[i].key)	//key ingredient
 					tempvar = true;
-			}else{
+			}
+			else
+			{
 				if (recipieList[r].ingredients[i].key)  //second key missing dont utilize
 					tempvar = false;
 			}
 
-			if(tempvar && !recipieList[r].matchlist[i]){
-				utilityCubeList.push(recipieList[r].ingredients[i])						
+			if(tempvar && !recipieList[r].matchlist[i])
+			{
+				utilityCubeList.push(recipieList[r].ingredients[i]);		
 			}
 		}// next i	
-		if (matches==recipieList[r].ingredients.length)
+		
+		if(matches == recipieList[r].ingredients.length)
 			recipieList[r].doCube();
 	} // next r	
-var keyFound=false;
-	// recipie has no key ingredients we wanna utility those too	
-	for (var r = 0; r<  recipieList.length; r++){
-		keyFound=false;
-		for (var i=0; i < recipieList[r].ingredients.length; i++){
+	
+	var keyFound = false;
+	// recipie has no key ingredients we wanna utility those too
+	
+	for (var r = 0; r<  recipieList.length; r++)
+	{
+		keyFound = false;
+		
+		for (var i=0; i < recipieList[r].ingredients.length; i++)
+		{
 			if(recipieList[r].ingredients[i].key) 
-				keyFound=true;
+				keyFound = true;
 		}
-		if(!keyFound){
-			for (var i=0; i < recipieList[r].ingredients.length; i++){
-				var templist=njipParseLine(recipieList[r].ingredients [i]) //build stat list for good check
-				if ( templist[0]==0 && templist[1][0] ) 
-					utilityList.push( templist[1]); // equivlaent to list	
+		
+		if(!keyFound)
+		{
+			for (var i=0; i < recipieList[r].ingredients.length; i++)
+			{
+				var templist = njipParseLine(recipieList[r].ingredients[i]);	//build stat list for good check
+				if (templist[0] == 0 && templist[1][0]) 
+					utilityList.push(templist[1]); // equivlaent to list	
 			}
 		}
 	}
-	
+		
 	// build utility cube list
-	for (var j = 0; j < utilityCubeList.length; j ++){
-		templist=njipParseLine(utilityCubeList [j]) //build stat list for good check
-		if ( templist[0]==0 && templist[1][0] ) 
-			utilityList.push( templist[1]); // equivlaent to list
+	for (var j = 0; j < utilityCubeList.length; j ++)
+	{
+		templist = njipParseLine(utilityCubeList[j]); //build stat list for good check
+		
+		if (templist[0] == 0 && templist[1][0]) 
+			utilityList.push(templist[1]); // equivlaent to list
 	}
 
 }
@@ -2047,6 +2107,9 @@ var buff=buildBuffer(0);
 					}
 				}
 			}
+			else {
+				if(NTConfig_BeepOnFull)	beep();		// ImprisonedPride: no space for item in inventory, if NTConfig_BeepOnFull is true, beep; 
+			}
 		}//next y
 	}//next x
 return false;
@@ -2116,4 +2179,40 @@ for (var i = 0; i < k . length; ++ i)
 k [i] = new Array (NumOfCols); // could be just[] vaulue dosent matter after its array
 
 return k; 
+}
+
+function NTSB_QuickShop(npc)
+{
+	print("ÿc2NTSB ÿc1:: ÿc3Doing a quick shop.");
+	var _items = NTC_GetItems(npc);
+	if(_items)
+	{
+		var _count;
+		print("ÿc2NTSB ÿc1:: ÿc3Got items!");
+		for(_count = 0;_count < _items.length;_count++)
+		{
+			if(njipCheckGoodItem(_items[_count], NJIP_CHECK_SIMPLE) != 0)
+			{
+				if(NTT_CheckSpace(_items[_count].sizex,_items[_count].sizey))
+				{
+					print("ÿc2NTSB ÿc1::ÿc3 " + _items[_count].name + "ÿc2 -> item was good!");
+					NTC_Delay(500);
+					if(!NTT_ShopItem(_items[_count],npc,3))
+					{
+						print("ÿc2NTSB ÿc1::ÿc1 Error while shopping!");
+						return false;
+					} else {
+						writeLog(_items[_count], me, 0, 0);
+					};
+				} else {
+					print("ÿc2NTSB ÿc1::ÿc1 Not enough space to buy item :(!");
+				};
+			};
+		};
+	} else {
+		print("ÿc2NTSB ÿc1::ÿc3 Error getting items...");
+		return false;
+	};
+	print("ÿc2NTSB ÿc1:: ÿc3Done.");
+	return true;
 }

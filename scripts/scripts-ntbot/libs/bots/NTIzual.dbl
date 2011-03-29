@@ -1,35 +1,47 @@
-function NT_Izual() {
+function NT_Izual() 
+{
     print("ÿc3Starting Izual Script");
-    if (!NTTM_CheckAct()) {
-        return false;
-    }
+	
+    if (!NTTM_CheckAct())
+		throw new Error();
+		
     NTTMGR_TownManager();
 
     print("ÿc8Going to City of the Damned");
-    if (!NTTM_TownMove("waypoint")) return false;
-    if (!NTM_UsePortal("Waypoint", 106)) {
+    if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+    if (!NTM_UsePortal("Waypoint", 106)) 
+	{
         print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to City of the Damned");
         NTM_TravelTO(106);
+		
         print("ÿc8Interacting with Waypoint as we don't have it.");
         NTM_GotoWaypoint(106, true, 10000);
     }
+	
     print("ÿc5Precasting");
     NTP_DoPrecast();
-    print("ÿc8Going to Plains of Dispair");
+    
+	print("ÿc8Going to Plains of Dispair");
     NTM_TravelTO(105);
 
     var poiID = [256];
     var unit = getPresetUnits(me.area);
 
-    if (unit) {
-        for (var p = 0; p < poiID.length; p++) {
-            for (var j = 0; j < unit.length; j++) {
+    if (unit) 
+	{
+        for (var p = 0; p < poiID.length; p++) 
+		{
+            for (var j = 0; j < unit.length; j++) 
+			{
                 //if (unit[j].id in poiID){ // no clue why that dosent work			
-                if (unit[j].id == poiID[p]) {
+                if (unit[j].id == poiID[p]) 
+				{
                     NTM_MoveTo(unit[j].roomx * 5 + unit[j].x, unit[j].roomy * 5 + unit[j].y);
                     print("ÿc1Killing Izual");
                     if (!NTA_KillBoss(256)); // Izual
-                    NTSI_PickItems();
+						NTSI_PickItems();
                 }
 
             }
@@ -37,5 +49,6 @@ function NT_Izual() {
         }
 
     }
+	
     return true;
 }

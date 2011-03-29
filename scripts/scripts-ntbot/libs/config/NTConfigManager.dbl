@@ -6,14 +6,16 @@ var SliderConfigVals =[];
 
 
 function ShowConfig(){
-this.textColor =13;
-var bossList = ["SimonSays","SuperUnique","Bishibosh","Mausoleum","Countess","Pit","Tristram","BoneAsh","Andariel","Sewers","AncientTunnels","ClawViper","Summoner","Duriel","Kurast","Travincal","Mephisto","Izual","Hephasto","Diablo","FastDiablo","LeechD","Eldritch","Frozenstein","Nihlathak","Pindleskin","WPpindle","ThreshSocket","Baal","Leech"]
+	this.textColor =13;
+	var bossList = getBossList();	//populate boss list with valid scripts from 'libs/bots/' folder;
+	
 	for (var j = 0 ; j < NTConfig_Script.length; j++){
 		for (var k = 0 ; k < bossList.length; k++){
 			if (NTConfig_Script[j]==bossList[k])
 				bossList.remove(k)
 		}
 	}
+	
 	this.txtBosses = new TextBox (20,100,100,100," "); this.txtBosses.visible=false;
 	this.txtRuns= new TextBox(170,100,100,100," ");	this.txtRuns.visible=false;
 	this.cmdAdd = new TextBox(this.txtBosses.x +120,this.txtBosses.y +5,20,20,">");	this.cmdAdd.visible=false;
@@ -36,10 +38,14 @@ var bossList = ["SimonSays","SuperUnique","Bishibosh","Mausoleum","Countess","Pi
 	this.NTConfig_PindleskinExtension = new CheckBox(20,j + 165,"Nihlathak: PindleskinExtension ",NTConfig_PindleskinExtension)	; 	this.NTConfig_PindleskinExtension.boxOnRight=false; 		this.NTConfig_PindleskinExtension.visible=false; 
 	this.NTConfig_ShenkExtension = new CheckBox(20,j + 180,"Eldritch: Shenk Ext ",NTConfig_ShenkExtension)	; 	this.NTConfig_ShenkExtension.boxOnRight=false; 		this.NTConfig_ShenkExtension.visible=false; 
 	this.NTConfig_DacFarrenExtension = new CheckBox(20,j + 195,"Eldritch: DacFarren Ext ",NTConfig_DacFarrenExtension)	; 	this.NTConfig_DacFarrenExtension.boxOnRight=false; 		this.NTConfig_DacFarrenExtension.visible=false; 
-	this.NTConfig_KillBaal = new CheckBox(20,j + 210,"Baal: Kill Baal ",NTConfig_KillBaal)	; 	this.NTConfig_KillBaal.boxOnRight=false; 		this.NTConfig_KillBaal.visible=false;
+	this.NTConfig_WSK2Extension = new CheckBox(20,j + 210,"WSK2 Ext ",NTConfig_WSK2Extension)	; 	this.NTConfig_WSK2Extension.boxOnRight=false; 		this.NTConfig_WSK2Extension.visible=false; 
+	this.NTConfig_WSK3Extension = new CheckBox(20,j + 225,"WSK3 Ext ",NTConfig_WSK3Extension)	; 	this.NTConfig_WSK3Extension.boxOnRight=false; 		this.NTConfig_WSK3Extension.visible=false; 
+	this.NTConfig_KillBaal = new CheckBox(20,j + 240,"Baal: Kill Baal ",NTConfig_KillBaal)	; 	this.NTConfig_KillBaal.boxOnRight=false; 		this.NTConfig_KillBaal.visible=false;
 	
-	ChkHooks =[this.NTConfig_PublicMode,this.chkSimonEnableSnagging,this.SimonAutoReveal,this.SimonAutoReveal,this.SimonStopLifeWatch ,this.SimonEnableCommands ,this.NTConfig_ClearPitLevel1 ,this.NTConfig_FireEyeExtension,this.NTConfig_KillFangskin,this.NTConfig_CouncilExtension,this.NTConfig_Moattrick,this.NTConfig_NihlathakExtension,this.NTConfig_PindleskinExtension,this.NTConfig_ShenkExtension,this.NTConfig_DacFarrenExtension,this.NTConfig_KillBaal]
-	this.NTConfig_GambleIt = new CheckBox(20,j+230,"Gamble ",NTConfig_GambleIt)	; 	this.NTConfig_GambleIt.boxOnRight=false; 		this.NTConfig_GambleIt.visible=false; ChkHooks.push(this.NTConfig_GambleIt);
+	ChkHooks =[this.NTConfig_PublicMode,this.chkSimonEnableSnagging,this.SimonAutoReveal,this.SimonAutoReveal,this.SimonStopLifeWatch ,this.SimonEnableCommands ,this.NTConfig_ClearPitLevel1 ,this.NTConfig_FireEyeExtension,this.NTConfig_KillFangskin,this.NTConfig_CouncilExtension,this.NTConfig_Moattrick,this.NTConfig_NihlathakExtension,this.NTConfig_PindleskinExtension,this.NTConfig_ShenkExtension,this.NTConfig_DacFarrenExtension,this.NTConfig_WSK2Extension,this.NTConfig_WSK3Extension,this.NTConfig_KillBaal]
+	this.NTConfig_RuinedExtension = new CheckBox(20,j + 255,"Ruined Ext ",NTConfig_RuinedExtension)	; 	this.NTConfig_RuinedExtension.boxOnRight=false; 		this.NTConfig_RuinedExtension.visible=false; ChkHooks.push(this.NTConfig_RuinedExtension);
+	this.NTConfig_DisusedExtension = new CheckBox(20,j + 270,"Disused Ext ",NTConfig_DisusedExtension)	; 	this.NTConfig_DisusedExtension.boxOnRight=false; 		this.NTConfig_DisusedExtension.visible=false; ChkHooks.push(this.NTConfig_DisusedExtension);
+	this.NTConfig_GambleIt = new CheckBox(20,j+285,"Gamble ",NTConfig_GambleIt)	; 	this.NTConfig_GambleIt.boxOnRight=false; 		this.NTConfig_GambleIt.visible=false; ChkHooks.push(this.NTConfig_GambleIt);
 	
 	this.NTConfig_UseMerc = new CheckBox(300, 360,"Use Merc ",NTConfig_UseMerc)	; 	this.NTConfig_UseMerc.boxOnRight=false; 		this.NTConfig_UseMerc.visible=false; ChkHooks.push(this.NTConfig_UseMerc) ;
 	this.NT_PickUtility = new CheckBox(300, 375,"Pick Utility ",NT_PickUtility)	; 	this.NT_PickUtility.boxOnRight=false; 		this.NT_PickUtility.visible=false; ChkHooks.push(this.NT_PickUtility);
@@ -48,7 +54,6 @@ var bossList = ["SimonSays","SuperUnique","Bishibosh","Mausoleum","Countess","Pi
 	this.NTConfig_OpenChest = new CheckBox(300, 420,"Open Chest ",NTConfig_OpenChest)	; 	this.NTConfig_OpenChest.boxOnRight=false; 		this.NTConfig_OpenChest.visible=false; ChkHooks.push(this.NTConfig_OpenChest);
 	this.NTConfig_ClearPosition = new CheckBox(300, 435,"Clear Position ",NTConfig_ClearPosition)	; 	this.NTConfig_ClearPosition.boxOnRight=false; 		this.NTConfig_ClearPosition.visible=false; ChkHooks.push(this.NTConfig_ClearPosition);
 	this.NTConfig_CheckSafe = new CheckBox(300, 450,"Safe Check ",NTConfig_CheckSafe)	; 	this.NTConfig_CheckSafe.boxOnRight=false; 		this.NTConfig_CheckSafe.visible=false; ChkHooks.push(this.NTConfig_CheckSafe);
-	
 	
 	this.NTConfig_LifeThresh = new SliderWText (300, 100,"Drink Hp pot at",100,NTConfig_LifeThresh,this.textColor,4) ;SliderHooks.push(this.NTConfig_LifeThresh);
 	this.NTConfig_LifeRejuvThresh = new SliderWText (300, 130,"Drink rejuve for HP at",100,NTConfig_LifeRejuvThresh,this.textColor,4);SliderHooks.push(this.NTConfig_LifeRejuvThresh);
@@ -164,7 +169,7 @@ var bossList = ["SimonSays","SuperUnique","Bishibosh","Mausoleum","Countess","Pi
 		if (this.parent.selectedText){			
 			this.parent.deleteSelectedRow()			
 		}
-		bossList = ["SimonSays","Bishibosh","Mausoleum","Countess","Pit","Tristram","BoneAsh","Andariel","Sewers","AncientTunnels","ClawViper","Summoner","Duriel","Kurast","Travincal","Mephisto","Izual","Hephasto","Diablo","FastDiablo","LeechD","Eldritch","Frozenstein","Nihlathak","Pindleskin","WPpindle","ThreshSocket","Baal","Leech"]
+		bossList = getBossList();	//populate boss list with valid scripts from 'libs/bots/' folder;
 		for (var j = 0 ; j < NTConfig_Script.length; j++){
 			for (var k = 0 ; k < bossList.length; k++){
 				if (NTConfig_Script[j]==bossList[k])
@@ -304,10 +309,11 @@ ShowConfig.prototype.saveVars = function () {
 function SaveConfig(){
 print("Saving Config")
 
+	var configVersion = 2.1;
 	var filehandle = File.open('libs/config/NTConfig_'+NTC_CharClassToNameList[me.classid]+"_"+me.name+".dbl", 2);
 	var linecount = 0;
 	var templine ="";
-	var content ="//Universal Config v. 2";	
+	var content = '//Universal Config v'+ configVersion;	
 	var firstline =filehandle.readLine();  
 		if (firstline != content){
 		//print(firstline +"!="+content)
@@ -461,11 +467,13 @@ function updateConfigLine(line){
 		
 	return line;
 }
+
 function myGetSkillByID(id){
 if (id == 0)
 	return "Nothing"
 return getSkillById(id)
 }
+
 function myGetSkillByName(name){
 if (!name)
 	return 0;
@@ -473,3 +481,63 @@ if (name == "Nothing")
 	return 0;
 return getSkillByName(name)
 }
+
+
+//alogwe: added these  functions to read valid script files from folder for onscreen config;
+function getBossList()
+{
+	var list = getScriptsInFolder('libs/bots/');	//populate boss list with valid scripts from 'libs/bots/' folder;
+	list.toScriptAliases();							//convert bossList elements from filenames to script aliases (for putting in char config);
+	//print(list.toSource());						//debugging;
+	
+	return list;
+}
+
+
+function getScriptsInFolder(folderPath)
+{
+	if(arguments.length == 0 || typeof(folderPath) != 'string' || !(FileTools.exists(folderPath)))
+		return false;
+		
+	var filetypes = ['dbl','DBL'];	//Array of valid filetypes to filter the read-in file list;
+	var fileArray = [];				//Array to hold function output (file list);
+	
+	
+	function validNTBotScripts(element, index, array)
+	{
+		var searchString = '';    //Create RegExp search string to test the array elements with;	
+		for(var i = 0; i < filetypes.length; i++)
+		{
+			searchString = '^NT.+\\.' + filetypes[i];
+			if((typeof(element) == 'string') && RegExp(searchString, 'g').test(element) && element != 'NTLoader.dbl')
+				return true;
+		}
+		return false;
+	}
+	
+	
+	//get all filenames in folderPath;
+	fileArray = dopen(folderPath).getFiles();
+	
+	//filter array to only keep filenames with valid file extensions (set above in 'filetypes' array);
+	fileArray = fileArray.filter(validNTBotScripts);
+	
+	return fileArray;
+}
+
+
+//alogwe: this will remove file extension regardless of filetype
+Array.prototype.toScriptAliases =
+	function()
+	{
+		for(var i = 0; i < this.length; i++)
+		{
+			if(typeof(this[i]) == 'string' && this[i].indexOf('NT') == 0)
+				this[i] = this[i].substring(2, this[i].lastIndexOf('.'));
+		}
+	};
+	
+
+
+
+

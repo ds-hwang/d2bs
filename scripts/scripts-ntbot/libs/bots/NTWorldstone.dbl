@@ -1,0 +1,54 @@
+function NT_Worldstone() 
+{
+	print("ÿc<Starting World Stone Keep Script");
+
+	if(!NTTM_CheckAct())
+		throw new Error();
+
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to World Stone Keep Level 2");
+	if(!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 129)) 
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to World Stone Keep Level 2");
+		NTM_TravelTO(129);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(129, true, 10000);
+	}
+
+	print("ÿc2Precasting");
+	NTP_DoPrecast();
+
+	NTM_TravelTO(128);
+	NTA_ClearRooms();
+
+	if (NTConfig_WSK2Extension) 
+	{
+		print("ÿc8Going to World Stone Keep Level 2");
+		NTTM_TownMove("waypoint");
+		NTM_TravelTO(129);
+		
+		print("yc5Precasting");
+		NTP_DoPrecast();
+		
+		NTA_ClearRooms();
+	}
+
+	if (NTConfig_WSK3Extension) 
+	{
+		print("ÿc8Going to World Stone Keep Level 3");
+		NTTM_TownMove("waypoint");
+		NTM_TravelTO(130);
+		
+		print("yc5Precasting");
+		NTP_DoPrecast();
+		
+		NTA_ClearRooms();
+	}
+	
+	return true;
+}

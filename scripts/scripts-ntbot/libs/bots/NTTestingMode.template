@@ -1,0 +1,146 @@
+/**
+*	@name		NTTestingMode.template
+*
+*	@author 	alogwe
+*	
+*	@version	1.0
+*
+*	@desc		A simple test script template that you can use to 
+*				test code snippets while maintaining access to the NTBot lib.
+*
+*				Write whatever code you want to test in any of the functions Numpad0() through Numpad9().
+*				Read comments in NTLoader.dbl for information on how to install a new script.
+*				Afterwards, click File >> Save As... 
+*				Choose a filename and Save..
+*				Add to your script array (if you don't know how, the directions are at the top of NTLoader.dbl)
+*				Enter game and push the Numpad key of choice to execute it's respective function.
+*
+*				var myUnit 	is a script global Unit object which is set to whatever
+*							hover the mouse on when you press the numpad key of choice
+*
+*				appendLog(String inputString)
+*					will append text information passed in inputString to log file located in <scriptsdir>/logs/TEST_LOG_<charactername>.log
+*
+*				appendPrint(String inputString)
+*					will append text information passed in inputString to log file located in <scriptsdir>/logs/TEST_LOG_<charactername>.log
+*					as well as print() the information passed in inputString to the D2BS game console (Home key on keyboard while in game to access the console)
+*
+*
+*	@example	Look at function Numpad0() as an example of how this 
+*				can be useful for obtaining information on an in-game Unit object
+*/
+
+
+var appendLogFile = 'logs/TEST_LOG_'+ me.charname.toUpperCase() +'.log';
+var myUnit;
+
+
+addEventListener('keydown',
+	function(key)
+	{
+		if(key >= 96 && key <= 105)	//if(key is a numpad key)
+		{
+			var numpadFunctionName = 'Numpad' + (key - 96);
+			print(getTickCount() +' : Numpad '+ (key - 96) +' keypress detected.');	//96 is offset for key code
+			
+			//Set var myUnit global test unit if the mouse is hovered over a Unit object;
+			myUnit = getUnit(101);
+			
+			if(typeof(this[numpadFunctionName] == 'function'))
+			{
+				print('+++ Begin test '+ numpadFunctionName +'()');
+				var rVal = this[numpadFunctionName]();
+				print('+++ Complete test '+ numpadFunctionName +'() and returned '+ rVal);
+			}
+		}
+	}
+);
+
+
+function Numpad0()
+{
+	if(myUnit)	//if a Unit object exists in var myUnit
+	{
+		print('Printing information about '+ myUnit.name +' :');
+		print(myUnit.toSource());	//print() all of the information held in the Unit object
+	}
+	
+	// TODO	: insert tests here
+}
+
+
+function Numpad1()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad2()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad3()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad4()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad5()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad6()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad7()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad8()
+{
+	// TODO : insert tests here
+}
+
+
+function Numpad9()
+{
+	// TODO : insert tests here
+}
+
+
+function appendLog(nString)
+{
+	FileTools.appendText(appendLogFile, nString);
+}
+
+function appendPrint(nString)
+{
+	FileTools.appendText(appendLogFile, nString);
+	print(nString);
+}
+
+
+//Main execution function name (rename this following the instructions in NTLoader.dbl)
+function NT_TestingMode()
+{
+	while(true)
+	{
+		me.overhead(getTickCount() +' in testing mode');
+		delay(15000);
+	}
+}

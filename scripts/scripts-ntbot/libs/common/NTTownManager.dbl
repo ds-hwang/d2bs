@@ -26,103 +26,126 @@ function NTTMGR_TownManager(simple)
    _NTTMGR_DoRevive = NTT_CheckMerc();
    _NTTMGR_RemoveCurse = NTTMGR_CheckIsCursed();
 
-   NTC_PutSkill(115, NTC_HAND_RIGHT);
-   if (me.classid==6)
-      NTC_DoCast(258, NTC_HAND_RIGHT);
-   switch(me.act)
-   {
-   case 1:
-      if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
-         NTTMGR_VisitAkara();
-      if(NTT_CheckInventory())
-         NTTMGR_VisitStash();
-      if(_NTTMGR_DoRevive)
-         NTTMGR_VisitKashya();
-      if(_NTTMGR_DoRepair)
-         NTTMGR_VisitCharsi();
-      if(_NTTMGR_DoGamble)
-      {
-         NTTMGR_VisitGheed();
+	NTC_PutSkill(115, NTC_HAND_RIGHT);
+	
+	if(me.classid==6)
+		NTC_DoCast(258, NTC_HAND_RIGHT);
+		
+	switch(me.act)
+	{
+		case 1:
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+				NTTMGR_VisitAkara();
+				
+			if(NTT_CheckInventory())
+				NTTMGR_VisitStash();
+				
+			if(_NTTMGR_DoRevive)
+				NTTMGR_VisitKashya();
+				
+			if(_NTTMGR_DoRepair)
+				NTTMGR_VisitCharsi();
+				
+			if(_NTTMGR_DoGamble)
+			{
+				NTTMGR_VisitGheed();
+				
+				if(NTT_CheckInventory())
+					NTTMGR_VisitStash();
+			}
+		break;
 
-         if(NTT_CheckInventory())
-            NTTMGR_VisitStash();
-      }
-      break;
+		case 2:
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoRepair)
+				NTTMGR_VisitFara();
+				
+			if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
+				NTTMGR_VisitDrognan();
+				
+			if(_NTTMGR_BuyKey)
+				NTTMGR_VisitLysander();
+				
+			if(NTT_CheckInventory())
+				NTTMGR_VisitStash();
+				
+			if(_NTTMGR_DoRevive)
+				NTTMGR_VisitGreiz();
+				
+			if(_NTTMGR_DoGamble)
+			{
+				NTTMGR_VisitElzix();
 
-   case 2:
-      if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoRepair)
-         NTTMGR_VisitFara();
-      if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
-         NTTMGR_VisitDrognan();
-      if(_NTTMGR_BuyKey)
-         NTTMGR_VisitLysander();
-      if(NTT_CheckInventory())
-         NTTMGR_VisitStash();
-      if(_NTTMGR_DoRevive)
-         NTTMGR_VisitGreiz();
-      if(_NTTMGR_DoGamble)
-      {
-         NTTMGR_VisitElzix();
+				if(NTT_CheckInventory())
+					NTTMGR_VisitStash();
+			}
+		break;
 
-         if(NTT_CheckInventory())
-            NTTMGR_VisitStash();
-      }
-      break;
+		case 3:
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
+				NTTMGR_VisitOrmus();
+				
+			if(NTT_CheckInventory())
+				NTTMGR_VisitStash();
+				
+			if(_NTTMGR_DoRevive)
+				NTTMGR_VisitAsheara();
+				
+			//if( _NTTMGR_BuyKey)
+			//   NTTMGR_VisitHratli();
+			
+			if(_NTTMGR_DoGamble)
+			{
+				NTTMGR_VisitAlkor();
 
-   case 3:
-      if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
-         NTTMGR_VisitOrmus();
-      if(NTT_CheckInventory())
-         NTTMGR_VisitStash();
-      if(_NTTMGR_DoRevive)
-         NTTMGR_VisitAsheara();
-      //if( _NTTMGR_BuyKey)
-      //   NTTMGR_VisitHratli();
-      if(_NTTMGR_DoGamble)
-      {
-         NTTMGR_VisitAlkor();
+				if(NTT_CheckInventory())
+					NTTMGR_VisitStash();
+			}
+		break;
 
-         if(NTT_CheckInventory())
-            NTTMGR_VisitStash();
-      }
-      break;
+		case 4:
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+				NTTMGR_VisitJamella(false);
+				
+			if(_NTTMGR_DoRepair)
+				NTTMGR_VisitHalbu();
+				
+			if(NTT_CheckInventory())
+				NTTMGR_VisitStash();
+				
+			if(_NTTMGR_DoRevive)
+				NTTMGR_VisitTyrael();
+				
+			if(_NTTMGR_DoGamble)
+			{
+				NTTMGR_VisitJamella(true);
 
-   case 4:
-      if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
-         NTTMGR_VisitJamella(false);
-      if(_NTTMGR_DoRepair)
-         NTTMGR_VisitHalbu();
-      if(NTT_CheckInventory())
-         NTTMGR_VisitStash();
-      if(_NTTMGR_DoRevive)
-         NTTMGR_VisitTyrael();
-      if(_NTTMGR_DoGamble)
-      {
-         NTTMGR_VisitJamella(true);
+				if(NTT_CheckInventory())
+					NTTMGR_VisitStash();
+			}
+		break;
 
-         if(NTT_CheckInventory())
-            NTTMGR_VisitStash();
-      }
-      break;
+		case 5:
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+				NTTMGR_VisitMalah();
+				
+			if(NTT_CheckInventory())
+				NTTMGR_VisitStash();
+				
+			if(_NTTMGR_DoRepair)
+				NTTMGR_VisitLarzuk();
+				
+			if(_NTTMGR_DoRevive)
+				NTTMGR_VisitQualKehk();
+				
+			if(_NTTMGR_DoGamble)
+			{
+				NTTMGR_VisitAnya();
 
-   case 5:
-      if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
-         NTTMGR_VisitMalah();
-      if(NTT_CheckInventory())
-         NTTMGR_VisitStash();
-      if(_NTTMGR_DoRepair)
-         NTTMGR_VisitLarzuk();
-      if(_NTTMGR_DoRevive)
-         NTTMGR_VisitQualKehk();
-      if(_NTTMGR_DoGamble)
-      {
-         NTTMGR_VisitAnya();
-
-         if(NTT_CheckInventory())
-            NTTMGR_VisitStash();
-      }
-      break;
-   }
+				if(NTT_CheckInventory())
+					NTTMGR_VisitStash();
+			}
+		break;
+	}
 }
 
 function NTTMGR_VisitStash()
@@ -736,24 +759,21 @@ function NTTMGR_CheckScrolls(_scrollType)
 
 function NTTMGR_CheckKeys()
 {
-   var _items;
+	var _items = me.getItems();
 
-   if(!NTConfig_OpenChest || me.classid == NTC_CHAR_CLASS_ASSASSIN)
-      return 12;
+	if(!NTConfig_OpenChest || me.classid == NTC_CHAR_CLASS_ASSASSIN)
+		return 12;
 
-   if(!_items || _items.length < 1)
-      return true;
+	if(!_items || _items.length < 1)
+		return 0;
 
-   if(!_items)
-      return 0;
+	for(var i = 0 ; i < _items.length ; i++)
+	{
+		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == "key")
+			return _items[i].getStat(70);
+	}
 
-   for(var i = 0 ; i < _items.length ; i++)
-   {
-      if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == "key")
-         return _items[i].getStat(70);
-   }
-
-   return 0;
+	return 0;
 }
 
 function NTTMGR_IDItems(npc)

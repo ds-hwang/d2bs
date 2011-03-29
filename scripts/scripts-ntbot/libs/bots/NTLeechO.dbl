@@ -1,0 +1,227 @@
+// Leech Baal Bot v1.5 written by ImprisonedPride for D2BS
+
+function NT_LeechO() {
+
+        if(Unit_findItemByFname("Ondal's Wisdom")) {                    // REVISION 1.5: Switch to Primary Weapon on-switch (in tab 1)
+                NTC_DoWeaponSwitch(0);
+        }
+
+        print("ÿc1Starting Baal-Leech Script");
+        // Hopefully this top section is self-explanatory. It's the way most leech-bots start. TownManager(), then find leader.
+                                                                                                                                // and caused the bot to leave the game immediately 99%
+                                                                                                                                // of the time.
+        var _helpPreClear = NTConfig_HelpPreClear;                              // REVISION 1.4: This settings makes bot skip 10 second delay after portal and clear the area
+                                                                                                                                // before the first wave (if leader is having trouble with souls, set true).    
+        var _helpWithWaves = NTConfig_HelpWithWaves;                    // REVISION 1.1: Set true to help kill the waves. False to leech behind pillars.
+                                                                                                                                // Should be defined in NTConfig.dbl and assigned in char config.
+        var _helpWithBaal = NTConfig_HelpWithBaal;                              // REVISION 1.1: Set true to help kill Baal. False to leech outside of moat.
+                                                                                                                                // Same as above.
+        var _getBaalItems = NTConfig_GetBaalItems;                              // REVISION 1.1: Set true to jump to Baal's location for items.
+                                                                                                                                // You know the drill.
+                                                                                                                                // NOTE: There's usually nothing left by the time you get there, though.
+        var _clearLeechPosition = NTConfig_ClearLeechPosition;  // REVISION 1.2: Added so that low levels don't attack monsters.
+                                                                                                                                // Updates at Line 60 and Line 102.
+        
+        var _wave = 0;                                                                                  // REVISION 1.3: Added because instead of checking for leader, we check the wave number.
+        
+
+
+        if(!NTTM_CheckAct()) return false;
+
+        print("ÿc2Shopping...");
+
+        NTTMGR_TownManager();
+
+        print("ÿc2...shopping is complete.");
+        
+        if(me.area!=109) {
+                print("ÿc2Heading to Harrogath...");
+                NTTM_TownMove("waypoint");
+                while(me.area != 109) {
+                        NTM_UsePortal("Waypoint", 109);
+                        delay(1000);
+                }
+        }
+
+        if(!NTTM_TownMove("portalspot")) {
+                print("ÿc8Error: PortalSpot is not found.");
+                return false;
+        }
+        
+        for(var i = 0; i < 100; i++) {
+                if(findLead(leader)) break;
+                for( var j = 0; j < NT_Leader.length; j++) {
+                        if(findLead(NT_Leader[j])) leader = NT_Leader[j];
+                }
+                delay(100);
+        }
+
+        QuitWithLeader = (QuitWith == "") ? leader : QuitWith;
+        while(me.area==109) {
+                NTM_UsePortal("BluePortal", 131, leader);
+                delay(1000);
+                if(!findLead(leader)) return false;
+        }
+        
+        print("ÿc2Waiting for Throne of Destruction to be cleared...");
+        NTP_DoPrecast();                                                                        // REVISION 1.3: Precast (for example, Holy Shield for paladins for extra def while leeching)
+                                                                                                                        // Also done after entering Worldstone Chamber
+        if(_clearLeechPosition) NTA_ClearPosition(10);
+        if(!_helpPreClear) {                                                            // REVISION 1.4: If leader has trouble with souls, don't wait and help kill them.
+                delay(10000);                                                                   // REVISION 1.1: Dispite this large delay, this prevents players from getting killed by
+                                                                                                                // souls by staying in the corner while the leader kills them.
+                NTM_MoveTo(me.x-2, me.y-2, 5, false);                   // REVISION 1.1: Fixes the candle glitch where players get stuck.
+        } else {
+                NTA_ClearPosition(50);
+        }
+        delay(500);
+        NTM_MoveTo(15113, 5037, 5, false);                                      // Move to third Pillar. Second pillar is X:15113 Y:5037        
+                                                                                                                                                          // Third pillar is X:15112 Y:5052
+                                                                                                                                                          
+        if(Unit_findItemByFname("Ondal's Wisdom")) {            // REVISION 1.5: Switch to Ondal's Weapon on-switch (in tab 2)
+                NTC_DoWeaponSwitch(1);
+        }
+        
+        while (1) {                                                                                     // REVISION 1.3: Remain at leech position until baal has passed through the red portal.
+                if(_clearLeechPosition) NTA_ClearPosition(10);          // REVISION 1.3: If not low-level, clear any stray monsters
+                if(_helpWithWaves) {                                                            // REVISOIN 1.3: If we want to help with waves... will clear entire throne room.
+                        NTA_ClearPosition(40);
+                        NTSI_PickItems();
+                        NTM_MoveTo(15113, 5037, 5, false);
+                }
+                NTT_CleanPotions();                                                                     // REVISION 1.3: check your potions
+                
+                _wave = NT_ThroneCheckInt();                                            // REVISION 1.3: get the current wave index
+                
+                if (_wave == 5) break;                                                          // REVISION 1.3: If Minion wave is going, stop waiting
+                
+                delay(1000);                                                                            // REVISION 1.3: Check position/wave delay
+        }
+        while(NT_ThroneCheckInt() == 5) delay(100);                             // REVISION 1.3: If Minion wave is still going, wait
+        print("ÿc2Throne of Destruction clear. Moving to Worldstone Chamber...");
+        NTM_MoveTo(15092, 5010);
+        NTP_DoPrecast();                                                                                // REVISION 1.3: Precast while waiting for baal to move his fat ass
+        while (NTC_FindMonster(getLocaleString(3061)))                  // REVISION 1.3: Wait for baal-clone to take the red portal
+                NTC_Delay(250);
+        
+        var _portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);        // REVISION 1.3: After baal leaves, find the red portal
+
+        if (!_portal) return false;                                                     // Couldn't find the portal.
+
+        if (!NTM_UsePortal("Portal", 132, null, _portal)) return false; // Found the portal but couldn't use it.
+
+        print("ÿc2Entering Worldstone Chamber. Waiting for Baal to die...");
+        //delay(1000);
+        //NTP_DoPrecast();
+        if (!_helpWithBaal) {
+                print("ÿc2...I'll just stay right here.");
+                NTM_MoveTo(15166, 5923, 5, false);      
+                while(withLeader(leader)) {                                                     // Wait until the leader isn't there (usually they left game).
+                        if(_clearLeechPosition) NTA_ClearPosition(10);          // Clear our position in the case of tentacles.
+                        if(getDistance(me.x, me.y, 15166, 5923)>5) NTM_MoveTo(15166, 5923, 5, false);   // See explanation at line 63.
+                        delay(1000);
+                }
+        } else {
+                print("ÿc2...I'd rather kill him myself.");
+                NTM_MoveTo(15138, 5916);                                                                // Move to the moat.
+                if (!NTA_KillBoss(getLocaleString(3061))) return false; // Kill Baal.
+                print("ÿc2\\o/ BAAL IS DEAD! \\o/");
+                NTSI_PickItems();
+        }
+        return true;
+}
+
+function NT_ThroneCheckInt() {
+        var _monster;
+
+        if (!NTC_FindMonster(getLocaleString(3061))) return 5;
+
+        _monster = NTC_GetUnit(NTC_UNIT_MONSTER);
+
+        if (_monster) {
+                do {
+                        if (NTA_IsValidTarget(_monster)) {
+                                if (_monster.classid == 23 || _monster.classid == 62) return 1;
+
+                                if (_monster.classid == 105 || _monster.classid == 381) return 2;
+
+                                if (_monster.classid == 557) return 3;
+
+                                if (_monster.classid == 558) return 4;
+
+                                if (_monster.classid == 571) return 5;
+                        }
+                } while (_monster.getNext());
+        }
+
+        return 0;
+}
+
+function withLeader(leader) {   // Check if the leader is with us or in town.
+        var party = getParty();
+        if (!party) return false;
+        do {
+                if (party.name==leader) {
+                        return (me.area == party.area || party.area == 108);
+                }
+        } while (party.getNext());
+        return false;
+}
+
+function findLead(leader) {             // Check if the leader in bot config is present in the game.
+        var _lead = getUnit(0, leader);
+                if(_lead) return _lead.area;
+        // leader not found look in party
+        var area =0;
+        var a = getParty();
+        if(!a) return false;
+        do { 
+                if (a.name==leader){
+                        return (a.area >0 )? a.area :true;
+                }
+        } while(a.getNext()); 
+        if (area==0) {
+                //sendCopyData(null, "OOG", 0,"Quit:Quit()" );
+                return false;
+        }
+return area;
+}
+
+function LeaveWithLeader(mode, param,name1,name2){      //event is called from default
+        if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
+                if(_getBaalItems) {
+                        NTM_MoveTo(15138, 5916); // Move to the moat.
+                        NTSI_PickItems();
+                }
+                quit();
+        }
+}
+
+function Unit_findItemByFname(_fname)
+{
+        //This item search function will only find the FIRST matching result of _fname string argument in any UNIT.fname and return the UNIT Object that caused the RegEx match;
+
+        var _unitItem;
+
+        //check for correct input; to make sure it exists and make sure it is a string;
+        if((arguments.length < 1) || (typeof(_fname) != "string")) return false;
+        
+        var myItems = me.getItems();    //get all items owned by char (Unit objects in inventory, cube, stash, on body, and merc's body) and put in array myItems;
+                        
+        for(var item_num = 0; item_num < myItems.length; item_num++)    //loop through all items in array; 
+        {
+                //print("Testing item index "+ item_num); //TESTING PURPOSE: used to watch progress in console;
+
+                if((RegExp(_fname,"ig").test(myItems[item_num].fname))) //test if current item unit object in myItems array matches function input in item's fname attribute;
+                {
+                        //found match;
+                        //storing Unit to var _unitItem;
+                        _unitItem = myItems[item_num];
+                        //print("Found match for \""+_fname+"\", at location: "+_unitItem.location);    //TESTING PURPOSE: used to watch progress in console;
+                        return _unitItem;       //returning _unitItem Unit object to caller function;
+                }
+        }
+        
+        //print("No match found for \""+_fname+"\"");
+        return false;
+}

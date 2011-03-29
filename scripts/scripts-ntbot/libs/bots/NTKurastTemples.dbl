@@ -1,0 +1,54 @@
+function NT_KurastTemples() 
+{
+    print("ÿc< Starting Kurast Temples Script");
+    NTTM_CheckAct();
+
+    NTTMGR_TownManager();
+	
+    print("ÿc4Going to Upper Kurast");
+    NTTM_TownMove("waypoint");
+	
+	if (!NTM_UsePortal("Waypoint", 81)) 
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Upper Kurast");
+		NTM_TravelTO(81);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(81, true, 10000);
+	}
+
+	print("ÿc2Precasting");
+	NTP_DoPrecast();
+
+	print("ÿc8Going to Forgotten Temple");
+	NTM_TravelTO(97);
+	NTA_ClearRooms();
+		
+    if (NTConfig_RuinedExtension) 
+	{
+		print("ÿc4Going to Upper Kurast");
+		NTTM_TownMove("waypoint");
+		NTM_TravelTO(81);
+		print("ÿc2Precasting");
+		NTP_DoPrecast();
+
+		print("ÿc8Going to Ruined Fane");
+		NTM_TravelTO(98);
+		NTA_ClearRooms();
+	}
+
+    if (NTConfig_DisusedExtension) 
+	{
+		print("ÿc4Going to Upper Kurast");
+		NTTM_TownMove("waypoint");
+		NTM_TravelTO(81);
+		print("ÿc2Precasting");
+		NTP_DoPrecast();
+
+		print("ÿc8Going to Disused Reliquary");
+		NTM_TravelTO(99);
+		NTA_ClearRooms();
+	}
+	
+	return true;
+}

@@ -1,44 +1,61 @@
-function NT_Andariel() { 
-   print("ÿc3Starting Andariel Script"); 
-   if (!NTTM_CheckAct()) { 
-      return false; 
-   } 
-   NTTMGR_TownManager(); 
+function NT_Andariel() 
+{ 
+	print("ÿc3Starting Andariel Script"); 
+	
+	if (!NTTM_CheckAct()) 
+		throw new Error();
+	
+	NTTMGR_TownManager(); 
 
-   print("ÿc8Going to Catacombs Level 2"); 
-   if (!NTTM_TownMove("waypoint")) return false; 
-   if (!NTM_UsePortal("Waypoint", 35)) { 
-      print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Catacombs Level 2");
-      NTM_TravelTO(35); 
-      print("ÿc8Interacting with Waypoint as we don't have it."); 
-      NTM_GotoWaypoint(35, true, 10000); 
-   } 
-   print("ÿc5Precasting"); 
-   NTP_DoPrecast(); 
-   print("ÿc8Going to Catacombs Level 4"); 
-   NTM_TravelTO(37); 
-  // var _OSC = "ÿc!X:ÿc< "+me.x+ "                  " +"ÿc!Y:ÿc< "+me.y 
-  // print(_OSC); 
+	print("ÿc8Going to Catacombs Level 2"); 
+	if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if (!NTM_UsePortal("Waypoint", 35)) 
+	{ 
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Catacombs Level 2");
+		NTM_TravelTO(35); 
+		
+		print("ÿc8Interacting with Waypoint as we don't have it."); 
+		NTM_GotoWaypoint(35, true, 10000); 
+	} 
+	
+	print("ÿc5Precasting"); 
+	NTP_DoPrecast(); 
+	
+	print("ÿc8Going to Catacombs Level 4"); 
+	NTM_TravelTO(37); 
+	// var _OSC = "ÿc!X:ÿc< "+me.x+ "                  " +"ÿc!Y:ÿc< "+me.y 
+	// print(_OSC); 
 
-   if (NTConfig_CheckSafe) { 
-      if (!NTTMGR_CheckSafe(2)) { 
-         print("Andariel Safe Check = Failed!"); 
-         return false; 
-      } 
-   } 
+	if (NTConfig_CheckSafe) 
+	{ 
+		if (!NTTMGR_CheckSafe(2)) 
+		{ 
+			print("ÿc1Andariel Safe Check failed!"); 
+			throw new Error();
+		} 
+	} 
 
-   if(!NTM_MoveTo(22556, 9578)) return false; 
-   if (me.classid == NTC_CHAR_CLASS_SORCERESS) { 
-   if(!NTM_MoveTo(22558, 9558)) return false; 
-   NTC_Delay(250); 
-      } 
+	if(!NTM_MoveTo(22556, 9578))
+		throw new Error();
+		
+	if (me.classid == NTC_CHAR_CLASS_SORCERESS) 
+	{ 
+		if(!NTM_MoveTo(22558, 9558))
+			throw new Error();
+			
+		NTC_Delay(250); 
+	} 
 
-   print("ÿc1Killing Andariel"); 
-   if(!NTA_KillBoss(getLocaleString(3021))) return false; 
+	print("ÿc1Killing Andariel"); 
+	if(!NTA_KillBoss(getLocaleString(3021)))
+		throw new Error();
 
-   if(NTConfig_ClearPosition) NTA_ClearPosition(); 
+	if(NTConfig_ClearPosition)
+		NTA_ClearPosition(); 
 
-   NTSI_PickItems(); 
+	NTSI_PickItems(); 
 
-   return true; 
+	return true; 
 }

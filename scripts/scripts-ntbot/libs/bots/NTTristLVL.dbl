@@ -1,0 +1,176 @@
+function TristLVL() {
+	var i;
+	var _leader = "sox-ii";
+
+	addEventListener("gameevent", QuitFunction);
+	
+	var _attackpos =	[25177, 5111,
+	25177, 5131,
+	25173, 5143,
+	25172, 5160,
+	25168, 5171,
+	25169, 5185,
+	25167, 5201,
+	25149, 5187,
+	25143, 5186,
+	25126, 5184,
+	25102, 5187,
+	25084, 5187,
+	25050, 5194,
+	25049, 5172,
+	25083, 5154,
+	25083, 5138,
+	25101, 5138,
+	25120, 5140,
+	25125, 5160,
+	25138, 5141];
+
+    print("ÿc3Starting Tristram leveling script");
+	
+  	if(!NTTM_CheckAct()){
+		return false;
+	}
+	
+	NTTMGR_TownManager();
+
+	if(me.name == _leader){
+		if (!NTTM_TownMove("waypoint"))
+			return false;
+		if (!NTM_UsePortal("Waypoint", 4)) {
+			print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Stony Field");
+			NTM_TravelTO(4);
+			print("ÿc8Interacting with Waypoint as we don't have it.");
+			NTM_GotoWaypoint(4, true, 10000);
+		}
+		NTP_DoPrecast();
+
+		NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 20, 20);
+		
+		NTM_MakeTP();
+		
+		while(!IsPlayerOut(1))
+			NTC_Delay(250);
+	}
+	else{
+		while(me.area == 1)
+		{
+			NTTM_TownMove("portalspot");
+			NTM_UsePortal("BluePortal", 4, _leader);
+			NTC_Delay(250);
+		}
+	}
+	
+	NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 10, 10);
+	
+	NTAT_ClearPosition();
+
+	NTM_TravelTO(38);
+	
+	while(!IsPlayerOut(4))
+		NTC_Delay(250);
+	
+	for(i = 0 ; i < _attackpos.length ; i += 2)
+	{
+		NTM_MoveTo(_attackpos[i], _attackpos[i+1]);
+		NTAT_ClearPosition(20);
+		NTSI_PickItems();
+	}
+	
+	return true;
+}
+
+function NTAT_ClearPosition(range, spectype)
+{
+	var _orgx, _orgy;
+	var _target;
+	var _killnum = 0;
+	var _mindist;
+	var _mingid;
+	var _dist;
+	
+	if(arguments.length < 1)
+		range = 20;
+
+	if(arguments.length < 2)
+		spectype = 0;
+	
+	_orgx = me.x
+	_orgy = me.y
+	
+	for(var a = 0 ; a < 200 ; a++)
+	{
+		_mindist = 1000;
+		
+		_target = getUnit(NTC_UNIT_MONSTER);
+		
+		if(_target)
+		{
+			do
+			{
+				if(NTA_IsValidTarget(_target) && (spectype == 0 || (_target.spectype & spectype)) && getDistance(_orgx, _orgy, _target.x, _target.y) < range)
+				{
+					_dist = getDistance(me.x, me.y, _target.x, _target.y);
+					if(_dist < _mindist)
+					{
+						_mindist = _dist;
+						_mingid = _target.gid;
+					}
+				}
+			}
+			while(_target.getNext());
+		}
+				
+		if(_mindist < 1000)
+		{
+			_target = getUnit(NTC_UNIT_MONSTER, null, null, _mingid);
+
+			if(getDistance(_orgx, _orgy, _target.x, _target.y) > range)
+				continue;
+			
+			if(_target && NTA_IsValidTarget(_target))
+			{
+				NTA_MoveCloseInt(_target, 1);
+				clickMap(NTC_CLICK_LDOWN, NTC_SHIFT_NONE, _target);
+			}
+		}
+		else
+			break;
+		
+		delay(50);
+	}
+
+	return;
+}
+
+function QuitFunction(mode, param, name1, name2)
+{
+	if(mode == 0 || mode == 3)
+	{
+		delay(500);
+		quit();
+	}
+}
+
+function IsPlayerOut(area) { 
+	var _player;
+	var _myPartyId;
+	var _area;
+
+	_player = getParty();
+	_myPartyId = _player.partyid;
+
+	if(arguments.length < 1)
+		_area = me.area;
+	else
+		_area = area;
+
+	do {
+		if(_player.area == _area && _myPartyId == _player.partyid)
+			return false;
+
+		NTC_Delay(100);
+
+	} while(_player.getNext());
+	
+	return true;	
+}

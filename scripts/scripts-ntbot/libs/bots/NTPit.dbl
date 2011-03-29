@@ -1,4 +1,5 @@
-function NT_Pit() {
+function NT_Pit()
+{
     var i;
     var _area;
     var _exits;
@@ -6,37 +7,46 @@ function NT_Pit() {
     var _attackpos = [7536, 14427, 7552, 14470, 7569, 14462, 7584, 14453, 7610, 14429, 7576, 14414];
 
     print("ÿc3Starting Pit Script");
-    if (!NTTM_CheckAct()) {
-        return false;
-    }
+    if (!NTTM_CheckAct())
+        throw new Error();
+	
     NTTMGR_TownManager();
 
     print("ÿc8Going to Black Marsh");
-    if (!NTTM_TownMove("waypoint")) return false;
-    if (!NTM_UsePortal("Waypoint", 6)) {
+    if (!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+    if (!NTM_UsePortal("Waypoint", 6))
+	{
         print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Black Marsh");
         NTM_TravelTO(6);
+		
         print("ÿc8Interacting with Waypoint as we don't have it.");
         NTM_GotoWaypoint(6, true, 10000);
     }
+	
     print("ÿc5Precasting");
     NTP_DoPrecast();
+	
     print("ÿc8Going to Pit Level 1");
     NTM_TravelTO(12);
 
-
-    if (!NTM_MoveToObject(NTC_UNIT_TILE, 5, 5, 0, 0, NTConfig_ClearPitLevel1)) return false;
+    if (!NTM_MoveToObject(NTC_UNIT_TILE, 5, 5, 0, 0, NTConfig_ClearPitLevel1)) 
+		throw new Error();
 
     print("ÿc8Going to Pit Level 2");
     NTM_TravelTO(16);
 
-    if (NTConfig_CheckSafe) {
-        if (!NTTMGR_CheckSafe(2)) return false;
+    if (NTConfig_CheckSafe) 
+	{
+        if (!NTTMGR_CheckSafe(2))
+			throw new Error();
     }
 
     NTP_DoPrecast();
 
-    for (i = 0; i < _attackpos.length; i += 2) {
+    for (i = 0; i < _attackpos.length; i += 2)
+	{
         NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
 
         NTA_ClearPosition(25, 0x04);
@@ -44,14 +54,18 @@ function NT_Pit() {
         NTSI_PickItems();
     }
 
-    if (NTConfig_OpenChest) {
+    if (NTConfig_OpenChest) 
+	{
         var _chest;
 
         _chest = NTC_GetUnit(NTC_UNIT_OBJECT, "chest");
 
-        if (_chest) {
-            if (NTM_MoveTo(_chest.x + 2, _chest.y)) {
-                if (NTC_OpenChest(_chest)) NTSI_PickItems();
+        if (_chest) 
+		{
+            if (NTM_MoveTo(_chest.x + 2, _chest.y)) 
+			{
+                if (NTC_OpenChest(_chest)) 
+					NTSI_PickItems();
             }
         }
     }

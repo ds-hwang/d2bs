@@ -1,31 +1,41 @@
-function NT_BoneAsh() {
+function NT_BoneAsh() 
+{
 	print("ÿc3Starting Bone Ash Script");
-	if (!NTTM_CheckAct()) {
-		return false;
-	}
+	if(!NTTM_CheckAct()) 
+		throw new Error();
+		
 	NTTMGR_TownManager();
 
 	print("ÿc8Going to Inner Cloister");
-	if (!NTTM_TownMove("waypoint")) return false;
-	if (!NTM_UsePortal("Waypoint", 32)) {
+	if(!NTTM_TownMove("waypoint"))
+		throw new Error();
+		
+	if(!NTM_UsePortal("Waypoint", 32))
+	{
 		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Inner Cloister");
 		NTM_TravelTO(32);
+		
 		print("ÿc8Interacting with Waypoint as we don't have it.");
 		NTM_GotoWaypoint(32, true, 10000);
 	}
+	
 	print("ÿc5Precasting");
 	NTP_DoPrecast();
+	
 	print("ÿc8Going to the Cathedral");
 	NTM_TravelTO(33);
 
-	if (!NTM_MoveTo(20048, 4900)) return false;
+	if(!NTM_MoveTo(20048, 4900))
+		throw new Error();
+		
 	print("ÿc1Killing Bone Ash");
-	if (NTA_KillBoss(getLocaleString(2878))) //"Boneash" 
+	if(NTA_KillBoss(getLocaleString(2878))) //"Boneash" 
 	{
-		if (NTConfig_ClearPosition) NTA_ClearPosition();
-
+		if(NTConfig_ClearPosition) 
+			NTA_ClearPosition();
+			
 		NTSI_PickItems();
-
 	}
+	
 	return true;
 }

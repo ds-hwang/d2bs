@@ -1,0 +1,23 @@
+function NT_Den()
+{
+	print("ÿc<Starting Den Of Evil Script");
+	
+	if (!NTTM_CheckAct())
+		throw new Error();
+		
+	NTTMGR_TownManager();
+
+	print("ÿc8Going to Blood Moor");
+	NTM_TravelTO(2);
+		
+    print("ÿc2Precasting");
+    NTP_DoPrecast();
+  
+	print("ÿc8Going to Den Of Evil");
+	NTM_TravelTO(8);
+
+	if (!NTA_ClearRooms())
+		throw new Error();
+
+	return true;
+}
