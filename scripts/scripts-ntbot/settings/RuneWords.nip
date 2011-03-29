@@ -1,0 +1,49 @@
+;////////////////////////////////////////////////////////////////////////////////
+;//   To add in a runeword, simply enter in the item type, and flag=runeword   //
+;//   Example: Type = armor : flag = runeword ;                                //
+;//   The above will keey ALL armors made into a runeword                      //
+;//   Everything should already be in here, so no need edit this at all        //
+;////////////////////////////////////////////////////////////////////////////////
+
+;---=== Armors ===---
+Type = armor : flag = runeword ;
+
+;---=== Weapons ===---
+Type = scepter : flag = runeword ;
+Type = wand : flag = runeword ;
+Type = staff : flag = runeword ;
+Type = bow : flag = runeword ;
+Type = axe : flag = runeword ;
+Type = club : flag = runeword ;
+Type = sword : flag = runeword ;
+Type = hammer : flag = runeword ;
+Type = spear : flag = runeword ;
+Type = polearm : flag = runeword ;
+Type = crossbow : flag = runeword ;
+Type = mace : flag = runeword ;
+Type = weapon : flag = runeword ;
+Type = amazonbow : flag = runeword ;
+Type = amazonspear : flag = runeword ;
+Type = assassinclaw : flag = runeword ;
+
+;---=== Helms ===---
+Type = helm : flag = runeword ;
+Type = circlet :  : flag = runeword ;
+Type = primalhelm : flag = runeword ;
+Type = pelt : flag = runeword ;
+
+;---=== Shields ===---
+Type = shield : flag = runeword ;
+Type = auricshields : flag = runeword;
+
+;---=== Class Specific ===---
+Type = amazonitem : flag = runeword ;
+Type = barbarianitem : flag = runeword ;
+Type = necromanceritem : flag = runeword ;
+Type = paladinitem : flag = runeword ;
+Type = sorceressitem : flag = runeword ;
+Type = assassinitem : flag = runeword ;
+Type = druiditem : flag = runeword ;
+Type = voodooheads : flag = runeword ;
+Type = auricshields : flag = runeword ;
+Type = primalhelm : flag = runeword ;

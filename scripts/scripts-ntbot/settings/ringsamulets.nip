@@ -1,0 +1,155 @@
+;====rare ring=====
+;패캐힘
+Name = rin: Quality =6 : 105=10 :0>=10
+;패캐덱
+;[Rare FCR 2 Ring]
+Name = rin: Quality = 6: 105=10 :2>=10
+
+;패캐피
+Name = rin: Quality = 6: 105=10 :7>=25
+
+;패캐마나
+Name = rin: Quality = 6: 105=10 :9>=40 
+
+;패캐피마나
+Name = rin: Quality = 6: 105=10 :9>=30 :7>=15
+
+;패캐레지
+Name = rin: Quality = 6: 105=10 :39>=20:41>=20
+
+;피흡
+Name = rin: Quality = 6 : 60>=4 :0>=10
+Name = rin: Quality = 6 : 60>=4 :2>=10
+
+;마흡
+Name = rin: Quality = 6 : 62>=4:0>=10
+Name = rin: Quality =6 : 62>=4:2>=10
+
+;민뎀링
+Name = rin: Quality = 6 : 21>=6 :0>=10
+Name = rin: Quality = 6 : 21>=6 :2>=10
+Name = rin: Quality = 6 : 21>=6 :7>=30
+
+;맥뎀링
+Name = rin: Quality = 6 : 22>=4 :0>=10
+Name = rin: Quality = 6 : 22>=4 :2>=10
+Name = rin: Quality = 6 : 22>=4 :7>=30
+
+;패캐 듀얼
+Name = rin: Quality =6 : 105=10 : 62>=4 : 60>=4
+
+;듀얼
+Name = rin: Quality =6 : 62>=6 : 60>=8
+Name = rin: Quality =6 : 62>=4 : 60>=4:19=100
+
+;전투
+Name = rin: Quality =6 :0>=10:2>=10:19>=50
+Name = rin: Quality =6 :0>=15:7>=30 :19>=50
+Name = rin: Quality =6 :2>=15:7>=30 :19>=50
+
+Name = rin: Quality =6 :0>=10:2>=10:119 =5
+Name = rin: Quality =6 :0>=15:7>=30:119 =5
+Name = rin: Quality =6 :2>=15:7>=30:119 =5
+
+;힘덱올레 
+Name = rin: Quality =6 :0>=15:2>=10:39>=10::41>=10
+
+;스탯
+Name = rin: Quality =6 :0>=20:2>=15
+Name = rin: Quality =6 :0>=15 : 2>=10 : 7>=30;
+
+
+;====magic ring====
+;10패캐 15올레
+Name = rin: Quality = 4 : 39=15 : 41=15 :105=10
+;13민뎀 10올레
+Name = rin: Quality = 4 : 39>=10 : 41>=10 :21=13
+;10패캐 100마나
+Name = rin: Quality = 4 :9>=100:105=10
+
+;매찬
+Name = rin: Quality = 4 :80=25:9>=100
+Name = rin: Quality = 4 :80=25:39>=20
+Name = rin: Quality = 4 :80=25:41>=20
+Name = rin: Quality = 4 :80=25:43>=20
+Name = rin: Quality = 4 :80=25:45>=20
+Name = rin: Quality = 4 :80>=20: 39>=10 : 41>=10 
+Name = rin: Quality = 4 :80>=30
+
+;====amulet======
+
+
+
+;rare amulet
+Name = amu : Quality = 6 : Assassinskills = 2 ;
+Name = amu : Quality = 6 : Amazonskills = 2 ;
+Name = amu : Quality = 6 : Paladinskills = 2 ;
+Name = amu : Quality = 6 : Necromancerskills = 2 ;
+Name = amu : Quality = 6 : Druidskills = 2 ;
+Name = amu : Quality = 6 : Barbarianskills = 2 ;
+Name = amu : Quality = 6 : Sorceressskills = 2 ;
+
+Name = amu : Quality = 6 : passiveandmagicskilltab = 2
+Name = amu : Quality = 6 : fireskilltab = 2:105=10
+Name = amu : Quality = 6 : coldskilltab = 2:105=10
+Name = amu : Quality = 6 : lightningskilltab = 2:105=10
+Name = amu : Quality = 6 : poisonandboneskilltab = 2:105=10
+Name = amu : Quality = 6 : necromancersummoningskilltab = 2
+Name = amu : Quality = 6 : palicombatskilltab = 2:105=10
+Name = amu : Quality = 6 : elementalskilltab = 2:105=10
+Name = amu : Quality = 6 : trapsskilltab = 2:105=10
+Name = amu : Quality = 6 : shadowdisciplinesskilltab = 2
+
+;레어삥 ㅡ 매직포함
+Name = amu : Quality >= 4 : 79>=70: Barbarianskills = 2 
+Name = amu : Quality >= 4 : 79>=70: warcriesskilltab >= 2 
+Name = amu : Quality >= 4 : 79>=70:39>=20
+Name = amu : Quality >= 4 : 79>=70:39>=10:41>=10
+Name = amu : Quality >= 4 : 79>=80:80>=15
+Name = amu : Quality = 6 : 79>=60:62>=3;
+Name = amu : Quality = 6 : 79>=70:60>=3;
+Name = amu : Quality = 6 : 79>=70:0>=15
+Name = amu : Quality = 6 : 79>=70:2>=15
+
+
+;magic
+Name = amu : Quality = 4: Assassinskills = 2 : 7 >= 95 ;
+Name = amu : Quality = 4: Amazonskills = 2 :7 >= 95 ;  
+Name = amu : Quality = 4: Paladinskills = 2 :7 >= 95 ; 
+Name = amu : Quality = 4: Necromancerskills = 2 :7 >= 95 ;
+Name = amu : Quality = 4: Druidskills = 2 : 7 >= 95 ;
+Name = amu : Quality = 4: Barbarianskills = 2 : 7 >= 95 ;
+Name = amu : Quality = 4: Sorceressskills = 2:7 >= 95
+
+Name = amu : Quality = 4: coldskilltab = 3 :7 >= 95 ;
+Name = amu : Quality = 4: lightningskilltab =3 : 7 >= 95 ;  
+Name = amu : Quality = 4: lightningskilltab =3 : 105=10
+Name = amu : Quality = 4: lightningskilltab =3 : 0=30
+Name = amu : Quality = 4: lightningskilltab =3 : 2=30
+Name = amu : Quality = 4: fireskilltab = 3 : 7 >= 95 ; 
+Name = amu : Quality = 4: palicombatskilltab =  3 : 7 >= 95 ;
+Name = amu : Quality = 4: palicombatskilltab =  3 : 105=10
+Name = amu : Quality = 4: palicombatskilltab =  3 : 0=30
+Name = amu : Quality = 4: palicombatskilltab =  3 : 2=30
+Name = amu : Quality = 4: poisonandboneskilltab = 3 : 7 >= 95 ;
+Name = amu : Quality = 4: poisonandboneskilltab = 3 :105=10
+Name = amu : Quality = 4: poisonandboneskilltab = 3 : 0=30
+Name = amu : Quality = 4: poisonandboneskilltab = 3 : 2=30
+Name = amu : Quality = 4: necromancersummoningskilltab >= 2 : 7 >= 95 ;
+Name = amu : Quality = 4: necromancersummoningskilltab >= 2 : 0=30
+Name = amu : Quality = 4: elementalskilltab = 3 : 7>= 95 ;
+Name = amu : Quality = 4: elementalskilltab = 3 : 105=10
+Name = amu : Quality = 4: elementalskilltab = 3 : 0=30
+Name = amu : Quality = 4: elementalskilltab = 3 : 2=30
+Name = amu : Quality = 4: trapsskilltab = 3 : 7>= 95 ; 
+Name = amu : Quality = 4: trapsskilltab = 3 : 105=10
+Name = amu : Quality = 4: trapsskilltab = 3 : 0=30
+Name = amu : Quality = 4: trapsskilltab = 3 : 2=30
+Name = amu : Quality = 4: warcriesskilltab = 3 : 7>= 95 ; 
+Name = amu : Quality = 4: warcriesskilltab = 3 : 0=30
+Name = amu : Quality = 4: warcriesskilltab = 3 : 7>=80
+
+;매직삥 ㅡ레어에 포함
+
+;50매찬
+Name = amu : Quality = 4 : 80=50

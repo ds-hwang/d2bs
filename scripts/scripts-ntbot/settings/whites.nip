@@ -1,0 +1,231 @@
+; ===== 수정 : 파랑 =====
+
+;========고뇌 죽숨============ 
+
+
+;[Colossus Blade ] 고뇌용 슈페 콜블
+Name = 7gd: Quality = 3 : enhanceddamage>=10:flag!=eth:194=5
+
+;[Colossus Blade e] 죽숨용 에테콜블
+Name = 7gd: Quality <= 3 :flag=eth:194=0
+Name = 7gd: Quality <= 3 :flag=eth:194>=4
+
+;[Phase Blade a] 페이즈
+Name = 7cr: Quality = 3 : enhanceddamage>=15:flag!=eth
+
+;[Zweihander a] 고뇌
+Name = 9fb: Quality = 3 : enhanceddamage>=15:flag!=eth
+
+;[War Spike E] 워스파이크
+Name = 7mp: Quality = 3 : enhanceddamage>=10:flag!=eth
+
+;[Cryptic Sword e] 크립틱 서약
+Name = 7ls: Quality = 3 : enhanceddamage>=10:flag=eth
+
+;[Berserker Axe A] 고뇌용 버석
+Name = 7wa: Quality = 3 : enhanceddamage>=1:flag!=eth:194=5
+Name = 7wa: Quality = 2 :194=5:flag!=eth
+
+;[Berserker Axe E] 죽숨 에테버석
+Name = 7wa: Quality <= 3 :flag=eth
+
+;[Balrog Blade E] 발록 서약
+Name = 7gs: Quality = 3 : enhanceddamage>=10:flag=eth
+
+;[Colossus Sword e] 콜소 죽음
+Name =7fb: Quality = 3  : enhanceddamage>=10:flag=eth
+
+;[Ghost Spear e] 고스트스피어 죽숨
+Name = 7st : Quality = 3 : 194 = 6 : enhanceddamage>=1:flag=eth
+Name = 7st : Quality = 3 : 194 = 0 : enhanceddamage>=1:flag=eth
+
+;[War Pike e] 워파이크 6솟죽숨 4솟불사조 ㅡ 삥밥용병재료
+Name = 7p7 : Quality = 3 : 194 = 4 : enhanceddamage>=1:flag=eth
+
+
+ 
+;콜투
+;[Crystal Sword A] 크리소드
+;Name = crs : Quality = 2 : 194 = 0 :flag=eth ;큐빙용에테
+;Name = crs : Quality <= 2 : 194 = 5 ;
+;Name = crs : Quality = 3 : 194 = 5 :19<=0:75<=0 ;노어레 무내구
+
+;오심
+;[Flail A] 프레일
+;Name =fla : Quality  = 2 : 194 = 4
+
+;에테15증뎀 15내구or무내구 ㅡ 대우
+Name =fla : Quality = 3 : 194 = 0 :enhanceddamage=15:75=15:flag=eth  
+Name =fla : Quality = 3 : 194 = 4 :enhanceddamage=15:75=15:flag=eth  
+Name =fla : Quality = 3 : 194 = 0 :enhanceddamage=15:75<=0:flag=eth  
+Name =fla : Quality = 3 : 194 = 4 :enhanceddamage=15:75<=0:flag=eth  
+;Knout
+Name =9fl : Quality = 3 : 194 = 0 :enhanceddamage=15:75=15:flag=eth  
+Name =9fl : Quality = 3 : 194 = 4 :enhanceddamage=15:75=15:flag=eth  
+Name =9fl : Quality = 3 : 194 = 0 :enhanceddamage=15:75<=0:flag=eth  
+Name =9fl : Quality = 3 : 194 = 4 :enhanceddamage=15:75<=0:flag=eth  
+;Scourge
+Name =7fl : Quality = 3 : 194 = 0 :enhanceddamage=15:75=15:flag=eth  
+Name =7fl : Quality = 3 : 194 = 4 :enhanceddamage=15:75=15:flag=eth  
+Name =7fl : Quality = 3 : 194 = 0 :enhanceddamage=15:75<=0:flag=eth  
+Name =7fl : Quality = 3 : 194 = 4 :enhanceddamage=15:75<=0:flag=eth  
+
+;====== 신뢰======= 
+;[Matriarchal Bow A] 메추리
+Name = amb: Quality = 3 : enhanceddamage=15: 194 = 4
+;[Grand Matron Bow A] 그랜드
+Name = amc: Quality = 3 : enhanceddamage=15: 194 = 4
+
+;엘리트보우 4솟
+Type = 27 : Quality = 3 :enhanceddamage=15 : 194 = 4:24>=45
+ 
+;[Great Bow A] 그레이트
+Name = 6cb: Quality = 3 : 194 = 0 :enhanceddamage=15
+
+;[Blade Bow A] 
+Name = 6hb: Quality = 3 : 194 = 0 :enhanceddamage=15
+
+;Hydra Bow 죽숨
+Name = 6lw: Quality = 3 : enhanceddamage=15:194=0
+Name = 6lw: Quality = 3 : enhanceddamage=15:194=6
+
+;=============드림=============== 
+
+;[Diadem A]
+Name = ci3: Quality = 3 :enhanceddefense=15:flag!=eth
+
+;[Bone Visage A]
+Name = uh9: Quality = 3 :enhanceddefense=15:flag!=eth
+
+;[Demonhead A]
+Name = usk: Quality = 3 :enhanceddefense=15:flag!=eth
+
+;[Corona A]
+Name = urn: Quality = 3 :enhanceddefense=15:flag!=eth
+
+;드림
+;[Troll Nest A]
+Name = ush  : Quality = 3 :enhanceddefense=15 : 194 = 0:flag!=eth
+Name = ush  : Quality = 3 :enhanceddefense=15 : 194 = 3:flag!=eth
+
+;스피릿
+;[Monarch A]
+Name = uit : Quality <= 3: 194 = 4 ;
+Name = uit : Quality = 3: 194 = 0 :enhanceddefense>=10:flag!=eth
+Name = uit : Quality = 3: 194 = 3 :enhanceddefense=15:flag!=eth ;드림용
+
+
+;======수수===========
+
+;3소켓 15방상 15내구 or 무내구 
+Type = 3 : Quality = 3 : enhanceddefense >=15:194>=3:75 =15:flag!=eth
+Type = 3 : Quality = 3 : enhanceddefense >=15:194>=3:75<=0 :flag!=eth
+
+;3소켓이상 가능 익셉 아머 0소켓 15방상 15내구 or 무내구 
+;Type = 3 : Quality = 3 : enhanceddefense >=15: defense>=197:194>=0:75=15:flag!=eth
+;Type = 3 : Quality = 3 : enhanceddefense >=15: defense>=197:194>=0:75<=0:flag!=eth
+
+;====노멀갑옷 15방상 15내구 or 무내구
+;Full Plate Mail 
+Name = ful : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75<=0 
+Name = ful : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75 =15
+
+;Ancient Armor 
+Name = aar : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75<=0 
+Name = aar : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75 =15
+
+;[breast Plate A] 
+Name = brs : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75<=0 
+Name = brs : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth :75=15
+ 
+;[Light Plate]  
+Name = ltp : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth  :75<=0  
+Name = ltp : Quality =3 : enhanceddefense=15 : 194 = 0 :flag!=eth  :75=15
+ 
+;[Mage Plate A] 10방상
+Name = xtp: Quality = 3 : enhanceddefense>=10:flag!=eth:194=0
+Name = xtp: Quality = 3 : enhanceddefense>=10:flag!=eth:194=3
+
+;엘리트 15방상
+Type = 3 : Quality = 3 : enhanceddefense >=15: defense>=536:194=0
+Type = 3 : Quality = 3 : enhanceddefense >=15: defense>=536:194>=3
+ 
+;[Archon Plate A]
+Name = utp : Quality = 3 : enhanceddefense >=10:flag!=eth:194=0
+Name = utp : Quality = 3 : enhanceddefense >=10:flag!=eth:194>=3
+
+;[Archon Plate B]
+Name = utp : Quality = 2 : defense>=500 :194=3:flag!=eth
+
+;[Sacred Armor A]
+Name = uar : Quality = 3 : enhanceddefense >=10:flag!=eth:194=0
+Name = uar : Quality = 3 : enhanceddefense >=10:flag!=eth:194>=3
+
+;인내,스톤 벅큐 1000 : defense>=664, 1100 : defense>=730, 1200 : defense>=797
+Type = 3 : Quality = 2 : defense>=664: 194=0  
+ 
+
+;팔라방패
+
+;스피릿,드림
+;[Sacred Targe A]
+Name = pab : Quality <= 3   : 39>=40 : 41>=40 
+
+;[Sacred Rondache A]
+Name = pac : Quality <= 3   : 39>=40 : 41>=40 
+
+;[Targe A]
+TYPE=70   : Quality <= 3    : 39>=43 :defense>=154:194=0
+TYPE=70   : Quality <= 3    : 39>=43 :defense>=154:194>=3
+
+;[Targe E]
+TYPE=70   : Quality =2   : 194=0 : 39>=40 : 41>=40 :defense>=188;
+
+;[Targe Phoenix]
+TYPE=70   : Quality <=3   : enhanceddamage=65 : 19>=120 :defense>=126:194=0
+TYPE=70   : Quality <=3   : enhanceddamage=65 : 19>=120 :defense>=126:194>=3
+
+;네크방패 splender
+type=69   : Quality <= 3  : skillBone Spear = 3 : skillBone Spirit = 3;
+type=69   : Quality <= 3 : skillPoison Nova = 3 : skillPoison Explosion = 3;
+
+
+;네크 화이트 wand
+Type = 25 : Quality <= 3 :  skillbonespirit >= 2 : skillbonespear >= 2  ;
+
+
+;드루 대표의원
+type=72  : Quality <= 3 : skillhurricane = 3 : skilltornado = 3  
+
+
+;바바 대표의원
+type=71   : Quality <= 3 :skillshout = 3 : skillbattleorders = 3; 
+type=71   : Quality <= 3 :skillBattleCommand = 3 : skillbattleorders = 3; 
+type=71   : Quality <= 3 : skillbattleorders = 3: skillfinditem=3
+
+
+
+;어쌔 혼돈 
+type=67: Quality <= 3  :22=42:skillmindblast=3
+type=67: Quality <= 3  :22=42:skillvenom =3
+type=67: Quality <= 3  :22=42:skilllightningsentry=3
+type=67: Quality <= 3  :22=42:skilldragontalon=3
+type=67: Quality <= 3  :22=42:skilldragonflight=3
+type=67: Quality <= 3  :22=42:skillweaponblock=3
+ 
+type=88: Quality <= 3  :22=42:skillmindblast=3
+type=88: Quality <= 3  :22=42:skillvenom =3
+type=88: Quality <= 3  :22=42:skilllightningsentry=3
+type=88: Quality <= 3  :22=42:skilldragontalon=3
+type=88: Quality <= 3  :22=42:skilldragonflight=3
+type=88: Quality <= 3  :22=42:skillweaponblock=3
+
+
+
+;팔라 셉터 
+Type =24  : Quality <= 3 : skillblessedhammer = 3 : skillconviction >= 1
+Type =24  : Quality <= 3 : skillblessedhammer = 3 : skillconcentration >= 1
+Type =24  : Quality <= 3 :skillfistoftheheavens = 3 : skillfanaticism >= 1
+Type =24  : Quality <= 3  :skillfistoftheheavens = 3 : skillconviction >= 1
+Type =24  : Quality <= 3 :skillredemption = 3 : skillconviction >=1
+Type =24  : Quality <= 3 : skillholy shield >= 2  ;

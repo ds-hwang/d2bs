@@ -1,0 +1,143 @@
+; ===== 수정 : 파랑 =====
+
+;======charm ========
+
+;스몰
+
+;피
+Name =cm1: Quality = 4 : 7>=18
+;마나 
+Name =cm1: Quality = 4 : 9>= 16
+;피마나
+Name =cm1: Quality = 4 : 7>=16: 9>=10
+;맥
+Name =cm1: Quality = 4 : 22 >= 3;   
+;삥
+Name =cm1: Quality = 4 : 79 >= 9;    
+;독
+Name =cm1: Quality = 4 : 57 >= 100 ;           
+;파
+Name =cm1: Quality = 4 : 49 >= 27 ;   
+;라
+Name =cm1: Quality = 4 : 51 >= 65 ;    
+;콜
+Name =cm1: Quality = 4 : 55 >= 19 ;
+;패힛방어
+;Name =cm1: Quality = 4 : 99=5 : defense>=28;
+;레지
+Name =cm1: Quality = 4 : 39>=10;
+Name =cm1: Quality = 4 : 41>=10;
+Name =cm1: Quality = 4 : 43>=10;
+Name =cm1: Quality = 4 : 45>=10;
+;올레
+Name =cm1: Quality = 4 : : 39>=3 : 41>=3
+;매참
+Name =cm1: Quality = 4 : 80>=7
+;어레피
+Name =cm1: Quality = 4 : 7>=14:19>=25
+
+;라지
+Name =cm2: Quality = 4 : : 39>=6 : 41>=6
+Name =cm2: Quality = 4 : 22 >= 6;   
+Name =cm2: Quality = 4 : 7>=30:19>=40
+Name =cm2: Quality = 4 : 7>=34
+
+;피마나
+Name =cm3: Quality = 4 : 7>=30:9>=30
+;그랜드
+
+;맥
+Name =cm3: Quality = 4 : 22 >= 9;   
+
+;올레
+Name =cm3: Quality = 4 : 39>=12 : 41>=12
+
+;레지피
+Name =cm3: Quality = 4 : 39>=30:7>=35
+Name =cm3: Quality = 4 : 41>=30:7>=35
+Name =cm3: Quality = 4 : 43>=30:7>=35
+Name =cm3: Quality = 4 : 45>=30:7>=35
+;레지삥
+Name =cm3: Quality = 4 : 39>=20:79>=35;
+Name =cm3: Quality = 4 : 41>=20:79>=35;
+Name =cm3: Quality = 4 : 43>=20:79>=35;
+Name =cm3: Quality = 4 : 45>=20:79>=35;
+;삥
+Name =cm3: Quality = 4 :79>=39
+;어레피
+Name =cm3: Quality = 4 : 7>=30:19>=100
+
+;피마나
+Name =cm3: Quality = 4 : 7>=40:9>=45
+
+
+;스킬
+
+Name =cm3: Quality = 4 : passiveandmagicskilltab = 1  
+Name =cm3: Quality = 4 : javelinandspearskilltab = 1 
+Name =cm3: Quality = 4 : fireskilltab = 1 
+Name =cm3: Quality = 4 : lightningskilltab = 1 
+Name =cm3: Quality = 4 : coldskilltab = 1
+Name =cm3: Quality = 4 : poisonandboneskilltab = 1 
+Name =cm3: Quality = 4 : necromancersummoningskilltab = 1 
+Name =cm3: Quality = 4 : palicombatskilltab = 1
+Name =cm3: Quality = 4 : offensiveaurasskilltab = 1
+Name =cm3: Quality = 4 : defensiveaurasskilltab = 1 
+Name =cm3: Quality = 4 : warcriesskilltab = 1
+Name =cm3: Quality = 4 : druidsummoningskilltab = 1
+Name =cm3: Quality = 4 : shapeshiftingskilltab = 1
+Name =cm3: Quality = 4 : elementalskilltab = 1 
+Name =cm3: Quality = 4 : trapsskilltab = 1
+Name =cm3: Quality = 4 : shadowdisciplinesskilltab = 1
+Name =cm3: Quality = 4 : martialartsskilltab = 1
+
+;나락참, 바알참
+;Name = cm1 : Quality = 4 : ilvl>=95; 디아블러네님
+;Name = cm3 : Quality = 4 : ilvl>=95; 
+
+;기드
+;Name = cm3: Quality = 7 : 80= 40
+;Name = cm3: Quality = 7 : 79= 160
+;Name = cm3: Quality = 7 : 87= 15:79>= 140
+
+;jewel
+Name = jew : Quality >= 4 : 21 = 18 ;
+Name = jew : Quality >= 4 : 39>=9 : 41>=9 
+Name = jew : Quality >= 4 : 39>=20
+Name = jew : Quality >= 4 : 41>=25
+Name = jew : Quality >= 4 : 43>=25
+Name = jew : Quality >= 4 : 45>=25
+
+Name = jew : Quality = 4 : 22 >= 20 ;
+Name = jew : Quality = 4 : enhanceddamage >= 35;
+Name = jew : Quality = 4 : 93=15 :enhanceddamage >= 30;
+Name = jew : Quality = 4 : 22 >= 13 : enhanceddamage >= 30;
+Name = jew : Quality = 4 : 21 >= 10: enhanceddamage >= 30;
+
+Name = jew : Quality = 6 : 22 = 18 ;
+Name = jew : Quality = 6 : enhanceddamage>=25 
+Name = jew : Quality = 6 : 0>=8: 2>=8
+Name = jew : Quality = 6 : 22 >= 13 : enhanceddamage >= 20;
+Name = jew : Quality = 6 : 21 >= 10: enhanceddamage >= 20;
+Name = jew : Quality = 6 : 22>=15:21>=9
+
+;기타기준 ㅡ 디아블러네님 
+Name = jew : Quality = 6  : 0>=6 : 2>=6;
+Name = jew : Quality = 6  : 0>=8 : 2>=5;
+Name = jew : Quality = 6  : 0>=5 : 2>=8;
+Name = jew : Quality = 6  : 99>=7 : 0>=8;
+Name = jew : Quality = 6  : 99>=7 : 2>=8;
+Name = jew : Quality = 6  : 99>=7 : 91=-15;
+Name = jew : Quality = 6  : 91=-15 : 0>=8;
+Name = jew : Quality = 6  : 91=-15 : 2>=8;
+
+		
+Name = jew : Quality = 7 : 329 = 5
+Name = jew : Quality = 7 : 330 >=4
+Name = jew : Quality = 7 : 331 = 5 
+Name = jew : Quality = 7 : 332 = 5 
+
+Name = jew : Quality = 7 : 333 = 5
+Name = jew : Quality = 7 : 334 >=4
+Name = jew : Quality = 7 : 335 = 5 
+Name = jew : Quality = 7 : 336 = 5 

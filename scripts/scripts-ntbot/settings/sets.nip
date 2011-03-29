@@ -1,0 +1,227 @@
+;----NORMAL SET ITEMS----
+
+;-Angelic Raiment-
+
+;Name = Ring Mail : Quality = Set ; Angelic Mantle
+;Name = Sabre : Quality = Set ; Angelic Sickle
+;Type = ring : Quality = Set : MaxHP = 20 ; Angelic Halo
+;Type = amulet : Quality = Set : itemlightradius = 3 : itemdamagetomana = 20 ; Angelic Wings
+
+;-Arcanna's Tricks-
+
+;Type = amulet : Quality = Set : MaxMP=15 ; Arcanna's Sign
+;Name = Skull Cap : Quality = Set ; Arcanna's Head
+;Name = Light Plate : Quality = Set ; Arcanna's Flesh
+;Name = War Staff : Quality = Set ; Arcanna's Deathwand
+
+;-Arctic Gear-
+
+;Name = Quilted Armor : Quality = Set ; Arctic Furs
+;Name = Light Belt : Quality = Set ; Arctic Binding
+;Name = Light Gauntlets : Quality = Set : MaxHP = 20 :ias=10; Arctic Mitts
+;Name = Short War Bow : Quality = Set ; Arctic Horn
+
+;-Berseker's Arsenal-
+
+;Name = Helm : Quality = Set ; Berserker's Headgear
+;Name = Splint Mail : Quality = Set ; Berserker's Hauberk
+;Name = Double Axe : Quality = Set ; Berserker's Hatchet
+
+;-Cathan's Traps-
+
+;Type = Ring : Quality = Set : life leech = 6 : normal damage reduction = 2 ; Cathan's Seal
+;Type = Amulet : Quality = Set : fhr = 10 : lightmaxdam = 5 ; Cathan's Sigil
+;Name = Chain Mail : Quality = Set ; Cathan's Mesh
+;Name = Mask : Quality = Set ; Cathan's Visage
+
+;-Civerb's Vestment-
+
+;Name = Grand Scepter : Quality = Set ; Civerb's Cudgel
+;Type = amulet : Quality = Set : manarecovery = 40 : hpregen = 4 ; Civerb's Icon
+;Name = Large Shield : Quality = Set ; Civerb's Ward
+
+;-Cleglaw's Brace-
+
+;Name = Long Sword : Quality = Set ; Cleglaw's Tooth
+;Name = Chain Gloves : Quality = Set ; Cleglaw's Pincers
+;Name = Small Shield : Quality = Set ; Cleglaw's Claw
+
+;-Death's Disguise-
+
+;Name = War Sword : Quality = Set ; Death's Touch
+;Name = Leather Gloves : Quality = Set ; Death's Hand
+;Name = Sash : Quality = Set ; Death's Guard
+
+;-Hsaru's Defense-
+
+;Name = Buckler : Quality = Set ; Hsarus' Iron Fist
+;Name = Belt : Quality = Set : cold resist=20 : MaxHP = 20; Hsarus' Iron Stay
+;Name = Chain Boots : Quality = Set ; Hsarus' Iron Heel
+
+;-Infernal Tools-
+
+;Name = Cap : Quality = Set : fire resist = 10 : light resist = 10 : cold resist = 10 : poison resist = 10 ; Infernal Cranium
+;Name = Grim Wand : Quality = Set ; Infernal Touch
+;Name = Heavy Belt : Quality = Set : MaxHP=20:enhanced defense=25 ; Infernal Sign
+
+;-Iratha's Finery-
+
+;Name = Heavy Belt : Quality = Set : min damage = 5 ; Iratha's Cord
+;Name = Crown : Quality = Set : fire resist = 30 : light resist = 30 ; Iratha's Coil
+;Type = Amulet : Quality = Set : poison resist = 30 : poison length = -75 ; Iratha's Collar
+;Name = Light Gauntlets : Quality = Set : cold resist = 30 ; Iratha's Cuff
+
+;-Isenhart's Armory-
+
+;Name = Broad Sword : Quality = Set ; Isenhart's Lightbrand
+;Name = Full Helm : Quality = Set ; Isenhart's Horns
+;Name = Breast Plate : Quality = Set ; Isenhart's Case
+;Name = Gothic Shield : Quality = Set ; Isenhart's Parry
+
+;-Milabrega's Regalia-
+
+;Name = Kite Shield : Quality = Set ; Milabrega's Orb
+;Name = Ancient Armor : Quality = Set ; Milabrega's Robe
+;Name = War Scepter : Quality = Set ; Milabrega's Rod
+;Name = Crown : Quality = Set : max HP=15 : max MP=15 ; Milabrega's Diadem
+
+;-Sigon's Steel-
+
+;Name = Great Helm : Quality = Set ; Sigon's Visor
+;Name = Gothic Plate : Quality = Set ; Sigon's Shelter
+;Name = Greaves : Quality = Set ; Sigon's Sabot
+;Name = Tower Shield : Quality = Set ; Sigon's Guard
+;Name = Plated Belt : Quality = Set ; Sigon's Warp
+;Name = Gauntlets : Quality = Set ; Sigon's Gage
+
+;-Tancred's Battlegear-
+
+;Name = Bone Helm : Quality = Set ; Tancred's Skull
+;Name = Full Plate Mail : Quality = Set ; Tancred's Spine
+;Name = Boots : Quality = Set : staminarecoverybonus = 25 :dexterity=10; Tancred's Hobnails
+;Name = Military Pick : Quality = Set ; Tancred's Crowbill
+;Type = amulet : Quality = Set : magicdamagereduction = 1 : normaldamagereduction = 2 ; Tancred's Weird
+
+;-Vidala's Rig-
+
+;Type = amulet : Quality = Set : cold resist = 20 :MaxMP=15 ; Vidala's Snare
+;Name = Long Battle Bow : Quality = Set ; Vidala's Barb
+;Name = Leather Armor : Quality = Set ; Vidala's Ambush
+;Name = Light Plated Boots : Quality = Set ; Vidala's Fetlock
+
+
+;----EXEPTIONNAL AND ELITE SETS----
+
+
+;-Aldur's Watchtower-
+
+;Name = Hunter's Guise : Quality = Set ; Aldur's Stony Gaze
+;Name = Battle Boots : Quality = Set ; Aldur's Advance
+;Name = Shadow Plate : Quality = Set ; Aldur's Deception
+;Name = Jagged Star : Quality = Set ; Aldur's Rhythm
+
+;-Bul Kathos' Children-
+
+;Name = Colossus Blade : Quality = Set ; Bul-Kathos' Sacred Charge
+;Name = Mythical Sword : Quality = Set ; Bul-Kathos' Tribal Guardian
+
+;Cow King's Leathers
+
+;Name = War Hat : Quality = Set ; Cow King's Horns
+;Name = Studded Leather : Quality = Set ; Cow King's Hide
+;Name = Heavy Boots : Quality = Set : Dexterity = 20 : itemmagicbonus = 25 ; Cow King's Hooves
+
+;-The Disciple-
+
+;Type = amulet : Quality = Set : item all skills = 1 : cold resist = 18 ; Telling of Beads
+;Name = Bramble Mitts : Quality = Set ; Laying of Hands
+;Name = Dusk Shroud : Quality = Set ; Dark Adherent
+;Name = Demonhide Boots : Quality = Set ; Rite of Passage
+;Name = Mithril Coil : Quality = Set ; Credendum
+
+;-Griswold's Legacy-
+
+;Name = Ornate Plate : Quality = Set ; Griswold's Heart
+;Name = Corona : Quality = Set ; Griswold's Valor
+;Name = Caduceus : Quality = Set ; Griswold's Redemption
+;Name = Vortex Shield : Quality = Set ; Griswold's Honor
+
+;-Heaven's Brethren-
+
+;Name = Cuirass : Quality = Set ; Haemosu's Adamant
+;Name = Reinforced Mace : Quality = Set ; Dangoon's Teaching
+;Name = Ward : Quality = Set ; Taebaek's Glory
+;Name = Spired Helm : Quality = Set ; Ondal's Almighty
+
+;-Hwanin's Majesty-
+
+;Name = Grand Crown : Quality = Set ; Hwanin's Splendor
+;Name = Bill : Quality = Set ; Hwanin's Justice
+;Name = Tigulated Mail : Quality = Set ; Hwanin's Refuge
+;Name = Belt : Quality = Set : lightmindam = 3 : lightmaxdam = 33 ; Hwanin's Blessing
+
+;-Immortal King-
+
+;Name = War Belt : Quality = Set ; Immortal King's Detail
+;Name = Avenger Guard : Quality = Set ; Immortal King's Will
+;Name = Ogre Maul : Quality = Set ; Immortal King's Stone Crusher
+;Name = Sacred Armor : Quality = Set ; Immortal King's Soul Cage
+;Name = War Gauntlets : Quality = Set ; Immortal King's Forge
+;Name = War Boots : Quality = Set ; Immortal King's Pillar
+
+;-M'avina's Battle Hymn-
+
+Name = Diadem : Quality = Set ; M'avina's True Sight
+;Name = Grand Matron Bow : Quality = Set ; M'avina's Caster
+;Name = Kraken Shell : Quality = Set ; M'avina's Embrace
+;Name = Battle Gauntlets : Quality = Set ; M'avina's Icy Clutch
+;Name = Sharkskin Belt : Quality = Set ; M'avina's Tenet
+
+;-Natalya's Odium-
+
+;Name = Grim Helm : Quality = Set ; Natalya's Totem
+Name = Scissors Suwayyah : Quality = Set ; Natalya's Mark
+;Name = Loricated Mail : Quality = Set ; Natalya's Shadow
+;Name = Mesh Boots : Quality = Set ; Natalya's Soul
+
+;-Naj's Ancient Vestige-
+
+;Name = Circlet : Quality = Set ; Naj's Circlet
+;Name = Hellforge Plate : Quality = Set ; Naj's Light Plate
+;Name = Elder Staff : Quality = Set ; Naj's Puzzler
+
+;-Orphan's Call-
+
+;Name = Winged Helm : Quality = Set ; Guillaume's Face
+;Name = Round Shield : Quality = Set ; Whistan's Guard
+;Name = Sharkskin Gloves : Quality = Set ; Magnus' Skin
+;Name = Battle Belt : Quality = Set ; Wilhelm's Pride
+
+;-Sander's Folly-
+
+;Name = Cap : Quality = Set : itemmagicbonus = 35 ; Sander's Paragon
+;Name = Bone Wand : Quality = Set ; Sander's Superstition
+;Name = Heavy Gloves : Quality = Set : MaxHP=40 ; Sander's Taboo
+;Name = Heavy Boots : Quality = Set : Dexterity = 10 : strength = 5 ; Sander's Riprap
+
+;-Sazabi's Grand Tribute-
+
+;Name = Basinet : Quality = Set ; Sazabi's Mental Sheath
+;Name = Cryptic Sword : Quality = Set ; Sazabi's Cobalt Redeemer
+;Name = Balrog Skin : Quality = Set ; Sazabi's Ghost Liberator
+
+;-Tal Rasha's Wrappings-
+
+;Name = Swirling Crystal : Quality = Set ; Tal Rasha's Lidless Eye
+;Name = Death Mask : Quality = Set ; Tal Rasha's Horadric Crest
+Name = Lacquered Plate : Quality = Set ; Tal Rasha's Guardianship
+;Type = amulet : Quality = Set : Sorceress Skills = 2 ; Tal Rasha's Adjucation
+;Name = Mesh Belt : Quality = Set : itemmagicbonus = 15 ; Tal Rasha's Fine-Spun Cloth
+
+;-Trang-Oul's Avatar-
+
+;Name = Bone Visage : Quality = Set ; Trang-Oul's Guise
+;Name = Chaos Armor : Quality = Set ; Trang-Oul's Scales
+;Name = Cantor Trophy : Quality = Set ; Trang-Oul's Wing
+;Name = Troll Belt : Quality = Set ; Trang-Oul's Girth
+;Name = Heavy Bracers : Quality = Set ; Trang-Oul's Claws

@@ -1,0 +1,239 @@
+; ===== 수정 : 파랑 =====
+
+;=================  circlet===================
+
+;2클래스스킬패캐 ㅡ 레어포함
+Type = 75 : Quality >=4 : Assassinskills = 2 : FCR = 20 ;
+Type = 75 : Quality >=4 : Amazonskills = 2 : FCR = 20;
+type = 75 : Quality >=4 : Sorceressskills = 2 : FCR = 20 ;
+Type = 75 : Quality >=4 : Necromancerskills = 2 : FCR = 20 ;
+Type = 75 : Quality >=4 : Paladinskills = 2 : FCR = 20 ;
+Type = 75 : Quality >=4 : druidskills = 2 : FCR = 20 ;
+;2클래스스킬피
+Type = 75 : Quality = 4 : Assassinskills = 2 : 7 >= 95
+Type = 75 : Quality =4 : Amazonskills = 2  : 7 >= 95
+type = 75 : Quality = 4 : Sorceressskills = 2  : 7>= 95
+Type = 75 : Quality = 4 : Necromancerskills = 2  : 7 >= 95
+Type = 75 : Quality =4 : Paladinskills = 2 : 7>= 95
+Type = 75 : Quality =4 : druidskills = 2  : 7 >= 95
+
+;3부분스킬패캐
+Type = 75 : Quality = 4 : coldskilltab = 3 : FCR = 20 ;
+Type = 75 : Quality = 4 : lightningskilltab =3 : FCR = 20 ;
+Type = 75 : Quality = 4 : fireskilltab = 3 : FCR = 20 ;
+Type = 75 : Quality = 4 : palicombatskilltab =  3 : FCR = 20 ; 
+Type = 75 : Quality = 4 : poisonandboneskilltab >= 2 : FCR = 20 ;
+Type = 75 : Quality = 4 : elementalskilltab = 3 : FCR = 20 ;
+Type = 75 : Quality = 4 : trapsskilltab = 3 : FCR = 20 ;
+Type = 75 : Quality = 4 : Shadowdisciplinesskilltab = 3 : FCR = 20 ;
+Type = 75 : Quality = 4 : necromancersummoningskilltab = 3 : FCR = 20 ;
+
+;3부분스킬피
+Type = 75 : Quality = 4 : coldskilltab = 3 : 7>= 95 ;
+Type = 75 : Quality = 4 : lightningskilltab =3 : 7 >= 95 ;   
+Type = 75 : Quality = 4 : fireskilltab = 3 : 7>= 95 ;
+Type = 75 : Quality = 4 : palicombatskilltab =  3 : 7 >= 95 ;        
+Type = 75 : Quality = 4 : poisonandboneskilltab = 3 : 7 >= 95 ;        
+Type = 75 : Quality = 4 : elementalskilltab = 3 :7>= 95 ;        
+Type = 75 : Quality = 4 : trapsskilltab = 3 : 7>= 95 ;    
+Type = 75 : Quality = 4 : Shadowdisciplinesskilltab = 3 : 7>= 95 ;    
+
+;매직달려
+Type = 75 : Quality >= 4 : Amazonskills = 2 : FRW = 30; 레어포함
+Type = 75 : Quality = 4 :passiveandmagicskilltab = 3 : FRW = 30 ;
+
+;달려 올레
+Type = 75 : Quality = 4 : FRW = 30:39>=20 : 41>=20
+;30달려100마나
+Type = 75 : Quality = 4 : FRW = 30 : 9>= 100;  
+
+;3소켓
+Type = 75 : Quality = 4 : 194 = 3 : 7>= 60;  
+Type = 75 : Quality = 4 : 194 = 3 :2>=20
+Type = 75 : Quality = 4 : 194 = 3 :0>=20
+
+Type = 75 : Quality = 4 : 194 = 3 :21=13
+Type = 75 : Quality = 4 : 194 = 3 :22=12
+
+Type = 75 : Quality = 4 : 194 = 3 :60 >=3
+Type = 75 : Quality = 4 : 194 = 3 :62 >=3
+
+Type = 75 : Quality = 4 : 194 = 3 :FRW >= 20 
+Type = 75 : Quality = 4 : 194 = 3 :FCR = 20 
+
+Type = 75 : Quality = 4 : 194 = 3 :79 >=70
+Type = 75 : Quality = 4 : 194 = 3 :80=35
+Type = 75 : Quality = 4 : 194 = 3 : 216>=1 : 217>=1 ;6년째임신중님
+
+
+;========jeweler's armor
+
+;[Gothic Plate m]
+Name = gth : Quality=4:194=4 : 7 >=80
+
+;[Full Plate Mail m]
+Name = ful : Quality=4:194=4 : 7 >=80
+
+;[Ancient Armor m]
+Name = aar : Quality=4:194=4 : 7 >=80
+
+;[Chaos Armor m]
+Name = xul : Quality=4:194=4 : 7 >=80
+
+;[Embossed Plate m]
+Name = xth : Quality=4:194=4 : 7 >=80
+
+;[Ornate Plate m]
+Name = xar : Quality=4:194=4 : 7 >=80
+
+;[Dusk Shroud m]
+Name = uui : Quality=4:194=4 : 7 >=80
+Name = uui : Quality=4:194=4 : 99=24
+
+;[Wyrmhide m]
+Name = uea : Quality=4:194=4 :7 >=80
+Name = uea : Quality=4:194=4 : 99=24
+
+;[Scarab Husk m]
+Name = ula : Quality=4:194=4 : 7 >=80
+Name = ula : Quality=4:194=4 : 99=24
+
+;[Wire Fleece  m]
+Name = utu : Quality=4:194=4 : 7 >=80
+Name = utu : Quality=4:194=4 : 99=24
+
+;[Great Hauberk m]
+Name = urs : Quality=4:194=4 : 7 >=80
+Name = urs : Quality=4:194=4 : 99=24
+
+;[Boneweave m]
+Name = uhn : Quality=4:194=4 : 7 >=80
+
+;[Balrog Skin m]
+Name = upl : Quality=4:194=4 : 7>=80
+
+;[Kraken Shell m]
+Name = uld : Quality=4:194=4 :7 >=80
+
+;[Lacquered Plate m]
+Name = uth : Quality=4:194=4 : 7 >=80
+
+;[Sacred Armor m]
+Name = uar : Quality=4:194=4 : 7 >=80
+Name = uar : Quality=4:194=4 : 99=24
+Name = uar : Quality=4:194=4 :110=75
+
+;[Archon Plate m]
+Name = utp : Quality=4:194=4 : 7 >=80
+Name = utp : Quality=4:194=4 : 99=24
+Name = utp : Quality=4:194=4 :110=75
+
+;====4s monarch======
+;[magic monarch 4] 쌍패모넉 지금은 반패입니다. 쌍패만 원하시는 분은 102 >= 30
+Name = uit : Quality= 4 :194=4 : 102 >= 15
+;피
+Name = uit : Quality= 4 :194=4 : 7 >= 40
+;리콰
+Name = uit : Quality= 4 :194=4 : 91=-20
+Name = uit : Quality= 4 :194=4 : 91=-30
+
+;[magic Aegis 4]
+Name = uow : Quality= 4 :194=4 : 102 = 30
+
+;[magic Ward 4]
+Name = uts : Quality= 4 :194=4 : 102 = 30
+
+;[magic Sacred Targe] 
+Name = pab: Quality =4 :  194=4 : 102=30
+Name = pab: Quality =4 :  Paladin skills = 2 : 102>=30; 
+Name = pab: Quality =4 :  palicombatskilltab >= 2 : 102>=30; 
+
+;[magic Sacred Rondache] 
+Name = pac: Quality =4 :  194=4 : 102=30
+Name = pac: Quality =4 :  Paladin skills = 2 : 102>=30; 
+Name = pac: Quality =4 :  palicombatskilltab >= 2 : 102>=30; 
+
+;[magic Kurast Shield] 
+Name = pad: Quality =4 :  194=4 : 102=30
+Name = pad: Quality =4 :  Paladin skills = 2 : 102>=30; 
+Name = pad: Quality =4 :  palicombatskilltab >= 2 : 102>=30; 
+
+;[magic Zakarum Shield] 
+Name = pae: Quality =4 :  194=4 : 102=30
+Name = pae: Quality =4 :  Paladin skills = 2 : 102>=30; 
+Name = pae: Quality =4 :  palicombatskilltab >= 2 : 102>=30; 
+
+;[magic Vortex Shield] 
+Name = paf: Quality =4 :  194=4 : 102=30
+Name = paf: Quality =4 :  Paladin skills = 2 : 102>=30; 
+Name = paf: Quality =4 :  palicombatskilltab >= 2 : 102>=30; 
+
+;=====매직클러
+
+;트랩씬용 ㅡ 레어포함
+type=67 : Quality >=4 : assassinskills = 2 : skilllightningsentry = 3 ;        
+type=67 : Quality >=4 : trapsskilltab >=2 : skilllightningsentry >= 2 ;        
+type=88 : Quality >=4 : assassinskills = 2 : skilllightningsentry = 3 ;        
+type=88 : Quality >=4 : trapsskilltab >=2 : skilllightningsentry >= 2 ;        
+
+type=67 : Quality >= 4 : shadowdisciplinesskilltab>=2 : skillshadowmaster= 3 :skillweaponblock = 3       
+type=88 : Quality >= 4 : shadowdisciplinesskilltab>=2 : skillshadowmaster= 3 :skillweaponblock = 3       
+
+;풀스퀵 ㅡ 상악용
+type=67  : Quality = 4 : 224>=33 : 218>=4 : 93>=40
+type=88  : Quality = 4 : 224>=33 : 218>=4 : 93>=40
+
+;===================== 절취선 ============================
+
+
+;네크방패 ㅡ 레어포함
+type=69 : Quality >= 4 : poisonandboneskilltab >= 2: skillBone Spear >= 2  
+type=69 : Quality >= 4 : poisonandboneskilltab >= 2: skillBone Spirit >= 2
+type=69 : Quality >= 4 : poisonandboneskilltab >= 2: skillPoison Nova >= 2
+
+type=69 : Quality >= 4 : Necromancerskills = 2: skillBone Spear = 3 
+type=69 : Quality >= 4 : Necromancerskills = 2: skillBone Spirit = 3
+type=69 : Quality >= 4 : Necromancerskills = 2: skillPoison Nova = 3
+
+type=69 : Quality >= 4 : Necromancerskills = 2: skillraiseskeleton = 3
+type=69 : Quality >= 4 : Necromancerskills = 2: skillgolemmastery  = 3
+type=69 : Quality >= 4 : Necromancerskills = 2: skillskeletonmastery  = 3
+
+type=69 : Quality >= 4 : necromancersummoningskilltab >= 2: skillraiseskeleton = 3
+type=69 : Quality >= 4 : necromancersummoningskilltab >= 2: skillgolemmastery  = 3
+type=69 : Quality >= 4 : necromancersummoningskilltab >= 2: skillskeletonmastery  = 3
+
+
+;매직드루 ㅡ 레어 포함
+type=72 : Quality >= 4  : Druidskills = 2 : skilltornado=3; 
+type=72 : Quality >= 4  : elementalskilltab>= 2: skilltornado=3; 
+
+;매직 바바
+Type = 71 : Quality = 4: barbarianskills = 2  :79 >=70
+Type = 71 : Quality = 4: barbarianskills = 2  : skillbattleorders = 3
+
+Type = 71 : Quality = 4: warcriesskilltab = 3 :79 >=70
+Type = 71 : Quality = 4: warcriesskilltab = 3 : skillbattleorders = 3
+
+;[magic Orb] ㅡ 레어포함
+type=68     : Quality >= 4 :Sorceressskills=2:skilllightning=3:skilllightningmastery=3
+type=68     : Quality >= 4 :Sorceressskills=2:skillchainlightning=3:skilllightningmastery=3
+type=68     : Quality >= 4 :Sorceressskills=2:skillenchant=3:skillfiremastery=3
+type=68     : Quality >= 4 :Sorceressskills=2:skillenchant=3 
+type=68     : Quality >= 4 :Sorceressskills=2:skillfireball=3 :skillfiremastery=3
+type=68     : Quality >= 4 :Sorceressskills=2:skillmeteor=3 :skillfiremastery=3
+type=68     : Quality >= 4 :Sorceressskills=2:skillblizzard=3:skillcoldmastery=3
+
+type=68     : Quality >= 4 :lightningskilltab>=2:skilllightning=3:skilllightningmastery=3
+type=68     : Quality >= 4 :lightningskilltab>=2:skillchainlightning=3:skilllightningmastery=3
+type=68     : Quality >= 4 :fireskilltab>=2:skillenchant=3:skillfiremastery=3
+type=68     : Quality >= 4 :fireskilltab>=2:skillenchant=3
+type=68     : Quality >= 4 :fireskilltab>=2:skillfireball=3 :skillfiremastery=3
+type=68     : Quality >= 4 :fireskilltab>=2:skillmeteor=3 :skillfiremastery=3
+type=68     : Quality >= 4 :coldskilltab>=2:skillblizzard=3:skillcoldmastery=3
+
+
+;함성칼 
+Name = crs  : Quality =4 : warcriesskilltab = 3 ;크리소드
+Name = 7gd  : Quality =4 : warcriesskilltab = 3 ;콜블
+

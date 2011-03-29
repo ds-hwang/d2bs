@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1215;
+var ntbotRevision = 1217;
 
 js_strict(true);
 

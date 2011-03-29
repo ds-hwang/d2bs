@@ -1,0 +1,4 @@
+Type = armor : Quality = magic : Dexterity = 1000
+Type = sorceressitem : Quality = magic : dexterity = 1000
+Type = Necromancer Item	: Quality >= magic : dexterity = 1000
+Type = sorceressitem : Quality = rare : dexterity = 1000

@@ -1,0 +1,27 @@
+Type = assassinitem : Quality = Magic : assassinskills = 2 : skilllightningsentry = 3
+Type = assassinitem : Quality = Magic : trapsskilltab = 3 : skilllightningsentry >= 2
+Type = assassinitem : Quality = Magic : trapsskilltab = 2 : skilllightningsentry = 3
+Type = assassinitem : Quality = Magic : assassinskills = 2 : skilllightningsentry = 3
+Type = assassinitem : Quality = Magic : 93 >= 20 : skilllightningsentry >= 2
+Type = assassinitem : Quality = Magic : 93 >= 20 : skillfade >= 2
+Type = assassinitem : Quality = Magic : 93 >= 20 : skillmindblast >= 2
+Type = assassinitem : Quality = Magic : 93 >= 20 : skillvenom >= 2
+Type = assassinitem : Quality = Magic : 93 >= 20 : maxdamage >= 10
+Type = assassinitem : Quality = Magic : 93 >= 20 : attackrate >= 700
+
+Type = assassinclaw : Quality = Magic : assassinskills = 2 : skilllightningsentry = 3
+Type = assassinclaw : Quality = Magic : trapsskilltab = 3 : skilllightningsentry >= 2
+Type = assassinclaw : Quality = Magic : trapsskilltab = 2 : skilllightningsentry = 3
+Type = assassinclaw : Quality = Magic : assassinskills = 2 : skilllightningsentry = 3
+Type = assassinclaw : Quality = Magic : 93 >= 20 : skilllightningsentry >= 2
+Type = assassinclaw : Quality = Magic : 93 >= 20 : skillfade >= 2
+Type = assassinclaw : Quality = Magic : 93 >= 20 : skillmindblast >= 2
+Type = assassinclaw : Quality = Magic : 93 >= 20 : skillvenom >= 2
+Type = assassinclaw : Quality = Magic : 93 >= 20 : maxdamage >= 10
+Type = assassinclaw : Quality = Magic : 93 >= 20 : attackrate >= 700
+
+
+Type = Armor : Quality = Magic : maxhp >= 60 : fhr = 24
+Type = Armor : Quality = Magic : maxhp >= 60 : sockets = 3
+Type = Armor : Quality = Magic : maxhp >= 81 : sockets = 4
+Type = Armor : Quality = Magic : fhr = 24 : sockets = 4
