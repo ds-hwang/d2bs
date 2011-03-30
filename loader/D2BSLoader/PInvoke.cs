@@ -82,8 +82,45 @@
 		public uint UniqueProcessId;
 		public uint InheritedFromUniqueProcessId;
 	}
+
 	public static class NTDll
 	{
+		[StructLayout(LayoutKind.Sequential)]
+		private struct NtCreateThreadExBuffer
+		{
+			public int Size;
+			public ulong Unknown1;
+			public ulong Unknown2;
+			public IntPtr Unknown3;
+			public ulong Unknown4;
+			public ulong Unknown5;
+			public ulong Unknown6;
+			public IntPtr Unknown7;
+			public ulong Unknown8;
+		};
+
+		public static IntPtr CreateRemoteThread(IntPtr address, IntPtr param, IntPtr handle)
+		{
+			NtCreateThreadExBuffer buff = new NtCreateThreadExBuffer();
+			buff.Size = Marshal.SizeOf(buff);
+			buff.Unknown1 = 0x10003;
+			buff.Unknown2 = 0x8;
+			buff.Unknown3 = Marshal.AllocHGlobal(4);
+			buff.Unknown4 = 0;
+			buff.Unknown5 = 0x10004;
+			buff.Unknown6 = 4;
+			buff.Unknown7 = Marshal.AllocHGlobal(4);
+			buff.Unknown8 = 0;
+
+			IntPtr hthread = IntPtr.Zero;
+			IntPtr ntstatus = NtCreateThreadEx(out hthread, 0x1FFFFF, IntPtr.Zero, handle, address, param, false, 0, 0, 0, out buff);
+
+			if(hthread == IntPtr.Zero)
+				throw new Win32Exception(Marshal.GetLastWin32Error());
+			else
+				return hthread;
+		}
+
 		[DllImport("ntdll.dll")]
 		private static extern int NtQueryInformationProcess(IntPtr hProcess, int processInformationClass, ref PROCESS_BASIC_INFORMATION processBasicInformation, uint processInformationLength, out uint returnLength);
 		public static bool ProcessIsChildOf(Process parent, Process child)
@@ -97,6 +134,15 @@
 			} catch { return false; }
 			return false;
 		}
+
+		[DllImport("ntdll.dll", SetLastError = true, ExactSpelling = true)]
+		private static extern IntPtr NtCreateThreadEx(out IntPtr outhThread,
+			int inlpvDesiredAccess, IntPtr lpObjectAttributes, IntPtr inhProcessHandle,
+			IntPtr lpStartAddress,
+			IntPtr lpParameter, bool inCreateSuspended, 
+			ulong inStackZeroBits, ulong inSizeOfStackCommit, ulong inSizeOfStackReserve, 
+			[MarshalAs(UnmanagedType.Struct)] out NtCreateThreadExBuffer outlpvBytesBuffer);
+	   
 	}
 
 	public static class User32
@@ -162,6 +208,7 @@
 		{
 			IntPtr moduleHandle = FindModuleHandle(p, module);
 			IntPtr offset = FindOffset(module, function);
+
 			if(moduleHandle == IntPtr.Zero || offset == IntPtr.Zero)
 				return false;
 
@@ -169,7 +216,7 @@
 			if(address != IntPtr.Zero)
 			{
 				IntPtr result = CreateRemoteThread(p, address, param, CreateThreadFlags.RunImmediately);
-				if(result != IntPtr.Zero)
+				if (result != IntPtr.Zero)
 					WaitForSingleObject(result, UInt32.MaxValue);
 				return result != IntPtr.Zero;
 			}
@@ -261,11 +308,24 @@
 		public static IntPtr CreateRemoteThread(Process p, IntPtr address, IntPtr param, CreateThreadFlags flags)
 		{
 			IntPtr handle = GetProcessHandle(p, ProcessAccessFlags.CreateThread | ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMOperation | ProcessAccessFlags.VMRead | ProcessAccessFlags.VMWrite);
+
+			try {
+				if(Environment.OSVersion.Version.Major >= 6) {
+					return NTDll.CreateRemoteThread(address, param, handle);
+				} else {
+					return CreateRemoteThread(address, param, flags, handle);
+				}
+			} finally { CloseProcessHandle(handle); }
+		}
+
+		private static IntPtr CreateRemoteThread(IntPtr address, IntPtr param, CreateThreadFlags flags, IntPtr handle)
+		{
 			IntPtr thread = CreateRemoteThread(handle, IntPtr.Zero, (uint)0, address, param, (uint)flags, IntPtr.Zero);
+
 			if(thread == IntPtr.Zero)
 				throw new Win32Exception(Marshal.GetLastWin32Error());
-			CloseProcessHandle(handle);
-			return thread;
+			else
+				return thread;
 		}
 
 		[DebuggerHidden]
