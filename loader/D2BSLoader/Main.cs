@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.Diagnostics;
-using System.IO;
 using System.Configuration;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
 
 namespace D2BSLoader
 {
@@ -136,7 +135,7 @@ namespace D2BSLoader
 
 				foreach(Process p in Process.GetProcesses())
 				{
-					if(processes.Exists(x => p.Id == x.Process.Id))
+					if(BindingListExtensions.Exists(processes, x => p.Id == x.Process.Id))
 						continue;
 
 					if(IsD2Window(p))
@@ -164,7 +163,8 @@ namespace D2BSLoader
 				return false;
 			string classname = GetLCClassName(p);
 			string moduleName = "";
-			try { moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant(); } catch { }
+			try { moduleName = Path.GetFileName(p.MainModule.FileName).ToLowerInvariant(); }
+			catch { }
 			return !String.IsNullOrEmpty(classname) && classname == "diablo ii" &&
 						(moduleName == "game.exe" || moduleName.Contains("d2loader") ||
 						 moduleName.Contains("d2launcher"));
@@ -351,7 +351,7 @@ namespace D2BSLoader
 			psi.WorkingDirectory = D2Path;
 			Process p = Process.Start(psi);
 			System.Threading.Thread.Sleep(LoadDelay);
-			Process[] children = p.GetChildProcesses();
+			Process[] children = ProcessExtensions.GetChildProcesses(p);
 			if(children.Length > 0)
 			{
 				foreach(Process child in children)
@@ -410,7 +410,7 @@ namespace D2BSLoader
 
 	static class BindingListExtensions
 	{
-		public static void RemoveAll<T>(this BindingList<T> list, Predicate<T> pred)
+		public static void RemoveAll<T>(BindingList<T> list, Predicate<T> pred)
 		{
 			for(int i = 0; i < list.Count; i++)
 			{
@@ -418,7 +418,7 @@ namespace D2BSLoader
 					list.RemoveAt(i);
 			}
 		}
-		public static bool Exists<T>(this BindingList<T> list, Predicate<T> pred)
+		public static bool Exists<T>(BindingList<T> list, Predicate<T> pred)
 		{
 			foreach(T obj in list)
 				if(pred(obj))
@@ -428,7 +428,7 @@ namespace D2BSLoader
 	}
 	static class ProcessExtensions
 	{
-		public static Process[] GetChildProcesses(this Process process)
+		public static Process[] GetChildProcesses(Process process)
 		{
 			List<Process> children = new List<Process>();
 			Process[] processes = Process.GetProcesses();
