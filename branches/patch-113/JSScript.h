@@ -17,13 +17,6 @@ JSAPI_FUNC(script_pause);
 JSAPI_FUNC(script_resume);
 JSAPI_FUNC(my_getScript);
 
-static JSClass script_class = {
-    "D2BSScript",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    NULL, NULL, NULL, script_ctor
-};
-
 enum script_tinyid {
 	SCRIPT_FILENAME,
 	SCRIPT_GAMETYPE,

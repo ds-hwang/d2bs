@@ -29,13 +29,6 @@ struct ControlData {
 	DWORD	dwSizeY;
 };
 
-static JSClass control_class = {
-    "Control",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, control_finalize,
-    NULL, NULL, NULL, control_ctor
-};
-
 enum control_tinyid {
 	CONTROL_TEXT		= -1,
 	CONTROL_X			= -2,

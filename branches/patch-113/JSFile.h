@@ -28,19 +28,6 @@ JSAPI_FUNC(file_end);
 
 void file_finalize(JSContext *cx, JSObject *obj);
 
-static JSClass file_class = {
-	"File", JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, file_finalize,
-	NULL, NULL, NULL, file_ctor, NULL, NULL, NULL, NULL
-};
-
-static JSExtendedClass file_class_ex = {
-	file_class,
-	file_equality,
-	NULL, NULL, NULL, NULL
-};
-
 /**
 File object:
 

@@ -1,6 +1,5 @@
 #include "JSUnit.h"
 #include "D2Helpers.h"
-//#include "D2Ptrs.h"
 #include "Constants.h"
 #include "Helpers.h"
 #include "Unit.h"
@@ -38,30 +37,15 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 
 JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 {
-	*bp = JS_FALSE;
-
-	myUnit* unit1 = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
-	if(!JSVAL_IS_OBJECT(v))
-		return JS_TRUE;
-
-	JSObject *obj2 = JSVAL_TO_OBJECT(v);
-	if(obj2 == NULL)
-		return JS_TRUE;
-
-	JSClass* c1 = JS_GET_CLASS(cx, obj);
-	JSClass* c2 = JS_GET_CLASS(cx, obj2);
-	if(!obj2 || _strcmpi(c1->name, c2->name) != 0)
-		return JS_TRUE;
-
-	myUnit* unit2 = (myUnit*)JS_GetPrivate(cx, obj2);
-
-	UnitAny* pUnit1 = D2CLIENT_FindUnit(unit1->dwUnitId, unit1->dwType);
-	UnitAny* pUnit2 = D2CLIENT_FindUnit(unit2->dwUnitId, unit2->dwType);
-
-	if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
-		return JS_TRUE;
-
-	*bp = JS_TRUE;
+	if(ClientState() == ClientStateInGame) {
+		*bp = JS_InstanceOf(cx, obj, global_classes[0].js_class, NULL);
+		myUnit* one = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
+		myUnit* two = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
+		UnitAny* pUnit1 = D2CLIENT_FindUnit(one->dwUnitId, one->dwType);
+		UnitAny* pUnit2 = D2CLIENT_FindUnit(two->dwUnitId, two->dwType);
+		if(!pUnit1 || !pUnit2 || pUnit1->dwUnitId != pUnit2->dwUnitId)
+			*bp = JS_FALSE;
+	}
 	return JS_TRUE;
 }
 

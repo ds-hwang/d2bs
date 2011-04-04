@@ -12,13 +12,6 @@ JSAPI_PROP(presetunit_getProperty);
 JSAPI_FUNC(my_getPresetUnit);
 JSAPI_FUNC(my_getPresetUnits);
 
-static JSClass presetunit_class = {
-    "PresetUnit",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, presetunit_finalize,
-    NULL, NULL, NULL, presetunit_ctor
-};
-
 enum presetunit_tinyid {
 	PUNIT_TYPE,			// 0
 	PUNIT_ROOMX,		// 1
@@ -28,7 +21,6 @@ enum presetunit_tinyid {
 	PUNIT_ID,			// 5
 	PUINT_LEVEL			// 6
 };
-
 
 static JSPropertySpec presetunit_props[] = {
 	{"type",		PUNIT_TYPE,			JSPROP_PERMANENT_VAR,	presetunit_getProperty},

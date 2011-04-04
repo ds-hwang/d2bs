@@ -10,6 +10,7 @@
 #include "Constants.h"
 #include "D2BS.h"
 #include "Console.h"
+#include "D2Ptrs.h"
 
 using namespace std;
 
@@ -345,10 +346,9 @@ JSBool contextCallback(JSContext* cx, uintN contextOp)
 		lpUnit->dwUnitId = player ? player->dwUnitId : NULL;
 		lpUnit->_dwPrivateType = PRIVATE_UNIT;
 
-		int i = 0;
-		for(JSClassSpec entry = global_classes[0]; entry.js_class != NULL; i++, entry = global_classes[i])
-			ScriptEngine::InitClass(cx, globalObject, entry.js_class, entry.funcs, entry.props,
-										entry.static_funcs, entry.static_props);
+		for(JSClassSpec* entry = global_classes; entry->js_class != NULL; entry++)
+			ScriptEngine::InitClass(cx, globalObject, entry->js_class, entry->funcs, entry->props,
+										entry->static_funcs, entry->static_props);
 
 		JSObject* meObject = BuildObject(cx, &unit_class_ex.base, unit_methods, me_props, lpUnit);
 		if(!meObject)

@@ -13,13 +13,6 @@ JSAPI_FUNC(frame_ctor);
 JSAPI_PROP(frame_getProperty);
 JSAPI_PROP(frame_setProperty);
 
-static JSClass frame_class = {
-    "Frame",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
-	NULL, NULL, NULL, frame_ctor, NULL, NULL, NULL, NULL
-};
-
 enum frame_tinyid {
 	FRAME_X,
 	FRAME_Y,
@@ -56,13 +49,6 @@ static JSFunctionSpec frame_methods[] = {
 JSAPI_FUNC(box_ctor);
 JSAPI_PROP(box_getProperty);
 JSAPI_PROP(box_setProperty);
-
-static JSClass box_class = {
-    "Box",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
-	NULL, NULL, NULL, box_ctor, NULL, NULL, NULL, NULL
-};
 
 enum box_tinyid {
 	BOX_X,
@@ -106,13 +92,6 @@ JSAPI_FUNC(line_ctor);
 JSAPI_PROP(line_getProperty);
 JSAPI_PROP(line_setProperty);
 
-static JSClass line_class = {
-    "Line",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
-	NULL, NULL, NULL, line_ctor, NULL, NULL, NULL, NULL
-};
-
 enum line_tinyid {
 	LINE_X,
 	LINE_Y,
@@ -149,13 +128,6 @@ static JSFunctionSpec line_methods[] = {
 JSAPI_FUNC(text_ctor);
 JSAPI_PROP(text_getProperty);
 JSAPI_PROP(text_setProperty);
-
-static JSClass text_class = {
-    "Text",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
-	NULL, NULL, NULL, text_ctor, NULL, NULL, NULL, NULL
-};
 
 enum text_tinyid {
 	TEXT_X,
@@ -195,13 +167,6 @@ static JSFunctionSpec text_methods[] = {
 JSAPI_FUNC(image_ctor);
 JSAPI_PROP(image_getProperty);
 JSAPI_PROP(image_setProperty);
-
-static JSClass image_class = {
-    "Image",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, hook_finalize,
-	NULL, NULL, NULL, image_ctor, NULL, NULL, NULL, NULL
-};
 
 enum image_tinyid {
 	IMAGE_X,

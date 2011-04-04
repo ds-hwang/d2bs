@@ -20,13 +20,6 @@ JSAPI_FUNC(room_reveal);
 
 JSAPI_FUNC(my_getRoom);
 
-static JSClass room_class = {
-    "Room", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    NULL, NULL, NULL, room_ctor
-};
-
 enum room_tinyid {
 	ROOM_NUM, 
 	ROOM_XPOS, 

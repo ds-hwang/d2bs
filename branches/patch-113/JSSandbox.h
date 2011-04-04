@@ -23,14 +23,6 @@ struct sandbox {
 	IncludeList list;
 };
 
-static JSClass sandbox_class = {
-	"Sandbox",
-	JSCLASS_HAS_PRIVATE,
-	sandbox_addProperty, sandbox_delProperty, sandbox_getProperty, sandbox_setProperty,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sandbox_finalize,
-	NULL, NULL, NULL, sandbox_ctor, NULL, NULL, NULL, NULL
-};
-
 static JSFunctionSpec sandbox_methods[] = {
 	{"evaluate",	sandbox_eval,		1},
 	{"include",		sandbox_include,	1},

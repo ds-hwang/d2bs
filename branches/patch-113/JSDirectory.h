@@ -24,13 +24,6 @@ void dir_finalize(JSContext *cx, JSObject *obj);
 // directory stuff
 //////////////////////////////////////////////////////////////////
 
-static JSClass folder_class = {
-	"Folder", JSCLASS_HAS_PRIVATE,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, dir_finalize,
-    NULL, NULL, NULL, dir_ctor
-};
-
 enum {DIR_NAME};
 
 static JSPropertySpec dir_props[] = {

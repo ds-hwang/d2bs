@@ -3,6 +3,7 @@
 
 #include "js32.h"
 #include "sqlite3.h"
+#include "JSGlobalClasses.h"
 
 JSAPI_FUNC(my_sqlite_version);
 JSAPI_FUNC(my_sqlite_memusage);
@@ -44,19 +45,6 @@ enum {
 	SQLITE_STMT_READY
 };
 
-static JSClass sqlite_db = {
-	"SQLite",
-	JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_finalize,
-	NULL, NULL, NULL, sqlite_ctor, NULL, NULL, NULL, NULL
-};
-
-static JSExtendedClass sqlite_db_ex = {
-	sqlite_db,
-	sqlite_equal,
-	NULL, NULL, NULL, NULL
-};
 
 static JSFunctionSpec sqlite_methods[] = {
 	{"execute",	sqlite_execute,	1},
@@ -73,14 +61,6 @@ static JSPropertySpec sqlite_props[] = {
 	{"lastRowId",	SQLITE_LASTROWID,	JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{"changes",		SQLITE_CHANGES,		JSPROP_PERMANENT_VAR,	sqlite_getProperty},
 	{0}
-};
-
-static JSClass sqlite_stmt = {
-	"DBStatement",
-	JSCLASS_HAS_PRIVATE,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, sqlite_stmt_finalize,
-	NULL, NULL, NULL, sqlite_stmt_ctor
 };
 
 static JSFunctionSpec sqlite_stmt_methods[] = {

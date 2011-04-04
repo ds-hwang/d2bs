@@ -6,6 +6,7 @@
 #include <list>
 
 #include "js32.h"
+#include "JSGlobalClasses.h"
 #include "AutoRoot.h"
 #include "JSUnit.h"
 
@@ -13,13 +14,6 @@ enum ScriptState {
 	InGame,
 	OutOfGame,
 	Command
-};
-
-static JSClass global_obj = {
-	"global", JSCLASS_GLOBAL_FLAGS,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
 };
 
 class Script;

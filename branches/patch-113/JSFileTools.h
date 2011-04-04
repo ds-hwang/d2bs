@@ -28,13 +28,6 @@ JSAPI_FUNC(filetools_readText);
 JSAPI_FUNC(filetools_writeText);
 JSAPI_FUNC(filetools_appendText);
 
-static JSClass filetools_class = {
-	"FileTools", NULL,
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-	NULL, NULL, NULL, filetools_ctor, NULL, NULL, NULL, NULL
-};
-
 static JSFunctionSpec filetools_s_methods[] = {
 	{"remove",		filetools_remove,		1},
 	{"rename",		filetools_rename,		2},

@@ -72,19 +72,6 @@ enum unit_tinyid
 	ITEM_SUFFIXNUM, ITEM_PREFIXNUM, OBJECT_TYPE, OBJECT_LOCKED
 };
 
-static JSClass unit_class = {
-    "Unit",	JSCLASS_HAS_PRIVATE | JSCLASS_IS_EXTENDED,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, unit_finalize,
-    NULL, NULL, NULL, unit_ctor
-};
-
-static JSExtendedClass unit_class_ex = {
-	unit_class,
-	unit_equal,
-	NULL, NULL, NULL, NULL
-};
-
 enum me_tinyid {
 	ME_ACCOUNT = 90,
 	ME_CHARNAME,

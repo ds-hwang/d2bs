@@ -11,13 +11,6 @@ JSAPI_FUNC(party_getNext);
 
 JSAPI_FUNC(my_getParty);
 
-static JSClass party_class = {
-    "Party",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    NULL, NULL, NULL, party_ctor
-};
-
 enum party_tinyid {
 	PARTY_AREA,
 	PARTY_X,

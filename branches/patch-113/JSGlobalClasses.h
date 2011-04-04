@@ -1,20 +1,6 @@
 #pragma once
 
 #include "js32.h"
-#include "JSFile.h"
-#include "JSSQLite.h"
-#include "JSSandbox.h"
-#include "JSUnit.h"
-#include "JSScreenHook.h"
-#include "JSPresetUnit.h"
-#include "JSDirectory.h"
-#include "JSFileTools.h"
-#include "JSArea.h"
-#include "JSControl.h"
-#include "JSParty.h"
-#include "JSExits.h"
-#include "JSRoom.h"
-#include "JSScript.h"
 
 struct JSClassSpec {
 	JSClass* js_class;
@@ -24,31 +10,29 @@ struct JSClassSpec {
 	JSFunctionSpec* static_funcs;
 };
 
-static JSClassSpec global_classes[] = {
-	/*JSClass*				properties			functions				static props	static funcs */
-	// game objects
-	{&unit_class_ex.base,	unit_props,			unit_methods,			NULL,			NULL},
-	{&presetunit_class,		presetunit_props,	NULL,					NULL,			NULL},
-	{&area_class,			area_props,			NULL,					NULL,			NULL},
-	{&control_class,		control_props,		control_funcs,			NULL,			NULL},
-	{&folder_class,			dir_props,			dir_methods,			NULL,			NULL},
-	{&exit_class,			exit_props,			NULL,					NULL,			NULL},
-	{&party_class,			party_props,		party_methods,			NULL,			NULL},
-	{&room_class,			room_props,			room_methods,			NULL,			NULL},
+extern JSClassSpec global_classes[];
 
-	// utility objects
-	{&file_class_ex.base,	file_props,			file_methods,			NULL,			file_s_methods},
-	{&sqlite_db_ex.base,	sqlite_props,		sqlite_methods,			NULL,			NULL},
-	{&sqlite_stmt,			sqlite_stmt_props,	sqlite_stmt_methods,	NULL,			NULL},
-	{&filetools_class,		NULL,				NULL,					NULL,			filetools_s_methods},
-	{&sandbox_class,		NULL,				sandbox_methods,		NULL,			NULL},
-	{&script_class,			script_props,		script_methods,			NULL,			NULL},
+extern JSClass global_obj;
+extern JSClass sqlite_db;
+extern JSClass sqlite_stmt;
+extern JSClass script_class;
+extern JSClass frame_class;
+extern JSClass box_class;
+extern JSClass line_class;
+extern JSClass text_class;
+extern JSClass image_class;
+extern JSClass sandbox_class;
+extern JSClass room_class;
+extern JSClass presetunit_class;
+extern JSClass party_class;
+extern JSClass filetools_class;
+extern JSClass file_class;
+extern JSClass exit_class;
+extern JSClass folder_class;
+extern JSClass control_class;
+extern JSClass area_class;
+extern JSClass unit_class;
 
-	// screenhook objects
-	{&frame_class,			frame_props,		frame_methods,			NULL,			NULL},
-	{&box_class,			box_props,			box_methods,			NULL,			NULL},
-	{&line_class,			line_props,			line_methods,			NULL,			NULL},
-	{&text_class,			text_props,			text_methods,			NULL,			NULL},
-	{&image_class,			image_props,		image_methods,			NULL,			NULL},
-	{0}
-};
+extern JSExtendedClass unit_class_ex;
+extern JSExtendedClass file_class_ex;
+extern JSExtendedClass sqlite_db_ex;

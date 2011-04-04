@@ -9,13 +9,6 @@ CLASS_CTOR(exit);
 void exit_finalize(JSContext *cx, JSObject *obj);
 JSAPI_PROP(exit_getProperty);
 
-static JSClass exit_class = {
-    "Exit",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, exit_finalize,
-    NULL, NULL, NULL, exit_ctor
-};
-
 enum exit_tinyid {
 	EXIT_X,
 	EXIT_Y,

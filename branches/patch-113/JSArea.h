@@ -12,13 +12,6 @@ JSAPI_PROP(area_getProperty);
 
 JSAPI_FUNC(my_getArea);
 
-static JSClass area_class = {
-    "Area",	JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, area_finalize,
-    NULL, NULL, NULL, area_ctor
-};
-
 enum area_tinyid {
 	AUNIT_EXITS,
 	AUNIT_NAME,
