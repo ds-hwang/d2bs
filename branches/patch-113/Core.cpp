@@ -123,26 +123,13 @@ void __declspec(naked) __fastcall Say_ASM(DWORD dwPtr)
 	}
 }
 
-void Say(const char *szMessage, ...) 
-{ 
-	using namespace std;
-
-	const char REPLACE_CHAR = (char)(unsigned char)0xFE;
-
-	va_list vaArgs;
-	va_start(vaArgs, szMessage);
-	int len = _vscprintf(szMessage, vaArgs);
-	char* szBuffer = new char[len+1];
-	vsprintf_s(szBuffer, len+1, szMessage, vaArgs);
-	va_end(vaArgs);
-
-	replace(szBuffer, szBuffer + len, REPLACE_CHAR, '%');
-
+void Say(const char *szMessage) 
+{
 	Vars.bDontCatchNextMsg = TRUE;
 
 	if(D2CLIENT_GetPlayerUnit())
 	{
-		wchar_t* wBuffer = AnsiToUnicode(szBuffer);
+		/*wchar_t* wBuffer = AnsiToUnicode(szMessage);
 		memcpy((wchar_t*)p_D2CLIENT_ChatMsg, wBuffer, wcslen(wBuffer)*2+1);
 		delete[] wBuffer;
 		wBuffer = NULL;
@@ -158,15 +145,15 @@ void Say(const char *szMessage, ...)
 
 		Say_ASM((DWORD)&aMsg);
 		delete aMsg;
-		aMsg = NULL;
+		aMsg = NULL;*/
+		Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
 	}
 	// help button and ! ok msg for disconnected
 	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
 	{
-		memcpy((char*)p_D2MULTI_ChatBoxMsg, szBuffer, strlen(szBuffer) + 1);
+		memcpy((char*)p_D2MULTI_ChatBoxMsg, szMessage, strlen(szMessage) + 1);
 		D2MULTI_DoChat();
 	}
-	delete[] szBuffer;
 }
 
 bool ClickMap(DWORD dwClickType, int wX, int wY, BOOL bShift, UnitAny* pUnit)

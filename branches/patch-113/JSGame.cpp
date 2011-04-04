@@ -1094,25 +1094,29 @@ JSAPI_FUNC(my_playSound)
 
 JSAPI_FUNC(my_say)
 {
-	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
-	{
-		*rval = JSVAL_FALSE;
-		return JS_TRUE;
-	}
-
 	for(uintN i = 0; i < argc; i++)
 	{
-		if(!JSVAL_IS_NULL(argv[i]) && !JSVAL_IS_VOID(argv[i]))
+		if(!JSVAL_IS_NULL(argv[i]))
 		{
-			char *lpszText = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
-			if(!lpszText)
-				THROW_ERROR(cx, "Could not convert string");
-			std::replace(lpszText, lpszText + strlen(lpszText), '%', (char)(unsigned char)0xFE);
-			Say(lpszText);
+			if(!JS_ConvertValue(cx, argv[i], JSTYPE_STRING, &(argv[i])))
+			{
+				JS_ReportError(cx, "Converting to string failed");
+				return JS_FALSE;
+			}
+
+			char* Text = JS_GetStringBytes(JS_ValueToString(cx, argv[i]));
+			if(Text == NULL)
+			{
+				JS_ReportError(cx, "Could not get string for value");
+				return JS_FALSE;
+			}
+
+			jsrefcount depth = JS_SuspendRequest(cx);
+			if(Text) Say(Text);
+			JS_ResumeRequest(cx, depth);
 		}
 	}
 
-	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
 

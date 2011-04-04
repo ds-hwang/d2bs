@@ -38,7 +38,7 @@ void unit_finalize(JSContext *cx, JSObject *obj)
 JSBool unit_equal(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 {
 	if(ClientState() == ClientStateInGame) {
-		*bp = JS_InstanceOf(cx, obj, global_classes[0].js_class, NULL);
+		*bp = JS_InstanceOf(cx, obj, &unit_class_ex.base, NULL);
 		myUnit* one = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
 		myUnit* two = (myUnit*)JS_GetInstancePrivate(cx, obj, &unit_class_ex.base, NULL);
 		UnitAny* pUnit1 = D2CLIENT_FindUnit(one->dwUnitId, one->dwType);
