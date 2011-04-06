@@ -70,4 +70,8 @@ public:
 	/** Get the row id of the last inserted row.
 	 */
 	int lastRowId;
+
+	/** Get the number of rows modified/inserted/deleted by the last statement.
+	 */
+	double changes;
 };

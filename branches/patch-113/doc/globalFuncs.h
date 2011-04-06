@@ -108,8 +108,7 @@ Unit getUnit(int type, uint32_t classId, uint32_t mode, uint32_t nUnitId);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area ID, source and destination points as parameters.
+ * destination. Takes Area ID, source and destination points as parameters.
  *
  * \ingroup globalFunctions
  *
@@ -123,16 +122,15 @@ Unit getUnit(int type, uint32_t classId, uint32_t mode, uint32_t nUnitId);
  *
  * \param dstY The destination Y coordinate.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
+object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
 	int dstY);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area ID, source and destination points, and walking
- * or teleporting as parameters.
+ * destination. Takes Area ID, source and destination points, and walking or
+ * teleporting as parameters.
  *
  * \ingroup globalFunctions
  *
@@ -148,15 +146,14 @@ int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param UseTele Whether or not the path can do things like jump walls.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
+object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
 	int dstY, bool UseTele);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area ID(s), source and destination points, walking or
+ * destination. Takes Area ID(s), source and destination points, walking or
  * teleporting and range as parameters.
  *
  * \ingroup globalFunctions
@@ -175,15 +172,14 @@ int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param Radius The distance between each point.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
+object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
 	int dstY, bool UseTele, uint32_t Radius);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area ID, source and destination points, walking or
+ * destination. Takes Area ID, source and destination points, walking or
  * teleporting, range and reduction or not as parameters.
  *
  * \ingroup globalFunctions
@@ -204,16 +200,15 @@ int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param Reduction Whether or not to reduce the path.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
+object[] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
 	int dstY, bool UseTele, uint32_t Radius, bool Reduction);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area IDs, source and destination points as
- * parameters. Assumes teleporting unless in town.
+ * destination. Takes Area IDs, source and destination points as parameters.
+ * Assumes teleporting unless in town.
  *
  * \ingroup globalFunctions
  *
@@ -227,16 +222,15 @@ int[][] getPath(uint32_t Area, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param dstY The destination Y coordinate.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY);
+object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
+	uint32_t dstX, int dstY);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area IDs, source and destination points, and walking
- * or teleporting as parameters.
+ * destination. Takes Area IDs, source and destination points, and walking or
+ * teleporting as parameters.
  *
  * \ingroup globalFunctions
  *
@@ -252,15 +246,14 @@ int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param UseTele Whether or not the path can do things like jump walls.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele);
+object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
+	uint32_t dstX, int dstY, bool UseTele);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area IDs, source and destination points, walking or
+ * destination. Takes Area IDs, source and destination points, walking or
  * teleporting, and range as parameters.
  *
  * \ingroup globalFunctions
@@ -279,15 +272,14 @@ int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param Radius The distance between each point.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele, uint32_t Radius);
+object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
+	uint32_t dstX, int dstY, bool UseTele, uint32_t Radius);
 
 /** Creates a path (walking or teleporting) from the source to the destination.
  * Returns an array of points that form a path from the source to the
- * destination. The 0 index of each point is the x coordinate, the 1 index is
- * the y coordinate. Takes Area IDs, source and destination points, walking or
+ * destination. Takes Area IDs, source and destination points, walking or
  * teleporting, range and reduction or not as parameters.
  *
  * \ingroup globalFunctions
@@ -308,10 +300,10 @@ int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
  *
  * \param Reduction Whether or not to reduce the path.
  *
- * \return The path as an array of points. For each point indices: 0->x, 1->y.
+ * \return The path as an array of objects with x and y properties.
  */
-int[][] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY, uint32_t dstX,
-	int dstY, bool UseTele, uint32_t Radius, bool Reduction);
+object[] getPath(uint32_t[] AreaIds, uint32_t srcX, uint32_t srcY,
+	uint32_t dstX, int dstY, bool UseTele, uint32_t Radius, bool Reduction);
 
 /** Get the collision flags at a given point in a given area.
  *
@@ -400,7 +392,7 @@ String getLocaleString(uint16_t localeId);
  *
  * \return The width and height of the text. 0 - width, 1 - height.
  */
-int[] getTextWidthHeight(String string, int font);
+int[] getTextSize(String string, int font);
 
 /** Get the width and height of the given text in the given font.
  *
@@ -1302,6 +1294,12 @@ void scriptBroadcast(...);
  */
 String sqlite_version();
 
+/** Return the sqlite memory usage.
+ *
+ * \ingroup globalFunctions
+ */
+double sqlite_memusage();
+
 /** Get the Folder object for the directory scriptPath\\name
  *
  * \ingroup globalFunctions
@@ -1330,10 +1328,87 @@ void showConsole();
  */
 void hideConsole();
 
+/** Loads the default (either from config or copydata or DDE) profile from
+ * d2bs.ini and gets to the lobby (for battle.net chars) or into a game (for
+ * single player characters).
+ *
+ * \ingroup globalFunctions
+ *
+ * \throw String May throw one of the following:
+ *
+ * "invalid character name" - If it fails to select the character.
+ *
+ * "Failed to click the Single button?" - If it fails to click the single player
+ * button.
+ *
+ * "Failed to click the 'Battle.net' button?" - If it fails to click the
+ * battle.net button.
+ *
+ * "Failed to click the 'Other Multiplayer' button?" - If it fails to click the
+ * Other Multiplayer button.
+ *
+ * "Failed to click the 'Open Battle.net' button?" - If it fails to click the
+ * Open battle.net button.
+ *
+ * "Failed to click the 'TCP/IP' button?" - If it fails to click the TCP/IP
+ * button.
+ *
+ * "Failed to click the 'Host Game' button?" - If it fails to click the Host
+ * Game (TCP/IP) button.
+ *
+ * "Failed to click the 'Join Game' button?" - If it fails to click the Join
+ * Game (TCP/IP) button.
+ *
+ * "Failed to click the OK button" - If it fails to click the OK button (TCP/IP
+ * enter IP address).
+ *
+ * "Failed to find the 'Host IP Address' text-edit box." - If it can't find the
+ * host IP address (TCP/IP) text box.
+ *
+ * "Could not get the IP address from the profile in the d2bs.ini file." - If
+ * the user failed to specify the IP address in the d2bs.ini file.
+ *
+ * "Failed to click the exit button?" - If it is login and fails to click the
+ * exit button.
+ *
+ * "Failed to set the 'Username' text-edit box.' - If it can't find the username
+ * control.
+ *
+ * "Failed to set the 'Password' text-edit box." - If it can't find the password
+ * control.
+ *
+ * "Failed to click the 'Log in' button?" - If it can't click the login button.
+ *
+ * "Failed to click the 'Normal Difficulty' button?" - If it can't click the
+ * normal button in single player game creation.
+ *
+ * "Failed to click the 'Nightmare Difficulty' button?" - If it can't click the
+ * nightmare button in single player game creation.
+ *
+ * "Failed to click the 'Hell Difficulty' button?" - If it can't click the hell
+ * button in single player game creation.
+ *
+ * "Invalid single player difficulty level specified!" - If the difficulty level
+ * is invalid.
+ *
+ * "Unable to connect" - If the unable to connect screen is shown.
+ *
+ * "CD-Key in use" - If the cdkey in use screen is shown.
+ *
+ * "Bad account or password" - If the username/password wrong screen is shown.
+ *
+ * "Realm Down" - If the realm down message is shown.
+ *
+ * "Unhandled login location" - If the game is in an unsupported location.
+ */
+void login();
+
 /** Loads the profile from d2bs.ini and gets to the lobby (for battle.net chars)
  * or into a game (for single player characters).
  *
  * \ingroup globalFunctions
+ *
+ * \param profile The profile to load.
  *
  * \throw String May throw one of the following:
  *
@@ -1498,6 +1573,14 @@ void addProfile(String profile, String mode, String gateway, String username,
  * \return The current OOG location.
  */
 int getLocation();
+
+/** Load an mpq file.
+ *
+ * \ingroup globalFunctions
+ *
+ * \param path The mpq file to load
+ */
+void loadMpq(String path);
 
 /** Submit the item on the cursor to the open screen (like the add sockets
  * screen).
@@ -1894,15 +1977,6 @@ bool say(...);
  */
 bool clickParty(Party player, int nMode);
 
-/** Block the minimization of the window (from <1.13).
- *
- * \ingroup globalFunctions
- *
- * \deprecated No longer actually does anything, since 1.13 fixed the auto
- * minimize issue.
- */
-void blockMinimize(bool bBlockMinimize);
-
 /** Switch the weapons.
  *
  * \ingroup globalFunctions
@@ -1937,6 +2011,72 @@ bool weaponSwitch(int32_t dummy);
  */
 void transmute();
 
+/** Use a stat point.
+ *
+ * BE CAREFUL! This function directly sends packets without checks. If you
+ * call this function and do not have the points, or specify an invalid stat,
+ * you might get flagged/banned.
+ *
+ * \ingroup globalFunctions
+ *
+ * \todo Come up with a reference for the statType values
+ *
+ * \param statType The type of stat to add the point to
+ */
+void useStatPoint(uint16_t statType);
+
+/** Use a stat point.
+ *
+ * BE CAREFUL! This function directly sends packets without checks. If you
+ * call this function and do not have the points, or specify an invalid stat,
+ * you might get flagged/banned.
+ *
+ * \ingroup globalFunctions
+ *
+ * \todo Come up with a reference for the statType values
+ *
+ * \param statType The type of stat to add the points to
+ *
+ * \param count The number of points to add
+ */
+void useStatPoint(uint16_t statType, uint32_t count);
+
+/** Use a skill point
+ *
+ * BE CAREFUL! This function directly sends packets without checks. If you
+ * call this function and do not have the points, or specify an invalid skill,
+ * you might get flagged/banned.
+ *
+ * \ingroup globalFunctions
+ *
+ * \todo Come up with a reference for the skill values
+ *
+ * \param skill The skill to add the point to
+ */
+void useSkillPoint(uint16_t skill);
+
+/** Use a skill point
+ *
+ * BE CAREFUL! This function directly sends packets without checks. If you
+ * call this function and do not have the points, or specify an invalid skill,
+ * you might get flagged/banned.
+ *
+ * \ingroup globalFunctions
+ *
+ * \todo Come up with a reference for the skill values
+ *
+ * \param skill The skill to add the points to
+ *
+ * \param count The number points to spend
+ */
+void useSkillPoint(uint16_t skill, uint32_t count);
+
+/** Take a screenshot
+ *
+ * Performs the action that pressing print screen (by default) would do
+ *
+ * \ingroup globalFunctions
+ */
 void takeScreenshot();
 
 /** Convert a point from screen coordinates to automap coordinates.

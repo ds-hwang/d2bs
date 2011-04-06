@@ -51,7 +51,12 @@ public:
 	 */
 	bool getNext(uint32_t dwClassId, uint32_t dwMode);
 
-	/** If player is holding an item, drop it.
+	/** Cancel whatever's going on.
+	 *
+	 * If there's scrolling text clear it.
+	 * If you're interacting to an NPC, stop.
+	 * If there's an item on the cursor, drop it.
+	 * Otherwise close any other interaction that might be going on.
 	 */
 	void cancel();
 
@@ -323,7 +328,7 @@ public:
 
 	/** Get a stat by stat id.
 	 *
-	 * Used for stat 13.
+	 * Used for everything except stats 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989
@@ -334,7 +339,7 @@ public:
 
 	/** Get a stat by stat id and sub index.
 	 *
-	 * Used for everything except stat 13.
+	 * Used for stats 6-11.
 	 *
 	 * \param nStat The stat type.
 	 * See http://forums.d2botnet.org/viewtopic.php?f=18&t=989

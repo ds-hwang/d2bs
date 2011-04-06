@@ -268,6 +268,13 @@ public:
 	 */
 	void overhead(Object message);
 
+	/** Revive the character.
+	 *
+	 * BE CAREFUL! This function directly sends packets without checks. If you
+	 * call this function and are not dead, you might get flagged/banned.
+	 */
+	void revive();
+
 	/** Returns the item flags.
 	 *
 	 * \returns Item flags:
@@ -533,6 +540,38 @@ public:
 	 */
 	bool setSkill(int nSkillId, int nHand);
 
+	/** Set the skill on the given hand to be skill with name skillName.
+	 *
+	 * Waits up to one second for the skill to be set.
+	 *
+	 * \todo Fix argc < 1, should be argc < 2
+	 *
+	 * \param skillName Name of the skill to put up.
+	 *
+	 * \param nHand Hand to put the skill on. non-zero left, 0 - right.
+	 *
+	 * \param item The item that the skill is attached to.
+	 *
+	 * \return Whether operation was successful.
+	 */
+	bool setSkill(String skillName, int nHand, Unit item);
+
+	/** Set the skill on the given hand to be skill with id nSkillId.
+	 *
+	 * Waits up to one second for the skill to be set.
+	 *
+	 * \todo Fix argc < 1, should be argc < 2
+	 *
+	 * \param nSkillId Id of the skill to put up.
+	 *
+	 * \param nHand Hand to put the skill on. non-zero left, 0 - right.
+	 *
+	 * \param item The item that the skill is attached to.
+	 *
+	 * \return Whether operation was successful.
+	 */
+	bool setSkill(int nSkillId, int nHand, Unit item);
+
 	/** Move to the given location.
 	 *
 	 * \param x The x location.
@@ -648,6 +687,10 @@ public:
 	/** The name of the unit.
 	 */
 	String name;
+
+	/** The seed used to create the map.
+	 */
+	int mapid;
 
 	/** The act where the unit is currently located.
 	 */
@@ -976,6 +1019,18 @@ public:
 	/** Whether or not the game window is in the game.
 	 */
 	bool gameReady;
+
+	/** The profile currently being used.
+	 */
+	String profile;
+
+	/** Whether the game is set to not pick up items or not.
+	 */
+	int nopickup;
+
+	/** The process id of Diablo II.
+	 */
+	double pid;
 
 	/** The window size.
 	 *
