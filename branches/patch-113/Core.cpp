@@ -146,7 +146,16 @@ void Say(const char *szMessage)
 		Say_ASM((DWORD)&aMsg);
 		delete aMsg;
 		aMsg = NULL;*/
-		Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
+		//Print("ÿc2D2BSÿc0 :: say() in game has been disabled for now, due to crashes");
+
+		Vars.bDontCatchNextMsg = FALSE;
+		int len = 6+strlen(szMessage);
+		BYTE* pPacket = new BYTE[6+strlen(szMessage)];
+		memset(pPacket, 0, len);
+		pPacket[0] = 0x15;
+		pPacket[1] = 0x01;
+		memcpy(pPacket+3, szMessage, len-6);
+		D2CLIENT_SendGamePacket(len, pPacket);
 	}
 	// help button and ! ok msg for disconnected
 	else if(findControl(CONTROL_BUTTON, 5308, -1, 187,470,80,20) && (!findControl(CONTROL_BUTTON, 5102, -1, 351,337,96,32)))	
