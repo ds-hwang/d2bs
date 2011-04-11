@@ -1,6 +1,6 @@
 function TristLVL() {
 	var i;
-	var _leader = "sox-ii";
+	var _leader = "";
 
 	addEventListener("gameevent", QuitFunction);
 	

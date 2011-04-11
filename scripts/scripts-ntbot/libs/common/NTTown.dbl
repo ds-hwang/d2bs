@@ -10,26 +10,28 @@ var _NTT_BeltSize = false;
 
 var _NTT_OldItems;
 
-var _NTT_IgnoredItems = new Array(
-"aqv", // Arrows quiver
-"cqv", // Bolts quiver
-"key", // Keys
-"tbk", // Tome of Town Portal
-"ibk", // Tome of Identify
-"tsc", // Scroll of Town Portal
-"isc", // Scroll of Identify
-"yps", // Antidote potion
-"vps", // Stamina potion
-"wms", // Thawing potion
-"gps", // Rancid Gas Pot
-"ops", // Oil Potion
-"gpm", // Choking Gas Pot
-"opm", // Exploding Pot
-"gpl", // Strangling Gas
-"opl", // Fulminating Pot
-"hp1","hp2","hp3","hp4","hp5", // Healing potions
-"mp1","mp2","mp3","mp4","mp5", // Mana potions
-"rvs","rvl"); // Rejuvenation potions
+var _NTT_IgnoredItems = 
+	new Array(	"aqv", 							// Arrows quiver
+				"cqv", 							// Bolts quiver
+				"key", 							// Keys
+				"tbk", 							// Tome of Town Portal
+				"ibk", 							// Tome of Identify
+				"tsc", 							// Scroll of Town Portal
+				"isc", 							// Scroll of Identify
+				"yps", 							// Antidote potion
+				"vps", 							// Stamina potion
+				"wms", 							// Thawing potion
+				"gps", 							// Rancid Gas Pot
+				"ops", 							// Oil Potion
+				"gpm", 							// Choking Gas Pot
+				"opm", 							// Exploding Pot
+				"gpl", 							// Strangling Gas
+				"opl", 							// Fulminating Pot
+				"hp1","hp2","hp3","hp4","hp5", 	// Healing potions
+				"mp1","mp2","mp3","mp4","mp5", 	// Mana potions
+				"rvs","rvl"						// Rejuvenation potions
+			);
+
 
 // type : 1 = shop, 2 = ressurect, 3 = repair, 4 = potion, 5 = scrolls, 6 = gamble, 7 = ammo, 8 = healing
 function NTT_CheckNPC(npc, type)
@@ -114,10 +116,11 @@ function NTT_CheckNPC(npc, type)
 	return false;
 }
 
+
 // npc : NPC, stash or cube
 function NTT_DoInteract(npc)
 {
- debugPrint("ntt do Interact npc:"+npc.name);
+	debugPrint("ntt do Interact npc:"+npc.name);
 	var _uiflag = 0x08;
 
 	if(!npc)
@@ -162,10 +165,12 @@ function NTT_DoInteract(npc)
 	return false;
 }
 
+
 // type	: 0 = shop, 1 = gamble
 function NTT_DoTrade(npc, type)
 {
- debugPrint("ntt_DoTrade npc:"+npc.name);
+	debugPrint("ntt_DoTrade npc:"+npc.name);
+	
 	if(!npc)
 		return false;
 
@@ -200,13 +205,14 @@ function NTT_DoTrade(npc, type)
 	return false;
 }
 
+
 function NTT_MenuCancel()
 {
 	var i;
 	
 	for(i = 0 ; i < 4 ; i++)
 	{
-		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A)|| getUIFlag(0x08) || getUIFlag(0x17))
+		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A))
 		{
 			me.cancel(0);
 			NTC_Delay(500);
@@ -226,13 +232,12 @@ function NTT_MenuCancel()
 		else
 			break;
 	}
-	
 }
+
 
 function NTT_GetCorpses()
 {
 	var _corpse;
-	
 	
 	for(var i = 0 ; i < 2 ; i++)
 	{
@@ -252,6 +257,7 @@ function NTT_GetCorpses()
 			}
 		} while(_corpse.getNext());
 	}
+	
 	for(var i = 0 ; i < 2 ; i++)
 	{
 		_corpse = NTC_GetUnit(NTC_UNIT_PLAYER);
@@ -266,9 +272,8 @@ function NTT_GetCorpses()
 			}
 		} while(_corpse.getNext());
 	}
-	
-	
 }
+
 
 function NTT_CheckMerc()
 {
@@ -287,6 +292,7 @@ function NTT_CheckMerc()
 
 	return false;
 } 
+
 
 function NTT_ReviveMerc(npc)
 {
@@ -319,6 +325,7 @@ function NTT_ReviveMerc(npc)
 
 	return false;
 }
+
 
 function NTT_ResetWeaponMerc()
 {
@@ -407,6 +414,7 @@ function NTT_ResetWeaponMerc()
 	return false;
 }
 
+
 function NTT_CheckRepair(repairpercent)
 {
 	var _max_dur;
@@ -434,6 +442,7 @@ function NTT_CheckRepair(repairpercent)
 	return false;
 }
 
+
 function NTT_RepairItems(npc)
 {
 	var _mygold;
@@ -459,6 +468,7 @@ function NTT_RepairItems(npc)
 
 	return false;
 }
+
 
 function NTT_CheckInventory()
 {
@@ -543,6 +553,7 @@ function NTT_CheckInventory()
 	return false;
 }
 
+
 function NTT_CheckStash()
 {
 	var x, y;
@@ -587,6 +598,7 @@ function NTT_CheckStash()
 
 	return false;
 }
+
 
 function NTT_ManageStash(invitem)
 {
@@ -658,7 +670,7 @@ function NTT_ManageStash(invitem)
 
 				if(!_ignoreitem)
 				{
-                			if( _ignorestring.indexOf(_items[i].code) != -1 || (!_items[i].getFlag(0x10) && njipCheckGoodItem(_items[i], NJIP_CHECK_SIMPLE) < 0 ))
+                			if( _ignorestring.indexOf(_items[i].code) != -1 || (!_items[i].getFlag(0x10) && njipCheckGoodItem(_items[i], NJIP_CHECK_SIMPLE) <= 0 ))
 						_ignoreitem = true;
             			}
 			} 
@@ -743,6 +755,7 @@ function NTT_ManageStash(invitem)
 	return true;
 }
 
+
 // type	: id = 0, tp = 1
 function NTT_GetScroll(type)
 {
@@ -771,6 +784,7 @@ function NTT_GetScroll(type)
 	return false;
 }
 
+
 // type	: id = 0, tp = 1
 function NTT_GetTome(type)
 {
@@ -798,6 +812,7 @@ function NTT_GetTome(type)
 
 	return false;
 }
+
 
 // type	: id = 0, tp = 1
 function NTT_FillTome(npc, type)
@@ -839,6 +854,7 @@ function NTT_FillTome(npc, type)
 
 	return false;
 }
+
 
 // type	: id = 0, tp = 1
 function NTT_BuyScrolls(npc, type, amount)
@@ -886,6 +902,7 @@ function NTT_BuyScrolls(npc, type, amount)
 	return (_counter > 0);
 }
 
+
 function NTT_GetKey()
 {
 	var _items;
@@ -903,6 +920,7 @@ function NTT_GetKey()
 
 	return false;
 }
+
 
 function NTT_FillKey(npc)
 {
@@ -950,6 +968,7 @@ function NTT_FillKey(npc)
 	return false;
 }
 
+
 function NTT_CheckBelt()
 {
 	var _needpotions = false;
@@ -964,6 +983,7 @@ function NTT_CheckBelt()
 
 	return _needpotions;
 }
+
 
 function NTT_FillBelt(npc)
 {
@@ -984,6 +1004,7 @@ function NTT_FillBelt(npc)
 	return true;
 }
 
+
 function NTT_CheckHeal()
 {
 	var _mercHP;
@@ -998,6 +1019,7 @@ function NTT_CheckHeal()
 
 	return false;
 }
+
 
 function NTT_CheckSpace(itemX, itemY)
 {
@@ -1055,6 +1077,7 @@ function NTT_CheckSpace(itemX, itemY)
 	return false;
 }
 
+
 function NTT_CleanPotions()
 {
 	var _items = NTC_GetItems();
@@ -1074,12 +1097,15 @@ function NTT_CleanPotions()
 			}
 		}
 	}
-return true;
+	
+	return true;
 }
+
 
 function NTT_ClearInventory()
 {
- debugPrint("ntt clear inventory");
+	debugPrint("ntt clear inventory");
+	
 	var _retval = true;
 	var _ignorestring = _NTT_IgnoredItems.join();
 	var _items;
@@ -1112,9 +1138,11 @@ function NTT_ClearInventory()
 	return _retval;
 }
 
+
 function NTT_DropItem(item)
 {
- debugPrint("ntt dropItem");
+	debugPrint("ntt dropItem");
+	
 	if(!item)
 		return false;
 
@@ -1123,6 +1151,7 @@ function NTT_DropItem(item)
 
 	return false;
 }
+
 
 function NTT_ClearBelt()
 {
@@ -1183,10 +1212,11 @@ function NTT_ClearBelt()
 	return _result;
 }
 
+
 // mode	: 1 = sell, 2 = buy, 3 = shift buy
 function NTT_ShopItem(item, npc, mode)
 {
- debugPrint("ntt ShopItem:"+item.name+" NPC:"+npc.name+" mode:"+mode);
+	debugPrint("ntt ShopItem:"+item.name+" NPC:"+npc.name+" mode:"+mode);
 	var _mygold = NTC_MyGold();
 
 	if(mode > 1)
@@ -1270,6 +1300,7 @@ function NTT_ShopItem(item, npc, mode)
 	return false;
 }
 
+
 function NTT_IdItem(scroll, uniditem)
 {
 	var i, _timer;
@@ -1316,6 +1347,7 @@ function NTT_IdItem(scroll, uniditem)
 	return false;
 }
 
+
 function NTT_CheckUnids()
 {
 	var _unidcount = 0;
@@ -1333,6 +1365,7 @@ function NTT_CheckUnids()
 	return _unidcount;
 }
 
+
 function NTT_GetUnidItems()
 {
 	var _uniditems = new Array();
@@ -1349,6 +1382,7 @@ function NTT_GetUnidItems()
 
 	return _uniditems;
 }
+
 
 function NTT_GambleIt(npc)
 {
@@ -1388,12 +1422,16 @@ function NTT_GambleIt(npc)
 
 					NTC_PingDelay(250);
 					var _isEthereal = (_newitem.getFlag(0x400000)) ? "1" : "0";
-					if(njipCheckGoodItem(_newitem, NJIP_CHECK_SIMPLE) > 0){
+					
+					if(njipCheckGoodItem(_newitem, NJIP_CHECK_SIMPLE) > 0)
+					{
 						writeLog(_newitem, me, _isEthereal, 0);
 						NTC_SendLogToOOG("Kept [" + NTC_ItemQualityToNameList[_newitem.quality] + "] " + _newitem.name);
-					}else{
+					}
+					else
+					{
 						writeLog(_newitem, me, _isEthereal, 1);
-						NTT_ShopItem(_newitem, npc, 1);
+						_newitem.shop(1);
 					}
 				}
 			} 
@@ -1402,6 +1440,7 @@ function NTT_GambleIt(npc)
 
 	return true;
 }
+
 
 // Internal function
 function NTT_IsItemInGambleArrayInt(itemcode)
@@ -1414,6 +1453,7 @@ function NTT_IsItemInGambleArrayInt(itemcode)
 
 	return false;
 }
+
 
 function NTT_GetPotionAtNPCInt(type, npc)
 {
@@ -1459,6 +1499,7 @@ function NTT_GetPotionAtNPCInt(type, npc)
 
 	return false;
 }
+
 
 function NTT_BuyPotionsFastInt(npc)
 {
@@ -1509,6 +1550,7 @@ function NTT_BuyPotionsFastInt(npc)
 	return true;
 }
 
+
 function NTT_BuyPotionsColInt(npc, col)
 {
 	var _numpotions;
@@ -1541,6 +1583,7 @@ function NTT_BuyPotionsColInt(npc, col)
 	return true;
 }
 
+
 function NTT_BuyPotionsSlowInt(npc)
 {
 	var _currentcol;
@@ -1555,10 +1598,13 @@ function NTT_BuyPotionsSlowInt(npc)
 	}
 
 	for(_currentcol = 0 ; _currentcol < 4 ; _currentcol++)
+	{
 		NTT_BuyPotionsColInt(npc, _currentcol);
-
+	}
+		
 	return true;
 }
+
 
 function NTT_GetNeededPotionsColInt(type, column)
 {
@@ -1619,6 +1665,7 @@ function NTT_GetNeededPotionsColInt(type, column)
 	return _amountneeded;
 }
 
+
 function NTT_PotInRightColInt(potx, column, beltsize)
 {
 	for(var i = 0 ; i < beltsize ; i++)
@@ -1629,6 +1676,7 @@ function NTT_PotInRightColInt(potx, column, beltsize)
 
 	return false;
 }
+
 
 function NTT_GetGambledItemInt()
 {
@@ -1664,6 +1712,7 @@ function NTT_GetGambledItemInt()
 	return false;
 }
 
+
 function NTT_GetOldItemsInt()
 {
 	var _items;
@@ -1680,7 +1729,8 @@ function NTT_GetOldItemsInt()
 		if(_items[i].mode == 0 && _items[i].location == 0)
 			_NTT_OldItems.push(_items[i].gid);
 	}
-return true;
+	
+	return true;
 }
 
 
@@ -1930,60 +1980,80 @@ function CheckRecipieList()
 		if (templist[0] == 0 && templist[1][0]) 
 			utilityList.push(templist[1]); // equivlaent to list
 	}
-
 }
 
-function njipCheckGoodItemlist(item_, mode_,list) {
+
+function njipCheckGoodItemlist(item_, mode_,list)
+{
 	var retval = 0;
 	
 	var rv = false;
-	var cv =-1;
+	var cv = -1;
 	var matched = -1;
-	if(item_) {
-	var stats = item_.getStat(-1);
+	if(item_) 
+	{
+		var stats = item_.getStat(-1);
 
-		for(var count_9=0;count_9<list.length;count_9++) { // loop all item entries
+		for(var count_9=0;count_9<list.length;count_9++) 
+		{ 
+			// loop all item entries
 			rv = true;
-			for(var count_a=0;count_a<list[count_9].length;count_a++) { // loop all 'and' clauses
-				switch(list[count_9][count_a][0]) {
+			
+			for(var count_a=0;count_a<list[count_9].length;count_a++) 
+			{ 
+				// loop all 'and' clauses
+				switch(list[count_9][count_a][0]) 
+				{
 					case -1:
 						cv = item_.itemType;
-						break;
+					break;
+					
 					case -2:
 						cv = item_.classid;
-						break;
+					break;
+					
 					case -3:
 						cv = item_.itemclass;
-						break;
+					break;
+					
 					case -4:
 						cv = item_.quality;
-						break;
+					break;
+					
 					case -5:
 						if(item_.getFlag(list[count_9][count_a][1]))
 							cv = list[count_9][count_a][1];
 						else
 							cv = 0;
-						break;
+					break;
+					
 					case -6:
 						cv = item_.lvlreq;
-						break;
+					break;
+					
 					case -7:
 						cv = item_.ilvl;
-						break;
+					break;
+					
 					case -8:
 						cv = item_.getItemCost(1);
-						break;
+					break;
+					
 					default:
 						// using a stat, so if unidentified, 'maybe' pick up this item, unless another matches
-						if(!item_.getFlag( ITEM_FLAG_UNIDENTIFIED )) {
+						if(!item_.getFlag( ITEM_FLAG_UNIDENTIFIED )) 
+						{
 							retval = -1;
 							matched = count_9;
 						}
 
-						if(typeof list[count_9][count_a][0] == "object") {
+						if(typeof list[count_9][count_a][0] == "object")
+						{
 							var statId = parseInt(list[count_9][count_a][0][0],10);
 							var subStatId = parseInt(list[count_9][count_a][0][1],10);
-						} else {
+						} 
+						else 
+						{
 							var statId = parseInt(list[count_9][count_a][0],10);
 							var subStatId = -1;
 						}
@@ -2004,155 +2074,220 @@ function njipCheckGoodItemlist(item_, mode_,list) {
 							if(n >= stats.length)
 								cv = item_.getStat(statId, subStatId);
 						}
-
-						break;
-				}
-				if(!njipCheckClause(list[count_9][count_a][1], list[count_9][count_a][2], cv) ) {
-					rv = false;
 					break;
 				}
 				
+				if(!njipCheckClause(list[count_9][count_a][1], list[count_9][count_a][2], cv) ) 
+				{
+					rv = false;
+					break;
+				}
 			}
-			if(rv==1 && !list[count_9].found) {
+			
+			if(rv==1 && !list[count_9].found) 
+			{
 				matched = count_9;
 				retval = 1;
 				break;
 			}
 		}
 	}
-	if( mode_ == NJIP_CHECK_REPORT ) {
+	
+	if( mode_ == NJIP_CHECK_REPORT ) 
+	{
 		var obj = new Array();
 		obj.result = retval;
 		obj.lineno = (matched == -1 ? 0 : list[matched].lineno);
 		obj.file = (matched == -1 ? "" : njipFiles[list[matched].file]);
 		retval = obj;
 	}
-	if (retval) {
+	
+	if (retval) 
+	{
 		list[count_9].found=true;
 		return count_9;
-		}
+	}
 	else
 		return -1;
 }
-function ClearCube(){
-print("clearin cube")
-var meItems =me.getItems();
-	for (var j = 0 ; j < meItems.length; j++){
-		if (meItems[j].location == 3){
-		
-			if(!MoveItemToStash(meItems[j]) && !MoveItemToInv(meItems[j])) {
-				print("Cant empty cube ClearCube Failed")
+
+
+function ClearCube()
+{
+	print("clearin cube");
+	
+	var meItems =me.getItems();
+	
+	for (var j = 0 ; j < meItems.length; j++)
+	{
+		if (meItems[j].location == 3)
+		{
+			if(!MoveItemToStash(meItems[j]) && !MoveItemToInv(meItems[j])) 
+			{
+				print("Cant empty cube ClearCube Failed");
 				return false;
 			}		
 		}
-	
 	}
 
-return true;	
+	return true;	
 }
-function MoveItemToStash(it){
-var found=true
-var my=me.gametype==1 ? 8 : 4
-var buff=buildBuffer(4);
-	for(var x=0; x<6; x++) { // stash spaces
-		for(var y=0; y<my; y++) {
-			found=true;				
-			for(var j=x; j < x + it.sizex; j++) { // item spots				
-				for(var k=y; k < y + it.sizey; k++) {					
+
+
+function MoveItemToStash(it)
+{
+	var found = true;
+	var my = (me.gametype == 1) ? 8 : 4;
+	var buff = buildBuffer(4);
+	
+	for(var x=0; x<6; x++) 
+	{ 
+		// stash spaces
+		for(var y=0; y<my; y++) 
+		{
+			found = true;
+			
+			for(var j=x; j < x + it.sizex; j++) 
+			{ 
+				// item spots				
+				for(var k=y; k < y + it.sizey; k++) 
+				{
 					if(j > 6 || k > my || buff[j][k] ==1)
-						found=false;
-				}//next k
-			}//next j
-			if (found){ // move item to x/y
-				if(NTC_ItemToCursor(it)){					
-					for(var n = 0 ; n < 50 ; n++){
-						if((n % 10) == 0)						
+						found = false;
+				}	//next k
+			}	//next j
+			
+			if(found)
+			{
+				// move item to x/y
+				if(NTC_ItemToCursor(it))
+				{					
+					for(var n = 0 ; n < 50 ; n++)
+					{
+						if((n % 10) == 0)				
 							clickItem(0, x, y, 4);
+							
 						NTC_Delay(100);
-						if(!me.itemoncursor){
-							NTSI_PickItems()
+						
+						if(!me.itemoncursor)
+						{
+							NTSI_PickItems();
 							return true;
 						}
 					}
 				}
 			}
-		}//next y
-	}//next x
-return false;
+		}	//next y
+	}	//next x
+	
+	return false;
 }
-function MoveItemToInv(it){
-var found=true
 
-var buff=buildBuffer(0);
-	for(var x=0; x<10; x++) { // stash spaces
-		for(var y=0; y<4; y++) {
-			found=true;	
-			for(var j=ix; j < x + it.sizex; j++) { // item spots
-				for(var k=y; k < y + it.sizey; k++) {
-					if(j >= 10 || 4 >= k || buff[j][k] ==1 )
-						found=false;
-				}//next k
-			}//next j
-			if (found){ // move item to x/y
-				if(NTC_ItemToCursor(it)){
+
+function MoveItemToInv(it)
+{
+	var found = true;
+	var buff = buildBuffer(0);
+	
+	for(var x=0; x<10; x++) 
+	{ 
+		// stash spaces
+		for(var y=0; y<4; y++) 
+		{
+			found = true;	
+			for(var j=ix; j < x + it.sizex; j++) 
+			{ 
+				// item spots
+				for(var k=y; k < y + it.sizey; k++) 
+				{
+					if(j >= 10 || 4 >= k || buff[j][k] == 1 )
+					found = false;
+				}	//next k
+			}	//next j
+			
+			if(found)
+			{ 
+				// move item to x/y
+				if(NTC_ItemToCursor(it))
+				{
 					NTC_Delay(500);
-					for(var n = 0 ; n < 50 ; n++){
+					
+					for(var n = 0 ; n < 50 ; n++)
+					{
 						if((n % 10) == 0)
 							clickItem(0, x, y, 0);
+							
 						NTC_Delay(100);
-						if(!me.itemoncursor){
+						
+						if(!me.itemoncursor)
+						{
 							NTSI_PickItems()
 							return true;
 						}
 					}
 				}
 			}
-			else {
-				if(NTConfig_BeepOnFull)	beep();		// ImprisonedPride: no space for item in inventory, if NTConfig_BeepOnFull is true, beep; 
+			else 
+			{
+				if(NTConfig_BeepOnFull)	
+					beep();		// ImprisonedPride: no space for item in inventory, if NTConfig_BeepOnFull is true, beep; 
 			}
-		}//next y
-	}//next x
-return false;
+		}	//next y
+	}	//next x
+	
+	return false;
 }
-function openStash(){
+
+
+function openStash()
+{
 	NTTM_TownMove("stash");
 
-   for(var i = 0 ; i < 10 ; i++)
-   {
-    var  _stash = NTC_GetUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH);
+	for(var i = 0 ; i < 10 ; i++)
+	{
+		var  _stash = NTC_GetUnit(NTC_UNIT_OBJECT, NTC_UNIT_STASH);
 
-      if(_stash)
-         break;
-   }
+		if(_stash)
+			break;
+	}
 
-   if(_stash){
-      NTT_ClearInventory();
-      NTT_DoInteract(_stash);
+	if(_stash)
+	{
+		NTT_ClearInventory();
+		NTT_DoInteract(_stash);
 	}
 }
-function buildBuffer(loc){
-
-var mx,my;
-switch(loc) {
-	case 0: //inventory
-		mx=10; my=4; break;
-	case 2: // cube
-		mx=3; my=4; break;
-	case 4: // Stash
-		mx=6; my=me.gametype==1 ? 8 : 4; break;		
-}
 
 
+function buildBuffer(loc)
+{
+	var mx,my;
+	
+	switch(loc) 
+	{
+		case 0: //inventory
+			mx = 10; 
+			my = 4; 
+		break;
+		
+		case 2: // cube
+			mx = 3; 
+			my = 4; 
+		break;
+		
+		case 4: // Stash
+			mx = 6; 
+			my = (me.gametype == 1) ? 8 : 4; 
+		break;		
+	}
 
 	var _stashspace = new KArray2D(mx,my);
-
-	
 
 	for(var y = 0 ; y < my ; y++)
 	{
 		for(var x = 0 ; x < 6 ; x++)
 			_stashspace[x][y] = 0;
- 	}
+	}
 
 	var _items = NTC_GetItems();
 
@@ -2166,53 +2301,73 @@ switch(loc) {
 			for(y = 0 ; y < _items[i].sizey ; y++)
 			{
 				for(x = 0 ; x < _items[i].sizex ; x++)
+				{
 					_stashspace[x+_items[i].x][y+_items[i].y] = 1;
+				}
 			}
 		}
 	}
-	return _stashspace
+
+	return _stashspace;
 }
 
-function KArray2D(NumOfRows,NumOfCols){
-var k=new Array(NumOfRows);  // could be just[] 
-for (var i = 0; i < k . length; ++ i)
-k [i] = new Array (NumOfCols); // could be just[] vaulue dosent matter after its array
 
-return k; 
+function KArray2D(NumOfRows,NumOfCols)
+{
+	var k = new Array(NumOfRows);  // could be just[] 
+	
+	for (var i = 0; i < k . length; ++ i)
+	{
+		k [i] = new Array (NumOfCols); // could be just[] vaulue dosent matter after its array
+	}
+	
+	return k; 
 }
+
 
 function NTSB_QuickShop(npc)
 {
 	print("ÿc2NTSB ÿc1:: ÿc3Doing a quick shop.");
+	
 	var _items = NTC_GetItems(npc);
+	
 	if(_items)
 	{
 		var _count;
 		print("ÿc2NTSB ÿc1:: ÿc3Got items!");
+		
 		for(_count = 0;_count < _items.length;_count++)
 		{
-			if(njipCheckGoodItem(_items[_count], NJIP_CHECK_SIMPLE) != 0)
+			if(njipCheckGoodItem(_items[_count], NJIP_CHECK_SIMPLE) != 0 && (_items[_count].classid < 587 || _items[_count].classid > 596))
 			{
 				if(NTT_CheckSpace(_items[_count].sizex,_items[_count].sizey))
 				{
 					print("ÿc2NTSB ÿc1::ÿc3 " + _items[_count].name + "ÿc2 -> item was good!");
 					NTC_Delay(500);
+					
 					if(!NTT_ShopItem(_items[_count],npc,3))
 					{
 						print("ÿc2NTSB ÿc1::ÿc1 Error while shopping!");
 						return false;
-					} else {
+					} 
+					else 
+					{
 						writeLog(_items[_count], me, 0, 0);
-					};
-				} else {
+					}
+				}
+				else 
+				{
 					print("ÿc2NTSB ÿc1::ÿc1 Not enough space to buy item :(!");
-				};
-			};
-		};
-	} else {
+				}
+			}
+		}
+	}
+	else 
+	{
 		print("ÿc2NTSB ÿc1::ÿc3 Error getting items...");
 		return false;
-	};
+	}
+	
 	print("ÿc2NTSB ÿc1:: ÿc3Done.");
 	return true;
 }

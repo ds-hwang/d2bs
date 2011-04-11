@@ -90,7 +90,7 @@ function NT_Diablo()
 	var _waitDiablo = 0;
 	while(!NTC_FindMonster(243))
 	{
-		if(_waitDiablo >= 100)
+		if(_waitDiablo >= 300)
 			break;
 		NTC_DoCast(112, 2);
 		NTC_DoCast(112, 2);
