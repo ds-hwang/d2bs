@@ -1531,7 +1531,9 @@ function NTA_DoCastInt(index, target){
 	if (NTConfig_AttackSkill[index] == 0)
 		return false;
 	if (me.area != 102)
-		getIntoLOS(target)
+		// getIntoLOS(target)
+		if(!getIntoLOS(target))
+			return false;
 	if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
 		return false;
 
