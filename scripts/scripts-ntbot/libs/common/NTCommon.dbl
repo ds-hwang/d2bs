@@ -554,7 +554,7 @@ function NTC_MyGoldCarry()
 
 function NTC_StashGoldFull()
 {
-	return (2500000 == me.getStat(15));
+	return (NTConfig_GambleStashThreshold <= me.getStat(15));
 }
 
 function NTC_CharGoldFull()

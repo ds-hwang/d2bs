@@ -192,8 +192,9 @@ function NT_LoadConfig()
 	//		To specify what items to gamble, adjust the array with the desired item codes
 	//		See comments at top for ID References thread if you wish to add more item codes
 	//---------------------------------------------------------------------------------------------
-	NTConfig_GambleIt = true;			//	Set true to enable gambling
-	NTConfig_GambleStopGold = 300000;	//	Gold amount at which to stop gambling
+	NTConfig_GambleIt = true;					//	Set true to enable gambling
+	NTConfig_GambleStashThreshold = 2500000;	//	Set stashed gold amount at which to start gambling
+	NTConfig_GambleStopGold = 300000;			//	Gold amount at which to stop gambling
 
 	NTConfig_GambleItem.push("rin");	//	Rings
 	NTConfig_GambleItem.push("amu");	//	Amulets

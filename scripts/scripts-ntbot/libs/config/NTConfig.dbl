@@ -83,6 +83,7 @@ var NTConfig_NIPFilePath = new Array();
 var NTConfig_SnagRange;
 
 var NTConfig_GambleIt;
+NTConfig_GambleStashThreshold = 2500000;
 var NTConfig_GambleStopGold;
 
 var NTConfig_GambleItem = new Array();
