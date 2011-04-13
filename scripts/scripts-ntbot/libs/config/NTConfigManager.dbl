@@ -339,134 +339,135 @@ print("Saving Config")
 }
 function updateConfigLine(line){
  
+	var linePrefix = "\t";
+ 
 	if(line.indexOf("NT_logItems")>-1){	
-		return "NT_logItems = "+ NT_logItems +";  // enable logging" ;
+		return linePrefix +"NT_logItems = "+ NT_logItems +";  // enable logging" ;
 	}
 	if(line.indexOf("NT_LoggingMaxLines")>-1)
-		return "NT_LoggingMaxLines = "+ NT_LoggingMaxLines +";" ;
+		return linePrefix +"NT_LoggingMaxLines = "+ NT_LoggingMaxLines +";" ;
 	if(line.indexOf("bobDebug")>-1)
-		return "bobDebug = "+ bobDebug +"; //debugs to oog" ;
+		return linePrefix +"bobDebug = "+ bobDebug +"; //debugs to oog" ;
 	if(line.indexOf("NTConfig_PublicMode")>-1)
-		return "NTConfig_PublicMode = "+ NTConfig_PublicMode +"; " ;
+		return linePrefix +"NTConfig_PublicMode = "+ NTConfig_PublicMode +"; " ;
 	if(line.indexOf("NTConfig_Script =")>-1)
-		return "NTConfig_Script = "+ NTConfig_Script.toSource() +"; "
+		return linePrefix +"NTConfig_Script = "+ NTConfig_Script.toSource() +"; "
 	if(line.indexOf("NTConfig_NIPFilePath =")>-1)
-		return "NTConfig_NIPFilePath ="+ NTConfig_NIPFilePath.toSource() +"; "	
+		return linePrefix +"NTConfig_NIPFilePath ="+ NTConfig_NIPFilePath.toSource() +"; "	
 		
 	if(line.indexOf("NT_Leader =")>-1)
-		return "NT_Leader = "+ NT_Leader.toSource() +"; // leader list for leech and leechD can push muli leaders	" ;	
+		return linePrefix +"NT_Leader = "+ NT_Leader.toSource() +"; //Add all the leader character names you may follow here in the given format" ;	
 	if(line.indexOf("SimonAutoReveal")>-1)
-		return "SimonAutoReveal = "+ SimonAutoReveal +"; " ;
+		return linePrefix +"SimonAutoReveal = "+ SimonAutoReveal +"; " ;
 	if(line.indexOf("SimonEnableSnagging")>-1)
-		return "SimonEnableSnagging = "+ SimonEnableSnagging +"; " ;
+		return linePrefix +"SimonEnableSnagging = "+ SimonEnableSnagging +"; " ;
 	if(line.indexOf("SimonStopLifeWatch")>-1)
-		return "SimonStopLifeWatch = "+ SimonStopLifeWatch +"; " ;
+		return linePrefix +"SimonStopLifeWatch = "+ SimonStopLifeWatch +"; " ;
 	if(line.indexOf("SimonEnableCommands")>-1)
-		return "SimonEnableCommands = "+ SimonEnableCommands +"; " ;
+		return linePrefix +"SimonEnableCommands = "+ SimonEnableCommands +"; " ;
 	if(line.indexOf("NT_PickUtility")>-1)
-		return "NT_PickUtility = "+ NT_PickUtility +"; // tries to fill belt and tombs with pickit" ;	
+		return linePrefix +"NT_PickUtility = "+ NT_PickUtility +"; // tries to fill belt and tombs with pickit" ;	
 	if(line.indexOf("FastSnag")>-1)
-		return "FastSnag = "+ FastSnag +"; // picks after each attack. based on itemdrop event" ;	
+		return linePrefix +"FastSnag = "+ FastSnag +"; // picks after each attack. based on itemdrop event" ;	
 	if(line.indexOf("NTConfig_SkipHealLife")>-1)
-		return "NTConfig_SkipHealLife = "+ NTConfig_SkipHealLife +"; // If you have more than this percent of life, you won't go to a healer" ;	
+		return linePrefix +"NTConfig_SkipHealLife = "+ NTConfig_SkipHealLife +"; // If you have more than this percent of life, you won't go to a healer" ;	
 	if(line.indexOf("NTConfig_SkipHealMana")>-1)
-		return "NTConfig_SkipHealMana = "+ NTConfig_SkipHealMana +"; // If you have more than this percent of mana, you won't go to a healer" ;
+		return linePrefix +"NTConfig_SkipHealMana = "+ NTConfig_SkipHealMana +"; // If you have more than this percent of mana, you won't go to a healer" ;
 	if(line.indexOf("NTConfig_SkipHealCurses")>-1)
-		return "NTConfig_SkipHealCurses = "+ NTConfig_SkipHealCurses +"; // If you want to skip curses, set to true" ;
+		return linePrefix +"NTConfig_SkipHealCurses = "+ NTConfig_SkipHealCurses +"; // If you want to skip curses, set to true" ;
 	if(line.indexOf("NTConfig_UseMerc")>-1)
-		return "NTConfig_UseMerc = "+ NTConfig_UseMerc +"; // Set to true if you use a mercenary, will revive merc at a reviver npc." ;
+		return linePrefix +"NTConfig_UseMerc = "+ NTConfig_UseMerc +"; // Set to true if you use a mercenary, will revive merc at a reviver npc." ;
 	if(line.indexOf("NTConfig_LifeThresh")>-1)
-		return "NTConfig_LifeThresh = "+ NTConfig_LifeThresh +"; // Drink a normal potion if under this percent of life." ;		
+		return linePrefix +"NTConfig_LifeThresh = "+ NTConfig_LifeThresh +"; // Drink a normal potion if under this percent of life." ;		
 	if(line.indexOf("NTConfig_LifeRejuvThresh")>-1)
-		return "NTConfig_LifeRejuvThresh = "+ NTConfig_LifeRejuvThresh +"; // Drink a rejuvenation potion if under this percent of life." ;
+		return linePrefix +"NTConfig_LifeRejuvThresh = "+ NTConfig_LifeRejuvThresh +"; // Drink a rejuvenation potion if under this percent of life." ;
 	if(line.indexOf("NTConfig_ManaThresh")>-1)
-		return "NTConfig_ManaThresh = "+ NTConfig_ManaThresh +"; // Drink a normal potion if under this percent of mana." ;
+		return linePrefix +"NTConfig_ManaThresh = "+ NTConfig_ManaThresh +"; // Drink a normal potion if under this percent of mana." ;
 	if(line.indexOf("NTConfig_ManaRejuvThresh")>-1)
-		return "NTConfig_ManaRejuvThresh = "+ NTConfig_ManaRejuvThresh +"; // Drink a rejuvenation potion if under this percent of mana." ;
+		return linePrefix +"NTConfig_ManaRejuvThresh = "+ NTConfig_ManaRejuvThresh +"; // Drink a rejuvenation potion if under this percent of mana." ;
 	if(line.indexOf("NTConfig_LifeChicken")>-1)
-		return "NTConfig_LifeChicken = "+ NTConfig_LifeChicken +"; // This is your chicken life percent. If you go below this life total, exit game." ;
+		return linePrefix +"NTConfig_LifeChicken = "+ NTConfig_LifeChicken +"; // This is your chicken life percent. If you go below this life total, exit game." ;
 	if(line.indexOf("NTConfig_ManaChicken")>-1)
-		return "NTConfig_ManaChicken = "+ NTConfig_ManaChicken +"; // This is your chicken mana percent. If you go below this mana total, exit game." ;
+		return linePrefix +"NTConfig_ManaChicken = "+ NTConfig_ManaChicken +"; // This is your chicken mana percent. If you go below this mana total, exit game." ;
 	if(line.indexOf("NTConfig_MercLifeThresh")>-1)
-		return "NTConfig_MercLifeThresh = "+ NTConfig_MercLifeThresh +"; // This is the threshold to use a life potion on your merc in percent." ;
+		return linePrefix +"NTConfig_MercLifeThresh = "+ NTConfig_MercLifeThresh +"; // This is the threshold to use a life potion on your merc in percent." ;
 	if(line.indexOf("NTConfig_MercRejuvThresh")>-1)
-		return "NTConfig_MercRejuvThresh = "+ NTConfig_MercRejuvThresh +"; // This is the threshold to use a rejuv potion on your merc in percent." ;
+		return linePrefix +"NTConfig_MercRejuvThresh = "+ NTConfig_MercRejuvThresh +"; // This is the threshold to use a rejuv potion on your merc in percent." ;
 	if(line.indexOf("NTConfig_MercChicken")>-1)
-		return "NTConfig_MercChicken = "+ NTConfig_MercChicken +"; // This is your mercs chicken life percent. If he goes below this, exit game." ;
+		return linePrefix +"NTConfig_MercChicken = "+ NTConfig_MercChicken +"; // This is your mercs chicken life percent. If he goes below this, exit game." ;
 	
 	if(line.indexOf("NTConfig_GambleIt =")>-1)
-		return "NTConfig_GambleIt = "+ NTConfig_GambleIt +"; " ;
+		return linePrefix +"NTConfig_GambleIt = "+ NTConfig_GambleIt +"; " ;
 	
 	if(line.indexOf("NTConfig_AttackSkill[0]")>-1)
-		return "NTConfig_AttackSkill[0] = "+ NTConfig_AttackSkill[0] +"; // Cast your first spell once. Set to 0 if you won't " ;
+		return linePrefix +"NTConfig_AttackSkill[0] = "+ NTConfig_AttackSkill[0] +"; // Cast your first spell once. Set to 0 if you won't " ;
 	if(line.indexOf("NTConfig_AttackSkill[1]")>-1)
-		return "NTConfig_AttackSkill[1] = "+ NTConfig_AttackSkill[1] +"; // Cast your primary spell to boss. " ;
+		return linePrefix +"NTConfig_AttackSkill[1] = "+ NTConfig_AttackSkill[1] +"; // Cast your primary spell to boss. " ;
 	if(line.indexOf("NTConfig_AttackSkill[2]")>-1)
-		return "NTConfig_AttackSkill[2] = "+ NTConfig_AttackSkill[2] +"; // Cast your primary spell to others. " ;
+		return linePrefix +"NTConfig_AttackSkill[2] = "+ NTConfig_AttackSkill[2] +"; // Cast your primary spell to others. " ;
 	if(line.indexOf("NTConfig_AttackSkill[3]")>-1)
-		return "NTConfig_AttackSkill[3] = "+ NTConfig_AttackSkill[3] +"; // Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't " ;
+		return linePrefix +"NTConfig_AttackSkill[3] = "+ NTConfig_AttackSkill[3] +"; // Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't " ;
 	if(line.indexOf("NTConfig_AttackSkill[4]")>-1)
-		return "NTConfig_AttackSkill[4] = "+ NTConfig_AttackSkill[4] +"; // Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't " ;
+		return linePrefix +"NTConfig_AttackSkill[4] = "+ NTConfig_AttackSkill[4] +"; // Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't " ;
 	if(line.indexOf("NTConfig_AttackSkill[5]")>-1)
-		return "NTConfig_AttackSkill[5] = "+ NTConfig_AttackSkill[5] +"; // Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't" ;
+		return linePrefix +"NTConfig_AttackSkill[5] = "+ NTConfig_AttackSkill[5] +"; // Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't" ;
 	if(line.indexOf("NTConfig_CastStatic =")>-1)
-		return "NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't" ;	
+		return linePrefix +"NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't" ;	
 		
 	if(line.indexOf("NTConfig_PutAura =")>-1)
-		return "NTConfig_PutAura = "+ NTConfig_PutAura +"; // What aura do you want to use on attack. Set to 0 if you won't" ;	
+		return linePrefix +"NTConfig_PutAura = "+ NTConfig_PutAura +"; // What aura do you want to use on attack. Set to 0 if you won't" ;	
 	if(line.indexOf("NTConfig_AttackFirst =")>-1)
-		return "NTConfig_AttackFirst = "+ NTConfig_AttackFirst +"; // Cast your first spell once. Set to 0 if you won't" ;	
+		return linePrefix +"NTConfig_AttackFirst = "+ NTConfig_AttackFirst +"; // Cast your first spell once. Set to 0 if you won't" ;	
 	if(line.indexOf("NTConfig_AttackBoss =")>-1)
-		return "NTConfig_AttackBoss = "+ NTConfig_AttackBoss +"; //  Cast your primary spell to boss." ;	
+		return linePrefix +"NTConfig_AttackBoss = "+ NTConfig_AttackBoss +"; //  Cast your primary spell to boss." ;	
 	if(line.indexOf("NTConfig_AttackOthers =")>-1)
-		return "NTConfig_AttackOthers = "+ NTConfig_AttackOthers +"; // Cast your primary spell to others." ;	
+		return linePrefix +"NTConfig_AttackOthers = "+ NTConfig_AttackOthers +"; // Cast your primary spell to others." ;	
 	if(line.indexOf("NTConfig_AttackSecondary =")>-1)
-		return "NTConfig_AttackSecondary = "+ NTConfig_AttackSecondary +"; // Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't" ;	
+		return linePrefix +"NTConfig_AttackSecondary = "+ NTConfig_AttackSecondary +"; // Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't" ;	
 	if(line.indexOf("NTConfig_UseRedemption =")>-1)
-		return "NTConfig_UseRedemption = "+ NTConfig_UseRedemption +"; //  Set to true to use Redemption after killing monster." ;	
+		return linePrefix +"NTConfig_UseRedemption = "+ NTConfig_UseRedemption +"; //  Set to true to use Redemption after killing monster." ;	
 	
 	if(line.indexOf("XP_Curse =")>-1)
-		return "XP_Curse = "+ XP_Curse +"; // curse to use after army threshold is meet	" ;	
+		return linePrefix +"XP_Curse = "+ XP_Curse +"; // curse to use after army threshold is meet	" ;	
 	if(line.indexOf("XP_BuildArmyCurse =")>-1)
-		return "XP_BuildArmyCurse = "+ XP_BuildArmyCurse +"; // curse to use after army threshold is meet	" ;	
+		return linePrefix +"XP_BuildArmyCurse = "+ XP_BuildArmyCurse +"; // curse to use after army threshold is meet	" ;	
 	if(line.indexOf("XP_Golm =")>-1)
-		return "XP_Golm = "+ XP_Golm +"; //0 = clay, 1 = blood, 2 = fire, 3 =iron (will not make) " ;	
+		return linePrefix +"XP_Golm = "+ XP_Golm +"; //0 = clay, 1 = blood, 2 = fire, 3 =iron (will not make) " ;	
 	if(line.indexOf("XP_useSkel =")>-1)
-		return "XP_useSkel = "+ XP_useSkel +";  " ;	
+		return linePrefix +"XP_useSkel = "+ XP_useSkel +";  " ;	
 	if(line.indexOf("XP_useSkelMage =")>-1)
-		return "XP_useSkelMage = "+ XP_useSkelMage +"; " ;	
+		return linePrefix +"XP_useSkelMage = "+ XP_useSkelMage +"; " ;	
 	if(line.indexOf("XP_useRevive =")>-1)
-		return "XP_useRevive = "+ XP_useRevive +"; " ;	
+		return linePrefix +"XP_useRevive = "+ XP_useRevive +"; " ;	
 	if(line.indexOf("XP_CorpseExplosion =")>-1)
-		return "XP_CorpseExplosion = "+ XP_CorpseExplosion +";  " ;	
+		return linePrefix +"XP_CorpseExplosion = "+ XP_CorpseExplosion +";  " ;	
 	if(line.indexOf("XP_BuildArmyThresh =")>-1)
-		return "XP_BuildArmyThresh = "+ XP_BuildArmyThresh +";  " ;	
+		return linePrefix +"XP_BuildArmyThresh = "+ XP_BuildArmyThresh +";  " ;	
 	if(line.indexOf("NTConfig_UseTraps =")>-1)
-		return "NTConfig_UseTraps = "+ NTConfig_UseTraps +"; // traps are hardcoded for 3 light sentrys and 2 death sentrys and do not need to be set with skills " ;	
+		return linePrefix +"NTConfig_UseTraps = "+ NTConfig_UseTraps +"; // traps are hardcoded for 3 light sentrys and 2 death sentrys and do not need to be set with skills " ;	
 	if(line.indexOf("NTConfig_CastShadowMaster =")>-1)
-		return "NTConfig_CastShadowMaster = "+ NTConfig_CastShadowMaster +"; //" ;	
+		return linePrefix +"NTConfig_CastShadowMaster = "+ NTConfig_CastShadowMaster +"; //" ;	
 	if(line.indexOf("NTConfig_CastShadowWarrior =")>-1)
-		return "NTConfig_CastShadowWarrior = "+ NTConfig_CastShadowWarrior +";  " ;	
+		return linePrefix +"NTConfig_CastShadowWarrior = "+ NTConfig_CastShadowWarrior +";  " ;	
 	if(line.indexOf("NTConfig_CastBrustOfSpeed =")>-1)
-		return "NTConfig_CastBrustOfSpeed = "+ NTConfig_CastBrustOfSpeed +"; // " ;	
+		return linePrefix +"NTConfig_CastBrustOfSpeed = "+ NTConfig_CastBrustOfSpeed +"; // " ;	
 	if(line.indexOf("NTConfig_CastFade =")>-1)
-		return "NTConfig_CastFade = "+ NTConfig_CastFade +"; // " ;	
+		return linePrefix +"NTConfig_CastFade = "+ NTConfig_CastFade +"; // " ;	
 	if(line.indexOf("NTConfig_CastCloakOfShadows =")>-1)
-		return "NTConfig_CastCloakOfShadows = "+ NTConfig_CastCloakOfShadows +"; // " ;	
+		return linePrefix +"NTConfig_CastCloakOfShadows = "+ NTConfig_CastCloakOfShadows +"; // " ;	
 	if(line.indexOf("NTConfig_CastBladeShield =")>-1)
-		return "NTConfig_CastBladeShield = "+ NTConfig_CastBladeShield +"; // " ;		
+		return linePrefix +"NTConfig_CastBladeShield = "+ NTConfig_CastBladeShield +"; // " ;		
 	if(line.indexOf("NTConfig_CastStatic =")>-1)
-		return "NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // " ;	
+		return linePrefix +"NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // " ;	
 	if(line.indexOf("NTConfig_ClearPosition =")>-1)
-		return "NTConfig_ClearPosition = "+ NTConfig_ClearPosition +"; // Set to true if you want to clear area after killing boss. " ;	
+		return linePrefix +"NTConfig_ClearPosition = "+ NTConfig_ClearPosition +"; // Set to true if you want to clear area after killing boss. " ;	
 	if(line.indexOf("NTConfig_CheckSafe =")>-1)
-		return "NTConfig_CheckSafe = "+ NTConfig_CheckSafe +"; // Set to true to check for curses, merc and potion (go to town if needed) " ;	
+		return linePrefix +"NTConfig_CheckSafe = "+ NTConfig_CheckSafe +"; // Set to true to check for curses, merc and potion (go to town if needed) " ;	
 	if(line.indexOf("NTConfig_FireEyeExtension =")>-1)
-		return "NTConfig_FireEyeExtension = "+ NTConfig_FireEyeExtension +"; // summoner ext" ;	
+		return linePrefix +"NTConfig_FireEyeExtension = "+ NTConfig_FireEyeExtension +"; // summoner ext" ;	
 	if(line.indexOf("NTConfig_CouncilExtension =")>-1)
-		return "NTConfig_CouncilExtension = "+ NTConfig_CouncilExtension +"; // summoner ext" ;		
-		
-		
+		return linePrefix +"NTConfig_CouncilExtension = "+ NTConfig_CouncilExtension +"; // summoner ext" ;		
+
 	return line;
 }
 

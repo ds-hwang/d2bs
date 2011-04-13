@@ -61,10 +61,14 @@ function NT_LoadConfig()
 	DiabloNewGameMsg = "Next Game"; 		//	Set your message to announce as Diablo script is finishing execution
 
 	
-	//Leader and Leech Configuration
-	NT_Leader = ['AddLeaderNameHere','Add_More_Leaders_Like_This'];		//Add all the leader character names you may follow here in the given format (CASE-SENSITIVE)
-	leader = '';						//	Single leader's name (CASE-SENSITIVE)
-	QuitWith = ''; 						//	ONLY edit this line if you want to quit from the game with someone OTHER THAN your leader;
+	//-------------------------------------------------------------------------------------------------
+	// 	Leader and Leech Configuration
+	//
+	// 		Any character name settings in this section are CASE-SENSITIVE.
+	//-------------------------------------------------------------------------------------------------
+	NT_Leader = ['AddLeaderNameHere','Add_More_Leaders_Like_This'];		//Add all the leader character names you may follow here in the given format
+	QuitWithLeaderList = ['AddCharacterNameHere', 'AddAnotherHere'];	//Add character names here you would like the bot to quit with when they leave current game
+	leader = '';						//	Single leader's name, you don't need to add this to QuitWithLeaderList above. It's automatically added.
 	NTConfig_HelpPreClear = false;		//	Set to true if you want to help clear the throne before it's announced 'Safe'
 	NTConfig_HelpWithWaves = false;		//	Set to true to fight in throne when each wave drops
 	NTConfig_HelpWithBaal = false;		//	Set to true if you want to help kill Baal
@@ -470,6 +474,6 @@ function NT_LoadConfig()
 	
 	//	Don't edit the lines below this point
 	NT_Leader.push(leader);									//	Do not edit this line
-	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;	//	Do not edit this line;
+	QuitWithLeaderList.push(leader)							//	Do not edit this line;
 
 }

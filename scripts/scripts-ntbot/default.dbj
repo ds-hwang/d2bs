@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1229;
+var ntbotRevision = 1230;
 
 js_strict(true);
 
@@ -30,16 +30,9 @@ function main()
 	//dumpInventory();
 
 	//addEventListener("itemdrop", dropHandler);
-	addEventListener("itemaction",dropHandlerNew);
+	addEventListener("itemaction", dropHandlerNew);
 	addEventListener("keyup", KeyHandler);
 	addEventListener("keydown", KeyDownHandler);
-
-	addEventListener("gameevent", function(mode, param, name1, name2) {	   
-		if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
-			print ("quiting with leader "+name2);
-			quit();
-		}
-	});
 
 	addEventListener("scriptmsg", function(msg, param, param2) {	//taking this out of simon says so anything can use it
 		if (msg == "Pause Default")
@@ -88,7 +81,19 @@ function main()
 	NTC_IncludeLibs(); 
 	NTC_IncludeConfig(); 
   	
-	
+	addEventListener("gameevent", 
+		function(mode, param, name1, name2)
+		{
+			for(var i = 0; i<QuitWithLeaderList.length; i++)
+			{
+				if(QuitWithLeaderList[i] == name2 && (mode == 0 || mode == 1 || mode == 3))
+				{
+					print("Quitting with leader from list: "+ name2);
+					quit();
+				}
+			}
+		}
+	);
 	
 	try{
 		NT_LoadConfig(); 
@@ -167,15 +172,15 @@ function main()
 }
 
 
-function dropHandler(id,code,x,y,mode) 
-{ 
-	//sendCopyData(null, "OOG", 0,"Drop: "+id);
-	for (var i=0 ;  i < Bob_ItemList.length ; i++){
-		if (Bob_ItemList[i]==id) return true; //aready there
-	}
-	Bob_ItemList.push(id);//,code,x,y,mode);
-	return true;
-} 
+// function dropHandler(id,code,x,y,mode) 
+// { 
+	// sendCopyData(null, "OOG", 0,"Drop: "+id);
+	// for (var i=0 ;  i < Bob_ItemList.length ; i++){
+		// if (Bob_ItemList[i]==id) return true; //aready there
+	// }
+	// Bob_ItemList.push(id);//,code,x,y,mode);
+	// return true;
+// } 
 
 
 function dropHandlerNew(id,mode,code,global) 
@@ -343,10 +348,3 @@ function dumpInventory()
 	}
 	print ("Dumped to oog in "+((getTickCount())-startTime));
 }
-
-
-Array.prototype.remove = function(from, to) {
-  var rest = this.slice((to || from) + 1 || this.length);
-  this.length = from < 0 ? this.length + from : from;
-  return this.push.apply(this, rest);
-};

@@ -126,9 +126,7 @@ var NTConfig_WarcryOthers;
 //	Do not edit any of these lines concerning the leader vars here (that's what the char config file is for!)
 var leader = "";
 var NT_Leader = [];
-var QuitWithLeader = "";
-var QuitWith = "";
-
+var QuitWithLeaderList = [];
 
 //Superunique Script Variables
 var NTConfig_Funnytext= true;	

@@ -32,8 +32,6 @@ function NT_LeechD()
 		delay (100);
 	}
 	
-	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;
-	
 	while(me.area==103)
 	{	
 		NTM_UsePortal("BluePortal", 108,leader);

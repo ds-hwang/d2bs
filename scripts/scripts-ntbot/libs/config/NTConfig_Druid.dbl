@@ -18,11 +18,11 @@ function NT_LoadConfig()
 
 
 	NTConfig_PublicMode = true;			// Set to false to not party
-	leader = "";			//Leaders Name Case Sensitive
+	NT_Leader = ['AddLeaderNameHere','Add_More_Leaders_Like_This'];		//Add all the leader character names you may follow here in the given format
+	QuitWithLeaderList = ['AddCharacterNameHere', 'AddAnotherHere'];	//Add character names here you would like the bot to quit with when they leave current game
+	leader = '';						//	Single leader's name, you don't need to add this to QuitWithLeaderList above. It's automatically added.
 	NT_Leader.push(leader);			// Do not edit this line
 	NT_LeechType = 1;				// Set to 1 to join hot tp, 2 for safe tp, and 3 to stay in corner
-	QuitWith = ""; //ONLY edit this line if you want to quit from the game with someone OTHER THAN your leader;
-	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;	//Do not edit this line;
 	
 	//NTConfig_Script.push("Leech"); NTConfig_KillBaal = true; //baal leaching script (enters as soon as portal is made)
 	//NTConfig_Script.push("LeechD"); 		// chaos helper

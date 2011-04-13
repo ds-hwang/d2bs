@@ -70,8 +70,6 @@ function NT_Leech()
 		
 		delay(100);
 	}
-
-	QuitWithLeader = (QuitWith == "") ? leader : QuitWith;
 	
 	while(me.area == 109) 
 	{
@@ -241,15 +239,21 @@ function findLead(leader) {             // Check if the leader in bot config is 
 return area;
 }
 
-function LeaveWithLeader(mode, param, name1, name2){      //event is called from default
-        if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
-                if(_getBaalItems) {
-                        NTM_MoveTo(15138, 5916); // Move to the moat.
-                        NTSI_PickItems();
-                }
-                quit();
-        }
-}
+/**
+*	@author	alogwe
+*	
+*	@TODO	make this work with event in default.dbj, commented out for now
+*/
+
+// function LeaveWithLeader(mode, param, name1, name2){      //event is called from default
+        // if (QuitWithLeader == name2 && (mode == 0 || mode == 1 || mode == 3)){
+                // if(_getBaalItems) {
+                        // NTM_MoveTo(15138, 5916); // Move to the moat.
+                        // NTSI_PickItems();
+                // }
+                // quit();
+        // }
+// }
 
 function Unit_findItemByFname(_fname)
 {
