@@ -209,6 +209,14 @@ function NT_LoadConfig()
 	//NTConfig_GambleItem.push("mgl");	//	Chain Gloves
 	//NTConfig_GambleItem.push("tgl");	//	Light Gauntlets
 	//NTConfig_GambleItem.push("hgl");	//	Gauntlets
+	//NTConfig_GambleItem.push("kit");	//	Kite shields
+	//NTConfig_GambleItem.push("btl");	//	Blade Talons
+	//NTConfig_GambleItem.push("skr");	//	Scissors Katar
+	//NTConfig_GambleItem.push("wrb");	//	Wrist blade
+	//NTConfig_GambleItem.push("ktr");	//	Katar
+	//NTConfig_GambleItem.push("clw");	//	Claws
+	//NTConfig_GambleItem.push("ces");	//	Cestus
+	//NTConfig_GambleItem.push("axf");	//	Hatches Hands
 	
 	
 	
