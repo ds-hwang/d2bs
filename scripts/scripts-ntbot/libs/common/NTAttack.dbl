@@ -9,27 +9,35 @@ var _NTA_SkillDamage=[];
 var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
- const DEAD_MODE      = (1<<29)|(1<<12);
+const DEAD_MODE = (1<<29)|(1<<12);
+
 function NTA_KillBoss(classid)
 {
 	var _target;
 
+	/**
+	*	@author		alogwe
+	*	@TODO		Need to lower this to if(NTConfig_AttackBoss < 0) return false; to allow for using 0 as an attack skill id (set defaults in configs at -1 to not use any))
+	*/
 	if(NTConfig_AttackBoss < 1)
 		return false;
 
-	_target = NTC_FindMonster(classid);
-
-	if(_target)
+	for(var i = 0; i < 5; i++)
 	{
-		if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100)
-		{
-			if(NTC_IsLeftSkill(NTConfig_AttackFirst))
-				NTC_DoCast(NTConfig_AttackFirst, 2, _target);
-			else
-				NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);
-		}
+		_target = NTC_FindMonster(classid);
 
-		return NTA_Attack(_target, true, 100);
+		if(_target)
+		{
+			if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100)
+			{
+				if(NTC_IsLeftSkill(NTConfig_AttackFirst))
+					NTC_DoCast(NTConfig_AttackFirst, 2, _target);
+				else
+					NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);
+			}
+
+			return NTA_Attack(_target, true, 100);
+		}
 	}
 
 	return false;
