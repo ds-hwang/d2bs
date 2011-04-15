@@ -9,7 +9,6 @@ var _NTA_SkillDamage=[];
 var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
-
  const DEAD_MODE      = (1<<29)|(1<<12);
 function NTA_KillBoss(classid)
 {
@@ -243,7 +242,8 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 
 
 
-function NTA_IsValidTarget(monster, simple){
+function NTA_IsValidTarget(monster, simple)
+{
 	if (monster && monster.type == 0 && NT_HostileAction ==2){		
 		return true;
 	}
@@ -339,7 +339,8 @@ function NTA_IsValidTarget(monster, simple){
 }
 
 
-function NTA_GetDamageType(skillid){
+function NTA_GetDamageType(skillid)
+{
 	switch(skillid)
 	{
 	case 74: // Corpse Explosion
@@ -389,7 +390,8 @@ function NTA_GetDamageType(skillid){
 	return NTA_DAMAGE_NONE;
 }
 
-function NTA_GetResistance(enemy, type){
+function NTA_GetResistance(enemy, type)
+{
 	if(!enemy)
 		return false;
 
@@ -420,7 +422,8 @@ function NTA_GetResistance(enemy, type){
 	return 0;
 }
 
-function NTA_Attack(target, boss, maxattacks){
+function NTA_Attack(target, boss, maxattacks)
+{
 	switch(me.classid)
 	{
 	case NTC_CHAR_CLASS_AMAZON:
@@ -448,22 +451,124 @@ function NTA_Attack(target, boss, maxattacks){
 	return false;
 }
 
+// Internal function
+// function NTA_AmazonAttackInt(target, boss, maxattacks)
+// {
+	// while(NTA_IsValidTarget(target, true)) 
+   // { 
+      // NTSI_FastSnag();
+			// if(checkCollision(me, target, 3))
+				// return false;
+			// if(getDistance(me,target)>5){
+				// NTM_MoveTo(target.x, target.y)				
+			// }
+      // NTC_DoCast(24, 3,target.x,target.y); 
+	// }
+// return true;
+// }
 
-function NTA_AmazonAttackInt(target, boss, maxattacks){
-	while(NTA_IsValidTarget(target, true)) 
-   { 
-      NTSI_FastSnag();
-			if(checkCollision(me, target, 3))
-				return false;
-			if(getDistance(me,target)>5){
-				NTM_MoveTo(target.x, target.y)				
-			}
-      NTC_DoCast(24, 3,target.x,target.y); 
+function NTA_AmazonAttackInt(target, boss, maxattacks)
+{
+	var _attackprimary;
+	var _usehand2;
+	var _range1, _range2;
+	var _nohit = true;
+
+	_attackprimary = boss ? NTConfig_AttackBoss : NTConfig_AttackOthers;
+
+	if(NTConfig_AttackSecondary > 0)
+	{
+		_usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
 	}
-return true;
+
+	switch(_attackprimary)
+	{
+		case 10: // Jab
+			_range1 = 1;
+			break;
+		case 14: // Power Strike
+			_range1 = 1;
+			break;
+		case 19: // Impale
+			_range1 = 1;
+			break;
+		case 20: // Lighting Bolt
+			_range1 = 10;
+			break;
+		case 24: // Charged Strike
+			_range1 = 1;
+			break;
+		case 26: // Strafe
+			_range1 = 20;
+			break;
+		case 30: // Fend
+			_range1 = 1;
+			break;
+		case 34: // Lighting Strike
+			_range1 = 1;
+			break;
+		case 35: // Lighting Fury
+			_range1 = 10;
+			break;
+		default:
+			_range1 = 20;
+			break;
+	}
+
+	switch(NTConfig_AttackSecondary)
+	{
+		case 10: // Jab
+			_range1 = 1;
+			break;
+		case 14: // Power Strike
+			_range1 = 1;
+			break;
+		case 19: // Impale
+			_range1 = 1;
+			break;
+		case 20: // Lighting Bolt
+			_range1 = 10;
+			break;
+		case 24: // Charged Strike
+			_range1 = 1;
+			break;
+		case 26: // Strafe
+			_range1 = 20;
+			break;
+		case 30: // Fend
+			_range1 = 1;
+			break;
+		case 34: // Lighting Strike
+			_range1 = 1;
+			break;
+		case 35: // Lighting Fury
+			_range1 = 10;
+			break;
+		default:
+			_range1 = 20;
+			break;
+	}
+
+	while(NTA_IsValidTarget(target, true))
+	{   
+		if(getDistance(me,target) > _range1)
+			NTA_MoveCloseInt(target, _range1);
+
+		if (NTConfig_AttackOthers == 20 && NTA_GetResistance(target, NTA_DAMAGE_LIGHTNING) >= 100)
+		{
+			attackPrint('Cancelled attack on '+ target.name +', it seems to be immune to lightning dmg..');
+			return false;
+		}
+
+		NTC_DoCast(_attackprimary, _usehand2, target);
+	}
+
+	NTSI_FastSnag();
+	return true;
 }
 
-function NTA_SorceressAttackInt(target, boss, maxattacks){
+function NTA_SorceressAttackInt(target, boss, maxattacks)
+{
 	var _attackprimary; 
    var _primaryindex = boss ? 1 : 2; 
    var _maxattacks = 0; 
@@ -665,7 +770,8 @@ function getIntoLOS(target){
 	return true	
 }
 
-function NTA_NecromancerAttackInt(target, boss, maxattacks){
+function NTA_NecromancerAttackInt(target, boss, maxattacks)
+{
 var _maxattacks = 0
 //move these to global
 var armySize = 0;
@@ -901,7 +1007,8 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 	}
 
 	_prehp1 = target.hp;
-attackPrint(target.hp +target.name);
+	attackPrint(target.hp +target.name);
+	
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true) && target.hp > 0)
 	{
 		//print("--Sub Step 1");
@@ -920,7 +1027,7 @@ attackPrint(target.hp +target.name);
 		_prehp2 = target.hp;
 		
 		//print("--Sub Step 2");
-attackPrint(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attack:"+_attackprimary);
+		attackPrint(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attack:"+_attackprimary);
 		if(NTA_GetResistance(target, _damagetype1) < 100)
 		{
 			//print("--Sub Step 3A");
@@ -947,7 +1054,7 @@ attackPrint(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance
 			}
 			
 			//print("--Sub Step 3A-E");			
-	attackPrint("casting "+_attackprimary+" on "+target.name);
+			attackPrint("casting "+_attackprimary+" on "+target.name);
 			NTC_DoCast(_attackprimary, _usehand1, target);
 			
 			//print("--Sub Step 3A-F");						
@@ -1149,7 +1256,8 @@ function NTA_BarbarianAttackInt(target, boss, maxattacks)
    return true;
 }
 
-function NTA_DruidAttackInt(target, boss, maxattacks) { 
+function NTA_DruidAttackInt(target, boss, maxattacks)
+{ 
         var _attackprimary; 
         var _primaryindex = boss ? 1 : 2; 
         var _maxattacks = 0; 
@@ -1297,7 +1405,8 @@ function NTA_DruidAttackInt(target, boss, maxattacks) {
    return true; 
 }    
 
-function NTA_AssassinAttackInt(target, boss, maxattacks){
+function NTA_AssassinAttackInt(target, boss, maxattacks)
+{
 	var _primaryindex;
 	var _maxattacks = 0;
 	var _range1, _range2;
@@ -1413,7 +1522,8 @@ function NTA_AssassinAttackInt(target, boss, maxattacks){
 
 	return true;
 }
-function NTA_CheckTraps(target,boss){
+function NTA_CheckTraps(target,boss)
+{
 	var traps=NTC_GetUnit(NTC_UNIT_MONSTER);
 	var trapcount =0;
 	var warr=0;
@@ -1457,7 +1567,8 @@ function NTA_CheckTraps(target,boss){
 	}
 
 }
-function NTA_MoveCloseInt(target, maxrange){
+function NTA_MoveCloseInt(target, maxrange)
+{
 	var _dist = getDistance(me, target);
 	
 	if(_dist > maxrange)
@@ -1477,14 +1588,16 @@ function NTA_MoveCloseInt(target, maxrange){
 	return true;
 }
 
-function NTA_SortRoomInt(a, b){
+function NTA_SortRoomInt(a, b)
+{
 	if(getDistance(me.x, me.y, a[0], a[1]) < getDistance(me.x, me.y, b[0], b[1]))
 		return -1;
 
 	return 1;
 }
 
-function NTA_Initialize(){
+function NTA_Initialize()
+{
 		if(typeof(NTConfig_PutAura) == 'string') NTConfig_PutAura = getSkillByName(NTConfig_PutAura);
 		if(typeof(NTConfig_AttackFirst) == 'string') NTConfig_AttackFirst = getSkillByName(NTConfig_AttackFirst);
 		if(typeof(NTConfig_AttackBoss) == 'string') NTConfig_AttackBoss = getSkillByName(NTConfig_AttackBoss);
@@ -1526,19 +1639,20 @@ function NTA_Initialize(){
 		}
 	}
 }
-function NTA_DoCastInt(index, target){
+function NTA_DoCastInt(index, target)
+{
 	var _untimedindex = index < 4 ? 3 : 5;
 	if (NTConfig_AttackSkill[index] == 0)
 		return false;
 	if (me.area != 102)
+	{
 		// getIntoLOS(target)
 		if(!getIntoLOS(target))
 			return false;
+	}
 	if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
 		return false;
 
-	
-	
 	if(_NTA_SkillDelay[index] > 0)
 	{
 		if(NTConfig_AttackSkill[_untimedindex] > 0)
