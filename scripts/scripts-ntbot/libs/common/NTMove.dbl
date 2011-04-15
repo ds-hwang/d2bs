@@ -38,7 +38,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 	if(arguments.length < 4)
 		clearpath = false;
 
-	if(NTC_InTown() || NTC_CheckSkill(54) < 1)
+	if(NTC_InTown() || NTC_CheckSkill(54) < 1 || !me.useTeleport)
 		_walk = true;
 	else
 		_walk = false;

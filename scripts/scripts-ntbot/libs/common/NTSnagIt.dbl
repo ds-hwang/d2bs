@@ -24,6 +24,12 @@ function NTSI_PickItems(item)
 {
 	debugPrint("NTSI_PickItems");
 	
+	var tmpTeleportSetting = me.useTeleport;
+	if(NTConfig_UseTeleportForPickit)
+		me.useTeleport = true;
+	else
+		me.useTeleport = false;
+	
 	var i, _mode;
 
 	while(1)
@@ -40,6 +46,7 @@ function NTSI_PickItems(item)
 
 	NTSI_SnagIt(item);
 	NTC_PingDelay(NTConfig_SnagDelay);
+	me.useTeleport = tmpTeleportSetting;
 }
 
 function NTSI_SnagIt(item)

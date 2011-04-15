@@ -81,6 +81,7 @@ var NTConfig_BeltColMin = new Array(4);
 
 var NTConfig_NIPFilePath = new Array();
 var NTConfig_SnagRange;
+var NTConfig_UseTeleportForPickit;
 
 var NTConfig_GambleIt;
 var NTConfig_GambleStashThreshold = 2500000;
@@ -267,6 +268,8 @@ var NTConfig_BODelay = 5;
 
 var NTCOW_DistanceToKing = 40;
 var NTCOW_KingChicken = 50;
+
+me.useTeleport = true;	//enables use of teleport by default;
 
 
 

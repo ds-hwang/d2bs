@@ -28,7 +28,6 @@ function NT_LoadConfig()
 	NT_MinGameTime = 180;  			//	Set minimum game time in seconds to wait in town if your run finishes too quickly (To avoid realm down, default is 180)
 	NTConfig_PublicMode = true;		//	Set to false to not party
 	
-	
 	//["SimonSays","Cow","Mausoleum","ShopBot","Countess","Pit","Tristram","BoneAsh","Andariel","Sewers","Maggot","AncientTunnels","Beetleburst","ClawViper","Summoner","Duriel","KurastTemples","Kurast","Travincal","Mephisto","Izual","Hephasto","Diablo","FastDiablo","LeechD","Eldritch","Frozenstein","Nihlathak","Pindleskin","FastPindle","AncientsWay","ThreshSocket","Worldstone","Baal","Leech","LeechO"];
 	NTConfig_Script = ["SimonSays"];
 	
@@ -50,6 +49,7 @@ function NT_LoadConfig()
 	SimonEnableCommands = false; 
 	
 	
+	me.useTeleport = true;					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;
 	NTConfig_ClearPitLevel1 = true; 		// 	Set to true to clear level 1 of Pit
 	NTConfig_FireEyeExtension = true;		//	Set to true if you want to kill Fire Eye at arcane sanctuary portal when running Summoner script
 	NTConfig_KillFangskin = true;			//	Set to true if you want to kill Fangskin while running Claw Viper Temple script
@@ -59,25 +59,8 @@ function NT_LoadConfig()
 	DiabloTPMsg = "HOT TP!!";				//	Set your message to announce when you make a town portal in Chaos Sanctuary when running Diablo script
 	KillingDiabloMsg = "Killing Diablo!";	//	Set your message to announce just before killing Diablo
 	DiabloNewGameMsg = "Next Game"; 		//	Set your message to announce as Diablo script is finishing execution
-
-	
-	//-------------------------------------------------------------------------------------------------
-	// 	Leader and Leech Configuration
-	//
-	// 		Any character name settings in this section are CASE-SENSITIVE.
-	//-------------------------------------------------------------------------------------------------
-	NT_Leader = ['AddLeaderNameHere','Add_More_Leaders_Like_This'];		//Add all the leader character names you may follow here in the given format
-	QuitWithLeaderList = ['AddCharacterNameHere', 'AddAnotherHere'];	//Add character names here you would like the bot to quit with when they leave current game
-	leader = '';						//	Single leader's name, you don't need to add this to QuitWithLeaderList above. It's automatically added.
-	NTConfig_HelpPreClear = false;		//	Set to true if you want to help clear the throne before it's announced 'Safe'
-	NTConfig_HelpWithWaves = false;		//	Set to true to fight in throne when each wave drops
-	NTConfig_HelpWithBaal = false;		//	Set to true if you want to help kill Baal
-	NTConfig_GetBaalItems = false;		//	Set to true if you want to pick items after Baal dies
-	NTConfig_ClearLeechPosition = true;	//	Set to true if you want to fight while leeching in Worldstone Chamber (tentacles could appear etc)
-
-
-	NTConfig_NihlathakExtension = true;		// Set true to continue to Nihl 
-	NTConfig_PindleskinExtension = true;	// Set true if you want to continue to Pindle 
+	NTConfig_NihlathakExtension = true;		//	Set true to continue to Nihl 
+	NTConfig_PindleskinExtension = true;	//	Set true if you want to continue to Pindle 
 	NTConfig_ShenkExtension = true; 
 	NTConfig_DacFarrenExtension = true ;
 	NTConfig_WSK2Extension = true; 
@@ -87,45 +70,57 @@ function NT_LoadConfig()
 	BaalTPSafeMsg = "1 Clear";	
 	KillBaalMsg = "Lets Kill Baal!"; 
 	BaalNextGameMsg = "Next Game!";
-	NTConfig_CastBOForParty = false;	//Set to true to wait to precast buffs for party when running CS / Diablo;
-	NTConfig_BOMsg = "Casting BO in";	//Write precast message here, will automatically be followed by your delay time and ' seconds'; for example, this will say "Casting BO in 5 seconds"
-	NTConfig_BODelay = 5;				//Set your precast delay here (in seconds);
+	NTConfig_CastBOForParty = false;	//	Set to true to wait to precast buffs for party when running CS / Diablo;
+	NTConfig_BOMsg = "Casting BO in";	//	Write precast message here, will automatically be followed by your delay time and ' seconds'; ex: "Casting BO in 5 seconds"
+	NTConfig_BODelay = 5;				//	Set your precast delay here (in seconds);
 
-	NTCOW_DistanceToKing = 50;			//Set the distance bot will hold too the king when running NTCow.dbl (>40 is recommended here, it's about 2 screens away depending on direction)
-	NTCOW_KingChicken = 65;				//Set the cow king's hp chicken threshold. NTCOW_KingChicken = chickenpercent. The bot will quit if the cow king is under this hp treshold
-
-
+	NTCOW_DistanceToKing = 50;			//	Set the distance bot will hold too the king when running NTCow.dbl (>40 is recommended here, it's about 2 screens away depending on direction)
+	NTCOW_KingChicken = 65;				//	Set the cow king's hp chicken threshold. NTCOW_KingChicken = chickenpercent. The bot will quit if the cow king is under this hp treshold
+	
+	
+	
+	//-------------------------------------------------------------------------------------------------
+	// 	Leader and Leech Configuration
+	//
+	// 		Any character name settings in this section are CASE-SENSITIVE.
+	//-------------------------------------------------------------------------------------------------
+	NT_Leader = ['AddLeaderNameHere', 'Add_More_Leaders_Like_This'];	//	Add all the leader character names you may follow here in the given format
+	QuitWithLeaderList = ['AddCharacterNameHere', 'AddAnotherHere'];	//	Add character names here you would like the bot to quit with when they leave current game
+	leader = '';							//	Single leader's name, you don't need to add this to QuitWithLeaderList above. It's automatically added.
+	NTConfig_HelpPreClear = false;			//	Set to true if you want to help clear the throne before it's announced 'Safe'
+	NTConfig_HelpWithWaves = false;			//	Set to true to fight in throne when each wave drops
+	NTConfig_HelpWithBaal = false;			//	Set to true if you want to help kill Baal
+	NTConfig_GetBaalItems = false;			//	Set to true if you want to pick items after Baal dies
+	NTConfig_ClearLeechPosition = true;		//	Set to true if you want to fight while leeching in Worldstone Chamber (tentacles could appear etc)
+	
+	
+	
 	//-------------------------------------------------------------------------------------------------
 	// 	Potion, Merc, and Chicken Configuration
 	//
 	// 		For the most part, the below settings should be self explanatory.
 	//		The hp/mp values represent percentages NOT actual life/mana.
 	//-------------------------------------------------------------------------------------------------
+	NTConfig_StartDelay = 0;			//	Delay time in milliseconds to start;
+	NTConfig_AreaDelay = 250;			// 	Delay time in milliseconds to change area;
+	NTConfig_SnagDelay = 250;			// 	Delay time in milliseconds to wait before starting picking items
 
-	NT_PickUtility = false;			//	Fill belt and tombs with pickit if you don't want to purchase these items from vendors as often
-	FastSnag = true; 				//	Picks after each attack. based on itemdrop event
-	NTConfig_BeepOnFull = false;	//	If set true, bot will sound a beep when trying to stash an item and the inventory is full; 
+	NTConfig_SkipHealLife = 90; 		// 	If you have more than this percent of life, you won't go to a healer
+	NTConfig_SkipHealMana = 70; 		// 	If you have more than this percent of mana, you won't go to a healer
+	NTConfig_SkipHealCurses = false;	//	If you want to skip curses, set to true
+	NTConfig_UseMerc = true; 			// 	Set to true if you use a mercenary, will revive merc at a reviver npc.
+	NTConfig_ResetWeapon = false;		// 	Set to true to reset weapon when reviving merc
 
-	NTConfig_StartDelay = 0;		//	Delay time in milliseconds to start;
-	NTConfig_AreaDelay = 250;		// 	Delay time in milliseconds to change area;
-	NTConfig_SnagDelay = 250;		// 	Delay time in milliseconds to wait before starting picking items
+	NTConfig_LifeThresh = 80; 			// 	Drink a normal potion if under this percent of life.
+	NTConfig_LifeRejuvThresh = 65; 		// 	Drink a rejuvenation potion if under this percent of life.
+	NTConfig_ManaThresh = 0; 			// 	Drink a normal potion if under this percent of mana.
+	NTConfig_ManaRejuvThresh = 0; 		//	Drink a rejuvenation potion if under this percent of mana.
+	NTConfig_LifeChicken = 50; 			// 	This is your chicken life percent. If you go below this life total, exit game.
+	NTConfig_ManaChicken = 0; 			// 	This is your chicken mana percent. If you go below this mana total, exit game.
 
-	NTConfig_SkipHealLife = 90; 	// 	If you have more than this percent of life, you won't go to a healer
-	NTConfig_SkipHealMana = 70; 	// 	If you have more than this percent of mana, you won't go to a healer
-	NTConfig_SkipHealCurses = false; // If you want to skip curses, set to true
-	NTConfig_UseMerc = true; 		// 	Set to true if you use a mercenary, will revive merc at a reviver npc.
-	NTConfig_ResetWeapon = false;	// 	Set to true to reset weapon when reviving merc
-
-	NTConfig_LifeThresh = 80; 		// 	Drink a normal potion if under this percent of life.
-	NTConfig_LifeRejuvThresh = 65; 	// 	Drink a rejuvenation potion if under this percent of life.
-	NTConfig_ManaThresh = 0; 		// 	Drink a normal potion if under this percent of mana.
-	NTConfig_ManaRejuvThresh = 0; 	//	Drink a rejuvenation potion if under this percent of mana.
-	NTConfig_LifeChicken = 50; 		// 	This is your chicken life percent. If you go below this life total, exit game.
-	NTConfig_ManaChicken = 0; 		// 	This is your chicken mana percent. If you go below this mana total, exit game.
-
-	NTConfig_MercLifeThresh = 30; 	// 	This is the threshold to use a life potion on your merc in percent.
-	NTConfig_MercRejuvThresh = 0; 	// 	This is the threshold to use a rejuv potion on your merc in percent.
-	NTConfig_MercChicken = 0; 		// 	This is your mercs chicken life percent. If he goes below this, exit game.
+	NTConfig_MercLifeThresh = 30; 		// 	This is the threshold to use a life potion on your merc in percent.
+	NTConfig_MercRejuvThresh = 0; 		// 	This is the threshold to use a rejuv potion on your merc in percent.
+	NTConfig_MercChicken = 0; 			// 	This is your mercs chicken life percent. If he goes below this, exit game.
 	
 	
 	
@@ -135,7 +130,6 @@ function NT_LoadConfig()
 	//		Read each comment and setup accordingly.
 	//		Don't skip this section and complain that your bot dropped your items.
 	//--------------------------------------------------------------------------------------
-
 	//	These numbers correspond to your inventory. 
 	//	Set 0 to keep whatever is there, 1 to stash it.
 	NTConfig_Columns[0] = [1,1,1,1,0,0,0,0,0,0];
@@ -145,6 +139,7 @@ function NT_LoadConfig()
 	
 	NTConfig_FreeSpace = 4;				//	Number of free columns. If less full columns are free stashing is set.
 	NTConfig_MinGoldToStash = 100000;	//	Maximum gold amount carried before going to stash
+	NTConfig_BeepOnFull = false;		//	If set true, bot will sound a beep when trying to stash an item and the inventory is full;
 	
 	
 	
@@ -153,7 +148,6 @@ function NT_LoadConfig()
 	//
 	//		Read each section's commented lines and follow instructions carefully
 	//----------------------------------------------------------------------------
-
 	//	Type of potion used in each belt column
 	//	Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too.
 	//	Keep equal types at adjacent columns. First HP then MP and then HP again is a bad choice.
@@ -183,10 +177,14 @@ function NT_LoadConfig()
 	// 		If you want to add your own .nip files, just copy any line and enter the
 	// 		To disable a .nip file, just add "//" at the start of the line or delete the line.
 	//-----------------------------------------------------------------------------------
-	NTConfig_NIPFilePath = ["uniques.nip","sets.nip","whites.nip","runes.nip","magics.nip","gems.nip","charmsjewels.nip","ringsamulets.nip","potions.nip","moneymaker.nip","keys.nip","Shop Bot.nip"]
+	NTConfig_NIPFilePath = ["uniques.nip","sets.nip","whites.nip","runes.nip","magics.nip","gems.nip","charmsjewels.nip","ringsamulets.nip","potions.nip","moneymaker.nip","keys.nip","Shop Bot.nip"];
 	
-	NTConfig_SnagRange = 40;		//	Radius to check for dropped items. 40 is a good number here
-	NTConfig_OpenChest = true;		//	Set to true to open chest in boss/superunique areas
+	NTConfig_SnagRange = 40;				//	Radius to check for dropped items. 40 is a good number here
+	FastSnag = true; 						//	Picks after each attack. based on itemdrop event
+	NT_PickUtility = false;					//	Fill belt and tombs with pickit if you don't want to purchase these items from vendors as often
+	NTConfig_OpenChest = true;				//	Set to true to open chest in boss/superunique areas
+	
+	NTConfig_UseTeleportForPickit = true;	//	True to use teleport when picking items, false to force character to walk to pick items
 	
 	
 	
