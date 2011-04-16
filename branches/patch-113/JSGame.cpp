@@ -319,12 +319,13 @@ JSAPI_FUNC(my_getCollision)
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
 
+	JSBool cachedOnly = JS_FALSE;
 	uint32 nLevelId, nX, nY;
-	if(!JS_ConvertArguments(cx, argc, argv, "uuu", &nLevelId, &nX, &nY))
+	if(!JS_ConvertArguments(cx, argc, argv, "uuu/b", &nLevelId, &nX, &nY, &cachedOnly))
 		return JS_FALSE;
 
 	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
-	if(GetDistance(x, y, nX, nY) < 60) {
+	if(!cachedOnly && GetDistance(x, y, nX, nY) < 60) {
 		Level* level = GetLevel(nLevelId);
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
 		int roomsNear = room->dwRoomsNear;

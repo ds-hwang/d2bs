@@ -334,7 +334,7 @@ bool Script::IsRegisteredEvent(const char* evtName, jsval evtFunc)
 		return false;
 
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
-		if((*it)->value() == evtFunc)
+		if(*(*it)->value() == evtFunc)
 			return true;
 
 	return false;
@@ -349,7 +349,7 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 	AutoRoot* func = NULL;
 	for(FunctionList::iterator it = functions[evtName].begin(); it != functions[evtName].end(); it++)
 	{
-		if((*it)->value() == evtFunc)
+		if(*(*it)->value() == evtFunc)
 		{
 			func = *it;
 			break;
@@ -465,7 +465,7 @@ DWORD WINAPI FuncThread(void* data)
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
 		{
-			args[i] = evt->argv[i]->value();
+			args[i] = *evt->argv[i]->value();
 			if(JS_AddRoot(&args[i]) == JS_FALSE)
 			{
 				if(evt->argv)
@@ -478,7 +478,7 @@ DWORD WINAPI FuncThread(void* data)
 
 		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
 		{
-			JS_CallFunctionValue(cx, evt->object, (*it)->value(), evt->argc, args, &dummy);
+			JS_CallFunctionValue(cx, evt->object, *(*it)->value(), evt->argc, args, &dummy);
 		}
 
 		for(uintN i = 0; i < evt->argc; i++)

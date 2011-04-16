@@ -2,6 +2,21 @@ Version History:
 
 Version 1.4 -
 
+	.	API changes:
+		- Added useStatPoint(statid, count) and useSkillPoint(skillid, count)--no significant error checking
+		  is done, so be careful or you may cause a crash (or worse, a ban)!
+		- Added loadMpq(string mpqname) (this allows you to switch cd keys on the fly)
+		- Added me.revive()--no error checking is done, so you may cause a ban if you're not dead
+		- Added takeScreenshot()--this is the same as pressing the print screen key in D2
+		- Added me.pid--this returns the process id for the current D2 that D2BS is loaded to
+		- Added me.nopickup--returns the current nopickup setting, and allows you to enable/disable nopickup
+		- Added me.mapid--returns the current map seed
+		- Added me.profile--returns the last profile used for login() OR the profile set as the default
+		- Renamed getTextWidthHeight to getTextSize
+		- Changed the return from getPath--now it returns an array of objects with x and y properties
+		- Added support for setting skills from item charges (me.setSkill(skill, hand [, item object]) where
+		item object is the result of getUnit(TYPE_ITEM))
+
 	.	Fixes:
 		- say() fixed to properly detect the screen location and correctly encode % characters
 		- Multiple problems with screenhook clicking and hovering.
@@ -13,6 +28,8 @@ Version 1.4 -
 		- Unit.getFlags() now correctly works
 		- me.cancel no longer affects the automap
 		- The D2BSScript object is now initialized properly like all the others
+		- The event code now correctly returns a 32-bit integer--this was similar to the old getUnit bug, but
+		  more subtle
 
 	.	Added partial support for TCP/IP games in login()
 
@@ -25,9 +42,6 @@ Version 1.4 -
 	.	Upgraded the SQLite library to version 3.7.5
 
 	.	Downgraded "Game not ready" exception from an error to a warning.
-
-	.	Added support for setting skills from item charges (me.setSkill(skill, hand [, item object]) where
-		item object is the result of getUnit(TYPE_ITEM))
 
 	.	Added the ability to change the default starting script names, as well as the ability to let the
 		profile specify both the script path and the default starting script names (see the new values in
@@ -43,18 +57,6 @@ Version 1.4 -
 		  updated, it will remain as-is, and the script path will remain the same)
 
 	.	The console is now scrollable using page up/down. Only the last 300 lines are saved.
-
-	.	API changes:
-		- Added useStatPoint(statid, count) and useSkillPoint(skillid, count)--no significant error checking
-		  is done, so be careful or you may cause a crash (or worse, a ban)!
-		- Added loadMpq(string mpqname) (this allows you to switch cd keys on the fly)
-		- Added me.revive()--no error checking is done, so you may cause a ban if you're not dead
-		- Added takeScreenshot()--this is the same as pressing the print screen key in D2
-		- Added me.pid--this returns the process id for the current D2 that D2BS is loaded to
-		- Added me.nopickup--returns the current nopickup setting, and allows you to enable/disable nopickup
-		- Added me.mapid--returns the current map seed
-		- Added me.profile--returns the last profile used for login() OR the profile set as the default
-		- Renamed getTextWidthHeight to getTextSize
 
 	.	Added new debug code! D2 will now silently crash when it does crash (no more "Window not found"
 		errors!), and will output debug information to D2BS.log.

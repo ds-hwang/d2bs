@@ -197,7 +197,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_MapId);
 			break;
 		case ME_NOPICKUP:
-			*vp = INT_TO_JSVAL(*p_D2CLIENT_NoPickUp);
+			*vp = BOOLEAN_TO_JSVAL(!!*p_D2CLIENT_NoPickUp);
 			break;
 		case UNIT_ACT:
 			*vp = INT_TO_JSVAL(pUnit->dwAct + 1);
