@@ -1216,7 +1216,7 @@ bool keystate(int vKey);
  *
  * gamemsg (String lpszMsg)
  *
- * itemaction (uint32_t gId, String code, uint32_t mode, Bool global)
+ * itemaction (uint32_t gId, uint32_t mode, String code, Bool global)
  *
  * gameevent (BYTE mode, DWORD param1, DWORD param2, String name1, String name2)
  *
