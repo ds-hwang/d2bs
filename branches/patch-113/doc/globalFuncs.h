@@ -1220,6 +1220,55 @@ bool keystate(int vKey);
  *
  * gameevent (BYTE mode, DWORD param1, DWORD param2, String name1, String name2)
  *
+ * From http://www.blizzhackers.cc/viewtopic.php?t=392307 Dark_Mage-
+ *
+ * mode:
+ *
+ * 0x00 - "%Name1(%Name2) dropped due to time out."
+ * 0x01 - "%Name1(%Name2) dropped due to errors."
+ * 0x02 - "%Name1(%Name2) joined our world. Diablo's minions grow stronger."
+ * 0x03 - "%Name1(%Name2) left our world. Diablo's minions weaken."
+ * 0x04 - "%Name1 is not in the game."
+ * 0x05 - "%Name1 is not logged in."
+ * 
+ * 0x06 - "%Name1 was Slain by %Name2"
+ *    BYTE Param2 = Unit Type of Slayer (0x00 = Player, 0x01 = NPC)
+ *        if Type = Player, %Name2 = Slayer Character Name & DWORD Param1 = Slayer Character Type
+ *        if Type = NPC, DWORD Param1 = Monster Id Code from MPQ (points to string for %Name2)
+ *        if Type = NPC & Monster is Unique, %Name2 = Unique Monster Id
+ * 
+ * 0x07 - Player Relations (Bottom Left Text)
+ *    DWORD Param1 = Player Id
+ *    Player Id = Pointer to Character Name
+ *    BYTE Param2 = Action Taken
+ *       Actions:
+ *       0x01 - "%Player permits you to loot his corpse."
+ *       0x02 - "%Player permits you to loot her corpse."
+ *       0x03 - "%Player has declared hostility towards you."
+ *       0x04 - "%Player is no longer hostile towards you."
+ *       0x05 - "%Player invites you to ally against the forces of evil."
+ *       0x06 - "%Player has canceled party invite."
+ *       0x07 - "%Player has joined your party to fight the forces of evil."
+ *       0x08 - "You are now allied with %Player."
+ *       0x09 - "%Player has left your party."
+ *       0x0a - "%Player no longer allows you to access his corpse."
+ *       0x0b - "%Player no longer allows you to access her corpse."
+ * 
+ * 0x08 - "%Name1 is busy."
+ * 0x09 - "You must wait a short time to trade with that player."
+ * 
+ * 0x0a - "%Name1 has items in his box."
+ *    if %Name1 = 0x00, "You have items in your box."
+ * 
+ * 0x0b - <Unknown>
+ * 0x0c - <Unknown>
+ * 0x0d - "%Name1 is not listening to you."
+ * 0x0e - Received on 'Not enough mana' speech.
+ * 0x0f - "Realm going down in %Param1 minutes."
+ * 0x10 - "You must wait a short time to declare hostility with that player."
+ * 0x11 - "%Param1 Stones of Jordan Sold to Merchants"
+ * 0x12 - "Diablo Walks the Earth"
+ *
  * \param eventHandler A function with the signature listed above that handles
  * the event.
  */
