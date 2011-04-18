@@ -172,7 +172,9 @@ function NT_Leech()
 		print("ÿc2...Helping kill Baal.");
 		NTM_MoveTo(15138, 5916);										// Move to the moat.
 		
-		if (!NTA_KillBoss(getLocaleString(3061))) 
+		var baal = getUnit(1,544);
+		while(baal && !(baal.mode == 0 || baal.mode == 12 || baal.hp <= 0))
+		if(!NTA_KillBoss(544))
 			throw new Error();											// Kill Baal.
 		
 		print("ÿc2\\o/ BAAL IS DEAD! \\o/");
