@@ -255,6 +255,7 @@ var NT_LoggingMaxLines=1000000;
 var NT_logItems=true;
 var NT_MinGameTime = false;
 var inFastSnag = false;
+var NTCreatedConfig = false;
 
 var NTSB_StopShopping;
 var NTSB_ShopOnNpcVisit;

@@ -87,9 +87,11 @@ function NT_Baal()
 
 			_wave = NT_ThroneCheckInt();
 		}
-
-		NTA_ClearPosition(40, 0x04);
-		NTA_ClearPosition(40);
+		
+		
+		NTA_ClearPosition(40, 0x04);	//clear bosses
+		NTA_ClearPosition(40, 0x01);	//clear superuniques
+		NTA_ClearPosition(40);			//clear all
 		NTSI_PickItems();
 		NTT_CleanPotions();
 

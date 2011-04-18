@@ -106,9 +106,17 @@ function NTA_ClearPosition(range, spectype)
 						NTSI_FastSnag();					
 					}
 				}
-				if(NTA_Attack(_target, false, 20))
-				{				
-					_killnum++;
+				//(at this point we already know that (spectype == 0 || (_target.spectype & spectype)) so...
+				//if spectype includes SuperUnique or Boss spectypes call NTA_Attack with boss arg set true and maxattacks at a high value;
+				if((spectype & 0x01) || (spectype & 0x04))
+				{
+					if(NTA_Attack(_target, true, 200))
+						_killnum++;
+				}
+				else
+				{
+					if(NTA_Attack(_target, false, 20))
+						_killnum++;
 				}
 			
 			}
@@ -351,29 +359,30 @@ function NTA_GetDamageType(skillid)
 {
 	switch(skillid)
 	{
-	case 74: // Corpse Explosion
-	case 106: // Zeal
-	case 107: // Charge
-	case 151: // Whirlwind
+	case 74:	//	Corpse Explosion
+	case 106: 	//	Zeal
+	case 107: 	//	Charge
+	case 151: 	//	Whirlwind
+	case 245: 	//	Tornado
 		return NTA_DAMAGE_PHYSICAL;
 
-	case 112: // Blessed Hammer
+	case 112:	//	Blessed Hammer
 		return NTA_DAMAGE_MAGIC;
 
-	case 47: // Fire Ball
-	case 56: // Meteor
+	case 47:	//	Fire Ball
+	case 56:	//	Meteor
 		return NTA_DAMAGE_FIRE;
 
-	case 48: // Nova
-	case 49: // Lightning
-	case 53: // Chain Lightning
+	case 48:	//	Nova
+	case 49:	//	Lightning
+	case 53:	//	Chain Lightning
 		return NTA_DAMAGE_LIGHTNING;
 
-	case 59: // Blizzard
-	case 64: // Frozen Orb
+	case 59:	//	Blizzard
+	case 64:	//	Frozen Orb
 		return NTA_DAMAGE_COLD;
 
-	case 92: // Poison Nova
+	case 92:	//	Poison Nova
 		return NTA_DAMAGE_POISON;
 	}
 

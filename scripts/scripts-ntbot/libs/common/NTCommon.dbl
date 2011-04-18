@@ -106,7 +106,7 @@ const NTC_SHIFT_NONE = 0;
 const NTC_SHIFT_HOLD = 1;
 
 const NTC_DELAY_FRAME = 40;
-var NTCreatedConfig = false;
+
 var NTC_CharClassToNameList = new Array(7);
 NTC_CharClassToNameList[0] = "Amazon";
 NTC_CharClassToNameList[1] = "Sorceress";
@@ -123,8 +123,7 @@ var NTConfig_AttackSkill =[];
 	NTConfig_AttackSkill[3] = 0;		// Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't
 	NTConfig_AttackSkill[4] = 0;		// Secondary untimed skill if boss is immune to primary untimed skill!
 	NTConfig_AttackSkill[5] = 0;		// Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
-	
-var NTCreatedConfig = false;
+
 var NTC_ItemQualityToNameList = new Array(9);
 NTC_ItemQualityToNameList[0] = "None";
 NTC_ItemQualityToNameList[1] = "Low Quality";
@@ -147,6 +146,7 @@ function debugPrint(str)
 	if(bobDebug) 
 		sendCopyData(null, "OOG", 0,str+" " );
 }
+
 function NTC_Include(filepath)
 {
 	if(isIncluded(filepath))
@@ -451,7 +451,8 @@ function NTC_FindMonster(classid, spectype)
 
 	if(arguments.length < 2)
 		spectype = 0;
-debugPrint("getunit monster" );
+		
+	debugPrint("getunit monster" );
 	_monster = NTC_GetUnit(NTC_UNIT_MONSTER, classid);
 
 	if(_monster)
