@@ -108,7 +108,7 @@ catch(error){
 	
 		dmg =((item.getStat(21))? "Damage "+item.getStat(22) +"-"+item.getStat(21) :"")
 		soc =((item.getStat(194))? " Sockets "+item.getStat(194) :"") 
-		def =((item.getStat(31))?" Defence "+item.getStat(31) :"");
+		def =((item.getStat(31))?" Defense "+item.getStat(31) :"");
 		eth =(item.getFlag(0x400000)) ? " Ethereal" : "";
 		var area = ""
 	
@@ -174,7 +174,7 @@ catch(error){
 		for(var i = 0 ; i < items.length ; i++){
 		dmg =((items[i].getStat(21))? "Damage "+items[i].getStat(22) +"-"+items[i].getStat(21) :"")
 		soc =((items[i].getStat(194))? " Sockets "+items[i].getStat(194) :"") 
-		def =((items[i].getStat(31))?" Defence "+items[i].getStat(31) :"");
+		def =((items[i].getStat(31))?" Defense "+items[i].getStat(31) :"");
 		eth =(items[i].getFlag(0x400000)) ? " Ethereal" : "";
 		screenPT=getScreenXY(items[i]);
 		dis2=dmg +soc+def+eth;
