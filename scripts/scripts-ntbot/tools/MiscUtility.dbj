@@ -12,8 +12,8 @@ function main()
   	NTC_IncludeLibs(); 
 	NTC_IncludeConfig();
 	 NT_LoadConfig(); 
-	addEventListener("gameevent", function(mode, param,name1,name2) {	
-	print("Game event mode:"+mode +" , " +param +" , "+name1 +" , "+name2+","+NT_HostileAction )   
+	addEventListener("gameevent", function(mode, param1, param2, name1, name2) {	
+	print("Game event mode:"+mode +" , " +param1 +" , "+param2 +" , "+name1+" , "+name2+" , "+NT_HostileAction )   
 			// NT_IdleOnClone = false;
 			// NT_IdleOnSOJ = false;
 			// NT_IdleOnSOJTimeoutSec = 0;
@@ -29,18 +29,22 @@ function main()
 			sendCopyData(null, "OOG", 0,"Stop Me" );
 			idle =  true;	
 			if(NT_IdleOnSOJTimeoutSec >0){
-				idleTimeOut =getTickcount() +(1000*NT_IdleOnSOJTimeoutSec)
+				idleTimeOut = getTickcount() +(1000*NT_IdleOnSOJTimeoutSec)
 			}
 		}	
-		if(NT_HostileAction == 1 && mode ==7 && name1 == 3){
+		if(NT_HostileAction == 1 && mode == 7 && param2 == 3){
+			//TODO: Add ability to log game members that declare hostility to a .log file and have option to search that .log to know whether to party them or not in future..
+			//alogwe: Concerning logging character info of hostile characters, name1 is character name, need users login as well
+			//(might have to build/keep track of a list of login/charnames to match charnames to from events
+			print('ÿc9NTBot Quit: Hostiled by player ('+ name1 +')');
 			quit();
 		}
-		if(NT_HostileAction == 2 && mode ==7 && name1 == 3 ){
+		if(NT_HostileAction == 2 && mode == 7 && param2 == 3 ){
 			hostalWatch = true;			
-			badplayerlist.push(name2)
+			badplayerlist.push(name1)
 		}
-		if(mode ==7 && (name1 == 4 || name1 == 5 || name1==8 || name1== 7))
-			remFromBadList(name2)
+		if(mode ==7 && (param2 == 4 || param2 == 5 || param2 == 8 || param2 == 7))
+			remFromBadList(name1)
 	});
 
 	//Thread KeepAlive

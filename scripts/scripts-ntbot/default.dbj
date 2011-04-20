@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1240;
+var ntbotRevision = 1241;
 
 js_strict(true);
 
@@ -55,40 +55,44 @@ function main()
 		//	ConfigVar.setVisible(true)
 	}
 
-	//addEventListener("copydata",ScriptMsg);
-	//addEventListener("chatcmd", GameMSG);
 	addEventListener("whispermsg", WispMSG);
 	addEventListener("gamemsg", GameMSG);
 
 
 	include("common/HookedControls.dbl");
-	//configHook = new Text("Config NTBot",400,80,7,3,2)
-	configHook= new TextBox(263,30,275,40,"Config NTBot"); configHook.visible = false; configHook.font = 3; configHook.selectedColor=7;
-    configHook.visible = false; configHook.ShowOutline = false;
+	configHook = new TextBox(263,30,275,40,"Config NTBot"); 
+	configHook.visible = false; 
+	configHook.font = 3; 
+	configHook.selectedColor=7;
+    configHook.visible = false; 
+	configHook.ShowOutline = false;
 	
-	configHook.clickFunction = function(){
-		me.cancel(0);
-		configHook.visible = false;
-		if (!ConfigVar){
-			ConfigVar = new ShowConfig();
-		}
-		ConfigVar.setVisible(true);
-	};
+	configHook.clickFunction = 	
+		function(){
+			me.cancel(0);
+			configHook.visible = false;
+			
+			if (!ConfigVar)
+				ConfigVar = new ShowConfig();
+			
+			ConfigVar.setVisible(true);
+		};
 
+	include("config/NTConfig.dbl");
 	include("config/NTConfigManager.dbl");
-	include("common/NTCommon.dbl");    
+	include("common/NTCommon.dbl");
 	include("itemlogger.dbl");
 	NTC_IncludeLibs(); 
 	NTC_IncludeConfig(); 
   	
 	addEventListener("gameevent", 
-		function(mode, param, name1, name2)
+		function(mode, param1, param2, name1, name2)
 		{
 			for(var i = 0; i<QuitWithLeaderList.length; i++)
 			{
-				if(QuitWithLeaderList[i] == name2 && (mode == 0 || mode == 1 || mode == 3))
+				if(QuitWithLeaderList[i] == name1 && (mode == 0 || mode == 1 || mode == 3))
 				{
-					print("Quitting with leader from list: "+ name2);
+					print("Quitting with leader from list: "+ name1);
 					quit();
 				}
 			}
@@ -124,12 +128,10 @@ function main()
 	if(NT_EnableCubing){
 		try{
 			print("Cubing enabled");
-			//include("commmon/NTCuber.dbl");
 			initRecipeList();
 			CheckRecipieList();
 		}catch(error){
 			print(error);
-			//load("libs/common/NTCuber.dbl");
 		}
 	}
 	
@@ -150,44 +152,38 @@ function main()
 		
 		NTC_Delay(500); 
 
-		NT_Loader(); 
+		NT_Loader();
 	}
 	
-	sendCopyData(null, "OOG", 0, "Quit:Full Run");
 	NTC_Delay(500);
 
 	if(NT_MinGameTime){
 		if(getTickCount()-NT_StartTime < NT_MinGameTime *1000){
-			me.overhead ("Stalling for "+parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000)+ " Seconds");
+			var _timeleft = parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000);
+			print("ÿc9NTBot: Run finished early, stalling for "+ _timeleft +" seconds (NT_MinGameTime = "+ NT_MinGameTime +")");
+			me.overhead("Stalling for "+ _timeleft +" seconds");
 			NTTM_CheckAct();
 			NTTMGR_TownManager(); 
-			while (getTickCount()-NT_StartTime < NT_MinGameTime *1000){
-				me.overhead ("Stalling for "+parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000)+ " Seconds");
+			while(getTickCount()-NT_StartTime < NT_MinGameTime *1000){
+				_timeleft = parseInt(((NT_StartTime + ( NT_MinGameTime *1000))-getTickCount())/1000);
+				me.overhead("Stalling for "+ _timeleft +" seconds");
 				NTC_Delay(1000);
 			}
 		}		
 	}
-   
-   quit(); 
+	
+	sendCopyData(null, "OOG", 0, "Quit:Full Run");
+	print("ÿc9NTBot Quit: Run Complete");
+	NTC_Delay(500);
+	
+	quit(); 
 }
-
-
-// function dropHandler(id,code,x,y,mode) 
-// { 
-	// sendCopyData(null, "OOG", 0,"Drop: "+id);
-	// for (var i=0 ;  i < Bob_ItemList.length ; i++){
-		// if (Bob_ItemList[i]==id) return true; //aready there
-	// }
-	// Bob_ItemList.push(id);//,code,x,y,mode);
-	// return true;
-// } 
 
 
 function dropHandlerNew(id,mode,code,global) 
 { 
 	//print("itemaction id:"+id +" mode: "+mode + " code: "+code +" global "+ global);
 	if (mode == 0 || mode == 2 || mode == 3){
-		//sendCopyData(null, "OOG", 0,"Drop: "+id);
 		for (var i=0 ;  i < Bob_ItemList.length ; i++){
 			if (Bob_ItemList[i]==id) return true; //aready there
 		}
@@ -196,6 +192,7 @@ function dropHandlerNew(id,mode,code,global)
 	}
 	return true;
 } 
+
 
 function KeyHandler(key)
 {
@@ -272,13 +269,6 @@ function KeyHandler(key)
 		
 	if(configHook.visible)
 		configHook.visible = getUIFlag(9);
-
-	//sendCopyData(null, me.windowtitle, 0,"Woohooo" );
-
-	//var a = getScript();
-	//do{
-	//	print("script name:"+a.name+" running :"+a.running);
-	//}while(a.getNext);
 
 	return true;
 }

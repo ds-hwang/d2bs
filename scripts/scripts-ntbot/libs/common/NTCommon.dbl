@@ -158,7 +158,6 @@ function NTC_Include(filepath)
 function NTC_IncludeConfig()
 {
 	var _configname;
-	var _configfile;
 
 	switch(me.classid)
 	{
@@ -194,15 +193,10 @@ function NTC_IncludeConfig()
 	if (!(FileTools.exists("libs/config/" + _configname))){
 	  try{
 		print(" trying to make config file me.classid :"+me.classid);
-		FileTools.copy("libs/config/NTConfig_" + NTC_CharClassToNameList[me.classid] + ".dbl", "libs/config/NTConfig_" + NTC_CharClassToNameList[me.classid] + "_" + me.name + ".dbl" );      
-		//showConsole();
+		FileTools.copy("libs/config/NTConfig_" + NTC_CharClassToNameList[me.classid] + ".dbl", "libs/config/NTConfig_" + NTC_CharClassToNameList[me.classid] + "_" + me.name + ".dbl" );
 		
 		NTCreatedConfig=true;
 		
-		//NT_Pause=true; //no reason to pause simon says
-		//sendCopyData(null, "OOG", 0,"Stop Me");
-		//NTC_Delay(100);
-		//sendCopyData(null, "OOG", 0,"Start Me");
       }
       catch(fileException){
          print(" ");

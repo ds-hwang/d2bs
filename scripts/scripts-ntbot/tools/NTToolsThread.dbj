@@ -144,7 +144,8 @@ myself = copyUnit(me);
 			if(_mercHP > 0)
 			{
 				if(_mercHP < NTConfig_MercChicken)
-				{					
+				{
+					print('ÿc9NTBot Quit: Chickened due to Merc life');
 					quit();
 					break;
 				}
