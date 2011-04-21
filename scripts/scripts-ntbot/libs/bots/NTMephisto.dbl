@@ -42,12 +42,13 @@ function NT_Mephisto()
    if (NTConfig_Moattrick)
    {
 		NTM_MoveTo(17560, 8072);
-		delay(1500);
+		delay(3000);
 		NTM_MoveTo(17563, 8072);
-		delay(500);
+		delay(1000);
 		NTM_MoveTo(17585, 8095);
-		delay(1500);
+		delay(3000);
 		NTM_MoveTo(17611, 8085);
+		delay(1000);
 		
 		print("ÿc1Killing Mephisto");
 		NTA_KillBoss(getLocaleString(3062)) //Mephisto

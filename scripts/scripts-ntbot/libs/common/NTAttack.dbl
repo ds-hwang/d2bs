@@ -359,7 +359,8 @@ function NTA_GetDamageType(skillid)
 {
 	switch(skillid)
 	{
-	case 74:	//	Corpse Explosion
+	case 74: 	//	Corpse Explosion
+	case 97: 	//	Smite
 	case 106: 	//	Zeal
 	case 107: 	//	Charge
 	case 151: 	//	Whirlwind
@@ -468,22 +469,7 @@ function NTA_Attack(target, boss, maxattacks)
 	return false;
 }
 
-// Internal function
-// function NTA_AmazonAttackInt(target, boss, maxattacks)
-// {
-	// while(NTA_IsValidTarget(target, true)) 
-   // { 
-      // NTSI_FastSnag();
-			// if(checkCollision(me, target, 3))
-				// return false;
-			// if(getDistance(me,target)>5){
-				// NTM_MoveTo(target.x, target.y)				
-			// }
-      // NTC_DoCast(24, 3,target.x,target.y); 
-	// }
-// return true;
-// }
-
+//Thank you to whoever wrote this on the bh.cc forums!
 function NTA_AmazonAttackInt(target, boss, maxattacks)
 {
 	var _attackprimary;
@@ -1025,7 +1011,7 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 
 	_prehp1 = target.hp;
 	attackPrint(target.hp +target.name);
-	
+
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true) && target.hp > 0)
 	{
 		//print("--Sub Step 1");
@@ -1042,13 +1028,13 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 		}
 
 		_prehp2 = target.hp;
-		
+
 		//print("--Sub Step 2");
 		attackPrint(NTA_GetResistance(target, _damagetype1)+" "+target.name+" resistance attack:"+_attackprimary);
 		if(NTA_GetResistance(target, _damagetype1) < 100)
 		{
 			//print("--Sub Step 3A");
-			
+
 			if((_maxattacks % 2) == 1 && _nohit)
 			{
 				if(_attackprimary == 112)
@@ -1063,27 +1049,27 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 					if(!NTA_MoveCloseInt(target, _range1) && !boss)
 						return false;
 				}
-				
+
 				//print("--Sub Step 3A-D");
 
-				if(NTConfig_PutAura > 0)
-					NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+				if(NTA_GetAttackAuraInt(_attackprimary) > 0)
+					NTC_PutSkill(NTA_GetAttackAuraInt(_attackprimary), NTC_HAND_RIGHT);
 			}
-			
-			//print("--Sub Step 3A-E");			
+
+			//print("--Sub Step 3A-E");            
 			attackPrint("casting "+_attackprimary+" on "+target.name);
 			NTC_DoCast(_attackprimary, _usehand1, target);
-			
-			//print("--Sub Step 3A-F");						
-			
+
+			//print("--Sub Step 3A-F");                        
+
 			NTSI_FastSnag();
-			
-			//print("--Sub Step 4A");			
+
+			//print("--Sub Step 4A");            
 		}
 		else if(NTConfig_AttackSecondary > 0 && NTA_GetResistance(target, _damagetype2) < 100)
 		{
 			//print("--Sub Step 3B");
-			
+
 			if((_maxattacks % 2) == 1 && _nohit)
 			{
 				if(NTConfig_AttackSecondary == 112)
@@ -1095,25 +1081,25 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 				{
 					if(!NTA_MoveCloseInt(target, _range2) && !boss)
 						return false;
-					
-					if(NTConfig_AttackSecondary == 101)	//Thanks to menellerhur for this ! (walks to other side of enemy, so bolts don't hit merc);
+
+					if(NTConfig_AttackSecondary == 101)    //Thanks to menellerhur for this ! (walks to other side of enemy, so bolts don't hit merc);
 					{
 						NTA_GoToOtherSide(target);
 					}
 				}
 
-				if(NTConfig_PutAura > 0)
-					NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+				if(NTA_GetAttackAuraInt(NTConfig_AttackSecondary) > 0)
+					NTC_PutSkill(NTA_GetAttackAuraInt(NTConfig_AttackSecondary), NTC_HAND_RIGHT);
 			}
 
 			NTC_DoCast(NTConfig_AttackSecondary, _usehand2, target);
 			NTSI_FastSnag();
-			
-			//print("--Sub Step 4B");			
+
+			//print("--Sub Step 4B");            
 		}
 		else
 		{
-			//print("--Sub Step 3C");		
+			//print("--Sub Step 3C");        
 			if(boss)
 			{
 				if((_maxattacks % 2) == 1 && _nohit)
@@ -1123,8 +1109,8 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 					else
 						NTA_MoveCloseInt(target, _range1);
 
-					if(NTConfig_PutAura > 0)
-						NTC_PutSkill(NTConfig_PutAura, NTC_HAND_RIGHT);
+					if(NTA_GetAttackAuraInt(_attackprimary) > 0)
+						NTC_PutSkill(NTA_GetAttackAuraInt(_attackprimary), NTC_HAND_RIGHT);
 				}
 
 				NTC_DoCast(_attackprimary, _usehand1, target);
@@ -1132,11 +1118,11 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 			}
 			else
 				return false;
-			//print("--Sub Step 4C");				
+			//print("--Sub Step 4C");                
 		}
 
-		//print("--Sub Step 4");		
-		
+		//print("--Sub Step 4");        
+
 		if(boss)
 		{
 			if((_maxattacks % 8) == 0)
@@ -1157,8 +1143,8 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 					return false;
 			}
 		}
-		
-		//print("--Sub Step 5");				
+
+		//print("--Sub Step 5");                
 
 		_nohit = (target.hp >= _prehp2);
 
@@ -1167,12 +1153,13 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 			if(!NTTMGR_CheckSafe(1))
 				return false;
 		}
-		
-		//print("--Sub Step 6");				
+
+		//print("--Sub Step 6");                
 	}
 
 	return true;
 }
+
 
 //NTA_BarbarianAttackInt() function written by kolton.  Thanks very much kolton!
 function NTA_BarbarianAttackInt(target, boss, maxattacks)
@@ -1854,4 +1841,25 @@ function NTA_GoToOtherSide(target)
 	  delay(20);
 	  delayLoops--;
 	}
+}
+
+function NTA_GetAttackAuraInt(skillid)
+{
+	function haveSkill(skillid){ return ( me.getSkill(skillid,1) > 0 ); };
+	
+	switch(skillid)
+	{
+			case 97: return 122; 		//	case 'Smite', return 'Fanaticism'
+			case 101: 					//	case 'Holy Bolt', if i have 'Fanaticism' return 'Fanaticism', else return 'Concentration'
+					if(haveSkill(122))
+						return 122;
+					else
+						return 113;
+			case 106: return 122; 		//	case 'Zeal', return 'Fanaticism'
+			case 112: return 113; 		//	case 'Blessed Hammer', return 'Concentration'
+			
+			default: break;
+	}
+	
+	return 0;	//anything else, return 0;
 }
