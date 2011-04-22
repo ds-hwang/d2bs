@@ -751,7 +751,7 @@ struct MessageHandlerList
 {
 	DWORD message;
 	DWORD unk_4;
-	void (__stdcall *handler)(void*);
+	DWORD (__stdcall *handler)(void*);
 	struct MessageHandlerList* next;
 };
 

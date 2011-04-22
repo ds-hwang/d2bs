@@ -56,7 +56,7 @@ FUNCPTR(D2CLIENT, GetUnitY, int __fastcall, (UnitAny* pUnit), 0x1660)
 FUNCPTR(D2CLIENT, ShopAction, void __fastcall, (UnitAny* pItem, UnitAny* pNpc, UnitAny* pNpc2, DWORD dwSell, DWORD dwItemCost, DWORD dwMode, DWORD _2, DWORD _3), 0x47D60)
 
 FUNCPTR(D2CLIENT, CloseNPCInteract, DWORD __cdecl, (void), 0x492F0) // Unsure of the proper return type.
-FUNCPTR(D2CLIENT, CloseNPCTalk, void __stdcall, (void* unk), 0x7ED30)
+FUNCPTR(D2CLIENT, CloseNPCTalk, DWORD __stdcall, (void* unk), 0x7ED30)
 FUNCPTR(D2CLIENT, ClearScreen, void __fastcall, (void), 0x48350)
 FUNCPTR(D2CLIENT, CloseInteract, void __fastcall, (void), 0x43870)
 
