@@ -17,7 +17,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -41,8 +41,6 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(Configuration)\Intermediate\</IntDir>
     <IncludePath>$(IncludePath);$(ProjectDir)\dependencies\include</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
-    <TargetName>$(SolutionName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -108,10 +106,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptEngine.cpp" />
-    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="sqlite3.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SQLITE_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SQLITE_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -120,7 +116,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D2BS.h" />
     <ClInclude Include="dependencies\include\Allocator.h" />
     <ClInclude Include="dependencies\include\Assembler.h" />
     <ClInclude Include="dependencies\include\avmplus.h" />
@@ -214,7 +209,6 @@
     <ClInclude Include="dependencies\include\Writer.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptEngine.h" />
-    <ClInclude Include="Settings.h" />
     <ClInclude Include="sqlite3.h" />
   </ItemGroup>
   <ItemGroup>

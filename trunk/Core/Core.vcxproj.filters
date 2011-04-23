@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="ScriptEngine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -11,7 +10,6 @@
     <ClCompile Include="sqlite3.c">
       <Filter>Dependencies</Filter>
     </ClCompile>
-    <ClCompile Include="Settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -307,8 +305,6 @@
     <ClInclude Include="dependencies\include\Writer.h">
       <Filter>JSAPI</Filter>
     </ClInclude>
-    <ClInclude Include="D2BS.h" />
-    <ClInclude Include="Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg">
