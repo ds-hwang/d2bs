@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1242;
+var ntbotRevision = 1247;
 
 js_strict(true);
 
@@ -220,7 +220,7 @@ function KeyHandler(key)
 		{
 			print(a.toSource());
 			sendCopyData(null, "OOG", 0,a.toSource() + " "+a.getFlag(0x400000)+ " "+a.getStat(152)+" " );
-			//sendCopyData(null, "OOG", 0,getBaseStat(0, a.classid, 59) + " " );
+			//sendCopyData(null, "OOG", 0, NTC_GetBaseStat(0, a.classid, 59) + " " );
 			//print(a.getStat(-2).toSource());
 			sendCopyData(null, "OOG", 0,"item.getStat(-2).toSource()"+a.getStat(-2).toSource() + " " );
 		} while(a.getNext());

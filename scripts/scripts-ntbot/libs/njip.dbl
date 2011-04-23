@@ -134,9 +134,9 @@ function njipCheckGoodItem(item_, mode_) {
 	item_.__defineGetter__('itemclass',
 		function()
 		{
-			if(getBaseStat(0, this.classid, 'code') == getBaseStat(0, this.classid, 'ultracode'))
+			if(NTC_GetBaseStat(0, this.classid, 'code') == NTC_GetBaseStat(0, this.classid, 'ultracode'))
 				return 2;
-			if(getBaseStat(0, this.classid, 'code') == getBaseStat(0, this.classid, 'ubercode'))
+			if(NTC_GetBaseStat(0, this.classid, 'code') == NTC_GetBaseStat(0, this.classid, 'ubercode'))
 				return 1;
 			else
 				return 0;
