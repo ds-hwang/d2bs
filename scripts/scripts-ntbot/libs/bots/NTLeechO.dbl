@@ -71,7 +71,7 @@ function NT_LeechO() {
                                                                                                                 // souls by staying in the corner while the leader kills them.
                 NTM_MoveTo(me.x-2, me.y-2, 5, false);                   // REVISION 1.1: Fixes the candle glitch where players get stuck.
         } else {
-                NTA_ClearPosition(50);
+                NTA_ClearPosition(25);
         }
         delay(500);
         NTM_MoveTo(15113, 5037, 5, false);                                      // Move to third Pillar. Second pillar is X:15113 Y:5037        

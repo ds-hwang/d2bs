@@ -2,6 +2,7 @@
 ;Redone by Cariboulou89, made so most of the % gear that needs to be at a high % in order to actually be worth something is keeping as that only. Added a Amazon Glove's section Magic & Rare. Fixed alot of gear and also this is going to be updated alot more.
 
 ;Use CTRL + F and type in what is in the ( or with it doesnt matter and ;will help you find the section you want faster but some are just for the ;general section
+;Necro / Sorc Casting Items (CAS1)
 ;Charms Section (SGC1)
 ;Unique Gloves (GL1)
 ;Unique Belts (BL1)
@@ -40,6 +41,7 @@
 ;Rare Rings (RR1)
 ;Rare + Chara Specific Ammy (AMM1)
 ;Rare Helms (RDS1)
+;LLD Items (LLD1)
 ;Rare Armor (RAS1)
 ;Magic Rings & Ammy + (MR1)
 ;Magic / Rare Necro (MRN1)
@@ -53,6 +55,10 @@
 ;Asn Claw Section (ASNC1)
 ;Magic Section (MGS1)
 ;Memory Staves (MS)
+
+;Used large sections of:
+;http://bbs.battlecn.net/read.php?tid=871784
+;and I can't find the page for the other one but if I do, I'll add it. (Had the file saved to hdd)
 
 ;Misc crafting
 
@@ -78,7 +84,7 @@
 
 Name = Chain Gloves       : Quality = Unique : 80 = 40 ; 40% MF Chance Guards
 Name = Ogre Gauntlets : Quality = Unique : Enhanced Damage >= 55 : Strength >=17 ;  Steelrend
-Name = Vampirebone Gloves    : Quality = Unique : Strength >= 15 : Enhanced Defense >= 115 ; Dracul's Grasp
+Name = Vampirebone Gloves    : Quality = Unique ; Dracul's Grasp
 Name = Light Gauntlets    : Quality = Unique : Enhanced Defense = 30 ; Perfect  Magefists
 ;Name = Gauntlets       : Quality = Unique : Enhanced Defense = 20 ; Perfect Frostburn
 
@@ -86,28 +92,27 @@ Name = Light Gauntlets    : Quality = Unique : Enhanced Defense = 30 ; Perfect  
 
 Name = Heavy Belt       : Quality = Unique : Enhanced Defense = 60 : itemgoldbonus = 80 ; Perfect Goldwrap
 Name = Demonhide Sash       : Quality = Unique : Life Leech = 8 : DamageResist = 15 : magicdamagereduction = 15 : Enhanced Defense = 180 ; 100% Perfect String Of Ears 
-Name = War Belt       : Quality = Unique : Enhanced Defense = 200 ; Thundergod's Vigor
-Name = Spiderweb Sash       : Quality = Unique : Enhanced Defense >= 110  ; Unid Arachnid Mesh
-Name = Mithril Coil       : Quality = Unique : Vitality >= 35 : normaldamagereduction = 15 ; Verdungo's Hearty Cord
+Name = War Belt       : Quality = Unique : Enhanced Defense >= 190 ; Thundergod's Vigor
+Name = Spiderweb Sash       : Quality = Unique  ; Unid Arachnid Mesh
+Name = Mithril Coil       : Quality = Unique ; Verdungo's Hearty Cord
 
 ; BOOTS (BT1)
 
 Name = Sharkskin Boots       : Quality = Unique : MaxHP = 65 ; Waterwalk
-Name = Battle Boots       : Quality = Unique : 80 >= 45 ;  War Traveler
-Name = War Boots       : Quality = Unique : Enhanced Defense = 200 ; Gore Rider
-Name = Scarabshell Boots    : Quality = Unique : Strength = 15 : Vitality = 15 : Flag != Eth ; Sandstorm Trek
+Name = Battle Boots       : Quality = Unique : 80 >= 40 ;  War Traveler
+Name = War Boots       : Quality = Unique : Enhanced Defense >= 195 ; Gore Rider
+Name = Scarabshell Boots    : Quality = Unique : Strength = 15 : Vitality >= 15 : Flag != Eth ; Sandstorm Trek
 Name = Scarabshell Boots    : Quality = Unique : Flag = Eth ; Unid Eth Sandstorm Trek
 ;Name = Boneweave Boots : Quality = Unique : skillskeletonmastery = 2 : Strength = 20 ; Marrowwalk
 Name = Myrmidon Greaves    : Quality = Unique ; Unid Shadow Dancer
 
 ; HELMS (HM1)
 
-Name = Shako : Quality = Unique : Defense >= 130   ; Unid Harlequin Crest
-Name = Grim Helm : Quality = Unique : 60 = 8 : 62 = 8 : DamageResist >= 17
-Name = Grim Helm : Quality = Unique : Flag = Eth ; Unid Eth Gaze
+Name = Shako : Quality = Unique   ; Unid Harlequin Crest
+Name = Grim Helm : Quality = Unique : Life Leech >= 8 : Mana Leech >= 8 : DamageResist >= 17
 Name = Spired Helm : Quality = Unique   : passivecoldmastery > 1 : Dexterity >= 18 ; Nightwing's Veil
 Name = Demonhead : Quality = Unique : Flag = Eth; Unid Andariel's Visage
-Name = Demonhead : Quality = Unique : Strength = 25 : Enhanced Defense >= 140 : 60 = 10; Non Eth Andariel's Visage
+Name = Demonhead : Quality = Unique : Flag != Eth; Unid Andariel's Visage
 Name = Bone Visage : Quality = Unique : Sockets = 2 : Strength >= 25 ;  Giant Skull
 Name = Tiara : Quality = Unique  : 39 = 70 : 41 = 70 : 43 = 70 : 45 = 70 ;
 Name = Diadem : Quality = Unique    ; Unid Griffon's Eye
@@ -130,14 +135,14 @@ Name = Kraken Shell       : Quality = Unique : DamageResist >= 20 : Strength >= 
 Name = Sacred Armor       : Quality = Unique ; Unid Templars Or Tyraels
 Name = Mesh Armor       : Quality = Unique : Enhanced Defense  >= 205 : Flag = Eth ;  Shaftstop
 Name = Serpentskin Armor    : Quality = Unique : 39 > 34 : 41 > 34 : 43 > 34 : 45 > 34 ;  Skin of the Vipermagi 
-Name = Russet Armor : Quality = Unique : Flag = Eth : Enhanced Defense = 200 ; Skullder's Ire
-;Name = Russet Armor : Quality = Unique : Enhanced Defense = 200 : Flag != Eth ; Skullder's Ire
+Name = Russet Armor : Quality = Unique : Flag = Eth ; Skullder's Ire
+Name = Russet Armor : Quality = Unique : Enhanced Defense = 200 : Flag != Eth ; Skullder's Ire
 
 ;--- SHIELDS--- (SS1)
 
 ;Name = Round Shield       : Quality = Unique ; Unid Moser's Blessed Circle
 Name = Troll Nest       : Quality = Unique : Sockets = 3 : Flag = Eth ;  Head Hunter's Glory
-;Name = Monarch : Quality = Unique ;  Stormshield
+Name = Monarch : Quality = Unique ;  Stormshield
 
 ;================ WEAPONS ===================
 
@@ -194,21 +199,21 @@ Name = Elder Staff : Quality = Unique ; Ondal's Wisdom
 
 
 ;Name = Lich Wand : Quality = Unique ;  Boneshade
-Name = Unearthed Wand : Quality = Unique ; Unid Death's Web
+Name = Unearthed Wand : Quality = Unique ;  Death's Web
 
 ;======CLASS SPECIFIC=======
 
 
 ; AMAZON (AN1)
 
-Name = Ceremonial Javelin : Quality = Unique : Flag = Eth : Enhanced Damage = 200 ;  Titan's Revenge
+Name = Ceremonial Javelin : Quality = Unique : Flag = Eth ;  Titan's Revenge
 Name = Matriarchal Javelin : Quality = Unique : Flag = Eth ; Thunderstroke's
 Name = Matriarchal Javelin : Quality = Unique : Enhanced Damage = 200 ; Thunderstroke's
 
 ; ASSASSIN (ASS1)
 
 ;Name = Greater Talons : Quality = Unique : Enhanced Damage >= 200 : Flag != Eth ;
-Name = Greater Talons : Quality = Unique : Enhanced Damage = 200 : Flag = Eth ;
+Name = Greater Talons : Quality = Unique : Enhanced Damage >= 190 : Flag = Eth ;
 
 ; NECROMANCER (N1)
 
@@ -225,7 +230,7 @@ Name = Slayer Guard : Quality = Unique : Flag = Eth ;  Arreat's Face Unid Eth
 
 Name = Eldritch Orb : Quality = Unique : Sorceress Skills = 3 : passiveltngmastery = 20 ;
 Name = Eldritch Orb : Quality = Unique : Sorceress Skills = 3 : passiveFiremastery = 20 ;
-;Name = Swirling Crystal    : Quality = Unique ; Oculus
+Name = Swirling Crystal    : Quality = Unique ; Oculus
 
 Name = Dimensional Shard : Quality = Unique ;  Death's Fathom
 
@@ -247,7 +252,7 @@ Name = Zakarum Shield : Quality = Unique : itemabsorbfirepercent = 20 ;  Dragons
 ;Name = Swirling Crystal    : Quality = set ; Tal Rasha's Lidless Eye
 ;Name = Death Mask       : Quality = set ; Tal Rasha's Horadric Crest
 ;Name = Lacquered Plate    : Quality = set ; Tal Rasha's Guardianship
-;Type = Amulet : Quality = set : sorceressskills = 2 ; Tal Rasha's Adjucation
+Type = Amulet : Quality = set : sorceressskills = 2 ; Tal Rasha's Adjucation
 ;Name = Mesh Belt       : Quality = set : itemmagicbonus = 15 ; Tal Rasha's Fine-Spun Cloth
 
 ;-Trang-Oul's Avatar- (TRA1)
@@ -287,6 +292,98 @@ Type = Sword : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Dam
 Type = Sword : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
 Type = Sword : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
 
+;Fools 1h Section
+Name = Tomahawk : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Tomahawk : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Tomahawk : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Tomahawk : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Tomahawk : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Tomahawk : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Small Crescent : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Small Crescent : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Small Crescent : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Small Crescent : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Small Crescent : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Small Crescent : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Ettin Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Ettin Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Ettin Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Ettin Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Ettin Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Ettin Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Spike : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Spike : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Spike : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Spike : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Spike : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Spike : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = berserker axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = berserker axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = berserker axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = berserker axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = berserker axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = berserker axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Hatchet : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Hatchet : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Hatchet : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Hatchet : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Hatchet : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Hatchet : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Cleaver : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Cleaver : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Cleaver : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Cleaver : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Cleaver : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Cleaver : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Twin Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Twin Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Twin Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Twin Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Twin Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Twin Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Crowbill : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Crowbill : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Crowbill : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Crowbill : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Crowbill : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Crowbill : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Naga : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Naga : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Naga : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Naga : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Naga : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Naga : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = hand Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = hand Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = hand Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = hand Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = hand Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = hand Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Double Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Double Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Double Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Double Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Double Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Double Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Military Pick : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Military Pick : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Military Pick : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = Military Pick : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Military Pick : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = Military Pick : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Axe : Flag = eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Axe : Flag = eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Axe : Flag = eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 100
+Name = War Axe : Flag != eth : Quality = Rare : 225 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Axe : Flag != eth : Quality = Rare : 224 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+Name = War Axe : Flag != eth : Quality = Rare : 218 >= 1 : IAS >= 20 : Enhanced Damage >= 200
+
 ;Fools Claw
 Name = Runic Talons : Quality = Rare : 224 >= 1 : Ias >= 20
 Name = Feral Claws : Quality = Rare : 224 >= 1 : Ias >= 20
@@ -301,72 +398,73 @@ Name = Battle Cestus : Quality = Rare : 225 >= 1 : Ias >= 20
 
 ;Gheeds close to perf
 ;Name = grandcharm : Quality = Unique : itemgoldbonus >= 150
-;Name = grandcharm : Quality = Unique : 80 = 40
+;Name = grandcharm : Quality = Unique : 80 >= 37 
 
 ;SKILLERS
 Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddbowandcrossbowskilltab = 1 : Strength = 6
 Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : FHR >= 7 
-Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : MaxHP >= 20
 Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddpassiveandmagicskilltab = 1 : Strength = 6
-Name = grandcharm : Quality = magic : itemaddjavelinandspearskilltab = 1 : MaxHP >= 30
-Name = grandcharm : Quality = magic : itemaddfireskilltab= 1 : MaxHP >= 25 
-Name = grandcharm : Quality = magic : itemaddlightningskilltab = 1 : MaxHP >= 25		 
-Name = grandcharm : Quality = magic : itemaddcoldskilltab = 1 : MaxHP >= 25	 
-Name = grandcharm : Quality = magic : itemaddpoisonandboneskilltab = 1 : MaxHP >= 25
+Name = grandcharm : Quality = magic : itemaddjavelinandspearskilltab = 1
+Name = grandcharm : Quality = magic : itemaddfireskilltab= 1		 
+Name = grandcharm : Quality = magic : itemaddlightningskilltab = 1		 
+Name = grandcharm : Quality = magic : itemaddcoldskilltab = 1 		 
+Name = grandcharm : Quality = magic : itemaddpoisonandboneskilltab = 1
 Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : FHR >= 7 
-Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddnecromancersummoningskilltab = 1 : Strength = 6
 Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : FHR >= 7 
-Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : Dexterity >= 1
 Name = grandcharm : Quality = magic : itemaddoffensiveaurasskilltab = 1 : Strength >= 1
 Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : FHR >= 7 
-Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : MaxHP >= 20
 Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemadddefensiveaurasskilltab = 1 : Strength = 6
 Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : FHR >= 7 
-Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : MaxHP >= 20
 Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddbarbcombatskilltab = 1 : Strength = 6
 Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : MaxHP >= 40
+Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : MaxHP >= 20
 Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddmasteriesskilltab = 1 : Strength = 6
+Name = grandcharm : Quality = magic : itemaddwarcriesskilltab = 1
 Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemadddruidsummoningskilltab = 1 : Strength = 6
 Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : Dexterity = 6
 Name = grandcharm : Quality = magic : itemaddshapeshiftingskilltab= 1 : Strength = 6
-Name = grandcharm : Quality = magic : itemaddelementalskilltab = 1 : MaxHP >= 25
-Name = grandcharm : Quality = magic : itemaddtrapsskilltab = 1 : MaxHP >=  25
+Name = grandcharm : Quality = magic : itemaddelementalskilltab = 1
+Name = grandcharm : Quality = magic : itemaddtrapsskilltab = 1
 Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : Dexterity >= 1
 Name = grandcharm : Quality = magic : itemaddshadowdisciplinesskilltab = 1 : Strength >= 1
 Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : FHR >= 7
-Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : MaxHP >= 30
+Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : MaxHP >= 1
 Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : FRW >= 5
 Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : Dexterity >= 1
 Name = grandcharm : Quality = magic : itemaddmartialartsskilltab = 1 : Strength >= 1
-Name = grandcharm : Quality = magic : itemaddpalicombatskilltab = 1 : MaxHP >= 25
+Name = grandcharm : Quality = magic : itemaddpalicombatskilltab = 1
 
 ; RESIST GCS
 Name = GrandCharm : Quality = Magic : 39 = 15 : 41 = 15 : 43 = 15 : 45 = 15 ;
@@ -392,7 +490,7 @@ Name = grandcharm : Quality = Magic : Max Damage >= 9 : tohit >= 20 : FHR = 12
 
 ;LIFE/MANA GCS
 Name = GrandCharm : Quality = Magic : MaxHP >= 40 : mana >= 35
-;Name = GrandCharm : Quality = Magic : itemgoldbonus = 40
+Name = GrandCharm : Quality = Magic : itemgoldbonus = 40
 
 ; ** LARGE CHARMS **
 
@@ -416,11 +514,11 @@ Name = Largecharm : Quality = Magic : 58 >= 101
 
 ;MISC LIFE/STATS SCS
 Name = smallcharm : Quality = magic : MaxMana = 17
-;Name = smallcharm : Quality = magic : MaxHP = 20
-Name = smallcharm : Quality = magic : MaxHP >= 18
+Name = smallcharm : Quality = magic : MaxHP = 20
+Name = smallcharm : Quality = magic : MaxHP = 15
 Name = smallcharm : Quality = magic : 80 = 7 ; +7 % mf small charm
 Name = smallcharm : Quality = magic : MaxHP >= 10 : 9 >= 9
-;Name = Smallcharm : Quality = Magic : itemgoldbonus = 10
+Name = Smallcharm : Quality = Magic : itemgoldbonus = 10
 
 ;FRW / FHR SCS
 Name = smallcharm : Quality = magic : 39 >= 1 : FRW = 3
@@ -467,7 +565,7 @@ Name = jewel : Quality = magic : enhanceddamage >= 35 : maxdamage >= 12         
 Name = jewel : Quality = magic : enhanceddamage >= 39 : mindamage >= 8                ;8+min       38+ed
 Name = jewel : Quality = magic : enhanceddamage >= 39 : fhr = 7                ;7fhr       39+ed
 Name = jewel : Quality = magic : 91 = -15 : enhanceddamage >= 39                ;-15%req   39+ed
-Name = jewel : Quality = magic : IAS > 15 : enhanceddamage >= 30                ;15ias       30+ed
+Name = jewel : Quality = magic : IAS >= 15 : enhanceddamage >= 30                ;15ias       30+ed
 Name = jewel : Quality = magic : IAS >= 15 : maxdamage >= 15                    ;15ias     15+max
 Name = jewel : Quality = magic : IAS >= 15 : mindamage >= 10                    ;15ias     10+min
 Name = jewel : Quality = magic : 91 = -15 : maxdamage >= 15                    ;-15%req 15max
@@ -554,6 +652,9 @@ Type = Ring   : Quality = Rare : Dexterity >= 15 : Strength >= 15        ;15+dex
 Type = Ring   : Quality = Rare : Dexterity >= 15 : MaxHP   >= 30        ;15+dex        10+dex
 Type = Ring   : Quality = Rare : Dexterity >= 15 : 60     >= 6        ;15+dex        6ll
 Type = Ring   : Quality = Rare : 60     >= 6 : 62     >= 5        ;6+ll        5+ml
+
+;50+ MF AMULET
+Type = Amulet : Quality = rare : 80 >= 35
 
 ;+2 CHAR SPECIFIC
 Type = Amulet : Quality = rare : Assassin skills = 2 : FCR = 10 : Strength >= 15 : Dexterity >= 10
@@ -801,6 +902,97 @@ Type = Circlet : Quality = Rare : 225 > 1 : barbarianskills = 2
 Type = Circlet : Quality = Rare : 225 > 1 : assassinskills = 2
 Type = Circlet : Quality = Rare : 225 > 1 : paladinskills = 2
 
+;Everything LLD Related (LLD1)
+Name = Hand Scythe : Quality <= Rare : skilllightningsentry >= 2 : itemaddassassinskills = 1 : itemlevelreq <= 30
+Name = Hand Scythe : Quality <= Rare : skilllightningsentry >= 2 : trapsskilltab >= 1 : itemlevelreq <= 30
+Name = Cutlass : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : Sockets = 2 : itemlevelreq <= 30
+Name = Cutlass : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : IAS >= 20 : itemlevelreq <= 30
+Name = Cinquedeas : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : Sockets = 2 : itemlevelreq <= 30
+Name = Cinquedeas : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : IAS >= 20 : itemlevelreq <= 30
+Name = Naga : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : Sockets = 2 : itemlevelreq <= 30
+Name = Naga : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : IAS >= 20 : itemlevelreq <= 30
+Name = Zweihander : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : Sockets = 2 : itemlevelreq <= 30
+Name = Zweihander : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : IAS >= 20 : itemlevelreq <= 30
+Name = Executioner Sword : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : Sockets = 2 : itemlevelreq <= 30
+Name = Executioner Sword : Flag = Eth : Enhanced Damage >= 100 : : 252 >= 1 : IAS >= 30 : itemlevelreq <= 30
+Name = Throwing Spear : Flag = Eth : Quality = Rare : 253 >= 1 : itemlevelreq <= 9
+Name = Blade Talons : Flag = Eth : Quality = Rare : 253 >= 1 : itemlevelreq <= 9
+Type = Wand : Quality <= Rare : itemaddpoisonandboneskilltab = 1 : FCR = 10 : skillbonespear >= 2 : itemlevelreq <= 18
+Type = Wand : Quality <= Rare : itemaddpoisonandboneskilltab = 2 : FCR = 20 : skillbonespear >= 2 : itemlevelreq <= 30
+Name = Harpoon : Flag = Eth : Quality = Rare : Enhanced Damage >= 100 : : 253 >= 1 : itemlevelreq <= 30
+Name = War Javelin : Flag = Eth : Quality = Rare : Enhanced Damage >= 50 : 253 >= 1 : itemlevelreq <= 18
+Name = Ornate Plate : Flag = Eth : Quality = Rare : Enhanced Defense >= 80 : 252 >= 1 : itemlevelreq <= 30
+Name = Grim Helm : Flag = Eth : Quality = Rare : Enhanced Defense >= 80 : 252 >= 1 : itemlevelreq <= 30
+Name = Grand Crown : Flag = Eth : Quality = Rare : Enhanced Defense >= 80 : 252 >= 1 : itemlevelreq <= 30
+Name = Grim Shield : Flag = Eth : Quality = Rare : Enhanced Defense >= 80 : 252 >= 1 : itemlevelreq <= 30
+Name = Light Plate : Flag != Eth : Quality = Magic : MaxHp >= 75 : Sockets = 3 : itemlevelreq <= 30
+Name = Preserved Head : Quality <= rare : itemaddpoisonandboneskilltab = 1 : skillbonespear >= 2 : itemlevelreq <= 18
+Name = Zombie Head : Quality <= rare : itemaddpoisonandboneskilltab = 1 : skillbonespear >= 2 : itemlevelreq <= 18
+Name = Unraveller Head : Quality <= rare : itemaddpoisonandboneskilltab = 1 : skillbonespear >= 2 : itemlevelreq <= 18
+Name = Gargoyle Head : Quality <= rare : itemaddpoisonandboneskilltab = 1 : skillbonespear >= 2 : itemlevelreq <= 18
+Name = Demon Head : Quality <= rare : itemaddpoisonandboneskilltab = 1 : skillbonespear >= 2 : itemlevelreq <= 18
+Name = Bone Shield : Flag != Eth : Quality = Rare : itemfasterblockrate = 30 : Sockets = 2 : itemlevelreq <= 30
+Name = Grim Shield : Flag != Eth : Quality = Rare : itemfasterblockrate = 30 : Sockets = 2 : itemlevelreq <= 30
+Name = Kite Shield : Flag != Eth : Quality = Rare : itemfasterblockrate = 30 : Sockets = 2 : itemlevelreq <= 30
+Name = Dragon Shield : Flag != Eth : Quality = Rare : itemfasterblockrate = 30 : Sockets = 2 : itemlevelreq <= 30
+Type = Shield : Flag != Eth : Quality = Rare : itemfasterblockrate = 30 : fhr >= 10 : Sockets = 2 : itemlevelreq <= 9
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddclassskills = 1 : FRW = 30 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddshapeshiftingskilltab = 2 : FRW = 30 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddclassskills = 1 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddpoisonandboneskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddcoldskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddlightningskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddpalicombatskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddelementalskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : itemaddtrapsskilltab = 2 : FCR = 20 : itemlevelreq <= 30
+Type = Circlet : Flag != Eth : Quality = Rare : Enhanced Damage >= 20 : Sockets = 2 : itemlevelreq <= 30
+Name = Wolf Head : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Hawk Helm : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Antlers : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Falcon Mask : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Spirit Mask : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Alpha Helm : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Griffon Headdress : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Name = Hunter's Guise : Quality >= Magic : skillFury = 3 : itemaddshapeshiftingskilltab = 2 : itemlevelreq <= 30
+Type = Ring : Quality <= Rare : 19 >= 75 : Strength >= 1 : Dexterity >= 1 : itemlevelreq <= 9
+Type = Ring : Quality <= Rare : Strength >= 7 : Dexterity >= 4 : itemlevelreq <= 30
+Type = Belt : Quality = Rare : Flag != Eth : fhr >= 17: Strength >= 7 : MaxHp >= 20 : itemlevelreq <= 30
+Type = Belt : Quality = Rare : Flag != Eth : fhr >= 17: Strength >= 7 : MaxMana >= 20 : itemlevelreq <= 30
+Type = Belt : Quality = Rare : Flag != Eth : FHR = 24 : strength >= 13 : MaxHP >= 40 : itemlevelreq <= 49
+Type = Amulet : Quality = Rare : Strength >= 1 : Dexterity >= 1 : itemlevelreq <= 9
+Type = Amulet : Quality = Rare : Strength = 5 : itemlevelreq <= 9
+Type = Amulet : Quality = Rare : Dexterity = 5 : itemlevelreq <= 9
+Type = Amulet : Quality = Rare : itemaddpalicombatskilltab = 1 : itemlevelreq <= 18
+Type = Amulet : MaxHP >= 96 : MaxMana >= 110
+Name = Largecharm : MaxHP = 15 : tohit >= 3 : itemlevelreq <= 9
+Name = Largecharm : MaxHP = 15 : MaxMana >= 5 : itemlevelreq <= 9
+Name = Largecharm : Strength = 3 : tohit >= 3 : itemlevelreq <= 9
+Name = Largecharm : Strength = 3 : MaxMana >= 5 : itemlevelreq <= 9
+Name = Largecharm : Dexterity = 3 : tohit >= 3 : itemlevelreq <= 9
+Name = Largecharm : Dexterity = 3 : MaxMana >= 5 : itemlevelreq <= 9
+Name = grandcharm : Quality = Magic : fhr = 12 : MaxMana >= 25 : itemlevelreq <= 18
+Name = grandcharm : Quality = Magic : Max Damage >= 5 : MaxHP >= 15 : itemlevelreq <= 18
+Name = grandcharm : Quality = Magic : Max Damage >= 5 : fhr = 12 : itemlevelreq <= 18
+Name = Jewel : Quality = Magic : Max Damage >= 20 : itemlevelreq <= 30
+Name = Jewel : Quality <= Rare : Max Damage >= 18 : itemlevelreq <= 30
+Name = Jewel : Quality <= Rare : Max Damage >= 10 : itemlevelreq <= 9
+Name = Jewel : Quality <= Rare : Max Damage >= 10 : tohit >= 30 : itemlevelreq <= 18
+Name = Jewel : Quality <= Rare : Min Damage >= 7 : itemlevelreq <= 9
+Name = Jewel : Quality <= Rare : Strength >= 4 : Dexterity >= 4 : itemlevelreq <= 30
+Name = Jewel : Quality <= Rare : Max Damage >= 14 : Enhanced Damage >= 15 : itemlevelreq <= 30
+Name = Jewel : Quality <= Rare : Max Damage >= 1 : Enhanced Damage >= 15 : itemlevelreq <= 9
+Name = Jewel : Quality <= Rare : Min Damage >= 1 : Enhanced Damage >= 15 : itemlevelreq <= 9
+Type = Gloves : Flag != Eth : Quality = Rare : IAS = 20 : itemaddpassiveandmagicskilltab = 2 : Strength >= 1 : Dexterity >= 11 : itemlevelreq <= 49
+Type = Gloves : Flag != Eth : Quality = Rare : IAS = 20 : itemaddpassiveandmagicskilltab = 2 : Dexterity >= 14 : itemlevelreq <= 49
+Name = Crown Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : Enhanced Damage >= 64 : tohit >= 120
+Name = Crown Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : 39 = 45
+Name = Heraldic Shield : Quality <= Superior : Sockets = 0 : Flag != Eth : Enhanced Damage = 65 : tohit >= 120
+Name = Heraldic Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : Enhanced Damage = 65 : tohit >= 120
+Name = Heraldic Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : 39 = 45
+Name = Aerin Shield : Quality <= Superior : Sockets = 0 : Flag != Eth : Enhanced Damage = 65 : tohit >= 120
+Name = Aerin Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : Enhanced Damage = 65 : tohit >= 120
+Name = Aerin Shield : Quality <= Superior : Sockets = 4 : Flag != Eth : 39 = 45
+
 ;** RARE ARMOR SECTION ** (RAS1)
 
 ;RARE VISIONARY PRIMAL HELM
@@ -888,8 +1080,8 @@ Type = Gloves : Quality = Rare : IAS = 20 : itemaddbowandcrossbowskilltab = 2
 Type = Gloves : Quality = Rare : IAS = 20 : itemaddpassiveandmagicskilltab = 2       
 Type = Gloves : Quality = Rare : IAS = 20 : itemaddjavelinandspearskilltab = 2         
 
-Type = 67 : Quality = Rare : Assassin Skills = 2 : Enhanced Damage >= 300   
-Type = 67 : Quality = Rare : trapsskilltab   = 2 : Enhanced Damage >= 300       
+Type = 88 : Quality = Rare : Assassin Skills = 2 : Enhanced Damage >= 300   
+Type = 88 : Quality = Rare : trapsskilltab   = 2 : Enhanced Damage >= 300       
 
 Type = Boots : Quality = Rare : FRW >=20 : 41 >= 25 : 43 >= 25 : Flag != Eth
 Type = Boots : Quality = Rare : FRW >=20 : 41 >= 25 : 39 >= 25 : Flag != Eth
@@ -1054,8 +1246,8 @@ Type = 67 : Quality <= Rare : itemaddtrapsskilltab = 2 : skilllightningsentry = 
 Type = 67 : Quality <= Rare : Assassin skills = 2 : skilllightningsentry = 3
 Type = 67 : Quality <= Rare : itemaddtrapsskilltab = 3 : skilllightningsentry >= 2
 Type = 67 : Quality <= Rare : itemaddtrapsskilltab = 2 : skilllightningsentry = 3
-
 Type = 88 : Quality <= Rare : Assassin skills = 2 : skilllightningsentry = 3
+
 Type = 88 : Quality <= Rare : itemaddtrapsskilltab = 3 : skilllightningsentry >= 2
 Type = 88 : Quality <= Rare : itemaddtrapsskilltab = 2 : skilllightningsentry = 3
 Type = 88 : Quality <= Rare : Assassin skills = 2 : skilllightningsentry = 3
@@ -1089,7 +1281,7 @@ Name = Cedar Staff : Quality <= Superior : Sockets = 0 : skillenergyshield = 3 :
 Name = Cedar Staff : Quality <= Superior : Sockets = 4 : skillenergyshield = 3 : skillchillingarmor >=1
 Name = Gothic Staff : Quality <= Superior : Sockets = 0 : skillenergyshield = 3 : skillchillingarmor >=1
 Name = Gothic Staff : Quality <= Superior : Sockets = 4 : skillenergyshield = 3 : skillchillingarmor >=1
-Name = Rune Staff : Quality <= Superior : Sockets = 0 : skillenergyshield = 3 : 
+Name = Rune Staff : Quality <= Superior : Sockets = 0 : skillenergyshield = 3 :
 
 ;Orbs (SO1)
 Type = 68 : Quality <= Rare : skillfireball >= 2 : fireskilltab = 3 : FCR >= 20
@@ -1155,7 +1347,7 @@ Type = amulet       : Quality = Unique : 19 >= 400                              
 ;Name = Fal rune
 ;Name = Lem rune
 ;Name = Pul rune
-;Name = Um rune
+Name = Um rune
 Name = Mal rune
 Name = Ist rune
 Name = Gul rune
@@ -1184,8 +1376,8 @@ Name = Zod rune
 ;Name = Embossed Plate : Quality = Superior : Enhanced Defense = 15 : Flag != Eth     
 ;Name = Chaos Armor : Quality = Superior : Enhanced Defense = 15 : Flag != Eth       
 ;Name = Ornate Plate : Quality = Superior : Enhanced Defense = 15 : Flag != Eth       
-;Name = Mage Plate : Quality = Superior : Sockets = 0 : Enhanced Defense >= 5 : Flag != Eth   
-Name = Mage Plate : Quality = Superior : Sockets = 3 : Enhanced Defense >= 5 : Flag != Eth   
+Name = Mage Plate : Quality = Superior : Sockets = 0 : Enhanced Defense = 5 : Flag != Eth   
+Name = Mage Plate : Quality = Superior : Sockets = 3 : Enhanced Defense = 5 : Flag != Eth   
 
 ;Name = Diamond Mail : Quality = Superior : Enhanced Defense = 15 : Flag != Eth     
 ;Name = Loricated Mail : Quality = Superior : Enhanced Defense = 15 : Flag != Eth   
@@ -1231,8 +1423,8 @@ Name = Berserker Axe : Quality <= Superior : Sockets >= 4 : Flag = Eth
 Name = Berserker Axe : Quality <= Superior : Enhanced Damage >= 5 : Sockets = 0   
 Name = Berserker Axe : Quality <= Superior : Sockets = 5 : Enhanced Damage >= 5  
 Name = Berserker Axe : Quality <= Superior : Sockets = 6 : Enhanced Damage >= 10
-;Name = Phase Blade : Quality <= Superior : Sockets = 0 : Enhanced Damage >= 5   
-;Name = Phase Blade : Quality <= Superior : Sockets >= 4 : Enhanced Damage >= 5     
+Name = Phase Blade : Quality <= Superior : Sockets = 0 : Enhanced Damage >= 5   
+Name = Phase Blade : Quality <= Superior : Sockets >= 4 : Enhanced Damage >= 5     
 Name = Colossus Blade : Quality <= Superior : Sockets = 6 : Enhanced Damage >=5 : Flag = Eth     
 Name = Colossus Blade : Quality <= Superior : Sockets >= 4 : Enhanced Damage >= 5 : Flag = Eth   
 Name = Colossus Blade : Quality <= Superior : Sockets = 5 : Enhanced Damage >= 5 : Flag != Eth   
@@ -1245,14 +1437,14 @@ Name = Cryptic Axe : Quality <= Superior : Sockets >= 4 : Flag = Eth
 Name = Cryptic Axe : Quality <= Superior : Sockets = 0 : Flag = Eth
 Name = Colossus Voulge : Quality <= Superior : Sockets = 4 : Flag = Eth
 Name = Colossus Voulge : Quality <= Superior : Sockets = 0 : Flag = Eth
-;Name = Thresher : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15
-;Name = Thresher : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15     
-;Name = Giant Thresher   : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15 
-;Name = Giant Thresher : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15   
-;Name = Great Poleaxe : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15   
-;Name = Great Poleaxe : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15 
+Name = Thresher : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15
+Name = Thresher : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15     
+Name = Giant Thresher   : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15 
+Name = Giant Thresher : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15   
+Name = Great Poleaxe : Quality <= Superior : Sockets >= 4 : Flag = Eth : Enhanced Damage = 15   
+Name = Great Poleaxe : Quality <= Superior : Sockets = 0 : Flag = Eth : Enhanced Damage = 15 
 
-;Name = Crystal Sword : Quality <= Superior : Sockets = 5       
+Name = Crystal Sword : Quality <= Superior : Sockets = 5       
 
 Name = Matriarchal Bow : Quality <= Superior : Sockets = 4 : bowandcrossbowskilltab = 3 : Enhanced Damage >= 5   
 Name = Grand Matron Bow   : Quality <= Superior : Sockets = 4 : bowandcrossbowskilltab = 3 : Enhanced Damage >= 5
@@ -1591,7 +1783,6 @@ Name = Gilded Shield : Quality = Magic : Sockets = 4 : 91 >= 20
 
 ; ** MAGIC/RARE DRUID SKILL PELTS SECTION **
 
-
 ;+3 Ele / +3 Tornado Pelts
 Name = Wolf Head : Quality >=Magic : skillTornado = 3 : elementalskilltab = 3    
 Name = Hawk Helm : Quality >=Magic : skillTornado = 3 : elementalskilltab = 3    
@@ -1704,20 +1895,20 @@ Name = Earth Spirit :        Quality = Magic : skillTornado = 3 : elementalskill
 Name = Sky Spirit :        Quality = Magic : skillTornado = 3 : elementalskilltab = 3     
 Name = Dream Spirit :        Quality = Magic : skillTornado = 3 : elementalskilltab = 3
 
-;Name = Wolf Head : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1
+;Name = Wolf Head : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1  
 ;Name = Hawk Helm : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1     
-;Name = Antlers : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1
-;Name = Falcon Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
-;Name = Spirit Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1    
+;Name = Antlers : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1     
+;Name = Falcon Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1    
+;Name = Spirit Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1     
 
-;Name = Alpha Helm : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
-;Name = Griffon Headdress : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1  
+;Name = Alpha Helm : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1     
+;Name = Griffon Headdress : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
 ;Name = Hunter's Guise : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
 ;Name = Sacred Feathers : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
-;Name = Totemic Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1
+;Name = Totemic Mask : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1 
 
-;Name = Blood Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1 
-;Name = Sun Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1 
+;Name = Blood Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1  
+;Name = Sun Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1   
 ;Name = Earth Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1
 ;Name = Sky Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1    
 ;Name = Dream Spirit : Quality <= Superior : skillSummonGrizzly = 3 : Sockets != 1 :Sockets != 1
@@ -1821,14 +2012,10 @@ Name = Divine scepter : Quality <= Superior : Sockets = 0 : skillfanaticism = 3
 
 ;Universal Runewords
 ;Name = Crystal Sword : Quality <= Superior : Sockets = 4
-;Name = Crystal Sword : Quality <= Superior : Sockets = 5 : Enhanced Damage = 15
-;Name = Monarch : Quality = Superior : Sockets = 4 : Flag != Eth
-
+Name = Crystal Sword : Quality <= Superior : Sockets = 5
+Name = Monarch : Quality = Superior : Sockets = 4 : Flag != Eth
 ;Name = Monarch : Quality = Superior : Sockets = 0 : Flag != Eth : Enhanced Defense = 15   
-;Name = Monarch : Quality >= Superior : Flag = Eth : Sockets = 0 : 31 >= 190   
-
-;Godly Shields
-Name = Monarch : Quality = magic : toblock >= 10 : itemfasterblockrate >= 10
+;Name = Monarch : Quality >= Superior : Flag = Eth : Sockets = 0 : 31 >= 190         
 
 ; Chippeds gems (G1)
 
@@ -1873,7 +2060,7 @@ Name = Monarch : Quality = magic : toblock >= 10 : itemfasterblockrate >= 10
 ; Perfect Gems
 
 ;Name = Perfect Amethyst;
-;Name = Perfect Diamond;
+Name = Perfect Diamond;
 ;Name = Perfect Emerald;
 ;Name = Perfect Ruby;
 ;Name = Perfect Sapphire;
@@ -1965,9 +2152,3 @@ Type = druiditem : flag = runeword ;
 Type = voodooheads : flag = runeword ;
 Type = auricshields : flag = runeword ;
 Type = primalhelm : flag = runeword ;
-
-;Anni
-Type = 82 : Quality = Unique;
-
-;Torch
-Type = 84 : Quality = Unique;

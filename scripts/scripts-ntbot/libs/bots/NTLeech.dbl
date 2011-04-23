@@ -93,7 +93,7 @@ function NT_Leech()
 	} 
 	else 
 	{
-		NTA_ClearPosition(50);
+		NTA_ClearPosition(25);
 	}
 	
 																		/**
