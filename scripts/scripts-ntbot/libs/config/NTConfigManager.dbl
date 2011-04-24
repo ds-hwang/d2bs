@@ -399,30 +399,30 @@ function updateConfigLine(line){
 	if(line.indexOf("NTConfig_GambleIt =")>-1)
 		return linePrefix +"NTConfig_GambleIt = "+ NTConfig_GambleIt +"; " ;
 	
-	if(line.indexOf("NTConfig_AttackSkill[0]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[0]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[0] = "+ NTConfig_AttackSkill[0] +"; // Cast your first spell once. Set to 0 if you won't " ;
-	if(line.indexOf("NTConfig_AttackSkill[1]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[1]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[1] = "+ NTConfig_AttackSkill[1] +"; // Cast your primary spell to boss. " ;
-	if(line.indexOf("NTConfig_AttackSkill[2]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[2]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[2] = "+ NTConfig_AttackSkill[2] +"; // Cast your primary spell to others. " ;
-	if(line.indexOf("NTConfig_AttackSkill[3]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[3]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[3] = "+ NTConfig_AttackSkill[3] +"; // Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't " ;
-	if(line.indexOf("NTConfig_AttackSkill[4]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[4]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[4] = "+ NTConfig_AttackSkill[4] +"; // Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't " ;
-	if(line.indexOf("NTConfig_AttackSkill[5]")>-1)
+	if(line.indexOf("NTConfig_AttackSkill[5]")>=-1)
 		return linePrefix +"NTConfig_AttackSkill[5] = "+ NTConfig_AttackSkill[5] +"; // Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't" ;
 	if(line.indexOf("NTConfig_CastStatic =")>-1)
 		return linePrefix +"NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't" ;	
 		
 	if(line.indexOf("NTConfig_PutAura =")>-1)
 		return linePrefix +"NTConfig_PutAura = "+ NTConfig_PutAura +"; // If set to 0, your aura will automatically change based on your current attack.  If anything other than 0, that aura skill is forced for all attacks." ;	
-	if(line.indexOf("NTConfig_AttackFirst =")>-1)
+	if(line.indexOf("NTConfig_AttackFirst =")>=-1)
 		return linePrefix +"NTConfig_AttackFirst = "+ NTConfig_AttackFirst +"; // Cast your first spell once. Set to 0 if you won't" ;	
-	if(line.indexOf("NTConfig_AttackBoss =")>-1)
+	if(line.indexOf("NTConfig_AttackBoss =")>=-1)
 		return linePrefix +"NTConfig_AttackBoss = "+ NTConfig_AttackBoss +"; //  Cast your primary spell to boss." ;	
-	if(line.indexOf("NTConfig_AttackOthers =")>-1)
+	if(line.indexOf("NTConfig_AttackOthers =")>=-1)
 		return linePrefix +"NTConfig_AttackOthers = "+ NTConfig_AttackOthers +"; // Cast your primary spell to others." ;	
-	if(line.indexOf("NTConfig_AttackSecondary =")>-1)
+	if(line.indexOf("NTConfig_AttackSecondary =")>=-1)
 		return linePrefix +"NTConfig_AttackSecondary = "+ NTConfig_AttackSecondary +"; // Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't" ;	
 	if(line.indexOf("NTConfig_UseRedemption =")>-1)
 		return linePrefix +"NTConfig_UseRedemption = "+ NTConfig_UseRedemption +"; //  Set to true to use Redemption after killing monster." ;	

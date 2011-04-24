@@ -92,7 +92,7 @@ function main()
 			{
 				if(_playerCount == 0)
 				{
-					if(_player.partyid == 65535 && _player.partyflag != 4)
+					if(_player && _player.partyid == 65535 && _player.partyflag != 4)
 					{
 						clickParty(_player, 2);
 						delay(40);
@@ -100,12 +100,12 @@ function main()
 				}
 				else
 				{
-					if(_player.partyid != 65535 && _player.partyid != _mypartyid)
+					if(_player && _player.partyid != 65535 && _player.partyid != _mypartyid)
 						_otherParty = _player.partyid;
 						
 					if(
-						_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty)
-						|| (!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2
+						(_player) && ((_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty))
+						|| ((!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2))
 					)
 					{
 						clickParty(_player, 2);

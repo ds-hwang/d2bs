@@ -470,7 +470,7 @@ function COW_ClearPosition(range, spectype)
 						if(_killnum == 0 && _target.hp > 0)
 						{
 
-							if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
+							if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
 							{
 								if(NTC_IsLeftSkill(NTConfig_AttackFirst))
 								{

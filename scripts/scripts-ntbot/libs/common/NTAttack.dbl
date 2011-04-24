@@ -28,7 +28,7 @@ function NTA_KillBoss(classid)
 
 		if(_target)
 		{
-			if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100)
+			if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100)
 			{
 				if(NTC_IsLeftSkill(NTConfig_AttackFirst))
 					NTC_DoCast(NTConfig_AttackFirst, 2, _target);
@@ -90,7 +90,7 @@ function NTA_ClearPosition(range, spectype)
 				if(_killnum == 0 && _target.hp > 0)
 				{			
 					
-					if(NTConfig_AttackFirst > 0 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
+					if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
 					{				
 						
 						if(NTC_IsLeftSkill(NTConfig_AttackFirst))
@@ -479,7 +479,7 @@ function NTA_AmazonAttackInt(target, boss, maxattacks)
 
 	_attackprimary = boss ? NTConfig_AttackBoss : NTConfig_AttackOthers;
 
-	if(NTConfig_AttackSecondary > 0)
+	if(NTConfig_AttackSecondary > -1)
 	{
 		_usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
 	}
@@ -585,7 +585,7 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 	_usehand1 = NTC_IsLeftSkill(_attackprimary) ? 2 : NTC_HAND_RIGHT;
 	_damagetype1 = NTA_GetDamageType(_attackprimary);
 
-	if(NTConfig_AttackSecondary > 0)
+	if(NTConfig_AttackSecondary > -1)
 	{
 		_usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
 		_damagetype2 = NTA_GetDamageType(NTConfig_AttackSecondary);
@@ -651,7 +651,7 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
 
       } 
-      else if(NTConfig_AttackSkill[4] > 0 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100) 
+      else if(NTConfig_AttackSkill[4] > -1 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100) 
       { 
          if((_maxattacks % 2) == 1) 
          { 
@@ -981,7 +981,7 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 	_usehand1 = NTC_IsLeftSkill(_attackprimary) ? 2 : NTC_HAND_RIGHT;
 	_damagetype1 = NTA_GetDamageType(_attackprimary);
 
-	if(NTConfig_AttackSecondary > 0)
+	if(NTConfig_AttackSecondary > -1)
 	{
 		_usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
 		_damagetype2 = NTA_GetDamageType(NTConfig_AttackSecondary);
@@ -1066,7 +1066,7 @@ function NTA_PaladinAttackInt(target, boss, maxattacks){
 
 			//print("--Sub Step 4A");            
 		}
-		else if(NTConfig_AttackSecondary > 0 && NTA_GetResistance(target, _damagetype2) < 100)
+		else if(NTConfig_AttackSecondary > -1 && NTA_GetResistance(target, _damagetype2) < 100)
 		{
 			//print("--Sub Step 3B");
 
@@ -1179,7 +1179,7 @@ function NTA_BarbarianAttackInt(target, boss, maxattacks)
       _damagetype1 = NTA_GetDamageType(_attackprimary);
    _usehand1 = NTC_IsLeftSkill(_attackprimary) ? 2 : NTC_HAND_RIGHT;
    
-   if(NTConfig_AttackSecondary > 0)
+   if(NTConfig_AttackSecondary > -1)
    {
       _usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT;
       if(NTConfig_AttackSecondary == 152)
@@ -1237,7 +1237,7 @@ function NTA_BarbarianAttackInt(target, boss, maxattacks)
 
          NTC_DoCast(_attackprimary, _usehand1, target);
       }
-      else if(NTConfig_AttackSecondary > 0 && NTA_GetResistance(target, _damagetype2) < 100)
+      else if(NTConfig_AttackSecondary > -1 && NTA_GetResistance(target, _damagetype2) < 100)
       {
          if(getDistance(me, target) > _range2)
             NTA_MoveCloseInt(target, _range2);
@@ -1275,7 +1275,7 @@ function NTA_DruidAttackInt(target, boss, maxattacks)
    _usehand1 = NTC_IsLeftSkill(_attackprimary) ? 2 : NTC_HAND_RIGHT; 
    _damagetype1 = NTA_GetDamageType(_attackprimary); 
 
-   if(NTConfig_AttackSecondary > 0) 
+   if(NTConfig_AttackSecondary > -1) 
    { 
       _usehand2 = NTC_IsLeftSkill(NTConfig_AttackSecondary) ? 2 : NTC_HAND_RIGHT; 
       _damagetype2 = NTA_GetDamageType(NTConfig_AttackSecondary); 
@@ -1328,7 +1328,7 @@ function NTA_DruidAttackInt(target, boss, maxattacks)
          if (!me.getState(151))  //refresh Cyclone Armor 
              NTC_DoCast(235,0); 
       } 
-      else if(NTConfig_AttackSkill[4] > 0 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100) 
+      else if(NTConfig_AttackSkill[4] > -1 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100) 
       { 
          if((_maxattacks % 2) == 1) 
          { 
@@ -1467,7 +1467,7 @@ function NTA_AssassinAttackInt(target, boss, maxattacks)
 
 			NTA_DoCastInt(_primaryindex, target);
 		}
-		else if(NTConfig_AttackSkill[4] > 0 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100)
+		else if(NTConfig_AttackSkill[4] > -1 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100)
 		{
 			if((_maxattacks % 2) == 1)
 			{
@@ -1635,7 +1635,7 @@ function NTA_Initialize()
 	}
 	for(var i = 0 ; i < 6 ; i++)
 	{
-		if(NTConfig_AttackSkill[i] > 0)
+		if(NTConfig_AttackSkill[i] > -1)
 		{
 			_NTA_SkillHand[i] = NTC_GetBaseStat(3, NTConfig_AttackSkill[i], 31) ? 2 : NTC_HAND_RIGHT;
 			_NTA_SkillDamage[i] = NTA_GetDamageType(NTConfig_AttackSkill[i]);
@@ -1659,7 +1659,7 @@ function NTA_DoCastInt(index, target)
 
 	if(_NTA_SkillDelay[index] > 0)
 	{
-		if(NTConfig_AttackSkill[_untimedindex] > 0)
+		if(NTConfig_AttackSkill[_untimedindex] > -1)
 		{
 			var _starttick = getTickCount();
 

@@ -248,12 +248,12 @@ function NT_LoadConfig()
 	NTConfig_PrintAttack = false;	//	Set to true if you want to print() attack information to console;
 	
 	//	Universal attack variables
-	NTConfig_AttackSkill[0] = 0; 	//	Cast your first spell once. Set to 0 if you won't 
-	NTConfig_AttackSkill[1] = 56; 	//	Cast your primary spell to boss. 
-	NTConfig_AttackSkill[2] = 56; 	//	Cast your primary spell to others. 
-	NTConfig_AttackSkill[3] = 47; 	//	Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't 
-	NTConfig_AttackSkill[4] = 64; 	//	Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't 
-	NTConfig_AttackSkill[5] = 0; 	//	Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
+	NTConfig_AttackSkill[0] = -1; 	//	Cast your first spell once. Set to 0 if you won't 
+	NTConfig_AttackSkill[1] = -1; 	//	Cast your primary spell to boss. 
+	NTConfig_AttackSkill[2] = -1; 	//	Cast your primary spell to others. 
+	NTConfig_AttackSkill[3] = -1; 	//	Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't 
+	NTConfig_AttackSkill[4] = -1; 	//	Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't 
+	NTConfig_AttackSkill[5] = -1; 	//	Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
 	
 	//	Assassin attack variables
 	NTConfig_UseTraps = true;				//	Traps are hardcoded for 3 light sentrys and 2 death sentrys and do not need to be set with skills
@@ -265,35 +265,35 @@ function NT_LoadConfig()
 	NTConfig_CastCloakOfShadows = true;		//	Set to "true" if bot uses "Cloak Of Shadows".
 	
 	//	Paladin attack variables
-	NTConfig_PutAura = 113;			// 	What aura do you want to use on attack. Set to 0 if you won't
-	NTConfig_AttackFirst = 0;		// 	Cast your first spell once. Set to 0 if you won't
-	NTConfig_AttackBoss = 112;		//	Cast your primary spell to boss.
-	NTConfig_AttackOthers = 112;	//	Cast your primary spell to others.
-	NTConfig_AttackSecondary = 0;	//	Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't
+	NTConfig_PutAura = -1;			// 	What aura do you want to use on attack. Set to 0 if you won't
+	NTConfig_AttackFirst = -1;		// 	Cast your first spell once. Set to 0 if you won't
+	NTConfig_AttackBoss = -1;		//	Cast your primary spell to boss.
+	NTConfig_AttackOthers = -1;		//	Cast your primary spell to others.
+	NTConfig_AttackSecondary = -1;	//	Cast your Secondary spell if monster is immune to your primary spell. Set to 0 if you won't
 	NTConfig_UseRedemption = true;	//	Set to true to use Redemption after killing monster.
 	
 	//	Necromancer attack variables
-	NTConfig_AttackBoss = 84; 		//	84 = bonespear, 93 = bone spirit
-	NTConfig_AttackOthers = 84; 
-	XP_Curse =91;  					//	Curse to use after army threshold is meet		
+	NTConfig_AttackBoss = -1; 		//	84 = bonespear, 93 = bone spirit
+	NTConfig_AttackOthers = -1; 
+	XP_Curse = 91;  				//	Curse to use after army threshold is meet		
     XP_BuildArmyCurse = 87;     	//	66 = Amplify Damage, 76 =iron maden ,82 = life tap, 87 = Decrepify, 91 = lower resist	
 	XP_Golm = 0;  					//	0 = clay, 1 = blood, 2 = fire, 3 =iron (will not make)
     XP_useSkel = true;
     XP_useSkelMage = true;
     XP_useRevive = true;
     XP_CorpseExplosion = true;	
-	XP_BuildArmyThresh =4; 			//	Change curse and to closer attacks =skel +mage +revives
+	XP_BuildArmyThresh = 4; 		//	Change curse and to closer attacks =skel +mage +revives
 	
 	//	Sorceress attack variables
 	NTConfig_CastStatic = 60; 		//	Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't
 	
 	//	Barbarian attack variables
-	NTConfig_AttackFirst = 0;
-	NTConfig_WarcryBoss = 146; 		//	Desired warcry to boss, every 10th attack after first one
-	NTConfig_WarcryOthers = 154; 	//	Desired warcry to others, every 5th attack after first one
-	NTConfig_AttackBoss = 151;
-	NTConfig_AttackOthers = 151;
-	NTConfig_AttackSecondary = 152;
+	NTConfig_AttackFirst = -1;
+	NTConfig_WarcryBoss = -1; 		//	Desired warcry to boss, every 10th attack after first one
+	NTConfig_WarcryOthers = -1; 	//	Desired warcry to others, every 5th attack after first one
+	NTConfig_AttackBoss = -1;
+	NTConfig_AttackOthers = -1;
+	NTConfig_AttackSecondary = -1;
 	
 	
 	
@@ -414,7 +414,7 @@ function NT_LoadConfig()
 	// 					Flawed dimond wont be picked up till you carry 2 pul's
 	//---------------------------------------------------------------------------------------------------------
 
-	NT_EnableCubing = true;	
+	NT_EnableCubing = false;	
 	//NT_RecipieBox.push(["Name = Chipped Diamond","Name = Chipped Diamond","Name = Chipped Diamond"])
 	//NT_RecipieBox.push(["Name = Chipped Amethyst","Name = Chipped Amethyst","Name = Chipped Amethyst"])
 	//NT_RecipieBox.push(["Name = Chipped Emerald","Name = Chipped Emerald","Name = Chipped Emerald"])
