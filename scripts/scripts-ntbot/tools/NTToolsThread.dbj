@@ -90,7 +90,7 @@ function main()
 				
 			while(_player.getNext())
 			{
-				if(_playerCount == 1)
+				if(_playerCount == 0)
 				{
 					if(_player.partyid == 65535 && _player.partyflag != 4)
 					{
