@@ -415,7 +415,7 @@ function updateConfigLine(line){
 		return linePrefix +"NTConfig_CastStatic = "+ NTConfig_CastStatic +"; // Cast Static Field until monster's HP lower less than this percent. Set to 100 if you won't" ;	
 		
 	if(line.indexOf("NTConfig_PutAura =")>-1)
-		return linePrefix +"NTConfig_PutAura = "+ NTConfig_PutAura +"; // What aura do you want to use on attack. Set to 0 if you won't" ;	
+		return linePrefix +"NTConfig_PutAura = "+ NTConfig_PutAura +"; // If set to 0, your aura will automatically change based on your current attack.  If anything other than 0, that aura skill is forced for all attacks." ;	
 	if(line.indexOf("NTConfig_AttackFirst =")>-1)
 		return linePrefix +"NTConfig_AttackFirst = "+ NTConfig_AttackFirst +"; // Cast your first spell once. Set to 0 if you won't" ;	
 	if(line.indexOf("NTConfig_AttackBoss =")>-1)

@@ -271,7 +271,7 @@ var NTCOW_DistanceToKing = 40;
 var NTCOW_KingChicken = 50;
 
 me.useTeleport = true;	//enables use of teleport by default;
-
+var NTConfig_TakeScreenshotOnChicken = false;
 
 
 

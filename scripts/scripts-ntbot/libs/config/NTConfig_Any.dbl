@@ -122,6 +122,8 @@ function NT_LoadConfig()
 	NTConfig_MercRejuvThresh = 0; 		// 	This is the threshold to use a rejuv potion on your merc in percent.
 	NTConfig_MercChicken = 0; 			// 	This is your mercs chicken life percent. If he goes below this, exit game.
 	
+	NTConfig_TakeScreenshotOnChicken = false;	//	If true, this will take a screenshot of the game as you chicken from it (can be buggy because game is being exited)
+	
 	
 	
 	//--------------------------------------------------------------------------------------

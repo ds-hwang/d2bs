@@ -1,61 +1,27 @@
-var LeechingMode = false;
-function findLead(leader)
-{
-	var _lead= getUnit(0, leader)
-		if(_lead)
-		return _lead.area;
-	// leader not found look in party
-	var area =0;
-	 var a = getParty();
-	if(!a)
-		return false;
-		
-	   do { 
-		  if (a.name==leader){
-			area=a.area;	
-			}
-	   } while(a.getNext()); 
-		if (area==0) {
-			//sendCopyData(null, "OOG", 0,"Quit:Quit()" );
-			return false;
-
-		}
-	return area;
-}
+/**
+*	@filename	NTToolsThread.dbj
+*	
+*	@author		kolton
+*
+*	@desc		Handles party events, potion drinking, and chickening (via script)
+*	@TODO		Add option to allow certain members to loot corpse if in hardcore mode
+*	@see		http://www.assembla.com/spaces/bobode/tickets/15
+*/
 
 var _NTLW_timerLastDrink = new Array(5);
-	var myself;
-	var pause = false;
-	var _LifeMax 
-	var _ManaMax 
-	var _count = 0;
-	var _mercHP;
-	var _party, _mypartyid;
-	var Result =" ";
-	var Reason =" ";
-var _NTLW_timerLastDrink = new Array(5);
-var debugStr;
+var _player;
+var _checkPlayers = true;
+var _otherParty = false;
+var _playerCount = 0;
+var _partyTick = getTickCount();
+
 function main()
 {
- Result =" ";
-Reason =" ";
-	delay(500);
-	//text "text",x,y,color,font,alingment
-	//var LWHook = new Text("LWHook", 400, 550, 2, 6, 2);
-	//var LWHook2 =  new Text("", 400, 540, 2, 6, 2);
+	include('prototypes/prototypes.js');
 	include("common/NTCommon.dbl");
 	NTC_IncludeConfig();
-	var DrinkHP;
-	var DrinkMP;
-	var DrinkRV;
-	var MercHP;
-	var meHP;
-	var meMP;
-	var DrinkRVm;
-	var LastAction =" " ;
 	
 	var _count = 0;
-	var _LifeMax, _ManaMax;
 	var _mercHP;
 	var _party, _mypartyid;
 
@@ -63,191 +29,153 @@ Reason =" ";
 
 	NT_LoadConfig();
 
-	_LifeMax = me.hpmax;
-	_ManaMax = me.mpmax;
-
-	if(NTConfig_LifeChicken > 0)
-	
-		me.chickenhp = parseInt((_LifeMax*NTConfig_LifeChicken)/100,10);
+	/* OVERRIDES CORE CHICKEN */
+	/*if(NTConfig_LifeChicken > 0)
+		me.chickenhp = parseInt((me.hpmax*NTConfig_LifeChicken)/100);
 
 	if(NTConfig_ManaChicken > 0)
-		me.chickenmp = parseInt((_ManaMax*NTConfig_ManaChicken)/100,10);
+		me.chickenmp = parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100);*/
 
 	for(var i = 0 ; i < 5 ; i++)
-		_NTLW_timerLastDrink[i] = ((getTickCount())-5000);
-		
-	//print( _NTLW_timerLastDrink[2] );
-myself = copyUnit(me);
+		_NTLW_timerLastDrink[i] = 0;
+	
+	addEventListener("melife", NT_LifeWatch);
+	addEventListener("memana", NT_ManaWatch);
+	
 	while(me.ingame)
 	{
-	
-		if(!LW_InTown())
+		if(!NTC_InTown())
 		{
-			if(_LifeMax != me.hpmax)
-			{
-				_LifeMax = me.hpmax;
-
-				if(NTConfig_LifeChicken > 0)
-					me.chickenhp = parseInt((_LifeMax*NTConfig_LifeChicken)/100,10);
-			}
-
-			if(_ManaMax != me.mpmax)
-			{
-				_ManaMax = me.mpmax;
-
-				if(NTConfig_ManaChicken > 0)
-					me.chickenmp = parseInt((_ManaMax*NTConfig_ManaChicken)/100);
-			}
-	/*
-	DrinkHP = parseInt((_LifeMax*NTConfig_LifeThresh)/100);
-	DrinkMP = parseInt((_ManaMax*NTConfig_ManaThresh)/100,10);
-	DrinkRV =parseInt((_LifeMax*NTConfig_LifeRejuvThresh)/100,10);
-	DrinkRVm = parseInt((_ManaMax*NTConfig_ManaRejuvThresh)/100,10)
-	meHP =me.hp;
-	meMP = me.mp;
-	debugStr ="Drinking HP at:"+DrinkHP+" Drinking MP at:"+DrinkMP+" Drinking RVhp at:"+DrinkRV +" ManaJuv at:"+DrinkRVm;
-	LWHook.text = debugStr;
-	LWHook2.text = LastAction + " " + Reason;
-	*/
-	for (var j = 0 ; j < NTConfig_Script.length; j++){
-		if (NTConfig_Script[j]== "Leech" || NTConfig_Script[j]== "LeechD" )
-			LeechingMode = true;	
-	}
-	
-	//me.overhead( LastAction + " " + Reason);
-			if(me.hp < parseInt((_LifeMax*NTConfig_LifeRejuvThresh)/100,10) || me.mp < parseInt((_ManaMax*NTConfig_ManaRejuvThresh)/100,10)){
-				LastAction="Drink Rejuve";
-				if (!NTLW_DrinkPotInt(2)){ //failed to find juvie drink hp/mp
-					if(me.hp < parseInt((_LifeMax*NTConfig_LifeThresh)/100,10)){
-						NTLW_DrinkPotInt(0);
-						LastAction="Drinking HP";
-					}
-					if(me.mp < parseInt((_ManaMax*NTConfig_ManaThresh)/100,10)){
-						NTLW_DrinkPotInt(1);
-						LastAction="Drinking MP";
-					}				
-				}				
-			}else
-			{
-				if(me.hp < parseInt((_LifeMax*NTConfig_LifeThresh)/100,10)){
-					NTLW_DrinkPotInt(0);
-						LastAction="Drinking HP";
-				}
-				if(me.mp < parseInt((_ManaMax*NTConfig_ManaThresh)/100,10)){
-					NTLW_DrinkPotInt(1);
-					LastAction="Drinking MP";
-				}
-			}
-
 			_mercHP = getMercHP();
 
 			if(_mercHP > 0)
 			{
 				if(_mercHP < NTConfig_MercChicken)
 				{
-					print('ÿc9NTBot Quit: Chickened due to Merc life');
+					if(NTConfig_TakeScreenshotOnChicken && typeof(takeScreenshot) == 'function')
+						takeScreenshot();
+					
+					print('ÿc9NTBot Quit: Chickened (Merc HP)');
 					quit();
 					break;
 				}
 
-				if(_mercHP < NTConfig_MercRejuvThresh){
+				if(_mercHP < NTConfig_MercRejuvThresh)
 					NTLW_DrinkPotInt(4);
-					LastAction="Merc Rejuve";
-				}
-				else if(_mercHP < NTConfig_MercLifeThresh){
-					LastAction="Merc HP";
+				else if(_mercHP < NTConfig_MercLifeThresh)
 					NTLW_DrinkPotInt(3);
-				}
 			}
 		}
 
-		if(_count++ > 10)
+		if(NTConfig_PublicMode)
 		{
-			if(NTConfig_PublicMode)
+			if(_checkPlayers)
 			{
-				var leader = false;
-				_party = getParty();
-
-				if(_party)
-				{
+				_player = getParty();
+					
+				while(_player.getNext())
+					_playerCount++;
+					
+				if(_playerCount == 0)
+					print("ÿc3Send Invites.");
+				else
+					print("ÿc3Wait for invites.");
+					
+				_checkPlayers = false;
+			}
 				
-				if (LeechingMode){	
-					_mypartyid = _party.partyid;
-					for (var z = 0 ; z < NT_Leader.length ; z++) {
-						if  (findLead(NT_Leader[z])) {
-							leader = NT_Leader[z];
-							break;
-						}
-						//else sendCopyData(null,"OOG",0,"Leader Not Found -->" +NT_Leader[z]);
-					}
-				}else
-					leader = me.charname
-					while(_party.getNext())
+			_player = getParty();
+				
+			_mypartyid = _player.partyid;
+				
+			while(_player.getNext())
+			{
+				if(_playerCount == 1)
+				{
+					if(_player.partyid == 65535 && _player.partyflag != 4)
 					{
-						if((leader && _party.name == leader) || !leader || me.charname == leader)
-							if(_party.partyid == 65535 || _party.partyid != _mypartyid)
-							{
-								if(_party.partyflag == 2)
-								{
-									clickParty(_party, 2);
-									break;
-								}
-
-								if(_party.partyid == 65535 && me.charname == leader)
-								{
-									if(_party.partyflag == 4)
-										break;
-
-									clickParty(_party, 2);
-									delay(40);
-
-									if(_party.partyflag == 4 || (_party.partyid != 65535 && _party.partyid == _mypartyid))
-										break;
-								}
-							}
-							
-							if (LeechingMode && _party.name == leader && _party.partyid != _mypartyid && _mypartyid != 65535){
-								clickParty(_party, 3);
-								delay(40);
-							}
+						clickParty(_player, 2);
+						delay(40);
+					}
+				}
+				else
+				{
+					if(_player.partyid != 65535 && _player.partyid != _mypartyid)
+						_otherParty = _player.partyid;
+						
+					if(
+						_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty)
+						|| (!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2
+					)
+					{
+						clickParty(_player, 2);
+						delay(40);
 					}
 				}
 			}
-
-			_count = 0;
 		}
 
-		delay(500);
+		delay(200);
+	}
+}
+
+function NT_LifeWatch(life)
+{
+	if(life <= parseInt(me.hpmax*NTConfig_LifeThresh/100))
+		NTLW_DrinkPotInt(0);
+		
+	if(life <= parseInt(me.hpmax*NTConfig_LifeRejuvThresh/100))
+		NTLW_DrinkPotInt(2);
+		
+	if(NTConfig_LifeChicken > 0 && life < parseInt(me.hpmax*NTConfig_LifeChicken/100) && !NTC_InTown())
+	{
+		if(NTConfig_TakeScreenshotOnChicken && typeof(takeScreenshot) == 'function')
+			takeScreenshot();
+		
+		print('ÿc9NTBot Quit: Chickened (HP)');
+		quit();
+	}
+}
+
+function NT_ManaWatch(mana)
+{
+	if(mana <= parseInt(me.mpmax*NTConfig_ManaThresh/100))
+		NTLW_DrinkPotInt(1);
+		
+	if(mana <= parseInt(me.mpmax*NTConfig_ManaRejuvThresh/100))
+		NTLW_DrinkPotInt(2);
+		
+	if(NTConfig_ManaChicken > 0 && mana < parseInt(me.mpmax*NTConfig_ManaChicken/100) && !NTC_InTown())
+	{
+		if(NTConfig_TakeScreenshotOnChicken && typeof(takeScreenshot) == 'function')
+			takeScreenshot();
+		
+		print('ÿc9NTBot Quit: Chickened (MP)');
+		quit();
 	}
 }
 
 // Internal function
 function NTLW_DrinkPotInt(type)
 {
-Reason ="Attempting to drink" +type;
 	var _pottype;
 	var _potion;
-	var _tNow = getTickCount();
+	var _tNow = new Date();
 
-	if(type == 2 || type == 4)
+	if(type != 2 && type != 4)
 	{
-	Reason ="timer check"+_NTLW_timerLastDrink[type] ;
-		if(_tNow-_NTLW_timerLastDrink[type] < 1000){
-			Reason ="Failed Drink Timer";
-			//print("last drink "+ _NTLW_timerLastDrink[type] + " Diff "+ (_tNow-_NTLW_timerLastDrink[type]) +" type " +type);
+		if(_NTLW_timerLastDrink[type] && (_tNow-_NTLW_timerLastDrink[type] < 7000))
 			return false;
-		}
 	}
-	else
+	/*else
 	{
-		Reason ="timer check"+_NTLW_timerLastDrink[type] ;
-		if(_tNow-_NTLW_timerLastDrink[type] < 3000){
-			Reason ="Failed Drink Timer";
-			//print("last drink "+ _NTLW_timerLastDrink[type] + " Diff "+ (_tNow-_NTLW_timerLastDrink[type]) +" type " +type);
+		if(_NTLW_timerLastDrink[type] && (_tNow-_NTLW_timerLastDrink[type] < 6000))
 			return false;
-		}
-	}
-	Reason ="after timer check";
+	}*/
+	
+	if(me.mode == 0 || me.mode == 17)
+		return false;
+	
 	switch(type)
 	{
 	case 0:
@@ -261,26 +189,24 @@ Reason ="Attempting to drink" +type;
 		_pottype = 78;
 		break;
 	}
-	Reason ="Getting Pot type" +_pottype;
+	
 	_potion = NTLW_GetPotionInt(_pottype);
 
 	if(_potion)
 	{
-	Reason ="Found Pot";
-		if(me.mode == 0 || me.mode == 17 || me.mode == 18){
-			Reason ="bad Mode Failed";
+		if(me.mode == 0 || me.mode == 17)
 			return false;
-		}
+			
 		if(type < 3)
 			_potion.interact();
 		else
 			clickItem(2, _potion);
 	
-		_NTLW_timerLastDrink[type] = getTickCount();
-		Reason ="Success";
+		_NTLW_timerLastDrink[type] = new Date();
+		
 		return true;
 	}
-	Reason ="Failed to find pot";
+	
 	return false;
 }
 
@@ -293,22 +219,9 @@ function NTLW_GetPotionInt(pottype)
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 2 && _items[i].itemType == pottype){
-			//print("pot Found");
+		if(_items[i].mode == 2 && _items[i].itemType == pottype)
 			return copyUnit(_items[i]);
-			}
 	}
 
 	return false;
-}
-function LW_InTown(who)
-{
-	
-	var _area;
-
-	if(arguments.length < 1)
-		who = myself;
-	_area = who.area;
-
-	return (_area == NTC_AREA_ID_ACT_1 || _area == NTC_AREA_ID_ACT_2 || _area == NTC_AREA_ID_ACT_3 || _area == NTC_AREA_ID_ACT_4 || _area == NTC_AREA_ID_ACT_5);
 }
