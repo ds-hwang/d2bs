@@ -388,7 +388,7 @@ function NTM_MakeTP(dest)
 	if(arguments.length < 1)
 		_usetp = false;
 
-	if(!NTC_DoCast(220, NTC_HAND_RIGHT))
+	if(!NTC_DoCast(220, NTC_HAND_RIGHT) || !NTC_DoCast(219, NTC_HAND_RIGHT))
 		return false;
 
 	NTC_PingDelay(250);
