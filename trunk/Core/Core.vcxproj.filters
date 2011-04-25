@@ -7,16 +7,10 @@
     <ClCompile Include="Script.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="sqlite3.c">
-      <Filter>Dependencies</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
       <UniqueIdentifier>{16d53b00-fd15-454b-841c-ec103d209bd3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Dependencies">
-      <UniqueIdentifier>{408521d6-502c-4d75-bb7b-08389af5ea43}</UniqueIdentifier>
     </Filter>
     <Filter Include="JSAPI">
       <UniqueIdentifier>{8495152a-b7d9-4a5e-abe8-eebc13bb17ec}</UniqueIdentifier>
@@ -28,9 +22,6 @@
     </ClInclude>
     <ClInclude Include="Script.h">
       <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="sqlite3.h">
-      <Filter>Dependencies</Filter>
     </ClInclude>
     <ClInclude Include="dependencies\include\Allocator.h">
       <Filter>JSAPI</Filter>
@@ -305,6 +296,7 @@
     <ClInclude Include="dependencies\include\Writer.h">
       <Filter>JSAPI</Filter>
     </ClInclude>
+    <ClInclude Include="Exports.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg">

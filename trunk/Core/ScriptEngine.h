@@ -4,19 +4,22 @@
 #include "jsapi.h"
 #include <windows.h>
 #include <string>
-#include <vector>
+#include <map>
 
 #include "Script.h"
+#include "Exports.hpp"
 
 class ScriptEngine
 {
 private:
 	JSRuntime* runtime;
 	std::string path;
-	std::vector<Script*> scripts;
+	std::map<const char*, Script*> scripts;
 
 public:
-	ScriptEngine(std::string path);
-	Script* Compile(std::string path, bool autostart = true, bool recompile = false);
-	void FireEvent(std::string evtName, char* format, ...);
+	EXPORT ScriptEngine(const char* path, unsigned int gctime);
+	EXPORT ~ScriptEngine();
+
+	EXPORT Script* Compile(const char* file, bool recompile = false);
+	EXPORT void FireEvent(const char* evtName, char* format, ...);
 };

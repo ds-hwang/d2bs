@@ -10,6 +10,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2Api", "D2Api\D2Api.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2BS", "D2BS\D2BS.vcxproj", "{A72EE58F-DBD0-4234-9E00-7B1287C020AC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cmd", "Cmd\Cmd.vcxproj", "{15E6186B-69A6-456B-8DB0-FE7EC649620E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A3DAD180-7C87-4246-98A7-B47202480C53} = {A3DAD180-7C87-4246-98A7-B47202480C53}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -28,6 +33,10 @@ Global
 		{A72EE58F-DBD0-4234-9E00-7B1287C020AC}.Debug|Win32.Build.0 = Debug|Win32
 		{A72EE58F-DBD0-4234-9E00-7B1287C020AC}.Release|Win32.ActiveCfg = Release|Win32
 		{A72EE58F-DBD0-4234-9E00-7B1287C020AC}.Release|Win32.Build.0 = Release|Win32
+		{15E6186B-69A6-456B-8DB0-FE7EC649620E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{15E6186B-69A6-456B-8DB0-FE7EC649620E}.Debug|Win32.Build.0 = Debug|Win32
+		{15E6186B-69A6-456B-8DB0-FE7EC649620E}.Release|Win32.ActiveCfg = Release|Win32
+		{15E6186B-69A6-456B-8DB0-FE7EC649620E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

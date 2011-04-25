@@ -1,4 +1,7 @@
 #pragma once
+
+#define EXPORTED
+
 #include "ScriptEngine.h"
 #include "sqlite3.h"
 

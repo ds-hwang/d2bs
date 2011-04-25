@@ -3,9 +3,20 @@
   <ItemGroup>
     <ClInclude Include="D2BS.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="sqlite3.h">
+      <Filter>Dependencies</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Settings.cpp" />
+    <ClCompile Include="sqlite3.c">
+      <Filter>Dependencies</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Dependencies">
+      <UniqueIdentifier>{d0685354-79a4-4586-b864-9626426144f1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

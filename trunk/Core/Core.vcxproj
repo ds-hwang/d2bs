@@ -22,7 +22,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
@@ -39,22 +39,20 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(Configuration)\Intermediate\</IntDir>
     <IncludePath>$(IncludePath);$(ProjectDir)\dependencies\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(Configuration)\Intermediate\</IntDir>
     <IncludePath>$(IncludePath);$(ProjectDir)\dependencies\include</IncludePath>
     <LibraryPath>$(LibraryPath);$(ProjectDir)\dependencies</LibraryPath>
-    <TargetName>$(SolutionName)</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;_SECURE_SCL=0;_SECURE_SCL_THROWS=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -73,15 +71,19 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <ProjectReference />
+    <Lib />
+    <Lib>
+      <AdditionalDependencies>$(ProjectDir)\dependencies\mozjs185-1.0-debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;CORE_EXPORTS;_SECURE_SCL=0;_SECURE_SCL_THROWS=0;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAsManaged>false</CompileAsManaged>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -104,16 +106,13 @@
     <ProjectReference>
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
+    <Lib>
+      <AdditionalDependencies>$(ProjectDir)\dependencies\mozjs185-1.0.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptEngine.cpp" />
-    <ClCompile Include="sqlite3.c">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SQLITE_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SQLITE_THREADSAFE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4100;4365;4480;4668;4710;4820;4986;4127;4132;4244;4255;4706</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4100;4365;4480;4668;4710;4820;4986;4127;4132;4244;4255;4706;4711</DisableSpecificWarnings>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dependencies\include\Allocator.h" />
@@ -207,25 +206,15 @@
     <ClInclude Include="dependencies\include\RegAlloc.h" />
     <ClInclude Include="dependencies\include\VMPI.h" />
     <ClInclude Include="dependencies\include\Writer.h" />
+    <ClInclude Include="Exports.hpp" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptEngine.h" />
-    <ClInclude Include="sqlite3.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg" />
     <None Include="dependencies\include\jsopcode.tbl" />
     <None Include="dependencies\include\jsproto.tbl" />
     <None Include="dependencies\include\LIRopcode.tbl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\D2Api\D2Api.vcxproj">
-      <Project>{3f7556af-2983-4c7d-8e9f-b9c05efaeebf}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
