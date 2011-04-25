@@ -28,7 +28,8 @@ JSAPI_PROP(party_getProperty)
 			*vp = INT_TO_JSVAL(pUnit->dwLevelId);
 			break;
 		case PARTY_GID:
-			*vp = INT_TO_JSVAL(pUnit->dwUnitId);
+			JS_NewNumberValue(cx, (jsdouble)pUnit->dwUnitId, vp);
+			//*vp = INT_TO_JSVAL(pUnit->dwUnitId);
 			break;
 		case PARTY_LIFE:
 			*vp = INT_TO_JSVAL(pUnit->dwPartyLife);

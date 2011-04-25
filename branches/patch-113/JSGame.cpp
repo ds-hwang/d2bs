@@ -1301,13 +1301,17 @@ JSAPI_FUNC(my_getPlayerFlag)
 
 	if(argc != 3 || !JSVAL_IS_NUMBER(argv[0]) || !JSVAL_IS_NUMBER(argv[1]) || !JSVAL_IS_NUMBER(argv[2]))
 		return JS_TRUE;
-
-	DWORD nFirstUnitId = JSVAL_TO_INT(argv[0]);
-	DWORD nSecondUnitId = JSVAL_TO_INT(argv[1]);
+	
+	uint32 nFirstUnitId = (uint32)-1;
+	uint32 nSecondUnitId = (uint32)-1;
+	
+	JS_ValueToECMAUint32(cx, argv[0], &nFirstUnitId);
+	JS_ValueToECMAUint32(cx, argv[1], &nSecondUnitId);
+	
 	DWORD nFlag = JSVAL_TO_INT(argv[2]);
-
-	*rval = INT_TO_JSVAL(D2CLIENT_TestPvpFlag(nFirstUnitId, nSecondUnitId, nFlag));
-
+	
+	*rval = BOOLEAN_TO_JSVAL(D2CLIENT_TestPvpFlag(nFirstUnitId, nSecondUnitId, nFlag));
+	
 	return JS_TRUE;
 }
 

@@ -204,7 +204,7 @@ ASMPTR(D2CLIENT, GetItemDesc_I, 0x560B0)
 
 ASMPTR(D2CLIENT, AssignPlayer_I, 0xA7630)
 
-ASMPTR(D2CLIENT, TestPvpFlag_I, 0x4FCE0)
+ASMPTR(D2CLIENT, TestPvpFlag_I, 0x4FD90)
 
 ASMPTR(D2CLIENT, PlaySound_I, 0x88A70)
 
@@ -258,6 +258,7 @@ FUNCPTR(D2COMMON, GetRepairCost, DWORD __stdcall, (DWORD _1, UnitAny* pUnit, DWO
 FUNCPTR(D2COMMON, GetItemMagicalMods, char* __stdcall, (WORD wPrefixNum), -10248)
 FUNCPTR(D2COMMON, GetItemFromInventory, UnitAny *__stdcall, (Inventory* inv), -10460)
 FUNCPTR(D2COMMON, GetNextItemFromInventory, UnitAny *__stdcall, (UnitAny *pItem), -10464)
+FUNCPTR(D2COMMON, GetUnitByBeltSlot, UnitAny* __stdcall, (Inventory* pInventory, unsigned BeltLocation), -10455)
 
 FUNCPTR(D2COMMON, GenerateOverheadMsg, OverheadMsg* __stdcall, (DWORD dwUnk, char* szMsg, DWORD dwTrigger), -10454)
 FUNCPTR(D2COMMON, FixOverheadMsg, void __stdcall, (OverheadMsg* pMsg, DWORD dwUnk), -10097)
