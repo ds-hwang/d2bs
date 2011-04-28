@@ -18,6 +18,7 @@ var _partyTick = getTickCount();
 function main()
 {
 	include('prototypes/prototypes.js');
+	include('config/NTConfig.dbl');
 	include("common/NTCommon.dbl");
 	NTC_IncludeConfig();
 	
@@ -29,13 +30,30 @@ function main()
 
 	NT_LoadConfig();
 
-	/* OVERRIDES CORE CHICKEN */
-	/*if(NTConfig_LifeChicken > 0)
-		me.chickenhp = parseInt((me.hpmax*NTConfig_LifeChicken)/100);
+	
+	/* CORE CHICKEN SETTINGS */
+	if(NTConfig_LifeChicken > 0)
+	{
+		if(parseInt((me.hpmax*NTConfig_LifeChicken)/100) > 5)
+		{
+			me.chickenhp = parseInt(((me.hpmax*NTConfig_LifeChicken)/100) - 5);
+		}
+		else
+			me.chickenhp = parseInt((me.hpmax*NTConfig_LifeChicken)/100);
+	}
 
 	if(NTConfig_ManaChicken > 0)
-		me.chickenmp = parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100);*/
-
+	{
+		if(parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100) > 5)
+		{
+			me.chickenmp = parseIntparseInt(((me.mpmax*NTConfig_ManaChicken)/100) - 5);
+		}
+		else
+			me.chickenmp = parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100);
+	}
+		
+	
+	
 	for(var i = 0 ; i < 5 ; i++)
 		_NTLW_timerLastDrink[i] = 0;
 	
@@ -72,8 +90,8 @@ function main()
 			if(_checkPlayers)
 			{
 				_player = getParty();
-					
-				while(_player.getNext())
+				
+				while(_player && _player.getNext())
 					_playerCount++;
 					
 				if(_playerCount == 0)
@@ -83,16 +101,16 @@ function main()
 					
 				_checkPlayers = false;
 			}
-				
+			
 			_player = getParty();
-				
+			
 			_mypartyid = _player.partyid;
-				
-			while(_player.getNext())
+			
+			while(_player && _player.getNext())
 			{
 				if(_playerCount == 0)
 				{
-					if(_player && _player.partyid == 65535 && _player.partyflag != 4)
+					if(_player.partyid == 65535 && _player.partyflag != 4)
 					{
 						clickParty(_player, 2);
 						delay(40);
@@ -100,12 +118,11 @@ function main()
 				}
 				else
 				{
-					if(_player && _player.partyid != 65535 && _player.partyid != _mypartyid)
+					if(_player.partyid != 65535 && _player.partyid != _mypartyid)
 						_otherParty = _player.partyid;
 						
-					if(
-						(_player) && ((_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty))
-						|| ((!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2))
+					if(_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty)
+						|| (!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2
 					)
 					{
 						clickParty(_player, 2);
