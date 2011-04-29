@@ -886,11 +886,11 @@ function DoSummoner() {
 	}	
 	for(var i = 0 ; i < tomb.length ; i++)
 	{
-		if(tomb[i].id ==357){
-			var path=getPath(me.area, me.x, me.y,tomb[i].roomx*5+tomb[i].x, tomb[i].roomy*5+tomb[i].y,true) 			
+		if(tomb[i].id == 357){
+			var path=getPath(me.area, me.x, me.y,tomb[i].roomx*5+tomb[i].x, tomb[i].roomy*5+tomb[i].y,true);
 		}
 	}		
-	NTM_MoveTo(path[path.length-3][0],path[path.length-3][1]) 
+	NTM_MoveTo(path[path.length-3].x,path[path.length-3].y);
 	say("Waiting by Summoner");
 	waitForSomeone();	
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 357, 357, 0, 0))
