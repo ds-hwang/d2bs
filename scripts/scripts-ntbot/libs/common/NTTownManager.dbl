@@ -912,6 +912,7 @@ function NTTMGR_IDItems(npc)
 					writeLog(_items[i], me, _isEthereal, 1);
 					// Item Logger End
 					_items[i].shop(1);
+					NTC_PingDelay(300);
 				}
 			}
 		}

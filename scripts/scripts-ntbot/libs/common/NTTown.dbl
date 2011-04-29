@@ -1259,6 +1259,7 @@ function NTT_ShopItem(item, npc, mode)
 					debugPrint("ntt ShopItem:"+item.name+" NPC:"+npc.name+" mode:"+mode+"item toSource: "+item.toSource());
 					NTC_Delay(600);
 					item.shop(mode > 2 ? 6 : 2);
+					NTC_PingDelay(300);
 					debugPrint("ntt ShopItem:returned");
 				
 				}
@@ -1285,7 +1286,9 @@ function NTT_ShopItem(item, npc, mode)
 			{
 				if((i % 10) == 0)
 					item.shop(1);
-
+				
+				NTC_PingDelay(300);
+				
 				NTC_Delay(100);
 
 				if(!me.itemoncursor)
@@ -1432,6 +1435,7 @@ function NTT_GambleIt(npc)
 					{
 						writeLog(_newitem, me, _isEthereal, 1);
 						_newitem.shop(1);
+						NTC_PingDelay(300);
 					}
 				}
 			} 
