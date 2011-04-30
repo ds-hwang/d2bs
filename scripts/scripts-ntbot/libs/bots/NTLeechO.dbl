@@ -96,7 +96,10 @@ function NT_LeechO() {
                 
                 delay(1000);                                                                            // REVISION 1.3: Check position/wave delay
         }
-        while(NT_ThroneCheckInt() == 5) delay(100);                             // REVISION 1.3: If Minion wave is still going, wait
+        while(NT_ThroneCheckInt() == 5 && NTC_FindMonster(getLocaleString(3061)))		// REVISION 1.3: If Minion wave is still going, wait
+		{
+			delay(100);
+		}
         print("ÿc2Throne of Destruction clear. Moving to Worldstone Chamber...");
         NTM_MoveTo(15092, 5010);
         NTP_DoPrecast();                                                                                // REVISION 1.3: Precast while waiting for baal to move his fat ass

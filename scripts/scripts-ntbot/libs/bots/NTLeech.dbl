@@ -126,7 +126,7 @@ function NT_Leech()
 		delay(1000);													// REVISION 1.3:	Check position/wave delay
 	}
 	
-	while(NT_ThroneCheckInt() == 5)										// REVISION 1.3: 	If Minion wave is still going, wait
+	while(NT_ThroneCheckInt() == 5 && NTC_FindMonster(getLocaleString(3061)))			// REVISION 1.3: 	If Minion wave is still going, wait
 	{
 		delay(100);
 	}
