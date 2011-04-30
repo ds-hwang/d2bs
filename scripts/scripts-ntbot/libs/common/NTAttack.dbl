@@ -36,7 +36,7 @@ function NTA_KillBoss(classid)
 					NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);
 			}
 
-			return NTA_Attack(_target, true, 100);
+			return NTA_Attack(_target, true, 200);
 		}
 	}
 
@@ -1544,7 +1544,8 @@ function NTA_CheckTraps(target,boss)
 			if (traps.classid == 418 || traps.classid == 419 && traps.mode != 12){
 					warr=1;
 			}
-		}while(traps.getNext())
+		}while(traps.getNext());
+		
 		if (trapcount <	5 && target.hp>0){
 			x=target.x;  y=target.y;
 			
