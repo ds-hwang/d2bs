@@ -611,7 +611,7 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 		break;
 	}
 
-	if(NTConfig_CastStatic < 100)
+	if(NTConfig_CastStatic < 100 && (me.area != 102 || !NTConfig_Moattrick))
 	{
 		var _staticlevel = NTC_CheckSkill(42);
 
@@ -622,10 +622,8 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
 			while(_cast++ < 10 && parseInt(target.hp*100/128) > NTConfig_CastStatic)
 			{
-				if (me.area != 102 && NTConfig_Moattrick)
-					NTA_MoveCloseInt(target, _staticrange);
+				NTA_MoveCloseInt(target, _staticrange);
 				NTC_DoCast(42, NTC_HAND_RIGHT, target);
-				NTSI_FastSnag();
 			}
 		}
 	}
