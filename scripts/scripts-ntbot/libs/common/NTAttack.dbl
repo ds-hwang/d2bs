@@ -618,7 +618,7 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 		if(_staticlevel > 0 && NTA_GetResistance(target, NTA_DAMAGE_LIGHTNING) < 100 && (boss || checkCollision(me, target, 3) == 0))
 		{
 			var _cast = 0;
-			var _staticrange = Math.floor(0.6 + 0.5*_staticlevel);
+			var _staticrange = Math.floor((5+_staticlevel-1)*2/3);
 
 			while(_cast++ < 10 && parseInt(target.hp*100/128) > NTConfig_CastStatic)
 			{
