@@ -1,0 +1,731 @@
+// undefined = not an optional player skill
+// 255 = not class-specific (any class can use)
+// 0 = amazon
+// 1 = sorceress
+// 2 = necromancer
+// 3 = paladin
+// 4 = barbarian
+// 5 = druid
+// 6 = assassin
+
+var NTC_SkillIdToCharClass = new Array(357);
+NTC_SkillIdToCharClass[0] = 255;	
+NTC_SkillIdToCharClass[1] = 255;	
+NTC_SkillIdToCharClass[2] = 255;	
+NTC_SkillIdToCharClass[3] = 255;	
+NTC_SkillIdToCharClass[4] = 255;	
+NTC_SkillIdToCharClass[5] = 255;	
+NTC_SkillIdToCharClass[6] = 0;	
+NTC_SkillIdToCharClass[7] = 0;	
+NTC_SkillIdToCharClass[8] = 0;	
+NTC_SkillIdToCharClass[9] = 0;	
+NTC_SkillIdToCharClass[10] = 0;	
+NTC_SkillIdToCharClass[11] = 0;	
+NTC_SkillIdToCharClass[12] = 0;	
+NTC_SkillIdToCharClass[13] = 0;	
+NTC_SkillIdToCharClass[14] = 0;	
+NTC_SkillIdToCharClass[15] = 0;	
+NTC_SkillIdToCharClass[16] = 0;	
+NTC_SkillIdToCharClass[17] = 0;	
+NTC_SkillIdToCharClass[18] = 0;	
+NTC_SkillIdToCharClass[19] = 0;	
+NTC_SkillIdToCharClass[20] = 0;	
+NTC_SkillIdToCharClass[21] = 0;	
+NTC_SkillIdToCharClass[22] = 0;	
+NTC_SkillIdToCharClass[23] = 0;	
+NTC_SkillIdToCharClass[24] = 0;	
+NTC_SkillIdToCharClass[25] = 0;	
+NTC_SkillIdToCharClass[26] = 0;	
+NTC_SkillIdToCharClass[27] = 0;	
+NTC_SkillIdToCharClass[28] = 0;	
+NTC_SkillIdToCharClass[29] = 0;	
+NTC_SkillIdToCharClass[30] = 0;	
+NTC_SkillIdToCharClass[31] = 0;	
+NTC_SkillIdToCharClass[32] = 0;	
+NTC_SkillIdToCharClass[33] = 0;	
+NTC_SkillIdToCharClass[34] = 0;	
+NTC_SkillIdToCharClass[35] = 0;	
+NTC_SkillIdToCharClass[36] = 1;	
+NTC_SkillIdToCharClass[37] = 1;	
+NTC_SkillIdToCharClass[38] = 1;	
+NTC_SkillIdToCharClass[39] = 1;	
+NTC_SkillIdToCharClass[40] = 1;	
+NTC_SkillIdToCharClass[41] = 1;	
+NTC_SkillIdToCharClass[42] = 1;	
+NTC_SkillIdToCharClass[43] = 1;	
+NTC_SkillIdToCharClass[44] = 1;	
+NTC_SkillIdToCharClass[45] = 1;	
+NTC_SkillIdToCharClass[46] = 1;	
+NTC_SkillIdToCharClass[47] = 1;	
+NTC_SkillIdToCharClass[48] = 1;	
+NTC_SkillIdToCharClass[49] = 1;	
+NTC_SkillIdToCharClass[50] = 1;	
+NTC_SkillIdToCharClass[51] = 1;	
+NTC_SkillIdToCharClass[52] = 1;	
+NTC_SkillIdToCharClass[53] = 1;	
+NTC_SkillIdToCharClass[54] = 1;	
+NTC_SkillIdToCharClass[55] = 1;	
+NTC_SkillIdToCharClass[56] = 1;	
+NTC_SkillIdToCharClass[57] = 1;	
+NTC_SkillIdToCharClass[58] = 1;	
+NTC_SkillIdToCharClass[59] = 1;	
+NTC_SkillIdToCharClass[60] = 1;	
+NTC_SkillIdToCharClass[61] = 1;	
+NTC_SkillIdToCharClass[62] = 1;	
+NTC_SkillIdToCharClass[63] = 1;	
+NTC_SkillIdToCharClass[64] = 1;	
+NTC_SkillIdToCharClass[65] = 1;	
+NTC_SkillIdToCharClass[66] = 2;	
+NTC_SkillIdToCharClass[67] = 2;	
+NTC_SkillIdToCharClass[68] = 2;	
+NTC_SkillIdToCharClass[69] = 2;	
+NTC_SkillIdToCharClass[70] = 2;	
+NTC_SkillIdToCharClass[71] = 2;	
+NTC_SkillIdToCharClass[72] = 2;	
+NTC_SkillIdToCharClass[73] = 2;	
+NTC_SkillIdToCharClass[74] = 2;	
+NTC_SkillIdToCharClass[75] = 2;	
+NTC_SkillIdToCharClass[76] = 2;	
+NTC_SkillIdToCharClass[77] = 2;	
+NTC_SkillIdToCharClass[78] = 2;	
+NTC_SkillIdToCharClass[79] = 2;	
+NTC_SkillIdToCharClass[80] = 2;	
+NTC_SkillIdToCharClass[81] = 2;	
+NTC_SkillIdToCharClass[82] = 2;	
+NTC_SkillIdToCharClass[83] = 2;	
+NTC_SkillIdToCharClass[84] = 2;	
+NTC_SkillIdToCharClass[85] = 2;	
+NTC_SkillIdToCharClass[86] = 2;	
+NTC_SkillIdToCharClass[87] = 2;	
+NTC_SkillIdToCharClass[88] = 2;	
+NTC_SkillIdToCharClass[89] = 2;	
+NTC_SkillIdToCharClass[90] = 2;	
+NTC_SkillIdToCharClass[91] = 2;	
+NTC_SkillIdToCharClass[92] = 2;	
+NTC_SkillIdToCharClass[93] = 2;	
+NTC_SkillIdToCharClass[94] = 2;	
+NTC_SkillIdToCharClass[95] = 2;	
+NTC_SkillIdToCharClass[96] = 3;	
+NTC_SkillIdToCharClass[97] = 3;	
+NTC_SkillIdToCharClass[98] = 3;	
+NTC_SkillIdToCharClass[99] = 3;	
+NTC_SkillIdToCharClass[100] = 3;	
+NTC_SkillIdToCharClass[101] = 3;	
+NTC_SkillIdToCharClass[102] = 3;	
+NTC_SkillIdToCharClass[103] = 3;	
+NTC_SkillIdToCharClass[104] = 3;	
+NTC_SkillIdToCharClass[105] = 3;	
+NTC_SkillIdToCharClass[106] = 3;	
+NTC_SkillIdToCharClass[107] = 3;	
+NTC_SkillIdToCharClass[108] = 3;	
+NTC_SkillIdToCharClass[109] = 3;	
+NTC_SkillIdToCharClass[110] = 3;	
+NTC_SkillIdToCharClass[111] = 3;	
+NTC_SkillIdToCharClass[112] = 3;	
+NTC_SkillIdToCharClass[113] = 3;	
+NTC_SkillIdToCharClass[114] = 3;	
+NTC_SkillIdToCharClass[115] = 3;	
+NTC_SkillIdToCharClass[116] = 3;	
+NTC_SkillIdToCharClass[117] = 3;	
+NTC_SkillIdToCharClass[118] = 3;	
+NTC_SkillIdToCharClass[119] = 3;	
+NTC_SkillIdToCharClass[120] = 3;	
+NTC_SkillIdToCharClass[121] = 3;	
+NTC_SkillIdToCharClass[122] = 3;	
+NTC_SkillIdToCharClass[123] = 3;	
+NTC_SkillIdToCharClass[124] = 3;	
+NTC_SkillIdToCharClass[125] = 3;	
+NTC_SkillIdToCharClass[126] = 4;	
+NTC_SkillIdToCharClass[127] = 4;	
+NTC_SkillIdToCharClass[128] = 4;	
+NTC_SkillIdToCharClass[129] = 4;	
+NTC_SkillIdToCharClass[130] = 4;	
+NTC_SkillIdToCharClass[131] = 4;	
+NTC_SkillIdToCharClass[132] = 4;	
+NTC_SkillIdToCharClass[133] = 4;	
+NTC_SkillIdToCharClass[134] = 4;	
+NTC_SkillIdToCharClass[135] = 4;	
+NTC_SkillIdToCharClass[136] = 4;	
+NTC_SkillIdToCharClass[137] = 4;	
+NTC_SkillIdToCharClass[138] = 4;	
+NTC_SkillIdToCharClass[139] = 4;	
+NTC_SkillIdToCharClass[140] = 4;	
+NTC_SkillIdToCharClass[141] = 4;	
+NTC_SkillIdToCharClass[142] = 4;	
+NTC_SkillIdToCharClass[143] = 4;	
+NTC_SkillIdToCharClass[144] = 4;	
+NTC_SkillIdToCharClass[145] = 4;	
+NTC_SkillIdToCharClass[146] = 4;	
+NTC_SkillIdToCharClass[147] = 4;	
+NTC_SkillIdToCharClass[148] = 4;	
+NTC_SkillIdToCharClass[149] = 4;	
+NTC_SkillIdToCharClass[150] = 4;	
+NTC_SkillIdToCharClass[151] = 4;	
+NTC_SkillIdToCharClass[152] = 4;	
+NTC_SkillIdToCharClass[153] = 4;	
+NTC_SkillIdToCharClass[154] = 4;	
+NTC_SkillIdToCharClass[155] = 4;	
+NTC_SkillIdToCharClass[156] = undefined;
+NTC_SkillIdToCharClass[157] = undefined;
+NTC_SkillIdToCharClass[158] = undefined;
+NTC_SkillIdToCharClass[159] = undefined;
+NTC_SkillIdToCharClass[160] = undefined;
+NTC_SkillIdToCharClass[161] = undefined;
+NTC_SkillIdToCharClass[162] = undefined;
+NTC_SkillIdToCharClass[163] = undefined;
+NTC_SkillIdToCharClass[164] = undefined;
+NTC_SkillIdToCharClass[165] = undefined;
+NTC_SkillIdToCharClass[166] = undefined;
+NTC_SkillIdToCharClass[167] = undefined;
+NTC_SkillIdToCharClass[168] = undefined;
+NTC_SkillIdToCharClass[169] = undefined;
+NTC_SkillIdToCharClass[170] = undefined;
+NTC_SkillIdToCharClass[171] = undefined;
+NTC_SkillIdToCharClass[172] = undefined;
+NTC_SkillIdToCharClass[173] = undefined;
+NTC_SkillIdToCharClass[174] = undefined;
+NTC_SkillIdToCharClass[175] = undefined;
+NTC_SkillIdToCharClass[176] = undefined;
+NTC_SkillIdToCharClass[177] = undefined;
+NTC_SkillIdToCharClass[178] = undefined;
+NTC_SkillIdToCharClass[179] = undefined;
+NTC_SkillIdToCharClass[180] = undefined;
+NTC_SkillIdToCharClass[181] = undefined;
+NTC_SkillIdToCharClass[182] = undefined;
+NTC_SkillIdToCharClass[183] = undefined;
+NTC_SkillIdToCharClass[184] = undefined;
+NTC_SkillIdToCharClass[185] = undefined;
+NTC_SkillIdToCharClass[186] = undefined;
+NTC_SkillIdToCharClass[187] = undefined;
+NTC_SkillIdToCharClass[188] = undefined;
+NTC_SkillIdToCharClass[189] = undefined;
+NTC_SkillIdToCharClass[190] = undefined;
+NTC_SkillIdToCharClass[191] = undefined;
+NTC_SkillIdToCharClass[192] = undefined;
+NTC_SkillIdToCharClass[193] = undefined;
+NTC_SkillIdToCharClass[194] = undefined;
+NTC_SkillIdToCharClass[195] = undefined;
+NTC_SkillIdToCharClass[196] = undefined;
+NTC_SkillIdToCharClass[197] = undefined;
+NTC_SkillIdToCharClass[198] = undefined;
+NTC_SkillIdToCharClass[199] = undefined;
+NTC_SkillIdToCharClass[200] = undefined;
+NTC_SkillIdToCharClass[201] = undefined;
+NTC_SkillIdToCharClass[202] = undefined;
+NTC_SkillIdToCharClass[203] = undefined;
+NTC_SkillIdToCharClass[204] = undefined;
+NTC_SkillIdToCharClass[205] = undefined;
+NTC_SkillIdToCharClass[206] = undefined;
+NTC_SkillIdToCharClass[207] = undefined;
+NTC_SkillIdToCharClass[208] = undefined;
+NTC_SkillIdToCharClass[209] = undefined;
+NTC_SkillIdToCharClass[210] = undefined;
+NTC_SkillIdToCharClass[211] = undefined;
+NTC_SkillIdToCharClass[212] = undefined;
+NTC_SkillIdToCharClass[213] = undefined;
+NTC_SkillIdToCharClass[214] = undefined;
+NTC_SkillIdToCharClass[215] = undefined;
+NTC_SkillIdToCharClass[216] = undefined;
+NTC_SkillIdToCharClass[217] = 255;
+NTC_SkillIdToCharClass[218] = 255;
+NTC_SkillIdToCharClass[219] = 255;
+NTC_SkillIdToCharClass[220] = 255;
+NTC_SkillIdToCharClass[221] = 5;
+NTC_SkillIdToCharClass[222] = 5;
+NTC_SkillIdToCharClass[223] = 5;
+NTC_SkillIdToCharClass[224] = 5;
+NTC_SkillIdToCharClass[225] = 5;
+NTC_SkillIdToCharClass[226] = 5;
+NTC_SkillIdToCharClass[227] = 5;
+NTC_SkillIdToCharClass[228] = 5;
+NTC_SkillIdToCharClass[229] = 5;
+NTC_SkillIdToCharClass[230] = 5;
+NTC_SkillIdToCharClass[231] = 5;
+NTC_SkillIdToCharClass[232] = 5;
+NTC_SkillIdToCharClass[233] = 5;
+NTC_SkillIdToCharClass[234] = 5;
+NTC_SkillIdToCharClass[235] = 5;
+NTC_SkillIdToCharClass[236] = 5;
+NTC_SkillIdToCharClass[237] = 5;
+NTC_SkillIdToCharClass[238] = 5;
+NTC_SkillIdToCharClass[239] = 5;
+NTC_SkillIdToCharClass[240] = 5;
+NTC_SkillIdToCharClass[241] = 5;
+NTC_SkillIdToCharClass[242] = 5;
+NTC_SkillIdToCharClass[243] = 5;
+NTC_SkillIdToCharClass[244] = 5;
+NTC_SkillIdToCharClass[245] = 5;
+NTC_SkillIdToCharClass[246] = 5;
+NTC_SkillIdToCharClass[247] = 5;
+NTC_SkillIdToCharClass[248] = 5;
+NTC_SkillIdToCharClass[249] = 5;
+NTC_SkillIdToCharClass[250] = 5;
+NTC_SkillIdToCharClass[251] = 6;
+NTC_SkillIdToCharClass[252] = 6;
+NTC_SkillIdToCharClass[253] = 6;
+NTC_SkillIdToCharClass[254] = 6;
+NTC_SkillIdToCharClass[255] = 6;
+NTC_SkillIdToCharClass[256] = 6;
+NTC_SkillIdToCharClass[257] = 6;
+NTC_SkillIdToCharClass[258] = 6;
+NTC_SkillIdToCharClass[259] = 6;
+NTC_SkillIdToCharClass[260] = 6;
+NTC_SkillIdToCharClass[261] = 6;
+NTC_SkillIdToCharClass[262] = 6;
+NTC_SkillIdToCharClass[263] = 6;
+NTC_SkillIdToCharClass[264] = 6;
+NTC_SkillIdToCharClass[265] = 6;
+NTC_SkillIdToCharClass[266] = 6;
+NTC_SkillIdToCharClass[267] = 6;
+NTC_SkillIdToCharClass[268] = 6;
+NTC_SkillIdToCharClass[269] = 6;
+NTC_SkillIdToCharClass[270] = 6;
+NTC_SkillIdToCharClass[271] = 6;
+NTC_SkillIdToCharClass[272] = 6;
+NTC_SkillIdToCharClass[273] = 6;
+NTC_SkillIdToCharClass[274] = 6;
+NTC_SkillIdToCharClass[275] = 6;
+NTC_SkillIdToCharClass[276] = 6;
+NTC_SkillIdToCharClass[277] = 6;
+NTC_SkillIdToCharClass[278] = 6;
+NTC_SkillIdToCharClass[279] = 6;
+NTC_SkillIdToCharClass[280] = 6;
+NTC_SkillIdToCharClass[281] = undefined;
+NTC_SkillIdToCharClass[282] = undefined;
+NTC_SkillIdToCharClass[283] = undefined;
+NTC_SkillIdToCharClass[284] = undefined;
+NTC_SkillIdToCharClass[285] = undefined;
+NTC_SkillIdToCharClass[286] = undefined;
+NTC_SkillIdToCharClass[287] = undefined;
+NTC_SkillIdToCharClass[288] = undefined;
+NTC_SkillIdToCharClass[289] = undefined;
+NTC_SkillIdToCharClass[290] = undefined;
+NTC_SkillIdToCharClass[291] = undefined;
+NTC_SkillIdToCharClass[292] = undefined;
+NTC_SkillIdToCharClass[293] = undefined;
+NTC_SkillIdToCharClass[294] = undefined;
+NTC_SkillIdToCharClass[295] = undefined;
+NTC_SkillIdToCharClass[296] = undefined;
+NTC_SkillIdToCharClass[297] = undefined;
+NTC_SkillIdToCharClass[298] = undefined;
+NTC_SkillIdToCharClass[299] = undefined;
+NTC_SkillIdToCharClass[300] = undefined;
+NTC_SkillIdToCharClass[301] = undefined;
+NTC_SkillIdToCharClass[302] = undefined;
+NTC_SkillIdToCharClass[303] = undefined;
+NTC_SkillIdToCharClass[304] = undefined;
+NTC_SkillIdToCharClass[305] = undefined;
+NTC_SkillIdToCharClass[306] = undefined;
+NTC_SkillIdToCharClass[307] = undefined;
+NTC_SkillIdToCharClass[308] = undefined;
+NTC_SkillIdToCharClass[309] = undefined;
+NTC_SkillIdToCharClass[310] = undefined;
+NTC_SkillIdToCharClass[311] = undefined;
+NTC_SkillIdToCharClass[312] = undefined;
+NTC_SkillIdToCharClass[313] = undefined;
+NTC_SkillIdToCharClass[314] = undefined;
+NTC_SkillIdToCharClass[315] = undefined;
+NTC_SkillIdToCharClass[316] = undefined;
+NTC_SkillIdToCharClass[317] = undefined;
+NTC_SkillIdToCharClass[318] = undefined;
+NTC_SkillIdToCharClass[319] = undefined;
+NTC_SkillIdToCharClass[320] = undefined;
+NTC_SkillIdToCharClass[321] = undefined;
+NTC_SkillIdToCharClass[322] = undefined;
+NTC_SkillIdToCharClass[323] = undefined;
+NTC_SkillIdToCharClass[324] = undefined;
+NTC_SkillIdToCharClass[325] = undefined;
+NTC_SkillIdToCharClass[326] = undefined;
+NTC_SkillIdToCharClass[327] = undefined;
+NTC_SkillIdToCharClass[328] = undefined;
+NTC_SkillIdToCharClass[329] = undefined;
+NTC_SkillIdToCharClass[330] = undefined;
+NTC_SkillIdToCharClass[331] = undefined;
+NTC_SkillIdToCharClass[332] = undefined;
+NTC_SkillIdToCharClass[333] = undefined;
+NTC_SkillIdToCharClass[334] = undefined;
+NTC_SkillIdToCharClass[335] = undefined;
+NTC_SkillIdToCharClass[336] = undefined;
+NTC_SkillIdToCharClass[337] = undefined;
+NTC_SkillIdToCharClass[338] = undefined;
+NTC_SkillIdToCharClass[339] = undefined;
+NTC_SkillIdToCharClass[340] = undefined;
+NTC_SkillIdToCharClass[341] = undefined;
+NTC_SkillIdToCharClass[342] = undefined;
+NTC_SkillIdToCharClass[343] = undefined;
+NTC_SkillIdToCharClass[344] = undefined;
+NTC_SkillIdToCharClass[345] = undefined;
+NTC_SkillIdToCharClass[346] = undefined;
+NTC_SkillIdToCharClass[347] = undefined;
+NTC_SkillIdToCharClass[348] = undefined;
+NTC_SkillIdToCharClass[349] = undefined;
+NTC_SkillIdToCharClass[350] = undefined;
+NTC_SkillIdToCharClass[351] = undefined;
+NTC_SkillIdToCharClass[352] = undefined;
+NTC_SkillIdToCharClass[353] = undefined;
+NTC_SkillIdToCharClass[354] = undefined;
+NTC_SkillIdToCharClass[355] = undefined;
+NTC_SkillIdToCharClass[356] = undefined;
+
+
+
+
+// Skill ID/Names
+//
+// 0   Attack
+// 1   Kick
+// 2   Throw
+// 3   Unsummon
+// 4   Left Hand Throw
+// 5   Left Hand Swing
+// 6   Magic Arrow
+// 7   Fire Arrow
+// 8   Inner Sight
+// 9   Critical Strike
+// 10   Jab
+// 11   Cold Arrow
+// 12   Multiple Shot
+// 13   Dodge
+// 14   Power Strike
+// 15   Poison Javelin
+// 16   Exploding Arrow
+// 17   Slow Missiles
+// 18   Avoid
+// 19   Impale
+// 20   Lightning Bolt
+// 21   Ice Arrow
+// 22   Guided Arrow
+// 23   Penetrate
+// 24   Charged Strike
+// 25   Plague Javelin
+// 26   Strafe
+// 27   Immolation Arrow
+// 28   Dopplezon
+// 29   Evade
+// 30   Fend
+// 31   Freezing Arrow
+// 32   Valkyrie
+// 33   Pierce
+// 34   Lightning Strike
+// 35   Lightning Fury
+// 36   Fire Bolt
+// 37   Warmth
+// 38   Charged Bolt
+// 39   Ice Bolt
+// 40   Frozen Armor
+// 41   Inferno
+// 42   Static Field
+// 43   Telekinesis
+// 44   Frost Nova
+// 45   Ice Blast
+// 46   Blaze
+// 47   Fire Ball
+// 48   Nova
+// 49   Lightning
+// 50   Shiver Armor
+// 51   Fire Wall
+// 52   Enchant
+// 53   Chain Lightning
+// 54   Teleport
+// 55   Glacial Spike
+// 56   Meteor
+// 57   Thunder Storm
+// 58   Energy Shield
+// 59   Blizzard
+// 60   Chilling Armor
+// 61   Fire Mastery
+// 62   Hydra
+// 63   Lightning Mastery
+// 64   Frozen Orb
+// 65   Cold Mastery
+// 66   Amplify Damage
+// 67   Teeth
+// 68   Bone Armor
+// 69   Skeleton Mastery
+// 70   Raise Skeleton
+// 71   Dim Vision
+// 72   Weaken
+// 73   Poison Dagger
+// 74   Corpse Explosion
+// 75   Clay Golem
+// 76   Iron Maiden
+// 77   Terror
+// 78   Bone Wall
+// 79   Golem Mastery
+// 80   Raise Skeletal Mage
+// 81   Confuse
+// 82   Life Tap
+// 83   Poison Explosion
+// 84   Bone Spear
+// 85   BloodGolem
+// 86   Attract
+// 87   Decrepify
+// 88   Bone Prison
+// 89   Summon Resist
+// 90   IronGolem
+// 91   Lower Resist
+// 92   Poison Nova
+// 93   Bone Spirit
+// 94   FireGolem
+// 95   Revive
+// 96   Sacrifice
+// 97   Smite
+// 98   Might
+// 99   Prayer
+// 100   Resist Fire
+// 101   Holy Bolt
+// 102   Holy Fire
+// 103   Thorns
+// 104   Defiance
+// 105   Resist Cold
+// 106   Zeal
+// 107   Charge
+// 108   Blessed Aim
+// 109   Cleansing
+// 110   Resist Lightning
+// 111   Vengeance
+// 112   Blessed Hammer
+// 113   Concentration
+// 114   Holy Freeze
+// 115   Vigor
+// 116   Conversion
+// 117   Holy Shield
+// 118   Holy Shock
+// 119   Sanctuary
+// 120   Meditation
+// 121   Fist of the Heavens
+// 122   Fanaticism
+// 123   Conviction
+// 124   Redemption
+// 125   Salvation
+// 126   Bash
+// 127   Sword Mastery
+// 128   Axe Mastery
+// 129   Mace Mastery
+// 130   Howl
+// 131   Find Potion
+// 132   Leap
+// 133   Double Swing
+// 134   Pole Arm Mastery
+// 135   Throwing Mastery
+// 136   Spear Mastery
+// 137   Taunt
+// 138   Shout
+// 139   Stun
+// 140   Double Throw
+// 141   Increased Stamina
+// 142   Find Item
+// 143   Leap Attack
+// 144   Concentrate
+// 145   Iron Skin
+// 146   Battle Cry
+// 147   Frenzy
+// 148   Increased Speed
+// 149   Battle Orders
+// 150   Grim Ward
+// 151   Whirlwind
+// 152   Berserk
+// 153   Natural Resistance
+// 154   War Cry
+// 155   Battle Command
+// 156   Fire Hit
+// 157   UnHolyBolt
+// 158   SkeletonRaise
+// 159   MaggotEgg
+// 160   ShamanFire
+// 161   MagottUp
+// 162   MagottDown
+// 163   MagottLay
+// 164   AndrialSpray
+// 165   Jump
+// 166   Swarm Move
+// 167   Nest
+// 168   Quick Strike
+// 169   VampireFireball
+// 170   VampireFirewall
+// 171   VampireMeteor
+// 172   GargoyleTrap
+// 173   SpiderLay
+// 174   VampireHeal
+// 175   VampireRaise
+// 176   Submerge
+// 177   FetishAura
+// 178   FetishInferno
+// 179   ZakarumHeal
+// 180   Emerge
+// 181   Resurrect
+// 182   Bestow
+// 183   MissileSkill1
+// 184   MonTeleport
+// 185   PrimeLightning
+// 186   PrimeBolt
+// 187   PrimeBlaze
+// 188   PrimeFirewall
+// 189   PrimeSpike
+// 190   PrimeIceNova
+// 191   PrimePoisonball
+// 192   PrimePoisonNova
+// 193   DiabLight
+// 194   DiabCold
+// 195   DiabFire
+// 196   FingerMageSpider
+// 197   DiabWall
+// 198   DiabRun
+// 199   DiabPrison
+// 200   PoisonBallTrap
+// 201   AndyPoisonBolt
+// 202   HireableMissile
+// 203   DesertTurret
+// 204   ArcaneTower
+// 205   MonBlizzard
+// 206   Mosquito
+// 207   CursedBallTrapRight
+// 208   CursedBallTrapLeft
+// 209   MonFrozenArmor
+// 210   MonBoneArmor
+// 211   MonBoneSpirit
+// 212   MonCurseCast
+// 213   HellMeteor
+// 214   RegurgitatorEat
+// 215   MonFrenzy
+// 216   QueenDeath
+// 217   Scroll of Identify
+// 218   Book of Identify
+// 219   Scroll of Townportal
+// 220   Book of Townportal
+// 221   Raven
+// 222   Plague Poppy
+// 223   Wearwolf
+// 224   Shape Shifting
+// 225   Firestorm
+// 226   Oak Sage
+// 227   Summon Spirit Wolf
+// 228   Wearbear
+// 229   Molten Boulder
+// 230   Arctic Blast
+// 231   Cycle of Life
+// 232   Feral Rage
+// 233   Maul
+// 234   Eruption
+// 235   Cyclone Armor
+// 236   Heart of Wolverine
+// 237   Summon Fenris
+// 238   Rabies
+// 239   Fire Claws
+// 240   Twister
+// 241   Vines
+// 242   Hunger
+// 243   Shock Wave
+// 244   Volcano
+// 245   Tornado
+// 246   Spirit of Barbs
+// 247   Summon Grizzly
+// 248   Fury
+// 249   Armageddon
+// 250   Hurricane
+// 251   Fire Trauma
+// 252   Claw Mastery
+// 253   Psychic Hammer
+// 254   Tiger Strike
+// 255   Dragon Talon
+// 256   Shock Field
+// 257   Blade Sentinel
+// 258   Quickness
+// 259   Fists of Fire
+// 260   Dragon Claw
+// 261   Charged Bolt Sentry
+// 262   Wake of Fire Sentry
+// 263   Weapon Block
+// 264   Cloak of Shadows
+// 265   Cobra Strike
+// 266   Blade Fury
+// 267   Fade
+// 268   Shadow Warrior
+// 269   Claws of Thunder
+// 270   Dragon Tail
+// 271   Lightning Sentry
+// 272   Inferno Sentry
+// 273   Mind Blast
+// 274   Blades of Ice
+// 275   Dragon Flight
+// 276   Death Sentry
+// 277   Blade Shield
+// 278   Venom
+// 279   Shadow Master
+// 280   Royal Strike
+// 281   Wake Of Destruction Sentry
+// 282   Imp Inferno
+// 283   Imp Fireball
+// 284   Baal Taunt
+// 285   Baal Corpse Explode
+// 286   Baal Monster Spawn
+// 287   Catapult Charged Ball
+// 288   Catapult Spike Ball
+// 289   Suck Blood
+// 290   Cry Help
+// 291   Healing Vortex
+// 292   Teleport 2
+// 293   Self-resurrect
+// 294   Vine Attack
+// 295   Overseer Whip
+// 296   Barbs Aura
+// 297   Wolverine Aura
+// 298   Oak Sage Aura
+// 299   Imp Fire Missile
+// 300   Impregnate
+// 301   Siege Beast Stomp
+// 302   MinionSpawner
+// 303   CatapultBlizzard
+// 304   CatapultPlague
+// 305   CatapultMeteor
+// 306   BoltSentry
+// 307   CorpseCycler
+// 308   DeathMaul
+// 309   Defense Curse
+// 310   Blood Mana
+// 311   mon inferno sentry
+// 312   mon death sentry
+// 313   sentry lightning
+// 314   fenris rage
+// 315   Baal Tentacle
+// 316   Baal Nova
+// 317   Baal Inferno
+// 318   Baal Cold Missiles
+// 319   MegademonInferno
+// 320   EvilHutSpawner
+// 321   CountessFirewall
+// 322   ImpBolt
+// 323   Horror Arctic Blast
+// 324   death sentry ltng
+// 325   VineCycler
+// 326   BearSmite
+// 327   Resurrect2
+// 328   BloodLordFrenzy
+// 329   Baal Teleport
+// 330   Imp Teleport
+// 331   Baal Clone Teleport
+// 332   ZakarumLightning
+// 333   VampireMissile
+// 334   MephistoMissile
+// 335   DoomKnightMissile
+// 336   RogueMissile
+// 337   HydraMissile
+// 338   NecromageMissile
+// 339   MonBow
+// 340   MonFireArrow
+// 341   MonColdArrow
+// 342   MonExplodingArrow
+// 343   MonFreezingArrow
+// 344   MonPowerStrike
+// 345   SuccubusBolt
+// 346   MephFrostNova
+// 347   MonIceSpear
+// 348   ShamanIce
+// 349   Diablogeddon
+// 350   Delerium Change
+// 351   NihlathakCorpseExplosion
+// 352   SerpentCharge
+// 353   Trap Nova
+// 354   UnHolyBoltEx
+// 355   ShamanFireEx
+// 356   Imp Fire Missile Ex

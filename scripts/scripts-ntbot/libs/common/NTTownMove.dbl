@@ -878,3 +878,150 @@ function NTTM_CreateDijkstraPathInt(v, source, dest, points, path)
 
 	return true;
 }
+
+
+/**
+*	@name		NTTM_LeadNPC()
+*
+*	@args		npc				:	Required; Object; 	Unit object which is a reference to any of the town NPCs.
+*				destination		:	Required; Object; 	Unit object or JS object which has an 'x', 'y', and optional 'area' property
+*				nodedistance	:	Optional; Number; 	Sets the distance between each movement along the generated path.  (Default is 8 yards)
+*				waitdistance	:	Optional; Number; 	Sets the distance from the npc to wait for until moving to the next path point (Default is 4 yards)
+*				delaytime		:	Optional; Number; 	Sets the time to wait between moving to path nodes and calling moveNPC() again.  (Default is 8 seconds)
+*				retries			:	Optional; Number; 	Sets the number of times to retry leading the npc
+*				enddistance		:	Optional; Number;	Sets the distance threshold from the destination at which to end leading the npc
+*
+*	@desc		Can only be used by people that have modified the D2BS core to include a function called moveNPC()
+*				Will generate a path between npc and destination coordinates, moving to every point in the path and
+*				calling moveNPC() on the npc Unit to move the npc along the generated path, step by step.
+* 
+*	@see		http://www.assembla.com/spaces/d2bs/wiki/Adding_Custom_D2bs_Function
+*
+*	@example	https://www.assembla.com/spaces/d2bs/documents/bxh-yqDXSr4lSCeJe5cbCb/download/bxh-yqDXSr4lSCeJe5cbCb
+*/
+function NTTM_LeadNPC(npc, destination, nodedistance, waitdistance, waitdelay, retries, enddistance)
+{
+	// Check for moveNPC() D2BS core modification;
+	if(!moveNPC.isFunction)
+	{
+		print('ÿc1NTTM_LeadNPC() Error: You\'re D2BS '+ version() +' does not have a moveNPC() function');
+		return false;
+	}
+	
+	// Handle argument validation;
+	if(arguments.length < 2)
+	{
+		print('ÿc1NTTM_LeadNPC() Error: Function requires at least the first two required arguments');
+		return false;
+	}
+	
+	if(!npc.isD2BSUnit && !(destination.isD2BSUnit || (destination.isObject && destination.x && destination.y)))
+	{
+		print('ÿc1NTTM_LeadNPC() Error: Invalid \'npc\' or \'destination\' object provided, or object is now out of range');
+		return false;
+	}
+	
+	if(nodedistance == undefined || !nodedistance.isNumber || (nodedistance < 1))
+		nodedistance = 8;
+	
+	if(waitdistance == undefined || !waitdistance.isNumber || (waitdistance < 1))
+		waitdistance = 4;
+	
+	if(waitdelay == undefined)
+		waitdelay = 8000;
+		
+	if(enddistance == undefined)
+		enddistance = waitdistance;
+	
+	// Store destination area, and x/y coords;
+	var dest = {};
+	dest.area = (destination.area) ? destination.area : me.area;
+	dest.x = destination.x;
+	dest.y = destination.y;
+	
+	// Declare initial path var to set baseline number for retries if not provided;
+	var path = getPath([me.area, dest.area], me.x, me.y, dest.x, dest.y, false, nodedistance, false);
+	if(retries == undefined)
+		retries = Math.ceil(path.length * 1.75);
+	
+	// Make new counter object;
+	var counter = {};
+	counter.retries = 0;
+	
+	// Debugging information;
+	debugPrint('NTTM_LeadNPC()\nnpc: '+ npc.name +'\ndest.x:'+ dest.x +'\ndest.y:'+ dest.y +'\nenddistance: '+ 
+			enddistance +'\ndistance > enddistance --->'+ (getDistance(npc, dest.x, dest.y) > enddistance));
+	
+	while(getDistance(npc, dest.x, dest.y) > enddistance)
+	{
+		// Move closer to npc object;
+		NTM_GetCloserInt(npc);
+		NTC_Delay(1000);
+		
+		// Call moveNPC() in case npc is stuck on an object;
+		moveNPC(npc, me.x, me.y);
+		
+		// Wait timer after calling moveNPC();
+		NTC_Delay(waitdelay);
+		
+		// Generate updated path from npc to destination;
+		path = undefined;
+		path = getPath([me.area, dest.area], me.x, me.y, dest.x, dest.y, false, nodedistance, false);
+		
+		// Debugging information;
+		debugPrint(getTickCount() + ': Path coords: '+ path.toSource());
+		
+		// If path is invalid, return false;
+		if(path == undefined || !path)
+		{
+			print('ÿc1NTTM_LeadNPC() Error: Path failed to generate');
+			return false;
+		}
+		else
+		{
+			// Move to next coord in updated path;
+			var nextindex;
+			
+			if(path.length > nodedistance)
+				nextindex = nodedistance;
+			else
+				nextindex = path.length - 1;
+
+			var nextx = path[nextindex].x;
+			var nexty = path[nextindex].y;
+		
+			print('Movement #'+ (counter.retries + 1) +', next map coordinate ('+ nextx +', '+ nexty +')'); 
+			if(!clickMap(0, 0, nextx, nexty))
+			{
+				print('ÿc1NTTM_LeadNPC() Error: Failed to move to path point ('+ nextx +', '+ nexty +')');
+				return false;
+			}
+		}
+		
+		// Loop to move npc closer if still too far away
+		counter.moveNPC = 0;
+		while(getDistance(me, npc) > waitdistance)
+		{
+			moveNPC(npc, me.x, me.y);
+			
+			print('Waiting for '+ npc.name +' to get closer before continuing ('+ counter.moveNPC +')');
+			NTC_Delay(waitdelay);
+			
+			// After called moveNPC() 2 times, break loop (npc Unit could be stuck on something)
+			counter.moveNPC++;
+			if(counter.moveNPC >= 2)
+				break;
+		}
+		
+		// Increment counter.retries;
+		counter.retries++;
+		if(counter.retries >= retries)
+		{
+			print('NTTM_LeadNPC() Ending function, maximum retries have been met. ('+ counter.retries +')');
+			break;
+		}
+	}
+	
+	return true;
+}
+
