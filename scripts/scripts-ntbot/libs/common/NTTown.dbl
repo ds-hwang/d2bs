@@ -2199,7 +2199,7 @@ function MoveItemToInv(it)
 		for(var y=0; y<4; y++) 
 		{
 			found = true;	
-			for(var j=ix; j < x + it.sizex; j++) 
+			for(var j=x; j < x + it.sizex; j++) 
 			{ 
 				// item spots
 				for(var k=y; k < y + it.sizey; k++) 
