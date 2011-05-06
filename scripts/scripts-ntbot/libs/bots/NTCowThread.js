@@ -4,7 +4,7 @@
 const NTC_UNIT_MONSTER = 1;
 var NTCOW_KingChicken = 80;
 
-addEventListener("scriptmsg",msgHandler)
+addEventListener("scriptmsg",msgHandler);
 
 function main() {
 
@@ -20,7 +20,7 @@ function main() {
 		else {
 			_cowCurHp = parseInt(CowKing.hp / CowKing.hpmax * 100);
 			if(_cowCurHp < NTCOW_KingChicken) {
-				COW_Print("Chickening at " + _cowCurHp + " - Cow is dying :(!")
+				COW_Print("Chickening at " + _cowCurHp + " - Cow is dying :(!");
 				quit();
 			}
 		}
@@ -39,7 +39,7 @@ function COW_GetKing() {
 				_king = possiblecow;
 				break;
 			}
-		}while(possiblecow.getNext())
+		}while(possiblecow.getNext());
 	}
 	return _king;
 }
