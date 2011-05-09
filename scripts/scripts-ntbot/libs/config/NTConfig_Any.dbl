@@ -182,8 +182,8 @@ function NT_LoadConfig()
 	NTConfig_NIPFilePath = ["uniques.nip","sets.nip","whites.nip","runes.nip","magics.nip","gems.nip","charmsjewels.nip","ringsamulets.nip","potions.nip","moneymaker.nip","keys.nip","Shop Bot.nip"];
 	
 	NTConfig_SnagRange = 40;				//	Radius to check for dropped items. 40 is a good number here
-	FastSnag = true; 						//	Picks after each attack. based on itemdrop event
-	NT_PickUtility = false;					//	Fill belt and tombs with pickit if you don't want to purchase these items from vendors as often
+	FastSnag = false; 						//	Picks after each attack. based on itemdrop event
+	NT_PickUtility = true;					//	Fill belt and tombs with pickit if you don't want to purchase these items from vendors as often
 	NTConfig_OpenChest = true;				//	Set to true to open chest in boss/superunique areas
 	
 	NTConfig_UseTeleportForPickit = true;	//	True to use teleport when picking items, false to force character to walk to pick items

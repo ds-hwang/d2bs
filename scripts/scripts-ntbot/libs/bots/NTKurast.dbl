@@ -10,40 +10,10 @@ function NT_Kurast()
 	NTM_TravelTO(79);
 
 	NTP_DoPrecast();
-	openChestsInArea();
+	NTC_OpenAreaChests();
 
 	NTM_TravelTO(80);
-	openChestsInArea();
+	NTC_OpenAreaChests();
 
 	return true;
-}
-
-function openChestsInArea(){
-var ChestIds = [5,6,87,92,143,140,141,144,146,147,148, 176, 177, 181, 183, 198, 240 , 241 , 242 , 243, 329, 330, 331,332, 333, 334 , 335, 336,354, 355 , 356 ,371,387 , 389, 390, 391,397 , 405 , 406 , 407 , 413 , 420 , 424 , 425 , 430 , 431 , 432 , 433 , 454 , 455 , 501 , 502 ,504 , 505,580,581 ]
-var ChestLocs =[];
-	var unit = getPresetUnits(me.area);
-		if(unit){		
-		for (var j = 0; j < unit.length; j++){
-			for (var c = 0; c < ChestIds.length; c++){				
-				if (ChestIds[c] == unit[j].id){
-						ChestLocs.push([unit[j].roomx*5+unit[j].x,unit[j].roomy*5+unit[j].y])					
-				}
-			}
-		}
-		}
-		
-		while(ChestLocs.length > 0){
-			ChestLocs.sort(NTA_SortRoomInt);
-			var _room = ChestLocs.shift();
-			NTM_MoveTo(_room[0], _room[1]);		
-					var chest = NTC_GetUnit(NTC_UNIT_OBJECT, "chest");
-					if(chest){
-						do{		
-							if(getDistance(me.x,me.y,chest.x,chest.y)<5){
-								if(NTC_OpenChest(copyUnit(chest)))
-									NTSI_PickItems();
-							}
-						}while(chest.getNext());
-					}
-		}
 }

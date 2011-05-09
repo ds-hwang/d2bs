@@ -19,6 +19,7 @@ Object.prototype.__defineGetter__('isBoolean', function(){ return (this instance
 Object.prototype.__defineGetter__('isNumber', function(){ return (this instanceof Number); });
 Object.prototype.__defineGetter__('isString', function(){ return (this instanceof String); });
 Object.prototype.__defineGetter__('isArray', function(){ return (this instanceof Array); });
+Object.prototype.__defineGetter__('isObject', function(){ return (this instanceof Object); });
 Object.prototype.__defineGetter__('isFunction', function(){ return (this instanceof Function); });
 Object.prototype.__defineGetter__('isRegExp', function(){ return (this instanceof RegExp); });
 Object.prototype.__defineGetter__('isDate', function(){ return (this instanceof Date); });
@@ -48,6 +49,8 @@ if(!Object.keys)
 	
 // Array Class Properties
 // Array Class Methods
+
+// **NOTE** Array.removeDuplicates is not a mutator method;
 Array.prototype.removeDuplicates = 
 	function()
 	{

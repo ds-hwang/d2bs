@@ -358,4 +358,3 @@ function NTAR_GetUserArea(username)
 	return playerUnit.area;
 }	
 
-

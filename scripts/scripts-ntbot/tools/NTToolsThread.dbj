@@ -36,7 +36,7 @@ function main()
 	{
 		if(parseInt((me.hpmax*NTConfig_LifeChicken)/100) > 5)
 		{
-			me.chickenhp = parseInt(((me.hpmax*NTConfig_LifeChicken)/100) - 5);
+			me.chickenhp = parseInt(((me.hpmax*NTConfig_LifeChicken - 5)/100));
 		}
 		else
 			me.chickenhp = parseInt((me.hpmax*NTConfig_LifeChicken)/100);
@@ -46,7 +46,7 @@ function main()
 	{
 		if(parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100) > 5)
 		{
-			me.chickenmp = parseIntparseInt(((me.mpmax*NTConfig_ManaChicken)/100) - 5);
+			me.chickenmp = parseIntparseInt(((me.mpmax*NTConfig_ManaChicken - 5)/100));
 		}
 		else
 			me.chickenmp = parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100);
