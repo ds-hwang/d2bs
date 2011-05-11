@@ -3,11 +3,11 @@
 *
 *	@author		alogwe
 *
-*	@version	1.0
+*	@version	1.1
 *
 *	@desc		Prototype library for D2BS 'Me' Object
 *
-*				Note: 	Fold syntax on sets of {} for easier viewing 
+*				NOTE: 	Fold syntax on sets of {} for easier viewing 
 *						If using notepad++ with JavaScript syntax highlighting:
 *							Fold All	: Alt + 0
 *							Unfold All	: Alt + Shift + 0
@@ -25,7 +25,7 @@ me.__defineGetter__('inTown', function(){ return (me.area == 0 || me.area == 1 |
 
 //	Me Methods
 
-//note: me.switchToWeaponTab accepts 1 or 2 for tab numbers (not 0 or 1)
+//NOTE: me.switchToWeaponTab accepts 1 or 2 for tab numbers (not 0 or 1)
 me.switchToWeaponTab =
 	function(x)
 	{
