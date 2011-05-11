@@ -39,31 +39,21 @@ Name = Spired Helm : Quality = Unique
 Name = Demonhead : Quality = Unique
 Name = Bone Visage : Quality = Unique
 Name = Tiara : Quality = Unique
-Name = Diadem
-: Quality = Unique
-Name = Corona
-: Quality = Unique
+Name = Diadem : Quality = Unique
+Name = Corona : Quality = Unique
 
 ;; Unique Body
 Name = Studded Leather : Quality = Unique
-Name = Ring Mail
-
-: Quality = Unique Name = Full Plate Mail : Quality = Unique Name = Ghost Armor
-: Quality = Unique
-Name = Mage Plate
-: Quality = Unique
-Name = Dusk Shroud
-: Quality = Unique
-Name = Balrog Skin
-: Quality = Unique
-Name = Wire Fleece
-: Quality = Unique
-Name = Kraken Shell
-: Quality = Unique
-Name = Shadow Plate
-: Quality = Unique
-Name = Sacred Armor
-: Quality = Unique
+Name = Ring Mail : Quality = Unique 
+Name = Full Plate Mail : Quality = Unique 
+Name = Ghost Armor : Quality = Unique
+Name = Mage Plate : Quality = Unique
+Name = Dusk Shroud : Quality = Unique
+Name = Balrog Skin : Quality = Unique
+Name = Wire Fleece : Quality = Unique
+Name = Kraken Shell : Quality = Unique
+Name = Shadow Plate : Quality = Unique
+Name = Sacred Armor : Quality = Unique
 Name = Mesh Armor : Quality = Unique
 Name = Russet Armor : Quality = Unique
 Name = Templar Coat : Quality = Unique
