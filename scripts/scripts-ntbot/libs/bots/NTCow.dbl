@@ -1,12 +1,13 @@
 /****************************************************************/
 /*	NT_Cow script for D2BS v.1.3.3 written by Shaggi	*/
+/*  enhanced book-finding by scprotz                    */
 /****************************************************************/
 
 
 /*			Globals.		*/
 var _cowpos = [0,0];
 var CowKing;
-var _version = "1.2";
+var _version = "1.2.1";
 var Cow_Debug = true;
 var TextHook = false;
 
@@ -60,23 +61,8 @@ function COW_MakePortal()
 	var _LegInCube = 0;
 	var _BookInCube = 0;
 	var _leg, _npc,_items, _tpbook, _stash, _cube;
-	var _tbk1,_tkb2, _tbk_old;
-	var _tbkcount = 0;
 	_items = me.getItems();
-	if(_items) {
-		for(var i = 0; i < _items.length ; i++) {
-			if(_items[i].location == 0) {
-				if(_items[i].code == "tbk") {
-					if(_tbk_old && _items[i] != _tbk_old) {
-						_tpbook = _items[i];
-						break;
-					};
-					_tbk_old = _items[i];
-				}
-			}
-		}
-	};
-
+	_tpbook = COW_getFirstTBK();
 
 	/*		See if leg is on ground.		*/
 	for (i = 0; i < 10; i++)
@@ -143,13 +129,17 @@ function COW_MakePortal()
 							COW_Print("ÿc1Error while shopping for Townportal book!")
 							return false;
 						} else {
-							NTT_MenuCancel();
+							NTT_MenuCancel();							
 							break;
 						}
 					}
 				}
 			}
 		}
+	}
+	else
+	{
+		print("I have an extra tome");
 	}
 	/*		Got extra tome, moving to stash to cube em		*/
 
@@ -168,29 +158,29 @@ function COW_MakePortal()
 				break;
 		}
 		if(_cube) {
+			print("Have cube: " + _cube);
 			_items = 0;
 			_items = me.getItems();
 			_tpbook = 0;
+		
 			if(_items) {
 				for(var i = 0; i < _items.length ; i++) {
 					if(_items[i].location == 3) {
 						COW_Print("ÿc1Please clean your cube before using this script!");
 						return false;
 					}
-					if(!_tpbook) {
-						if(_items[i].code == "tbk" && _items[i] != _tbk_old) {
-								_tpbook = _items[i];
-						}
-					}
 				}
+			_tpbook = COW_getFirstTBK();
 
 		/*		Verified that user got a cube and it's empty. going to transmute	*/
 
 				COW_Print("Transmuting.");
 				NTC_PingDelay(1000);
+				print("put book on cursor");
 				if(!NTC_ItemToCursor(_tpbook))
 					return false;
 				NTC_PingDelay(1000);
+				print("put item book in cube");
 				COW_ItemToCube(_tpbook,_cube)
 				NTC_PingDelay(1000);
 				if(!NTC_ItemToCursor(_leg))
@@ -216,6 +206,37 @@ function COW_MakePortal()
 	}
 
 	return true;
+}
+
+/*
+ *  This function finds the first Town Portal Book
+ *  That is not locked in your inventory.
+ */
+function COW_getFirstTBK()
+{
+	// get my items //
+	var _items = me.getItems();
+
+	// loop through my items //
+	if(_items) 
+	{
+		for(var i = 0; i < _items.length; i++) 
+		{
+			// look for items in my pack //
+			if(_items[i].location == 0) 
+			{
+				// look only for town portal tomes //
+				if(_items[i].code == "tbk") 
+				{	
+					// test my locked area...if the tome is not in a locked spot..then we are good //
+					if(NTConfig_Columns[_items[i].y][_items[i].x] && NTConfig_Columns[_items[i].y+1][_items[i].x])
+						return _items[i];
+				}
+			}
+		}
+	};
+
+	return 0;
 }
 
 
