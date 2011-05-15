@@ -1,15 +1,18 @@
-const NTA_DAMAGE_NONE = 0;
-const NTA_DAMAGE_PHYSICAL = 1;
-const NTA_DAMAGE_MAGIC = 2;
-const NTA_DAMAGE_FIRE = 3;
-const NTA_DAMAGE_LIGHTNING = 4;
-const NTA_DAMAGE_COLD = 5;
-const NTA_DAMAGE_POISON = 6;
+/// <reference path="/../../d2bsAPI.js" /> 
+
+
+var NTA_DAMAGE_NONE = 0;
+var NTA_DAMAGE_PHYSICAL = 1;
+var NTA_DAMAGE_MAGIC = 2;
+var NTA_DAMAGE_FIRE = 3;
+var NTA_DAMAGE_LIGHTNING = 4;
+var NTA_DAMAGE_COLD = 5;
+var NTA_DAMAGE_POISON = 6;
 var _NTA_SkillDamage=[];
 var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
-const DEAD_MODE = (1<<29)|(1<<12);
+var DEAD_MODE = (1 << 29) | (1 << 12);
 
 function NTA_KillBoss(classid)
 {
@@ -21,13 +24,12 @@ function NTA_KillBoss(classid)
 	*/
 	if(NTConfig_AttackBoss < 1)
 		return false;
-
+        
 	for(var i = 0; i < 5; i++)
 	{
 		_target = NTC_FindMonster(classid);
-
-		if(_target)
-		{
+		if (_target)
+        {
 			if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100)
 			{
 				if(NTC_IsLeftSkill(NTConfig_AttackFirst))
@@ -729,11 +731,12 @@ if (curse == 91) //lower resist
 return 1;
 }
 
-function getIntoLOS(target){
+function getIntoLOS(target) {
+    var los = false;
  		if(checkCollision(me, target,10)){
 			//attackPrint("moving closer collision 10");
 			
-			var los = FindLOS(target,20)
+			los = FindLOS(target,20)
 			if (los){
 			
 		//	print ("found los:"+los[0]+","+los[1])
@@ -743,7 +746,7 @@ function getIntoLOS(target){
 		}
 		if(checkCollision(me, target,2)){
 			//attackPrint("moving closer collision 2");
-			var los = FindLOS(target,20)
+			 los = FindLOS(target,20)
 			if (los){		
 		//	print ("found los:"+los[0]+","+los[1])
 				return NTM_MoveTo(los[0],los[1]);
@@ -752,7 +755,7 @@ function getIntoLOS(target){
 		}
 		if(checkCollision(me, target,1)){
 			//attackPrint("moving closer collision 1");
-			var los = FindLOS(target,20)
+			 los = FindLOS(target,20)
 			if (los){
 			//	print ("found los:"+los[0]+","+los[1])
 			return	NTM_MoveTo(los[0],los[1]);
@@ -761,7 +764,7 @@ function getIntoLOS(target){
 			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
 		}
 		if (getDistance(me,target)>20){
-		var los = FindLOS(target,20)
+		 los = FindLOS(target,20)
 			if (los){
 			//	print ("found los:"+los[0]+","+los[1]+ " Range") 
 				return NTM_MoveTo(los[0],los[1]);
@@ -806,7 +809,7 @@ var success;
 			XP_UseNecroCE(target); 
 		}	
 		if (XP_useSkel) {			
-			var success = XP_CheckRevives(70,363);
+			 success = XP_CheckRevives(70,363);
 		}
 		// Check Skeleton Mages
 		if (XP_useSkelMage && success) {		

@@ -1,3 +1,5 @@
+/// <reference path="/../../d2bsAPI.js" />
+/// <reference path="/../common/HookedControls.js" />
 /**
  * Simon Says script! 
  * List of in game commands can be found below
@@ -32,6 +34,7 @@ var UseLifewatch = !SimonStopLifeWatch;
 
 function NT_SimonSays() 
 { 
+//var text = new TabControl(20,80,780,500,0,28,["Test1" , "Run Info","test 5"])
 	print("ÿc3Starting SimonSays script");
 	print("ÿc9Supported commands can be found in the top section of SimonSays.dbl")
 	print("ÿc9You can also Do each event by saying Do eventname for example Do Cube, or Do Andariel")
@@ -46,9 +49,11 @@ function NT_SimonSays()
 	var cbShowLoc = new CheckBox (650,90,"Loction Hook",false)
 	cbShowLoc.visible=cbShowOptions.checked
 	cbSimonStopLifeWatch.visible=cbShowOptions.checked
+	
 	var levelInfoHook1 = new Text("",  795, 450, 2, 6, 1);
 	var levelInfoHook2 = new Text("",  795, 465, 2, 6, 1);
-	var levelInfoHook3 = new Text("",  795, 480, 2, 6, 1);
+	var levelInfoHook3 = new Text("", 795, 480, 2, 6, 1);
+	var LoctionHook = new Text("", 795, 500, 2, 6, 1);
 	//var commandsHook = new Text("Rush Me, Get Wps, Rush 1-5",  400, 400, 2, 6, 2,testFunc);
 	//commandsHook.visible=false;
 	cbSimonEnableCommands.visible=cbShowOptions.checked;	
@@ -60,6 +65,18 @@ function NT_SimonSays()
 //	 var hook = new Box(...); hook.click = function (b, x, y) { /* b is the button, x/y is the location */ };
 	var ShowOptions = cbShowOptions.checked
 	var currentArea = 0;
+	cbShowOptions.checkedChanged = function () {
+	        ShowOptions = cbShowOptions.checked
+	        cbEnableSnaging.visible = cbShowOptions.checked
+	        cbAutoReveal.visible = cbShowOptions.checked
+	        cbSimonEnableCommands.visible = cbShowOptions.checked;
+	        cbSimonStopLifeWatch.visible = cbShowOptions.checked;
+	        cbShowLoc.visible = cbShowOptions.checked;	 
+	}
+	cbShowLoc.checkedChanged = function () {
+        LoctionHook.visible = cbShowLoc.checked
+	}
+
    while(me.ingame){  ///////////////////Main Loop
 		if(cbShowLoc.checked)
 			LoctionHook.text ="Area: "+me.area +" X: "+me.x+" Y: "+me.y;
@@ -71,14 +88,7 @@ function NT_SimonSays()
 			NTSI_PickItems(); // adding for utility snag		
 		}
 		SimonEnableCommands =cbSimonEnableCommands.checked;
-		if (ShowOptions != cbShowOptions.checked){		
-			ShowOptions = cbShowOptions.checked			
-			cbEnableSnaging.visible = cbShowOptions.checked
-			cbAutoReveal.visible = cbShowOptions.checked
-			cbSimonEnableCommands.visible=cbShowOptions.checked;
-			cbSimonStopLifeWatch.visible=cbShowOptions.checked;			
-			//commandsHook.visible=(cbSimonEnableCommands.checked && cbSimonEnableCommands.visible)	
-		}
+		
 		if (UseLifewatch != cbSimonStopLifeWatch.checked){
 			UseLifewatch = cbSimonStopLifeWatch.checked;
 			setLifeWatch(UseLifewatch);

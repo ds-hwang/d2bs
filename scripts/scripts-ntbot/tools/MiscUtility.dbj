@@ -6,7 +6,7 @@ var hostalWatch = false; // gets set on hostile event
 var badplayerlist =[];
 function main()
 {
-	include("common/NTCommon.dbl");
+	include("common/NTCommon.js");
 	
 	include("itemlogger.dbl");  	
   	NTC_IncludeLibs(); 

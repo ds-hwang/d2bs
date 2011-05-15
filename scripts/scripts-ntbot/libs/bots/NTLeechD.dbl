@@ -37,15 +37,18 @@ function NT_LeechD()
 		NTM_UsePortal("BluePortal", 108,leader);
 		delay (1000);
 		if (!findLead(leader)) 
-			throw new Error();
+			//throw new Error();
+			print("Thowing first error")
 	}
 	
 	NTP_DoPrecast();
-	
+	print("boobs")
 	while(me.area==108)
 	{
+	print(leader + " Tick")
 		if (!moveToLead(leader))
-			throw new Error();
+			//throw new Error();
+			print("im a quitter")
 		NTA_ClearPosition(30);
 		NTSI_PickItems();
 		if (findLead(leader) > 108)
@@ -58,6 +61,8 @@ function NT_LeechD()
 
 function findLead(leader)
 {
+if (leader == "")
+	return false
 	var _lead = getUnit(0, leader);
 	
 	if(_lead)

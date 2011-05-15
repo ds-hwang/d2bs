@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1256;
+var ntbotRevision = 1276;
 
 js_strict(true);
 
@@ -59,7 +59,7 @@ function main()
 	addEventListener("gamemsg", GameMSG);
 
 
-	include("common/HookedControls.dbl");
+	include("common/HookedControls.js");
 	configHook = new TextBox(263,30,275,40,"Config NTBot"); 
 	configHook.visible = false; 
 	configHook.font = 3; 
@@ -79,8 +79,8 @@ function main()
 		};
 
 	include("config/NTConfig.dbl");
-	include("config/NTConfigManager.dbl");
-	include("common/NTCommon.dbl");
+	include("config/NTConfigManager.js");
+	include("common/NTCommon.js");
 	include("itemlogger.dbl");
 	NTC_IncludeLibs(); 
 	NTC_IncludeConfig(); 
@@ -108,9 +108,9 @@ function main()
 		NTSI_LoadNIPFiles(); 
 	}catch (error){
 		print ("Loading to find error" +error);
-		load("libs/common/NTAttack.dbl");
-		load("libs/common/NTCommon.dbl");
-		load("libs/config/NTConfigManager.dbl");
+		load("libs/common/NTAttack.js");
+		load("libs/common/NTCommon.js");
+		load("libs/config/NTConfigManager.js");
 		load("libs/itemlogger.dbl");
 	}
 

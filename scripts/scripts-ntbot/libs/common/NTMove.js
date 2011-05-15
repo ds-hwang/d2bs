@@ -1,3 +1,5 @@
+/// <reference path="/../../d2bsAPI.js" /> 
+
 var NTM_AreaWPArray = [
     0,    0x01, 0, 0x03, 0x04, 0x05, 0x06, 0,    0,    0,    0,    0,    0,    0,    0,    0,    // 0..15
     0,    0,    0, 0,    0,    0,    0,    0,    0,    0,    0,    0x1b, 0,    0x1d, 0,    0,    // 16..31
@@ -8,7 +10,7 @@ var NTM_AreaWPArray = [
     0,    0,    0, 0,    0,    0x65, 0,    0x67, 0,    0,    0x6a, 0x6b, 0,    0x6d, 0,    0x6f, // 96..111
     0x70, 0x71, 0, 0x73, 0,    0x75, 0x76, 0,    0,    0,    0,    0x7b, 0,    0,    0,    0,    // 112..127
     0,    0x81, 0, 0,    0]; // 128..132
-
+    
 var NTM_Waypoints = [
     0x01, 0x03, 0x04, 0x05, 0x06, 0x1b, 0x1d, 0x20, 0x23,  // 0 ..8  act1
     0x28, 0x30, 0x2a, 0x39, 0x2b, 0x2c, 0x34, 0x4a, 0x2e,  // 9 ..17 act2
@@ -834,17 +836,26 @@ function NTM_GotoLevel( exitAreaId, goThru) {
 			}
 		}
 		if(exitAreaId == 51 && me.area == 50){
-			NTM_MoveTo(10041,5081);			
-			var tile =getUnit(5);
-			tile.interact();
-			preWalkDelay;
-			postWalkDelay;			
+			NTM_MoveTo(10041,5081);
+			NTM_takeTile(29)		
 			return true;
-		}
+        }
+        if (exitAreaId == 74 && me.area == 54) {  //palace to arcane            NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0)
+            var _unit = NTC_GetUnit(NTC_UNIT_OBJECT, 298);
+            _unit.interact();
+            _unit.interact();
+            if(!goThru) return false
+             NTC_Delay(250);
+             if (!NTM_UsePortal("Portal", 74))
+                 return false;
+             else
+                 return true;
+        }
 		if(exitAreaId == 110 && me.area == 109){ //bloody hills
 			NTM_MoveTo(5065,5098);	
-			NTM_MoveTo(5025,5096);	
-			NTM_OpenDoor();			
+			NTM_MoveTo(5025,5096);
+			NTM_OpenDoor();	
+            		
 		}
 		if(exitAreaId == 38 && me.area == 4){ //trist
 			if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5))

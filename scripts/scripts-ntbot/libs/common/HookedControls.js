@@ -1,4 +1,6 @@
 
+/// <reference path="/../../d2bsAPI.js" />
+
 addEventListener("mouseclick", GlobalCheckBoxClick);
 var GlobalCheckBoxArray = new Array;
 var GlobalTextBoxArray = new Array;
@@ -10,7 +12,8 @@ function myGetTextSize (txt,font){
 if (typeof(getTextWidthHeight) == "function")
 	return getTextWidthHeight(txt,font);
 else
-	return getTextSize(txt,font)
+    return getTextSize(txt, font)    
+    
 }
 
 function CheckBox(x, y,Txt,Checked) {
@@ -24,8 +27,9 @@ function CheckBox(x, y,Txt,Checked) {
  this.boxOnRight = true;
  this.text = Txt;
  this.checked = Checked;
- this.checkedColor = 8; 
+ this.checkedColor = 8;
  this.visible = true;
+ this.checkedChanged =false //function to set 
  //this.width = width; 
  //this.height = height; 
 // this.hooks = new Array;
@@ -60,6 +64,8 @@ function CheckBox(x, y,Txt,Checked) {
 		this.checked = newval;
 		Checked=newval;
 		this.update();
+		if (typeof (this.checkedChanged) == "function")
+            this.checkedChanged()
 		return newval;	
 	});
 	this.watch("visible", function(id,oldval,newval) {
@@ -195,7 +201,7 @@ clickCount = clickCount +1;
 	for (var j = 0; j < GlobalTextBoxArray.length; j++){
 		if(GlobalTextBoxArray[j].enableRowSelection && GlobalTextBoxArray[j].x <x && GlobalTextBoxArray[j].y < y && GlobalTextBoxArray[j].x +GlobalTextBoxArray[j].xSize > x && GlobalTextBoxArray[j].y+GlobalTextBoxArray[j].ySize >y && GlobalTextBoxArray[j].visible){		
 			if(typeof(GlobalTextBoxArray[j].clickFunction) == 'function')
-				GlobalTextBoxArray[j].clickFunction();
+			    GlobalTextBoxArray[j].clickFunction(GlobalTextBoxArray[j]);
 			for (var l = 0; l < GlobalTextBoxArray[j].lines.length; l++){	
 				//print(GlobalTextBoxArray[j].lines[l].y +" > "+ y)
 				if(GlobalTextBoxArray[j].lines[l].y  > y ){				
@@ -321,7 +327,7 @@ this.watch("textColor", function(id,oldval,newval) {
 	return newval;
 	});
 this.watch("backColor", function(id,oldval,newval) {
-	this.textColor = newval
+    this.backColor = newval
 	this.redrawHooks();	
 	return newval;
 	});
@@ -352,6 +358,11 @@ this.watch("font", function(id,oldval,newval) {
 	this.redrawHooks()	
 	return newval;	
 	});
+this.watch("selectedColor", function(id,oldval,newval) {
+	this.selectedColor = newval
+	this.redrawHooks()	
+	return newval;	
+	});
 this.watch("visible", function(id,oldval,newval) {
 	this.visible = newval
 	this.redrawHooks()	
@@ -359,41 +370,42 @@ this.watch("visible", function(id,oldval,newval) {
 	});
  GlobalTextBoxArray.push (this);
  }
- 
+
  TextBox.prototype.redrawHooks = function () {	
 		this.boxLine1.x= this.x;
 		this.boxLine1.y = this.y;
 		this.boxLine1.xsize = this.x+this.xSize;
 		this.boxLine1.ysize = this.y;
-		this.boxLine1.color = this.boxColor;
+		this.boxLine1.color = this.backColor;
 		this.boxLine1.visible = (this.visible && this.ShowOutline);
 		
 		this.boxLine2.x=this.x;
 		this.boxLine2.y=this.y;
 		this.boxLine2.xSize=this.x;
 		this.boxLine2.ysize= this.y +this.ySize;
-		this.boxLine2.color=this.boxColor;
+		this.boxLine2.color = this.backColor;
 		this.boxLine2.visible = (this.visible && this.ShowOutline);
 		
 		this.boxLine3.x= this.x;
 		this.boxLine3.y=this.y+this.ySize;
 		this.boxLine3.xsize=this.x+this.xSize;
 		this.boxLine3.ysize=this.y+this.ySize;
-		this.boxLine3.color=this.boxColor;
+		this.boxLine3.color = this.backColor;
 		this.boxLine3.visible = (this.visible && this.ShowOutline);
 		
 		this.boxLine4.x= this.x+this.xSize;
 		this.boxLine4.y=this.y;
 		this.boxLine4.xsize=this.x+this.xSize;
 		this.boxLine4.ysize=this.y+this.ySize;
-		this.boxLine4.color=this.boxColor;
+		this.boxLine4.color = this.backColor;
 		this.boxLine4.visible = (this.visible && this.ShowOutline);
 		
 		//this.background = new Box(this.x+1,this.y+1,this.xSize-1,this.ySize-1,this.backColor,1)
 		this.background.x=this.x+1;
 		this.background.y = this.y+1;
 		this.background.ysize=this.ySize-1
-		this.background.xsize=this.xSize-1
+		this.background.xsize = this.xSize - 1
+        this.background.color=this.backColor
 		this.background.visible=(this.visible && this.ShowOutline);
 		if (this.visible)
 			this.scrollbar.visible = (this.textLines.length > this.lines.length);
@@ -683,8 +695,73 @@ this.watch("visible", function(id,oldval,newval) {
 		this.slider.visible=this.visible;
 		this.infoText.visible=this.visible;		
 		return newval;
-		});		
+		});
 }
+function TabControl(x, y,xSize,ySize,txtColor,backColor,tabArray) {
+this.x=x;
+this.y=y;
+this.x2=xSize -x ;
+this.y2=ySize-y;
+this.xSize=xSize
+this.ySize=ySize
+this.txtColor=txtColor;
+this.backColor=backColor;
+this.tabArray = [];
+this.topButtonArray = [];
+this.tabs =[];
+for (var t = 0; t < tabArray.length; t++) {
+    var tt = new tabPage()
+    tt.name = tabArray[t]
+    tt.controls = new Array()
+    this.tabs.push(tt)
+}
+    
+
+this.font =5;
+this.selectedTab=0
+
+this.visible = true; 
+this.box = new Box(this.x,this.y,this.x2,this.y2,this.backColor)
+//this.sepLine = new Line(this.x,this.y+15,this.x2 +this.x,this.y+15,this.txtColor,1)
+
+var sp =0;
+    for (var j = 0; j < this.tabs.length; j++) {       
+        var a = new TextBox(this.x + sp, this.y, myGetTextSize(this.tabs[j].name, this.font)[0] + 10, myGetTextSize(this.tabs[j].name, this.font)[1], tabArray[j], this.txtColor, this.backColor)
+        sp = sp  + myGetTextSize(this.tabs[j].name, this.font)[0]+10;
+        a.selectedColor = this.txtColor;
+        a.font=this.font
+        a.parent = this
+        a.clickFunction=this.tabClick
+        this.topButtonArray.push(a)
+        //this.tabArray.push(a)
+      
+    }
+    this.selectedTab = 1
+    this.topButtonArray[0].backColor = 5
+    this.watch("selectedTab", function (id, oldval, newval) {
+        this.topButtonArray[oldval - 1].backColor = this.backColor
+        for (var k = 0; k < this.tabs[oldval-1].controls.length; k++)
+            this.tabs[oldval - 1].controls[k].visible = false
+        
+        this.topButtonArray[newval -1].backColor = 5
+        for (var k = 0; k < this.tabs[newval-1 ].controls.length; k++)
+            this.tabs[newval].controls[k].visible = true
+
+                    
+        return newval;
+    });
+}
+
+TabControl.prototype.tabClick = function (sender) {
+    for (var j = 0; j < sender.parent.topButtonArray.length; j++) {
+        if (sender.text == sender.parent.topButtonArray[j].text)
+            sender.parent.selectedTab = j + 1;
+    }
+}
+function tabPage (){}
+tabPage.prototype.name = ""
+tabPage.controls = new Array();
+
 function DropDownBox(x, y,text,txtColor,backColor,textList,heading) {
 this.x=x;
 this.head=(heading)?heading :"testing ";
@@ -745,3 +822,16 @@ DropDownBox.prototype.update = function () {
 	this.dropDown.visible = this.visible;
 	this.listbox.visible = (this.visible && this.droped);
 }
+//this.test1 = new Text("Font 1", 30, 100,1, 1,0)
+//this.test2 = new Text("Font 2", 100, 100, 1, 2, 0)
+//this.text3 = new Text("Font 3", 200, 100, 1, 3, 0)
+//this.test4 = new Text("Font 4", 400, 100, 1, 4, 0)
+//this.test5 = new Text("Font 5", 500, 100, 1, 5, 0)
+//this.text6 = new Text("Font 6", 600, 100, 1, 6, 0)
+//this.test7 = new Text("Font 7", 30, 300, 1, 7, 0)
+//this.test8 = new Text("Font 8", 100, 300, 1, 8, 0)
+//this.text9 = new Text("Font 9", 200, 300, 1, 9, 0)
+//this.test10 = new Text("Font 10", 400, 300, 1, 10, 0)
+//this.test11 = new Text("Font 11", 500, 300, 1, 11, 0)
+//this.text12 = new Text("Font 12", 600, 300, 1, 12, 0)
+//this.test7 = new Text("Font 13", 30, 350, 1,13, 0)

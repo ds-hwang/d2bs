@@ -1,81 +1,84 @@
+/// <reference path="/../../d2bsAPI.js" /> 
+
+
 //include() getBaseStat() item table object for NTC_GetBaseStat()
 include('objects/itemTable.json');
 include('common/NTCommonExt.dbl');
 
-// Public D2BS constants
+// Public D2BS varants
 
 // Character Class
-const NTC_CHAR_CLASS_AMAZON = 0;
-const NTC_CHAR_CLASS_SORCERESS = 1;
-const NTC_CHAR_CLASS_NECROMANCER = 2;
-const NTC_CHAR_CLASS_PALADIN = 3;
-const NTC_CHAR_CLASS_BARBARIAN = 4;
-const NTC_CHAR_CLASS_DRUID = 5;
-const NTC_CHAR_CLASS_ASSASSIN = 6;
+var NTC_CHAR_CLASS_AMAZON = 0;
+var NTC_CHAR_CLASS_SORCERESS = 1;
+var NTC_CHAR_CLASS_NECROMANCER = 2;
+var NTC_CHAR_CLASS_PALADIN = 3;
+var NTC_CHAR_CLASS_BARBARIAN = 4;
+var NTC_CHAR_CLASS_DRUID = 5;
+var NTC_CHAR_CLASS_ASSASSIN = 6;
 
 // Act 1 NPCs
-const NTC_NPC_ID_AKARA = 148;
-const NTC_NPC_ID_WARRIV_ACT_1 = 155;
-const NTC_NPC_ID_CHARSI = 154;
-const NTC_NPC_ID_GHEED = 147;
-const NTC_NPC_ID_KASHYA = 150;
-const NTC_NPC_ID_CAIN_TRISTRAM = 146;
-const NTC_NPC_ID_CAIN_ACT_1 = 244;
+var NTC_NPC_ID_AKARA = 148;
+var NTC_NPC_ID_WARRIV_ACT_1 = 155;
+var NTC_NPC_ID_CHARSI = 154;
+var NTC_NPC_ID_GHEED = 147;
+var NTC_NPC_ID_KASHYA = 150;
+var NTC_NPC_ID_CAIN_TRISTRAM = 146;
+var NTC_NPC_ID_CAIN_ACT_1 = 244;
 
 // Act 2 NPCs
-const NTC_NPC_ID_FARA = 178;
-const NTC_NPC_ID_LYSANDER = 202;
-const NTC_NPC_ID_GREIZ = 198;
-const NTC_NPC_ID_ELZIX = 199;
-const NTC_NPC_ID_MESHIF_ACT_2 = 210;
-const NTC_NPC_ID_DROGNAN = 177;
-const NTC_NPC_ID_ATMA = 176;
-const NTC_NPC_ID_WARRIV_ACT_2 = 175; 
-const NTC_NPC_ID_CAIN_ACT_2 = 245;
-const NTC_NPC_ID_JERHYN = 201;
-const NTC_NPC_ID_TYRAEL_ACT_2 = 251;
+var NTC_NPC_ID_FARA = 178;
+var NTC_NPC_ID_LYSANDER = 202;
+var NTC_NPC_ID_GREIZ = 198;
+var NTC_NPC_ID_ELZIX = 199;
+var NTC_NPC_ID_MESHIF_ACT_2 = 210;
+var NTC_NPC_ID_DROGNAN = 177;
+var NTC_NPC_ID_ATMA = 176;
+var NTC_NPC_ID_WARRIV_ACT_2 = 175; 
+var NTC_NPC_ID_CAIN_ACT_2 = 245;
+var NTC_NPC_ID_JERHYN = 201;
+var NTC_NPC_ID_TYRAEL_ACT_2 = 251;
 
 // Act 3 NPCs
-const NTC_NPC_ID_MESHIF_ACT_3 = 264;
-const NTC_NPC_ID_CAIN_ACT_3 = 246;
-const NTC_NPC_ID_ALKOR = 254;
-const NTC_NPC_ID_ASHEARA = 252;
-const NTC_NPC_ID_ORMUS = 255;
-const NTC_NPC_ID_HRATLI = 253;
+var NTC_NPC_ID_MESHIF_ACT_3 = 264;
+var NTC_NPC_ID_CAIN_ACT_3 = 246;
+var NTC_NPC_ID_ALKOR = 254;
+var NTC_NPC_ID_ASHEARA = 252;
+var NTC_NPC_ID_ORMUS = 255;
+var NTC_NPC_ID_HRATLI = 253;
 
 // Act 4 NPCs
-const NTC_NPC_ID_CAIN_ACT_4 = 265;
-const NTC_NPC_ID_HALBU = 257;
-const NTC_NPC_ID_TYRAEL_ACT_4 = 367;
-const NTC_NPC_ID_JAMELLA = 405;
+var NTC_NPC_ID_CAIN_ACT_4 = 265;
+var NTC_NPC_ID_HALBU = 257;
+var NTC_NPC_ID_TYRAEL_ACT_4 = 367;
+var NTC_NPC_ID_JAMELLA = 405;
 
 // Act 5 NPCs
-const NTC_NPC_ID_CAIN_ACT_5 = 520;
-const NTC_NPC_ID_TYRAEL_ACT_5 = 521;
-const NTC_NPC_ID_LARZUK = 511;
-const NTC_NPC_ID_ANYA_FROZEN_RIVER = 527;
-const NTC_NPC_ID_ANYA_TOWN = 512;
-const NTC_NPC_ID_MALAH = 513;
-const NTC_NPC_ID_QUALKEHK = 515;
-const NTC_NPC_ID_NIHLATHAK_TOWN = 514;
-const NTC_NPC_ID_NIHLATHAK_HALLS_OF_VAUGHT = 526;
+var NTC_NPC_ID_CAIN_ACT_5 = 520;
+var NTC_NPC_ID_TYRAEL_ACT_5 = 521;
+var NTC_NPC_ID_LARZUK = 511;
+var NTC_NPC_ID_ANYA_FROZEN_RIVER = 527;
+var NTC_NPC_ID_ANYA_TOWN = 512;
+var NTC_NPC_ID_MALAH = 513;
+var NTC_NPC_ID_QUALKEHK = 515;
+var NTC_NPC_ID_NIHLATHAK_TOWN = 514;
+var NTC_NPC_ID_NIHLATHAK_HALLS_OF_VAUGHT = 526;
 
 // UNIT types
-const NTC_UNIT_PLAYER = 0;
-const NTC_UNIT_NPC = 1;
-const NTC_UNIT_MERC = NTC_UNIT_NPC;
-const NTC_UNIT_MONSTER = NTC_UNIT_NPC;
-const NTC_UNIT_OBJECT = 2;
-const NTC_UNIT_MISSILE = 3;
-const NTC_UNIT_ITEM = 4;
-const NTC_UNIT_TILE = 5;
-const NTC_UNIT_STASH = 267;
+var NTC_UNIT_PLAYER = 0;
+var NTC_UNIT_NPC = 1;
+var NTC_UNIT_MERC = NTC_UNIT_NPC;
+var NTC_UNIT_MONSTER = NTC_UNIT_NPC;
+var NTC_UNIT_OBJECT = 2;
+var NTC_UNIT_MISSILE = 3;
+var NTC_UNIT_ITEM = 4;
+var NTC_UNIT_TILE = 5;
+var NTC_UNIT_STASH = 267;
 
-const NTC_AREA_ID_ACT_1 = 1;
-const NTC_AREA_ID_ACT_2 = 40;
-const NTC_AREA_ID_ACT_3 = 75;
-const NTC_AREA_ID_ACT_4 = 103;
-const NTC_AREA_ID_ACT_5 = 109;
+var NTC_AREA_ID_ACT_1 = 1;
+var NTC_AREA_ID_ACT_2 = 40;
+var NTC_AREA_ID_ACT_3 = 75;
+var NTC_AREA_ID_ACT_4 = 103;
+var NTC_AREA_ID_ACT_5 = 109;
 
 var NTC_ActNumberToTownID = new Array(5);
 NTC_ActNumberToTownID[0] = 1;
@@ -85,31 +88,31 @@ NTC_ActNumberToTownID[3] = 103;
 NTC_ActNumberToTownID[4] = 109;
 
 // COLOR types
-const NTC_COLOR_BASE_WHITE = 0;
-const NTC_COLOR_BASE_RED = 1;
-const NTC_COLOR_BASE_GREEN = 2;
-const NTC_COLOR_BASE_BLUE = 3;
-const NTC_COLOR_BASE_GOLD = 4;
-const NTC_COLOR_BASE_GRAY = 5;
-const NTC_COLOR_BASE_BLACK = 6;
-const NTC_COLOR_BASE_GOLD2 = 7;
-const NTC_COLOR_BASE_ORANGE = 8;
-const NTC_COLOR_BASE_YELLOW = 9;
+var NTC_COLOR_BASE_WHITE = 0;
+var NTC_COLOR_BASE_RED = 1;
+var NTC_COLOR_BASE_GREEN = 2;
+var NTC_COLOR_BASE_BLUE = 3;
+var NTC_COLOR_BASE_GOLD = 4;
+var NTC_COLOR_BASE_GRAY = 5;
+var NTC_COLOR_BASE_BLACK = 6;
+var NTC_COLOR_BASE_GOLD2 = 7;
+var NTC_COLOR_BASE_ORANGE = 8;
+var NTC_COLOR_BASE_YELLOW = 9;
 
-const NTC_HAND_RIGHT = 0;
-const NTC_HAND_LEFT = 1;
+var NTC_HAND_RIGHT = 0;
+var NTC_HAND_LEFT = 1;
 
-const NTC_CLICK_LDOWN = 0;
-const NTC_CLICK_LHOLD = 1;
-const NTC_CLICK_LUP = 2;
-const NTC_CLICK_RDOWN = 3;
-const NTC_CLICK_RHOLD = 4;
-const NTC_CLICK_RUP = 5;
+var NTC_CLICK_LDOWN = 0;
+var NTC_CLICK_LHOLD = 1;
+var NTC_CLICK_LUP = 2;
+var NTC_CLICK_RDOWN = 3;
+var NTC_CLICK_RHOLD = 4;
+var NTC_CLICK_RUP = 5;
 
-const NTC_SHIFT_NONE = 0;
-const NTC_SHIFT_HOLD = 1;
+var NTC_SHIFT_NONE = 0;
+var NTC_SHIFT_HOLD = 1;
 
-const NTC_DELAY_FRAME = 40;
+var NTC_DELAY_FRAME = 40;
 
 var NTC_CharClassToNameList = new Array(7);
 NTC_CharClassToNameList[0] = "Amazon";
@@ -215,14 +218,14 @@ function NTC_IncludeConfig()
 
 function NTC_IncludeLibs()
 {
-	NTC_Include("common/NTAreas.dbl");
-	NTC_Include("common/NTAttack.dbl");
-	NTC_Include("common/NTMove.dbl");
-	NTC_Include("common/NTPrecast.dbl");
-	NTC_Include("common/NTSnagIt.dbl");
-	NTC_Include("common/NTTown.dbl");
-	NTC_Include("common/NTTownManager.dbl");
-	NTC_Include("common/NTTownMove.dbl");
+	NTC_Include("common/NTAreas.js");
+	NTC_Include("common/NTAttack.js");
+	NTC_Include("common/NTMove.js");
+	NTC_Include("common/NTPrecast.js");
+	NTC_Include("common/NTSnagIt.js");
+	NTC_Include("common/NTTown.js");
+	NTC_Include("common/NTTownManager.js");
+	NTC_Include("common/NTTownMove.js");
 }
 
 function NTC_DoCast(skillid, usehand, x, y, retrys)

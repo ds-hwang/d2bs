@@ -1,0 +1,96 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7A105E7F-ED16-42FC-8344-6911F012FBC0}"
+	ProjectSection(SolutionItems) = preProject
+		libs\prototypes\area.js = libs\prototypes\area.js
+		libs\prototypes\d2bs.js = libs\prototypes\d2bs.js
+		d2bsAPI.js = d2bsAPI.js
+		default.dbj = default.dbj
+		libs\prototypes\javascript.js = libs\prototypes\javascript.js
+		libs\prototypes\me.js = libs\prototypes\me.js
+		tools\MiscUtility.dbj = tools\MiscUtility.dbj
+		libs\config\NTConfig.dbl = libs\config\NTConfig.dbl
+		libs\prototypes\party.js = libs\prototypes\party.js
+		libs\prototypes\prototypes.js = libs\prototypes\prototypes.js
+		tools\SimonsHelper.dbj = tools\SimonsHelper.dbj
+		libs\prototypes\unit.js = libs\prototypes\unit.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{A0B28EB2-6791-40FB-8AA3-63F802B078AF}"
+	ProjectSection(SolutionItems) = preProject
+		libs\common\HookedControls.js = libs\common\HookedControls.js
+		libs\common\NTAreas.js = libs\common\NTAreas.js
+		libs\common\NTAttack.js = libs\common\NTAttack.js
+		libs\common\NTCommon.js = libs\common\NTCommon.js
+		libs\common\NTMove.js = libs\common\NTMove.js
+		libs\common\NTPrecast.js = libs\common\NTPrecast.js
+		libs\common\NTSnagIt.js = libs\common\NTSnagIt.js
+		libs\common\NTTown.js = libs\common\NTTown.js
+		libs\common\NTTownManager.js = libs\common\NTTownManager.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bots", "bots", "{C7B30999-6DA3-4BE5-A5FF-4823C9F55A2F}"
+	ProjectSection(SolutionItems) = preProject
+		libs\bots\ClawViper.dbl = libs\bots\ClawViper.dbl
+		libs\bots\NTAncientsWay.dbl = libs\bots\NTAncientsWay.dbl
+		libs\bots\NTAncientTunnels.dbl = libs\bots\NTAncientTunnels.dbl
+		libs\bots\NTAndariel.dbl = libs\bots\NTAndariel.dbl
+		libs\bots\NTBaal.dbl = libs\bots\NTBaal.dbl
+		libs\bots\NTBeetleburst.dbl = libs\bots\NTBeetleburst.dbl
+		libs\bots\NTBishibosh.dbl = libs\bots\NTBishibosh.dbl
+		libs\bots\NTBloodyFoothills.dbl = libs\bots\NTBloodyFoothills.dbl
+		libs\bots\NTBoneAsh.dbl = libs\bots\NTBoneAsh.dbl
+		libs\bots\NTClawViper.dbl = libs\bots\NTClawViper.dbl
+		libs\bots\NTCountess.dbl = libs\bots\NTCountess.dbl
+		libs\bots\NTCow.dbl = libs\bots\NTCow.dbl
+		libs\bots\NTCowThread.js = libs\bots\NTCowThread.js
+		libs\bots\NTDen.dbl = libs\bots\NTDen.dbl
+		libs\bots\NTDiablo.dbl = libs\bots\NTDiablo.dbl
+		libs\bots\NTDuriel.dbl = libs\bots\NTDuriel.dbl
+		libs\bots\NTEldritch.dbl = libs\bots\NTEldritch.dbl
+		libs\bots\NTFastDiablo.dbl = libs\bots\NTFastDiablo.dbl
+		libs\bots\NTFastPindle.dbl = libs\bots\NTFastPindle.dbl
+		libs\bots\NTFrozenstein.dbl = libs\bots\NTFrozenstein.dbl
+		libs\bots\NTGamble.dbl = libs\bots\NTGamble.dbl
+		libs\bots\NTHephasto.dbl = libs\bots\NTHephasto.dbl
+		libs\bots\NTIzual.dbl = libs\bots\NTIzual.dbl
+		libs\bots\NTKurast.dbl = libs\bots\NTKurast.dbl
+		libs\bots\NTKurastTemples.dbl = libs\bots\NTKurastTemples.dbl
+		libs\bots\NTLeech.dbl = libs\bots\NTLeech.dbl
+		libs\bots\NTLeechD.dbl = libs\bots\NTLeechD.dbl
+		libs\bots\NTLeechO.dbl = libs\bots\NTLeechO.dbl
+		libs\bots\NTLoader.dbl = libs\bots\NTLoader.dbl
+		libs\bots\NTMaggot.dbl = libs\bots\NTMaggot.dbl
+		libs\bots\NTMausoleum.dbl = libs\bots\NTMausoleum.dbl
+		libs\bots\NTMephisto.dbl = libs\bots\NTMephisto.dbl
+		libs\bots\NTMoorLVL.dbl = libs\bots\NTMoorLVL.dbl
+		libs\bots\NTNihlathak.dbl = libs\bots\NTNihlathak.dbl
+		libs\bots\NTPindleskin.dbl = libs\bots\NTPindleskin.dbl
+		libs\bots\NTPindleskinNihlathak.dbl = libs\bots\NTPindleskinNihlathak.dbl
+		libs\bots\NTPit.dbl = libs\bots\NTPit.dbl
+		libs\bots\NTSewerQ.dbl = libs\bots\NTSewerQ.dbl
+		libs\bots\NTSewers.dbl = libs\bots\NTSewers.dbl
+		libs\bots\NTShopBot.dbl = libs\bots\NTShopBot.dbl
+		libs\bots\NTSimonSays.dbl = libs\bots\NTSimonSays.dbl
+		libs\bots\NTSummoner.dbl = libs\bots\NTSummoner.dbl
+		libs\bots\NTSuperUnique.dbl = libs\bots\NTSuperUnique.dbl
+		libs\bots\NTTestingMode.template = libs\bots\NTTestingMode.template
+		libs\bots\NTThreshSocket.dbl = libs\bots\NTThreshSocket.dbl
+		libs\bots\NTTravincal.dbl = libs\bots\NTTravincal.dbl
+		libs\bots\NTTristLVL.dbl = libs\bots\NTTristLVL.dbl
+		libs\bots\NTTristram.dbl = libs\bots\NTTristram.dbl
+		libs\bots\NTWorldstone.dbl = libs\bots\NTWorldstone.dbl
+		libs\bots\SimonSays.dbl = libs\bots\SimonSays.dbl
+		libs\bots\SuperUnique.dbl = libs\bots\SuperUnique.dbl
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A0B28EB2-6791-40FB-8AA3-63F802B078AF} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
+		{C7B30999-6DA3-4BE5-A5FF-4823C9F55A2F} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
+	EndGlobalSection
+EndGlobal
