@@ -19,7 +19,7 @@ function main()
 {
 	include('prototypes/prototypes.js');
 	include('config/NTConfig.dbl');
-	include("common/NTCommon.dbl");
+	include("common/NTCommon.js");
 	NTC_IncludeConfig();
 	
 	var _count = 0;
