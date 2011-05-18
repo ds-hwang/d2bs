@@ -44,12 +44,12 @@ function main()
 
 	if(NTConfig_ManaChicken > 0)
 	{
-		if(parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100) > 5)
+		if(parseInt((me.mpmax*NTConfig_ManaChicken)/100) > 5)
 		{
-			me.chickenmp = parseIntparseInt(((me.mpmax*NTConfig_ManaChicken - 5)/100));
+			me.chickenmp = parseInt(((me.mpmax*NTConfig_ManaChicken - 5)/100));
 		}
 		else
-			me.chickenmp = parseIntparseInt((me.mpmax*NTConfig_ManaChicken)/100);
+			me.chickenmp = parseInt((me.mpmax*NTConfig_ManaChicken)/100);
 	}
 		
 	
