@@ -111,6 +111,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="JSClasses.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptEngine.cpp" />
   </ItemGroup>
@@ -207,8 +208,10 @@
     <ClInclude Include="dependencies\include\VMPI.h" />
     <ClInclude Include="dependencies\include\Writer.h" />
     <ClInclude Include="Exports.hpp" />
-    <ClInclude Include="Script.h" />
-    <ClInclude Include="ScriptEngine.h" />
+    <ClInclude Include="js32.hpp" />
+    <ClInclude Include="JSClasses.hpp" />
+    <ClInclude Include="Script.hpp" />
+    <ClInclude Include="ScriptEngine.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg" />

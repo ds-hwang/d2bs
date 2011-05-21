@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D2BS.h" />
-    <ClInclude Include="Settings.h" />
+    <ClInclude Include="D2BS.hpp" />
+    <ClInclude Include="Settings.hpp" />
     <ClInclude Include="sqlite3.h" />
   </ItemGroup>
   <ItemGroup>

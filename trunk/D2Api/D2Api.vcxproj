@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D2Api.h" />
+    <ClInclude Include="D2Api.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D2Api.cpp" />

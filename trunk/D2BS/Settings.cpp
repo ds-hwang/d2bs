@@ -1,4 +1,4 @@
-#include "Settings.h"
-#include "D2BS.h"
+#include "Settings.hpp"
+#include "D2BS.hpp"
 
 

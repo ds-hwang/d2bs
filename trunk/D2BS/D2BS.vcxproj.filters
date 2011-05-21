@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="D2BS.h" />
-    <ClInclude Include="Settings.h" />
     <ClInclude Include="sqlite3.h">
       <Filter>Dependencies</Filter>
     </ClInclude>
+    <ClInclude Include="D2BS.hpp" />
+    <ClInclude Include="Settings.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />

@@ -2,8 +2,8 @@
 #include <shlwapi.h>
 
 #include "sqlite3.h"
-#include "ScriptEngine.h"
-#include "..\D2Api\D2Api.h"
+#include "ScriptEngine.hpp"
+#include "..\D2Api\D2Api.hpp"
 
 ScriptEngine* engine = NULL;
 HINSTANCE hModule;

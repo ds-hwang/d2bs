@@ -1,5 +1,5 @@
 #define EXPORTED
-#include "ScriptEngine.h"
+#include "ScriptEngine.hpp"
 
 #include <io.h>
 #include <direct.h>
@@ -20,5 +20,6 @@ int main(const char** argc, int argv)
 	{
 		ScriptEngine engine(path, 0x2800);
 		Script* script = engine.Compile(argc[0]);
+		script->Start();
 	}
 }

@@ -7,6 +7,9 @@
     <ClCompile Include="Script.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="JSClasses.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -15,14 +18,11 @@
     <Filter Include="JSAPI">
       <UniqueIdentifier>{8495152a-b7d9-4a5e-abe8-eebc13bb17ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="API">
+      <UniqueIdentifier>{65e28b67-6440-43cb-bd0e-3fdfa860c1b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ScriptEngine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="dependencies\include\Allocator.h">
       <Filter>JSAPI</Filter>
     </ClInclude>
@@ -297,6 +297,16 @@
       <Filter>JSAPI</Filter>
     </ClInclude>
     <ClInclude Include="Exports.hpp" />
+    <ClInclude Include="Script.hpp">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptEngine.hpp">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="JSClasses.hpp">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="js32.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg">

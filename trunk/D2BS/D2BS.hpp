@@ -2,7 +2,7 @@
 
 #define EXPORTED
 
-#include "ScriptEngine.h"
+#include "ScriptEngine.hpp"
 #include "sqlite3.h"
 
 extern ScriptEngine* engine;

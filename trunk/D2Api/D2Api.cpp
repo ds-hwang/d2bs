@@ -1,4 +1,4 @@
-#include "D2Api.h"
+#include "D2Api.hpp"
 
 extern "C" {
 
