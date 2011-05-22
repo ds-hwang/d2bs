@@ -4,6 +4,7 @@
 
 struct JSClassSpec {
 	JSClass* classp;
+	JSClass* proto;
 	JSFunctionSpec* methods;
 	JSPropertySpec* properties;
 	JSFunctionSpec* static_methods;

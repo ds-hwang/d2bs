@@ -10,6 +10,10 @@
     <ClCompile Include="JSClasses.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Modules.cpp">
+      <Filter>API</Filter>
+    </ClCompile>
+    <ClCompile Include="js32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -307,6 +311,9 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="js32.hpp" />
+    <ClInclude Include="Modules.hpp">
+      <Filter>API</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dependencies\include\js.msg">

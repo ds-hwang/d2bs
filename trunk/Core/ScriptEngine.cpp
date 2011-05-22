@@ -2,23 +2,29 @@
 
 #include "ScriptEngine.hpp"
 #include <algorithm>
+#include <iterator>
 #include <assert.h>
 
 #include "JSClasses.hpp"
 
 using namespace std;
 
-EXPORT ScriptEngine::ScriptEngine(const char* path, unsigned int gctime)
+JSErrorReporter ScriptEngine::reporter = 0;
+
+ScriptEngine::ScriptEngine(const wchar_t* path, unsigned int gctime,
+						JSClassInitCallback classCallback)
 {
 	JS_SetCStringsAreUTF8();
 	runtime = JS_NewRuntime(gctime);
 
 	// normalize the path
-	int len = strlen(path);
-	char* pname = new char[len+1];
-	std::replace_copy(path, path+len, pname, '/', '\\');
-	std::transform(pname, pname+len, pname, tolower);
-	this->path = string(path);
+	int len = wcslen(path);
+	wchar_t* pname = new wchar_t[len+1];
+	std::replace_copy(path, path+len, pname, L'/', L'\\');
+	std::transform(pname, pname+len, pname, towlower);
+	this->path = std::wstring(path);
+
+	this->classInit = classCallback;
 
 	JS_SetContextCallback(runtime, ScriptEngine::ContextCallback);
 
@@ -26,7 +32,7 @@ EXPORT ScriptEngine::ScriptEngine(const char* path, unsigned int gctime)
 	ReleaseContext(GetContext());
 }
 
-EXPORT ScriptEngine::~ScriptEngine()
+ScriptEngine::~ScriptEngine()
 {
 	auto end = scripts.end();
 	for(auto it = scripts.begin(); it != end; it++)
@@ -57,22 +63,35 @@ JSContext* ScriptEngine::GetContext()
 void ScriptEngine::ReleaseContext(JSContext* cx)
 {
 	assert(std::find(held.begin(), held.end(), cx) != held.end());
+	JS_SetContextPrivate(cx, NULL);
 	held.remove(cx);
 	free.push_back(cx);
 }
 
-EXPORT Script* ScriptEngine::Compile(const char* file, bool recompile)
+void ScriptEngine::SetErrorReporter(JSErrorReporter reporter)
+{
+	ScriptEngine::reporter = reporter;
+}
+
+Script* ScriptEngine::Compile(const wchar_t* file, bool recompile)
 {
 	// normalize the file name
-	int len = strlen(file);
-	char* fname = new char[len+1];
-	std::replace_copy(file, file+len, fname, '/', '\\');
+	int len = wcslen(file);
+	wchar_t* fname = new wchar_t[len+1];
+	std::replace_copy(file, file+len, fname, L'/', L'\\');
 	std::transform(fname, fname+len, fname, tolower);
 
-	if(!recompile && scripts.find(fname) != scripts.end()) return scripts[fname];
+	bool exists = scripts.find(fname) != scripts.end();
+	if(!recompile && exists) return scripts[fname];
+	else if(recompile && exists) {
+		Script* script = scripts[fname];
+		script->Stop();
+		scripts.erase(fname);
+		delete script;
+	}
 
-	char fullpath[MAX_PATH];
-	sprintf_s(fullpath, MAX_PATH, "%s\\%s", path.c_str(), fname);
+	wchar_t fullpath[MAX_PATH];
+	swprintf_s(fullpath, MAX_PATH, L"%s\\%s", path.c_str(), fname);
 	Script* script = new Script(fullpath, this);
 	scripts[fname] = script;
 
@@ -81,13 +100,28 @@ EXPORT Script* ScriptEngine::Compile(const char* file, bool recompile)
 
 void ScriptEngine::InitClasses(Script* script)
 {
-	for(JSClassSpec* classp = classes; classp->classp != NULL; classp++)
-		JS_InitClass(script->cx, script->obj, NULL, classp->classp,
-			classp->classp->construct, 0, classp->properties, classp->methods,
-			classp->static_properties, classp->static_methods);
+	for(JSClassSpec* obj = classes; obj->classp != NULL; obj++)
+	{
+		JSObject* proto = NULL;
+		if(obj->proto != NULL)
+		{
+			// look up the proto on the global object
+			jsval jsproto = JSVAL_NULL;
+			if(JS_GetProperty(script->cx, script->obj, obj->proto->name, &jsproto))
+				if(jsproto != JSVAL_NULL && jsproto != JSVAL_VOID)
+					proto = JSVAL_TO_OBJECT(jsproto);
+		}
 
-	// TODO: let the engine consumer supply a callback to call here for init'ing their
-	// own classes
+		JS_InitClass(script->cx, script->obj, proto, obj->classp,
+			obj->classp->construct, 0, obj->properties, obj->methods,
+			obj->static_properties, obj->static_methods);
+	}
+
+	classInit(script);
+}
+
+void ScriptEngine::FireEvent(const char* evtName, char* format, ...)
+{
 }
 
 JSBool ScriptEngine::ContextCallback(JSContext *cx, uintN contextOp)
@@ -101,7 +135,6 @@ JSBool ScriptEngine::ContextCallback(JSContext *cx, uintN contextOp)
 	JS_SetOptions(cx, JSOPTION_JIT|
 					  JSOPTION_METHODJIT|
 					  JSOPTION_RELIMIT|
-					  JSOPTION_NO_SCRIPT_RVAL|
 					  JSOPTION_VAROBJFIX|
 					  JSOPTION_XML|
 					  JSOPTION_STRICT|
@@ -112,6 +145,5 @@ JSBool ScriptEngine::ContextCallback(JSContext *cx, uintN contextOp)
 
 void ScriptEngine::ErrorReporter(JSContext *cx, const char *message, JSErrorReport *report)
 {
-	// TODO: let the engine consumer supply a callback to call here for displaying
-	// the error however they desire
+	ScriptEngine::reporter(cx, message, report);
 }

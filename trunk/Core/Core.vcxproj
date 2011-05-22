@@ -111,7 +111,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="js32.cpp" />
     <ClCompile Include="JSClasses.cpp" />
+    <ClCompile Include="Modules.cpp" />
     <ClCompile Include="Script.cpp" />
     <ClCompile Include="ScriptEngine.cpp" />
   </ItemGroup>
@@ -210,6 +212,7 @@
     <ClInclude Include="Exports.hpp" />
     <ClInclude Include="js32.hpp" />
     <ClInclude Include="JSClasses.hpp" />
+    <ClInclude Include="Modules.hpp" />
     <ClInclude Include="Script.hpp" />
     <ClInclude Include="ScriptEngine.hpp" />
   </ItemGroup>

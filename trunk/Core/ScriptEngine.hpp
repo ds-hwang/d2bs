@@ -14,13 +14,17 @@ class ScriptEngine;
 
 #include "Script.hpp"
 
+typedef void (*JSClassInitCallback)(Script* script);
+
 class ScriptEngine
 {
 private:
 	JSRuntime* runtime;
-	std::string path;
-	std::map<const char*, Script*> scripts;
+	std::wstring path;
+	std::map<const wchar_t*, Script*> scripts;
 	std::list<JSContext*> held, free;
+	static JSErrorReporter reporter;
+	JSClassInitCallback classInit;
 
 	// NB: this behavior is roughly equivalent to these functions
 	// "friend"ing ScriptEngine but looks just a little neater, IMO.
@@ -28,15 +32,29 @@ private:
 	static void ErrorReporter(JSContext *cx, const char *message, JSErrorReport *report);
 
 public:
-	EXPORT ScriptEngine(const char* path, unsigned int gctime);
+	EXPORT ScriptEngine::ScriptEngine(const wchar_t* path, unsigned int gctime,
+						JSClassInitCallback classCallback = 0);
 	EXPORT ~ScriptEngine();
 
-	JSContext* GetContext();
-	void ReleaseContext(JSContext* cx);
+	EXPORT JSContext* GetContext();
+	EXPORT void ReleaseContext(JSContext* cx);
+
+	EXPORT inline const wchar_t* GetPath(void) { return path.c_str(); }
+	EXPORT inline bool ExistsInPath(const wchar_t* rel) {
+		std::wstring path = this->path + rel;
+		return _waccess(path.c_str(), 0) != -1;
+	}
+	EXPORT inline JSRuntime* GetRuntime(void) { return runtime; }
+
+	// NB: The engine can only support one reporter, since I can't
+	// figure out how to pass the engine to the error reporter :(
+	// Eventually I'd like to be able to support as many error reporters
+	// as there are engine instances
+	static void SetErrorReporter(JSErrorReporter reporter);
 
 	void InitClasses(Script* script);
 
-	EXPORT Script* Compile(const char* file, bool recompile = false);
+	EXPORT Script* Compile(const wchar_t* file, bool recompile = false);
 	EXPORT void Stop();
 	EXPORT void FireEvent(const char* evtName, char* format, ...);
 };

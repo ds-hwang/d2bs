@@ -12,14 +12,17 @@ int main(const char** argc, int argv)
 		return 0;
 	}
 
-	char path[MAX_PATH], script[MAX_PATH];
-	_getcwd(path, MAX_PATH);
-	sprintf_s(script, MAX_PATH, "%s\\%s", path, argc[0]);
+	wchar_t path[MAX_PATH], script[MAX_PATH];
+	_wgetcwd(path, MAX_PATH);
+	swprintf_s(script, MAX_PATH, L"%s\\%s", path, argc[0]);
 
-	if(_access(script, 0) != -1)
+	if(_waccess(script, 0) != -1)
 	{
 		ScriptEngine engine(path, 0x2800);
-		Script* script = engine.Compile(argc[0]);
+		std::string path(argc[0]);
+		std::wstring wpath;
+		wpath.assign(path.begin(), path.end());
+		Script* script = engine.Compile(wpath.c_str());
 		script->Start();
 	}
 }
