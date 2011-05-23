@@ -37,6 +37,7 @@ Unit.isAssassinShadowMaster
 Unit.isAssassinShadowWarrior
 Unit.isBarbarian
 Unit.isCube
+Unit.isDead
 Unit.isDruid
 Unit.isEnchantable
 Unit.isEnchanted
@@ -127,6 +128,22 @@ Unit.prototype.__defineGetter__('isAssassinShadowMaster', function(){ return thi
 Unit.prototype.__defineGetter__('isAssassinShadowWarrior', function(){ return this.classid == 417; });
 Unit.prototype.__defineGetter__('isBarbarian', function(){ return this.classid == 4; });
 Unit.prototype.__defineGetter__('isCube', function(){ return this.classid == 549; });
+Unit.prototype.__defineGetter__('isDead', 
+		function()
+		{
+			if(this.name == me.name)
+			{
+				if(me.mode == 17) 
+					return true;
+			}
+			else
+			{
+				if(this.mode == 12)
+					return true;
+			}
+			
+			return false;
+		});
 Unit.prototype.__defineGetter__('isDruid', function(){ return this.classid == 5; });
 
 Unit.prototype.__defineGetter__('isEnchantable', 
