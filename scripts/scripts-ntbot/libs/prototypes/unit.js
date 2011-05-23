@@ -30,6 +30,7 @@ Unit.inHelmetPosition
 Unit.inInventory
 Unit.inRingLeftPosition
 Unit.inRingRightPosition
+Unit.inTown
 Unit.isAmazon
 Unit.isAmazonValkyrie
 Unit.isAssassin
@@ -121,6 +122,7 @@ Unit.prototype.__defineGetter__('inHelmetPosition', function(){ return (this.loc
 Unit.prototype.__defineGetter__('inInventory', function(){ return (this.location == 0 && this.bodylocation == 0); });
 Unit.prototype.__defineGetter__('inRingLeftPosition', function(){ return (this.location == 255 && this.bodylocation == 7); });
 Unit.prototype.__defineGetter__('inRingRightPosition', function(){ return (this.location == 255 && this.bodylocation == 6); });
+Unit.prototype.__defineGetter__('inTown', function(){ return ( this.area == 0 || this.area == 1 || this.area == 40 || this.area == 75 || this.area == 103 || this.area == 109 ); });
 Unit.prototype.__defineGetter__('isAmazon', function(){ return this.classid == 0; });
 Unit.prototype.__defineGetter__('isAmazonValkyrie', function(){ return this.classid == 357; });
 Unit.prototype.__defineGetter__('isAssassin', function(){ return this.classid == 6; });
