@@ -22,7 +22,7 @@ function main()
 			SendMsgToDefault("Pause Default")
 			sendCopyData(null, "OOG", 0,"Stop Me" );
 			idle =  true;	
-			idleTimeOUt= false;
+			idleTimeOut= false;
 		}	
 		if(NT_IdleOnSOJ && mode ==11){
 			SendMsgToDefault("Pause Default")
