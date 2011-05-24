@@ -14,7 +14,7 @@ JSErrorReporter ScriptEngine::reporter = 0;
 ScriptEngine::ScriptEngine(const wchar_t* path, unsigned int gctime,
 						JSClassInitCallback classCallback)
 {
-	JS_SetCStringsAreUTF8();
+	//JS_SetCStringsAreUTF8();
 	runtime = JS_NewRuntime(gctime);
 
 	// normalize the path
@@ -29,7 +29,9 @@ ScriptEngine::ScriptEngine(const wchar_t* path, unsigned int gctime,
 	JS_SetContextCallback(runtime, ScriptEngine::ContextCallback);
 
 	// since we're almost guaranteed to need at least one context, go ahead and spin one up
-	ReleaseContext(GetContext());
+	JSContext* cx = GetContext();
+	assert(cx != NULL);
+	ReleaseContext(cx);
 }
 
 ScriptEngine::~ScriptEngine()
@@ -47,13 +49,13 @@ JSContext* ScriptEngine::GetContext()
 	JSContext* cx = NULL;
 	if(free.size() > 0)
 	{
-		JSContext* cx = free.front();
+		cx = free.front();
 		free.remove(cx);
 		held.push_back(cx);
 	}
 	else
 	{
-		JSContext* cx = JS_NewContext(runtime, 0x2000);
+		cx = JS_NewContext(runtime, 0x2000);
 		held.push_back(cx);
 	}
 
@@ -76,47 +78,30 @@ void ScriptEngine::SetErrorReporter(JSErrorReporter reporter)
 Script* ScriptEngine::Compile(const wchar_t* file, bool recompile)
 {
 	// normalize the file name
-	int len = wcslen(file);
-	wchar_t* fname = new wchar_t[len+1];
-	std::replace_copy(file, file+len, fname, L'/', L'\\');
-	std::transform(fname, fname+len, fname, tolower);
+	std::wstring fname(file);
+	std::replace(fname.begin(), fname.end(), L'/', L'\\');
+	std::transform(fname.begin(), fname.end(), fname.begin(), towlower);
+	const wchar_t* scriptName = fname.c_str();
 
-	bool exists = scripts.find(fname) != scripts.end();
-	if(!recompile && exists) return scripts[fname];
+	bool exists = scripts.find(scriptName) != scripts.end();
+	if(!recompile && exists) return scripts[scriptName];
 	else if(recompile && exists) {
-		Script* script = scripts[fname];
+		Script* script = scripts[scriptName];
 		script->Stop();
-		scripts.erase(fname);
+		scripts.erase(scriptName);
 		delete script;
 	}
 
-	wchar_t fullpath[MAX_PATH];
-	swprintf_s(fullpath, MAX_PATH, L"%s\\%s", path.c_str(), fname);
-	Script* script = new Script(fullpath, this);
-	scripts[fname] = script;
+	std::wstring fullpath = path + L"\\" + fname;
+	Script* script = new Script(fullpath.c_str(), this);
+	scripts[scriptName] = script;
 
 	return script;
 }
 
 void ScriptEngine::InitClasses(Script* script)
 {
-	for(JSClassSpec* obj = classes; obj->classp != NULL; obj++)
-	{
-		JSObject* proto = NULL;
-		if(obj->proto != NULL)
-		{
-			// look up the proto on the global object
-			jsval jsproto = JSVAL_NULL;
-			if(JS_GetProperty(script->cx, script->obj, obj->proto->name, &jsproto))
-				if(jsproto != JSVAL_NULL && jsproto != JSVAL_VOID)
-					proto = JSVAL_TO_OBJECT(jsproto);
-		}
-
-		JS_InitClass(script->cx, script->obj, proto, obj->classp,
-			obj->classp->construct, 0, obj->properties, obj->methods,
-			obj->static_properties, obj->static_methods);
-	}
-
+	JS_DefineClasses(script->cx, script->obj, classes);
 	classInit(script);
 }
 
@@ -145,5 +130,6 @@ JSBool ScriptEngine::ContextCallback(JSContext *cx, uintN contextOp)
 
 void ScriptEngine::ErrorReporter(JSContext *cx, const char *message, JSErrorReport *report)
 {
-	ScriptEngine::reporter(cx, message, report);
+	if(ScriptEngine::reporter != NULL)
+		ScriptEngine::reporter(cx, message, report);
 }

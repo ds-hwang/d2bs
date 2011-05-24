@@ -7,6 +7,15 @@
 #include "Exports.hpp"
 #undef EXPORTING
 
+struct JSClassSpec {
+	JSClass* classp;
+	JSClass* proto;
+	JSFunctionSpec* methods;
+	JSPropertySpec* properties;
+	JSFunctionSpec* static_methods;
+	JSPropertySpec* static_properties;
+};
+
 #define JSCLASS_DEFAULT_STANDARD_MEMBERS \
 	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, \
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, \
@@ -23,3 +32,4 @@
 	return JS_ThrowError(cx, obj, message);
 
 EXPORT JSBool JS_ThrowError(JSContext* cx, JSObject* obj, const char* message);
+EXPORT void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes);

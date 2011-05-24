@@ -20,8 +20,9 @@ EXPORT Script::Script(const wchar_t* path, ScriptEngine* engine)
 	std::string cpath;
 	std::wstring wpath(path);
 	cpath.assign(wpath.begin(), wpath.end());
+
 	script = JS_CompileFile(cx, obj, cpath.c_str());
-	state = Waiting;
+	state = script == NULL ? Failed : Waiting;
 	this->engine = engine;
 }
 
@@ -102,6 +103,10 @@ JSBool Script::OperationCallback(JSContext *cx)
 void __cdecl Script::ThreadProc(void* args)
 {
 	Script* self = (Script*)args;
+	if(self->state == Failed)
+		return;
+
+	auto compartment = JS_EnterCrossCompartmentCall(self->cx, self->obj);
 
 	self->state = Running;
 
@@ -110,11 +115,13 @@ void __cdecl Script::ThreadProc(void* args)
 
 	jsval main = JSVAL_NULL;
 	if(JS_GetProperty(self->cx, self->obj, "main", &main) &&
+	   main != JSVAL_VOID &&
 	   JS_ObjectIsFunction(self->cx, JSVAL_TO_OBJECT(main)))
 	{
 		jsval dummy;
 		JS::Call(self->cx, self->obj, main, 0, NULL, &dummy);
 	}
 
+	JS_LeaveCrossCompartmentCall(compartment);
 	self->state = Done;
 }

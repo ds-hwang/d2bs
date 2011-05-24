@@ -14,7 +14,8 @@ enum ScriptState
 	Running,
 	Done,
 	Stopping,
-	Stopped
+	Stopped,
+	Failed
 };
 
 typedef std::map<std::string, std::list<jsval>> EventMap;

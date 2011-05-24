@@ -20,7 +20,7 @@ JSPropertySpec module_props[] = {
 JSAPI_FUNC(mod_load)
 {
 	JSString* farg = NULL;
-	if(!JS_ConvertArguments(cx, argc, vp, "S", &farg))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S", &farg))
 		return JS_FALSE;
 	const jschar* file = JS_GetStringCharsZ(cx, farg);
 
@@ -66,7 +66,7 @@ JSAPI_FUNC(mod_load)
 JSAPI_FUNC(mod_include)
 {
 	JSString* farg = NULL;
-	if(!JS_ConvertArguments(cx, argc, vp, "S", &farg))
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S", &farg))
 		return JS_FALSE;
 	const jschar* file = JS_GetStringCharsZ(cx, farg);
 
