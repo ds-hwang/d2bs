@@ -594,7 +594,7 @@ function NTC_CheckOwner(object, ownername)
 
 function NTC_ItemToCursor(item)
 {
-	
+
 debugPrint("ntc item to cursor" );	
 if(me.itemoncursor)
 		return true;
@@ -1136,3 +1136,9 @@ function NTC_OpenAreaChests()
 	}
 }
 
+
+function NTC_Say(input)
+{
+	if(input != undefined && input.isString && !input.isEmpty)
+		say(input);
+}

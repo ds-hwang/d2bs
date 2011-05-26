@@ -47,7 +47,7 @@ function NT_Tristram()
 	if(NTConfig_PublicMode)
 	{
 		NTM_MakeTP();
-		say("Tristram TP is up");
+		NTC_Say("Tristram TP is up");
 	}
 	
 	NTC_Delay(500);
@@ -59,7 +59,7 @@ function NT_Tristram()
 		throw new Error();
 
 	if(NTConfig_PublicMode)
-		say("New Game");
+		NTC_Say("New Game");
 
 	return true;
 }

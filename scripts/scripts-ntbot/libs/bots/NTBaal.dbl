@@ -43,7 +43,7 @@ function NT_Baal()
 		NTC_PingDelay(1000);
 
 		NTM_MakeTP();
-		say(BaalTPMsg);
+		NTC_Say(BaalTPMsg);
 
 		if (NTA_ClearPosition()) 
 			NTSI_PickItems();
@@ -57,7 +57,7 @@ function NT_Baal()
 		NTM_MoveTo(15112, 5004, 0, true);
 
 		NTM_MakeTP();
-		say(BaalTPSafeMsg);
+		NTC_Say(BaalTPSafeMsg);
 	}
 
 	while(true) 
@@ -105,7 +105,7 @@ function NT_Baal()
 
 		if (NTConfig_PublicMode) {
 		print("ÿc1Killing Baal");
-		say(KillBaalMsg);
+		NTC_Say(KillBaalMsg);
 		}
 
 		if (NTConfig_CheckSafe) 
@@ -139,7 +139,7 @@ function NT_Baal()
 	}
 
 	if (NTConfig_PublicMode) 
-		say(BaalNextGameMsg);
+		NTC_Say(BaalNextGameMsg);
 		
 	sendCopyData(null, "OOG", 0, "Quit:Full Run");
 	

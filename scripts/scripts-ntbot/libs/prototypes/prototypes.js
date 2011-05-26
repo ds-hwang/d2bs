@@ -30,7 +30,7 @@ include('prototypes/d2bs.js');
 // include('prototypes/line.js');
 include('prototypes/me.js');
 include('prototypes/party.js');
-// include('prototypes/presetunit.js');
+include('prototypes/presetunit.js');
 // include('prototypes/room.js');
 // include('prototypes/sandbox.js');
 // include('prototypes/sqlite.js');

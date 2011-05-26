@@ -559,7 +559,7 @@ function Rush1() {
 }
 function Rush2() {
 	NTTMGR_TownManager();
-	say("Please Standby at the Act 2 Portal Area");
+	NTC_Say("Please Standby at the Act 2 Portal Area");
 	if (NTConfig_DoRadament) {
 		DoRadament();
 	}
@@ -574,7 +574,7 @@ function Rush2() {
 }
 function Rush3() {
 	NTTMGR_TownManager();
-	say("Please Standby at the Act 3 Portal Area");
+	NTC_Say("Please Standby at the Act 3 Portal Area");
 	if (NTConfig_DoTome) {
 		DoTome();
 	}
@@ -585,7 +585,7 @@ function Rush3() {
 }
 function Rush4() {
 	NTTMGR_TownManager();
-	say("Please Standby at the Act 4 Portal Area");
+	NTC_Say("Please Standby at the Act 4 Portal Area");
 	if (NTConfig_DoIzual) {
 		DoIzual();
 	}
@@ -598,7 +598,7 @@ function Rush4() {
 }
 function Rush5() {
 	NTTMGR_TownManager();
-	say("Please Standby at the Act 5 Portal Area");
+	NTC_Say("Please Standby at the Act 5 Portal Area");
 	if (NTConfig_DoShenk) {
 		DoShenk();
 	}
@@ -615,19 +615,19 @@ function Rush5() {
 	return true;
 }
 function FastRush() {
-	say("Please standby at Act 1 TP area.")
+	NTC_Say("Please standby at Act 1 TP area.")
 	DoAndariel();
-	say("Please standby at Act 2 TP Area");
+	NTC_Say("Please standby at Act 2 TP Area");
 	if (me.diff == 0) {
 		DoCube();
 	}
 	DoStaff();
 	DoSummoner();
 	DoDuriel();
-	say("Please Standby at Act 3 TP Area");
+	NTC_Say("Please Standby at Act 3 TP Area");
 	DoTravincal();
 	DoMephisto();
-	say("Please Standby at Act 4 TP Area");
+	NTC_Say("Please Standby at Act 4 TP Area");
 	DoDiablo();
 	return true;
 	}
@@ -655,7 +655,7 @@ function Act1Wps(){
 	var Act1WpID = [3, 4, 5, 6, 27, 29, 32, 35]
 	   	for(var i = 0; i < Act1WpID.length; i++) {
 			NTM_TravelTO(Act1WpID[i]); 
-			say("up");
+			NTC_Say("up");
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 1, me.charname);
         	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -668,7 +668,7 @@ function Act2Wps(){
 	var Act2WpID = [48, 57, 42, 43, 44, 52, 74, 46]
 	   	for(var i = 0; i < Act2WpID.length; i++) {
 			NTM_TravelTO(Act2WpID[i]); 
-			say("up");
+			NTC_Say("up");
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 40, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -681,7 +681,7 @@ function Act3Wps(){
 	var Act3WpID = [76, 77, 78, 79, 80, 81, 83, 101]
 	   	for(var i = 0; i < Act3WpID.length; i++) {
 			NTM_TravelTO(Act3WpID[i]);
-			say("up");
+			NTC_Say("up");
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 75, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -694,7 +694,7 @@ function Act4Wps(){
 	var Act4WpID = [106, 107]
 	   	for(var i = 0; i < Act4WpID.length; i++) {
 			NTM_TravelTO(Act4WpID[i]);
-			say("up");
+			NTC_Say("up");
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 103, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -707,7 +707,7 @@ function Act5Wps(){
 	var Act5WpID = [111, 112, 113, 115, 117, 118, 129]
 	   	for(var i = 0; i < Act5WpID.length; i++) {
 			NTM_TravelTO(Act5WpID[i]);
-			say("up");
+			NTC_Say("up");
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 109, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -717,12 +717,12 @@ function Act5Wps(){
 	return true;	
 }
 function DoCain() {
-	say("Getting Cain")
+	NTC_Say("Getting Cain")
 		NTM_TravelTO(5);
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 30, 30, 0, 0)) 
 			NTA_ClearPosition(40);
-		say("Scroll Up")
-		say("Go talk to Akara once you have the scroll")
+		NTC_Say("Scroll Up")
+		NTC_Say("Go talk to Akara once you have the scroll")
 		waitForSomeone();
 		NTM_UsePortal("BluePortal", 1, me.charname);
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -731,8 +731,8 @@ function DoCain() {
 		NTM_TravelTO(4);
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5)) 
 			NTA_ClearPosition(40);
-		say("Stones Up")
-		say("Once you have the portal to tristram open, take my tp to cold plains so we can continue")
+		NTC_Say("Stones Up")
+		NTC_Say("Once you have the portal to tristram open, take my tp to cold plains so we can continue")
 		waitForSomeone();
 		NTM_UsePortal("BluePortal", 1, me.charname);
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -748,8 +748,8 @@ function DoCain() {
 		NTM_TravelTO(38);
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 26, 26, 0, 0)) 
 			NTA_ClearPosition(40);
-		say("Come in and get Cain")
-		say("Once he is rescued, go back to town")
+		NTC_Say("Come in and get Cain")
+		NTC_Say("Once he is rescued, go back to town")
 		waitForSomeone();
 		NTM_UsePortal("BluePortal", 1, me.charname);
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -761,7 +761,7 @@ function DoRaven() {
 	NTM_TravelTO(17);
 	NTP_DoPrecast();
     if (!NTM_MoveToObject(NTC_UNIT_TILE, 7, 8, 0, 15)) return false;
-	say("Blood Raven is up, if you die STAY DEAD")
+	NTC_Say("Blood Raven is up, if you die STAY DEAD")
 	waitForSomeone();
     NTA_KillBoss(getLocaleString(3111));
 	NTA_ClearPosition(40);
@@ -782,7 +782,7 @@ function DoSmith() {
 	NTA_ClearPosition();
 	NTM_MoveTo(tpox,tpoy);
 	waitForSomeone();
-	say("Smith is up. if you die STAY DEAD")	
+	NTC_Say("Smith is up. if you die STAY DEAD")	
 	if (!NTA_KillBoss(getLocaleString(2889))) 
 	NTA_ClearPosition(40);
 	NTM_UsePortal("BluePortal", 1, me.charname);
@@ -796,12 +796,12 @@ function DoAndariel () {
 	NTM_MoveTo(22589,9581);	
 	NTA_ClearPosition(20);	
 	NTM_MoveTo(22589,9581);	
-	say("Andariel up, Stay at the TP, Remember if you die STAY DEAD!");
+	NTC_Say("Andariel up, Stay at the TP, Remember if you die STAY DEAD!");
 	waitForSomeone();
 	NTM_MoveTo(22589,9581);	
 	NTM_MoveTo(22563,9559);	
 	if(!NTA_KillBoss( getLocaleString(3021)))
-	say("Andariel is Dead, Go Speak to Warriv and 'Go East'");
+	NTC_Say("Andariel is Dead, Go Speak to Warriv and 'Go East'");
 	NTM_MoveTo(22589,9581);	
 	NTM_UsePortal("BluePortal", 1, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -811,14 +811,14 @@ function DoAndariel () {
 }
 function DoRadament() {
 		NTM_TravelTO(49);
-		say("Get ready to enter my portal as soon as it opens, if you die STAY DEAD")
+		NTC_Say("Get ready to enter my portal as soon as it opens, if you die STAY DEAD")
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 355, 355, 0, 0))
 				var ox=me.x; var oy=me.y;
 				NTM_MoveTo(me.x-7,me.y-20);
 				var tpox=me.x; var tpoy=me.y;
 				NTM_MoveTo(tpox,tpoy);
 				waitForSomeone();
-				say("get in here ASAP!")
+				NTC_Say("get in here ASAP!")
 			if (!NTA_KillBoss(getLocaleString(2879))) //Radament
 				NTA_ClearPosition(40);
 				NTM_UsePortal("BluePortal", 40, me.charname);
@@ -834,8 +834,8 @@ function DoCube() {
 		NTA_ClearPosition(40);
 		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
 			return false;
-		say("Horadric Cube Up, Please Enter and open the chest and collect your Cube!")
-		say("Once collected go back to town.")	
+		NTC_Say("Horadric Cube Up, Please Enter and open the chest and collect your Cube!")
+		NTC_Say("Once collected go back to town.")	
 		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
 			return false;
 		NTM_UsePortal("BluePortal", 40, me.charname);
@@ -851,8 +851,8 @@ function DoStaff() {
 	NTA_ClearPosition(50);
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
 			return false;
-	say("Staff of Kings Up, Please Enter and open the chest and collect your Staff");
-	say("Once collected go back to town.")
+	NTC_Say("Staff of Kings Up, Please Enter and open the chest and collect your Staff");
+	NTC_Say("Once collected go back to town.")
 	waitForSomeone();
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
 	return false;
@@ -868,19 +868,19 @@ function DoStaff() {
 	NTM_MoveTo(15042,14045);
 	NTA_ClearPosition(50);
 	NTM_MoveTo(15042,14045);
-	say("Amulet of the Viper Up, Please Enter and break the Tainted Sun Altar and collect your Amulet.");
-	say("Once collected go back to town.")
+	NTC_Say("Amulet of the Viper Up, Please Enter and break the Tainted Sun Altar and collect your Amulet.");
+	NTC_Say("Once collected go back to town.")
 	waitForSomeone();
 	NTM_MoveTo(15042,14045);
-	say("Transmute the Staff and Amulet and then Speak to Drognan and Deckard Cain");
-	say("When done talking to Drognan and Cain, take my tp to the dry hills and I will continue to Arcane")
+	NTC_Say("Transmute the Staff and Amulet and then Speak to Drognan and Deckard Cain");
+	NTC_Say("When done talking to Drognan and Cain, take my tp to the dry hills and I will continue to Arcane")
 	NTM_UsePortal("BluePortal", 40, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
         NTC_PutSkill(115, NTC_HAND_RIGHT);
         }
 	NTM_TravelTO(42);
 	NTA_ClearPosition(40);
-	say("just a reminder, don't come to dry hills until AFTER you have talked to Drog and Cain, or you will bug out Arcane")
+	NTC_Say("just a reminder, don't come to dry hills until AFTER you have talked to Drog and Cain, or you will bug out Arcane")
 	waitForSomeone();
 	NTM_UsePortal("BluePortal", 40, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -901,7 +901,7 @@ function DoSummoner() {
 		}
 	}		
 	NTM_MoveTo(path[path.length-3].x,path[path.length-3].y);
-	say("Waiting by Summoner");
+	NTC_Say("Waiting by Summoner");
 	waitForSomeone();	
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 357, 357, 0, 0))
 		return false;	
@@ -939,8 +939,8 @@ function DoTome() {
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 193, 193, 0, 0)) 
 			return false;
 		NTA_ClearPosition(40);
-		say("Lam Esen's Tome is up")
-		say("Talk to Cain once you grab it")
+		NTC_Say("Lam Esen's Tome is up")
+		NTC_Say("Talk to Cain once you grab it")
 		waitForSomeone();
 		NTM_UsePortal("BluePortal", 75, me.charname);
 		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -956,7 +956,7 @@ function DoTravincal() {
 	var tpox=me.x; var tpoy=me.y;
 	NTA_ClearPosition();
 	NTM_MoveTo(tpox,tpoy);
-	say("Council Up, Stay at the TP, Remember if you die STAY DEAD!");
+	NTC_Say("Council Up, Stay at the TP, Remember if you die STAY DEAD!");
 	waitForSomeone();		
 		NTM_MoveTo(ox-6,oy+16);
 	if (!NTA_KillBoss(getLocaleString(2860))) return false; //Toorc Icefist
@@ -976,7 +976,7 @@ function DoTravincal() {
 		NTM_GotoLevel(100,false);
 	NTA_ClearPosition(25);
 		NTM_MoveTo(tpox,tpoy);
-	say("Speak to Deckard Cain and get ready for Mephisto.");
+	NTC_Say("Speak to Deckard Cain and get ready for Mephisto.");
 	NTM_UsePortal("BluePortal", 75, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
         NTC_PutSkill(115, NTC_HAND_RIGHT);
@@ -986,13 +986,13 @@ function DoTravincal() {
 function DoMephisto() {
 	NTM_TravelTO(102);
 	NTM_MoveTo(17576,8070);
-	say("Mephisto Up, Stay at the TP, Remember if you die STAY DEAD!");
+	NTC_Say("Mephisto Up, Stay at the TP, Remember if you die STAY DEAD!");
 	waitForSomeone();
 	NTM_MoveTo(17589, 8071);
 	if(!NTA_KillBoss(getLocaleString(3062) ))//mephisto
 	NTA_ClearPosition(25);
 		return false;
-	say("Mephisto is Dead, Go through the Red Portal.");
+	NTC_Say("Mephisto is Dead, Go through the Red Portal.");
 	NTM_MoveTo(17590,8070)
 	NTM_UsePortal("BluePortal", 75, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
@@ -1012,7 +1012,7 @@ function DoIzual() {
 			var tpox=me.x; var tpoy=me.y;
 			NTA_ClearPosition();
 			NTM_MoveTo(tpox,tpoy);
-			say("Izual is up, come in quick!")
+			NTC_Say("Izual is up, come in quick!")
 			waitForSomeone();
 	 		NTA_KillBoss(256)
 			return false;
@@ -1030,7 +1030,7 @@ function DoForge() {
 	var _unit = getPresetUnits(me.area, NTC_UNIT_MONSTER, 775);
 	NTM_MoveToObject(NTC_UNIT_MONSTER, _unit[0].id, _unit[0].id, 3, 3);
 	waitForSomeone();
-	say("Forge up, if you die STAY DEAD")
+	NTC_Say("Forge up, if you die STAY DEAD")
 	if (!NTA_KillBoss(getLocaleString(1067))) 
 	return false;
 	NTA_ClearPosition(45);
@@ -1043,7 +1043,7 @@ function DoForge() {
 function DoDiablo() {
 	NTM_TravelTO(107);
 	NTP_DoPrecast();
-	say("Going to Chaos Sanctuary, be ready to enter my portal when it opens");
+	NTC_Say("Going to Chaos Sanctuary, be ready to enter my portal when it opens");
 	if (!NTM_MoveTo(7797, 5600)) return false;
 	if (!NTM_TeleportTo(7797, 5560)) return false;
 	if (!NTM_MoveTo(7771, 5318)) return false;
@@ -1119,7 +1119,7 @@ function NT_MurderDiablo() {
 		if (NTC_FindMonster(243)) {
 			print("?c1Killing Diablo");
 			if (NTA_KillBoss(243, 1000)) {
-				say("Diablo is dead, talk to Tyreal and head to act 5")
+				NTC_Say("Diablo is dead, talk to Tyreal and head to act 5")
 				NTSI_PickItems();
 				return true;
 			}
@@ -1140,7 +1140,7 @@ function DoShenk() {
 		NTM_MoveTo(3865, 5141);
 		NTA_ClearPosition();
 		NTM_MoveTo(3865, 5141);
-		say("Shenk is up")
+		NTC_Say("Shenk is up")
 		waitForSomeone();
 		if (NTA_KillBoss(getLocaleString(22435)))
 			NTA_ClearPosition(25);
@@ -1152,8 +1152,8 @@ function DoAnya() {
 	NTM_TravelTO(114);
 		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 460, 460, -8, -8)) 
 			NTA_ClearPosition();
-		say("Anya up")
-		say("Talk to anya, then go back to town and talk to malah, get the potion, and come back and free Anya")
+		NTC_Say("Anya up")
+		NTC_Say("Talk to anya, then go back to town and talk to malah, get the potion, and come back and free Anya")
 		waitForSomeone();
 		if (!NTA_KillBoss(getLocaleString(22504))) //Frozenstien
 			NTSI_PickItems();
@@ -1163,11 +1163,11 @@ function DoAnya() {
 function DoAncients() {
 NTM_TravelTO(118);
 	NTM_GotoLevel(120,false)
-		say("Ancients up, come in and go through the stairs")
+		NTC_Say("Ancients up, come in and go through the stairs")
 	waitForSomeone();
 	NTM_TravelTO(120);
 	NTP_DoPrecast();
-	say("if you die STAY DEAD!")
+	NTC_Say("if you die STAY DEAD!")
 	
 	NTM_OpenAlter()
 	
@@ -1202,7 +1202,7 @@ function DoBaal() {
 	var i;
 	var _wave;
 	var _starttick;
-	say("Going to baal");
+	NTC_Say("Going to baal");
 	if (!NTTM_CheckAct()) {
 		return false;
 	}
@@ -1221,7 +1221,7 @@ function DoBaal() {
 	if (NTConfig_PublicMode) {
 		NTM_MoveTo(15112, 5004, 0, true);
 		NTM_MakeTP();
-		say("safe");
+		NTC_Say("safe");
 	}
 	while (1) {
 		if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) NTM_MoveTo(15092, 5028);
@@ -1251,7 +1251,7 @@ function DoBaal() {
 	}
 	if (NTConfig_KillBaal) {
 		var _portal;
-		say("Time for Baal, if you die in baals throne room, STAY DEAD");
+		NTC_Say("Time for Baal, if you die in baals throne room, STAY DEAD");
 		NTM_MoveTo(15092, 5010);
 		NTP_DoPrecast();
 		while (NTC_FindMonster(getLocaleString(3061))) //543

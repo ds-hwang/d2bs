@@ -11,9 +11,9 @@ function NT_Gamble()
 	while(true)//(getTickCount()-startTime)<(5*60*1000))
 	{
 		NTTMGR_VisitGheed();
-		say("gold 990000");
+		NTC_Say("gold 990000");
 		delay(500 + me.ping);
-		say("gold 990000");
+		NTC_Say("gold 990000");
 		delay(500 + me.ping);
 	}
 } 
