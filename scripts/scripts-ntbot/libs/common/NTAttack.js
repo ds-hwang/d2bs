@@ -370,6 +370,7 @@ function NTA_GetDamageType(skillid)
 		return NTA_DAMAGE_PHYSICAL;
 
 	case 112:	//	Blessed Hammer
+	case 84:	//	Bone Spear
 		return NTA_DAMAGE_MAGIC;
 
 	case 47:	//	Fire Ball
@@ -399,12 +400,12 @@ function NTA_GetDamageType(skillid)
 
 	switch(_etype)
 	{
-	case 0: return NTA_DAMAGE_PHYSICAL;
-	case 1: return NTA_DAMAGE_FIRE;
-	case 2: return NTA_DAMAGE_LIGHTNING;
-	case 3: return NTA_DAMAGE_MAGIC;
-	case 4: return NTA_DAMAGE_COLD;
-	case 5: return NTA_DAMAGE_POISON;
+		case 0: return NTA_DAMAGE_PHYSICAL;
+		case 1: return NTA_DAMAGE_FIRE;
+		case 2: return NTA_DAMAGE_LIGHTNING;
+		case 3: return NTA_DAMAGE_MAGIC;
+		case 4: return NTA_DAMAGE_COLD;
+		case 5: return NTA_DAMAGE_POISON;
 	}
 
 	return NTA_DAMAGE_NONE;
