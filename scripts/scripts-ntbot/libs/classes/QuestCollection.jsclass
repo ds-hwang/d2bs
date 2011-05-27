@@ -5,17 +5,26 @@
 *
 *	@desc		Represents a collection of Quest objects
 *
-*	@methods	Array	QuestCollection.getQuests() 
-*							- Returns an Array of all Quest objects in the collection
+*	@properties		Number		activeQuest 
+*									- Returns the index of the activeQuest in the QuestCollection
+* 
+*	@methods		Quest		getActiveQuest()
+*									- Returns the Quest object currently marked as the active quest
 *
-*				Array	QuestCollection.getCompleteQuests() 
-*							- Returns an Array of all Quest objects marked as completed
+*					Quest[]		getCompleteQuests() 
+*									- Returns an Array of all Quest objects marked as completed
 *
-*				Array	QuestCollection.getIncompleteQuests() 
-*							- Returns an Array of all Quest objects that have NOT been completed
+*					Quest[]		getIncompleteQuests() 
+*									- Returns an Array of all Quest objects that have NOT been completed
 *
-*				Quest	QuestCollection.getQuest(actNumber, questNumber)
-*							- Returns a the Quest object from the collection with matching actNumber and questNumber
+*					Quest		getQuest(actNumber, questNumber)
+*									- Returns a the Quest object from the collection with matching actNumber and questNumber
+*
+*					Quest[]		getQuests() 
+*									- Returns an Array of all Quest objects in the collection
+*
+*					Boolean		setActiveQuest(actNumber, questNumber)
+*									- Sets the quest with the matching act and quest numbers as the active quest
 *
 *	@requires	Quest.jsclass
 *
@@ -55,7 +64,23 @@ function QuestCollection()
 		questCount++;
 	}
 	
+	
+	
 	// Public objects
+	// QuestCollection.activeQuest - returns the index of the currently active quest;
+	this.activeQuest = 0;
+	
+	
+	
+	// QuestCollection.getActiveQuest - returns the Quest object that is currently marked as the activeQuest;
+	this.getActiveQuest =
+			function getActiveQuest()
+			{
+				return questList[activeQuest];
+			};
+			
+			
+			
 	// QuestCollection.getQuests() - returns an Array of all 'Quest';
 	this.getQuests = 
 			function getQuests()
@@ -91,13 +116,27 @@ function QuestCollection()
 				// Return array of all 'Quest' objects in collection;
 				return questList;
 			};
-
+			
+			
+			
 	// QuestCollection.getCompleteQuests() - returns an Array of all 'Quest' objects marked as completed;
-	this.getCompleteQuests = function getCompleteQuests(){ return getQuests('complete'); };
+	this.getCompleteQuests = 
+			function getCompleteQuests()
+			{ 
+				return getQuests('complete'); 
+			};
+	
+	
 	
 	// QuestCollection.getIncompleteQuests() - returns an Array of all 'Quest' objects that have NOT been completed;
-	this.getIncompleteQuests = function getIncompleteQuests(){ return getQuests('incomplete'); };
-	
+	this.getIncompleteQuests = 
+			function getIncompleteQuests()
+			{ 
+				return getQuests('incomplete'); 
+			};
+			
+			
+			
 	// QuestCollection.getQuest(actNumber, questNumber) - returns a the Quest object from the collection with matching actNumber and questNumber;
 	this.getQuest = 
 			function getQuest(actNumber, questNumber)
@@ -110,5 +149,22 @@ function QuestCollection()
 				}
 				
 				return questList[indexOfQuestAct[actNumber +''+ questNumber]];
+			};
+			
+			
+			
+	// QuestCollection.setActiveQuest(actNumber, questNumber) - sets the Quest with the matching actNumber and questNumber as the activeQuest;
+	this.setActiveQuest =
+			function setActiveQuest(actNumber, questNumber)
+			{
+				// Handle arguments
+				if(arguments.length != 2 && !actNumber.isNumber && !questNumber.isNumber)
+				{
+					print('QuestCollection.getActiveQuest() failed, requires valid actNumber and questNumber arguments');
+					return false;
+				}
+				
+				this.activeQuest = indexOfQuestAct[actNumber +''+ questNumber];
+				return true;
 			};
 }

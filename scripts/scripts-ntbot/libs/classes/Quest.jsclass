@@ -10,9 +10,9 @@
 *	@desc			Represents a quest
 *
 *	@properties		Number 	Quest.actNumber		- The act number of the quest
-*					Number 	Quest.questNumber 	- The quest number within the given act
 *					Boolean	Quest.completed		- The status of the quest
 *					String	Quest.questName		- The name of the quest
+*					Number 	Quest.questNumber 	- The quest number within the given act
 *
 *	@methods		String	Quest.toString()	- Returns a string with actNumber, questNumber, questName
 *

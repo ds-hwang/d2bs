@@ -29,7 +29,7 @@ function writeLog(item, me, isEthereal, _mode) {
 	var timestring = time_now.toLocaleFormat("%a %m/%d/%y %H:%M"); 
    //+++++++ start replace() +++++++++ 
    // Replaces new lines with spaces 
-   var itemname = item.fname.replace(/\n/g, " "); 
+   var itemname = (item.fname != undefined) ? item.fname.replace(/\n/g, " ") : item.name.replace(/\n/g, " "); 
    itemname = itemname.replace('\02/g', ""); 
     
    
