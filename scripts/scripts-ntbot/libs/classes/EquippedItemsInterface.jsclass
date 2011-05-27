@@ -1,0 +1,472 @@
+/**
+*	@name		EquippedItemsInterface()
+*	@access		global
+*	@type		Class
+*				
+*	@author		alogwe
+*				
+*	@desc		Instantiated in me.EquippedItems to create an object which attempts to store and maintain references
+*				to the currently equipped Unit objects.  Main use is to avoid having to call me.getItems() and iterating
+*				the returned array to obtain and use a reference to an equipped object.
+*				Access is provided through the public getters, which control access/operations on the private EquippedItem objects stored in ItemCollection.
+*				When a getter is called, it checks if the Unit reference for that object needs to be updated,
+*				if it does, the updateAll() method is called.  
+*				(logic being that if we have to call me.getItems() and iterate the array, we might as well see if any other Unit references need to be updated
+*				potentially saving calls to me.getItems() and time spent iterating the returned array)
+*				If the EquippedItem().unitReference being checked does not need to be updated, it is returned to the user/script.
+*/
+function EquippedItemsInterface()
+{
+
+	/**
+	*	Constructor (not needed but used for organizational purposes & called at the bottom of this class definition)	
+	*/
+	function Constructor()
+			{
+				print('Creating new '+ arguments.callee.caller.name +' object...');
+				addEventListener('itemaction', this.itemactionHandler);
+				// addEventListener('itemaction', this.itemactionHandlerTest);
+				me.switchToWeaponTab(1);	//to make sure we get a clear reference on the bodylocation of the EquippedItems;
+				this.initialize();
+				print('...Done.');
+			}
+			
+			
+			
+	/**
+	*	@name		EquippedItem()
+	*	@args		position - the position (me.bodylocation) the object represents
+	*	@access		private
+	*	@type		Class
+	*	@desc		Represents an equipped item on the character.
+	*				It holds the reference to the in-game Unit object which it represents
+	*/
+	function EquippedItem(type, bodyposition, gid)
+			{
+				//Private reference to in-game Unit object (defaults to false);
+				var unitReference = false;
+				
+				//Public type (reflects the name of the item slot);
+				this.type = type;
+				
+				//Public bodyposition (reflects what the bodyposition for this.type, Unit.bodylocation changes depending on weapon tab, so using this as a static reference)
+				this.bodyposition = bodyposition;
+				
+				//Public gid (used to match the unit gid);
+				this.gid = gid;
+
+				//Public method for getting the Unit object reference stored in this.unitReference;
+				this.getUnitReference = function getUnitReference(){ return unitReference; };
+						
+				//Public method for setting the Unit object reference stored in this.unitReference;
+				this.setUnitReference = function setUnitReference(input){ if(input && input.isD2BSUnit) unitReference = input; };
+				
+				//Public method for removing the Unit object reference stored in this.unitReference;
+				this.removeUnitReference = function removeUnitReference(){ unitReference = false; };
+			}
+			
+			
+			
+	/**
+	*	@name		ItemCollectionKeys
+	*	@access		private
+	*	@type		String[]
+	*	@desc		Stores all of the key names in ItemCollection
+	*/
+	var ItemCollectionKeys = [	'Helmet', 'Amulet', 'Armor', 'RightHandOne', 'LeftHandOne', 
+								'RightRing', 'LeftRing', 'Belt', 'Boots', 'Gloves', 
+								'RightHandTwo', 'LeftHandTwo'	];	
+	
+	
+	
+	/**
+	*	@name		ItemCollection
+	*	@access		private
+	*	@type		Object
+	*	@desc		A collection of objects (instances of EquippedItem)
+	*				Each object in the collection represents an equipped item on the character and holds 
+	*				a reference to the ingame Unit object at that location.
+	*/
+	var ItemCollection = new Object();
+	ItemCollection["Helmet"] 		= new EquippedItem("Helmet", 1, 0);
+	ItemCollection["Amulet"] 		= new EquippedItem("Amulet", 2, 0);
+	ItemCollection["Armor"] 		= new EquippedItem("Armor", 3, 0);
+	ItemCollection["RightHandOne"] 	= new EquippedItem("RightHandOne", 4, 0);
+	ItemCollection["LeftHandOne"] 	= new EquippedItem("LeftHandOne", 5, 0);
+	ItemCollection["RightRing"] 	= new EquippedItem("RightRing", 6, 0);
+	ItemCollection["LeftRing"] 		= new EquippedItem("LeftRing", 7, 0);
+	ItemCollection["Belt"] 			= new EquippedItem("Belt", 8, 0);
+	ItemCollection["Boots"] 		= new EquippedItem("Boots", 9, 0);
+	ItemCollection["Gloves"] 		= new EquippedItem("Gloves", 10, 0);
+	ItemCollection["RightHandTwo"] 	= new EquippedItem("RightHandTwo", 11, 0);
+	ItemCollection["LeftHandTwo"] 	= new EquippedItem("LeftHandTwo", 12, 0);
+	
+	
+	
+	/**
+	*	@name		BodyLocationToKeyName
+	*	@access		private
+	*	@type		Array
+	*	@desc		Maps Unit.bodylocation to the keys in the ItemCollection
+	*/
+	var BodyLocationToKeyName = new Array(13);
+	BodyLocationToKeyName[0] 	= 'Not Equipped';
+	BodyLocationToKeyName[1] 	= 'Helmet';
+	BodyLocationToKeyName[2] 	= 'Amulet';
+	BodyLocationToKeyName[3] 	= 'Armor';
+	BodyLocationToKeyName[4] 	= 'RightHandOne';
+	BodyLocationToKeyName[5] 	= 'LeftHandOne';
+	BodyLocationToKeyName[6] 	= 'RightRing';
+	BodyLocationToKeyName[7] 	= 'LeftRing';
+	BodyLocationToKeyName[8] 	= 'Belt';
+	BodyLocationToKeyName[9] 	= 'Boots';
+	BodyLocationToKeyName[10] 	= 'Gloves';
+	BodyLocationToKeyName[11] 	= 'RightHandTwo';
+	BodyLocationToKeyName[12] 	= 'LeftHandTwo';
+	
+	
+	
+	/**
+	*	@name		ChargedItemFlagList
+	*	@access		private
+	*	@type		Object
+	*	@desc		An object that maps the position key names to whether or not the EquippedItem
+	*				in this position has any skill charges.  Used by this.withSkillCharges getter
+	*/
+	var ChargedItemFlagList = new Object();
+	ChargedItemFlagList["Helmet"] 		= false;
+	ChargedItemFlagList["Amulet"] 		= false;
+	ChargedItemFlagList["Armor"] 		= false;
+	ChargedItemFlagList["RightHandOne"] = false;
+	ChargedItemFlagList["LeftHandOne"] 	= false;
+	ChargedItemFlagList["RightRing"] 	= false;
+	ChargedItemFlagList["LeftRing"] 	= false;
+	ChargedItemFlagList["Belt"] 		= false;
+	ChargedItemFlagList["Boots"] 		= false;
+	ChargedItemFlagList["Gloves"] 		= false;
+	ChargedItemFlagList["RightHandTwo"] = false;
+	ChargedItemFlagList["LeftHandTwo"] 	= false;
+	ChargedItemFlagList.update = 
+			function update(unit)
+			{
+				var result = false;
+				
+				if(!unit || !unit.isD2BSUnit)
+				{
+					print('ÿc1Error: me.EquippedItems.ChargedItemFlagList.update() : No Unit input provided.');
+					return;
+				}
+				
+				if(unit.getSkillCharges() && unit.getSkillCharges().length > 0)
+					result = true;
+				else
+					result = false;
+					
+				ChargedItemFlagList[unit.bodyLocationName] = result;
+				print('the result of ChargedItemFlagList.update() is '+ result);	//alogwe debugging;
+			};
+	
+	
+	
+	/**	Public getters
+	*	this.Helmet
+	*	this.Amulet
+	*	this.Armor
+	*	this.RightHandOne
+	*	this.LeftHandOne
+	*	this.RightRing
+	*	this.LeftRing
+	*	this.Belt
+	*	this.Boots
+	*	this.Gloves
+	*	this.RightHandTwo
+	*	this.LeftHandTwo
+	*	this.withSkillCharges - returns an empty array, or EquippedItem[] object array which reflect items that have skill charges
+	*/
+	this.__defineGetter__('Helmet', function Helmet() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('Amulet', function Amulet() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('Armor', function Armor() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('RightHandOne', function RightHandOne() { return ItemCollection[arguments.callee.name].getUnitReference(); }); 	
+	this.__defineGetter__('LeftHandOne', function LeftHandOne() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('RightRing', function RightRing() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('LeftRing', function LeftRing() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('Belt', function Belt() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('Boots', function Boots() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('Gloves', function Gloves() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('RightHandTwo', function RightHandTwo() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('LeftHandTwo', function LeftHandTwo() { return ItemCollection[arguments.callee.name].getUnitReference(); });
+	this.__defineGetter__('withSkillCharges',
+			function withSkillCharges()
+			{
+				var chargedItemList = [];
+				var positionName;
+				
+				for(var i = 0; i < ItemCollectionKeys.length; i++)
+				{
+					positionName = ItemCollectionKeys[i];
+					
+					if(ChargedItemFlagList[positionName])
+					{
+						//push the matching EquippedItem object (which has the unitReference property set to point to the Unit object;
+						chargedItemList.push(ItemCollection[positionName]);
+					}
+				}
+				
+				return chargedItemList;
+			});
+			
+			
+			
+	/**
+	*	@name		initialize()
+	*	@access		public
+	*	@type		function
+	*	@desc		Initializes all Unit references for each EquippedItem in ItemCollection
+	*/
+	this.initialize =
+			function initialize()
+			{
+				print('Initializing me.EquippedItems');		//debugging
+				
+				//Get array of all items
+				var items = me.getItems();
+				
+				//Iterate each item in items[] array
+				var equippedItemCount = 0;
+				
+				var currentEquippedItem;
+				for(var i = 0; i < items.length; i++)
+				{
+					if(items[i].isEquipped)
+					{
+						currentEquippedItem = ItemCollection[items[i].bodyLocationName];
+						currentEquippedItem.setUnitReference(items[i]);
+						currentEquippedItem.gid = items[i].gid;
+						ChargedItemFlagList[items[i].bodyLocationName] = (items[i].getSkillCharges()) ? true : false;
+						equippedItemCount++;
+						
+						//Testing above code instead..
+						// ItemCollection[BodyLocationToKeyName[items[i].bodylocation]].setUnitReference(items[i]);
+						// ChargedItemFlagList[BodyLocationToKeyName[items[i].bodylocation]] = (items[i].getSkillCharges()) ? true : false;
+						// equippedItemCount++;
+					}
+				}
+				
+				print('me.EquippedItems ('+ equippedItemCount +' equipped items were initialized)');		//debugging;
+			};
+			
+			
+			
+	/**
+	*	@name		finalize()
+	*	@access		public
+	*	@type		function
+	*	@desc		Performs cleanup actions
+	*/
+	this.finalize =
+			function finalize()
+			{
+				print('Finalizing me.EquippedItems...');		//debugging;
+				removeEventListener('itemaction', this.itemactionHandler);
+				// removeEventListener('itemaction', this.itemactionHandlerTest);
+				print('...Done');
+			};
+			
+			
+			
+	/**
+	*	@name		itemactionHandler()
+	*	@access		public
+	*	@type		function
+	*	@desc		Performs appropriate handling for certain itemaction events
+	*				itemaction (uint32_t gId, uint32_t mode, String code, Bool global)
+	*/
+	this.itemactionHandler =
+			function itemactionHandler(gid, mode, code, global)
+			{
+				function modeIsValid()
+				{
+					var validModes = [6, 7, 8, 9, 17, 101];
+					//if mode is in this list of validModes, return true;
+					if(validModes.indexOf(mode) != -1)
+						return true;
+					return false;
+				}
+				
+				print('gid: '+gid+'    mode:'+ mode);	//alogwe debugging;
+				
+				//Ensure that mode is valid for our purposes;
+				if(!modeIsValid())
+					return;
+				
+				//Ensure we have a Unit reference for the current event's unit;
+				var unit = getUnit(null, null, null, gid);
+				
+				// print('unit is '+ unit);	//alogwe debugging;
+				
+				if(!unit)
+				{
+					print('ÿc1Error: me.EquippedItems.itemactionHandler() couldn\'t find Unit matching gid('+ gid +')');	//alogwe debugging;
+					return;
+				}
+				
+				switch(mode)
+				{
+					/*		Mode 6 - Item put in an equip slot on character or merc from cursor		*/
+					case 6:
+						//Ignore Merc items
+						if(unit.isMercItem)
+						{
+							// print('ÿc1Ignoring Merc Equip \'itemaction\' event');	//alogwe debugging;
+							break;
+						}
+						
+						ChargedItemFlagList.update(unit);
+						ItemCollection[unit.bodyLocationName].setUnitReference(unit);
+						ItemCollection[unit.bodyLocationName].gid = unit.gid;
+						print('ÿc3Updated EquippedItem unitReference at '+ unit.bodyLocationName +' (gid:'+ unit.gid +')');	//alogwe debugging;
+						break;
+						
+						
+						
+					/*		Mode 7 - Item is put in an equip hand slot which causes ANOTHER existing item to be forced out and onto cursor  	*/
+					case 7:
+						ChargedItemFlagList.update(unit);
+						ItemCollection[unit.bodyLocationName].setUnitReference(unit);
+						ItemCollection[unit.bodyLocationName].gid = unit.gid;
+						print('ÿc3Updated EquippedItem unitReference at '+ unit.bodyLocationName +' (gid:'+ unit.gid +')');	//alogwe debugging;
+						break;
+						
+						
+											
+					/*		Mode 8 - Item picked up on cursor from an equip slot on character	*/
+					case 8:
+						var affectedItemPosition = '';
+						var currentItem;
+						
+						//Find EquippedItem with gid which matches the gid from this event
+						for(var i = 0; i < ItemCollectionKeys.length; i++)
+						{
+							currentItem = ItemCollection[ItemCollectionKeys[i]];
+							if(currentItem.gid == gid)
+							{
+								affectedItemPosition = currentItem.type;
+								
+								//Reset EquippedItem properties for item at that body position;
+								currentItem.gid = 0;
+								currentItem.removeUnitReference();
+								
+								//Change the ChargedItemFlagList for that respective item to false (because item is no longer equipped);
+								ChargedItemFlagList[affectedItemPosition] = false;
+								
+								print('ÿc3Removed EquippedItem unitReference at '+ affectedItemPosition +' (gid:'+ gid +')');	//alogwe debugging;
+								break;
+							}
+						}
+						break;
+						
+						
+						
+					/* 		Mode 9 - Item is put in an equip slot and swapped with existing item in that equip slot  		*/
+					case 9:
+						ChargedItemFlagList.update(unit);
+						ItemCollection[unit.bodyLocationName].setUnitReference(unit);
+						ItemCollection[unit.bodyLocationName].gid = unit.gid;
+						print('ÿc3Updated EquippedItem unitReference at '+ unit.bodyLocationName +' (gid:'+ unit.gid +')');	//alogwe debugging;
+						break;
+						
+						
+						
+					/*		Mode 17 - Item is forced into inventory when an equipment swap is made and it 
+										would go to cursor but fails because there is another item on cursor  		*/
+					case 17:
+						ChargedItemFlagList.update(unit);
+						ItemCollection[unit.bodyLocationName].setUnitReference(unit);
+						ItemCollection[unit.bodyLocationName].gid = unit.gid;
+						print('ÿc3Updated EquippedItem unitReference at '+ unit.bodyLocationName +' (gid:'+ unit.gid +')');	//alogwe debugging;
+						break;
+						
+						
+						
+					/* 	
+						EDIT:	Probably don't need to do anything with this, so commented out for now.
+					
+							Mode 23 - Item swapped to alternate equip tab
+							
+							*NOTE* 	This event fires once for each item you have in any 
+									hand position when you swap equipment tabs
+						
+					case 23:
+						ChargedItemFlagList.update(unit);
+					*/
+					
+					
+					
+					/*		Mode 101 - item is sold while equipped on character		*/	
+					case 101:
+						var affectedItemPosition = '';
+						var currentItem;
+						
+						//Find EquippedItem with gid which matches the gid from this event
+						for(var i = 0; i < ItemCollectionKeys.length; i++)
+						{
+							currentItem = ItemCollection[ItemCollectionKeys[i]];
+							if(currentItem.gid == gid)
+							{
+								affectedItemPosition = currentItem.type;
+								
+								//Reset EquippedItem properties for item at that body position;
+								currentItem.gid = 0;
+								currentItem.removeUnitReference();
+								
+								//Change the ChargedItemFlagList for that respective item to false (because item is no longer equipped);
+								ChargedItemFlagList[affectedItemPosition] = false;
+								
+								print('ÿc3Removed EquippedItem unitReference at '+ affectedItemPosition +' (gid:'+ gid +')');	//alogwe debugging;
+								
+								//Break loop;
+								break;
+							}
+						}
+						break;
+				}
+				
+				//alogwe debugging;
+				// var logfile = 'logs/itemaction/item_'+ gid +'_'+ mode +'.txt';
+				// var logfile = 'logs/TEST_LOG_' + me.name.toUpperCase() +'.log';
+				// var argstring = 'gid: '+ gid +'     mode: '+ mode +'     code: '+ code +'     global: '+ global;
+				// print(argstring);
+				// FileTools.appendText(logfile, argstring +'\n'+ unit.toSource() + '\n\n');
+			};
+			
+			
+			
+	// /**
+	// *	For testing 'itemaction' event stuff..
+	// *
+	// *	activate and deactivated in Constructor at top (and finalize() method)
+	// *
+	// */
+	// this.itemactionHandlerTest =
+			// function itemActionHandlerTest(gid, mode, code, global)
+			// {
+				// var logfile = 'logs/itemaction/item_'+ gid +'_'+ mode +'.txt';
+				// var argstring = 'gid: '+ gid +'     mode: '+ mode +'     code: '+ code +'     global: '+ global;
+				// var unit = getUnit(null, null, null, gid);
+				
+				// if(unit)
+				// {
+					// print(argstring);
+					// FileTools.appendText(logfile, argstring +'\n'+ unit.toSource() + '\n\n');
+					// return true;
+				// }
+				
+				// return false;
+			// };
+			
+			
+			
+	//Call constructor defined at top of class;
+	Constructor.apply(this);
+
+}

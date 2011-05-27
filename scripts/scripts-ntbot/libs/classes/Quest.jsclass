@@ -1,0 +1,84 @@
+/**
+*	@name			Quest()
+*
+*	@args			actNumber 	- The act number of the quest
+*					questNumber - The quest number of the quest within that act (1-6, except in act 4)
+*					completed	- The status of the quest (boolean)
+*
+*	@type			Class
+*
+*	@desc			Represents a quest
+*
+*	@properties		Number 	Quest.actNumber		- The act number of the quest
+*					Number 	Quest.questNumber 	- The quest number within the given act
+*					Boolean	Quest.completed		- The status of the quest
+*					String	Quest.questName		- The name of the quest
+*
+*	@methods		String	Quest.toString()	- Returns a string with actNumber, questNumber, questName
+*
+*	@requires		nothing
+*
+*/
+
+function Quest(actNumber, questNumber, completed)
+{
+	// Handle object's default values and input args (if any);
+	this.actNumber 		= (actNumber 	!= undefined) ? actNumber 	: 0;
+	this.questNumber	= (questNumber 	!= undefined) ? questNumber : 0;
+	this.completed 		= (completed 	!= undefined) ? completed 	: false;
+	this.questName		= 'none';
+	this.toString 		= function toString(){ return 'Act: '+ this.actNumber +' Quest: '+ this.questNumber + ' ('+ questName +')'; };
+	
+	// Set questName depending on act and quest numbers
+	// Act I
+	if(this.actNumber == 1)
+	{
+		if(this.questNumber == 1) { this.questName = 'The Den of Evil'; 			};
+		if(this.questNumber == 2) { this.questName = 'Sisters\' Burial Grounds'; 	};
+		if(this.questNumber == 3) { this.questName = 'Search for Cain'; 			};
+		if(this.questNumber == 4) { this.questName = 'The Forgotten Tower'; 		};
+		if(this.questNumber == 5) { this.questName = 'Tools of the Trade'; 		};
+		if(this.questNumber == 6) { this.questName = 'Sisters to the Slaughter'; 	};
+	}
+	
+	// Act II
+	else if(this.actNumber == 2)
+	{
+		if(this.questNumber == 1) { this.questName = 'Radament\'s Lair'; 		};
+		if(this.questNumber == 2) { this.questName = 'The Horadric Staff'; 	};
+		if(this.questNumber == 3) { this.questName = 'The Tainted Sun'; 		};
+		if(this.questNumber == 4) { this.questName = 'The Arcane Sanctuary'; 	};
+		if(this.questNumber == 5) { this.questName = 'The Summoner'; 			};
+		if(this.questNumber == 6) { this.questName = 'The Seven Tombs'; 		};
+	}
+	
+	// Act III
+	else if(this.actNumber == 3)
+	{
+		if(this.questNumber == 1) { this.questName = 'The Golden Bird'; 			};
+		if(this.questNumber == 2) { this.questName = 'Blade of the Old Religion';	};
+		if(this.questNumber == 3) { this.questName = 'Khalim\'s Will';			};
+		if(this.questNumber == 4) { this.questName = 'Lam Esen\'s Tome'; 			};
+		if(this.questNumber == 5) { this.questName = 'The Blackened Temple'; 		};
+		if(this.questNumber == 6) { this.questName = 'The Guardian'; 				};
+	}
+	
+	// Act IV
+	else if(this.actNumber == 4)
+	{
+		if(this.questNumber == 1) { this.questName = 'The Fallen Angel'; 	};
+		if(this.questNumber == 2) { this.questName = 'The Hellforge'; 	};
+		if(this.questNumber == 3) { this.questName = 'Terror\'s End'; 	};
+	}
+	
+	// Act V
+	else if(this.actNumber == 5)
+	{
+		if(this.questNumber == 1) { this.questName = 'Siege on Harrogath'; 		};
+		if(this.questNumber == 2) { this.questName = 'Rescue on Mount Arreat'; 	};
+		if(this.questNumber == 3) { this.questName = 'Prison of Ice'; 			};
+		if(this.questNumber == 4) { this.questName = 'Betrayal of Harrogath'; 	};
+		if(this.questNumber == 5) { this.questName = 'Rite of Passage'; 			};
+		if(this.questNumber == 6) { this.questName = 'Eve of Destruction'; 		};
+	}
+}

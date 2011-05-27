@@ -1,0 +1,114 @@
+/**
+*	@name		QuestCollection()
+*
+*	@type		Class
+*
+*	@desc		Represents a collection of Quest objects
+*
+*	@methods	Array	QuestCollection.getQuests() 
+*							- Returns an Array of all Quest objects in the collection
+*
+*				Array	QuestCollection.getCompleteQuests() 
+*							- Returns an Array of all Quest objects marked as completed
+*
+*				Array	QuestCollection.getIncompleteQuests() 
+*							- Returns an Array of all Quest objects that have NOT been completed
+*
+*				Quest	QuestCollection.getQuest(actNumber, questNumber)
+*							- Returns a the Quest object from the collection with matching actNumber and questNumber
+*
+*	@requires	Quest.jsclass
+*
+*/
+
+function QuestCollection()
+{
+	// Private objects
+	// Define questList which holds all 'Quest' objects
+	var questList = [];
+	var questCount = 0;
+	var indexOfQuestAct = {};
+	
+	// Add 'Quest' objects for each act
+	for(var actNumber = 1; actNumber <= 5; actNumber++)
+	{
+		// Create 'Quest' objects for each act.  Act 4 is only act with 3 'Quest' objects;
+		if(actNumber == 4)
+		{
+			for(var questNumber = 1; questNumber <= 3; questNumber++)
+			{
+				questList.push(new Quest(actNumber, questNumber));
+			}
+		}
+		else
+		{
+			for(var questNumber = 1; questNumber <= 6; questNumber++)
+			{
+				questList.push(new Quest(actNumber, questNumber));
+			}
+		}
+		
+		// Map Index to 'Quest' object in 'indexOfQuestAct' object;
+		indexOfQuestAct[actNumber +''+ questNumber] = questCount;
+		
+		// Increase quest counter;
+		questCount++;
+	}
+	
+	// Public objects
+	// QuestCollection.getQuests() - returns an Array of all 'Quest';
+	this.getQuests = 
+			function getQuests()
+			{ 
+				// Return array of 'Quest' objects that have been completed;
+				if(arguments[0] == 'complete')
+				{
+					var completeQuestList = [];
+					
+					for(var i = 0; i < questList.length; i++)
+					{
+						if(questList[i].completed)
+							completeQuestList.push(questList[i]);
+					}
+					
+					return completeQuestList;
+				}
+				
+				// Return array of 'Quest' objects that have NOT been completed;
+				if(arguments[0] == 'incomplete')
+				{
+					var incompleteQuestList = [];
+					
+					for(var i = 0; i < questList.length; i++)
+					{
+						if(!questList[i].completed)
+							incompleteQuestList.push(questList[i]);
+					}
+					
+					return incompleteQuestList;
+				}
+				
+				// Return array of all 'Quest' objects in collection;
+				return questList;
+			};
+
+	// QuestCollection.getCompleteQuests() - returns an Array of all 'Quest' objects marked as completed;
+	this.getCompleteQuests = function getCompleteQuests(){ return getQuests('complete'); };
+	
+	// QuestCollection.getIncompleteQuests() - returns an Array of all 'Quest' objects that have NOT been completed;
+	this.getIncompleteQuests = function getIncompleteQuests(){ return getQuests('incomplete'); };
+	
+	// QuestCollection.getQuest(actNumber, questNumber) - returns a the Quest object from the collection with matching actNumber and questNumber;
+	this.getQuest = 
+			function getQuest(actNumber, questNumber)
+			{
+				// Handle arguments
+				if(arguments.length != 2 && !actNumber.isNumber && !questNumber.isNumber)
+				{
+					print('QuestCollection.getQuest() failed, requires valid actNumber and questNumber arguments');
+					return false;
+				}
+				
+				return questList[indexOfQuestAct[actNumber +''+ questNumber]];
+			};
+}
