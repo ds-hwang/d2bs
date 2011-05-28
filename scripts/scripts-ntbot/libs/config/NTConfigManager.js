@@ -293,13 +293,7 @@ function ShowConfig() {
 			}	
 		}
 	
-		for (var c = 0; c < 10; c++) {
-				for (var r = 0; r < 4; r++) {
-				this.hook = new CheckBox(30 + (c * 13), 430 + r * 13, "", NTConfig_Columns[r][c])
-				this.setNT_logItems.addHook(this.hook)
-				NTConfig_ColumnsHooks.push(this.hook)
-			}	
-		}
+		
 	
 	this.configDiscript = new Text("Inventory. Black = Wont Stash / Sell", 30, 425, 18, 6, 0)
 	this.setNT_logItems.addHook(this.configDiscript)
@@ -430,11 +424,11 @@ function ShowConfig() {
 	}
 	if (me.classid == 3 || me.classid == 2){ // Pally n necro shared
 		this.NTConfig_AttackBoss = new DropDownBox(100, 140,myGetSkillByID(NTConfig_AttackBoss),13,1,this.mySkills,"Boss Skill")
-		this.NTConfig_AttackBoss.valueChanged = new function(val){NTConfig_AttackBoss=val}
+		this.NTConfig_AttackBoss.valueChanged = new function(val){NTConfig_AttackBoss=myGetSkillByName(val)}
 		this.setNTConfig_AttackBoss = new ConfigSetting("Skills", this.NTConfig_AttackBoss, "NTConfig_AttackBoss")
 		
 		this.NTConfig_AttackOthers = new DropDownBox(300, 140,myGetSkillByID(NTConfig_AttackOthers),13,1,this.mySkills,"Primary For Others");
-		this.NTConfig_AttackOthers.valueChanged = new function(val){NTConfig_AttackOthers=val}
+		this.NTConfig_AttackOthers.valueChanged = new function(val){NTConfig_AttackOthers=myGetSkillByName(val)}
 		this.setNTConfig_AttackOthers = new ConfigSetting("Skills", this.NTConfig_AttackOthers, "NTConfig_AttackOthers")
 		
 	}
@@ -474,15 +468,15 @@ function ShowConfig() {
 	}	
 	if (me.classid == 3){ // Pally
 		this.NTConfig_AttackFirst = new DropDownBox(500, 190,myGetSkillByID(NTConfig_AttackFirst),13,1,this.mySkills,"Cast First"); 
-		this.NTConfig_AttackFirst.valueChanged = function(val){NTConfig_AttackFirst=val}
+		this.NTConfig_AttackFirst.valueChanged = function(val){NTConfig_AttackFirst=myGetSkillByName(val)}
 		this.setNTConfig_AttackFirst = new ConfigSetting("Skills", this.NTConfig_AttackFirst, "NTConfig_AttackFirst")
 		
 		this.NTConfig_AttackSecondary = new DropDownBox(500, 220,myGetSkillByID(NTConfig_AttackSecondary),13,1,this.mySkills,"Secondary For Immunes");
-		this.NTConfig_AttackSecondary.valueChanged = new function(val){NTConfig_AttackSecondary=val}
+		this.NTConfig_AttackSecondary.valueChanged = new function(val){NTConfig_AttackSecondary=myGetSkillByName(val)}
 		this.setNTConfig_AttackSecondary = new ConfigSetting("Skills", this.NTConfig_AttackSecondary, "NTConfig_AttackSecondary")
 		
 		this.NTConfig_PutAura = new DropDownBox(500, 260,myGetSkillByID(NTConfig_PutAura),13,1,this.mySkills,"Attack Aura");
-		this.NTConfig_PutAura.valueChanged = new function(val){NTConfig_PutAura=val}
+		this.NTConfig_PutAura.valueChanged = new function(val){NTConfig_PutAura=myGetSkillByName(val)}
 		this.setNTConfig_PutAura = new ConfigSetting("Skills", this.NTConfig_PutAura, "NTConfig_PutAura")
 		
 		this.NTConfig_UseRedemption = new CheckBox(500, 275,"Use Redemption ",NTConfig_UseRedemption,true)	; 
