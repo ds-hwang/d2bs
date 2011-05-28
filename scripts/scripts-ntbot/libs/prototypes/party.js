@@ -19,19 +19,18 @@ Party.prototype.__defineGetter__('isPartied', function(){ return this.partyflag 
 
 
 // Class Methods
-{Party.prototype.getUser = 
-	function(username)
-	{
-		// Validate arguments
-		if(arguments.length == 0 || !(username.isString))
-			return false;		
-		// Loop through party to find username
-		do
+Party.prototype.getUser = 
+		function(username)
 		{
-			if(this.name == username && (this.isPartied || username == me.name))
-				return this;
-		}while(this.getNext());
-		// Did not find username
-		return 0;
-	}
-}
+			// Validate arguments
+			if(arguments.length == 0 || !(username.isString))
+				return false;		
+			// Loop through party to find username
+			do
+			{
+				if(this.name == username && (this.isPartied || username == me.name))
+					return this;
+			}while(this.getNext());
+			// Did not find username
+			return 0;
+		};
