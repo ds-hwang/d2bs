@@ -9,11 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		default.dbj = default.dbj
 		libs\prototypes\javascript.js = libs\prototypes\javascript.js
 		libs\prototypes\me.js = libs\prototypes\me.js
-		tools\MiscUtility.dbj = tools\MiscUtility.dbj
 		libs\config\NTConfig.dbl = libs\config\NTConfig.dbl
 		libs\prototypes\party.js = libs\prototypes\party.js
 		libs\prototypes\prototypes.js = libs\prototypes\prototypes.js
-		tools\SimonsHelper.dbj = tools\SimonsHelper.dbj
 		libs\prototypes\unit.js = libs\prototypes\unit.js
 	EndProjectSection
 EndProject
@@ -85,6 +83,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bots", "bots", "{C7B30999-6
 		libs\bots\SuperUnique.dbl = libs\bots\SuperUnique.dbl
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{722E0EB5-691D-4005-B042-531092042484}"
+	ProjectSection(SolutionItems) = preProject
+		libs\config\NTConfig.dbl = libs\config\NTConfig.dbl
+		libs\config\NTConfig_Any.dbl = libs\config\NTConfig_Any.dbl
+		libs\config\NTConfigManager.js = libs\config\NTConfigManager.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{34BE50FB-AAD2-49B5-BD4B-6E8739A8D97D}"
+	ProjectSection(SolutionItems) = preProject
+		tools\MiscUtility.dbj = tools\MiscUtility.dbj
+		tools\NTToolsThread.dbj = tools\NTToolsThread.dbj
+		tools\SimonsHelper.dbj = tools\SimonsHelper.dbj
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,5 +104,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A0B28EB2-6791-40FB-8AA3-63F802B078AF} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
 		{C7B30999-6DA3-4BE5-A5FF-4823C9F55A2F} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
+		{722E0EB5-691D-4005-B042-531092042484} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
+		{34BE50FB-AAD2-49B5-BD4B-6E8739A8D97D} = {7A105E7F-ED16-42FC-8344-6911F012FBC0}
 	EndGlobalSection
 EndGlobal

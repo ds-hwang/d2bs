@@ -25,7 +25,7 @@ bobDebug = false; 		//Set to true to send extra debug information to OOG (good t
 function NT_LoadConfig()
 {
 	
-	NT_MinGameTime = 180;  			//	Set minimum game time in seconds to wait in town if your run finishes too quickly (To avoid realm down, default is 180)
+	NT_MinGameTime = 0;  			//	Set minimum game time in seconds to wait in town if your run finishes too quickly (To avoid realm down, default is 180)
 	NTConfig_PublicMode = true;		//	Set to false to not party
 	
 	//["SimonSays","Cow","Mausoleum","ShopBot","Countess","Pit","Tristram","BoneAsh","Andariel","Sewers","Maggot","AncientTunnels","Beetleburst","ClawViper","Summoner","Duriel","KurastTemples","Kurast","Travincal","Mephisto","Izual","Hephasto","Diablo","FastDiablo","LeechD","Eldritch","Frozenstein","Nihlathak","Pindleskin","FastPindle","AncientsWay","ThreshSocket","Worldstone","Baal","Leech","LeechO"];
@@ -37,7 +37,7 @@ function NT_LoadConfig()
 	NT_IdleOnSOJTimeoutSec = 0; 	//	Stop idling after no more soj ticks in seconds
 	NT_HostileAction = 0; 			//	0 = nothing 1 = quit 2 = kill
 
-
+	NT_PauseKey = 19;
 	SimonNextLevel = 109; 			//	keypad -
 	SimonPOI = 106;					//	keypad *
 	SimonPrevousLevel = 111;		//	keypad /
@@ -86,7 +86,6 @@ function NT_LoadConfig()
 	//-------------------------------------------------------------------------------------------------
 	NT_Leader = ['AddLeaderNameHere', 'Add_More_Leaders_Like_This'];	//	Add all the leader character names you may follow here in the given format
 	QuitWithLeaderList = ['AddCharacterNameHere', 'AddAnotherHere'];	//	Add character names here you would like the bot to quit with when they leave current game
-	leader = '';							//	Single leader's name, you don't need to add this to QuitWithLeaderList above. It's automatically added.
 	NTConfig_HelpPreClear = false;			//	Set to true if you want to help clear the throne before it's announced 'Safe'
 	NTConfig_HelpWithWaves = false;			//	Set to true to fight in throne when each wave drops
 	NTConfig_HelpWithBaal = false;			//	Set to true if you want to help kill Baal
@@ -102,7 +101,6 @@ function NT_LoadConfig()
 	//		The hp/mp values represent percentages NOT actual life/mana.
 	//-------------------------------------------------------------------------------------------------
 	NTConfig_StartDelay = 0;			//	Delay time in milliseconds to start;
-	NTConfig_AreaDelay = 250;			// 	Delay time in milliseconds to change area;
 	NTConfig_SnagDelay = 250;			// 	Delay time in milliseconds to wait before starting picking items
 
 	NTConfig_SkipHealLife = 90; 		// 	If you have more than this percent of life, you won't go to a healer

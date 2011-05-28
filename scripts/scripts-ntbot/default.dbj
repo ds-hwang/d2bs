@@ -199,7 +199,7 @@ function KeyHandler(key)
 	sendCopyData(null, "OOG", 0,"key press: "+key);
 
 	//Pause/Break key;
-	if (key == 19){
+	if (key == NT_PauseKey){
 		if (getTickCount()-NT_LastPause>200){
 			NT_Pause = !NT_Pause;
 			NT_LastPause=getTickCount();

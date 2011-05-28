@@ -470,7 +470,7 @@ function NTT_RepairItems(npc)
 }
 
 
-function NTT_CheckInventory()
+function NTT_CheckInventory(returnInventoryArray)
 {
 	var x, y;
 	var _items;
@@ -512,7 +512,7 @@ function NTT_CheckInventory()
 			}
 		}
 	}
-
+	if (returnInventoryArray) return _invspace
 	var _freecols = new Array(10);
 
 	for(var x = 0 ; x < 10 ; x++)

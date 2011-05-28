@@ -32,8 +32,8 @@
 var Scolor = 0 ;
 var UseLifewatch = !SimonStopLifeWatch;
 
-function NT_SimonSays() 
-{ 
+function NT_SimonSays() {
+	
 //var text = new TabControl(20,80,780,500,0,28,["Test1" , "Run Info","test 5"])
 	print("ÿc3Starting SimonSays script");
 	print("ÿc9Supported commands can be found in the top section of SimonSays.dbl")
@@ -144,7 +144,7 @@ function updatelevelInfoHook(Hook1,hook2,hook3){
 	hook3.text= " next: "+NTAR_Areas[nextLvl]; 		
 }
 function scriptKeyHandler(key){
-print(key);
+print(key);	  
 	if (key == SimonNextLevel){ //+		
 			currentAction ="Moving to next lvl";
 			SetObjective("SimonNextLevel");				
@@ -167,7 +167,7 @@ print(key);
 		currentAction ="";
 		StopObjective();
 	}
-	if (key == 8){	
+	if (key == 220){	
 		currentAction ="clearing "+ NTAR_Areas[me.area];
 		SetObjective("ClearArea");		
 		//NTA_ClearRooms(customClearAreaAttack);		

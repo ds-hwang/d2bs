@@ -11,6 +11,7 @@ function Area (){
 Area.prototype.x =function(){
 /// <summary>area.x * 5 = game coords</summary>
 }
+
 Area.prototype.exits =function(){
 	/// <summary>Array of exits</summary>
 	 var ret = [] // mock fill array
@@ -266,7 +267,7 @@ function getWaypoint(levelID){}
 function quitGame(){
 /// <summary>exit d2 completly</summary>
 }
-function Game(){
+function quit(){
 /// <summary>exit d2 game to bnet</summary>
 }
 function playSound(soundID){}
@@ -888,7 +889,7 @@ function NTC_GetBaseStat(tableid, classid, statid) {
         print('NTC_GetBaseStat() failed, incorrect argument number');
         return undefined;
     }
-
+    
     var output;
 
     //if crash condition **getBaseStat() called on item table**	(no longer 1.4 specific.. crashes in item table seem to happen often in 1.3.3 as well :\

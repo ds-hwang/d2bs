@@ -1,13 +1,46 @@
 
 /// <reference path="/../../d2bsAPI.js" />
-
+addEventListener("keyup", myKeyHandler)
 addEventListener("mouseclick", GlobalCheckBoxClick);
 var GlobalCheckBoxArray = new Array;
 var GlobalTextBoxArray = new Array;
 var GlobalVScrollArray = new Array;
 var GlobalDropDownArray = new Array;
+//var test = new TextBox(100, 100, 300, 20, "", 3, 0)
+	//test.editable=true
+var focusedControl = false;
 var clickCount = 2;
+function myKeyHandler(key) {
+	if (!focusedControl) return true;
+	if (focusedControl.setKeyVal) {
+		focusedControl.text = key+" "
+		if (typeof(focusedControl.valueChanged)=='function')
+			  focusedControl.valueChanged(key)
+		focusedControl = false
+		return true
+	}
+	var abc = "abcdefghijklmnopqstuvwxyz"
+	var ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	var one = "0123456789"
+	var ONE = ")!@#$%^&*("
+	var code =""
+	if (keystate(16)) {	 //0=48
+		code = ABC.substring(key - 65, key - 64)
+		code=code+ONE.substring(key-48,key-47)
+	} else {
+		code = abc.substring(key - 65, key - 64)
+		code = code + one.substring(key - 48, key - 47)
+	}
+	if (key == 32) code = " "
+	   focusedControl.text=focusedControl.text + code
+	if (key==8 )
+		focusedControl.text = focusedControl.text.substring(0, focusedControl.text.length - 1)
+	if (typeof (focusedControl.valueChanged) == 'function')
+		focusedControl.valueChanged(focusedControl.text)
 
+	if (key == 28) focusedControl = false
+	return true;
+}
 function myGetTextSize (txt,font){
 if (typeof(getTextWidthHeight) == "function")
 	return getTextWidthHeight(txt,font);
@@ -15,16 +48,17 @@ else
     return getTextSize(txt, font)    
     
 }
-
-function CheckBox(x, y,Txt,Checked) {
+	 
+function CheckBox(x, y,Txt,Checked,boxOnLeft) {
  	//text "text",x,y,color,font,alingment
  this.x = x; 
  this.y = y; 
  this.boxSize = 10;
  this.textColor =2;
  this.font = 6;
- this.boxColor=6
+ this.boxColor=8
  this.boxOnRight = true;
+ if (boxOnLeft) this.boxOnRight =false
  this.text = Txt;
  this.checked = Checked;
  this.checkedColor = 8;
@@ -44,7 +78,7 @@ function CheckBox(x, y,Txt,Checked) {
 	this.box = new Box(this.x,this.y,this.boxSize,this.boxSize,this.checkedColor,7)
   else 
 	this.box = new Box(this.x,this.y,this.boxSize,this.boxSize,0,7)
- 	
+if (!this.boxOnRight) this.update()
 	this.watch("text", function(id,oldval,newval) {
 		this.text = newval
 		this.update();
@@ -65,7 +99,7 @@ function CheckBox(x, y,Txt,Checked) {
 		Checked=newval;
 		this.update();
 		if (typeof (this.checkedChanged) == "function")
-            this.checkedChanged()
+            this.checkedChanged(newval)
 		return newval;	
 	});
 	this.watch("visible", function(id,oldval,newval) {
@@ -164,14 +198,15 @@ function GlobalCheckBoxClick(b,x,y,up){
 clickCount = clickCount +1;
  //click event dosent tell up or down so every other event is good enough for me
 //print(" b "+b+" x" + x+" y" +y)
+var j = 0
  if (b == 0 && clickCount % 2 == 1){	
-	for (var j = 0 ; j < GlobalCheckBoxArray.length; j++){	
+	for ( j = 0 ; j < GlobalCheckBoxArray.length; j++){	
 		if (GlobalCheckBoxArray[j].x < x && GlobalCheckBoxArray[j].y < y && GlobalCheckBoxArray[j].x + GlobalCheckBoxArray[j].boxSize > x && GlobalCheckBoxArray[j].y + GlobalCheckBoxArray[j].boxSize > y && GlobalCheckBoxArray[j].visible){			
 			GlobalCheckBoxArray[j].checked = (!GlobalCheckBoxArray[j].checked);
 			GlobalCheckBoxArray[j].update(); //this isnt working			
 		}
 	}
-	for (var j = 0; j < GlobalVScrollArray.length; j++){
+	for ( j = 0; j < GlobalVScrollArray.length; j++){
 		if(GlobalVScrollArray[j].x <x && GlobalVScrollArray[j].y < y && GlobalVScrollArray[j].x +GlobalVScrollArray[j].xSize > x && GlobalVScrollArray[j].y+GlobalVScrollArray[j].ySize >y && GlobalVScrollArray[j].visible){
 		
 			if (GlobalVScrollArray[j].verticle && y > GlobalVScrollArray[j].slider.y - 10 && y < GlobalVScrollArray[j].slider.y ){
@@ -198,8 +233,10 @@ clickCount = clickCount +1;
 			GlobalVScrollArray[j].value +=1;			
 		}
 	}
-	for (var j = 0; j < GlobalTextBoxArray.length; j++){
-		if(GlobalTextBoxArray[j].enableRowSelection && GlobalTextBoxArray[j].x <x && GlobalTextBoxArray[j].y < y && GlobalTextBoxArray[j].x +GlobalTextBoxArray[j].xSize > x && GlobalTextBoxArray[j].y+GlobalTextBoxArray[j].ySize >y && GlobalTextBoxArray[j].visible){		
+	focusedControl=false
+	for ( j = 0; j < GlobalTextBoxArray.length; j++){
+		if (GlobalTextBoxArray[j].enableRowSelection && GlobalTextBoxArray[j].x < x && GlobalTextBoxArray[j].y < y && GlobalTextBoxArray[j].x + GlobalTextBoxArray[j].xSize > x && GlobalTextBoxArray[j].y + GlobalTextBoxArray[j].ySize > y && GlobalTextBoxArray[j].visible) {
+			if (GlobalTextBoxArray[j].editable) focusedControl = GlobalTextBoxArray[j]
 			if(typeof(GlobalTextBoxArray[j].clickFunction) == 'function')
 			    GlobalTextBoxArray[j].clickFunction(GlobalTextBoxArray[j]);
 			for (var l = 0; l < GlobalTextBoxArray[j].lines.length; l++){	
@@ -216,7 +253,7 @@ clickCount = clickCount +1;
 	
  }
 else {
-	for (var j = 0; j < GlobalVScrollArray.length; j++){
+	for ( j = 0; j < GlobalVScrollArray.length; j++){
 		if (GlobalVScrollArray[j].dragMode){
 			if (GlobalVScrollArray[j].verticle)
 				GlobalVScrollArray[j].value =parseInt(GlobalVScrollArray[j].max * (y - GlobalVScrollArray[j].scrollBox.y  )/GlobalVScrollArray[j].scrollBox.ysize);			
@@ -228,7 +265,7 @@ else {
 	}
  
  }	
-  for (var j = 0; j < GlobalDropDownArray.length; j++){
+  for (  j = 0; j < GlobalDropDownArray.length; j++){
 	if (GlobalDropDownArray[j].droped)
 		if (x < GlobalDropDownArray[j].x || x > GlobalDropDownArray[j].x +GlobalDropDownArray[j].autoWide+20 || y < GlobalDropDownArray[j].y || y> GlobalDropDownArray[j].y+120){
 			GlobalDropDownArray[j].droped=false;
@@ -238,7 +275,8 @@ else {
 }
 function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
  	//text "text",x,y,color,font,alingment
-
+	this.editable = false  //can type into text boxes
+	this.setKeyVal = false;	// sets text = keypress
  this.x = x; 
  this.y = y; 
  this.xSize = xSize;
@@ -248,7 +286,7 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
  this.textColor =0;
  this.font = 6;
  this.boxColor=0;
- this.boxOnRight = true;
+ this.boxOnRight =true
  this.ShowOutline = true;
  this.text = Txt;
  this.backColor = (backColor) ? backColor : 18;  //2 = gray
@@ -288,7 +326,7 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
 	this.scrollbar.parent = this;
 	if (!this.fillFromTop)
 		this.scrollbar.value=this.scrollbar.max;
-//}
+
  this.updateText();
 //print (this.background.toSource())
  //this.scrollbar.visible = (this.textLines.length > this.lines.length);
@@ -473,8 +511,8 @@ this.scrollbar.max =Math.abs(this.textLines.length - this.lines.length);
 	}
 	else{
 		var index = this.textLines.length-1;
-		for(var f = this.lines.length -1; f>-1 ; f--){			
-		this.lines[f].text = this.textLines[index];
+		for(var ff = this.lines.length -1; ff>-1 ; ff--){			
+		this.lines[ff].text = this.textLines[index];
 			index --;
 			if (index == -1)
 				break;		
@@ -672,6 +710,7 @@ function SliderWText(x, y,text,maxVal,initVal,txtColor,backColor) {
 	this.font=6;
 	this.value =initVal;
 	this.text = text;
+	this.valueChanged = false;
 	this.maxVal = maxVal;
 	this.visible = true;
 	this.infoText = new Text(this.text,this.x,this.y,this.textColor,this.font,3)
@@ -687,7 +726,9 @@ this.infoText.text =this.text +": "+this.slider.value ;
 this.watch("scrollIndex", function(id,oldval,newval) {		
 		this.scrollIndex = this.slider.value;	
 		this.value = this.slider.value;
-		this.infoText.text =this.text +": "+this.slider.value ;
+		this.infoText.text = this.text + ": " + this.slider.value;
+		  if(typeof(this.valueChanged == 'function'))
+		  	this.valueChanged(this.value)
 		return newval;
 		});	
 this.watch("visible", function(id,oldval,newval) {		
@@ -705,9 +746,12 @@ this.y2=ySize-y;
 this.xSize=xSize
 this.ySize=ySize
 this.txtColor=txtColor;
-this.backColor=backColor;
+this.backColor = backColor;
+this.tabChanged = false;
+this.selectedText=""
 this.tabArray = [];
 this.topButtonArray = [];
+this.visible = true;
 this.tabs =[];
 for (var t = 0; t < tabArray.length; t++) {
     var tt = new tabPage()
@@ -736,33 +780,51 @@ var sp =0;
         //this.tabArray.push(a)
       
     }
-    this.selectedTab = 1
+       this.selectedTab = 1
+	this.selectedText=this.tabs[0].name
     this.topButtonArray[0].backColor = 5
+    this.watch("visible", function (id, oldval, newval) {
+
+	for (var k = 0; k < this.tabs[this.selectedTab-1].controls.length; k++)
+		this.tabs[this.selectedTab-1].controls[k].visible = newval
+    	this.box.visible = newval
+		for (var j =0;j<this.topButtonArray.length; j++)
+			this.topButtonArray[j].visible = newval
+	
+		return newval
+    });
     this.watch("selectedTab", function (id, oldval, newval) {
         this.topButtonArray[oldval - 1].backColor = this.backColor
         for (var k = 0; k < this.tabs[oldval-1].controls.length; k++)
             this.tabs[oldval - 1].controls[k].visible = false
         
         this.topButtonArray[newval -1].backColor = 5
-        for (var k = 0; k < this.tabs[newval-1 ].controls.length; k++)
-            this.tabs[newval].controls[k].visible = true
+        for (var kk = 0; k < this.tabs[newval-1 ].controls.length; kk++)
+            this.tabs[newval].controls[kk].visible = true
 
                     
         return newval;
     });
 }
-
 TabControl.prototype.tabClick = function (sender) {
     for (var j = 0; j < sender.parent.topButtonArray.length; j++) {
-        if (sender.text == sender.parent.topButtonArray[j].text)
-            sender.parent.selectedTab = j + 1;
-    }
+    	if (sender.text == sender.parent.topButtonArray[j].text) {
+    		if (typeof (sender.parent.tabChanged) == 'function')
+				// tabChanged(oldtext,newtext,oldtab#, newtab#)
+    			sender.parent.tabChanged(sender.parent.tabs[sender.parent.selectedTab-1].name,sender.text,sender.parent.selectedTab,j)
+    		sender.parent.selectedTab = j + 1;
+			sender.parent.selectedText=sender.text
+           
+		}
+	}
 }
+
 function tabPage (){}
 tabPage.prototype.name = ""
 tabPage.controls = new Array();
 
-function DropDownBox(x, y,text,txtColor,backColor,textList,heading) {
+function DropDownBox(x, y, text, txtColor, backColor, textList, heading) {
+	this.valueChanged = false;
 this.x=x;
 this.head=(heading)?heading :"testing ";
 this.y=y;
@@ -812,8 +874,10 @@ GlobalDropDownArray.push(this)
 }
 DropDownBox.prototype.childUpate = function () {	
 		if (this.topText.text != this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value]){
-			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];		
+			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];
 			this.listbox.visible = false;
+			if (typeof(this.valueChanged) == 'function')
+				this.valueChanged(this.topText.text)
 		}
 }
 DropDownBox.prototype.update = function () {
@@ -821,17 +885,105 @@ DropDownBox.prototype.update = function () {
 	this.topText.visible = this.visible;
 	this.dropDown.visible = this.visible;
 	this.listbox.visible = (this.visible && this.droped);
+
 }
-//this.test1 = new Text("Font 1", 30, 100,1, 1,0)
-//this.test2 = new Text("Font 2", 100, 100, 1, 2, 0)
-//this.text3 = new Text("Font 3", 200, 100, 1, 3, 0)
-//this.test4 = new Text("Font 4", 400, 100, 1, 4, 0)
-//this.test5 = new Text("Font 5", 500, 100, 1, 5, 0)
-//this.text6 = new Text("Font 6", 600, 100, 1, 6, 0)
-//this.test7 = new Text("Font 7", 30, 300, 1, 7, 0)
-//this.test8 = new Text("Font 8", 100, 300, 1, 8, 0)
-//this.text9 = new Text("Font 9", 200, 300, 1, 9, 0)
-//this.test10 = new Text("Font 10", 400, 300, 1, 10, 0)
-//this.test11 = new Text("Font 11", 500, 300, 1, 11, 0)
-//this.text12 = new Text("Font 12", 600, 300, 1, 12, 0)
-//this.test7 = new Text("Font 13", 30, 350, 1,13, 0)
+function LinkedListBoxes (x,y,xsize,ysize,fullList,partialList,mode){
+this.x=x
+this.y=y
+this.xsize =xsize
+this.ysize = ysize
+this.startFullList = []
+for (var a = 0; a < fullList.length; a++)
+	this.startFullList.push(fullList[a])
+this.fullList = fullList
+this.partialList = partialList
+this.visible = true;
+this.valueChanged =false;
+this.mode=mode // 2 for add sub 4 for add subb and sort.
+	this.txtFull = new TextBox(this.x, this.y, this.xsize,this.ysize, " "); 
+	this.txtValue = new TextBox(this.x+this.xsize+50, this.y, this.xsize, this.ysize, " "); 
+	this.txtValue.parent=this;
+	this.cmdAdd = new TextBox(this.x +this.xsize +20, this.y + 5, 20, 20, ">"); 
+	this.cmdSub = new TextBox(this.x +this.xsize +20, this.y + 25, 20, 20, "<"); 
+	if (this.mode ==4){
+		this.cmdDown = new TextBox(this.x +this.xsize +20, this.y + 50, 20, 20, "V"); 	 
+		this.cmdUp = new TextBox(this.x +this.xsize +20, this.y + 75, 20, 20, String.fromCharCode(47, 92)); 
+	 }   
+	this.txtFull.listboxMode = true;
+	this.txtFull.textLines = this.fullList; this.txtFull.selectedRow = 0; this.txtFull.selectedText = this.txtFull.textLines[this.txtFull.selectedRow];
+	this.removeDuplicats()
+	this.txtValue.listboxMode = true;
+	this.txtValue.textLines = this.partialList; this.txtValue.selectedRow = 0; this.txtValue.selectedText = this.txtValue.textLines[this.txtValue.selectedRow];
+
+	this.cmdAdd.selectedColor = this.cmdAdd.textColor; this.cmdAdd.font = 5; this.cmdAdd.selectedRow = this.cmdAdd.textLines[0];
+	this.cmdAdd.parent = this.txtValue; this.cmdAdd.child = this.txtFull;
+	this.cmdAdd.clickFunction = function () {
+		if (this.child.selectedText) {
+			this.parent.parent.partialList.push(this.child.selectedText)
+			this.parent.textLines = this.parent.parent.partialList;
+			this.child.deleteSelectedRow()
+			if (typeof(this.parent.parent.valueChanged) == 'function')
+				this.parent.parent.valueChanged(this.parent.parent.partialList)
+
+		}
+	};
+	this.cmdSub.selectedColor = this.cmdSub.textColor; this.cmdSub.font = 5; this.cmdSub.selectedRow = this.cmdSub.textLines[0];
+	this.cmdSub.parent = this.txtValue; this.cmdSub.child = this.txtFull;
+	this.cmdSub.clickFunction = function () {
+		if (this.parent.selectedText) {
+			this.parent.deleteSelectedRow()
+		}	
+		for (var j = 0; j < this.parent.parent.partialList.length; j++) {
+			for (var k = 0; k < this.parent.parent.fullList.length; k++) {
+				if (this.parent.parent.partialList[j] == this.parent.parent.fullList[k])
+					this.parent.parent.fullList.remove(k)
+					
+			}
+		}
+
+		this.child.textLines = this.parent.parent.fullList;
+		this.parent.parent.removeDuplicats()
+		if (typeof(this.parent.parent.valueChanged) == 'function')
+				this.parent.parent.valueChanged(this.parent.parent.partialList)
+	};
+	if (this.mode ==4){
+		this.cmdDown.selectedColor = this.cmdDown.textColor; this.cmdDown.font = 5;
+		this.cmdDown.parent = this.txtValue;
+		this.cmdDown.clickFunction = function () {	this.parent.moveSelectedRow(1);	};
+
+		this.cmdUp.selectedColor = this.cmdUp.textColor; this.cmdUp.font = 5;
+		this.cmdUp.parent = this.txtValue;
+		this.cmdUp.clickFunction = function () { this.parent.moveSelectedRow(-1);};
+	}
+	
+	this.watch("visible", function(id,oldval,newval) {		
+		this.visible = newval;	
+		this.txtFull.visible = newval;
+		this.txtValue.visible = newval;
+		this.cmdAdd.visible = newval;
+		this.cmdSub.visible = newval;
+		if (this.mode ==4){
+			this.cmdDown.visible = newval;
+			this.cmdUp.visible = newval;
+		}   
+		return newval;
+	});
+	
+}
+LinkedListBoxes.prototype.removeDuplicats = function () {
+	var tempList = []
+	var found = false
+	for (var a = 0; a < this.startFullList.length; a++) {
+	found = false;
+		for (var j = 0; j < this.partialList.length; j++)
+			if (this.startFullList[a] == this.partialList[j])
+				found = true
+		if (!found)
+		tempList.push(this.startFullList[a])
+	}
+	
+	this.txtFull.textLines = tempList;
+	this.txtFull.lineArrayToHooks()
+	this.txtFull.redrawHooks();
+	
+}
