@@ -280,15 +280,27 @@ function ShowConfig() {
 	//this.NTConfig_Colums= new ConfigSetting("Misc",this.NTConfig_Colums )		
 	//NTConfig_Columns[0] = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0];		// just manually resaving this based on  NTConfig_ColumnsHooks instead of hooking functions to val
 
-	if (NTCreatedConfig) NTConfig_Columns = NTT_CheckInventory(true)
-	for (var c = 0; c < 10; c++) {
-		
-		for (var r = 0; r < 4; r++) {
-			this.hook = new CheckBox(30 + (c * 13), 430 + r * 13, "", NTConfig_Columns[r][c])
-			this.setNT_logItems.addHook(this.hook)
-			NTConfig_ColumnsHooks.push(this.hook)
-		}	
-	}
+	if (NTCreatedConfig) 
+		NTConfig_Columns = NTT_CheckInventory(true)
+		for (var c = 0; c < 10; c++) {
+				for (var r = 0; r < 4; r++) {
+				if (NTCreatedConfig) 
+					this.hook = new CheckBox(30 + (c * 13), 430 + r * 13, "", NTConfig_Columns[r][c] ==1 ? 0 :1 )
+				else
+					this.hook = new CheckBox(30 + (c * 13), 430 + r * 13, "", NTConfig_Columns[r][c])
+				this.setNT_logItems.addHook(this.hook)
+				NTConfig_ColumnsHooks.push(this.hook)
+			}	
+		}
+	
+		for (var c = 0; c < 10; c++) {
+				for (var r = 0; r < 4; r++) {
+				this.hook = new CheckBox(30 + (c * 13), 430 + r * 13, "", NTConfig_Columns[r][c])
+				this.setNT_logItems.addHook(this.hook)
+				NTConfig_ColumnsHooks.push(this.hook)
+			}	
+		}
+	
 	this.configDiscript = new Text("Inventory. Black = Wont Stash / Sell", 30, 425, 18, 6, 0)
 	this.setNT_logItems.addHook(this.configDiscript)
 
