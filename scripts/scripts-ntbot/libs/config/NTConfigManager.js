@@ -6,7 +6,7 @@ var ShowConfigHooks =[];
 //var ChkHooks =[];
 //var SliderHooks =[];
 //var SliderConfigVals = [];
-
+var useTeleport = false;
 var NTConfig_ColumnsHooks = []		// needed for inventory layout hooks
 
 
@@ -270,7 +270,8 @@ function ShowConfig() {
 	this.setSimonEnableCommands = new ConfigSetting("Misc", this.SimonEnableCommands, "SimonEnableCommands")
 
 	this.useTeleport = new CheckBox(25, j + 280, "me.useTeleport", me.useTeleport, true)
-	this.useTeleport.checkChanged = function (val) { me.useTeleport = val }
+	this.useTeleport.checkChanged = function (val) { useTeleport = val }
+
 	this.setuseTeleport = new ConfigSetting("Misc", this.useTeleport)
 
 	this.bobDebug = new CheckBox(300, j + 280, "debug to OOG", bobDebug, true)
@@ -424,30 +425,30 @@ function ShowConfig() {
 	}
 	if (me.classid == 3 || me.classid == 2){ // Pally n necro shared
 		this.NTConfig_AttackBoss = new DropDownBox(100, 140,myGetSkillByID(NTConfig_AttackBoss),13,1,this.mySkills,"Boss Skill")
-		this.NTConfig_AttackBoss.valueChanged = new function(val){NTConfig_AttackBoss=myGetSkillByName(val)}
+		this.NTConfig_AttackBoss.valueChanged = function (val) {			NTConfig_AttackBoss = myGetSkillByName(val)	 	}
 		this.setNTConfig_AttackBoss = new ConfigSetting("Skills", this.NTConfig_AttackBoss, "NTConfig_AttackBoss")
 		
 		this.NTConfig_AttackOthers = new DropDownBox(300, 140,myGetSkillByID(NTConfig_AttackOthers),13,1,this.mySkills,"Primary For Others");
-		this.NTConfig_AttackOthers.valueChanged = new function(val){NTConfig_AttackOthers=myGetSkillByName(val)}
+		this.NTConfig_AttackOthers.valueChanged = function (val) { NTConfig_AttackOthers = myGetSkillByName(val) }
 		this.setNTConfig_AttackOthers = new ConfigSetting("Skills", this.NTConfig_AttackOthers, "NTConfig_AttackOthers")
 		
 	}
 	
 	if (me.classid == 2){ // Necro
 		this.XP_Curse = new DropDownBox(500, 180,myGetSkillByID(XP_Curse),13,1,this.mySkills,"Curse after Army is Made");
-		this.XP_Curse.valueChanged = new function(val){XP_Curse=val}
+		this.XP_Curse.valueChanged = function(val){XP_Curse=val}
 		this.setXP_Curse = new ConfigSetting("Skills", this.XP_Curse, "XP_Curse")
 		
 		this.XP_BuildArmyCurse = new DropDownBox(500, 220,myGetSkillByID(XP_BuildArmyCurse),13,1,this.mySkills,"Curse to Build Army");
-		this.XP_BuildArmyCurse.valueChanged = new function(val){XP_BuildArmyCurse=val}
+		this.XP_BuildArmyCurse.valueChanged = function(val){XP_BuildArmyCurse=val}
 		this.setXP_BuildArmyCurse = new ConfigSetting("Skills", this.XP_BuildArmyCurse, "XP_BuildArmyCurse")
 		
 		this.XP_Golm = new SliderWText (500, 245,"0=clay 1=blood, 2=fire, 3=iron",3,XP_Golm,this.textColor,4)
-		this.XP_Golm.valueChanged = new function(val){XP_Golm=val}
+		this.XP_Golm.valueChanged = function(val){XP_Golm=val}
 		this.setXP_Golm = new ConfigSetting("Skills", this.XP_Golm, "XP_Golm")
 		
 		this.XP_BuildArmyThresh = new SliderWText (500, 275,"Build Army Threshold",20,XP_BuildArmyThresh,this.textColor,4) 
-		this.XP_BuildArmyThresh.valueChanged = new function (val){XP_BuildArmyThresh = val}
+		this.XP_BuildArmyThresh.valueChanged = function (val){XP_BuildArmyThresh = val}
 		this.setXP_BuildArmyThresh = new ConfigSetting("Skills", this.XP_BuildArmyThresh, "XP_BuildArmyThresh")
 		
 		this.XP_useSkel = new CheckBox(500, 295,"Make Skeletons ",XP_useSkel,true)	
@@ -459,28 +460,28 @@ function ShowConfig() {
 		this.setXP_useSkelMage = new ConfigSetting("Skills", this.XP_useSkelMage, "XP_useSkelMage")
 		
 		this.XP_useRevive = new CheckBox(500, 325,"Make Revives ",XP_useRevive,true)	; 	
-		this.XP_useRevive.checkChanged = new function(val){XP_useRevive=val}
+		this.XP_useRevive.checkChanged = function(val){XP_useRevive=val}
 		this.setXP_useRevive = new ConfigSetting("Skills", this.XP_useRevive, "XP_useRevive")
 		
 		this.XP_CorpseExplosion = new CheckBox(500, 340,"Use Corpse Explosion",XP_CorpseExplosion,true)
-		this.XP_CorpseExplosion.checkChanged = new function(val){XP_CorpseExplosion=val}
+		this.XP_CorpseExplosion.checkChanged =  function(val){XP_CorpseExplosion=val}
 		this.setXP_CorpseExplosion = new ConfigSetting("Skills", this.XP_CorpseExplosion, "XP_CorpseExplosion")		
 	}	
 	if (me.classid == 3){ // Pally
-		this.NTConfig_AttackFirst = new DropDownBox(500, 190,myGetSkillByID(NTConfig_AttackFirst),13,1,this.mySkills,"Cast First"); 
-		this.NTConfig_AttackFirst.valueChanged = function(val){NTConfig_AttackFirst=myGetSkillByName(val)}
+		this.NTConfig_AttackFirst = new DropDownBox(500, 190,myGetSkillByID(NTConfig_AttackFirst),13,1,this.mySkills,"Cast First");
+		this.NTConfig_AttackFirst.valueChanged = function (val) {NTConfig_AttackFirst = myGetSkillByName(val)	}
 		this.setNTConfig_AttackFirst = new ConfigSetting("Skills", this.NTConfig_AttackFirst, "NTConfig_AttackFirst")
 		
 		this.NTConfig_AttackSecondary = new DropDownBox(500, 220,myGetSkillByID(NTConfig_AttackSecondary),13,1,this.mySkills,"Secondary For Immunes");
-		this.NTConfig_AttackSecondary.valueChanged = new function(val){NTConfig_AttackSecondary=myGetSkillByName(val)}
+		this.NTConfig_AttackSecondary.valueChanged = function (val) { NTConfig_AttackSecondary = myGetSkillByName(val) }
 		this.setNTConfig_AttackSecondary = new ConfigSetting("Skills", this.NTConfig_AttackSecondary, "NTConfig_AttackSecondary")
 		
 		this.NTConfig_PutAura = new DropDownBox(500, 260,myGetSkillByID(NTConfig_PutAura),13,1,this.mySkills,"Attack Aura");
-		this.NTConfig_PutAura.valueChanged = new function(val){NTConfig_PutAura=myGetSkillByName(val)}
+		this.NTConfig_PutAura.valueChanged = function (val) { NTConfig_PutAura = myGetSkillByName(val) }
 		this.setNTConfig_PutAura = new ConfigSetting("Skills", this.NTConfig_PutAura, "NTConfig_PutAura")
 		
-		this.NTConfig_UseRedemption = new CheckBox(500, 275,"Use Redemption ",NTConfig_UseRedemption,true)	; 
-		this.NTConfig_UseRedemption.checkChanged = new function(val){NTConfig_UseRedemption=val}
+		this.NTConfig_UseRedemption = new CheckBox(500, 275,"Use Redemption ",NTConfig_UseRedemption,true)	;
+		this.NTConfig_UseRedemption.checkedChanged = function (val) { NTConfig_UseRedemption = val }
 		this.setNTConfig_UseRedemption = new ConfigSetting("Skills", this.NTConfig_UseRedemption, "NTConfig_UseRedemption")			
 	}
 	
@@ -631,7 +632,7 @@ print("Saving Config")
 		if (templine.indexOf("NTConfig_Columns[1] =") > -1) templine = "\t" + "NTConfig_Columns[1] = " + NTConfig_Columns[1].toSource()
 		if (templine.indexOf("NTConfig_Columns[2] =") > -1) templine = "\t" + "NTConfig_Columns[2] = " + NTConfig_Columns[2].toSource()
 		if (templine.indexOf("NTConfig_Columns[3] =") > -1) templine = "\t" + "NTConfig_Columns[3] = " + NTConfig_Columns[3].toSource()
-		if (templine.indexOf("me.useTeleport = ") >-1) templine ="\t" + "me.useTeleport = " + me.useTeleport +"					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
+		if (templine.indexOf("me.useTeleport = ") >-1) templine ="\t" + "me.useTeleport = " + useTeleport +"					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
 		for (var j = 0; j < ConfigObjects.length; j++) {
 			if (templine.indexOf(ConfigObjects[j].globalVar + " = ") > -1) {
 				if (typeof (this[ConfigObjects[j].globalVar]) == 'object') {
