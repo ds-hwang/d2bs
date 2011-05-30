@@ -28,6 +28,7 @@ var NTConfig_WSK3Extension;
 var NTConfig_RuinedExtension;
 var NTConfig_DisusedExtension;
 var NTConfig_KillBaal;
+var NTConfig_ClearAbaddon = true;
 var NTConfig_ClearPitLevel1;
 var NTConfig_KillFangskin;
 var NTConfig_FireEyeExtension;
