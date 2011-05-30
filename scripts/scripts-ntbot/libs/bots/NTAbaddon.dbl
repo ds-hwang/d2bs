@@ -1,0 +1,60 @@
+/**
+*	@filename	NTAbaddon.dbl
+*	
+*	@author		sirgijoe (very slight error handling modifications by alogwe)
+*
+*	@desc		Clears Abaddon or grabs super-chest in Abaddon depending on your char config setting ( NTConfig_ClearAbaddon )
+*
+*/
+
+function NT_Abaddon() 
+{
+	print("ÿc3Starting Abbadon script");
+	
+	if(!NTTM_CheckAct()) 
+		throw new Error('Error: Failed getting to town');
+		
+	NTTMGR_TownManager();
+	
+	print("ÿc8Going to Frigid Highlands");
+	if (!NTTM_TownMove("waypoint")) 
+		throw new Error('Error: Failed getting to Frigid Highlands');
+		
+	if (!NTM_UsePortal("Waypoint", 111)) 
+	{
+		print("ÿc8Seems we do not have the waypoint, Lets go get it! Traveling to Frigid Highlands");
+		NTM_TravelTO(111);
+		
+		print("ÿc8Interacting with Waypoint as we don't have it.");
+		NTM_GotoWaypoint(111, true, 10000);
+	}
+	
+	print("ÿc5Precasting");
+	NTP_DoPrecast();
+	
+	print("ÿc8Going to Abaddon");
+	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 60, 60, 0, 0))
+		throw new Error('Error: Failed moving to Abaddon');	
+	delay(500);
+	NTM_UsePortal("Portal", 2);
+	delay(500);
+	
+	if (NTConfig_ClearAbaddon)
+	{
+		print("ÿc1Clearing Abaddon");
+		if(!NTA_ClearRooms())
+			throw new Error('Error: Failed clearing rooms in Abaddon');
+	}
+	
+	if(NTConfig_OpenChest)
+	{
+		print("ÿc1Grabbing the chests!");
+		NTC_OpenAreaChests();
+	}
+	else if(!NTConfig_OpenChest)
+	{
+		print("ÿc1You need to set open chests to true in your config file to open the Abaddon superchest");
+	}
+	
+	return true;
+}

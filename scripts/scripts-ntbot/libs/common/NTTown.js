@@ -417,24 +417,24 @@ function NTT_ResetWeaponMerc()
 
 function NTT_CheckRepair(repairpercent)
 {
-	var _max_dur;
-	var _percent;
-	var _items = NTC_GetItems();
+	var max_durability;
+	var percent;
+	var items = NTC_GetItems();
 
-	if(!_items)
+	if(!items)
 		return false;
 
-	for(var i = 0 ; i < _items.length ; i++)
+	for(var i = 0 ; i < items.length ; i++)
 	{
-		if(_items[i].mode == 1 && !_items[i].getFlag(0x400000) && !_items[i].getStat(152) && !NTC_GetBaseStat(0, _items[i].classid, 59))
+		if(items[i].mode == 1 && !items[i].getFlag(0x400000) && !items[i].getStat(152) && !NTC_GetBaseStat(0, items[i].classid, 59))
 		{
-			_max_dur = _items[i].getStat(73);
-			if(_max_dur == 0)
+			max_durability = items[i].getStat(73);
+			if(max_durability == 0)
 				continue;
 
-			_percent = Math.floor((_items[i].getStat(72)*100) / (_max_dur*(_items[i].getStat(75)/100 + 1)));
+			percent = Math.floor((items[i].getStat(72)*100) / (max_durability*(items[i].getStat(75)/100 + 1)));
 
-			if(_percent <= repairpercent)
+			if(percent <= repairpercent)
 				return true;
 		}
 	}

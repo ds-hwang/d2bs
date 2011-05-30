@@ -50,6 +50,7 @@ function NT_LoadConfig()
 	
 	
 	me.useTeleport = true;					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;
+	NTConfig_ClearAbaddon = true;			//	Set to true to clear Abaddon of monsters (NOTE: must be running 'Abaddon' in your script array)
 	NTConfig_ClearPitLevel1 = true; 		// 	Set to true to clear level 1 of Pit
 	NTConfig_FireEyeExtension = true;		//	Set to true if you want to kill Fire Eye at arcane sanctuary portal when running Summoner script
 	NTConfig_KillFangskin = true;			//	Set to true if you want to kill Fangskin while running Claw Viper Temple script
