@@ -6,7 +6,7 @@ var ShowConfigHooks =[];
 //var ChkHooks =[];
 //var SliderHooks =[];
 //var SliderConfigVals = [];
-var useTeleport = false;
+
 var NTConfig_ColumnsHooks = []		// needed for inventory layout hooks
 
 
@@ -269,10 +269,11 @@ function ShowConfig() {
 	this.SimonEnableCommands.checkChanged = function (val) { SimonEnableCommands = val }
 	this.setSimonEnableCommands = new ConfigSetting("Misc", this.SimonEnableCommands, "SimonEnableCommands")
 
-	this.useTeleport = new CheckBox(25, j + 280, "me.useTeleport", me.useTeleport, true)
-	this.useTeleport.checkChanged = function (val) { useTeleport = val }
+	// no idea why this dosent work
+	//this.useTeleport = new CheckBox(25, j + 280, "me.useTeleport", me.useTeleport, true)
+	//this.useTeleport.checkChanged = function (val) { useTeleport = val } 
 
-	this.setuseTeleport = new ConfigSetting("Misc", this.useTeleport)
+	//this.setuseTeleport = new ConfigSetting("Misc", this.useTeleport)
 
 	this.bobDebug = new CheckBox(300, j + 280, "debug to OOG", bobDebug, true)
 	this.bobDebug.checkChanged = function (val) { bobDebug = val }
@@ -632,7 +633,7 @@ print("Saving Config")
 		if (templine.indexOf("NTConfig_Columns[1] =") > -1) templine = "\t" + "NTConfig_Columns[1] = " + NTConfig_Columns[1].toSource()
 		if (templine.indexOf("NTConfig_Columns[2] =") > -1) templine = "\t" + "NTConfig_Columns[2] = " + NTConfig_Columns[2].toSource()
 		if (templine.indexOf("NTConfig_Columns[3] =") > -1) templine = "\t" + "NTConfig_Columns[3] = " + NTConfig_Columns[3].toSource()
-		if (templine.indexOf("me.useTeleport = ") >-1) templine ="\t" + "me.useTeleport = " + useTeleport +"					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
+		//if (templine.indexOf("me.useTeleport = ") >-1) templine ="\t" + "me.useTeleport = " + useTeleport +"					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
 		for (var j = 0; j < ConfigObjects.length; j++) {
 			if (templine.indexOf(ConfigObjects[j].globalVar + " = ") > -1) {
 				if (typeof (this[ConfigObjects[j].globalVar]) == 'object') {
