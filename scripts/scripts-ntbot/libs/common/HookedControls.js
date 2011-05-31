@@ -19,7 +19,7 @@ function myKeyHandler(key) {
 		focusedControl = false
 		return true
 	}
-	var abc = "abcdefghijklmnopqstuvwxyz"
+	var abc = "abcdefghijklmnopqrstuvwxyz"
 	var ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	var one = "0123456789"
 	var ONE = ")!@#$%^&*("
