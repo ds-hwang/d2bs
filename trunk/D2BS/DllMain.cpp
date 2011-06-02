@@ -2,14 +2,14 @@
 #include <shlwapi.h>
 
 #include "sqlite3.h"
-#include "ScriptEngine.hpp"
+#include "Engine.hpp"
 #include "..\D2Api\D2Api.hpp"
 
-ScriptEngine* engine = NULL;
+Engine* engine = nullptr;
 HINSTANCE hModule;
 char base[MAX_PATH] = "";
 bool isGuarded = false;
-sqlite3* settings = NULL;
+sqlite3* settings = nullptr;
 
 BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 {
@@ -17,7 +17,7 @@ BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 	{
 		case DLL_PROCESS_ATTACH: {
 			DisableThreadLibraryCalls(hMod);
-			if(lpReserved != NULL)
+			if(lpReserved != nullptr)
 			{
 				// handle cGuard loading
 			}
@@ -36,7 +36,7 @@ BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 			int handle = _open_osfhandle((long)GetStdHandle(STD_ERROR_HANDLE), _O_TEXT);
 			FILE* f = _fdopen(handle, "wt");
 			*stderr = *f;
-			setvbuf(stderr, NULL, _IONBF, 0);
+			setvbuf(stderr, nullptr, _IONBF, 0);
 			freopen_s(&f, errlog, "a+t", f);
 #endif
 
@@ -44,7 +44,7 @@ BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 
 			char settingspath[MAX_PATH] = "";
 			sprintf_s(settingspath, MAX_PATH, "%sd2bs.sqlite", base);
-			sqlite3_open_v2(settingspath, &settings, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX, NULL);
+			sqlite3_open_v2(settingspath, &settings, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX, nullptr);
 
 			Init();
 			break;

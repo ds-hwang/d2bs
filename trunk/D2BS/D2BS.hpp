@@ -2,10 +2,10 @@
 
 #define EXPORTED
 
-#include "ScriptEngine.hpp"
+#include "Engine.hpp"
 #include "sqlite3.h"
 
-extern ScriptEngine* engine;
+extern Engine* engine;
 extern HINSTANCE hModule;
 extern char* base;
 extern bool isGuarded;

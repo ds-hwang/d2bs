@@ -1,26 +1,34 @@
 #define EXPORTED
-#include "ScriptEngine.hpp"
+#include "Engine.hpp"
 
 #include <io.h>
 #include <direct.h>
 #include <iostream>
 
 JSAPI_FUNC(console_print);
+JSAPI_FUNC(console_newline);
 
-static JSClass console = { "Console", 0, JSCLASS_DEFAULT_STANDARD_MEMBERS };
+JSAPI_EMPTY_CTOR(Console)
+
+static JSClass console = { "Console", 0, JSCLASS_DEFAULT_WITH_CTOR(Console) };
 JSFunctionSpec console_methods[] = {
-	JS_FS("print", console_print, 1, 0),
-	{0}
+	JS_FS("print", console_print, 1, JSPROP_STATIC),
+	JS_FS_END
 };
 
-static JSClassSpec classes[] = {
-	{&console, NULL, NULL, NULL, console_methods, NULL},
-	{0}
+static JSClassSpec cmd_classes[] = {
+	JS_CS(&console, nullptr, nullptr, nullptr, nullptr, nullptr),
+	JS_CS_END
+};
+
+static JSModuleSpec console_mods[] = {
+	JS_MS("console", cmd_classes, console_methods, nullptr),
+	JS_MS_END
 };
 
 JSAPI_FUNC(console_print)
 {
-	JSString* str = NULL;
+	JSString* str = nullptr;
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "S", &str))
 		return JS_FALSE;
 
@@ -30,9 +38,9 @@ JSAPI_FUNC(console_print)
 	return JS_TRUE;
 }
 
-void InitClasses(Script* script)
+void InitClasses(JSContext* cx, JSObject* obj)
 {
-	JS_DefineClasses(script->GetContext(), script->GetGlobalObject(), classes);
+	//JS_DefineClasses(cx, obj, cmd_classes);
 }
 
 void reporter(JSContext *cx, const char *message, JSErrorReport *report)
@@ -46,7 +54,7 @@ void reporter(JSContext *cx, const char *message, JSErrorReport *report)
 		std::cout << "Error";
 
 	std::cout << "] ";
-	if(report->filename != NULL)
+	if(report->filename != nullptr)
 		std::cout << "At " << report->filename << ":" << report->lineno;
 	std::cout << " (" << report->errorNumber << ") ";
 	std::cout << message << std::endl;
@@ -58,13 +66,14 @@ int main(int argc, const char** argv)
 	_wgetcwd(path, MAX_PATH);
 	swprintf_s(script, MAX_PATH, L"%s\\%s", path, L"test.js");
 
-	if(_waccess(script, 0) != -1)
-	{
-		ScriptEngine engine(path, 0x80000000, InitClasses);
-		ScriptEngine::SetErrorReporter(reporter);
-		std::cout << "Starting test.js" << std::endl;
-		Script* script = engine.Compile(L"test.js");
-		script->Start();
-		system("PAUSE");
-	}
+	if(_waccess(script, 0) == -1)
+		return 0;
+
+	Engine engine(path, 0x80000000, InitClasses, reporter);
+	engine.RegisterModule(console_mods);
+	std::cout << "Starting test.js" << std::endl;
+	engine.CompileScript(L"test.js")->Start();
+	getchar();
+
+	return 0;
 }
