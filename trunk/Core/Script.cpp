@@ -81,7 +81,7 @@ void Script::AddListener(const char* evt, jsval callback)
 void Script::RemoveListener(const char* evt, jsval callback)
 {
 	EnterCriticalSection(&lock);
-	JSAutoEnterRequest req(cx);
+	JSAutoRequest req(cx);
 	jsval* ptr = nullptr;
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		if((*it == callback)) ptr = &(*it);
@@ -95,7 +95,7 @@ void Script::RemoveListener(const char* evt, jsval callback)
 void Script::RemoveListener(const char* evt)
 {
 	EnterCriticalSection(&lock);
-	JSAutoEnterRequest req(cx);
+	JSAutoRequest req(cx);
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		JS_RemoveValueRoot(cx, &(*it));
 	map[evt].clear();
@@ -104,7 +104,7 @@ void Script::RemoveListener(const char* evt)
 void Script::RemoveListeners()
 {
 	EnterCriticalSection(&lock);
-	JSAutoEnterRequest req(cx);
+	JSAutoRequest req(cx);
 	for(auto evt = map.begin(); evt != map.end(); evt++)
 		for(auto it = evt->second.begin(); it != evt->second.end(); it++)
 			JS_RemoveValueRoot(cx, &(*it));
