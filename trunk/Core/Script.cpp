@@ -8,9 +8,10 @@
 
 Script::Script(const wchar_t* path, Engine* engine) :
 	engine(engine), cx(nullptr), script(nullptr), obj(nullptr), paths(nullptr),
-	state(Failed), thread(INVALID_HANDLE_VALUE)
+	state(Failed), oldState(Failed), thread(INVALID_HANDLE_VALUE), pause(INVALID_HANDLE_VALUE)
 {
 	InitializeCriticalSection(&lock);
+	pause = CreateEvent(nullptr, false, false, nullptr);
 
 	cx = engine->GetContext();
 	JSAutoRequest req(cx);
@@ -26,18 +27,20 @@ Script::Script(const wchar_t* path, Engine* engine) :
 
 	engine->InitClasses(this);
 
-	jsval require = JSVAL_VOID, load = JSVAL_VOID;
-	JS_GetProperty(cx, obj, "require", &require);
-	JS_GetProperty(cx, obj, "load", &load);
-	JS_DefineProperty(cx, JSVAL_TO_OBJECT(require), "paths", OBJECT_TO_JSVAL(paths), nullptr, nullptr, JSPROP_STATIC);
-	JS_DefineProperty(cx, JSVAL_TO_OBJECT(load), "paths", OBJECT_TO_JSVAL(paths), nullptr, nullptr, JSPROP_STATIC);
+	static char* funcs[] = {"require", "load"};
+	for(int i = 0; i < (sizeof(funcs) / sizeof(char*)); i++)
+	{
+		jsval func = JSVAL_VOID;
+		JS_GetProperty(cx, obj, funcs[i], &func);
+		JS_DefineProperty(cx, JSVAL_TO_OBJECT(func), "paths", OBJECT_TO_JSVAL(paths), nullptr, nullptr, JSPROP_STATIC);
+	}
 
 	std::string cpath;
 	std::wstring wpath(path);
 	cpath.assign(wpath.begin(), wpath.end());
 
 	script = JS_CompileFile(cx, obj, cpath.c_str());
-	if(script != nullptr) state = Waiting;
+	if(script != nullptr) oldState = state = Waiting;
 }
 Script::~Script(void)
 {
@@ -56,8 +59,15 @@ void Script::Stop(void)
 }
 void Script::Pause(void)
 {
+	oldState = state;
 	state = Paused;
+	ResetEvent(pause);
 	JS_TriggerOperationCallback(cx);
+}
+void Script::Resume(void)
+{
+	state = oldState;
+	SetEvent(pause);
 }
 
 void Script::AddListener(const char* evt, jsval callback)
@@ -71,6 +81,7 @@ void Script::AddListener(const char* evt, jsval callback)
 void Script::RemoveListener(const char* evt, jsval callback)
 {
 	EnterCriticalSection(&lock);
+	JSAutoEnterRequest req(cx);
 	jsval* ptr = nullptr;
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		if((*it == callback)) ptr = &(*it);
@@ -81,19 +92,19 @@ void Script::RemoveListener(const char* evt, jsval callback)
 	}
 	LeaveCriticalSection(&lock);
 }
-
 void Script::RemoveListener(const char* evt)
 {
 	EnterCriticalSection(&lock);
+	JSAutoEnterRequest req(cx);
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		JS_RemoveValueRoot(cx, &(*it));
 	map[evt].clear();
 	LeaveCriticalSection(&lock);
 }
-
 void Script::RemoveListeners()
 {
 	EnterCriticalSection(&lock);
+	JSAutoEnterRequest req(cx);
 	for(auto evt = map.begin(); evt != map.end(); evt++)
 		for(auto it = evt->second.begin(); it != evt->second.end(); it++)
 			JS_RemoveValueRoot(cx, &(*it));
@@ -111,10 +122,16 @@ JSBool Script::OperationCallback(JSContext *cx)
 
 	// check the event queue or something
 
+	if(self->state == Paused)
+	{
+		JSAutoSuspendRequest req(cx);
+		WaitForSingleObject(self->pause, INFINITE);
+	}
+
 	if(self->state == Stopping)
 	{
 		// remove any handlers, set the state, etc.
-		// NB: for now, wait for the thread to exit; later, wait a given length of
+		// NOTE: for now, wait for the thread to exit; later, wait a given length of
 		// time after throwing an exception on the script and then kill it and shut down
 		WaitForSingleObject(self->thread, INFINITE);
 		self->state = Stopped;
@@ -136,14 +153,15 @@ void __cdecl Script::ThreadProc(void* args)
 	self->state = Running;
 
 	jsval dummy;
-	JS_ExecuteScript(self->cx, self->obj, self->script, &dummy);
-
-	jsval main = JSVAL_NULL;
-	if(JS_GetProperty(self->cx, self->obj, "main", &main) && !JSVAL_IS_VOID(main) &&
-	   JS_ObjectIsFunction(self->cx, JSVAL_TO_OBJECT(main)))
+	if(JS_ExecuteScript(self->cx, self->obj, self->script, &dummy))
 	{
-		jsval dummy;
-		JS::Call(self->cx, self->obj, main, 0, nullptr, &dummy);
+		jsval main = JSVAL_NULL;
+		if(JS_GetProperty(self->cx, self->obj, "main", &main) && !JSVAL_IS_VOID(main) &&
+		   JS_ObjectIsFunction(self->cx, JSVAL_TO_OBJECT(main)))
+		{
+			jsval dummy;
+			JS::Call(self->cx, self->obj, main, 0, nullptr, &dummy);
+		}
 	}
 
 	self->state = Done;

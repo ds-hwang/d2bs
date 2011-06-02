@@ -149,6 +149,7 @@ void Engine::InitModules(JSContext* cx, JSObject* obj)
 	comp.enter(cx, obj);
 
 	JSObject* gobj = JS_NewGlobalObject(cx, &global);
+	JS_InitStandardClasses(cx, gobj);
 	auto end = mods.end();
 	for(auto it = mods.begin(); it != end; it++)
 	{

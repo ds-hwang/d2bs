@@ -22,7 +22,7 @@ static JSClassSpec cmd_classes[] = {
 };
 
 static JSModuleSpec console_mods[] = {
-	JS_MS("console", cmd_classes, console_methods, nullptr),
+	JS_MS("console", cmd_classes, nullptr, nullptr),
 	JS_MS_END
 };
 

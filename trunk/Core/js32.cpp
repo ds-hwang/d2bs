@@ -18,11 +18,6 @@ void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes)
 			if(JS_GetProperty(cx, obj, clasp->proto->name, &jsproto))
 				if(!JSVAL_IS_NULL(jsproto) && !JSVAL_IS_VOID(jsproto))
 					proto = JSVAL_TO_OBJECT(jsproto);
-		} else {
-			jsval jsproto = JSVAL_NULL;
-			JS_GetProperty(cx, obj, "Object", &jsproto);
-			if(!JSVAL_IS_NULL(jsproto) && !JSVAL_IS_VOID(jsproto))
-				proto = JSVAL_TO_OBJECT(jsproto);
 		}
 
 		JS_InitClass(cx, obj, proto, clasp->classp,

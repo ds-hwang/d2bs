@@ -33,10 +33,10 @@ private:
 
 	JSContext *cx;
 	JSObject *obj, *script, *paths;
-	ScriptState state;
+	ScriptState state, oldState;
 	EventMap map;
 
-	HANDLE thread;
+	HANDLE thread, pause;
 	CRITICAL_SECTION lock;
 
 	// NB: this behavior is roughly equivalent to these functions
@@ -52,6 +52,7 @@ private:
 public:
 	EXPORT void Start(void);
 	EXPORT void Pause(void);
+	EXPORT void Resume(void);
 	EXPORT void Stop(void);
 
 	EXPORT void AddListener(const char* evt, jsval callback);
