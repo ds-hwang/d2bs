@@ -35,6 +35,7 @@ JSAPI_FUNC(mod_load)
 	// check the current directory last
 	paths.push_back(JS_GetEmptyStringValue(cx));
 
+	bool found = false;
 	auto end = paths.end();
 	for(auto it = paths.begin(); it != end; it++)
 	{
@@ -43,13 +44,15 @@ JSAPI_FUNC(mod_load)
 		if(rel != L"") path = rel + L"\\" + file;
 		else path = file;
 
-		if(script->GetEngine()->Exists(path.c_str()))
+		found = script->GetEngine()->Exists(path.c_str());
+		if(found)
 		{
 			// TODO: wrap the resultant Script in an object and return it to the caller
 			script->GetEngine()->CompileScript(path.c_str())->Start();
 			break;
 		}
 	}
+	if(!found) return JS_ThrowError(cx, "Script not found");
 
 	return JS_TRUE;
 }
@@ -71,6 +74,7 @@ JSAPI_FUNC(mod_require)
 	// check the current directory last
 	paths.push_back(JS_GetEmptyStringValue(cx));
 
+	bool found = false;
 	auto end = paths.end();
 	for(auto it = paths.begin(); it != end; it++)
 	{
@@ -78,14 +82,17 @@ JSAPI_FUNC(mod_require)
 		std::wstring rel = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(*it));
 		if(rel != L"") path = rel + L"\\" + file;
 		else path = file;
+		// TODO: internal modules do not have an extension, so we can shortcut if no extension
 
-		if(script->GetEngine()->Exists(path.c_str(), true) || script->GetEngine()->Exists(path.c_str()))
+		found = script->GetEngine()->Exists(path.c_str(), true) || script->GetEngine()->Exists(path.c_str());
+		if(found)
 		{
 			Module* module = script->GetEngine()->CompileModule(cx, path.c_str());
 			if(module->IsReady()) JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(module->GetExports()));
 			else return JS_FALSE;
 		}
 	}
+	if(!found) return JS_ThrowError(cx, "Module not found");
 
 	return JS_TRUE;
 }
