@@ -6,21 +6,23 @@ var ShowConfigHooks =[];
 //var ChkHooks =[];
 //var SliderHooks =[];
 //var SliderConfigVals = [];
-
+var useTeleport = me.useTeleport;
 var NTConfig_ColumnsHooks = []		// needed for inventory layout hooks
 
 
 function ConfigSetting(category, hook, globalVar, Comment) {
-	
-    this.val = false;
+	this.val = false;
     this.setting = ""
     this.Hooks = []
     this.Category = category
+    if (globalVar)
+    	hook.hookedVal = globalVar;
     if (hook) this.addHook(hook)
     this.globalVar = globalVar;
 	this.Comment = Comment
     ConfigObjects.push(this)
     this.valueChanged = false;
+   
     this.watch("val", function (id, oldval, newval) {
         if (typeof (this.valueChanged) == "function")
             this.valueChanged()
@@ -44,204 +46,158 @@ function ShowConfig() {
 	 	   
 	var j = 120;
 
-    //config checkbox
-	this.NTConfig_PublicMode = new CheckBox(300, j, "Public Mode", NTConfig_PublicMode, true);
-	// link change to global var
-	this.NTConfig_PublicMode.checkedChanged = function (val) { NTConfig_PublicMode = val;  }
-	// tab handling 
-    this.pub = new ConfigSetting("Runs"); this.pub.addHook(this.NTConfig_PublicMode)
+ 	this.NTConfig_PublicMode = new CheckBox(300, j, "Public Mode", NTConfig_PublicMode, true);
+	this.pub = new ConfigSetting("Runs", this.NTConfig_PublicMode,"NTConfig_PublicMode"); 
     
     this.chkSimonEnableSnagging = new CheckBox(300, j + 15, "Simon: Enable Snagging", SimonEnableSnagging, true);
-    this.chkSimonEnableSnagging.checkedChanged = function (val) { SimonEnableSnagging = val; }
     this.setchkSimonEnableSnagging = new ConfigSetting("Runs", this.chkSimonEnableSnagging, "SimonEnableSnagging");
     
     this.SimonAutoReveal = new CheckBox(300, j + 30, "Simon: Auto Reveal", SimonAutoReveal, true);
-    this.SimonAutoReveal.checkedChanged = function (val) { SimonAutoReveal = val; }
     this.setSimonAutoReveal = new ConfigSetting("Runs", this.SimonAutoReveal,"SimonAutoReveal")
 
     this.SimonStopLifeWatch = new CheckBox(300, j + 45, "Simon: Disable Life Watch", SimonStopLifeWatch, true);
-    this.SimonStopLifeWatch.checkedChanged = function(val){SimonStopLifeWatch=val;}
     this.setSimonStopLifeWatch = new ConfigSetting("Runs", this.SimonStopLifeWatch,"SimonStopLifeWatch")
     
 	this.SimonEnableCommands = new CheckBox(300,j + 60,"Simon: Enable Commands",SimonEnableCommands,true)
-	this.SimonEnableCommands.checkedChanged = function (val) { SimonEnableCommands = val }
 	this.setSimonEnableCommands = new ConfigSetting("Runs", this.SimonEnableCommands, "SimonEnableCommands")
 
 	this.NTConfig_ClearPitLevel1 = new CheckBox(300, j + 75, "Pit: Clear lvl 1 ", NTConfig_ClearPitLevel1, true)
-	this.NTConfig_ClearPitLevel1.checkedChanged = function (val) { NTConfig_ClearPitLevel1 = val }
 	this.setNTConfig_ClearPitLevel1 = new ConfigSetting("Runs", this.NTConfig_ClearPitLevel1,"NTConfig_ClearPitLevel1","// 	Set to true to clear level 1 of Pit")
 
 	this.NTConfig_FireEyeExtension = new CheckBox(300, j + 90, "Summoner: Fire Eye Ext ", NTConfig_FireEyeExtension, true)
-	this.NTConfig_FireEyeExtension.checkedChanged =function(val){NTConfig_FireEyeExtension=val}
     this.setNTConfig_FireEyeExtension = new ConfigSetting("Runs",this.NTConfig_FireEyeExtension,"NTConfig_FireEyeExtension","		//	Set to true if you want to kill Fire Eye at arcane sanctuary portal when running Summoner script")
 
 
     this.NTConfig_KillFangskin = new CheckBox(300, j + 105, "ClawViper: Kill Fangskin ", NTConfig_KillFangskin, true)
-    this.NTConfig_KillFangskin.checkedChanged = function (val) { NTConfig_KillFangskin = val }
     this.setNTConfig_KillFangskin = new ConfigSetting("Runs", this.NTConfig_KillFangskin,"NTConfig_KillFangskin","			//	Set to true if you want to kill Fangskin while running Claw Viper Temple script")
 
     this.NTConfig_CouncilExtension = new CheckBox(300, j + 120, "Mephisto: Kill Council ", NTConfig_CouncilExtension, true)
-    this.NTConfig_CouncilExtension.checkedChanged = function (val) { NTConfig_CouncilExtension = val }
     this.setNTConfig_CouncilExtension = new ConfigSetting("Runs", this.NTConfig_CouncilExtension,"NTConfig_CouncilExtension"," 		//	Set to true if you want to kill council when running Mephisto script")
 
     this.NTConfig_Moattrick = new CheckBox(300, j + 135, "Mephisto: Moattrick ", NTConfig_Moattrick, true)
-    this.NTConfig_Moattrick.checkedChanged = function (val) { NTConfig_Moattrick = val }
     this.setNTConfig_Moattrick = new ConfigSetting("Runs", this.NTConfig_Moattrick, "NTConfig_Moattrick", "				//	Set to true if you want to use the moat trick at Mephisto")
 
     this.NTConfig_NihlathakExtension = new CheckBox(300, j + 150, "Pindleskin: NihlathakExtension ", NTConfig_NihlathakExtension, true);
-    this.NTConfig_NihlathakExtension.checkedChanged = function (val) { NTConfig_NihlathakExtension = val }
     this.setNTConfig_NihlathakExtension = new ConfigSetting("Runs", this.NTConfig_NihlathakExtension,"NTConfig_NihlathakExtension","		//	Set true to continue to Nihl ")
 
     this.NTConfig_PindleskinExtension = new CheckBox(300, j + 165, "Nihlathak: PindleskinExtension ", NTConfig_PindleskinExtension, true)
-    this.NTConfig_PindleskinExtension.checkedChanged = function (val) { NTConfig_PindleskinExtension = val }
     this.setNTConfig_PindleskinExtension = new ConfigSetting("Runs", this.NTConfig_PindleskinExtension,"NTConfig_PindleskinExtension","	//	Set true if you want to continue to Pindle")
 
     this.NTConfig_ShenkExtension = new CheckBox(300, j + 180, "Eldritch: Shenk Ext ", NTConfig_ShenkExtension, true);
-    this.NTConfig_ShenkExtension.checkedChanged = function (val) { NTConfig_ShenkExtension = val }
     this.setNTConfig_ShenkExtension = new ConfigSetting("Runs", this.NTConfig_ShenkExtension,"NTConfig_ShenkExtension")
 
     this.NTConfig_DacFarrenExtension = new CheckBox(300, j + 195, "Eldritch: DacFarren Ext ", NTConfig_DacFarrenExtension, true);
-    this.NTConfig_DacFarrenExtension.clickChanged = function (val) { NTConfig_DacFarrenExtension = val }
     this.setNTConfig_DacFarrenExtension = new ConfigSetting("Runs", this.NTConfig_DacFarrenExtension, "NTConfig_DacFarrenExtension")
 
 	this.NTConfig_WSK2Extension = new CheckBox(300, j + 210, "WSK2 Ext ", NTConfig_WSK2Extension, true);
-    this.NTConfig_WSK2Extension.checkChanged = function (val) { NTConfig_WSK2Extension = val }
     this.setNTConfig_WSK2Extension = new ConfigSetting("Runs", this.NTConfig_WSK2Extension,"NTConfig_WSK2Extension")
 
     this.NTConfig_WSK3Extension = new CheckBox(300, j + 225, "WSK3 Ext ", NTConfig_WSK3Extension, true);
-    this.NTConfig_WSK3Extension.checkedChanged = function (val) { NTConfig_WSK3Extension = val }
     this.setNTConfig_WSK3Extension = new ConfigSetting("Runs", this.NTConfig_WSK3Extension,"NTConfig_WSK3Extension")
 
     this.NTConfig_KillBaal = new CheckBox(300, j + 240, "Baal: Kill Baal ", NTConfig_KillBaal, true)
-    this.NTConfig_KillBaal.checkedChanged = function (val) { NTConfig_KillBaal = val }
-    this.setNTConfig_KillBaal = new ConfigSetting("Runs", this.NTConfig_KillBaal)
+    this.setNTConfig_KillBaal = new ConfigSetting("Runs", this.NTConfig_KillBaal,"NTConfig_KillBaal")
 
     this.NTConfig_RuinedExtension = new CheckBox(300, j + 255, "Ruined Ext ", NTConfig_RuinedExtension, true);
-    this.NTConfig_RuinedExtension.checkedChanged = function (val) { NTConfig_RuinedExtension = val }
-    this.setNTConfig_RuinedExtension = new ConfigSetting("Runs", this.NTConfig_RuinedExtension)
-
-
+    this.setNTConfig_RuinedExtension = new ConfigSetting("Runs", this.NTConfig_RuinedExtension,"NTConfig_RuinedExtension")
+   
     this.NTConfig_DisusedExtension = new CheckBox(300, j + 270, "Disused Ext ", NTConfig_DisusedExtension, true);
-    this.NTConfig_DisusedExtension.checkedChanged = function (val) { NTConfig_DisusedExtension = val }
-    this.setNTConfig_DisusedExtension = new ConfigSetting("Runs", this.NTConfig_DisusedExtension)
+    this.setNTConfig_DisusedExtension = new ConfigSetting("Runs", this.NTConfig_DisusedExtension,"NTConfig_DisusedExtension")
 
     this.DiabloTPMsg = new TextBox(500, 100, 200, 15, DiabloTPMsg, 3, 0);this.DiabloTPMsg.editable = true;
-    this.DiabloTPMsg.valueChanged = function (val) { DiabloTPMsg = val }
     this.setDiabloTPMsg = new ConfigSetting("Runs", this.DiabloTPMsg, "DiabloTPMsg", "				//	Set your message to announce when you make a town portal in Chaos Sanctuary when running Diablo script")
     this.disDiabloTPMsg = new Text("DiabloTPMsg", 500, 100, 3,6,0)
     this.setDiabloTPMsg.addHook(this.disDiabloTPMsg)
 
     this.KillingDiabloMsg = new TextBox(500, 130, 200, 15, KillingDiabloMsg, 3, 0); this.KillingDiabloMsg.editable = true;
-    this.KillingDiabloMsg.valueChanged = function (val) { KillingDiabloMsg = val }
     this.setKillingDiabloMsg = new ConfigSetting("Runs", this.KillingDiabloMsg,"KillingDiabloMsg", "	//	Set your message to announce just before killing Diablo")
     this.disKillingDiabloMsg = new Text("Im Killing Diablo Msg", 500, 130, 3, 6, 0)
     this.setKillingDiabloMsg.addHook(this.disKillingDiabloMsg)
 
     this.DiabloNewGameMsg = new TextBox(500, 160, 200, 15, DiabloNewGameMsg, 3, 0); this.DiabloNewGameMsg.editable = true;
-    this.DiabloNewGameMsg.valueChanged = function (val) { DiabloNewGameMsg = val }
     this.setDiabloNewGameMsg = new ConfigSetting("Runs", this.DiabloNewGameMsg,"DiabloNewGameMsg", "		//	Set your message to announce as Diablo script is finishing execution")
     this.disDiabloNewGameMsg = new Text("Diablo Died msg", 500, 160, 3, 6, 0)
     this.setDiabloNewGameMsg.addHook(this.disDiabloNewGameMsg)
 
     this.BaalTPMsg = new TextBox(500, 190, 200, 15, BaalTPMsg, 3, 0); this.BaalTPMsg.editable = true;
-    this.BaalTPMsg.valueChanged = function (val) { BaalTPMsg = val }
     this.setBaalTPMsg = new ConfigSetting("Runs", this.BaalTPMsg,"BaalTPMsg")
     this.disBaalTPMsg = new Text("TP open at Throne msg", 500, 190, 3, 6, 0)
     this.setBaalTPMsg.addHook(this.disBaalTPMsg)
 
     this.BaalTPSafeMsg = new TextBox(500, 220, 200, 15, BaalTPSafeMsg, 3, 0); this.BaalTPSafeMsg.editable = true;
-    this.BaalTPSafeMsg.valueChanged = function (val) { BaalTPSafeMsg = val }
     this.setBaalTPSafeMsg = new ConfigSetting("Runs", this.BaalTPSafeMsg, "BaalTPSafeMsg")
     this.disBaalTPSafeMsg = new Text("Safe TP at Throne msg", 500, 220, 3, 6, 0)
     this.setBaalTPSafeMsg.addHook(this.disBaalTPSafeMsg)
 
     this.KillBaalMsg = new TextBox(500, 250, 200, 15, KillBaalMsg, 3, 0); this.KillBaalMsg.editable = true;
-    this.KillBaalMsg.valueChanged = function (val) { KillBaalMsg = val }
     this.setKillBaalMsg = new ConfigSetting("Runs", this.KillBaalMsg, "KillBaalMsg")
     this.disKillBaalMsg = new Text("Lets Kill Baal msg", 500, 250, 3, 6, 0)
     this.setKillBaalMsg.addHook(this.disKillBaalMsg)
 
     this.BaalNextGameMsg = new TextBox(500, 280, 200, 15, BaalNextGameMsg, 3, 0); this.BaalNextGameMsg.editable = true;
-    this.BaalNextGameMsg.valueChanged = function (val) { BaalNextGameMsg = val }
     this.setBaalNextGameMsg = new ConfigSetting("Runs", this.BaalNextGameMsg, "BaalNextGameMsg")
     this.disBaalNextGameMsg = new Text("Baal Died Msg", 500, 280, 3, 6, 0)
     this.setBaalNextGameMsg.addHook(this.disBaalNextGameMsg)
 
     this.NTConfig_BOMsg = new TextBox(500, 310, 200, 15, NTConfig_BOMsg, 3, 0); this.NTConfig_BOMsg.editable = true;
-    this.NTConfig_BOMsg.valueChanged = function (val) { NTConfig_BOMsg = val }
     this.setNTConfig_BOMsg = new ConfigSetting("Runs", this.NTConfig_BOMsg, "NTConfig_BOMsg")
     this.disNTConfig_BOMsg = new Text("Casting Bo Msg", 500, 310, 3, 6, 0)
     this.setNTConfig_BOMsg.addHook(this.disNTConfig_BOMsg)
 
     this.SimonNextLevel = new TextBox(620, 100, 50, 15, SimonNextLevel+" ", 3, 0); this.SimonNextLevel.editable = true;this.SimonNextLevel.setKeyVal = true;
-    this.SimonNextLevel.valueChanged = function (val) { SimonNextLevel = val }
     this.setSimonNextLevel = new ConfigSetting("Misc", this.SimonNextLevel, "SimonNextLevel")
     this.disSimonNextLevel = new Text("Simon Next Lvl Key", 620, 100, 3, 6, 0)
     this.setSimonNextLevel.addHook(this.disSimonNextLevel)
 
     this.SimonPOI = new TextBox(620, 130, 50, 15, SimonPOI + " ", 3, 0); this.SimonPOI.editable = true; this.SimonPOI.setKeyVal = true;
-    this.SimonPOI.valueChanged = function (val) { SimonPOI = val }
     this.setSimonPOI = new ConfigSetting("Misc", this.SimonPOI, "SimonPOI")
     this.disSimonPOI = new Text("Simon POI Key", 620, 130, 3, 6, 0)
     this.setSimonPOI.addHook(this.disSimonPOI)
 
     this.SimonPrevousLevel = new TextBox(620, 160, 50, 15, SimonPrevousLevel + " ", 3, 0); this.SimonPrevousLevel.editable = true; this.SimonPrevousLevel.setKeyVal = true;
-    this.SimonPrevousLevel.valueChanged = function (val) { SimonPrevousLevel = val }
     this.setSimonPrevousLevel = new ConfigSetting("Misc", this.SimonPrevousLevel, "SimonPrevousLevel")
     this.disSimonPrevousLevel = new Text("Simon Previous lvl Key", 620, 160, 3, 6, 0)
     this.setSimonPrevousLevel.addHook(this.disSimonPrevousLevel)
 
     this.SimonEscToTown = new TextBox(620, 190, 50, 15, SimonEscToTown + " ", 3, 0); this.SimonEscToTown.editable = true; this.SimonEscToTown.setKeyVal = true;
-    this.SimonEscToTown.valueChanged = function (val) { SimonEscToTown = val }
     this.setSimonEscToTown = new ConfigSetting("Misc", this.SimonEscToTown, "SimonEscToTown")
     this.disSimonEscToTown = new Text("Simon Escape to Town Key", 620, 190, 3, 6, 0)
     this.setSimonEscToTown.addHook(this.disSimonEscToTown)
 
     this.NT_PauseKey = new TextBox(620, 230, 50, 15, NT_PauseKey + " ", 3, 0); this.NT_PauseKey.editable = true; this.NT_PauseKey.setKeyVal = true;
-    this.NT_PauseKey.valueChanged = function (val) { NT_PauseKey = val }
     this.setNT_PauseKey = new ConfigSetting("Misc", this.NT_PauseKey, "NT_PauseKey")
     this.disNT_PauseKey = new Text("Pause Key", 620, 230, 3, 6, 0)
     this.setNT_PauseKey.addHook(this.disNT_PauseKey)
 
     j = 120;
     this.NTConfig_GambleIt = new CheckBox(25, j + 15, "Gamble ", NTConfig_GambleIt, true);
-    this.NTConfig_GambleIt.checkedChanged = function (val) { NTConfig_GambleIt = val }
-    this.Misc = new ConfigSetting("Misc", this.NTConfig_GambleIt)
+    this.Misc = new ConfigSetting("Misc", this.NTConfig_GambleIt,"NTConfig_GambleIt")
 
     this.NTConfig_UseMerc = new CheckBox(25, 30+j, "Use Merc ", NTConfig_UseMerc, true);
-    this.NTConfig_UseMerc.checkedChanged = function (val) { NTConfig_UseMerc = val }
     this.NTConfig_UseMerc = new ConfigSetting("Misc" ,this.NTConfig_UseMerc,"NTConfig_UseMerc","; // Set to true if you use a mercenary, will revive merc at a reviver npc." )
 
     this.NT_PickUtility = new CheckBox(25, 45+j, "Pick Utility ", NT_PickUtility, true)			
-    this.NT_PickUtility.checkedChanged = function (val) { NT_PickUtility = val }
 	this.setNT_PickUtility = new ConfigSetting("Misc",this.NT_PickUtility,"NT_PickUtility","; // tries to fill belt and tombs with pickit")
 
     this.FastSnag = new CheckBox(25, 60+j, "Fast Snag ", FastSnag, true);
-    this.FastSnag.checkedChanged = function (val) { FastSnag = val }
     this.setFastSnag= new ConfigSetting("Misc",this.FastSnag,"FastSnag","; // picks after each attack. based on itemdrop event")
 
-	this.NTConfig_SkipHealCurses = new CheckBox(25, j+75, "NPC Heal for Curses ", !NTConfig_SkipHealCurses, true)
-	this.NTConfig_SkipHealCurses.checkedChanged = function (val) {		NTConfig_SkipHealCurses = !val}	 								
-    this.setNTConfig_SkipHealCurses = new ConfigSetting("Misc",this.NTConfig_SkipHealCurses,"NTConfig_SkipHealCurses")
+    this.NTConfig_SkipHealCurses = new CheckBox(25, j + 75, "Skip Heal for Curses ", NTConfig_SkipHealCurses, true)
+    this.setNTConfig_SkipHealCurses = new ConfigSetting("Misc", this.NTConfig_SkipHealCurses, "NTConfig_SkipHealCurses")
 		    
     this.NTConfig_OpenChest = new CheckBox(25, j+90, "Open Chest ", NTConfig_OpenChest, true);
-    this.NTConfig_OpenChest.checkedChanged = function (val) { NTConfig_OpenChest = val }
     this.setNTConfig_OpenChest = new ConfigSetting("Misc",this.NTConfig_OpenChest,"NTConfig_OpenChest")
 
     this.NTConfig_ClearPosition = new CheckBox(25, j+105, "Clear Position ", NTConfig_ClearPosition, true);
-    this.NTConfig_ClearPosition.checkedChanged = function (val) { NTConfig_ClearPosition = val }
     this.setNTConfig_ClearPosition = new ConfigSetting("Misc",this.NTConfig_ClearPosition,"NTConfig_ClearPosition")
 
 	this.NT_logItems = new CheckBox(25, j+120, "Log Items ", NT_logItems, true);
-	this.NT_logItems.checkChanged=function(val){NT_logItems=val}
 	this.setNT_logItems = new ConfigSetting("Misc", this.NT_logItems, "NT_logItems", ";  // enable logging")
 
 	this.NT_IdleOnClone = new CheckBox(25, j + 135, "Idle On Clone", NT_IdleOnClone, true)
-	this.NT_IdleOnClone.checkChanged = function (val) { NT_IdleOnClone = val }
 	this.setNT_IdleOnClone = new ConfigSetting("Misc", this.NT_IdleOnClone, "NT_IdleOnClone")
 
 	this.NT_IdleOnSOJ = new CheckBox(25, j + 150, "Idle On Soj Count", NT_IdleOnSOJ, true)
-	this.NT_IdleOnSOJ.checkChanged = function (val) { NT_IdleOnSOJ = val }
 	this.setNT_IdleOnSOJ = new ConfigSetting("Misc", this.NT_IdleOnSOJ, "NT_IdleOnSOJ")
 
 	//this.NTConfig_AttackSkill5 = new DropDownBox(200, 300, myGetSkillByID(NTConfig_AttackSkill[5]), 13, 1, this.mySkills, "Secondary Untimed");
@@ -250,33 +206,25 @@ function ShowConfig() {
 	this.setNT_HostileAction = new ConfigSetting("Misc", this.NT_HostileAction, "NT_HostileAction")
 
 	this.SimonFollowMode = new CheckBox(25, j + 265, "Simon Fight with Lead", SimonFollowMode, true)
-	this.SimonFollowMode.checkChanged = function (val) { SimonFollowMode = val }
 	this.setSimonFollowMode = new ConfigSetting("Misc", this.SimonFollowMode, "SimonFollowMode","       // Fight while folowing ")
 
 	this.SimonEnableSnagging = new CheckBox(25, j + 205, "Simon Enable Snagging", SimonEnableSnagging, true)
-	this.SimonEnableSnagging.checkChanged = function (val) { SimonEnableSnagging = val }
 	this.setSimonEnableSnagging = new ConfigSetting("Misc", this.SimonEnableSnagging, "SimonEnableSnagging")
 
 	this.SimonAutoReveal = new CheckBox(25, j + 220, "Simon Auto Reveal", SimonAutoReveal, true)
-	this.SimonAutoReveal.checkChanged = function (val) { SimonAutoReveal = val }
 	this.setSimonAutoReveal = new ConfigSetting("Misc", this.SimonAutoReveal, "SimonAutoReveal")
 
 	this.SimonStopLifeWatch = new CheckBox(25, j + 235, "Simon Stop Life Watch", SimonStopLifeWatch, true)
-	this.SimonStopLifeWatch.checkChanged = function (val) { SimonStopLifeWatch = val }
 	this.setSimonStopLifeWatch = new ConfigSetting("Misc", this.SimonStopLifeWatch, "SimonStopLifeWatch")
 
 	this.SimonEnableCommands = new CheckBox(25, j + 250, "Simon Listen to Commands", SimonEnableCommands, true)
-	this.SimonEnableCommands.checkChanged = function (val) { SimonEnableCommands = val }
 	this.setSimonEnableCommands = new ConfigSetting("Misc", this.SimonEnableCommands, "SimonEnableCommands")
 
 	// no idea why this dosent work
-	//this.useTeleport = new CheckBox(25, j + 280, "me.useTeleport", me.useTeleport, true)
-	//this.useTeleport.checkChanged = function (val) { useTeleport = val } 
-
-	//this.setuseTeleport = new ConfigSetting("Misc", this.useTeleport)
+	this.useTeleport = new CheckBox(25, j + 280, "me.useTeleport", me.useTeleport, true)
+	this.setuseTeleport = new ConfigSetting("Misc", this.useTeleport,"useTeleport","					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving")
 
 	this.bobDebug = new CheckBox(300, j + 280, "debug to OOG", bobDebug, true)
-	this.bobDebug.checkChanged = function (val) { bobDebug = val }
 	this.setbobDebug = new ConfigSetting("Misc", this.bobDebug,"bobDebug"," 		//Set to true to send extra debug information to OOG (good to try if you are having problems)")
 
 	//this.NTConfig_Colums= new ConfigSetting("Misc",this.NTConfig_Colums )		
@@ -302,58 +250,45 @@ function ShowConfig() {
 
 	var nipfiles= dopen('settings/').getFiles();
 	this.NTConfig_NIPFilePath = new LinkedListBoxes(200,140,175,200,nipfiles,NTConfig_NIPFilePath,2)
-	this.NTConfig_NIPFilePath.valueChanged = function (val) {  		NTConfig_NIPFilePath = val		}
 	this.setNTConfig_NIPFilePath = new ConfigSetting("Misc", this.NTConfig_NIPFilePath, "NTConfig_NIPFilePath")
 	this.nipDis = new Text("Included Nip Files",200 + 175 +50,140,21,6,0); this.setNTConfig_NIPFilePath.addHook(this.nipDis)
 	//lifeWatch
 	j=30
 	this.NTConfig_LifeThresh = new SliderWText (300, 100+j,"Drink Hp pot at",100,NTConfig_LifeThresh,this.textColor,4)
-	this.NTConfig_LifeThresh.valueChanged = function (val) { NTConfig_LifeThresh = val; }
 	this.setNTConfig_LifeThresh = new ConfigSetting("LifeWatch", this.NTConfig_LifeThresh,"NTConfig_LifeThresh")
 
 	this.NTConfig_LifeRejuvThresh = new SliderWText(300, 130 + j, "Drink rejuve for HP at", 100, NTConfig_LifeRejuvThresh, this.textColor, 4);
-	this.NTConfig_LifeRejuvThresh.valueChanged = function (val) { NTConfig_LifeRejuvThresh = val }
 	this.setNTConfig_LifeRejuvThresh = new ConfigSetting("LifeWatch", this.NTConfig_LifeRejuvThresh,"NTConfig_LifeRejuvThresh")
 
 	this.NTConfig_ManaThresh = new SliderWText(300, 160 + j, "Drink Mana pot at", 100, NTConfig_ManaThresh, this.textColor, 4)
-	this.NTConfig_ManaThresh.valueChanged = function (val) { NTConfig_ManaThresh = val }
 	this.setNTConfig_ManaThresh = new ConfigSetting("LifeWatch", this.NTConfig_ManaThresh,"NTConfig_ManaThresh")
 
 	this.NTConfig_ManaRejuvThresh = new SliderWText(300, 190 + j, "Drink rejuve for mana at", 100, NTConfig_ManaRejuvThresh, this.textColor, 4)
-	this.NTConfig_ManaRejuvThresh.valueChanged = function (val) { NTConfig_ManaRejuvThresh = val }
 	this.setNTConfig_ManaRejuvThresh=new ConfigSetting("LifeWatch",this.NTConfig_ManaRejuvThresh,"NTConfig_ManaRejuvThresh")
 
 	this.NTConfig_LifeChicken = new SliderWText(300, 220 + j, "Chicken when Life is", 100, NTConfig_LifeChicken, this.textColor, 4)
-	this.NTConfig_LifeChicken.valueChanged = function (val) { NTConfig_LifeChicken = val }
 	this.setNTConfig_LifeChicken = new ConfigSetting("LifeWatch", this.NTConfig_LifeChicken,"NTConfig_LifeChicken")
 
 	this.NTConfig_ManaChicken = new SliderWText(300, 250 + j, "Chiken when Mana is", 100, NTConfig_ManaChicken, this.textColor, 4)
-	this.NTConfig_ManaChicken.valueChanged = function (val) { NTConfig_ManaChicken = val }
 	this.setNTConfig_ManaChicken = new ConfigSetting("LifeWatch", this.NTConfig_ManaChicken,"NTConfig_ManaChicken")
 
 	this.NTConfig_MercLifeThresh = new SliderWText(300, 280 + j, "Merc Hp Pot at", 100, NTConfig_MercLifeThresh, this.textColor, 4);
-	this.NTConfig_MercLifeThresh.valueChanged = function (val) { NTConfig_MercLifeThresh = val }
 	this.setNTConfig_MercLifeThresh = new ConfigSetting("LifeWatch", this.NTConfig_MercLifeThresh,"NTConfig_MercLifeThresh")
 
 	this.NTConfig_MercRejuvThresh = new SliderWText(300, 310 + j, "Merc Rejuve at", 100, NTConfig_MercRejuvThresh, this.textColor, 4)
-	this.NTConfig_MercRejuvThresh.valueChanged = function (val) { NTConfig_MercRejuvThresh = val }
 	this.setNTConfig_MercRejuvThresh=new ConfigSetting("LifeWatch",this.NTConfig_MercRejuvThresh,"NTConfig_MercRejuvThresh")
 
 
 	this.NTConfig_MercChicken = new SliderWText(300, 340 + j, "Chicken when Merc is", 100, NTConfig_MercChicken, this.textColor, 4)
-	this.NTConfig_MercChicken.valueChanged = function (val) { NTConfig_MercChicken = val }
 	this.setNTConfig_MercChicken = new ConfigSetting("LifeWatch", this.NTConfig_MercChicken,"NTConfig_MercChicken")
 
 	this.NTConfig_SkipHealLife = new SliderWText(50, 130, "heal HP at npc at", 100, NTConfig_SkipHealLife, this.textColor, 4)
-	this.NTConfig_SkipHealLife.valueChanged = function(val){NTConfig_SkipHealLife=val}
 	this.setNTConfig_SkipHealLife = new ConfigSetting("LifeWatch", this.NTConfig_SkipHealLife, "NTConfig_SkipHealLife", "; // If you have more than this percent of life, you won't go to a healer")
 	
 	this.NTConfig_SkipHealMana =  new SliderWText(50, 160, "heal MP at npc at", 100, NTConfig_SkipHealMana, this.textColor, 4)
-	this.NTConfig_SkipHealMana.valueChanged = function(val){NTConfig_SkipHealMana=val}
 	this.setNTConfig_SkipHealMana = new ConfigSetting("LifeWatch", this.NTConfig_SkipHealMana, "NTConfig_SkipHealMana", "; // If you have more than this percent of mana, you won't go to a healer")
 
 	this.NTConfig_CheckSafe = new CheckBox(50, 190, "Safe Check ", NTConfig_CheckSafe, true);
-	this.NTConfig_CheckSafe.checkedChanged = function (val) { NTConfig_CheckSafe = val }
 	this.setNTConfig_CheckSafe = new ConfigSetting("LifeWatch", this.NTConfig_CheckSafe, "NTConfig_CheckSafe")
 
 	this.mySkills =["Nothing"];
@@ -389,36 +324,28 @@ function ShowConfig() {
 
 		if (me.classid == 1) {
 			this.NTConfig_CastStatic = new SliderWText(350, 300, "Cast Static ", 100, NTConfig_CastStatic, this.textColor, 4);
-			this.NTConfig_CastStatic.valueChanged = function (val) { NTConfig_CastStatic = val }
 			this.setNTConfig_CastStatic = new ConfigSetting("Skills",this.NTConfig_CastStatic,"NTConfig_CastStatic")
 		}
 		if (me.classid == 6) { //sin
 			this.NTConfig_UseTraps = new CheckBox(350, 300, "Use Traps", NTConfig_UseTraps,true);
-			this.NTConfig_UseTraps.checkedChanged = function (val) { NTConfig_UseTraps = val }
 			this.setNTConfig_UseTraps = new ConfigSetting("Skills", this.NTConfig_UseTraps,"NTConfig_UseTraps")
 
 			this.NTConfig_CastShadowMaster = new CheckBox(350, 315, "Safe Check ", NTConfig_CastShadowMaster,true);
-			this.NTConfig_CastShadowMaster.checkedChanged = function (val) { NTConfig_CastShadowMaster = val }
 			this.setNTConfig_CastShadowMaster = new ConfigSetting("Skills", this.NTConfig_CastShadowMaster,"NTConfig_CastShadowMaster")
 
 			this.NTConfig_CastShadowWarrior = new CheckBox(350, 330, "Use Shadow Master ", NTConfig_CastShadowWarrior,true);
-			this.NTConfig_CastShadowWarrior.checkedChanged = function (val) { NTConfig_CastShadowWarrior = val }
 			this.setNTConfig_CastShadowWarrior = new ConfigSetting("Skills", this.NTConfig_CastShadowWarrior,"NTConfig_CastShadowWarrior")
 
 			this.NTConfig_CastBrustOfSpeed = new CheckBox(350, 345, "Use Burst Of Speed ", NTConfig_CastBrustOfSpeed,true);
-			this.NTConfig_CastBrustOfSpeed.checkedChanged = function(val){NTConfig_CastBrustOfSpeed=val}
 			this.setNTConfig_CastBrustOfSpeed = new ConfigSetting("Skills", this.NTConfig_CastBrustOfSpeed, "NTConfig_CastBrustOfSpeed")
 			
 			this.NTConfig_CastFade = new CheckBox(350, 360, "Cast Fade ", NTConfig_CastFade,true); 
-			this.NTConfig_CastFade.checkChanged= function(val) {NTConfig_CastFade=val}
 			this.setNTConfig_CastFade = new ConfigSetting("Skills", this.NTConfig_CastFade, "NTConfig_CastFade")
 			
 			this.NTConfig_CastBladeShield = new CheckBox(350, 375, "Cast Blade Sheild ", NTConfig_CastBladeShield,true);
-			this.NTConfig_CastBladeShield.checkChanged= function (val) {NTConfig_CastBladeShield = val}
 			this.setNTConfig_CastBladeShield = new ConfigSetting("Skills", this.NTConfig_CastBladeShield, "NTConfig_CastBladeShield")
 			
 			this.NTConfig_CastCloakOfShadows = new CheckBox(350, 390, "Cast Cloak of Shadows ", NTConfig_CastCloakOfShadows,true); 
-			this.NTConfig_CastCloakOfShadows.checkChanged= function(val){NTConfig_CastCloakOfShadows=val}
 			this.setNTConfig_CastCloakOfShadows = new ConfigSetting("Skills", this.NTConfig_CastCloakOfShadows, "NTConfig_CastCloakOfShadows")
 			
 		}
@@ -426,85 +353,66 @@ function ShowConfig() {
 	}
 	if (me.classid == 3 || me.classid == 2){ // Pally n necro shared
 		this.NTConfig_AttackBoss = new DropDownBox(100, 140,myGetSkillByID(NTConfig_AttackBoss),13,1,this.mySkills,"Boss Skill")
-		this.NTConfig_AttackBoss.valueChanged = function (val) {			NTConfig_AttackBoss = myGetSkillByName(val)	 	}
 		this.setNTConfig_AttackBoss = new ConfigSetting("Skills", this.NTConfig_AttackBoss, "NTConfig_AttackBoss")
 		
 		this.NTConfig_AttackOthers = new DropDownBox(300, 140,myGetSkillByID(NTConfig_AttackOthers),13,1,this.mySkills,"Primary For Others");
-		this.NTConfig_AttackOthers.valueChanged = function (val) { NTConfig_AttackOthers = myGetSkillByName(val) }
 		this.setNTConfig_AttackOthers = new ConfigSetting("Skills", this.NTConfig_AttackOthers, "NTConfig_AttackOthers")
 		
 	}
 	
 	if (me.classid == 2){ // Necro
 		this.XP_Curse = new DropDownBox(500, 180,myGetSkillByID(XP_Curse),13,1,this.mySkills,"Curse after Army is Made");
-		this.XP_Curse.valueChanged = function(val){XP_Curse=val}
 		this.setXP_Curse = new ConfigSetting("Skills", this.XP_Curse, "XP_Curse")
 		
 		this.XP_BuildArmyCurse = new DropDownBox(500, 220,myGetSkillByID(XP_BuildArmyCurse),13,1,this.mySkills,"Curse to Build Army");
-		this.XP_BuildArmyCurse.valueChanged = function(val){XP_BuildArmyCurse=val}
 		this.setXP_BuildArmyCurse = new ConfigSetting("Skills", this.XP_BuildArmyCurse, "XP_BuildArmyCurse")
 		
 		this.XP_Golm = new SliderWText (500, 245,"0=clay 1=blood, 2=fire, 3=iron",3,XP_Golm,this.textColor,4)
-		this.XP_Golm.valueChanged = function(val){XP_Golm=val}
 		this.setXP_Golm = new ConfigSetting("Skills", this.XP_Golm, "XP_Golm")
 		
 		this.XP_BuildArmyThresh = new SliderWText (500, 275,"Build Army Threshold",20,XP_BuildArmyThresh,this.textColor,4) 
-		this.XP_BuildArmyThresh.valueChanged = function (val){XP_BuildArmyThresh = val}
 		this.setXP_BuildArmyThresh = new ConfigSetting("Skills", this.XP_BuildArmyThresh, "XP_BuildArmyThresh")
 		
 		this.XP_useSkel = new CheckBox(500, 295,"Make Skeletons ",XP_useSkel,true)	
-		this.XP_useSkel.checkChanged = function(val){XP_useSkel=val}
 		this.setXP_useSkel = new ConfigSetting("Skills", this.XP_useSkel, "XP_useSkel")
 		
 		this.XP_useSkelMage = new CheckBox(500, 310,"Make Mages ",XP_useSkelMage,true)	
-		this.XP_useSkelMage.checkChanged=function(val){XP_useSkelMage=val}
 		this.setXP_useSkelMage = new ConfigSetting("Skills", this.XP_useSkelMage, "XP_useSkelMage")
 		
 		this.XP_useRevive = new CheckBox(500, 325,"Make Revives ",XP_useRevive,true)	; 	
-		this.XP_useRevive.checkChanged = function(val){XP_useRevive=val}
 		this.setXP_useRevive = new ConfigSetting("Skills", this.XP_useRevive, "XP_useRevive")
 		
 		this.XP_CorpseExplosion = new CheckBox(500, 340,"Use Corpse Explosion",XP_CorpseExplosion,true)
-		this.XP_CorpseExplosion.checkChanged =  function(val){XP_CorpseExplosion=val}
 		this.setXP_CorpseExplosion = new ConfigSetting("Skills", this.XP_CorpseExplosion, "XP_CorpseExplosion")		
 	}	
 	if (me.classid == 3){ // Pally
 		this.NTConfig_AttackFirst = new DropDownBox(500, 190,myGetSkillByID(NTConfig_AttackFirst),13,1,this.mySkills,"Cast First");
-		this.NTConfig_AttackFirst.valueChanged = function (val) {NTConfig_AttackFirst = myGetSkillByName(val)	}
 		this.setNTConfig_AttackFirst = new ConfigSetting("Skills", this.NTConfig_AttackFirst, "NTConfig_AttackFirst")
 		
 		this.NTConfig_AttackSecondary = new DropDownBox(500, 220,myGetSkillByID(NTConfig_AttackSecondary),13,1,this.mySkills,"Secondary For Immunes");
-		this.NTConfig_AttackSecondary.valueChanged = function (val) { NTConfig_AttackSecondary = myGetSkillByName(val) }
 		this.setNTConfig_AttackSecondary = new ConfigSetting("Skills", this.NTConfig_AttackSecondary, "NTConfig_AttackSecondary")
 		
 		this.NTConfig_PutAura = new DropDownBox(500, 260,myGetSkillByID(NTConfig_PutAura),13,1,this.mySkills,"Attack Aura");
-		this.NTConfig_PutAura.valueChanged = function (val) { NTConfig_PutAura = myGetSkillByName(val) }
 		this.setNTConfig_PutAura = new ConfigSetting("Skills", this.NTConfig_PutAura, "NTConfig_PutAura")
 		
 		this.NTConfig_UseRedemption = new CheckBox(500, 275,"Use Redemption ",NTConfig_UseRedemption,true)	;
-		this.NTConfig_UseRedemption.checkedChanged = function (val) { NTConfig_UseRedemption = val }
 		this.setNTConfig_UseRedemption = new ConfigSetting("Skills", this.NTConfig_UseRedemption, "NTConfig_UseRedemption")			
 	}
 	
 	//this.test = new DropDownBox(600, 100,"Test",13,1,this.mySkills);
 	this.NTConfig_HelpPreClear = new CheckBox(25, 315, "Help Leader Clear Thone before SafeMsg", NTConfig_HelpPreClear, true)
-	this.NTConfig_HelpPreClear.checkChanged = function (val) { NTConfig_HelpPreClear = val }
 	this.setNTConfig_HelpPreClear = new ConfigSetting("Leech", this.NTConfig_HelpPreClear, "NTConfig_HelpPreClear","			//	Set to true if you want to help clear the throne before it's announced 'Safe'")
 
 	this.NTConfig_HelpWithWaves = new CheckBox(25, 330, "Help Clear Baal's Minios", NTConfig_HelpWithWaves, true)
-	this.NTConfig_HelpWithWaves.checkChanged = function (val) { NTConfig_HelpWithWaves = val }
 	this.seNTConfig_HelpWithWaves = new ConfigSetting("Leech", this.NTConfig_HelpWithWaves, "NTConfig_HelpWithWaves", "			//	Set to true to fight in throne when each wave drops")
 
 	this.NTConfig_HelpWithBaal = new CheckBox(25, 345, "Help kill Baal", NTConfig_HelpWithBaal, true)
-	this.NTConfig_HelpWithBaal.checkChanged = function (val) { NTConfig_HelpWithBaal = val }
 	this.setNTConfig_HelpWithBaal = new ConfigSetting("Leech", this.NTConfig_HelpWithBaal, "NTConfig_HelpWithBaal", "			//	Set to true if you want to help kill Baal")
 
-	this.NTConfig_GetBaalItems = new CheckBox(25, 360, "Help kill Baal", NTConfig_GetBaalItems, true)
-	this.NTConfig_GetBaalItems.checkChanged = function (val) { NTConfig_GetBaalItems = val }
+	this.NTConfig_GetBaalItems = new CheckBox(25, 360, "Get Baal Items", NTConfig_GetBaalItems, true)
 	this.setNTConfig_GetBaalItems = new ConfigSetting("Leech", this.NTConfig_GetBaalItems, "NTConfig_GetBaalItems", "			//	Set to true if you want to pick items after Baal dies")
 
 	this.NTConfig_ClearLeechPosition = new CheckBox(25, 375, "clear safe position in baal chamber", NTConfig_ClearLeechPosition, true)
-	this.NTConfig_ClearLeechPosition.checkChanged = function (val) { NTConfig_ClearLeechPosition = val }
 	this.setNTConfig_ClearLeechPosition = new ConfigSetting("Leech", this.NTConfig_ClearLeechPosition, "NTConfig_ClearLeechPosition","		//	Set to true if you want to fight while leeching in Worldstone Chamber (tentacles could appear etc)")
 
 	var fullLeaders = []
@@ -520,13 +428,11 @@ function ShowConfig() {
 	fullLeaders=removeBlanksFromArray(fullLeaders)
 	QuitWithLeaderList=removeBlanksFromArray(QuitWithLeaderList)
 	this.NT_Leader = new LinkedListBoxes(50, 140, 200, 75, fullLeaders, NT_Leader, 2)
-	this.NT_Leader.valueChanged = function (val) { NT_Leader = val }
 	this.setNT_Leader = new ConfigSetting("Leech", this.NT_Leader, "NT_Leader")
 	this.nipDis = new Text("Leader List", 50 + 200 + 50, 140, 21, 6, 0); this.setNT_Leader.addHook(this.nipDis)
 
 	this.QuitWithLeaderList = new LinkedListBoxes(50, 230, 200, 75, fullLeaders, QuitWithLeaderList, 2)
-	this.QuitWithLeaderList.valueChanged = function (val) { QuitWithLeaderList = val }
-	this.setQuitWithLeaderListr = new ConfigSetting("Leech", this.QuitWithLeaderList, "NT_Leader")
+	this.setQuitWithLeaderListr = new ConfigSetting("Leech", this.QuitWithLeaderList, "QuitWithLeaderList")
 	this.nipDis = new Text("Quit With Lead List", 50 + 200 + 50, 230, 21, 6, 0); this.setNT_Leader.addHook(this.nipDis)
 	
 
@@ -633,7 +539,7 @@ print("Saving Config")
 		if (templine.indexOf("NTConfig_Columns[1] =") > -1) templine = "\t" + "NTConfig_Columns[1] = " + NTConfig_Columns[1].toSource()
 		if (templine.indexOf("NTConfig_Columns[2] =") > -1) templine = "\t" + "NTConfig_Columns[2] = " + NTConfig_Columns[2].toSource()
 		if (templine.indexOf("NTConfig_Columns[3] =") > -1) templine = "\t" + "NTConfig_Columns[3] = " + NTConfig_Columns[3].toSource()
-		//if (templine.indexOf("me.useTeleport = ") >-1) templine ="\t" + "me.useTeleport = " + useTeleport +"					//	Set to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
+		
 		for (var j = 0; j < ConfigObjects.length; j++) {
 			if (templine.indexOf(ConfigObjects[j].globalVar + " = ") > -1) {
 				if (typeof (this[ConfigObjects[j].globalVar]) == 'object') {
@@ -649,7 +555,7 @@ print("Saving Config")
 						}else {
 							   templine = "\t" + ConfigObjects[j].globalVar + " = " + this[s.substring(0, s.indexOf("["))][s.substring(s.indexOf("[") + 1, s.length - 1)] + (ConfigObjects[j].Comment ? ConfigObjects[j].Comment : ";")
 						}
-					} else {
+							 } else {
 						templine = "\t" + ConfigObjects[j].globalVar + " = " + this[ConfigObjects[j].globalVar] + (ConfigObjects[j].Comment ? ConfigObjects[j].Comment : ";")
 					}
 				}
@@ -657,6 +563,7 @@ print("Saving Config")
 			}
 
 		}
+		if (templine.indexOf("useTeleport = ") > -1) templine = "\t" + "me.useTeleport = " + useTeleport + "					//	Set boobs to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
 		content += (templine) +"\n" ;
 //		 this.globalVar = globalVar;
 //	this.Comment = Comment

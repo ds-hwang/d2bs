@@ -43,8 +43,9 @@ function NT_SimonSays() {
 	cbShowOptions.checked = false;		
 	var cbEnableSnaging = new CheckBox(650,30,"Enable Snaging",SimonEnableSnagging)	 
 	cbEnableSnaging.visible = cbShowOptions.checked
-	var cbAutoReveal = new CheckBox(650,45,"Auto Reveal",SimonAutoReveal)	
-	var cbSimonEnableCommands = new CheckBox(650,60,"EnableCommands",SimonEnableCommands)
+	var cbAutoReveal = new CheckBox(650,45,"Auto Reveal",SimonAutoReveal)
+	var cbSimonEnableCommands = new CheckBox(650, 60, "EnableCommands", SimonEnableCommands)
+	cbSimonEnableCommands.hookedVal = SimonEnableCommands;
 	var cbSimonStopLifeWatch = new CheckBox(650,75,"LifeWatch/Chicken Enabled",!SimonStopLifeWatch)
 	var cbShowLoc = new CheckBox (650,90,"Loction Hook",false)
 	cbShowLoc.visible=cbShowOptions.checked
@@ -87,7 +88,7 @@ function NT_SimonSays() {
 			NTSI_FastSnag();
 			NTSI_PickItems(); // adding for utility snag		
 		}
-		SimonEnableCommands =cbSimonEnableCommands.checked;
+		
 		
 		if (UseLifewatch != cbSimonStopLifeWatch.checked){
 			UseLifewatch = cbSimonStopLifeWatch.checked;

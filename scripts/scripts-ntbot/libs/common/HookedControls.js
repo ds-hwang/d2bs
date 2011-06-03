@@ -37,8 +37,8 @@ function myKeyHandler(key) {
 		focusedControl.text = focusedControl.text.substring(0, focusedControl.text.length - 1)
 	if (typeof (focusedControl.valueChanged) == 'function')
 		focusedControl.valueChanged(focusedControl.text)
-
-	if (key == 28) focusedControl = false
+	if (key == 28) focusedControl = false;
+	
 	return true;
 }
 function myGetTextSize (txt,font){
@@ -48,13 +48,18 @@ else
     return getTextSize(txt, font)    
     
 }
-	 
+function setGlobaltoVal(global, val) {
+	if (global !== "") {
+		this[global] = val;
+	}
+}
 function CheckBox(x, y,Txt,Checked,boxOnLeft) {
  	//text "text",x,y,color,font,alingment
  this.x = x; 
  this.y = y; 
  this.boxSize = 10;
- this.textColor =2;
+ this.textColor = 2;
+ this.hookedVal = "";
  this.font = 6;
  this.boxColor=8
  this.boxOnRight = true;
@@ -94,13 +99,14 @@ if (!this.boxOnRight) this.update()
 		this.update();
 		return newval;	
 	});
-	this.watch("checked", function(id,oldval,newval) {
+	this.watch("checked", function (id, oldval, newval) {
 		this.checked = newval;
-		Checked=newval;
+		Checked = newval;
 		this.update();
+		setGlobaltoVal(this.hookedVal, newval);
 		if (typeof (this.checkedChanged) == "function")
-            this.checkedChanged(newval)
-		return newval;	
+			this.checkedChanged(newval)
+		return newval;
 	});
 	this.watch("visible", function(id,oldval,newval) {
 		this.visible = newval
@@ -277,8 +283,9 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
  	//text "text",x,y,color,font,alingment
 	this.editable = false  //can type into text boxes
 	this.setKeyVal = false;	// sets text = keypress
- this.x = x; 
- this.y = y; 
+ this.x = x;
+ this.y = y;
+ this.hookedVal = "";
  this.xSize = xSize;
  this.ySize = ySize;
  this.scrollIndex = 0;
@@ -369,12 +376,13 @@ this.watch("backColor", function(id,oldval,newval) {
 	this.redrawHooks();	
 	return newval;
 	});
-this.watch("text", function(id,oldval,newval) {
-	this.text = newval
-	this.redrawHooks();	
-	this.updateText();
-	return newval;
-	
+	this.watch("text", function (id, oldval, newval) {
+		this.text = newval;
+		this.redrawHooks();
+		this.updateText();
+		setGlobaltoVal(this.hookedVal, newval);
+		return newval;
+
 	});
 this.watch("selectedRow", function(id,oldval,newval) {
 	this.selectedRow = newval
@@ -708,7 +716,8 @@ function SliderWText(x, y,text,maxVal,initVal,txtColor,backColor) {
 	this.backColor = (backColor) ? backColor : 18;  //2 = gray
 	this.textColor = (txtColor) ? txtColor :13;
 	this.font=6;
-	this.value =initVal;
+	this.value = initVal;
+	this.hookedVal = "";
 	this.text = text;
 	this.valueChanged = false;
 	this.maxVal = maxVal;
@@ -727,8 +736,9 @@ this.watch("scrollIndex", function(id,oldval,newval) {
 		this.scrollIndex = this.slider.value;	
 		this.value = this.slider.value;
 		this.infoText.text = this.text + ": " + this.slider.value;
-		  if(typeof(this.valueChanged == 'function'))
+		  if(typeof(this.valueChanged) == 'function')
 		  	this.valueChanged(this.value)
+		  setGlobaltoVal(this.hookedVal, this.value);
 		return newval;
 		});	
 this.watch("visible", function(id,oldval,newval) {		
@@ -837,10 +847,10 @@ this.textList=(textList)? textList :[];
 this.droped = false;
 this.autoWide =myGetTextSize(text,this.font)[0]+5;
 
-for (var j = 0; j < this.textList.length; j++){
-	if (myGetTextSize(this.textList[j],this.font)[0]+5 > this.autoWide)
-		this.autoWide = myGetTextSize(this.textList[j],this.font)[0]+5;
-}
+	for (var j = 0; j < this.textList.length; j++){
+		if (myGetTextSize(this.textList[j],this.font)[0]+5 > this.autoWide)
+			this.autoWide = myGetTextSize(this.textList[j],this.font)[0]+5;
+	}
 this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
 this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
 
@@ -876,6 +886,7 @@ DropDownBox.prototype.childUpate = function () {
 		if (this.topText.text != this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value]){
 			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];
 			this.listbox.visible = false;
+			setGlobaltoVal(this.hookedVal,this.topText.text)
 			if (typeof(this.valueChanged) == 'function')
 				this.valueChanged(this.topText.text)
 		}
@@ -890,7 +901,8 @@ DropDownBox.prototype.update = function () {
 function LinkedListBoxes (x,y,xsize,ysize,fullList,partialList,mode){
 this.x=x
 this.y=y
-this.xsize =xsize
+this.xsize = xsize
+this.hookedVal = "";
 this.ysize = ysize
 this.startFullList = []
 for (var a = 0; a < fullList.length; a++)
@@ -922,6 +934,7 @@ this.mode=mode // 2 for add sub 4 for add subb and sort.
 			this.parent.parent.partialList.push(this.child.selectedText)
 			this.parent.textLines = this.parent.parent.partialList;
 			this.child.deleteSelectedRow()
+			setGlobaltoVal(this.parent.parent.hookedVal, this.parent.parent.partialList)
 			if (typeof(this.parent.parent.valueChanged) == 'function')
 				this.parent.parent.valueChanged(this.parent.parent.partialList)
 
@@ -943,6 +956,7 @@ this.mode=mode // 2 for add sub 4 for add subb and sort.
 
 		this.child.textLines = this.parent.parent.fullList;
 		this.parent.parent.removeDuplicats()
+		setGlobaltoVal(this.parent.parent.hookedVal, this.parent.parent.partialList)
 		if (typeof(this.parent.parent.valueChanged) == 'function')
 				this.parent.parent.valueChanged(this.parent.parent.partialList)
 	};
