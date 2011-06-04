@@ -69,7 +69,7 @@ int main(int argc, const char** argv)
 	if(_waccess(script, 0) == -1)
 		return 0;
 
-	Engine engine(path, 0x80000, InitClasses, reporter);
+	Core::Engine engine(path, 0x80000, InitClasses, reporter);
 	engine.RegisterModule(console_mods);
 	std::cout << "Starting test.js" << std::endl;
 	engine.CompileScript(L"test.js")->Start();

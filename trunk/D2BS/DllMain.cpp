@@ -7,6 +7,8 @@
 #include "Engine.hpp"
 #include "..\D2Api\D2Api.hpp"
 
+using namespace Core;
+
 Engine* engine = nullptr;
 HINSTANCE hModule;
 char base[MAX_PATH] = "";

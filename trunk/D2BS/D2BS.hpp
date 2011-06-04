@@ -5,7 +5,7 @@
 #include "Engine.hpp"
 #include "sqlite3.h"
 
-extern Engine* engine;
+extern Core::Engine* engine;
 extern HINSTANCE hModule;
 extern char* base;
 extern bool isGuarded;

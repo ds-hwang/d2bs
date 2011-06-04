@@ -9,6 +9,8 @@
 #include "Engine.hpp"
 #include "Script.hpp"
 
+namespace Core {
+
 class Module {
 private:
 	Module(const Module&);
@@ -29,3 +31,5 @@ public:
 	EXPORT inline JSObject* GetModule(void) { return module; }
 	EXPORT inline bool IsReady(void) { return ready; }
 };
+
+}

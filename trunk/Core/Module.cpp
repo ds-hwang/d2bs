@@ -5,6 +5,8 @@
 #include "Engine.hpp"
 #include "JSClasses.hpp"
 
+namespace Core {
+
 Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 	ready(false), cx(cx)
 {
@@ -59,4 +61,6 @@ Module::~Module()
 	JS_SetContextThread(cx);
 	JS_RemoveObjectRoot(cx, &(this->obj));
 	JS_ClearContextThread(cx);
+}
+
 }

@@ -10,6 +10,8 @@
 
 #include "Engine.hpp"
 
+namespace Core {
+
 enum ScriptState
 {
 	Waiting,
@@ -68,3 +70,5 @@ public:
 
 	EXPORT void FireEvent(const char* evt, std::list<JS::Anchor<jsval>> args);
 };
+
+}

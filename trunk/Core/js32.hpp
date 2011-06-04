@@ -65,7 +65,7 @@ struct JSModuleSpec {
 #define JSAPI_PROP(name) JSBool name##(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
 #define JSAPI_STRICT_PROP(name) JSBool name##(JSContext* cx, JSObject *obj, jsid id, JSBool strict, jsval* vp)
 
-EXPORT JSBool JS_ThrowError(JSContext* cx, const char* message);
+EXPORT JSBool JS_ThrowError(JSContext* cx, const char* message, ...);
 EXPORT void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes);
 
 EXPORT JSBool JS_ArrayToVector(JSContext* cx, jsval arr, std::vector<jsval>& vec);

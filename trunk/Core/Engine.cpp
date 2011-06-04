@@ -6,7 +6,7 @@
 #include "JSClasses.hpp"
 #include "Modules.hpp"
 
-using namespace std;
+namespace Core {
 
 Engine::Engine(const wchar_t* path, unsigned int gctime,
 						JSClassInitCallback classCallback,
@@ -21,8 +21,6 @@ Engine::Engine(const wchar_t* path, unsigned int gctime,
 	std::replace_copy(path, path+len, pname, L'/', L'\\');
 	std::transform(pname, pname+len, pname, towlower);
 	this->path = std::wstring(path);
-
-	this->classInit = classCallback;
 
 	JS_SetContextCallback(runtime, Engine::ContextCallback);
 
@@ -81,12 +79,6 @@ void Engine::ReleaseContext(JSContext* cx)
 void Engine::RunAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Start(); }
 void Engine::StopAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Pause(); }
 void Engine::PauseAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Stop(); }
-
-bool Engine::Exists(const wchar_t* rel, bool module)
-{
-	if(module) return modules.count(rel) > 0;
-	else return _waccess((this->path + L"\\" + rel).c_str(), 0) != -1;
-}
 
 Script* Engine::CompileScript(const wchar_t* file, bool recompile)
 {
@@ -190,4 +182,6 @@ void Engine::ErrorReporter(JSContext *cx, const char *message, JSErrorReport *re
 {
 	Engine* engine = (Engine*)JS_GetRuntimePrivate(JS_GetRuntime(cx));
 	if(engine->reporter != nullptr) engine->reporter(cx, message, report);
+}
+
 }

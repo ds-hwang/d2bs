@@ -12,6 +12,8 @@
 
 #include "JSClasses.hpp"
 
+using namespace Core;
+
 JSFunctionSpec module_methods[] = {
 	JS_FS("load",		mod_load,		1, JSPROP_STATIC),
 	JS_FS("require",	mod_require,	1, JSPROP_STATIC),
@@ -44,7 +46,7 @@ JSAPI_FUNC(mod_load)
 		if(rel != L"") path = rel + L"\\" + file;
 		else path = file;
 
-		found = script->GetEngine()->Exists(path.c_str());
+		found = script->GetEngine()->FileExists(path.c_str());
 		if(found)
 		{
 			// TODO: wrap the resultant Script in an object and return it to the caller
@@ -84,7 +86,7 @@ JSAPI_FUNC(mod_require)
 		else path = file;
 		// TODO: internal modules do not have an extension, so we can shortcut if no extension
 
-		found = script->GetEngine()->Exists(path.c_str(), true) || script->GetEngine()->Exists(path.c_str());
+		found = script->GetEngine()->ModuleExists(path.c_str()) || script->GetEngine()->FileExists(path.c_str());
 		if(found)
 		{
 			Module* module = script->GetEngine()->CompileModule(cx, path.c_str());

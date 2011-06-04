@@ -1,6 +1,10 @@
 #pragma once
 #include <windows.h>
 
+#define EXPORTING
+#include "..\Core\Exports.hpp"
+#undef EXPORTING
+
 extern "C" {
-	__declspec(dllexport) void __fastcall Init(void);
+	EXPORT void __fastcall Init(void);
 }

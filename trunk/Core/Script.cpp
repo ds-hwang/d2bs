@@ -6,6 +6,8 @@
 #include "Script.hpp"
 #include "JSClasses.hpp"
 
+namespace Core {
+
 Script::Script(const wchar_t* path, Engine* engine) :
 	engine(engine), cx(nullptr), script(nullptr), obj(nullptr), paths(nullptr),
 	state(Failed), oldState(Failed), thread(INVALID_HANDLE_VALUE), pause(INVALID_HANDLE_VALUE)
@@ -165,4 +167,6 @@ void __cdecl Script::ThreadProc(void* args)
 	}
 
 	self->state = Done;
+}
+
 }

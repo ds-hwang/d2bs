@@ -1,20 +1,24 @@
 #pragma once
-#define XP_WIN
-
-#define EXPORTING
-
-#include "Exports.hpp"
-#include "js32.hpp"
 #include <windows.h>
+
 #include <string>
 #include <list>
 #include <vector>
 #include <unordered_map>
 
+#include "js32.hpp"
+#define EXPORTING
+#include "Exports.hpp"
+#undef EXPORTING
+
+namespace Core {
 class Engine;
+}
 
 #include "Script.hpp"
 #include "Module.hpp"
+
+namespace Core {
 
 typedef void (*JSClassInitCallback)(JSContext* cx, JSObject* obj);
 
@@ -59,9 +63,12 @@ public:
 
 	// NB: the difference between a Module and a Script is that a Module may not be
 	// recompiled, and will always return the same object for the same relative name
-	EXPORT bool Exists(const wchar_t* rel, bool module = false);
+	EXPORT inline bool FileExists(const wchar_t* rel) { return _waccess((this->path + L"\\" + rel).c_str(), 0) != -1; }
+	EXPORT inline bool ModuleExists(const wchar_t* rel) { return modules.count(rel) > 0; }
 	EXPORT Script* CompileScript(const wchar_t* file, bool recompile = false);
 	EXPORT Module* CompileModule(JSContext* cx, const wchar_t* module);
 
 	EXPORT void FireEvent(const char* evtName, char* format, ...);
 };
+
+}
