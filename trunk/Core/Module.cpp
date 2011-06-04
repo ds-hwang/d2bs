@@ -13,7 +13,7 @@ Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 	cpath.assign(wpath.begin(), wpath.end());
 
 	obj = JS_NewGlobalObject(cx, &global);
-	JS_AddObjectRoot(cx, &obj);
+	JS_AddObjectRoot(cx, &(this->obj));
 	engine->InitClasses(cx, obj);
 
 	exports = JS_NewObject(cx, nullptr, nullptr, obj);
@@ -35,12 +35,14 @@ Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 	}
 }
 
-Module::Module(JSContext* cx, JSObject* obj,JSModuleSpec* mod) :
+Module::Module(JSContext* cx, JSObject* obj, JSModuleSpec* mod) :
 	cx(cx), obj(obj), exports(nullptr), module(nullptr)
 {
-	exports = JS_NewObject(cx, nullptr, nullptr, obj);
+	JSAutoRequest req(cx);
+	JSAutoEnterCompartment comp;
+	comp.enter(cx, obj);
+	exports = JS_NewObject(cx, nullptr, nullptr, nullptr);
 	JS_AddObjectRoot(cx, &(this->obj));
-
 	JS_DefineProperty(cx, obj, "exports", OBJECT_TO_JSVAL(exports), nullptr, nullptr, JSPROP_DEFAULT);
 
 	if(mod->classes != nullptr) JS_DefineClasses(cx, exports, mod->classes);
@@ -55,6 +57,6 @@ Module::~Module()
 	JSAutoEnterCompartment comp;
 	comp.enter(cx, obj);
 	JS_SetContextThread(cx);
-	JS_RemoveObjectRoot(cx, &obj);
+	JS_RemoveObjectRoot(cx, &(this->obj));
 	JS_ClearContextThread(cx);
 }

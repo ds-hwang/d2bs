@@ -10,7 +10,7 @@ JSAPI_FUNC(console_newline);
 
 JSAPI_EMPTY_CTOR(Console)
 
-static JSClass console = { "Console", 0, JSCLASS_DEFAULT_WITH_CTOR(Console) };
+static JSClass console = { "Console", JSCLASS_IS_GLOBAL, JSCLASS_DEFAULT_WITH_CTOR(Console) };
 JSFunctionSpec console_methods[] = {
 	JS_FS("print", console_print, 1, JSPROP_STATIC),
 	JS_FS_END
@@ -22,7 +22,7 @@ static JSClassSpec cmd_classes[] = {
 };
 
 static JSModuleSpec console_mods[] = {
-	JS_MS("console", cmd_classes, nullptr, nullptr),
+	JS_MS("console", cmd_classes, console_methods, nullptr),
 	JS_MS_END
 };
 
@@ -40,7 +40,7 @@ JSAPI_FUNC(console_print)
 
 void InitClasses(JSContext* cx, JSObject* obj)
 {
-	//JS_DefineClasses(cx, obj, cmd_classes);
+	// no global classes to init
 }
 
 void reporter(JSContext *cx, const char *message, JSErrorReport *report)
@@ -69,7 +69,7 @@ int main(int argc, const char** argv)
 	if(_waccess(script, 0) == -1)
 		return 0;
 
-	Engine engine(path, 0x80000000, InitClasses, reporter);
+	Engine engine(path, 0x80000, InitClasses, reporter);
 	engine.RegisterModule(console_mods);
 	std::cout << "Starting test.js" << std::endl;
 	engine.CompileScript(L"test.js")->Start();

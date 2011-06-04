@@ -136,7 +136,6 @@ void Engine::InitClasses(JSContext* cx, JSObject* obj)
 {
 	JS_InitStandardClasses(cx, obj);
 	JS_DefineFunctions(cx, obj, module_methods);
-	JS_DefineClasses(cx, obj, classes);
 
 	if(classInit != nullptr) classInit(cx, obj);
 	InitModules(cx, obj);

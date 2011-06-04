@@ -1,28 +1,41 @@
 #include "js32.hpp"
+#include <cstdarg>
 
-JSBool JS_ThrowError(JSContext* cx, const char* message)
+JSBool JS_ThrowError(JSContext* cx, const char* message, ...)
 {
-	JS_ReportError(cx, message);
+	va_list args;
+	va_start(args, message);
+
+	int len = _vscprintf(message, args);
+	char* msg = new char[len+1];
+	vsprintf_s(msg, len, message, args);
+
+	va_end(args);
+
+	JS_ReportError(cx, msg);
+	delete[] msg;
 	return JS_FALSE;
 }
 
 void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes)
 {
-	for(JSClassSpec* clasp = classes; clasp->classp != nullptr; clasp++)
+	for(JSClassSpec* spec = classes; spec->classp != nullptr; spec++)
 	{
 		JSObject* proto = nullptr;
-		if(clasp->proto != nullptr)
+		if(spec->proto != nullptr)
 		{
-			// look up the proto on the global object
+			// look up the proto on the given object
 			jsval jsproto = JSVAL_NULL;
-			if(JS_GetProperty(cx, obj, clasp->proto->name, &jsproto))
-				if(!JSVAL_IS_NULL(jsproto) && !JSVAL_IS_VOID(jsproto))
-					proto = JSVAL_TO_OBJECT(jsproto);
+			if(JS_GetProperty(cx, obj, spec->proto->name, &jsproto)) {
+				JSObject* objproto = JSVAL_TO_OBJECT(jsproto);
+				if(JS_ObjectIsFunction(cx, objproto) && JS_ObjectIsFunction(cx, objproto))
+					proto = objproto;
+			}
 		}
 
-		JS_InitClass(cx, obj, proto, clasp->classp,
-			clasp->classp->construct, 0, clasp->properties, clasp->methods,
-			clasp->static_properties, clasp->static_methods);
+		JS_InitClass(cx, obj, proto, spec->classp,
+			spec->classp->construct, 0, spec->properties, spec->methods,
+			spec->static_properties, spec->static_methods);
 	}
 }
 
@@ -30,7 +43,6 @@ JSBool JS_ArrayToVector(JSContext* cx, jsval arr, std::vector<jsval>& vec)
 {
 	return JS_ArrayToVector(cx, JSVAL_TO_OBJECT(arr), vec);
 }
-
 JSBool JS_ArrayToVector(JSContext* cx, JSObject* arr, std::vector<jsval>& vec)
 {
 	if(!JS_IsArrayObject(cx, arr))
@@ -47,7 +59,7 @@ JSBool JS_ArrayToVector(JSContext* cx, JSObject* arr, std::vector<jsval>& vec)
 	return JS_TRUE;
 }
 
-EXPORT JSObject* JS_VectorToArray(JSContext* cx, std::vector<jsval>& vec)
+JSObject* JS_VectorToArray(JSContext* cx, std::vector<jsval>& vec)
 {
 	size_t len = vec.size();
 	jsval* jsarr = new jsval[len];

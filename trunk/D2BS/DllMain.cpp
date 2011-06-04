@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <shlwapi.h>
+#include <io.h>
+#include <fcntl.h>
 
 #include "sqlite3.h"
 #include "Engine.hpp"

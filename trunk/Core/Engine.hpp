@@ -62,6 +62,6 @@ public:
 	EXPORT bool Exists(const wchar_t* rel, bool module = false);
 	EXPORT Script* CompileScript(const wchar_t* file, bool recompile = false);
 	EXPORT Module* CompileModule(JSContext* cx, const wchar_t* module);
-	EXPORT void Stop();
+
 	EXPORT void FireEvent(const char* evtName, char* format, ...);
 };

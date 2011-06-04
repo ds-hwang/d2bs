@@ -9,6 +9,16 @@
 
 #include <vector>
 
+// not working
+//#define NAME_ALL_GC_ROOTS
+
+#define NUM(x) #x
+#define NAME(line, v) (__FILE__ ":" NUM(line) " -> " #v)
+#define JS_AddValueRoot(cx,vp) JS_AddNamedValueRoot((cx), (vp), NAME(__LINE__, vp))
+#define JS_AddStringRoot(cx,vp) JS_AddNamedStringRoot((cx), (vp), NAME(__LINE__, vp))
+#define JS_AddObjectRoot(cx,vp) JS_AddNamedObjectRoot((cx), (vp), NAME(__LINE__, vp))
+#define JS_AddGCThingRoot(cx,vp) JS_AddNamedGCThingRoot((cx), (vp), NAME(__LINE__, vp))
+
 // IMPORTANT: Ordering is critical here! If your object has a
 // defined prototype, _THAT PROTOTYPE MUST BE LISTED ABOVE IT_
 struct JSClassSpec {
