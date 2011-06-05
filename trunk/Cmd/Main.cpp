@@ -3,7 +3,10 @@
 
 #include <io.h>
 #include <direct.h>
+#include <process.h>
 #include <iostream>
+
+#include <boost/make_shared.hpp>
 
 JSAPI_FUNC(console_print);
 JSAPI_FUNC(console_newline);
@@ -22,7 +25,7 @@ static JSClassSpec cmd_classes[] = {
 };
 
 static JSModuleSpec console_mods[] = {
-	JS_MS("console", cmd_classes, console_methods, nullptr),
+	JS_MS("console", cmd_classes, nullptr, nullptr),
 	JS_MS_END
 };
 
@@ -60,6 +63,19 @@ void reporter(JSContext *cx, const char *message, JSErrorReport *report)
 	std::cout << message << std::endl;
 }
 
+void __cdecl spam(void* args)
+{
+	Core::Engine* engine = (Core::Engine*)args;
+	HANDLE blocker = CreateEvent(nullptr, false, false, nullptr);
+	Core::Event evt = {L"test", Core::ArgumentList(), blocker, false};
+	int i = 0;
+	while(true) {
+		evt.args.push_back(boost::any(i++));
+		engine->FireEvent(&evt);
+		Sleep(1000);
+	}
+}
+
 int main(int argc, const char** argv)
 {
 	wchar_t path[MAX_PATH] = L"", script[MAX_PATH] = L"";
@@ -71,9 +87,15 @@ int main(int argc, const char** argv)
 
 	Core::Engine engine(path, 0x80000, InitClasses, reporter);
 	engine.RegisterModule(console_mods);
+
+	HANDLE thread = (HANDLE)_beginthread(spam, 0, &engine);
+
 	std::cout << "Starting test.js" << std::endl;
 	engine.CompileScript(L"test.js")->Start();
+
 	getchar();
+
+	TerminateThread(thread, 0);
 
 	return 0;
 }

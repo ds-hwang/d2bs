@@ -17,6 +17,9 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Events.cpp">
+      <Filter>API</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Engine">
@@ -45,5 +48,11 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="AutoLock.hpp" />
+    <ClInclude Include="Event.hpp">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Events.hpp">
+      <Filter>API</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

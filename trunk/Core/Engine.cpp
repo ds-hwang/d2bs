@@ -5,6 +5,7 @@
 
 #include "JSClasses.hpp"
 #include "Modules.hpp"
+#include "Events.hpp"
 
 namespace Core {
 
@@ -23,6 +24,8 @@ Engine::Engine(const wchar_t* path, unsigned int gctime,
 	this->path = std::wstring(path);
 
 	JS_SetContextCallback(runtime, Engine::ContextCallback);
+
+	RegisterModule(event_modules);
 
 	JSContext* cx = GetContext();
 	assert(cx != nullptr);
@@ -155,8 +158,10 @@ void Engine::InitModules(JSContext* cx, JSObject* obj)
 	}
 }
 
-void Engine::FireEvent(const char* evtName, ArgumentList list)
+void Engine::FireEvent(Event* evt)
 {
+	for(auto it = scripts.begin(); it != scripts.end(); it++)
+		it->second->FireEvent(evt);
 }
 
 JSBool Engine::ContextCallback(JSContext *cx, uintN contextOp)

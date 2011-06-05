@@ -10,7 +10,7 @@
 namespace Core {
 
 Script::Script(const wchar_t* path, Engine* engine) :
-	engine(engine), cx(nullptr), script(nullptr), obj(nullptr), paths(nullptr),
+	engine(engine), cx(nullptr), script(nullptr), obj(nullptr), paths(nullptr), name(path),
 	state(Failed), oldState(Failed), thread(INVALID_HANDLE_VALUE), pause(INVALID_HANDLE_VALUE)
 {
 	InitializeCriticalSection(&lock);
@@ -59,7 +59,7 @@ Script::~Script(void)
 void Script::Start(void)
 {
 	if(state == Waiting)
-		thread = (HANDLE)_beginthread(Script::ThreadProc, 0, this);
+		thread = (HANDLE)_beginthread(Script::MainProc, 0, this);
 }
 void Script::Stop(void)
 {
@@ -87,7 +87,7 @@ void Script::Resume(void)
 	}
 }
 
-void Script::AddListener(const char* evt, jsval callback)
+void Script::AddListener(const wchar_t* evt, jsval callback)
 {
 	AutoLock l(&lock);
 
@@ -95,7 +95,7 @@ void Script::AddListener(const char* evt, jsval callback)
 	JS_AddValueRoot(cx, &(map[evt].back()));
 }
 
-void Script::RemoveListener(const char* evt, jsval callback)
+void Script::RemoveListener(const wchar_t* evt, jsval callback)
 {
 	AutoLock l(&lock);
 	JSAutoRequest req(cx);
@@ -109,7 +109,7 @@ void Script::RemoveListener(const char* evt, jsval callback)
 		map[evt].remove(*ptr);
 	}
 }
-void Script::RemoveListeners(const char* evt)
+void Script::RemoveListeners(const wchar_t* evt)
 {
 	AutoLock l(&lock);
 	JSAutoRequest req(cx);
@@ -129,8 +129,12 @@ void Script::RemoveListeners()
 	map.clear();
 }
 
-void Script::FireEvent(const char* evt, std::list<JS::Anchor<jsval>> args)
+void Script::FireEvent(Event* evt)
 {
+	ScriptEvent* evtData = new ScriptEvent;
+	evtData->evt = evt;
+	evtData->who = this;
+	QueueUserWorkItem(Script::EventProc, evtData, WT_EXECUTEDEFAULT);
 }
 
 JSBool Script::OperationCallback(JSContext *cx)
@@ -146,10 +150,17 @@ JSBool Script::OperationCallback(JSContext *cx)
 		}
 		case Stopping: {
 			// remove any handlers, set the state, etc.
-			// NOTE: for now, wait for the thread to exit; later, wait a given length of
-			// time after throwing an exception on the script and then kill it and shut down
+			// wait 1 second after throwing an exception on the script and then kill it
+			self->RemoveListeners();
+
+			JS_ReportError(cx, "Aborted");
+			JS_ReportPendingException(cx);
+
 			JSAutoSuspendRequest req(cx);
-			WaitForSingleObject(self->thread, INFINITE);
+			WaitForSingleObject(self->thread, 1000);
+			TerminateThread(self->thread, 0);
+			self->thread = INVALID_HANDLE_VALUE;
+
 			self->state = Stopped;
 			break;
 		}
@@ -159,7 +170,7 @@ JSBool Script::OperationCallback(JSContext *cx)
 	return JS_TRUE;
 }
 
-void __cdecl Script::ThreadProc(void* args)
+void __cdecl Script::MainProc(void* args)
 {
 	Script* self = (Script*)args;
 	if(self->state == Failed)
@@ -184,6 +195,58 @@ void __cdecl Script::ThreadProc(void* args)
 	}
 
 	self->state = Done;
+}
+
+DWORD WINAPI Script::EventProc(void* args)
+{
+	ScriptEvent* se = (ScriptEvent*)args;
+	Event* evt = se->evt;
+	Script* who = se->who;
+
+	std::list<jsval> funcs = who->map[evt->evtName];
+
+	int len = evt->args.size();
+	jsval* arg = new jsval[len];
+
+	auto end = evt->args.end();
+	uint32 i = 0;
+	for(auto it = evt->args.begin(); it != end; it++)
+	{
+		if(it->type() == typeid(int)) {
+			int x = boost::any_cast<int>(*it);
+			arg[i++] = INT_TO_JSVAL(x);
+		} else if(it->type() == typeid(double)) {
+			double x = boost::any_cast<double>(*it);
+			arg[i++] = DOUBLE_TO_JSVAL(x);
+		} else if(it->type() == typeid(boost::shared_ptr<JSAutoRoot>)) {
+			boost::shared_ptr<JSAutoRoot> x = boost::any_cast<boost::shared_ptr<JSAutoRoot>>(*it);
+			arg[i++] = *(jsval*)x.get()->get();
+		} else if(it->type() == typeid(boost::shared_array<char>)) {
+			boost::shared_array<char> x = boost::any_cast<boost::shared_array<char>>(*it);
+			arg[i++] = STRING_TO_JSVAL(JS_NewStringCopyZ(who->cx, x.get()));
+		}
+	}
+
+	for(auto it = funcs.begin(); it != funcs.end(); it++)
+	{
+		JSAutoRequest req(who->cx);
+		JSAutoEnterCompartment comp;
+		comp.enter(who->cx, who->obj);
+
+		jsval result;
+		JS::Call(who->cx, who->obj, *it, len, arg, &result);
+		if(JSVAL_IS_BOOLEAN(result) && JSVAL_TO_BOOLEAN(result) == JS_TRUE)
+			evt->result = true;
+	}
+
+	if(evt->blocker != INVALID_HANDLE_VALUE)
+		SetEvent(evt->blocker);
+
+	delete se;
+	// if there's a blocker, then the event source is waiting on the result, so don't delete it
+	if(evt->blocker != INVALID_HANDLE_VALUE)
+		delete evt;
+	return 0;
 }
 
 }

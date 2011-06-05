@@ -49,6 +49,7 @@ private:
 public:
 	JSAutoRoot(JSContext* cx, jsval* value) : cx(cx), ref(value) { JS_AddValueRoot(cx, ref); }
 	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); }
+	jsval* get() { return ref; }
 };
 
 #define JS_CS(classp, proto, ctor, argc, methods, props, static_methods, static_props) \

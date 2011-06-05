@@ -17,17 +17,9 @@ class Engine;
 
 #include "Script.hpp"
 #include "Module.hpp"
+#include "Event.hpp"
 
 namespace Core {
-
-enum ArgumentType {
-	IntType,
-	DoubleType,
-	StringType,
-	JSValType
-};
-
-typedef std::vector<std::pair<ArgumentType, std::shared_ptr<void*>>> ArgumentList;
 
 typedef void (*JSClassInitCallback)(JSContext* cx, JSObject* obj);
 
@@ -73,14 +65,13 @@ public:
 	EXPORT void InitClasses(JSContext* cx, JSObject* obj);
 	EXPORT void RegisterModule(JSModuleSpec* module);
 
-	// NB: the difference between a Module and a Script is that a Module may not be
-	// recompiled, and will always return the same object for the same relative name
 	EXPORT inline bool FileExists(const wchar_t* rel) { return _waccess((this->path + L"\\" + rel).c_str(), 0) != -1; }
 	EXPORT inline bool ModuleExists(const wchar_t* rel) { return modules.count(rel) > 0; }
+
 	EXPORT Script* CompileScript(const wchar_t* file, bool recompile = false);
 	EXPORT Module* CompileModule(JSContext* cx, const wchar_t* module);
 
-	EXPORT void FireEvent(const char* evtName, ArgumentList list);
+	EXPORT void FireEvent(Event* evt);
 };
 
 }

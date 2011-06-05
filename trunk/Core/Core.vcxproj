@@ -58,7 +58,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <DisableSpecificWarnings>4100;4365;4480;4668;4710;4820;4986;4127;4132;4244;4255</DisableSpecificWarnings>
       <MinimalRebuild>false</MinimalRebuild>
@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Events.cpp" />
     <ClCompile Include="js32.cpp" />
     <ClCompile Include="JSClasses.cpp" />
     <ClCompile Include="Module.cpp" />
@@ -121,6 +122,8 @@
   <ItemGroup>
     <ClInclude Include="AutoLock.hpp" />
     <ClInclude Include="Engine.hpp" />
+    <ClInclude Include="Event.hpp" />
+    <ClInclude Include="Events.hpp" />
     <ClInclude Include="Exports.hpp" />
     <ClInclude Include="js32.hpp" />
     <ClInclude Include="JSClasses.hpp" />

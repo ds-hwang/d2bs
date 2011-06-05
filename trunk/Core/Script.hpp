@@ -9,6 +9,7 @@
 #undef EXPORTING
 
 #include "Engine.hpp"
+#include "Event.hpp"
 
 namespace Core {
 
@@ -23,7 +24,14 @@ enum ScriptState
 	Failed
 };
 
-typedef std::unordered_map<std::string, std::list<jsval>> EventMap;
+class Script;
+
+typedef std::unordered_map<std::wstring, std::list<jsval>> EventMap;
+
+struct ScriptEvent {
+	Event* evt;
+	Script* who;
+};
 
 class Script
 {
@@ -38,12 +46,13 @@ private:
 	ScriptState state, oldState;
 	EventMap map;
 
+	std::wstring name;
+
 	HANDLE thread, pause;
 	CRITICAL_SECTION lock;
 
-	// NB: this behavior is roughly equivalent to these functions
-	// "friend"ing Script but looks just a little neater, IMO.
-	static void __cdecl ThreadProc(void*);
+	static void __cdecl MainProc(void*);
+	static DWORD WINAPI EventProc(void*);
 	static JSBool OperationCallback(JSContext *cx);
 
 	friend Engine;
@@ -57,9 +66,9 @@ public:
 	EXPORT void Resume(void);
 	EXPORT void Stop(void);
 
-	EXPORT void AddListener(const char* evt, jsval callback);
-	EXPORT void RemoveListener(const char* evt, jsval callback);
-	EXPORT void RemoveListeners(const char* evt);
+	EXPORT void AddListener(const wchar_t* evt, jsval callback);
+	EXPORT void RemoveListener(const wchar_t* evt, jsval callback);
+	EXPORT void RemoveListeners(const wchar_t* evt);
 	EXPORT void RemoveListeners();
 
 	EXPORT inline Engine* GetEngine(void) { return engine; }
@@ -68,7 +77,7 @@ public:
 	EXPORT inline JSObject* GetGlobalObject(void) { return obj; }
 	inline JSObject* GetSearchPath(void) { return paths; }
 
-	EXPORT void FireEvent(const char* evt, std::list<JS::Anchor<jsval>> args);
+	EXPORT void FireEvent(Event* evt);
 };
 
 }
