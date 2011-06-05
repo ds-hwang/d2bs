@@ -29,14 +29,13 @@ void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes)
 			jsval jsproto = JSVAL_NULL;
 			if(JS_GetProperty(cx, obj, spec->proto->name, &jsproto)) {
 				JSObject* objproto = JSVAL_TO_OBJECT(jsproto);
-				if(JS_ObjectIsFunction(cx, objproto) && JS_ObjectIsFunction(cx, objproto))
+				if(JS_ObjectIsFunction(cx, objproto))
 					proto = objproto;
 			}
 		}
 
-		JS_InitClass(cx, obj, proto, spec->classp,
-			spec->classp->construct, 0, spec->properties, spec->methods,
-			spec->static_properties, spec->static_methods);
+		JS_InitClass(cx, obj, proto, spec->classp, spec->ctor, spec->argc,
+			spec->properties, spec->methods, spec->static_properties, spec->static_methods);
 	}
 }
 

@@ -24,6 +24,8 @@
 struct JSClassSpec {
 	JSClass* classp;
 	JSClass* proto;
+	JSNative ctor;
+	uintN argc;
 	JSFunctionSpec* methods;
 	JSPropertySpec* properties;
 	JSFunctionSpec* static_methods;
@@ -49,8 +51,8 @@ public:
 	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); }
 };
 
-#define JS_CS(classp, proto, methods, props, static_methods, static_props) \
-	{classp, proto, methods, props, static_methods, static_props}
+#define JS_CS(classp, proto, ctor, argc, methods, props, static_methods, static_props) \
+	{classp, proto, ctor, argc, methods, props, static_methods, static_props}
 
 #define JS_CS_END {0}
 

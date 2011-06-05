@@ -17,7 +17,7 @@ JSFunctionSpec console_methods[] = {
 };
 
 static JSClassSpec cmd_classes[] = {
-	JS_CS(&console, nullptr, nullptr, nullptr, nullptr, nullptr),
+	JS_CS(&console, nullptr, Console, 0, nullptr, nullptr, console_methods, nullptr),
 	JS_CS_END
 };
 

@@ -21,8 +21,8 @@ Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 	exports = JS_NewObject(cx, nullptr, nullptr, obj);
 	module = JS_NewObject(cx, nullptr, nullptr, obj);
 
-	JS_DefineProperty(cx, module, "id", STRING_TO_JSVAL(JS_InternUCString(cx, path)), nullptr, nullptr, JSPROP_DEFAULT);
-	JS_DefineProperty(cx, obj, "module", OBJECT_TO_JSVAL(module), nullptr, nullptr, JSPROP_DEFAULT);
+	JS_DefineProperty(cx, module, "id", STRING_TO_JSVAL(JS_InternUCString(cx, path)), nullptr, nullptr, JSPROP_STATIC);
+	JS_DefineProperty(cx, obj, "module", OBJECT_TO_JSVAL(module), nullptr, nullptr, JSPROP_STATIC);
 	JS_DefineProperty(cx, obj, "exports", OBJECT_TO_JSVAL(exports), nullptr, nullptr, JSPROP_DEFAULT);
 
 	std::string str(std::istreambuf_iterator<char>(std::ifstream(path).rdbuf()),std::istreambuf_iterator<char>());
@@ -51,6 +51,7 @@ Module::Module(JSContext* cx, JSObject* obj, JSModuleSpec* mod) :
 	if(mod->classes != nullptr) JS_DefineClasses(cx, exports, mod->classes);
 	if(mod->static_methods != nullptr) JS_DefineFunctions(cx, exports, mod->static_methods);
 	if(mod->static_properties != nullptr) JS_DefineProperties(cx, exports, mod->static_properties);
+
 	ready = true;
 }
 
