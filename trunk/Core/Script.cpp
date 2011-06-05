@@ -212,19 +212,12 @@ DWORD WINAPI Script::EventProc(void* args)
 	uint32 i = 0;
 	for(auto it = evt->args.begin(); it != end; it++)
 	{
-		if(it->type() == typeid(int)) {
-			int x = boost::any_cast<int>(*it);
-			arg[i++] = INT_TO_JSVAL(x);
-		} else if(it->type() == typeid(double)) {
-			double x = boost::any_cast<double>(*it);
-			arg[i++] = DOUBLE_TO_JSVAL(x);
-		} else if(it->type() == typeid(boost::shared_ptr<JSAutoRoot>)) {
-			boost::shared_ptr<JSAutoRoot> x = boost::any_cast<boost::shared_ptr<JSAutoRoot>>(*it);
-			arg[i++] = *(jsval*)x.get()->get();
-		} else if(it->type() == typeid(boost::shared_array<char>)) {
-			boost::shared_array<char> x = boost::any_cast<boost::shared_array<char>>(*it);
-			arg[i++] = STRING_TO_JSVAL(JS_NewStringCopyZ(who->cx, x.get()));
-		}
+		if(int* x = boost::any_cast<int>(&(*it))) arg[i++] = INT_TO_JSVAL(*x);
+		else if(double* x = boost::any_cast<double>(&(*it))) arg[i++] = DOUBLE_TO_JSVAL(*x);
+		else if(boost::shared_ptr<JSAutoRoot>* x = boost::any_cast<boost::shared_ptr<JSAutoRoot>>(&(*it)))
+			arg[i++] = *(jsval*)(x->get())->get();
+		else if(std::string* x = boost::any_cast<std::string>(&(*it)))
+			arg[i++] = STRING_TO_JSVAL(JS_NewStringCopyZ(who->cx, x->c_str()));
 	}
 
 	for(auto it = funcs.begin(); it != funcs.end(); it++)
@@ -244,7 +237,7 @@ DWORD WINAPI Script::EventProc(void* args)
 
 	delete se;
 	// if there's a blocker, then the event source is waiting on the result, so don't delete it
-	if(evt->blocker != INVALID_HANDLE_VALUE)
+	if(evt->blocker == INVALID_HANDLE_VALUE)
 		delete evt;
 	return 0;
 }

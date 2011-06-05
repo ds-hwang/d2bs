@@ -66,14 +66,17 @@ void reporter(JSContext *cx, const char *message, JSErrorReport *report)
 void __cdecl spam(void* args)
 {
 	Core::Engine* engine = (Core::Engine*)args;
+	Core::Script* script = engine->CompileScript(L"test.js");
 	HANDLE blocker = CreateEvent(nullptr, false, false, nullptr);
 	Core::Event evt = {L"test", Core::ArgumentList(), blocker, false};
 	int i = 0;
-	while(true) {
-		evt.args.push_back(boost::any(i++));
-		engine->FireEvent(&evt);
+	while(evt.result == false) {
 		Sleep(1000);
+		evt.args.push_back(boost::any(boost::shared_ptr<JSAutoRoot>(new JSAutoRoot(script->GetContext(), new jsval(INT_TO_JSVAL(i++))))));
+		engine->FireEvent(&evt);
+		ResetEvent(blocker);
 	}
+	WaitForSingleObject(blocker, INFINITE);
 }
 
 int main(int argc, const char** argv)
@@ -88,10 +91,10 @@ int main(int argc, const char** argv)
 	Core::Engine engine(path, 0x80000, InitClasses, reporter);
 	engine.RegisterModule(console_mods);
 
-	HANDLE thread = (HANDLE)_beginthread(spam, 0, &engine);
-
 	std::cout << "Starting test.js" << std::endl;
 	engine.CompileScript(L"test.js")->Start();
+
+	HANDLE thread = (HANDLE)_beginthread(spam, 0, &engine);
 
 	getchar();
 
