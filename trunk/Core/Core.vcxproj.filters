@@ -44,5 +44,6 @@
     <ClInclude Include="Engine.hpp">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="AutoLock.hpp" />
   </ItemGroup>
 </Project>

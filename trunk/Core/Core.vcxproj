@@ -119,6 +119,7 @@
     <ClCompile Include="Script.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AutoLock.hpp" />
     <ClInclude Include="Engine.hpp" />
     <ClInclude Include="Exports.hpp" />
     <ClInclude Include="js32.hpp" />

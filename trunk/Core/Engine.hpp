@@ -20,11 +20,23 @@ class Engine;
 
 namespace Core {
 
+enum ArgumentType {
+	IntType,
+	DoubleType,
+	StringType,
+	JSValType
+};
+
+typedef std::vector<std::pair<ArgumentType, std::shared_ptr<void*>>> ArgumentList;
+
 typedef void (*JSClassInitCallback)(JSContext* cx, JSObject* obj);
 
 class Engine
 {
 private:
+	Engine(const Engine&);
+	Engine& operator=(const Engine&);
+
 	JSRuntime* runtime;
 	std::wstring path;
 	std::unordered_map<std::wstring, Script*> scripts;
@@ -68,7 +80,7 @@ public:
 	EXPORT Script* CompileScript(const wchar_t* file, bool recompile = false);
 	EXPORT Module* CompileModule(JSContext* cx, const wchar_t* module);
 
-	EXPORT void FireEvent(const char* evtName, char* format, ...);
+	EXPORT void FireEvent(const char* evtName, ArgumentList list);
 };
 
 }

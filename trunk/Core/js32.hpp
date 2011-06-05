@@ -37,6 +37,18 @@ struct JSModuleSpec {
 	JSPropertySpec* static_properties;
 };
 
+class JSAutoRoot {
+private:
+	JSAutoRoot(const JSAutoRoot&);
+	JSAutoRoot& operator=(const JSAutoRoot&);
+
+	JSContext* cx;
+	jsval* ref;
+public:
+	JSAutoRoot(JSContext* cx, jsval* value) : cx(cx), ref(value) { JS_AddValueRoot(cx, ref); }
+	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); }
+};
+
 #define JS_CS(classp, proto, methods, props, static_methods, static_props) \
 	{classp, proto, methods, props, static_methods, static_props}
 

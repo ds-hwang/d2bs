@@ -152,7 +152,7 @@ void Engine::InitModules(JSContext* cx, JSObject* obj)
 	}
 }
 
-void Engine::FireEvent(const char* evtName, char* format, ...)
+void Engine::FireEvent(const char* evtName, ArgumentList list)
 {
 }
 

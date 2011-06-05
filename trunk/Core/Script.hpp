@@ -59,7 +59,7 @@ public:
 
 	EXPORT void AddListener(const char* evt, jsval callback);
 	EXPORT void RemoveListener(const char* evt, jsval callback);
-	EXPORT void RemoveListener(const char* evt);
+	EXPORT void RemoveListeners(const char* evt);
 	EXPORT void RemoveListeners();
 
 	EXPORT inline Engine* GetEngine(void) { return engine; }

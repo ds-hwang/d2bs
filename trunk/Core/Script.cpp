@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 
+#include "AutoLock.hpp"
 #include "Engine.hpp"
 #include "Script.hpp"
 #include "JSClasses.hpp"
@@ -13,6 +14,7 @@ Script::Script(const wchar_t* path, Engine* engine) :
 	state(Failed), oldState(Failed), thread(INVALID_HANDLE_VALUE), pause(INVALID_HANDLE_VALUE)
 {
 	InitializeCriticalSection(&lock);
+	AutoLock l(&lock);
 	pause = CreateEvent(nullptr, false, false, nullptr);
 
 	cx = engine->GetContext();
@@ -46,13 +48,18 @@ Script::Script(const wchar_t* path, Engine* engine) :
 }
 Script::~Script(void)
 {
+	AutoLock l(&lock);
 	JS_RemoveObjectRoot(cx, &paths);
+
+	RemoveListeners();
+
 	engine->ReleaseContext(cx);
 }
 
 void Script::Start(void)
 {
-	thread = (HANDLE)_beginthread(Script::ThreadProc, 0, this);
+	if(state == Waiting)
+		thread = (HANDLE)_beginthread(Script::ThreadProc, 0, this);
 }
 void Script::Stop(void)
 {
@@ -61,29 +68,38 @@ void Script::Stop(void)
 }
 void Script::Pause(void)
 {
-	oldState = state;
-	state = Paused;
-	ResetEvent(pause);
-	JS_TriggerOperationCallback(cx);
+	if(state == Running)
+	{
+		AutoLock l(&lock);
+		oldState = state;
+		state = Paused;
+		ResetEvent(pause);
+		JS_TriggerOperationCallback(cx);
+	}
 }
 void Script::Resume(void)
 {
-	state = oldState;
-	SetEvent(pause);
+	if(state == Paused)
+	{
+		AutoLock l(&lock);
+		state = oldState;
+		SetEvent(pause);
+	}
 }
 
 void Script::AddListener(const char* evt, jsval callback)
 {
-	EnterCriticalSection(&lock);
+	AutoLock l(&lock);
+
 	map[evt].push_back(callback);
 	JS_AddValueRoot(cx, &(map[evt].back()));
-	LeaveCriticalSection(&lock);
 }
 
 void Script::RemoveListener(const char* evt, jsval callback)
 {
-	EnterCriticalSection(&lock);
+	AutoLock l(&lock);
 	JSAutoRequest req(cx);
+
 	jsval* ptr = nullptr;
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		if((*it == callback)) ptr = &(*it);
@@ -92,26 +108,25 @@ void Script::RemoveListener(const char* evt, jsval callback)
 		JS_RemoveValueRoot(cx, ptr);
 		map[evt].remove(*ptr);
 	}
-	LeaveCriticalSection(&lock);
 }
-void Script::RemoveListener(const char* evt)
+void Script::RemoveListeners(const char* evt)
 {
-	EnterCriticalSection(&lock);
+	AutoLock l(&lock);
 	JSAutoRequest req(cx);
+
 	for(auto it = map[evt].begin(); it != map[evt].end(); it++)
 		JS_RemoveValueRoot(cx, &(*it));
 	map[evt].clear();
-	LeaveCriticalSection(&lock);
 }
 void Script::RemoveListeners()
 {
-	EnterCriticalSection(&lock);
+	AutoLock l(&lock);
 	JSAutoRequest req(cx);
+
 	for(auto evt = map.begin(); evt != map.end(); evt++)
 		for(auto it = evt->second.begin(); it != evt->second.end(); it++)
 			JS_RemoveValueRoot(cx, &(*it));
 	map.clear();
-	LeaveCriticalSection(&lock);
 }
 
 void Script::FireEvent(const char* evt, std::list<JS::Anchor<jsval>> args)
@@ -122,21 +137,23 @@ JSBool Script::OperationCallback(JSContext *cx)
 {
 	Script* self = (Script*)JS_GetContextPrivate(cx);
 
-	// check the event queue or something
-
-	if(self->state == Paused)
+	switch(self->state)
 	{
-		JSAutoSuspendRequest req(cx);
-		WaitForSingleObject(self->pause, INFINITE);
-	}
-
-	if(self->state == Stopping)
-	{
-		// remove any handlers, set the state, etc.
-		// NOTE: for now, wait for the thread to exit; later, wait a given length of
-		// time after throwing an exception on the script and then kill it and shut down
-		WaitForSingleObject(self->thread, INFINITE);
-		self->state = Stopped;
+		case Paused: {
+			JSAutoSuspendRequest req(cx);
+			WaitForSingleObject(self->pause, INFINITE);
+			break;
+		}
+		case Stopping: {
+			// remove any handlers, set the state, etc.
+			// NOTE: for now, wait for the thread to exit; later, wait a given length of
+			// time after throwing an exception on the script and then kill it and shut down
+			JSAutoSuspendRequest req(cx);
+			WaitForSingleObject(self->thread, INFINITE);
+			self->state = Stopped;
+			break;
+		}
+		default: /* do nothing */ break;
 	}
 
 	return JS_TRUE;
