@@ -8,7 +8,8 @@ JSBool JS_ThrowError(JSContext* cx, const char* message, ...)
 
 	int len = _vscprintf(message, args);
 	char* msg = new char[len+1];
-	vsprintf_s(msg, len, message, args);
+	memset(msg, 0, len+1);
+	vsprintf_s(msg, len+1, message, args);
 
 	va_end(args);
 

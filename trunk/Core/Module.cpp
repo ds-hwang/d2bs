@@ -8,7 +8,7 @@
 namespace Core {
 
 Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
-	ready(false), cx(cx)
+	ready(false), cx(cx), obj(nullptr), exports(nullptr), module(nullptr)
 {
 	std::string cpath;
 	std::wstring wpath(path);
@@ -37,7 +37,7 @@ Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 }
 
 Module::Module(JSContext* cx, JSObject* obj, JSModuleSpec* mod) :
-	cx(cx), obj(obj), exports(nullptr), module(nullptr)
+	ready(false), cx(cx), obj(obj), exports(nullptr), module(nullptr)
 {
 	JSAutoRequest req(cx);
 	JSAutoEnterCompartment comp;

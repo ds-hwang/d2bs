@@ -146,8 +146,11 @@ void Engine::InitModules(JSContext* cx, JSObject* obj)
 	{
 		for(JSModuleSpec* mod = *it; mod->name != nullptr; mod++)
 		{
-			Module* m = new Module(cx, gobj, mod);
-			this->modules[mod->name] = m;
+			if(!ModuleExists(mod->name))
+			{
+				Module* m = new Module(cx, gobj, mod);
+				this->modules[mod->name] = m;
+			}
 		}
 	}
 }
