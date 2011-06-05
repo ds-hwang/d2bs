@@ -22,7 +22,6 @@ Module::Module(JSContext* cx, const wchar_t* path, Engine* engine) :
 	module = JS_NewObject(cx, nullptr, nullptr, obj);
 
 	JS_DefineProperty(cx, module, "id", STRING_TO_JSVAL(JS_InternUCString(cx, path)), nullptr, nullptr, JSPROP_DEFAULT);
-
 	JS_DefineProperty(cx, obj, "module", OBJECT_TO_JSVAL(module), nullptr, nullptr, JSPROP_DEFAULT);
 	JS_DefineProperty(cx, obj, "exports", OBJECT_TO_JSVAL(exports), nullptr, nullptr, JSPROP_DEFAULT);
 
@@ -43,8 +42,10 @@ Module::Module(JSContext* cx, JSObject* obj, JSModuleSpec* mod) :
 	JSAutoRequest req(cx);
 	JSAutoEnterCompartment comp;
 	comp.enter(cx, obj);
+
 	exports = JS_NewObject(cx, nullptr, nullptr, nullptr);
 	JS_AddObjectRoot(cx, &(this->obj));
+	
 	JS_DefineProperty(cx, obj, "exports", OBJECT_TO_JSVAL(exports), nullptr, nullptr, JSPROP_DEFAULT);
 
 	if(mod->classes != nullptr) JS_DefineClasses(cx, exports, mod->classes);
@@ -58,6 +59,7 @@ Module::~Module()
 	JSAutoRequest req(cx);
 	JSAutoEnterCompartment comp;
 	comp.enter(cx, obj);
+
 	JS_SetContextThread(cx);
 	JS_RemoveObjectRoot(cx, &(this->obj));
 	JS_ClearContextThread(cx);
