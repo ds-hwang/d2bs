@@ -72,7 +72,7 @@ void __cdecl spam(void* args)
 	int i = 0;
 	while(evt.result == false) {
 		Sleep(1000);
-		evt.args.push_back(boost::any(boost::shared_ptr<JSAutoRoot>(new JSAutoRoot(script->GetContext(), new jsval(INT_TO_JSVAL(i++))))));
+		evt.args.push_back(boost::any(boost::shared_ptr<JSAutoRoot>(new JSAutoRoot(script->GetContext(), INT_TO_JSVAL(i++)))));
 		engine->FireEvent(&evt);
 		ResetEvent(blocker);
 	}

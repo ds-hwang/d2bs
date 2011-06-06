@@ -47,8 +47,8 @@ private:
 	JSContext* cx;
 	jsval* ref;
 public:
-	JSAutoRoot(JSContext* cx, jsval* value) : cx(cx), ref(value) { JS_AddValueRoot(cx, ref); }
-	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); }
+	JSAutoRoot(JSContext* cx, jsval value) : cx(cx) { ref = new jsval(value); JS_AddValueRoot(cx, ref); }
+	~JSAutoRoot() { JS_RemoveValueRoot(cx, ref); delete ref; }
 	jsval* get() { return ref; }
 };
 
