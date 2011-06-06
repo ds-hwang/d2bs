@@ -13,7 +13,7 @@ JSFunctionSpec event_methods[] = {
 	JS_FS_END
 };
 
-JSClass event_class = { "Event", JSCLASS_IS_GLOBAL, JSCLASS_DEFAULT_WITH_CTOR(::Event) };
+JSClass event_class = { "Event", 0, JSCLASS_DEFAULT_WITH_CTOR(::Event) };
 
 JSClassSpec event_classes[] = {
 	JS_CS(&event_class, nullptr, ::Event, 0, nullptr, nullptr, event_methods, nullptr),

@@ -30,20 +30,19 @@ JSAPI_FUNC(mod_load)
 		return JS_FALSE;
 	const jschar* file = JS_GetStringCharsZ(cx, farg);
 
-	std::vector<jsval> paths;
-	if(!JS_ArrayToVector(cx, script->GetSearchPath(), paths))
+	std::vector<const jschar*> paths;
+	if(!JS_ArrayToVector<const jschar*>(cx, script->GetSearchPath(), paths))
 		return JS_FALSE;
 
 	// check the current directory last
-	paths.push_back(JS_GetEmptyStringValue(cx));
+	paths.push_back(L"");
 
 	bool found = false;
 	auto end = paths.end();
 	for(auto it = paths.begin(); it != end; it++)
 	{
 		std::wstring path;
-		std::wstring rel = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(*it));
-		if(rel != L"") path = rel + L"\\" + file;
+		if(wcscmp(*it, L"") != 0) path = std::wstring(*it) + L"\\" + file;
 		else path = file;
 
 		found = script->GetEngine()->FileExists(path.c_str());
@@ -69,20 +68,19 @@ JSAPI_FUNC(mod_require)
 		return JS_FALSE;
 	const jschar* file = JS_GetStringCharsZ(cx, farg);
 
-	std::vector<jsval> paths;
-	if(!JS_ArrayToVector(cx, script->GetSearchPath(), paths))
+	std::vector<const jschar*> paths;
+	if(!JS_ArrayToVector<const jschar*>(cx, script->GetSearchPath(), paths))
 		return JS_FALSE;
 
 	// check the current directory last
-	paths.push_back(JS_GetEmptyStringValue(cx));
+	paths.push_back(L"");
 
 	bool found = false;
 	auto end = paths.end();
 	for(auto it = paths.begin(); it != end; it++)
 	{
 		std::wstring path;
-		std::wstring rel = JS_GetStringCharsZ(cx, JSVAL_TO_STRING(*it));
-		if(rel != L"") path = rel + L"\\" + file;
+		if(wcscmp(*it, L"") != 0) path = std::wstring(*it) + L"\\" + file;
 		else path = file;
 		// TODO: internal modules do not have an extension, so we can shortcut if no extension
 

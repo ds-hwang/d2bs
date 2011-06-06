@@ -24,50 +24,38 @@ void JS_DefineClasses(JSContext* cx, JSObject* obj, JSClassSpec* classes)
 	{
 		JSObject* proto = nullptr;
 		if(spec->proto != nullptr)
-		{
-			// look up the proto on the given object
-			jsval jsproto = JSVAL_NULL;
-			if(JS_GetProperty(cx, obj, spec->proto->name, &jsproto)) {
-				JSObject* objproto = JSVAL_TO_OBJECT(jsproto);
-				if(JS_ObjectIsFunction(cx, objproto))
-					proto = objproto;
-			}
-		}
+			proto = JS_GetProtoForClass(cx, obj, spec->proto);
 
 		JS_InitClass(cx, obj, proto, spec->classp, spec->ctor, spec->argc,
 			spec->properties, spec->methods, spec->static_properties, spec->static_methods);
 	}
 }
 
-JSBool JS_ArrayToVector(JSContext* cx, jsval arr, std::vector<jsval>& vec)
+JSObject* JS_GetProtoForClass(JSContext* cx, JSObject* obj, JSClass* classp)
 {
-	return JS_ArrayToVector(cx, JSVAL_TO_OBJECT(arr), vec);
-}
-JSBool JS_ArrayToVector(JSContext* cx, JSObject* arr, std::vector<jsval>& vec)
-{
-	if(!JS_IsArrayObject(cx, arr))
-		return JS_ThrowError(cx, "Object must be an Array");
-
-	jsuint len = 0;
-	JS_GetArrayLength(cx, arr, &len);
-	for(jsuint i = 0; i < len; i++)
-	{
-		jsval el = JSVAL_VOID;
-		JS_GetElement(cx, arr, i, &el);
-		vec.push_back(el);
+	// look up the proto on the given object
+	jsval jsproto = JSVAL_NULL;
+	if(JS_GetProperty(cx, obj, classp->name, &jsproto) && !JSVAL_IS_VOID(jsproto) && !JSVAL_IS_NULL(jsproto)) {
+		JSObject* objproto = JSVAL_TO_OBJECT(jsproto);
+		if(JS_ObjectIsFunction(cx, objproto))
+			return objproto;
 	}
-	return JS_TRUE;
+	return nullptr;
 }
 
-JSObject* JS_VectorToArray(JSContext* cx, std::vector<jsval>& vec)
+JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* global, JSClassSpec* classp, JSClassSpec* proto, JSObject* parent)
 {
-	size_t len = vec.size();
-	jsval* jsarr = new jsval[len];
+	JSObject* obj = JS_NewObject(cx, classp->classp, JS_GetProtoForClass(cx, global, proto->classp), parent);
 
-	auto end = vec.end();
-	int i = 0;
-	for(auto it = vec.begin(); it != end; it++, i++) jsarr[i] = vec[i];
+	if(proto->static_methods != nullptr) JS_DefineFunctions(cx, obj, proto->static_methods);
+	if(proto->static_properties != nullptr) JS_DefineProperties(cx, obj, proto->static_properties);
+	if(classp->static_methods != nullptr) JS_DefineFunctions(cx, obj, classp->static_methods);
+	if(classp->static_properties != nullptr) JS_DefineProperties(cx, obj, classp->static_properties);
 
-	JSObject* arr = JS_NewArrayObject(cx, len, jsarr);
-	return arr;
+	if(proto->methods != nullptr) JS_DefineFunctions(cx, obj, proto->methods);
+	if(proto->properties != nullptr) JS_DefineProperties(cx, obj, proto->properties);
+	if(classp->methods != nullptr) JS_DefineFunctions(cx, obj, classp->methods);
+	if(classp->properties != nullptr) JS_DefineProperties(cx, obj, classp->properties);
+
+	return obj;
 }

@@ -5,7 +5,7 @@
 
 #include "sqlite3.h"
 #include "Engine.hpp"
-#include "..\D2Api\D2Api.hpp"
+#include "D2Api.hpp"
 
 using namespace Core;
 
@@ -51,6 +51,7 @@ BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 			sqlite3_open_v2(settingspath, &settings, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|SQLITE_OPEN_FULLMUTEX, nullptr);
 
 			Init();
+
 			break;
 		}
 		case DLL_PROCESS_DETACH: {

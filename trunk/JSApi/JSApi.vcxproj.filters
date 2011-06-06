@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="File.cpp">
+      <Filter>Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="Socket.cpp">
+      <Filter>Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="Stream.cpp">
+      <Filter>Stream</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipe.cpp">
+      <Filter>Stream</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Stream.hpp">
+      <Filter>Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="File.hpp">
+      <Filter>Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="Socket.hpp">
+      <Filter>Stream</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipe.hpp">
+      <Filter>Stream</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Stream">
+      <UniqueIdentifier>{321f302b-931c-4277-97d2-38370fd9dee3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
