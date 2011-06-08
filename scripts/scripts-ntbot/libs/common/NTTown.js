@@ -1,3 +1,5 @@
+
+/// <reference path="/../../d2bsAPI.js" />
 if(!isIncluded("njip.dbl")) include("njip.dbl");
 
 var _NTT_BeltColNeeded = new Array(4);
@@ -237,9 +239,9 @@ function NTT_MenuCancel()
 
 function NTT_GetCorpses()
 {
-	var _corpse;
+    var _corpse, i;
 	
-	for(var i = 0 ; i < 2 ; i++)
+	for(i = 0 ; i < 2 ; i++)
 	{
 		_corpse = NTC_GetUnit(NTC_UNIT_PLAYER);
 
@@ -258,7 +260,7 @@ function NTT_GetCorpses()
 		} while(_corpse.getNext());
 	}
 	
-	for(var i = 0 ; i < 2 ; i++)
+	for(i = 0 ; i < 2 ; i++)
 	{
 		_corpse = NTC_GetUnit(NTC_UNIT_PLAYER);
 		do
@@ -515,12 +517,12 @@ function NTT_CheckInventory(returnInventoryArray)
 	if (returnInventoryArray) return _invspace
 	var _freecols = new Array(10);
 
-	for(var x = 0 ; x < 10 ; x++)
+	for( x = 0 ; x < 10 ; x++)
 		_freecols[x] = 0; 
 
-	for(var x = 0 ; x < 10 ; x++)
+	for(x = 0 ; x < 10 ; x++)
 	{
-		for(var y = 0 ; y < 4 ; y++)
+		for( y = 0 ; y < 4 ; y++)
 		{
 			if(_invspace[y][x] == 1)
 			{
@@ -532,7 +534,7 @@ function NTT_CheckInventory(returnInventoryArray)
 
 	var _numfreecols = 0;
 
-	for(var x = 0 ; x < 10 ; x++)
+	for( x = 0 ; x < 10 ; x++)
 	{ 
 		if(_freecols[x] == 0)
 			_numfreecols++;
@@ -540,7 +542,7 @@ function NTT_CheckInventory(returnInventoryArray)
 
 	if(NTConfig_FreeSpace > _numfreecols)
 	{
-		for(var x = 0 ; x < _itemlist.length ; x++)
+		for( x = 0 ; x < _itemlist.length ; x++)
 		{
 			if(_ignorestring.indexOf(_itemlist[x]) != -1)
 				_itemlist.splice(x, 1);
@@ -660,7 +662,7 @@ function NTT_ManageStash(invitem)
 		}
 	}
 
-	for(var i = 0 ; i < _items.length ; i++)
+	for( i = 0 ; i < _items.length ; i++)
 	{
 		if(_items[i].mode == 0 && _items[i].location == 0 && (_stashall || (_items[i].x == invitem.x && _items[i].y == invitem.y)))
 		{
@@ -929,7 +931,7 @@ function NTT_FillKey(npc)
 
 	if(arguments.length < 1)
 		return false;
-
+        
 	_key = NTT_GetKey();
 
 	if(_key)
@@ -955,12 +957,12 @@ function NTT_FillKey(npc)
 		if(!_items)
 			return false;
 
-		for(var i = 0 ; i < _items.length ; i++)
+		for(var j = 0 ; j < _items.length ; j++)
 		{
-			if(_items[i].code == "key")
+			if(_items[j].code == "key")
 			{
-				NTT_ShopItem(_items[i], npc, 2);
-				return NTT_ShopItem(_items[i], npc, 3);
+				NTT_ShopItem(_items[j], npc, 2);
+				return NTT_ShopItem(_items[j], npc, 3);
 			}
 		}
 	}
@@ -1239,9 +1241,11 @@ function NTT_ShopItem(item, npc, mode)
 
 			if(_book && _book.getStat(70) < 20)
 				_havespace = true;
-		}
+        }
 
-		if(!_havespace)
+        if ("hp1 hp2 hp3 hp4 hp5 mp1 mp2 mp3 mp4 mp5".indexOf(item.code) > -1)
+            _havespace = true;
+   		if(!_havespace)
 		{	
 			if(NTT_CheckSpace(item.sizex, item.sizey))
 				_havespace = true;
@@ -1282,9 +1286,9 @@ function NTT_ShopItem(item, npc, mode)
 	{
 		if(NTC_ItemToCursor(item))
 		{
-			for(var i = 0 ; i < 50 ; i++)
+			for(var j = 0 ; j < 50 ; j++)
 			{
-				if((i % 10) == 0)
+				if((j % 10) == 0)
 					item.shop(1);
 				
 				NTC_PingDelay(300);
@@ -1493,10 +1497,10 @@ function NTT_GetPotionAtNPCInt(type, npc)
 
 		if(_items)
 		{
-			for(var i = 0 ; i < _items.length ; i++)
+			for(var j = 0 ; j < _items.length ; j++)
 			{
-				if(_items[i].code == type)
-					return _items[i];
+				if(_items[j].code == type)
+					return _items[j];
 			}
 		}
 	}
