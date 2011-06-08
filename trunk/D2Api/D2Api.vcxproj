@@ -12,9 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2Api.hpp" />
+    <ClInclude Include="PointerManager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D2Api.cpp" />
+    <ClCompile Include="PointerManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}</ProjectGuid>
