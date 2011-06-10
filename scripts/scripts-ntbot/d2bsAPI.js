@@ -1,9 +1,4 @@
 
-function getArea(id){
-/// <summary>returns an area object</summary>
-/// <param name="id" type="Number">Optional area id, blank = current area.</param>
-    return new Area();
-}
 
 function Area (){
 	/// <summary>Area Object.</summary>
@@ -11,12 +6,11 @@ function Area (){
 Area.prototype.x =function(){
 /// <summary>area.x * 5 = game coords</summary>
 }
-
 Area.prototype.exits =function(){
 	/// <summary>Array of exits</summary>
 	 var ret = [] // mock fill array
     var p = new exits
-    for (var j = 0; j < 10000; j++) {
+    for (var j = 0; j < 10; j++) {
         ret.push(p)
     }
     return ret
@@ -33,10 +27,15 @@ Area.prototype.ysize =function(){
 /// <summary>area.ysize * room.ysize = area height</summary>
 }
 Area.prototype.id =function(){}
-
 function Control (){
 /// <summary>Out of game control object.</summary>
 }
+function getArea(id){
+/// <summary>returns an area object</summary>
+/// <param name="id" type="Number">Optional area id, blank = current area.</param>
+    return new Area();
+}
+
 Control.prototype.text = function(){}
 Control.prototype.x = function(){}
 Control.prototype.y = function(){}
@@ -61,6 +60,7 @@ function getControl(type, x, y, xsize, ysize ){
 /// <summary>returns a control object, all prams optinal </summary>
 return new Control()
 }
+
 function print(text){
 /// <summary>prints text to console.</summary>
 }

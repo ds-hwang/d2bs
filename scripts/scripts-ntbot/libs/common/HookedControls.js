@@ -11,6 +11,7 @@ var GlobalDropDownArray = new Array;
 var focusedControl = false;
 var clickCount = 2;
 function myKeyHandler(key) {
+
 	if (!focusedControl) return true;
 	if (focusedControl.setKeyVal) {
 		focusedControl.text = key+" "
@@ -42,6 +43,8 @@ function myKeyHandler(key) {
 	return true;
 }
 function myGetTextSize (txt,font){
+txt = "" +txt
+if (txt =="") txt = " "
 if (typeof(getTextWidthHeight) == "function")
 	return getTextWidthHeight(txt,font);
 else
@@ -886,9 +889,11 @@ DropDownBox.prototype.childUpate = function () {
 		if (this.topText.text != this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value]){
 			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];
 			this.listbox.visible = false;
-			setGlobaltoVal(this.hookedVal,this.topText.text)
+			//setGlobaltoVal(this.hookedVal,this.topText.text)
 			if (typeof(this.valueChanged) == 'function')
 				this.valueChanged(this.topText.text)
+            else
+                 setGlobaltoVal(this.hookedVal,this.topText.text)
 		}
 }
 DropDownBox.prototype.update = function () {

@@ -13,18 +13,12 @@ var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
 var DEAD_MODE = (1 << 29) | (1 << 12);
-
+var cMap=false;
+var ntMap= new collMap(me.area)
 function NTA_KillBoss(classid)
 {
 	var _target;
-
-	/**
-	*	@author		alogwe
-	*	@TODO		Need to lower this to if(NTConfig_AttackBoss < 0) return false; to allow for using 0 as an attack skill id (set defaults in configs at -1 to not use any))
-	*/
-	if(NTConfig_AttackBoss < 1)
-		return false;
-        
+      
 	for(var i = 0; i < 5; i++)
 	{
 		_target = NTC_FindMonster(classid);
@@ -37,9 +31,11 @@ function NTA_KillBoss(classid)
 				else
 					NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);
 			}
-
-			return NTA_Attack(_target, true, 200);
-		}
+            if(NTConfig_AttackBoss < 0 && NTConfig_AttackSkill[1] <0 ) // no boss attack try regular attacks
+    	        return NTA_Attack(_target, false, 200)
+          
+			return NTA_Attack(_target, true, 200)
+   		}
 	}
 
 	return false;
@@ -202,7 +198,7 @@ function NTA_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
 		maxX = minX;
 		minX = tempx;
 	}
-	if (minY > maxY){
+	if (minX > maxX){
 		var tempy = maxY;
 		maxY = minY;
 		minY = tempy;
@@ -243,7 +239,7 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 	{
 		_rooms.sort(NTA_SortRoomInt);
 		_room = _rooms.shift();
-		attackPrint(_rooms.toSource());		
+		//print(_rooms.toSource());		
 			NTM_MoveTo(_room[0], _room[1]);		
 			if(typeof(AttackRoutine) == 'function'){
 				if(!AttackRoutine(size))
@@ -256,8 +252,6 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 	}	
 	return true;
 }
-
-
 
 
 function NTA_IsValidTarget(monster, simple)
@@ -634,17 +628,30 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 	_prehp = target.hp;
 
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true)) 
-   { 
+   {
+       if (!checkLineLos(me.x,me.y,target.x, target.y)) {
+         var los  = FindLOS(target,35)
+			if (los)
+			    NTM_MoveTo(los[0],los[1]);
+            else {
+              //  print ("los fail return false")
+                return false;
+            }
+    }
       NTSI_FastSnag();
 	if (getDistance(me,target )>40 )
-		NTA_MoveCloseInt(target, 35) 
+	    NTA_MoveCloseInt(target, 35) 
+        
+
       if(NTA_GetResistance(target, _NTA_SkillDamage[_primaryindex]) < 100) 
       { 
          if((_maxattacks % 2) == 1) 
          { 
 			if (me.area != 102 && NTConfig_Moattrick){
-				if(!NTA_MoveCloseInt(target, _range1) && !boss) 
-					return false; 
+				if(!NTA_MoveCloseInt(target, _range1) && !boss) {
+				 //   print ("move closer return false;")
+                	return false; 
+                }
 			}
          } 
 
@@ -657,8 +664,10 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
          if((_maxattacks % 2) == 1) 
          { 
 			if (me.area != 102 && NTConfig_Moattrick){
-				if(!NTA_MoveCloseInt(target, _range2) && !boss) 
-					return false; 
+				if(!NTA_MoveCloseInt(target, _range2) && !boss)  {
+				   // print ("move closer return false2;")
+                	return false; 
+                }
 			}
          } 
 		
@@ -677,24 +686,28 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
 
          } 
-         else 
-            return false; 
+         else  {
+				  //  print (target.name + " is immune to attacks ")
+                	return false; 
+                }
       } 
 
       if(boss) 
       { 
-         if((_maxattacks % 4) == 0 && target.hp >= _prehp) 
-         { 
-            if(target.classid == 526) 
-               return false; 
+         if((_maxattacks % 4) == 0 && target.hp >= _prehp) {
+             if (target.classid == 526) {
+                // print("nta Boss Stupid 1")
+                 return false;
+             }
          } 
 
-         if((_maxattacks % 8) == 0) 
-         { 
-            if(target.hp < _prehp) 
-               _prehp = target.hp; 
-            else 
-               return false; 
+         if((_maxattacks % 8) == 0) {
+             if (target.hp < _prehp)
+                 _prehp = target.hp;
+             else {
+              //  print("nta Boss Stupid 2")
+                 return false;
+             }
          } 
       } 
       else 
@@ -703,16 +716,20 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
          { 
             if(target.hp < _prehp) 
                _prehp = target.hp; 
-            else 
-               return false; 
+            else  {
+				//    print ("max 4 return false;")
+                	return false; 
+                }
          } 
 		 
       } 
 
       if(NTConfig_CheckSafe) 
       { 
-         if(!NTTMGR_CheckSafe(1)) 
-            return false; 
+         if(!NTTMGR_CheckSafe(1))  {
+				 //   print ("safe Check return false;")
+                	return false; 
+                }
       } 
    }
 	NTSI_FastSnag();
@@ -734,7 +751,8 @@ return 1;
 
 function getIntoLOS(target) {
     var los = false;
- 		if(checkCollision(me, target,10)){
+ 		 if (!CheckColl(me.x,me.y,target.x, target.y)) {
+       // if(!checkCollision(me, target,5)){
 			//attackPrint("moving closer collision 10");
 			
 			los = FindLOS(target,20)
@@ -744,32 +762,6 @@ function getIntoLOS(target) {
 			return	NTM_MoveTo(los[0],los[1]);
 			}else return false;
 			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
-		}
-		if(checkCollision(me, target,2)){
-			//attackPrint("moving closer collision 2");
-			 los = FindLOS(target,20)
-			if (los){		
-		//	print ("found los:"+los[0]+","+los[1])
-				return NTM_MoveTo(los[0],los[1]);
-			}else return false;
-			//NTA_MoveCloseInt(target, Math round(getDistance(me, target)/2));
-		}
-		if(checkCollision(me, target,1)){
-			//attackPrint("moving closer collision 1");
-			 los = FindLOS(target,20)
-			if (los){
-			//	print ("found los:"+los[0]+","+los[1])
-			return	NTM_MoveTo(los[0],los[1]);
-			}else return false;
-			
-			//NTA_MoveCloseInt(target, Math.round(getDistance(me, target)/2));
-		}
-		if (getDistance(me,target)>20){
-		 los = FindLOS(target,20)
-			if (los){
-			//	print ("found los:"+los[0]+","+los[1]+ " Range") 
-				return NTM_MoveTo(los[0],los[1]);
-			}else return false;
 		}
 		
 	return true	
@@ -1584,9 +1576,13 @@ function NTA_MoveCloseInt(target, maxrange)
 
 		_destx = me.x + Math.round((_dist-maxrange)*(target.x-me.x) / _dist);
 		_desty = me.y + Math.round((_dist-maxrange)*(target.y-me.y) / _dist);
-
-		NTM_MoveTo(_destx, _desty, 0);
-		
+    //    me.overhead("move closer")
+        if (isPtWalkable(_destx,_desty))
+		   return NTM_MoveTo(_destx, _desty, 0);
+		var los = FindLOS(target,maxrange-1)
+			if (los)
+			    NTM_MoveTo(los[0], los[1]);
+			
 		if (getDistance(me, target)>maxrange)
 			NTM_MoveTo(target.x,target.y);
 		
@@ -1654,12 +1650,21 @@ function NTA_DoCastInt(index, target)
 	if (me.area != 102)
 	{
 		// getIntoLOS(target)
-		if(!getIntoLOS(target))
-			return false;
-	}
+		//if(!getIntoLOS(target))
+		//	return false;
+        
+}
+if (NTConfig_AttackSkill[index] == 64) //Frozen Orb
+{
+   var los = FindLOS(target,14)
+	if (los)
+		NTM_MoveTo(los[0],los[1]);
+}
+if(!NTA_IsValidTarget(target))
+    return false;
 	if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
 		return false;
-
+        
 	if(_NTA_SkillDelay[index] > 0)
 	{
 		if(NTConfig_AttackSkill[_untimedindex] > -1)
@@ -1698,21 +1703,20 @@ function SortMonsters(nUnit1, nUnit2) {  // taken from Mbot cred goes to McGod
 }
 
 function FindLOS(mob,range){
-
 if (!mob) return false;
 var LosPos =[];
 	for (var j =range*-1; j< range ; j=j+5){
 	// check laspoint walkable then los line
-		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)&& CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
+		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)  && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
 			LosPos.push( [mob.x+j,mob.y+range])
-			
-		if (isPtWalkable(mob.x+j,mob.y-range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y-range)&& CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y-range)&& CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y-range))
+
+		if (isPtWalkable(mob.x + j, mob.y - range) && CheckColl(mob.x, mob.y, mob.x + j, mob.y - range) && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y-range)&& CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y-range))
 			LosPos.push( [mob.x+j,mob.y-range])
-			
-		if (isPtWalkable(mob.x+range,mob.y+j)  && CheckColl(mob.x,mob.y,mob.x+range,mob.y+j)&& CheckColl(mob.x,mob.y+1,mob.x+range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x+range,mob.y+j-1))
+
+		if (isPtWalkable(mob.x + range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x + range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x+range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x+range,mob.y+j-1))
 			LosPos.push( [mob.x+range,mob.y+j])
-			
-		if (isPtWalkable(mob.x-range,mob.y+j) && CheckColl(mob.x,mob.y,mob.x-range,mob.y+j)&& CheckColl(mob.x,mob.y+1,mob.x-range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x-range,mob.y+j-1))
+
+		if (isPtWalkable(mob.x - range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x - range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x-range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x-range,mob.y+j-1))
 			LosPos.push([mob.x-range,mob.y+j])
 	}	
 	if(LosPos.length == 0 && range >6)
@@ -1726,17 +1730,12 @@ var LosPos =[];
 return false
 }
 function blockLos(bit){
-
-if (bit %2 ==0 || bit <4)
-	return false;
-
-	return true;
-
+    return (!(bit %2 ==0 )) // not happy with this but it appears like map data is missing some preset los blocking info	
 }
 function isPtWalkable(x,y){
 
  try{ 
-	if (getColl(me.area,me.x,me.y) %2 ==0)
+	if (ntMap.getColl(me.area,x,y) %2 ==0)
 		return true;
 	}catch (e){
 		return false
@@ -1764,9 +1763,15 @@ void DDA(int x0, int y0, int x1, int y1) {
   }
 }
 */
+function checkLineLos(x0, y0, x1, y1){
+   if(! CheckColl(x0,y0,x1,y1)) return false;
+    if (!CheckColl(x0+1,y0-1,x1+1,y1-1)) return false;
+    if (!CheckColl(x0-1,y0+1,x1-1,y1+1)) return false;
+  return true;
+}
 function CheckColl(x0, y0, x1, y1){
-if (x0==x1) x0=x0=1;
-if (y0==y1) y0=y0=1;
+if (x0==x1) x0=x0-1;
+if (y0==y1) y0=y0-1;
    var dx = Math.abs(x1-x0)
    var dy = Math.abs(y1-y0) 
    var sx = (x0 < x1) ? 1:-1
@@ -1774,8 +1779,8 @@ if (y0==y1) y0=y0=1;
    var err = dx-dy
 	var e2 =0
    while (x0 != x1 && y0 != y1 ){
-     
-     if (blockLos(getColl(me.area,x0,y0))){
+     if (blockLos(ntMap.getColl(me.area,x0,y0))){
+    // if (blockLos(getColl(me.area,x0,y0))){
 		//print("blockLos retruning false "+getColl(me.area,x0,y0))
 		return false;	
      }
@@ -1791,24 +1796,7 @@ if (y0==y1) y0=y0=1;
    }
   return true;
  }
-function CheckColl2(x1,y1,x2,y2){
-var mod = 1;
-if((x2-x1)>(y2-y1)){ //7793,5293,7773,5293
-	if((x2-x1) < 0 ) mod = -1;
-	for (var x = x1; x==x2; x=x+mod){			
-			if (blockLos(getColl(me.area,x,Math.round(Math.abs(((y2-y1)/(x2-x1))*x)))))
-				return false;				
-	}	
-}else{
-	if((y2-y1) < 0 ) mod = -1;
-	for (var y = y1; y==y2; y=y+mod){		
-			if(blockLos(getColl(me.area,Math.round(Math.abs(((x2-x1)/(y2-y1))*y)),y)))		
-				return false;		
-	}
-}
-//print("checkCol returning true")
-return true;
-	}
+
 
 //Thanks and credit goes to menellerhur for this function and it's implementation in the paladin attack function;
 function NTA_GoToOtherSide(target) 
@@ -1868,4 +1856,116 @@ function NTA_GetAttackAuraInt(skillid)
 	}
 	
 	return 0;	//anything else, return 0;
+}
+
+function buildMiniCmap(id,x,y,size){
+print("building cMap "+id+" "+x+" "+y+" "+size) 
+	var area=getArea(id);
+	var myrooms = getRoom(id);	
+	var hs =Math.round(size/2)
+    // var myArea = KArray2D(area.xsize*myrooms.xsize,area.ysize*myrooms.ysize)
+	cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)			
+	do
+	{
+		if(x+hs > myrooms.x*5 && x-hs < myrooms.x*5+myrooms.xsize && y+hs > myrooms.y*5 && y-hs < myrooms.y*5+myrooms.ysize ){
+			var col = myrooms.getCollision();		
+			for (var yy =0; yy < myrooms.ysize ; yy++){
+				for (var xx =0; xx < myrooms.xsize; xx++){						
+					try{
+				
+					cMap[(myrooms.x*5+xx)][(myrooms.y*5+yy)]= col[yy][xx];	
+                 
+					}catch(e){
+					print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
+					}
+				}
+			}		
+		}
+	} while(myrooms.getNext());
+}
+
+
+function Array2D(ymin,ysize){
+var k=new Array;  
+for (var i = ymin; i < ymin+ysize; ++ i)
+	k [i] = new Array; 
+
+return k; 
+}
+function collMap(Area){
+    this.area = Area;
+    this.rooms =[];
+    var myarea=getArea(this.area);
+    var myrooms = getRoom(Area);	
+    this.Map= buildCmap(Area)
+    this.minY =0;
+    this.minX=0;
+    this.maxX=0;
+    this.maxY=0;
+
+}
+collMap.prototype.getColl = function(area,x,y){
+if (this.area != area){
+    this.rebuild(area)
+   // this.Map = buildCmap(area)
+    this.area=area;
+    }
+    try{
+        if (this.Map[x][y] == undefined) 
+            return 99
+        return this.Map[x][y]
+    }catch(e){
+        return 99;
+    }
+
+}
+collMap.prototype.rebuild = function( area){
+    var startTime=getTickCount()
+    var myarea=getArea(area);
+    this.area=area
+    this.minX = myarea.x*5
+    this.miny = myarea.y*5
+    this.Map= Array2D(myarea.x*5-40,myarea.xsize*5+myarea.x*5+40)	
+    var myrooms = getRoom(area);
+   	
+	do
+	{		
+		var col = myrooms.getCollision();	
+        for (var yy =0; yy < myrooms.ysize ; yy++){
+		   	for (var xx =0; xx < myrooms.xsize; xx++){						
+				try{
+				    this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
+				}catch(e){
+				    print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
+				}
+			}
+		}		
+		
+	} while(myrooms.getNext());
+print("Generated cmap in "+(getTickCount()-startTime))
+
+}
+function buildCmap(id){
+    var area=getArea(id);
+	var myrooms = getRoom(id);	
+	//var myArea =Array2D(area.x*5-40,area.xsize*5+area.x+40)	
+	var cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)			
+	do
+	{
+		
+			var col = myrooms.getCollision();		
+			for (var yy =0; yy < myrooms.ysize ; yy++){
+				for (var xx =0; xx < myrooms.xsize; xx++){						
+					try{
+				
+					cMap[(myrooms.x*5+xx)][(myrooms.y*5+yy)]= col[yy][xx];	
+                 
+					}catch(e){
+					print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
+					}
+				}
+			}		
+		
+	} while(myrooms.getNext());
+    return cMap
 }

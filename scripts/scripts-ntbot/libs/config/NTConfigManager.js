@@ -300,27 +300,27 @@ function ShowConfig() {
 	if (me.classid == 1 || me.classid ==5 || me.classid == 6){ //sorc 
 		this.NTConfig_AttackSkill0 = new DropDownBox(50, 150, myGetSkillByID(NTConfig_AttackSkill[0]), 13, 1, this.mySkills, "Cast First");
 		this.NTConfig_AttackSkill0.valueChanged = function (val) { NTConfig_AttackSkill[0] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill0 = new ConfigSetting("Skills", this.NTConfig_AttackSkill0,"NTConfig_AttackSkill[0]")
+		this.setNTConfig_AttackSkill0 = new ConfigSetting("Skills", this.NTConfig_AttackSkill0,"NTConfig_AttackSkill[0]","   // Cast your first spell once. Set to 0 if you won't ")
 
 		this.NTConfig_AttackSkill1 = new DropDownBox(200, 150, myGetSkillByID(NTConfig_AttackSkill[1]), 13, 1, this.mySkills, "Primary Boss");
 		this.NTConfig_AttackSkill1.valueChanged = function (val) { NTConfig_AttackSkill[1] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill1 = new ConfigSetting("Skills",this.NTConfig_AttackSkill1,"NTConfig_AttackSkill[1]")
+		this.setNTConfig_AttackSkill1 = new ConfigSetting("Skills",this.NTConfig_AttackSkill1,"NTConfig_AttackSkill[1]","   // Cast your primary spell to boss. ")
 
 		this.NTConfig_AttackSkill2 = new DropDownBox(350, 150, myGetSkillByID(NTConfig_AttackSkill[2]), 13, 1, this.mySkills, "Primary For Others");
 		this.NTConfig_AttackSkill2.valueChanged = function (val) { NTConfig_AttackSkill[2] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill2 = new ConfigSetting("Skills", this.NTConfig_AttackSkill2,"NTConfig_AttackSkill[2]")
+		this.setNTConfig_AttackSkill2 = new ConfigSetting("Skills", this.NTConfig_AttackSkill2,"NTConfig_AttackSkill[2]","   // Cast your primary spell to others. ")
 
 		this.NTConfig_AttackSkill3 = new DropDownBox(500, 150,myGetSkillByID(NTConfig_AttackSkill[3]),13,1,this.mySkills,"Primary Untimed");
 		this.NTConfig_AttackSkill3.valueChanged = function (val) { NTConfig_AttackSkill[3] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill3 = new ConfigSetting("Skills", this.NTConfig_AttackSkill3,"NTConfig_AttackSkill[3]")
+		this.setNTConfig_AttackSkill3 = new ConfigSetting("Skills", this.NTConfig_AttackSkill3,"NTConfig_AttackSkill[3]","   // Cast your primary untimed spell if primary spell is timed spell. Set to -1 if you won't" )
 
 		this.NTConfig_AttackSkill4 = new DropDownBox(50, 300, myGetSkillByID(NTConfig_AttackSkill[4]), 13, 1, this.mySkills, "Secondary");
 		this.NTConfig_AttackSkill4.valueChanged = function (val) { NTConfig_AttackSkill[4] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill4 = new ConfigSetting("Skills", this.NTConfig_AttackSkill4,"NTConfig_AttackSkill[4]")
+		this.setNTConfig_AttackSkill4 = new ConfigSetting("Skills", this.NTConfig_AttackSkill4,"NTConfig_AttackSkill[4]","   // Cast your secondary spell if monster is immune to your primary spell. Set to 0 if you won't ")
 
 		this.NTConfig_AttackSkill5 = new DropDownBox(200, 300,myGetSkillByID(NTConfig_AttackSkill[5]),13,1,this.mySkills,"Secondary Untimed");
 		this.NTConfig_AttackSkill5.valueChanged = function (val) { NTConfig_AttackSkill[5] = myGetSkillByName(val) }
-		this.setNTConfig_AttackSkill5 = new ConfigSetting("Skills", this.NTConfig_AttackSkill5,"NTConfig_AttackSkill[5]")
+		this.setNTConfig_AttackSkill5 = new ConfigSetting("Skills", this.NTConfig_AttackSkill5,"NTConfig_AttackSkill[5]","   // Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't")
 
 		if (me.classid == 1) {
 			this.NTConfig_CastStatic = new SliderWText(350, 300, "Cast Static ", 100, NTConfig_CastStatic, this.textColor, 4);
@@ -563,7 +563,7 @@ print("Saving Config")
 			}
 
 		}
-		if (templine.indexOf("useTeleport = ") > -1) templine = "\t" + "me.useTeleport = " + useTeleport + "					//	Set boobs to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
+        if (templine.indexOf("useTeleport = ") > -1) templine = "\t" + "me.useTeleport = " + useTeleport + "					//	Set boobs to true to allow character to use teleport when moving, set to false to disable teleport when moving;"
 		content += (templine) +"\n" ;
 //		 this.globalVar = globalVar;
 //	this.Comment = Comment
@@ -578,7 +578,7 @@ print("Saving Config")
 
 
 function myGetSkillByID(id){
-if (id == -1)
+if (id == -1 || id == undefined)
 	return "Nothing"
 return getSkillById(id)
 }
