@@ -233,6 +233,7 @@ var NTSB_ShopOnNpcVisit;
 var NT_IdleOnClone = false;
 var NT_IdleOnSOJ = false;
 var NT_IdleOnSOJTimeoutSec = 0;
+var NTConfig_HotIps = [];
 var NT_HostileAction = 0; //0 = nothing 1 = quit 2 = kill
 var NT_EnableCubing = false;
 var NT_RecipieBox=[];
@@ -244,6 +245,7 @@ var utilityList=[];
 var bobDebug = false; 
 
 var currentAction = "";
+var NTcfgDropWhenFull = false;
 var	NTcfgSellWhenFull = true;
 var Bob_ItemList = new Array;
 var revealedAreas = new Array;

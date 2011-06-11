@@ -214,7 +214,7 @@ function NTT_MenuCancel()
 	
 	for(i = 0 ; i < 4 ; i++)
 	{
-		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A))
+		if(getUIFlag(0x0C) || getUIFlag(0x0D) || getUIFlag(0x14) || getUIFlag(0x19) || getUIFlag(0x1A) || getUIFlag(0x01))
 		{
 			me.cancel(0);
 			NTC_Delay(500);
@@ -1148,8 +1148,34 @@ function NTT_DropItem(item)
 	if(!item)
 		return false;
 
-	if(NTC_ItemToCursor(item))
-		return NTC_ClearCursor();
+	if(NTC_ItemToCursor(item)){
+	  var _isEthereal = (item.getFlag(0x400000)) ? "1" : "0";
+	  var text = "Drop item ";
+		switch(item.quality)
+		{
+		case 4:
+			print(text + "ÿc3" + item.name);
+			break;
+		case 5:
+			print(text + "ÿc2" + item.name);
+			break;
+		case 6:
+			print(text + "ÿc9" + item.name);
+			break;
+		case 7:
+			print(text + "ÿc4" + item.name);
+			break;
+		case 8:
+			print(text + "ÿc8" + item.name);
+			break;
+		default:
+			print(text + "ÿc0" + item.name);
+			break;
+		}	   
+	   
+	   writeLog(item, me, _isEthereal, 2);
+		 return NTC_ClearCursor();		
+	}
 
 	return false;
 }

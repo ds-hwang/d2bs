@@ -7,11 +7,12 @@ var badplayerlist =[];
 function main()
 {
 	include("common/NTCommon.js");
-	
-	include("itemlogger.dbl");  	
+
   	NTC_IncludeLibs(); 
 	NTC_IncludeConfig();
-	 NT_LoadConfig(); 
+	 NT_LoadConfig();	
+	include("itemlogger.dbl");
+    	 
 	addEventListener("gameevent", function(mode, param1, param2, name1, name2) {	
 	print("Game event mode:"+mode +" , " +param1 +" , "+param2 +" , "+name1+" , "+name2+" , "+NT_HostileAction )   
 			// NT_IdleOnClone = false;
@@ -46,8 +47,25 @@ function main()
 		if(mode ==7 && (param2 == 4 || param2 == 5 || param2 == 8 || param2 == 7))
 			remFromBadList(name1)
 	});
-
-	//Thread KeepAlive
+	
+	
+	print("ÿc3Starting HotIP Checking");
+	
+	var _serverIp = me.gameserverip.split(".")[3];
+	print("ÿc4Current server : " + _serverIp);
+  
+  
+	for (var i=0; i<(NTConfig_HotIps.length); i++ ) {
+		//print(" > ÿc4" + NTConfig_HotIps[i] );
+		if( NTConfig_HotIps[i] == _serverIp ) {
+			idle = true;
+			print(" > ÿc1Found Hot Server! (Matched: "+ _serverIp +") Idling.." );
+			SendMsgToDefault("Pause Default");
+			sendCopyData(null, "OOG", 0,"Stop Me" );
+			break;
+		}
+	}
+	
 	while(1){
 		if(idle){
 			NTM_TravelTO(1);
@@ -101,12 +119,13 @@ var plist= getUnit(0)
 function SendMsgToDefault(msg){
 	if (!msg)
 		return false;
-	var a =getScript();             
-	do{             
-      		if (a.name == "default.dbj") 
-	        a.send("msg");                         
-	}while(a.getNext());    
-return true;
+	var a =getScript("default.dbj");             
+	if(a){ 
+     a.send(msg);                         	    
+    return true;
+  }
+  
+  return false;
 }
 function remFromBadList(player){
 			for (var j = 0 ;j < badplayerlist.length ; j++){

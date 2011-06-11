@@ -134,7 +134,11 @@ function NTSI_SnagIt(item)
 					{
 						_prearea = me.area;
 
-						if(NTTM_CheckAct() && NTcfgSellWhenFull)
+            if(NTcfgDropWhenFull && NTTMGR_IDItems(null)){
+              NTT_MenuCancel();            
+              NTT_ClearInventory();
+               _itemtosnag.Retry = true;            
+            } else if(NTTM_CheckAct() && NTcfgSellWhenFull)
 						{
 							_itemtosnag.Retry = true;
 
@@ -321,22 +325,43 @@ debugPrint("NtSI ItemInt");
 						_NTSI_ItemQueue.rvCount ++;
 						return true;
 					}else{
+            if(_item.code == "rvl" && dropBeltItem(["rvs"])){
+              this.ShouldSnag = 10;
+  						_NTSI_ItemQueue.rvCount ++;
+  						return true;// dont njipcheckgooditem                
+            }										
 						return true; // dont pick juvies we dont needs
 					}
 			}
-			if (_item.code == "hp5" || _item.code == "hp4"){			
+			if (_item.code.substr(0,2) == "hp"){
+          var pots = ["hp1","hp2","hp3","hp4","hp5"];			
 					if ((getBeltColAvail(_item.code)-_NTSI_ItemQueue.hpCount)>0){ //check to see if pot will go in belt
 						this.ShouldSnag = 10;	
 						_NTSI_ItemQueue.hpCount ++;
 						return true;// dont njipcheckgooditem
-					}
+					}else{
+					   var lowerPots = pots.slice(0,pots.indexOf(_item.code)); 
+            if(dropBeltItem(lowerPots)){
+              this.ShouldSnag = 10;
+  						_NTSI_ItemQueue.hpCount ++;
+  						return true;// dont njipcheckgooditem                
+            }
+          }
 			}
-			if (_item.code == "mp5" || _item.code == "mp4"){			
+			if (_item.code.substr(0,2) == "mp"){
+          var pots = ["mp1","mp2","mp3","mp4","mp5"];			
 					if ((getBeltColAvail(_item.code)-_NTSI_ItemQueue.mpCount)>0){ //check to see if pot will go in belt						
 						this.ShouldSnag = 10;	
 						_NTSI_ItemQueue.mpCount ++;
 						return true;// dont njipcheckgooditem
-					}			
+					}else{
+					  var lowerPots = pots.slice(0,pots.indexOf(_item.code)); 
+            if(dropBeltItem(lowerPots)){            
+              this.ShouldSnag = 10;
+  						_NTSI_ItemQueue.mpCount ++;
+  						return true;// dont njipcheckgooditem                
+            }
+          }			
 			}
 		}
 	if(njipCheckGoodItem(_item, NJIP_CHECK_SIMPLE) != 0)
@@ -482,4 +507,21 @@ for (var col = 0; col < 4; col++){
 	}		
 }
 return retVal;
+}
+
+
+function dropBeltItem(codes){
+  for(var i=0;i<codes.length;i++)
+  {
+    var code = codes[i];
+    var pots = me.getItem(njipClassId[code],2);
+    if(pots)
+    {
+     //print(pots.name);
+      //NTT_DropItem(pots);
+      pots.interact();      
+      return true;      
+    }
+  }      
+  return false;
 }

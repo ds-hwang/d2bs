@@ -34,6 +34,7 @@ function NT_LoadConfig()
 	
 	NT_IdleOnClone = false;
 	NT_IdleOnSOJ = false;
+	NTConfig_HotIps = []; // last Ip numbers for Hot Servers, ex: NTConfig_HotIps = ["223","58"];
 	NT_IdleOnSOJTimeoutSec = 0; 	//	Stop idling after no more soj ticks in seconds
 	NT_HostileAction = 0; 			//	0 = nothing 1 = quit 2 = kill
 

@@ -15,7 +15,8 @@ function CheckLog() {
 // me         = me Object 
 // isEthereal   = 1 if Item is Ethereal, 0 if not 
 // _mode      = 0 -> Item Kept 
-// _mode      = 1 -> Item Sold 
+// _mode      = 1 -> Item Sold
+// _mode      = 2 -> Item Dropped 
 function writeLog(item, me, isEthereal, _mode) { 
 
 
@@ -46,13 +47,13 @@ function writeLog(item, me, isEthereal, _mode) {
   
 	var obj = new Array();
 	obj = njipCheckGoodItem(item, 1);
-	itemdesc=itemdesc + "file "+obj.file+" line "+obj.lineno;	
-	itemdesc=itemdesc + "from :"+NTAR_Areas[me.area];
+	itemdesc=itemdesc + " file "+obj.file+" line "+obj.lineno;	
+	itemdesc=itemdesc + " from :"+NTAR_Areas[me.area];
 	
     WriteSqlItemLog(item,_mode,"file "+obj.file+" line "+obj.lineno)
    //itemdesc = ""; 
    // Adds the <item></item> tag into XML 
-   content ='<item id="'+itemid+'" char="'+me.name+'" time="'+timestring+'" quality="'+item.quality+'" ethereal="'+isEthereal+'" mode="'+_mode+'" name="'+itemname+" from :"+NTAR_Areas[me.area]+'">"'+itemdesc+'</item>';
+   content ='<item id="'+itemid+'" char="'+me.name+'" time="'+timestring+'" quality="'+item.quality+'" ethereal="'+isEthereal+'" mode="'+_mode+'" name="'+itemname+'" from="'+NTAR_Areas[me.area]+'" ilvl="'+item.ilvl+'">"'+itemdesc+'</item>';
    
    // <item id="1262070968341" char="bobode" time="Tue 12/29/09 01:16" quality="4" ethereal="0" mode="1" name="Angel's Amulet ">+1 to Sorceress Skill Levels|</item>
  //itemlog.item +=<item id={itemid} char={me.charname} time={timestring} quality={item.quality} ethereal={isEthereal} mode={_mode} name={itemname}>{itemdesc}</item>; 

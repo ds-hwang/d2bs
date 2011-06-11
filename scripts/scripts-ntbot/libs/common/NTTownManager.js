@@ -1,5 +1,6 @@
 var _NTTMGR_BuyPots;
 var _NTTMGR_BuyTP;
+var _NTTMGR_BuyID;
 var _NTTMGR_BuyKey;
 var _NTTMGR_DoGamble;
 var _NTTMGR_DoHeal;
@@ -19,6 +20,7 @@ function NTTMGR_TownManager(simple)
 
 	_NTTMGR_BuyPots = NTT_CheckBelt();
 	_NTTMGR_BuyTP = (NTTMGR_CheckScrolls(1) < 4);
+	_NTTMGR_BuyID = (NTcfgDropWhenFull && NTTMGR_CheckScrolls(0) < 20);
 	_NTTMGR_BuyKey = (NTTMGR_CheckKeys() < 2);
 	_NTTMGR_DoGamble = (!simple && NTConfig_GambleIt && NTC_StashGoldFull());
 	_NTTMGR_DoHeal = NTT_CheckHeal();
@@ -35,7 +37,7 @@ function NTTMGR_TownManager(simple)
 	switch(me.act)
 	{
 		case 1:
-			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_DoID)
 				NTTMGR_VisitAkara();
 				
 			if(NTT_CheckInventory())
@@ -60,7 +62,7 @@ function NTTMGR_TownManager(simple)
 			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_DoRepair)
 				NTTMGR_VisitFara();
 				
-			if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
+			if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_DoID)
 				NTTMGR_VisitDrognan();
 				
 			if(_NTTMGR_BuyKey)
@@ -82,7 +84,7 @@ function NTTMGR_TownManager(simple)
 		break;
 
 		case 3:
-			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_DoID)
 				NTTMGR_VisitOrmus();
 				
 			if(NTT_CheckInventory())
@@ -104,7 +106,7 @@ function NTTMGR_TownManager(simple)
 		break;
 
 		case 4:
-			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_DoID)
 				NTTMGR_VisitJamella(false);
 				
 			if(_NTTMGR_DoRepair)
@@ -126,7 +128,7 @@ function NTTMGR_TownManager(simple)
 		break;
 
 		case 5:
-			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+			if(_NTTMGR_DoHeal || _NTTMGR_RemoveCurse || _NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_DoID)
 				NTTMGR_VisitMalah();
 				
 			if(NTT_CheckInventory())
@@ -201,6 +203,9 @@ function NTTMGR_VisitAkara()
 					
 				if(_NTTMGR_BuyTP)
 					NTT_FillTome(_npc, 1);
+					
+				if(_NTTMGR_BuyID)
+				  NTT_FillTome(_npc, 0);
 					
 				if(_NTTMGR_BuyKey)
 					NTT_FillKey(_npc);
@@ -350,10 +355,13 @@ function NTTMGR_VisitDrognan()
 		if(NTT_DoTrade(_npc))
 		{
 			if(_NTTMGR_BuyPots)
-				NTT_FillBelt(_npc);
+				NTT_FillBelt(_npc);								
 				
 			if(_NTTMGR_BuyTP)
 				NTT_FillTome(_npc, 1);
+				
+			if(_NTTMGR_BuyID)
+				NTT_FillTome(_npc, 0);				
 				
 			if(_NTTMGR_DoID)
 				NTTMGR_IDItems(_npc);
@@ -465,7 +473,7 @@ function NTTMGR_VisitOrmus()
 	{
 		NTT_DoInteract(_npc);
 
-		if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_DoID)
+		if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_DoID)
 		{
 			if(NTT_DoTrade(_npc))
 			{
@@ -474,6 +482,9 @@ function NTTMGR_VisitOrmus()
 					
 				if(_NTTMGR_BuyTP)
 					NTT_FillTome(_npc, 1);
+					
+				if(_NTTMGR_BuyID)
+				  NTT_FillTome(_npc, 0);					
 					
 				if(_NTTMGR_DoID)
 					NTTMGR_IDItems(_npc);
@@ -606,7 +617,7 @@ function NTTMGR_VisitJamella(gamble)
 		{
 			NTT_DoInteract(_npc);
 
-			if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+			if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_DoID)
 			{
 				if(NTT_DoTrade(_npc))
 				{
@@ -615,6 +626,9 @@ function NTTMGR_VisitJamella(gamble)
 						
 					if(_NTTMGR_BuyTP)
 						NTT_FillTome(_npc, 1);
+					
+					if(_NTTMGR_BuyID)
+				    NTT_FillTome(_npc, 0);
 						
 					if(_NTTMGR_BuyKey)
 						NTT_FillKey(_npc);
@@ -701,7 +715,7 @@ function NTTMGR_VisitMalah()
 	{
 		NTT_DoInteract(_npc);
 
-		if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyKey || _NTTMGR_DoID)
+		if(_NTTMGR_BuyPots || _NTTMGR_BuyTP || _NTTMGR_BuyID || _NTTMGR_BuyKey || _NTTMGR_DoID)
 		{
 			if(NTT_DoTrade(_npc))
 			{
@@ -710,6 +724,9 @@ function NTTMGR_VisitMalah()
 					
 				if(_NTTMGR_BuyTP)
 					NTT_FillTome(_npc, 1);
+					
+				if(_NTTMGR_BuyID)
+				  NTT_FillTome(_npc, 0);
 					
 				if(_NTTMGR_BuyKey)
 					NTT_FillKey(_npc);
@@ -854,9 +871,10 @@ function NTTMGR_CheckKeys()
 
 function NTTMGR_IDItems(npc)
 {
-	if(!getUIFlag(0x0C))
+  //Not in shop and npc requested
+	if(!getUIFlag(0x0C) && npc)
 		return false;
-
+		
 	var _tome, _scroll;
 	var _result;
 	var _items = NTT_GetUnidItems();
@@ -866,19 +884,29 @@ function NTTMGR_IDItems(npc)
 
 	_tome = NTT_GetTome();
 
-	if(_tome && _tome.getStat(70) < _items.length)
-		NTT_FillTome(npc);
+	if(_tome && _tome.getStat(70) < _items.length){
+	  if(npc){
+		  NTT_FillTome(npc);
+		}	else {
+		  print("KO");
+		  return false;
+		}
+	}
 
+  //print("OK");
 	for(var i = 0 ; i < _items.length ; i++)
 	{
 		var _isEthereal = (_items[i].getFlag(0x400000)) ? "1" : "0";
 	  
 		if(njipCheckGoodItem(_items[i], NJIP_CHECK_SIMPLE) > 0)
 		{
+		  // Log only when checking in town
+		  if(npc){
 			NTC_SendLogToOOG("Kept [" + NTC_ItemQualityToNameList[_items[i].quality] + "] " + _items[i].name);
 			// Item Logger Start
 			writeLog(_items[i], me, _isEthereal, 0);
 			// Item Logger End
+		  }
 		}
 		else
 		{
@@ -888,7 +916,7 @@ function NTTMGR_IDItems(npc)
 			{
 				_scroll = NTT_GetScroll();
 
-				if(!_scroll)
+				if(!_scroll && npc)
 				{
 					NTT_BuyScrolls(npc);
 					_scroll = NTT_GetScroll();
@@ -897,7 +925,7 @@ function NTTMGR_IDItems(npc)
 				_result = NTT_IdItem(_scroll, _items[i]);
 			}
 
-			if(_result && njipCheckGoodItem(_items[i], NJIP_CHECK_SIMPLE) > 0) 
+			if(npc && _result && njipCheckGoodItem(_items[i], NJIP_CHECK_SIMPLE) > 0) 
 			{
 				NTC_SendLogToOOG("Kept [" + NTC_ItemQualityToNameList[_items[i].quality] + "] " + _items[i].name);
 				// Item Logger Start
@@ -906,7 +934,7 @@ function NTTMGR_IDItems(npc)
 			}
 			else
 			{
-				if(_items[i].getFlag(0x4000000) == 0)
+				if(npc && _items[i].getFlag(0x4000000) == 0)
 				{
 					// Item Logger Start
 					writeLog(_items[i], me, _isEthereal, 1);
