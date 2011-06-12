@@ -412,6 +412,10 @@ function SimonMsg(who,msg){
 	print(who +" said "+ msg);
 	msg = msg.toLowerCase();	//to get rid of the case sensitivity;
 	
+	if(msg == "quit game"){
+		NTC_Say("Goodbye.");
+		quit();
+	}
 	if(msg == "get wps"){
 		currentAction="Getting Waypoints";
 		SetObjective("GetWps");			
@@ -557,7 +561,7 @@ function SimonMsg(who,msg){
 		currentAction = "Getting Act 5 Waypoints";
 		SetObjective("GiveWps5");
 	}
-	if (msg == "give wps All") {
+	if (msg == "give wps all") {
 		currentAction = "Getting All Waypoints";
 		SetObjective("GiveWpsAll");
 		}
