@@ -170,7 +170,7 @@ JSBool Engine::ContextCallback(JSContext *cx, uintN contextOp)
 
 	// set options, register handlers
 #ifdef _DEBUG
-	//JS_SetGCZeal(cx, 1);
+	//JS_SetGCZeal(cx, 2);
 #endif
 	JS_SetOperationCallback(cx, Script::OperationCallback);
 	JS_SetErrorReporter(cx, Engine::ErrorReporter);

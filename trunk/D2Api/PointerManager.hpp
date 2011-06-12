@@ -159,6 +159,8 @@ typedef struct PatchHook_t
 
 class PatchManager {
 private:
+	PatchHook* pHooks;
+
 	PatchHook *RetrievePatchHooks(PINT pBuffer);
 	void PatchBytes(DWORD dwAddr, DWORD dwValue, DWORD dwLen);
 	void PatchJmp(DWORD dwAddr, DWORD dwFunc, DWORD dwLen);
@@ -168,7 +170,7 @@ private:
 	bool WriteBytes(void *pAddr, void *pData, DWORD dwLen);
 
 public:
-	PatchManager() {}
+	PatchManager() : pHooks(nullptr) {}
 	~PatchManager() {}
 
 	void RemovePatches();

@@ -137,6 +137,7 @@ bool PointerManager::DefineOffsets()
 }
 
 bool PatchManager::InstallPatches(void) {
+	PatchHook* pHooks = RetrievePatchHooks(nullptr);
 	for(int x = 0; x < ArraySize(pHooks); x++)
 	{
 		DWORD Offset = PointerManager::Instance()->GetDllOffset(pHooks[x].dwDllNo, pHooks[x].dwAddr);
@@ -159,6 +160,7 @@ bool PatchManager::InstallPatches(void) {
 
 void PatchManager::RemovePatches()
 {
+	PatchHook* pHooks = RetrievePatchHooks(nullptr);
 	for(int x = 0; x < ArraySize(pHooks); x++) {
 		if(!WriteBytes((void*)pHooks[x].dwAddr, pHooks[x].bOldCode, pHooks[x].dwLen)) {
 			delete[] pHooks[x].bOldCode;

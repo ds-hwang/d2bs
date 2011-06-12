@@ -80,15 +80,18 @@ EXPORT JSObject* JS_NewObjectWithProto(JSContext* cx, JSObject* obj, JSClassSpec
 
 #define JS_MS_END {0, 0, 0, 0}
 
+#define JSCLASS_SPEC(add, del, get, set, enumerate, resolve, convert, finalize, ctor) \
+	add, del, get, set, enumerate, resolve, convert, finalize, \
+    nullptr, nullptr, nullptr, ctor, nullptr, nullptr, nullptr
+
+#define JSCLASS_DEFAULT_WITH_CTOR(ctor) \
+	JSCLASS_SPEC(JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, \
+				 JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, ctor)
+
 #define JSCLASS_DEFAULT_STANDARD_MEMBERS \
 	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, \
     JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, \
     JSCLASS_NO_OPTIONAL_MEMBERS
-
-#define JSCLASS_DEFAULT_WITH_CTOR(ctor) \
-	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub, \
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub, \
-    nullptr, nullptr, nullptr, ctor, nullptr, nullptr, nullptr
 
 
 template <class T> struct Converter {

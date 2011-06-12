@@ -179,6 +179,7 @@ void __cdecl Script::MainProc(void* args)
 	JSAutoRequest req(self->cx);
 	JSAutoEnterCompartment comp;
 	comp.enter(self->cx, self->obj);
+	JS_SetContextThread(self->cx);
 
 	self->state = Running;
 
@@ -194,6 +195,7 @@ void __cdecl Script::MainProc(void* args)
 		}
 	}
 
+	JS_ClearContextThread(self->cx);
 	self->state = Done;
 }
 

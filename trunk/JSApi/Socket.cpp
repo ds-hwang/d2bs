@@ -20,9 +20,12 @@ JSClass socket_class = { "Socket", JSCLASS_HAS_PRIVATE,
 JSClassSpec socket_spec = JS_CS(&socket_class, &stream_class, Socket, 0, socket_methods, socket_props, socket_static_methods, nullptr);
 
 JSAPI_FUNC(socket_open);
+JSAPI_FUNC(socket_connect);
 JSAPI_FUNC(socket_read);
+JSAPI_FUNC(socket_skip);
 JSAPI_FUNC(socket_write);
 JSAPI_FUNC(socket_close);
+
 JSAPI_PROP(socket_get_length);
 JSAPI_PROP(socket_get_readable);
 JSAPI_PROP(socket_get_writable);
@@ -30,8 +33,10 @@ JSAPI_PROP(socket_get_skippable);
 JSAPI_PROP(socket_get_closed);
 
 JSFunctionSpec socket_methods[] = {
+	JS_FS("connect", socket_connect, 2, JSPROP_STATIC),
 	JS_FS("read", socket_read, 0, JSPROP_STATIC),
 	JS_FS("write", socket_write, 0, JSPROP_STATIC),
+	JS_FS("skip", socket_skip, 0, JSPROP_STATIC),
 	JS_FS("close", socket_close, 0, JSPROP_STATIC),
 	JS_FS_END
 };
@@ -91,15 +96,46 @@ JSAPI_FUNC(socket_open)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(socket_connect)
+{
+	JSObject* obj = JSVAL_TO_OBJECT(JS_THIS(cx, vp));
+	tcp::socket* socket = (tcp::socket*)JS_GetPrivate(cx, obj);
+
+	jschar* jshost;
+	uint16 port;
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "Wc", &jshost, &port))
+		return JS_FALSE;
+
+	char p[6] = "";
+	_itoa_s(port, p, 10);
+	std::string host;
+	host.assign(jshost, jshost+wcslen(jshost));
+
+	auto resolver = tcp::resolver(service);
+	auto query = tcp::resolver::query(host, p, tcp::resolver::query::numeric_service);
+	auto it = resolver.resolve(query);
+	auto end = tcp::resolver::iterator();
+
+	boost::system::error_code error = boost::asio::error::host_not_found;
+	while(error && it != end) {
+		((tcp::socket*)socket)->close();
+		((tcp::socket*)socket)->connect(*it++, error);
+	}
+	if(error) return JS_ThrowError(cx, boost::system::system_error(error).what());
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(socket_read)
 {
 	JSObject* obj = JSVAL_TO_OBJECT(JS_THIS(cx, vp));
 	tcp::socket* socket = (tcp::socket*)JS_GetPrivate(cx, obj);
 
-	uintN size = 1;
+	uintN size = 0;
 	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "/u", &size))
 		return JS_FALSE;
-	
+
+	if(size == 0) size = socket->available();
 	try {
 		std::vector<unsigned char> bytes(size);
 		auto b = boost::asio::buffer(bytes);
@@ -135,6 +171,24 @@ JSAPI_FUNC(socket_write)
 		JS_ArrayToVector(cx, arr, bytes);
 		auto b = boost::asio::buffer(bytes);
 		boost::asio::write(*socket, b);
+	} catch(boost::system::system_error e) { return JS_ThrowError(cx, e.what()); }
+
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(socket_skip)
+{
+	JSObject* obj = JSVAL_TO_OBJECT(JS_THIS(cx, vp));
+	tcp::socket* socket = (tcp::socket*)JS_GetPrivate(cx, obj);
+
+	uintN size = 1;
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "/u", &size))
+		return JS_FALSE;
+	
+	try {
+		std::vector<unsigned char> bytes(size);
+		auto b = boost::asio::buffer(bytes);
+		boost::asio::read(*socket, b);
 	} catch(boost::system::system_error e) { return JS_ThrowError(cx, e.what()); }
 
 	return JS_TRUE;
