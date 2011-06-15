@@ -186,10 +186,10 @@ function NT_OpenDeSeisSealInt(type) {
 	for (i = 0; i < 3; i++) {
 		if (type == 1) {
 			NT_OpenSealInt(394, 7769, 5158);
-         
+            NTM_MoveTo(7771, 5196);
 		} else {
 			NT_OpenSealInt(394, 7810, 5156);
-          
+            NTM_MoveTo(7770, 5169);
 		}
         for (var j = 0; j < 100; j++) {
             if (NTC_FindMonster(getLocaleString(2852))) {
