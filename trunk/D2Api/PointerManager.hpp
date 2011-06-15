@@ -9,11 +9,6 @@
 
 using namespace std;
 
-// To GO!
-#ifndef ArraySize
-#define ArraySize(x) (sizeof((x)) / sizeof((x)[0]))
-#endif
-
 enum D2DllNo {
 	D2CLIENT, 
 	D2COMMON, 
@@ -35,7 +30,6 @@ struct D2DllInfo {
 	D2DllNo DllNo;
 };
 
-//static const int MaxModNo = 13;
 const D2DllInfo dlls[] = {
 	{ "D2Client.DLL", D2CLIENT }, 
 	{ "D2Common.DLL", D2COMMON },
@@ -98,6 +92,9 @@ namespace Fog {
 
 namespace Storm {
 }
+
+template<class T, ptrdiff_t n >
+ptrdiff_t arraySize(T(&)[n]) { return n; }
 
 class PointerManager {
 private:
