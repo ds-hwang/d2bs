@@ -1,6 +1,5 @@
 /// <reference path="/../../d2bsAPI.js" /> 
 
-
 var NTA_DAMAGE_NONE = 0;
 var NTA_DAMAGE_PHYSICAL = 1;
 var NTA_DAMAGE_MAGIC = 2;
@@ -13,8 +12,9 @@ var _NTA_SkillDelay =[];
 var _NTA_SkillHand =[];
 var ignoreKorpse =[];
 var DEAD_MODE = (1 << 29) | (1 << 12);
-var cMap=false;
-var ntMap= new collMap(me.area)
+var ntMap= new collMap(0)
+var SortPoint = false;
+
 function NTA_KillBoss(classid)
 {
 	var _target;
@@ -75,34 +75,19 @@ function NTA_ClearPosition(range, spectype)
 		// print("Start Unit Loop.");
 		MobList.sort(SortMonsters)
 		while (MobList.length >= 1) {	
+            SortPoint = new Point(_orgx,_orgy)
 			MobList.sort(SortMonsters)
+            SortPoint=false;
 			_target = copyUnit(MobList[MobList.length-1]);	  // not sure if this is right
 			MobList.pop();		
 	
-		
 			if(NTA_IsValidTarget(_target) && (spectype == 0 || (_target.spectype & spectype)) && //getDistance(_orgx, _orgy, _target.x, _target.y) < range)
 			(_orgx - range <_target.x) && (_orgx + range >_target.x) &&  //square vs circle calc
 			(_orgy - range <_target.y) && (_orgy + range >_target.y))
 			{
 				//PreCasting							
-				if(_killnum == 0 && _target.hp > 0)
-				{			
-					
-					if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0)
-					{				
-						
-						if(NTC_IsLeftSkill(NTConfig_AttackFirst))
-						{					
-							NTC_DoCast(NTConfig_AttackFirst, 2, _target);						
-						}
-						else
-						{						
-							NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);						
-						}
-							
-						// PickIt (FastSnag)
-						NTSI_FastSnag();					
-					}
+				if(_killnum == 0 && _target.hp > 0){			
+                    preAttack(_target)					
 				}
 				//(at this point we already know that (spectype == 0 || (_target.spectype & spectype)) so...
 				//if spectype includes SuperUnique or Boss spectypes call NTA_Attack with boss arg set true and maxattacks at a high value;
@@ -146,24 +131,29 @@ function NTA_ClearPosition(range, spectype)
 
 	return (_killnum > 0);
 }
-
+function preAttack(_target){
+    if(NTConfig_AttackFirst > -1 && NTA_GetResistance(_target, NTA_GetDamageType(NTConfig_AttackFirst)) < 100 && checkCollision(me, _target, 3) == 0){							
+		if(NTC_IsLeftSkill(NTConfig_AttackFirst)){					
+			NTC_DoCast(NTConfig_AttackFirst, 2, _target);						
+		} else {						
+			NTC_DoCast(NTConfig_AttackFirst, NTC_HAND_RIGHT, _target);						
+		}						
+		// PickIt (FastSnag)
+		NTSI_FastSnag();					
+	}
+}
+function NTA_preSpawnAttack(x,y){
+ if (me.classid ===3 ) // pally 
+    NTC_DoCast(112, 2);
+ if (me.classid === 1 && NTConfig_AttackSkill[1] >-1){ // sorc
+     NTC_DoCast(NTConfig_AttackSkill[1],2,x,y)
+ }
+ if(me.classid === 6 && NTConfig_UseTraps){
+       NTA_CheckTraps(me,true)
+    }
+}
 function isRoomReachable(room){
 var col = room.getCollision();
-//print("x size"+ room.xsize+" y size"+ room.ysize);
-		/*
-		for (var x =1; x < room.xsize; x++){
-			if (col[0][x] ==0)
-				return [room.x*5+x,room.y*5]
-			if (col[room.ysize-1][x] ==0)
-				return [room.x*5+x,room.y*5+room.ysize]
-		}
-		for (var y =1; y < room.ysize; y++){
-			if (col[y][0] ==0)
-				return [room.x*5,room.y*5+y]
-			if (col[y][room.xsize-1] ==0)
-				return [room.x*5+room.xsize,room.y*5+y]
-		}
-		*/
 		var size = (room.ysize > room.xsize ? room.ysize : room.xsize)
 		for (var y =1; y < room.xsize -1; y++){
 			for (var x =1; x < room.ysize-1; x++){
@@ -176,20 +166,6 @@ var col = room.getCollision();
 	//	dumpRoom(room)
 	return false;
 }
-function dumpRoom(room){
-var col = room.getCollision();
-var output ="";
-sendCopyData(null, "OOG", 0,room.x+" "+room.y);		
-		for (var x =0; x < room.xsize ; x++){
-			output=" ";
-			
-			for (var y =0; y < room.ysize; y++){
-				output= output + col[x][y];					
-			}
-			sendCopyData(null, "OOG", 0,output+" ");		
-		}
-	return false;
-}
 function NTA_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
 {
 
@@ -198,7 +174,7 @@ function NTA_ClearRooms(AttackRoutine,minX,minY,maxX,maxY)
 		maxX = minX;
 		minX = tempx;
 	}
-	if (minX > maxX){
+	if (minY > maxY){
 		var tempy = maxY;
 		maxY = minY;
 		minY = tempy;
@@ -239,7 +215,7 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 	{
 		_rooms.sort(NTA_SortRoomInt);
 		_room = _rooms.shift();
-		//print(_rooms.toSource());		
+		attackPrint(_rooms.toSource());		
 			NTM_MoveTo(_room[0], _room[1]);		
 			if(typeof(AttackRoutine) == 'function'){
 				if(!AttackRoutine(size))
@@ -253,6 +229,106 @@ var size = (_room.xsize > _room.ysize) ? _room.xsize : _room.ysize ;
 	return true;
 }
 
+function NTA_ClearRange(AttackRoutine,minX,minY,maxX,maxY){
+
+    var ar = getArea() 
+    if(arguments.length <2){ // full area
+        minX = ar.x*5
+        maxX = ar.x*5+ar.xsize*5
+        minY = ar.y*5
+        maxY = ar.y*5+ar.ysize*5
+    }
+
+	if (minX > maxX){
+		var tempx = maxX;
+		maxX = minX;
+		minX = tempx;
+    }
+	if (minY > maxY){
+		var tempy = maxY;
+		maxY = minY;
+		minY = tempy;
+   	}
+  
+    var ingnoreList =[];
+    var _rooms = []
+    for (var x = minX ; x < maxX; x=x+10){
+        for (var y = minY ; y < maxY ; y=y+10){
+            if(ntMap.getColl(me.area,x,y) %2 ==0 )
+                _rooms.push(new Point(x,y));
+         }
+    }
+    var _orgx = me.x;
+    var _orgy = me.y;
+    var _target;
+	 var ignoreList =[];
+	var mobs = NTC_GetUnit(NTC_UNIT_MONSTER);
+	var MobList = [];
+	if(mobs){
+		do {
+			if(NTA_IsValidTarget(mobs))
+				MobList.push(copyUnit(mobs));
+		} while(mobs.getNext());
+	}
+	
+    _rooms.sort(SortDistance);
+
+	while(_rooms.length > 0){
+       var _room = _rooms.shift();
+        for(var j = 0 ; j < _rooms.length; j++){
+                        if (getDistance(me.x,me.y,_rooms[j].x, _rooms[j].y)<40)
+                            _rooms.remove(j)
+        }
+       if(getDistance(me.x,me.y,_room.x,_room.y)>40){
+	        NTM_MoveTo(_room.x, _room.y);	
+
+            mobs = NTC_GetUnit(NTC_UNIT_MONSTER);
+	        var MobList = [];
+	        if(mobs){
+	        	do {
+			         if(NTA_IsValidTarget(mobs) && mobs.x > minX && mobs.x < maxX && mobs.y > minY && mobs.y < maxY )
+			    	    MobList.push(copyUnit(mobs));
+		        } while(mobs.getNext());
+            }
+            var _killnum = 0;
+		    while (MobList.length >= 1) {	
+                     mobs = NTC_GetUnit(NTC_UNIT_MONSTER);
+	                 MobList.length =0 ;
+	                if(mobs){
+	                    do {
+			                if(NTA_IsValidTarget(mobs) && mobs.x > minX && mobs.x < maxX && mobs.y > minY && mobs.y < maxY )
+			    	                MobList.push(copyUnit(mobs));
+		                } while(mobs.getNext());
+                    }
+                    MobList.sort(SortDistanceRev)
+                    _target=MobList.pop()
+                    if (!_target) break;
+                    for (var j = 0 ; j < ignoreList.length; j++){
+                       if(_target && _target.gid == ignoreList[j].gid)
+                              _target=MobList.pop()                        
+                    }
+                    if (!_target) break;
+                    if(_killnum == 0 && _target.hp > 0)			
+                        preAttack(_target)					
+				    if(NTA_Attack(_target, false, 30)){
+						_killnum++;
+                        NTSI_PickItems();
+                    }
+                    else
+                       ignoreList.push(_target)
+                    for(var j = 0 ; j < _rooms.length; j++){
+                        if (getDistance(me.x,me.y,_rooms[j].x, _rooms[j].y)<45)
+                            _rooms.remove(j)
+                    }
+	        }				
+			if(typeof(AttackRoutine) == 'function'){
+				if(!AttackRoutine(size))
+					return false;			
+	        }
+        }// distance if
+	}// loop rooms
+	return true;
+}
 
 function NTA_IsValidTarget(monster, simple)
 {
@@ -576,6 +652,7 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
    var _damagetype1, _damagetype2; 
    var _range1, _range2; 
    var _prehp;
+   var brokeImune =false;
 
 	_attackprimary = boss ? NTConfig_AttackBoss : NTConfig_AttackOthers;
 
@@ -687,9 +764,14 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
          } 
          else  {
-				  //  print (target.name + " is immune to attacks ")
+				  //  print (target.name + " is immune to attacks ") //untested
+                if(me.getMerc() && me.getMerc().getState(28) && !target.getState(29) && !brokeImune){
+                    brokeImune = true;
+                    NTA_MoveCloseInt(target, 10)
+
+                }else
                 	return false; 
-                }
+         }
       } 
 
       if(boss) 
@@ -1591,14 +1673,6 @@ function NTA_MoveCloseInt(target, maxrange)
 	return true;
 }
 
-function NTA_SortRoomInt(a, b)
-{
-	if(getDistance(me.x, me.y, a[0], a[1]) < getDistance(me.x, me.y, b[0], b[1]))
-		return -1;
-
-	return 1;
-}
-
 function NTA_Initialize()
 {
 		if(typeof(NTConfig_PutAura) == 'string') NTConfig_PutAura = getSkillByName(NTConfig_PutAura);
@@ -1645,18 +1719,17 @@ function NTA_Initialize()
 function NTA_DoCastInt(index, target)
 {
 	var _untimedindex = index < 4 ? 3 : 5;
-	if (NTConfig_AttackSkill[index] == 0)
+	if (NTConfig_AttackSkill[index] == 0 )
 		return false;
-	if (me.area != 102)
-	{
-		// getIntoLOS(target)
-		//if(!getIntoLOS(target))
-		//	return false;
-        
-}
+	
 if (NTConfig_AttackSkill[index] == 64) //Frozen Orb
 {
-   var los = FindLOS(target,14)
+   var los = FindLOS(target,12)
+	if (los)
+		NTM_MoveTo(los[0],los[1]);
+}
+if (!checkLineLos(me.x,me.y,target.x,target.y)){
+    var los = FindLOS(target,30)
 	if (los)
 		NTM_MoveTo(los[0],los[1]);
 }
@@ -1684,22 +1757,6 @@ if(!NTA_IsValidTarget(target))
 	}
 
 	return true;
-}
-function SortMonsters(nUnit1, nUnit2) {  // taken from Mbot cred goes to McGod
-		if (nUnit1.spectype & 0x01 || nUnit1.spectype & 0x02 || nUnit1.spectype & 0x04)
-			return 1;
-		if (nUnit2.spectype & 0x01 || nUnit2.spectype & 0x02 || nUnit2.spectype & 0x04)
-			return -1;
-		var nResIDs = [58,59,60,61,62,101,102,103,104,105,229,278,279,280,281,282,645,646,647,667,668,669,670];
-		for (var n in nResIDs) {
-			if (nResIDs[n] == nUnit1.classid)
-				return 1;
-			if (nResIDs[n] == nUnit2.classid)
-				return -1;
-		}
-		if (getDistance(me, nUnit1) < getDistance(me, nUnit2))
-			return 1;
-		return -1;
 }
 
 function FindLOS(mob,range){
@@ -1744,25 +1801,7 @@ return false;
 
 }
 
-//#define ROUND(x) ((int)(x+0.5))
-/*
-void DDA(int x0, int y0, int x1, int y1) {
-  int delX = x1-x0, delY = y1-y0, steps, k;
-  float x=x0, y=y0, incX, incY;
 
-  steps = (abs(delX) > abs(delY)) ? abs(delX) : abs(delY) ;
-
-  incX = delX / (float)steps;
-  incY = delY / (float)steps;
-
-  setpixel(ROUND(x), ROUND(y));
-  for(k=0; k<steps; ++k) {
-      x += incX;
-      y += incY;
-      setpixel(ROUND(x), ROUND(y));
-  }
-}
-*/
 function checkLineLos(x0, y0, x1, y1){
    if(! CheckColl(x0,y0,x1,y1)) return false;
     if (!CheckColl(x0+1,y0-1,x1+1,y1-1)) return false;
@@ -1858,33 +1897,6 @@ function NTA_GetAttackAuraInt(skillid)
 	return 0;	//anything else, return 0;
 }
 
-function buildMiniCmap(id,x,y,size){
-print("building cMap "+id+" "+x+" "+y+" "+size) 
-	var area=getArea(id);
-	var myrooms = getRoom(id);	
-	var hs =Math.round(size/2)
-    // var myArea = KArray2D(area.xsize*myrooms.xsize,area.ysize*myrooms.ysize)
-	cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)			
-	do
-	{
-		if(x+hs > myrooms.x*5 && x-hs < myrooms.x*5+myrooms.xsize && y+hs > myrooms.y*5 && y-hs < myrooms.y*5+myrooms.ysize ){
-			var col = myrooms.getCollision();		
-			for (var yy =0; yy < myrooms.ysize ; yy++){
-				for (var xx =0; xx < myrooms.xsize; xx++){						
-					try{
-				
-					cMap[(myrooms.x*5+xx)][(myrooms.y*5+yy)]= col[yy][xx];	
-                 
-					}catch(e){
-					print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-					}
-				}
-			}		
-		}
-	} while(myrooms.getNext());
-}
-
-
 function Array2D(ymin,ysize){
 var k=new Array;  
 for (var i = ymin; i < ymin+ysize; ++ i)
@@ -1897,24 +1909,26 @@ function collMap(Area){
     this.rooms =[];
     var myarea=getArea(this.area);
     var myrooms = getRoom(Area);	
-    this.Map= buildCmap(Area)
+    this.Map =false//= buildCmap(Area)
     this.minY =0;
     this.minX=0;
     this.maxX=0;
     this.maxY=0;
-
+    
 }
 collMap.prototype.getColl = function(area,x,y){
 if (this.area != area){
     this.rebuild(area)
-   // this.Map = buildCmap(area)
     this.area=area;
     }
     try{
-        if (this.Map[x][y] == undefined) 
-            return 99
-        return this.Map[x][y]
+        if (this.Map[x] === undefined || this.Map[x][y] === undefined){
+           // print("returning 99 undefined " +x + " " + y)
+            return 99;
+        } else
+          return this.Map[x][y];
     }catch(e){
+        print("returning 99 error " +x + " " + y)
         return 99;
     }
 
@@ -1924,48 +1938,107 @@ collMap.prototype.rebuild = function( area){
     var myarea=getArea(area);
     this.area=area
     this.minX = myarea.x*5
-    this.miny = myarea.y*5
+    this.minY = myarea.y*5
+    this.maxY=this.minY + myarea.ysize*5
+    this.maxX=this.minX+myarea.xsize*5
     this.Map= Array2D(myarea.x*5-40,myarea.xsize*5+myarea.x*5+40)	
     var myrooms = getRoom(area);
    	
 	do
 	{		
-		var col = myrooms.getCollision();	
-        for (var yy =0; yy < myrooms.ysize ; yy++){
-		   	for (var xx =0; xx < myrooms.xsize; xx++){						
-				try{
-				    this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
-				}catch(e){
-				    print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-				}
-			}
-		}		
-		
+    //  if(this.area === 108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100)){
+   if (this.area ===108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230)){
+      //  print("x " + myrooms.x*5 + " y " + myrooms.y*5)
+	        var col = myrooms.getCollision();	
+            for (var yy =0; yy < myrooms.ysize ; yy++){
+		        for (var xx =0; xx < myrooms.xsize; xx++){						
+			        try{
+				        this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
+			        }catch(e){
+				        print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
+			        }
+		        }
+	        }		
+	    }
+    
 	} while(myrooms.getNext());
 print("Generated cmap in "+(getTickCount()-startTime))
 
 }
-function buildCmap(id){
-    var area=getArea(id);
-	var myrooms = getRoom(id);	
-	//var myArea =Array2D(area.x*5-40,area.xsize*5+area.x+40)	
-	var cMap= Array2D(area.x*5-40,area.xsize*5+area.x+40)			
-	do
-	{
-		
-			var col = myrooms.getCollision();		
-			for (var yy =0; yy < myrooms.ysize ; yy++){
-				for (var xx =0; xx < myrooms.xsize; xx++){						
-					try{
-				
-					cMap[(myrooms.x*5+xx)][(myrooms.y*5+yy)]= col[yy][xx];	
-                 
-					}catch(e){
-					print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-					}
-				}
-			}		
-		
-	} while(myrooms.getNext());
-    return cMap
+collMap.prototype.Dump = function(){
+   print("Dumping map output//lvlDump2.txt")
+	    var	file = File.open( "output//lvlDump2.txt", 1 );
+	    if(file) {
+	    var line; 
+	    var car;
+	 
+      for(var y = this.minY; y< this.maxY; y++){
+		    line = "y:"+ y+ ">";
+			for(var x=this.minX; x< this.maxX; x++){
+			     if (this.getColl(this.area,x,y) ){					
+					    if (this.getColl(this.area,x,y) < 10)	
+						    car = this.getColl(this.area,x,y) + " "
+					    else 
+						    car =this.getColl(this.area,x,y)
+					    if (this.getColl(this.area,x,y) > 99) 
+						    car = "$$"
+					
+				    }else
+					    car = "  ";
+				    line = line+car;
+			    }
+			    line = line+"<\n"
+			    file.write(line);
+			
+		    }
+		    file.close();
+	    }
+	    print("lvl dump complete.");
+}
+
+function SortMonsters(nUnit1, nUnit2) {  // taken from Mbot cred goes to McGod
+		if (nUnit1.spectype & 0x01 || nUnit1.spectype & 0x02 || nUnit1.spectype & 0x04)
+			return 1;
+		if (nUnit2.spectype & 0x01 || nUnit2.spectype & 0x02 || nUnit2.spectype & 0x04)
+			return -1;
+		var nResIDs = [58,59,60,61,62,101,102,103,104,105,229,278,279,280,281,282,645,646,647,667,668,669,670];
+		for (var n in nResIDs) {
+			if (nResIDs[n] == nUnit1.classid)
+				return 1;
+			if (nResIDs[n] == nUnit2.classid)
+				return -1;
+		}
+		if (getDistance(me, nUnit1) < getDistance(me, nUnit2))
+			return 1;
+		return -1;
+}
+function NTA_SortRoomInt(a, b)
+{
+	if(getDistance(me.x, me.y, a[0], a[1]) < getDistance(me.x, me.y, b[0], b[1]))
+		return -1;
+
+	return 1;
+}
+function SortDistance(nUnit1, nUnit2){
+     if (SortPoint ){
+        if (getDistance(me.x,me.y, nUnit1.x,nUnit1.y)+getDistance(me.x,me.y,SortPoint.x,SortPoint.y) > getDistance(me.x,me.y, nUnit2.x,nUnit2.y)+getDistance(me.x,me.y,SortPoint.x,SortPoint.y))
+	        return 1;
+        return -1;
+    }else {
+        if (getDistance(me.x,me.y, nUnit1.x,nUnit1.y) > getDistance(me.x,me.y, nUnit2.x,nUnit2.y))
+	        return 1;
+        return -1;
+    }
+}
+function SortDistanceRev(nUnit1, nUnit2){
+    if (SortPoint ){
+        if (getDistance(me.x,me.y, nUnit1.x,nUnit1.y)+getDistance(me.x,me.y,SortPoint.x,SortPoint.y) < getDistance(me.x,me.y, nUnit2.x,nUnit2.y)+getDistance(me.x,me.y,SortPoint.x,SortPoint.y))
+	        return 1;
+        return -1;
+    }else {
+        if (getDistance(me.x,me.y, nUnit1.x,nUnit1.y) < getDistance(me.x,me.y, nUnit2.x,nUnit2.y))
+	        return 1;
+        return -1;
+    }
+
 }

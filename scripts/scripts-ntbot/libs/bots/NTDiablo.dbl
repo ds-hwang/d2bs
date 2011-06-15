@@ -22,18 +22,16 @@ function NT_Diablo()
 	
 	print("ÿc5Precasting");
 	NTP_DoPrecast();
-	
+	ntMap.getColl(108,7790,5544) // precache map
+  
 	print("ÿc8Going to Chaos Sanctuary");
 	if (!NTM_MoveTo(7797, 5600)) 
 		throw new Error();
 	
-	if (!NTM_TeleportTo(7797, 5560)) 
-		throw new Error();
-	
+	NTM_TeleportTo(7797, 5560) 
+		
 	if (NTConfig_PublicMode) 
 	{
-		//var _attackpos = [7792, 5525, 7793, 5501, 7773, 5495, 7768, 5480, 7767, 5458, 7770, 5438, 7774, 5417, 7767, 5391, 7768, 5369, 7769, 5345, 7770, 5320, 7780, 5308];
-		var i;
 		
 		if (!NTM_MoveTo(7790, 5544)) 
 			throw new Error();
@@ -45,8 +43,6 @@ function NT_Diablo()
 
 		NTM_MoveTo(7790, 5544);
 
-		NTC_PingDelay(1000);
-		
 		NTA_ClearPosition(25, 0x04);
 		NTA_ClearPosition(25);
 		NTA_ClearPosition();
@@ -56,14 +52,7 @@ function NT_Diablo()
 		NTC_Say(DiabloTPMsg);
 		BO_Party();
 		
-		//for (i = 0; i < _attackpos.length; i += 2) {
-		//NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
-		//NTA_ClearPosition(25, 0x04);
-		//NTA_ClearPosition(25);
-		//NTA_ClearPosition();
-		//NTSI_PickItems();
-		//}
-		NTA_ClearRooms(false,7828,5320,7760,5573);
+		NTA_ClearRange(false,7828,5320,7760,5548);
 		
 		NTT_CleanPotions();
 	}
@@ -90,10 +79,9 @@ function NT_Diablo()
 	var _waitDiablo = 0;
 	while(!NTC_FindMonster(243))
 	{
-		if(_waitDiablo >= 300)
+		if(_waitDiablo >= 200)
 			break;
-		NTC_DoCast(112, 2);
-		NTC_DoCast(112, 2);
+		NTA_preSpawnAttack(7795,5294)
 		NTC_Delay(100);
 		_waitDiablo++;
 	}
@@ -126,15 +114,11 @@ function NT_OpenSealsInt() {
 
 	if (_unit[0].roomy * 5 + _unit[0].y == 5275) _result = NT_OpenVizierSealInt(1);
 	else _result = NT_OpenVizierSealInt(2);
-
-	if (!_result) return false;
-
-	NTT_CleanPotions();
+   
+	
 
 	_unit = NTC_GetPresetUnits(NTC_UNIT_OBJECT, 394);
-
-	if (!_unit) return false;
-
+    
 	if (_unit[0].roomx * 5 + _unit[0].x == 7773) _result = NT_OpenDeSeisSealInt(1);
 	else _result = NT_OpenDeSeisSealInt(2);
 
@@ -158,25 +142,8 @@ function NT_OpenVizierSealInt(type) {
 	var i, n;
 	var _attackpos
 
-	if(type==1){
-		_attackpos = [7756,5306, 7744,5292, 7720,5292, 7680,5292, 7668,5278, 7668,5306];
-	}else{
-		_attackpos = [7756,5306, 7744,5292, 7720,5292, 7720,5306, 7700,5313, 7678,5313, 7656,5313, 7656,5292];
-	}
+	NTA_ClearRange(false,7767,5322,7630,5265);
 	
-	for (i = 0; i < _attackpos.length; i += 2) {
-		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
-
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-	}
-
 	for (i = 0; i < 3; i++) {
 		if (type == 1) {
 			NT_OpenSealInt(395, 7654, 5310);
@@ -188,25 +155,24 @@ function NT_OpenVizierSealInt(type) {
 			NT_OpenSealInt(396, 7651, 5310);
 		}
 
+        for (var j = 0; j < 100; j++) {
+            if (NTC_FindMonster(getLocaleString(2851))) {
+                break;
+            }
+            NTC_Delay(100)
+        }
 		for (n = 0; n < 8; n++) {
-			NTC_Delay(250);
-
 			if (NTA_KillBoss(getLocaleString(2851))) //Grand Vizier of Chaos
 			{
 				NTA_ClearPosition(25, 0x04);
 				NTA_ClearPosition(25);
 				NTA_ClearPosition();
 				NTSI_PickItems();
-				NTA_ClearPosition(25, 0x04);
-				NTA_ClearPosition(25);
-				NTA_ClearPosition();
-				NTSI_PickItems();
-
-				return NTM_MoveTo(7750, 5280);
+				return true;//  NTM_MoveTo(7750, 5280);
 			}
 		}
 	}
-
+    
 	return false;
 }
 
@@ -214,45 +180,26 @@ function NT_OpenDeSeisSealInt(type) {
 	var i, n;
 	var _attackpos
 
-	if(type==1){
-		_attackpos = [7778, 5251, 7804, 5251, 7811, 5234, 7782, 5236, 7773,5192, 7810,5173, 7810,5155, 7775,5155];
-	}else{
-		_attackpos = [7778, 5251, 7804, 5251, 7782, 5236, 7811, 5234, 7776,5173, 7776,5155, 7811,5155];
-	}
+	NTA_ClearRange(false,7766,5280,7822,5100);
 	
-	for (i = 0; i < _attackpos.length; i += 2) {
-		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
-
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-	}
-
+	
 	for (i = 0; i < 3; i++) {
 		if (type == 1) {
 			NT_OpenSealInt(394, 7769, 5158);
-
-			NTM_MoveTo(7771, 5196);
+         
 		} else {
 			NT_OpenSealInt(394, 7810, 5156);
-
-			NTM_MoveTo(7770, 5169);
+          
 		}
-
+        for (var j = 0; j < 100; j++) {
+            if (NTC_FindMonster(getLocaleString(2852))) {
+                break;
+            }
+            NTC_Delay(100)
+        }
 		for (n = 0; n < 8; n++) {
-			NTC_Delay(250);
-
 			if (NTA_KillBoss(getLocaleString(2852))) //Lord De Seis
 			{
-				NTA_ClearPosition(25, 0x04);
-				NTA_ClearPosition(25);
-				NTA_ClearPosition();
-				NTSI_PickItems();
 				NTA_ClearPosition(25, 0x04);
 				NTA_ClearPosition(25);
 				NTA_ClearPosition();
@@ -267,47 +214,30 @@ function NT_OpenDeSeisSealInt(type) {
 }
 
 function NT_OpenVenomSealInt(type) {
-	var i, n;
-	var _attackpos
-
-	if(type==1){
-		_attackpos = [7832,5272, 7849,5272, 7832,5312, 7849,5292, 7893,5292, 7914,5292];
-	}else{
-		_attackpos = [7832,5272, 7859,5292, 7832,5312, 7859,5272, 7910,5276, 7933,5292];
-	}
 	
-	for (i = 0; i < _attackpos.length; i += 2) {
-		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
-
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
-		NTA_ClearPosition();
-		NTSI_PickItems();
-	}
-
-	for (i = 0; i < 3; i++) {
-		if (type == 1) {
+NTA_ClearRange(false,7818,5263,8000,5331);
+for (var i = 0; i < 3; i++) {
+   	if (type == 1) {
 			NT_OpenSealInt(393, 7915, 5280);
 			NT_OpenSealInt(392, 7895, 5318);
 
-			NTM_MoveTo(7892, 5298);
+			//NTM_MoveTo(7892, 5298);
 		} else {
 			NT_OpenSealInt(393, 7905, 5277);
 			NT_OpenSealInt(392, 7916, 5310);
 
-			NTM_MoveTo(7937, 5305);
-		}
+			//NTM_MoveTo(7937, 5305);
 
-		for (n = 0; n < 8; n++) {
-			NTC_Delay(250);
-
+        }
+        for (var j = 0; j < 100; j++) {
+            if (NTC_FindMonster(getLocaleString(2853))) {
+              break;
+            }             
+             NTC_Delay(100)
+        }
+		for (var n = 0; n < 8; n++) {
 			if (NTA_KillBoss(getLocaleString(2853))) //"Infector of Souls"
 			{
-				NTA_ClearPosition(25, 0x04);
 				NTA_ClearPosition(25);
 				NTA_ClearPosition();
 				NTSI_PickItems();
@@ -326,11 +256,6 @@ function NT_OpenSealInt(classid, x, y) {
 	var _seal;
 
 	NTM_MoveTo(x, y);
-
-	NTA_ClearPosition(25, 0x04);
-	NTA_ClearPosition(25);
-	NTA_ClearPosition();
-	NTSI_PickItems();
 
 	_seal = NTC_GetUnit(NTC_UNIT_OBJECT, classid);
 
@@ -363,5 +288,4 @@ function BO_Party()
 	
 	NTP_DoPrecast();
 	
-	return true;
 }

@@ -1142,3 +1142,7 @@ function NTC_Say(input)
 	if(input != undefined && input.isString && !input.isEmpty)
 		say(input);
 }
+function Point(x,y){
+    this.x = x
+    this.y = y
+}
