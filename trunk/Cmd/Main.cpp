@@ -10,14 +10,18 @@
 
 #include <boost/make_shared.hpp>
 
+using namespace std;
+using namespace Core;
+
 JSAPI_FUNC(console_print);
-JSAPI_FUNC(console_newline);
+JSAPI_FUNC(console_sleep);
 
 JSAPI_EMPTY_CTOR(Console)
 
 JSClass console = { "Console", 0, JSCLASS_DEFAULT_WITH_CTOR(Console) };
 JSFunctionSpec console_methods[] = {
 	JS_FS("print", console_print, 1, JSPROP_STATIC),
+	JS_FS("sleep", console_sleep, 1, JSPROP_STATIC),
 	JS_FS_END
 };
 
@@ -39,7 +43,16 @@ JSAPI_FUNC(console_print)
 
 	JS::Anchor<JSString*> anchor(str);
 	const jschar* output = JS_GetStringCharsZ(cx, str);
-	std::wcout << output << std::endl;
+	wcout << output << endl;
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(console_sleep)
+{
+	uint32 amount = 1;
+	if(!JS_ConvertArguments(cx, argc, JS_ARGV(cx, vp), "u", &amount))
+		return JS_FALSE;
+	Sleep(amount);
 	return JS_TRUE;
 }
 
@@ -50,19 +63,14 @@ void InitClasses(JSContext* cx, JSObject* obj)
 
 void reporter(JSContext *cx, const char *message, JSErrorReport *report)
 {
-	std::cout << "[";
-	if(JSREPORT_IS_STRICT(report->flags))
-		std::cout << "Strict ";
-	if(JSREPORT_IS_WARNING(report->flags))
-		std::cout << "Warning";
-	else
-		std::cout << "Error";
+	cout << "[";
+	if(JSREPORT_IS_STRICT(report->flags)) cout << "Strict ";
+	if(JSREPORT_IS_WARNING(report->flags)) cout << "Warning";
+	else cout << "Error";
+	cout << "] ";
 
-	std::cout << "] ";
-	if(report->filename != nullptr)
-		std::cout << "At " << report->filename << ":" << report->lineno;
-	std::cout << " (" << report->errorNumber << ") ";
-	std::cout << message << std::endl;
+	if(report->filename != nullptr) cout << "At " << report->filename << ":" << report->lineno;
+	cout << " (" << report->errorNumber << ") " << message << endl;
 }
 
 int main(int argc, const char** argv)
@@ -73,11 +81,11 @@ int main(int argc, const char** argv)
 
 	if(_waccess(script, 0) == -1) return 0;
 
-	Core::Engine engine(path, 0x80000, InitClasses, reporter);
+	Engine engine(path, 0x80000, InitClasses, reporter);
 	engine.RegisterModule(console_mods);
 	engine.RegisterModule(stream_modules);
 
-	std::cout << "Starting test.js" << std::endl;
+	cout << "Starting test.js" << endl;
 	engine.CompileScript(L"test.js")->Start();
 
 	getchar();

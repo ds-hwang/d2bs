@@ -18,6 +18,7 @@ enum ScriptState
 	Waiting,
 	Running,
 	Paused,
+	Events,
 	Done,
 	Stopping,
 	Stopped,
@@ -29,6 +30,7 @@ class Script;
 typedef std::unordered_map<std::wstring, std::list<jsval>> EventMap;
 
 struct ScriptEvent {
+	SLIST_ENTRY ItemEntry;
 	Event* evt;
 	Script* who;
 };
@@ -45,6 +47,7 @@ private:
 	JSObject *obj, *script, *paths;
 	ScriptState state, oldState;
 	EventMap map;
+	SLIST_HEADER events;
 
 	std::wstring name;
 

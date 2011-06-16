@@ -80,8 +80,8 @@ void Engine::ReleaseContext(JSContext* cx)
 }
 
 void Engine::RunAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Start(); }
-void Engine::StopAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Pause(); }
-void Engine::PauseAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Stop(); }
+void Engine::StopAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Stop(); }
+void Engine::PauseAll(void) { for(auto it = scripts.begin(); it != scripts.end(); it++) it->second->Pause(); }
 
 Script* Engine::CompileScript(const wchar_t* file, bool recompile)
 {

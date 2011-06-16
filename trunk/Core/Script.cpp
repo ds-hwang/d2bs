@@ -16,6 +16,7 @@ Script::Script(const wchar_t* path, Engine* engine) :
 	InitializeCriticalSection(&lock);
 	AutoLock l(&lock);
 	pause = CreateEvent(nullptr, false, false, nullptr);
+	InitializeSListHead(&events);
 
 	cx = engine->GetContext();
 	JSAutoRequest req(cx);
@@ -65,6 +66,12 @@ void Script::Stop(void)
 {
 	state = Stopping;
 	JS_TriggerOperationCallback(cx);
+
+	WaitForSingleObject(thread, 1000);
+	TerminateThread(thread, 0);
+	thread = INVALID_HANDLE_VALUE;
+
+	state = Stopped;
 }
 void Script::Pause(void)
 {
@@ -134,7 +141,8 @@ void Script::FireEvent(Event* evt)
 	ScriptEvent* evtData = new ScriptEvent;
 	evtData->evt = evt;
 	evtData->who = this;
-	QueueUserWorkItem(Script::EventProc, evtData, WT_EXECUTEDEFAULT);
+	InterlockedPushEntrySList(&events, &(evtData->ItemEntry));
+	if(state != Events) JS_TriggerOperationCallback(cx);
 }
 
 JSBool Script::OperationCallback(JSContext *cx)
@@ -150,22 +158,18 @@ JSBool Script::OperationCallback(JSContext *cx)
 		}
 		case Stopping: {
 			// remove any handlers, set the state, etc.
-			// wait 1 second after throwing an exception on the script and then kill it
 			self->RemoveListeners();
 
 			JS_ReportError(cx, "Aborted");
 			JS_ReportPendingException(cx);
 
-			JSAutoSuspendRequest req(cx);
-			WaitForSingleObject(self->thread, 1000);
-			TerminateThread(self->thread, 0);
-			self->thread = INVALID_HANDLE_VALUE;
-
-			self->state = Stopped;
 			break;
 		}
 		default: /* do nothing */ break;
 	}
+
+	ScriptEvent* entry = (ScriptEvent*)InterlockedPopEntrySList(&(self->events));
+	if(entry != nullptr) EventProc(entry);
 
 	return JS_TRUE;
 }
@@ -194,7 +198,15 @@ void __cdecl Script::MainProc(void* args)
 			JS::Call(self->cx, self->obj, main, 0, nullptr, &dummy);
 		}
 	}
+	self->state = Events;
 
+	do {
+		ScriptEvent* entry = (ScriptEvent*)InterlockedPopEntrySList(&(self->events));
+		if(entry != nullptr) EventProc(entry);
+		else SwitchToThread();
+	} while(self->state != Stopping);
+
+	InterlockedFlushSList(&(self->events));
 	JS_ClearContextThread(self->cx);
 	self->state = Done;
 }
@@ -222,16 +234,17 @@ DWORD WINAPI Script::EventProc(void* args)
 			arg[i++] = STRING_TO_JSVAL(JS_NewStringCopyZ(who->cx, x->c_str()));
 	}
 
-	for(auto it = funcs.begin(); it != funcs.end(); it++)
 	{
 		JSAutoRequest req(who->cx);
 		JSAutoEnterCompartment comp;
 		comp.enter(who->cx, who->obj);
-
-		jsval result;
-		JS::Call(who->cx, who->obj, *it, len, arg, &result);
-		if(JSVAL_IS_BOOLEAN(result) && JSVAL_TO_BOOLEAN(result) == JS_TRUE)
-			evt->result = true;
+		for(auto it = funcs.begin(); it != funcs.end(); it++)
+		{
+			jsval result;
+			JS::Call(who->cx, who->obj, *it, len, arg, &result);
+			if(JSVAL_IS_BOOLEAN(result) && JSVAL_TO_BOOLEAN(result) == JS_TRUE)
+				evt->result = true;
+		}
 	}
 
 	if(evt->blocker != INVALID_HANDLE_VALUE)
