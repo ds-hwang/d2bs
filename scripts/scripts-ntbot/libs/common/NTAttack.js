@@ -1946,9 +1946,9 @@ collMap.prototype.rebuild = function( area){
    	
 	do
 	{		
-    //  if(this.area === 108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100)){
-   if (this.area ===108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230)){
-      //  print("x " + myrooms.x*5 + " y " + myrooms.y*5)
+      if(this.area === 108){  // speed up chaos sant lvl
+		if (this.area ===108 &&  ((myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230))){
+      
 	        var col = myrooms.getCollision();	
             for (var yy =0; yy < myrooms.ysize ; yy++){
 		        for (var xx =0; xx < myrooms.xsize; xx++){						
@@ -1960,7 +1960,18 @@ collMap.prototype.rebuild = function( area){
 		        }
 	        }		
 	    }
-    
+      }else{
+			var col = myrooms.getCollision();	
+            for (var yy =0; yy < myrooms.ysize ; yy++){
+		        for (var xx =0; xx < myrooms.xsize; xx++){						
+			        try{
+				        this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
+			        }catch(e){
+				        print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
+			        }
+		        }
+	        }
+		}	
 	} while(myrooms.getNext());
 print("Generated cmap in "+(getTickCount()-startTime))
 
