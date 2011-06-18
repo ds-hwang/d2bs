@@ -1,9 +1,7 @@
 #pragma once
 #include <windows.h>
 
-#define EXPORTING
-#include "..\Core\Exports.hpp"
-#undef EXPORTING
+#include "Exports.hpp"
 
 extern "C" {
 	EXPORT void __fastcall Init(void);

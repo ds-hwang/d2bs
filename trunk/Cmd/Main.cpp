@@ -1,4 +1,3 @@
-#define EXPORTED
 #include "Engine.hpp"
 
 #include "Stream.hpp"

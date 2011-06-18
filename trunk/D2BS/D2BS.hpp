@@ -1,7 +1,5 @@
 #pragma once
 
-#define EXPORTED
-
 #include "Engine.hpp"
 #include "sqlite3.h"
 

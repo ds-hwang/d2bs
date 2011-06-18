@@ -1,11 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Core\Core.vcxproj", "{A3DAD180-7C87-4246-98A7-B47202480C53}"
-	ProjectSection(ProjectDependencies) = postProject
-		{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF} = {3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2Api", "D2Api\D2Api.vcxproj", "{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2BS", "D2BS\D2BS.vcxproj", "{A72EE58F-DBD0-4234-9E00-7B1287C020AC}"
@@ -19,6 +14,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cmd", "Cmd\Cmd.vcxproj", "{
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JSApi", "JSApi\JSApi.vcxproj", "{5365DF36-54ED-4C2B-AA22-7713E23C6E53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A3DAD180-7C87-4246-98A7-B47202480C53} = {A3DAD180-7C87-4246-98A7-B47202480C53}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{A3DAD180-7C87-4246-98A7-B47202480C53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,10 +26,6 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A3DAD180-7C87-4246-98A7-B47202480C53}.Debug|Win32.ActiveCfg = Debug|Win32
-		{A3DAD180-7C87-4246-98A7-B47202480C53}.Debug|Win32.Build.0 = Debug|Win32
-		{A3DAD180-7C87-4246-98A7-B47202480C53}.Release|Win32.ActiveCfg = Release|Win32
-		{A3DAD180-7C87-4246-98A7-B47202480C53}.Release|Win32.Build.0 = Release|Win32
 		{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}.Debug|Win32.Build.0 = Debug|Win32
 		{3F7556AF-2983-4C7D-8E9F-B9C05EFAEEBF}.Release|Win32.ActiveCfg = Release|Win32
@@ -46,6 +42,10 @@ Global
 		{5365DF36-54ED-4C2B-AA22-7713E23C6E53}.Debug|Win32.Build.0 = Debug|Win32
 		{5365DF36-54ED-4C2B-AA22-7713E23C6E53}.Release|Win32.ActiveCfg = Release|Win32
 		{5365DF36-54ED-4C2B-AA22-7713E23C6E53}.Release|Win32.Build.0 = Release|Win32
+		{A3DAD180-7C87-4246-98A7-B47202480C53}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A3DAD180-7C87-4246-98A7-B47202480C53}.Debug|Win32.Build.0 = Debug|Win32
+		{A3DAD180-7C87-4246-98A7-B47202480C53}.Release|Win32.ActiveCfg = Release|Win32
+		{A3DAD180-7C87-4246-98A7-B47202480C53}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

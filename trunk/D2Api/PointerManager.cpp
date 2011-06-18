@@ -137,7 +137,7 @@ bool PointerManager::DefineOffsets()
 }
 
 bool PatchManager::InstallPatches(void) {
-	PatchHook* pHooks = RetrievePatchHooks(nullptr);
+	/*PatchHook* pHooks = RetrievePatchHooks(nullptr);
 	for(int x = 0; x < ArraySize(pHooks); x++)
 	{
 		DWORD Offset = PointerManager::Instance()->GetDllOffset(pHooks[x].dwDllNo, pHooks[x].dwAddr);
@@ -154,20 +154,20 @@ bool PatchManager::InstallPatches(void) {
 		else if(pHooks[x].Type == JMP)
 			PatchJmp(Offset, pHooks[x].dwFunc, pHooks[x].dwLen);
 
-	}
+	}*/
 	return true;
 }
 
 void PatchManager::RemovePatches()
 {
-	PatchHook* pHooks = RetrievePatchHooks(nullptr);
+	/*PatchHook* pHooks = RetrievePatchHooks(nullptr);
 	for(int x = 0; x < ArraySize(pHooks); x++) {
 		if(!WriteBytes((void*)pHooks[x].dwAddr, pHooks[x].bOldCode, pHooks[x].dwLen)) {
 			delete[] pHooks[x].bOldCode;
 			throw;
 		}
 		delete[] pHooks[x].bOldCode;
-	}	
+	}*/	
 }
 
 bool PatchManager::WriteBytes(void *pAddr, void *pData, DWORD dwLen)
