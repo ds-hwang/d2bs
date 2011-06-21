@@ -5,32 +5,11 @@
 #include <vector>
 #include <Windows.h>
 
-#include "D2Api.hpp"
+//#include "D2Api.hpp"
 
 //#include "D2Structs.h"
 
 using namespace std;
-
-struct D2DllInfo {
-	char* DllName;
-	D2DllNo DllNo;
-};
-
-const D2DllInfo dlls[] = {
-	{ "D2Client.DLL", D2CLIENT }, 
-	{ "D2Common.DLL", D2COMMON },
-	{ "D2Gfx.DLL", D2GFX },
-	{ "D2Lang.DLL", D2LANG },
-	{ "D2Win.DLL", D2WIN },
-	{ "D2Net.DLL", D2NET },
-	{ "D2Game.DLL", D2GAME },
-	{ "D2Launch.DLL", D2LAUNCH },
-	{ "Fog.DLL", FOG },
-	{ "BNClient.DLL", BNCLIENT },
-	{ "Storm.DLL", STORM },
-	{ "D2Cmp.DLL", D2CMP },
-	{ "D2Multi.DLL", D2MULTI}
-};
 
 struct ModuleInfo {
 	string ModuleName;
