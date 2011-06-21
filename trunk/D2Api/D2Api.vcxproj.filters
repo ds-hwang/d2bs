@@ -3,9 +3,11 @@
   <ItemGroup>
     <ClCompile Include="D2Api.cpp" />
     <ClCompile Include="PointerManager.cpp" />
+    <ClCompile Include="PatchManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2Api.hpp" />
     <ClInclude Include="PointerManager.hpp" />
+    <ClInclude Include="PatchManager.hpp" />
   </ItemGroup>
 </Project>

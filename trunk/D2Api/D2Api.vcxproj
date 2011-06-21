@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="D2Api.hpp" />
+    <ClInclude Include="PatchManager.hpp" />
     <ClInclude Include="PointerManager.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D2Api.cpp" />
+    <ClCompile Include="PatchManager.cpp" />
     <ClCompile Include="PointerManager.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
