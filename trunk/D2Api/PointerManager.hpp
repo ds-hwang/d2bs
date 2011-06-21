@@ -3,27 +3,13 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <windows.h>
+#include <Windows.h>
+
+#include "D2Api.hpp"
 
 //#include "D2Structs.h"
 
 using namespace std;
-
-enum D2DllNo {
-	D2CLIENT, 
-	D2COMMON, 
-	D2GFX, 
-	D2LANG, 
-	D2WIN, 
-	D2NET, 
-	D2GAME, 
-	D2LAUNCH, 
-	FOG, 
-	BNCLIENT, 
-	STORM, 
-	D2CMP, 
-	D2MULTI
-};
 
 struct D2DllInfo {
 	char* DllName;
@@ -60,41 +46,9 @@ struct Offset {
 typedef vector<Offset*> Offsets;
 typedef vector<ModuleInfo*> Modules;
 
-namespace D2Client {
-	typedef void (__stdcall *PrintGameString_t)(wchar_t *wMessage, int nColor);
-
-	extern PrintGameString_t PrintGameString;
-}
-
-namespace D2Win {
-}
-
-namespace D2Gfx {
-}
-
-namespace D2Common {
-}
-
-namespace D2Launch {
-}
-
-namespace D2Net {
-}
-
-namespace D2Cmp {
-}
-
-namespace D2Lang {
-}
-
-namespace Fog {
-}
-
-namespace Storm {
-}
-
-template<class T, ptrdiff_t n >
-ptrdiff_t arraySize(T(&)[n]) { return n; }
+template<typename Type, size_t Size>
+char (&ArraySizeHelper(Type(&Array)[Size]))[Size];
+#define arraySize(Array) sizeof(ArraySizeHelper(Array))
 
 class PointerManager {
 private:
@@ -131,45 +85,4 @@ public:
 	bool DefineBases();
 
 	void CleanUp();
-};
-
-#define INST_INT3	0xCC
-#define INST_CALL	0xE8
-#define INST_NOP	0x90
-#define INST_JMP	0xE9
-#define INST_RET	0xC3
-
-enum PatchType {
-	CALL,
-	JMP
-};
-
-typedef struct PatchHook_t
-{
-	PatchType Type;
-	DWORD dwDllNo;
-	DWORD dwAddr;
-	DWORD dwFunc;
-	DWORD dwLen;
-	BYTE *bOldCode;
-} PatchHook;
-
-class PatchManager {
-private:
-	PatchHook* pHooks;
-
-	PatchHook *RetrievePatchHooks(PINT pBuffer);
-	void PatchBytes(DWORD dwAddr, DWORD dwValue, DWORD dwLen);
-	void PatchJmp(DWORD dwAddr, DWORD dwFunc, DWORD dwLen);
-	void PatchCall(DWORD dwAddr, DWORD dwFunc, DWORD dwLen);
-	bool InterceptLocalCode(BYTE bInst, DWORD pAddr, DWORD pFunc, DWORD dwLen);
-	bool FillBytes(void *pAddr, BYTE bFill, DWORD dwLen);
-	bool WriteBytes(void *pAddr, void *pData, DWORD dwLen);
-
-public:
-	PatchManager() : pHooks(nullptr) {}
-	~PatchManager() {}
-
-	void RemovePatches();
-	bool InstallPatches();
 };
