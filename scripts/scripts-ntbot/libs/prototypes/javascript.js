@@ -74,22 +74,49 @@ Array.prototype.remove =
 	};
 
 
+
+
+
 // String Class Properties
 String.prototype.__defineGetter__('isEmpty', function(){ return this.length == 0; });
+
 // String Class Methods
-String.prototype.toRandomCase = 
-	function()
-	{
-		var result = '';
-		
-		for(var i=0; i<this.length; i++)
+
+// String.repeat() is not a mutator method;
+String.prototype.repeat = 
+		function repeat(n)
 		{
-			var x = Math.round(Math.random()); //0 or 1
-			if(x)
-				result += this.charAt(i).toUpperCase();
-			else
-				result += this.charAt(i).toLowerCase();
-		}
-		
-		return result;
-	};
+			if(typeof(n) != 'number')
+				return this;
+			
+			// Build and return output;
+			var input = this;
+			var output = '';
+			
+			for(var i = 0; i < n; i++)
+			{
+				output += input;
+			}
+			
+			return output;
+		};
+
+
+
+// String.toRandomCase() is not a mutator method;
+String.prototype.toRandomCase = 
+		function toRandomCase()
+		{
+			var result = '';
+			
+			for(var i=0; i<this.length; i++)
+			{
+				var x = Math.round(Math.random()); //0 or 1
+				if(x)
+					result += this.charAt(i).toUpperCase();
+				else
+					result += this.charAt(i).toLowerCase();
+			}
+			
+			return result;
+		};
