@@ -1,0 +1,43 @@
+// FancyMessage Object Constructor creates FancyMessage() objects which you can pass to the MessageAnimator methods;
+function FancyMessage(sMessagePrefix, sMessage, nMessageLength, sSpacer, nDelay)
+{
+	if(arguments.length != 5)
+	{
+		print('Error: FancyMessage() Constructor requires 5 arguments');
+		return;
+	}
+	
+	this.sPrefix = sMessagePrefix;
+	this.sMessage = sMessage;
+	this.nTotalLength = (nMessageLength > sMessage.length)? nMessageLength : sMessage.length;
+	this.sSpacer = sSpacer;
+	this.nDelay = nDelay;
+	
+	
+	// Make adjustments to totalLength value if it does not match the 
+	// message in terms of even or odd character length (ensures the message can be exactly centered)
+	
+	//If message length is even
+	if((this.sMessage.length % 2) == 0)
+	{
+		//Make sure totalLength is even
+		if((this.nTotalLength % 2) != 0)
+		{
+			this.nTotalLength += 1; //Add 1 to make even
+		}
+	}
+	
+	//If message length is odd
+	else if((this.sMessage.length % 2) == 1)
+	{
+		//Make sure totalLength is odd
+		if((this.nTotalLength % 2) != 1)
+		{
+			this.nTotalLength += 1; //Add 1 to make odd;
+		}
+	}
+	
+	this.nLeftIndex = 0;
+	this.nCenterIndex = ((this.nTotalLength - this.sMessage.length) / 2);
+	this.nRightIndex = (this.nTotalLength - this.sMessage.length - 1); 
+}
