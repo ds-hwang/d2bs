@@ -447,18 +447,18 @@ JSAPI_FUNC(my_getRoom)
 		if(!pLevel || !pLevel->pRoom2First)
 			return JS_TRUE;
 
-		jsint nX = NULL;
-		jsint nY = NULL;
+		uint32 nX = NULL;
+		uint32 nY = NULL;
 
 		if(argc == 2)
 		{
-			nX = JSVAL_TO_INT(argv[0]);
-			nY = JSVAL_TO_INT(argv[1]);
+			JS_ValueToECMAUint32(cx, argv[0], &nX);
+			JS_ValueToECMAUint32(cx, argv[1], &nY);
 		}
 		else if(argc == 3)
 		{
-			nX = JSVAL_TO_INT(argv[1]);
-			nY = JSVAL_TO_INT(argv[2]);
+			JS_ValueToECMAUint32(cx, argv[1], &nX);
+			JS_ValueToECMAUint32(cx, argv[2], &nY);
 		}
 
 		if(!nX || !nY)
@@ -474,11 +474,9 @@ JSAPI_FUNC(my_getRoom)
 				bAdded = TRUE;
 			}
 
-			POINT RoomStart = {pRoom->pRoom1->dwXStart, pRoom->pRoom1->dwYStart };
-			POINT RoomEnd = {pRoom->pRoom1->dwXStart + pRoom->pRoom1->dwXSize , pRoom->pRoom1->dwYStart + pRoom->pRoom1->dwYSize};
-
-			if(nX >= RoomStart.x && nX < RoomEnd.x &&
-				nY >= RoomStart.y && nY < RoomStart.y)
+			CollMap* map = pRoom->pRoom1->Coll;
+			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
+				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
 				if(bAdded)
 					D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, pLevel->dwLevelNo, pRoom->dwPosX, pRoom->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);

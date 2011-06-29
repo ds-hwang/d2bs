@@ -318,14 +318,14 @@ JSAPI_FUNC(my_getCollision)
 
 	CriticalRoom myMisc;
 	myMisc.EnterSection();
-
+	bool found = false;
 	JSBool cachedOnly = JS_FALSE;
 	uint32 nLevelId, nX, nY;
 	if(!JS_ConvertArguments(cx, argc, argv, "uuu/b", &nLevelId, &nX, &nY, &cachedOnly))
 		return JS_FALSE;
 
 	int32 x = D2CLIENT_GetUnitX(D2CLIENT_GetPlayerUnit()), y = D2CLIENT_GetUnitY(D2CLIENT_GetPlayerUnit());
-	if(!cachedOnly && GetDistance(x, y, nX, nY) < 60) {
+	if(GetDistance(x, y, nX, nY) < 60) {  // look in near rooms first
 		Level* level = GetLevel(nLevelId);
 		Room2* room = D2COMMON_GetRoomFromUnit(D2CLIENT_GetPlayerUnit())->pRoom2;
 		int roomsNear = room->dwRoomsNear;
@@ -341,6 +341,7 @@ JSAPI_FUNC(my_getCollision)
 			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
 				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
 			{
+				found = true;
 				// this is the room				
 				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
 				//if(*(map->pMapStart + index) < *(map->pMapEnd))
@@ -353,12 +354,35 @@ JSAPI_FUNC(my_getCollision)
 				D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);				
 			room = rooms[i++];
 		} while(room != NULL && i < roomsNear +1);
-	} else {
-		CCollisionMap cCollisionMap;
-		cCollisionMap.CreateMap(nLevelId);
-		
-		if(cCollisionMap.IsValidAbsLocation(nX, nY))
-			JS_NewNumberValue(cx, cCollisionMap.GetMapData(nX, nY, TRUE), rval);
+	}
+	if(!found){ // if not found search all rooms
+		Level* level = GetLevel(nLevelId);
+		for(Room2* room = level->pRoom2First; room; room = room->pRoom2Next)
+		{
+			bool bAdded = FALSE;
+			if(!room->pRoom1)
+			{
+				D2COMMON_AddRoomData(D2CLIENT_GetPlayerUnit()->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+				bAdded = TRUE;
+			}
+
+			CollMap* map = room->pRoom1->Coll;
+			if(nX >= map->dwPosGameX && nY >= map->dwPosGameY &&
+				nX < (map->dwPosGameX + map->dwSizeGameX) && nY < (map->dwPosGameY + map->dwSizeGameY))
+			{
+				found = true;
+				// this is the room				
+				int index = (nY - map->dwPosGameY) * (map->dwSizeGameY) + (nX - map->dwPosGameX);
+				//if(*(map->pMapStart + index) < *(map->pMapEnd))
+				JS_NewNumberValue(cx, *(map->pMapStart+index), rval);
+				if(bAdded)			
+					D2COMMON_RemoveRoomData(level->pMisc->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, room->pRoom1);		
+				break;
+			}
+
+			if(bAdded)
+				D2COMMON_RemoveRoomData(D2CLIENT_GetPlayerUnit()->pAct, level->dwLevelNo, room->dwPosX, room->dwPosY, D2CLIENT_GetPlayerUnit()->pPath->pRoom1);
+		}
 	}
 
 	return JS_TRUE;
