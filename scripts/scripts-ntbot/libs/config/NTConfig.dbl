@@ -276,7 +276,7 @@ var NTCOW_KingChicken = 50;
 
 me.useTeleport = true;	//enables use of teleport by default;
 var NTConfig_TakeScreenshotOnChicken = false;
-
+var NTConfigStaticBoss =[];
 
 
 

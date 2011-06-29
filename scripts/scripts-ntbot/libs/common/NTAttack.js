@@ -14,7 +14,20 @@ var ignoreKorpse =[];
 var DEAD_MODE = (1 << 29) | (1 << 12);
 var ntMap= new collMap(0)
 var SortPoint = false;
-
+var bestAttackDistance = []
+bestAttackDistance[getSkillByName("Nova")] = 7
+bestAttackDistance[getSkillByName("Charged Bolt")] = 20
+bestAttackDistance[getSkillByName("Lightning")] = 20
+bestAttackDistance[getSkillByName("Chain Lightning")] = 20
+bestAttackDistance[getSkillByName("Fire Ball")] = 20
+bestAttackDistance[getSkillByName("Fire Bolt")] = 25
+bestAttackDistance[getSkillByName("Meteor")] = 35
+bestAttackDistance[getSkillByName("Frost Nova")] = 7
+bestAttackDistance[getSkillByName("Blizzard")] = 35
+bestAttackDistance[getSkillByName("Frozen Orb")] = 12
+bestAttackDistance[getSkillByName("Glacial Spike")] = 20
+bestAttackDistance[getSkillByName("Ice Blast")] = 20
+bestAttackDistance[getSkillByName("Ice Bolt")] = 20
 function NTA_KillBoss(classid)
 {
 	var _target;
@@ -327,7 +340,7 @@ function NTA_ClearRange(AttackRoutine,minX,minY,maxX,maxY){
 	        }
         }// distance if
 	}// loop rooms
-	return true;
+    return true;
 }
 
 function NTA_IsValidTarget(monster, simple)
@@ -685,15 +698,16 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 		break;
 	}
 
-	if(NTConfig_CastStatic < 100 && (me.area != 102 || !NTConfig_Moattrick))
+	if(NTConfig_CastStatic < 100 && staticTarget(target.name))
 	{
+      
 		var _staticlevel = NTC_CheckSkill(42);
 
 		if(_staticlevel > 0 && NTA_GetResistance(target, NTA_DAMAGE_LIGHTNING) < 100 && (boss || checkCollision(me, target, 3) == 0))
 		{
 			var _cast = 0;
 			var _staticrange = Math.floor((5+_staticlevel-1)*2/3);
-
+            
 			while(_cast++ < 10 && parseInt(target.hp*100/128) > NTConfig_CastStatic)
 			{
 				NTA_MoveCloseInt(target, _staticrange);
@@ -1721,40 +1735,39 @@ function NTA_DoCastInt(index, target)
 	var _untimedindex = index < 4 ? 3 : 5;
 	if (NTConfig_AttackSkill[index] == 0 )
 		return false;
-	
-if (NTConfig_AttackSkill[index] == 64) //Frozen Orb
-{
-   var los = FindLOS(target,12)
-	if (los)
-		NTM_MoveTo(los[0],los[1]);
-}
-if (!checkLineLos(me.x,me.y,target.x,target.y)){
-    var los = FindLOS(target,30)
-	if (los)
-		NTM_MoveTo(los[0],los[1]);
-}
-if(!NTA_IsValidTarget(target))
-    return false;
-	if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
-		return false;
         
-	if(_NTA_SkillDelay[index] > 0)
-	{
-		if(NTConfig_AttackSkill[_untimedindex] > -1)
-		{
-			var _starttick = getTickCount();
+        var bestrange = (bestAttackDistance[NTConfig_AttackSkill[index]]) ? bestAttackDistance[NTConfig_AttackSkill[index]] : 30  
+        if (NTConfig_AttackSkill[index] == 64){ //Frozen Orb
+        var los = FindLOS(target,bestrange)
+        if (los)
+	        NTM_MoveTo(los[0],los[1]);
+        }else if (!checkLineLos(me.x,me.y,target.x,target.y) || getDistance(me,target)> bestrange){
+        var los = FindLOS(target,bestrange)
+        if (los)
+	        NTM_MoveTo(los[0],los[1]);
+        }
+        if(!NTA_IsValidTarget(target))
+        return false;
+        if(!NTC_DoCast(NTConfig_AttackSkill[index], _NTA_SkillHand[index], target))
+	        return false;
+        
+        if(_NTA_SkillDelay[index] > 0)
+        {
+	        if(NTConfig_AttackSkill[_untimedindex] > -1)
+	        {
+		        var _starttick = getTickCount();
 
-			while(NTA_IsValidTarget(target, true))
-			{
-				NTC_DoCast(NTConfig_AttackSkill[_untimedindex], _NTA_SkillHand[_untimedindex], target);
+		        while(NTA_IsValidTarget(target, true))
+		        {
+			        NTC_DoCast(NTConfig_AttackSkill[_untimedindex], _NTA_SkillHand[_untimedindex], target);
 
-				if(getTickCount()-_starttick >= _NTA_SkillDelay[index])
-					break;
-			}
-		}
-		else
-			NTC_Delay(_NTA_SkillDelay[index]);
-	}
+			        if(getTickCount()-_starttick >= _NTA_SkillDelay[index])
+				        break;
+		        }
+	        }
+	        else
+		        NTC_Delay(_NTA_SkillDelay[index]);
+        }
 
 	return true;
 }
@@ -1762,20 +1775,35 @@ if(!NTA_IsValidTarget(target))
 function FindLOS(mob,range){
 if (!mob) return false;
 var LosPos =[];
-	for (var j =range*-1; j< range ; j=j+5){
-	// check laspoint walkable then los line
-		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)  && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
-			LosPos.push( [mob.x+j,mob.y+range])
+var x 
+var y
+var denc=range*2
 
-		if (isPtWalkable(mob.x + j, mob.y - range) && CheckColl(mob.x, mob.y, mob.x + j, mob.y - range) && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y-range)&& CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y-range))
-			LosPos.push( [mob.x+j,mob.y-range])
+for(var j = 0 ; j < denc; j = j+1){
+    x=Math.round( range * Math.cos(6.28/denc*j)+mob.x)
+    y=Math.round( range * Math.sin(6.28/denc*j)+mob.y)
+   // x=Math.round(mob.x + range *(Math.cos(j)*(Math.PI/180)))
+   // y=Math.round(mob.y + range *(Math.sin(j)*(Math.PI/180)))
+   // print("checking "+x + " , "+y)
+    if(isPtWalkable(mob.x+j,mob.y+range)  && checkLineLos(mob.x,mob.y,x,y))
+        LosPos.push([x,y])
+}
 
-		if (isPtWalkable(mob.x + range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x + range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x+range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x+range,mob.y+j-1))
-			LosPos.push( [mob.x+range,mob.y+j])
 
-		if (isPtWalkable(mob.x - range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x - range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x-range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x-range,mob.y+j-1))
-			LosPos.push([mob.x-range,mob.y+j])
-	}	
+//	for (var j =range*-1; j< range ; j=j+5){
+//	// check laspoint walkable then los line
+//		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)  && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
+//			LosPos.push( [mob.x+j,mob.y+range])
+
+//		if (isPtWalkable(mob.x + j, mob.y - range) && CheckColl(mob.x, mob.y, mob.x + j, mob.y - range) && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y-range)&& CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y-range))
+//			LosPos.push( [mob.x+j,mob.y-range])
+
+//		if (isPtWalkable(mob.x + range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x + range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x+range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x+range,mob.y+j-1))
+//			LosPos.push( [mob.x+range,mob.y+j])
+
+//		if (isPtWalkable(mob.x - range, mob.y + j) && CheckColl(mob.x, mob.y, mob.x - range, mob.y + j) && CheckColl(mob.x,mob.y+1,mob.x-range,mob.y+j+1)&& CheckColl(mob.x,mob.y-1,mob.x-range,mob.y+j-1))
+//			LosPos.push([mob.x-range,mob.y+j])
+//	}	
 	if(LosPos.length == 0 && range >6)
 		return FindLOS(mob,range-5)
 	if(LosPos.length ==0) return false;
@@ -1916,39 +1944,77 @@ function collMap(Area){
     this.maxY=0;
     
 }
-collMap.prototype.getColl = function(area,x,y){
-if (this.area != area){
-    this.rebuild(area)
-    this.area=area;
-    }
-    try{
-        if (this.Map[x] === undefined || this.Map[x][y] === undefined){
-           // print("returning 99 undefined " +x + " " + y)
-            return 99;
-        } else
-          return this.Map[x][y];
-    }catch(e){
-        print("returning 99 error " +x + " " + y)
-        return 99;
-    }
-
-}
-collMap.prototype.rebuild = function( area){
-    var startTime=getTickCount()
-    var myarea=getArea(area);
-    this.area=area
+collMap.prototype.clear = function(){
+    var myarea=getArea(this.area);
+    this.Map=false;
     this.minX = myarea.x*5
     this.minY = myarea.y*5
     this.maxY=this.minY + myarea.ysize*5
     this.maxX=this.minX+myarea.xsize*5
     this.Map= Array2D(myarea.x*5-40,myarea.xsize*5+myarea.x*5+40)	
+}
+collMap.prototype.isValidPt = function(x,y){
+    return (x>this.minX && x < this.maxX && y>this.minY && y<this.maxY)
+}
+collMap.prototype.getColl = function(area,x,y){
+if (this.area != area){
+    this.area=area;
+    this.clear()
+    this.rebuild(area)
+    
+    }
+    try{
+        if (this.Map[x] === undefined || this.Map[x][y] === undefined){
+//           this.addRoom(x,y)// try adding data  .... this works but seems un-needed when building hole area cmap
+//                if (this.Map[x] === undefined || this.Map[x][y] === undefined)
+//                    return 99;
+//                else 
+//                    return this.Map[x][y];
+            return 99;
+        } else
+          return this.Map[x][y];
+    }catch(e){
+        print("returning 99 error " +x + " " + y)
+        return 99; 
+    }
+
+}
+collMap.prototype.addRoom = function(x,y){
+if (!this.isValidPt(x,y))
+    return false
+ 
+   // var room = getRoom(this.area,x,y) // broken in 1.4
+   var room = getRoom(this.area)
+   do{
+        if( room.x*5 <= x && (room.x*5) + room.xsize > x && room.y*5 <= y &&  (room.y*5)+room.ysize>y){
+            print("adding room "+ this.area +","+x+","+y +room.toSource())
+            var col = room.getCollision();	
+            for (var yy =0; yy < room.ysize ; yy++){
+		        for (var xx =0; xx < room.xsize; xx++){			 			
+			            try{
+				            this.Map[(room.x*5+xx)][(room.y*5+yy)] = col[yy][xx];	
+			            }catch(e){
+				            print (e + "x:"+(room.x*5+xx) +"y: "+(room.y*5+yy))
+			            }
+		         }
+	         }		
+             return true;
+        
+        } 
+
+   } while(room.getNext());
+   return false;
+}
+collMap.prototype.rebuild = function( area){
+    var startTime=getTickCount()
+   
     var myrooms = getRoom(area);
    	
 	do
 	{		
-      if(this.area === 108){  // speed up chaos sant lvl
-		if (this.area ===108 &&  ((myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230))){
-      
+    //  if(this.area === 108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100)){
+   if (this.area ===108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230)){
+      //  print("x " + myrooms.x*5 + " y " + myrooms.y*5)
 	        var col = myrooms.getCollision();	
             for (var yy =0; yy < myrooms.ysize ; yy++){
 		        for (var xx =0; xx < myrooms.xsize; xx++){						
@@ -1960,20 +2026,9 @@ collMap.prototype.rebuild = function( area){
 		        }
 	        }		
 	    }
-      }else{
-			var col = myrooms.getCollision();	
-            for (var yy =0; yy < myrooms.ysize ; yy++){
-		        for (var xx =0; xx < myrooms.xsize; xx++){						
-			        try{
-				        this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
-			        }catch(e){
-				        print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-			        }
-		        }
-	        }
-		}	
+    
 	} while(myrooms.getNext());
-print("Generated cmap in "+(getTickCount()-startTime))
+//print("Generated cmap in "+(getTickCount()-startTime))
 
 }
 collMap.prototype.Dump = function(){
@@ -2052,4 +2107,12 @@ function SortDistanceRev(nUnit1, nUnit2){
         return -1;
     }
 
+}
+function staticTarget(name){
+    if (NTConfigStaticBoss.length == 0)
+        return true
+    for (var i =0; i< NTConfigStaticBoss.length; i++)
+        if(name == NTConfigStaticBoss[i])
+            return true
+    return false;    
 }
