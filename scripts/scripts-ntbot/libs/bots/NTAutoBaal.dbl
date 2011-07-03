@@ -14,17 +14,19 @@ function NT_AutoBaal() {
 		
 	addEventListener('chatmsg', // chat event, listen to what leader says
 		function (nick, msg) { // handler function
-			for (i = 0; i < safeMsg.length; i = i + 1) { // loop through all predefined messages to find a match
-				if (nick === leader && msg.toLowerCase().indexOf(safeMsg[i]) > -1) { // leader says a safe message
-					throneCheck = true; // safe to enter throne
-					break;
+			if (nick === leader) { // filter leader messages
+				for (i = 0; i < safeMsg.length; i = i + 1) { // loop through all predefined messages to find a match
+					if (msg.toLowerCase().indexOf(safeMsg[i]) > -1) { // leader says a safe message
+						throneCheck = true; // safe to enter throne
+						break;
+					}
 				}
-			}
-			
-			for (i = 0; i < baalMsg.length; i = i + 1) { // loop through all predefined messages to find a match
-				if (nick === leader && msg.toLowerCase().indexOf(baalMsg[i]) > -1) { // leader says a baal message
-					baalCheck = true; // safe to enter baal chamber
-					break;
+				
+				for (i = 0; i < baalMsg.length; i = i + 1) { // loop through all predefined messages to find a match
+					if (msg.toLowerCase().indexOf(baalMsg[i]) > -1) { // leader says a baal message
+						baalCheck = true; // safe to enter baal chamber
+						break;
+					}
 				}
 			}
 		}
@@ -89,7 +91,7 @@ function NT_AutoBaal() {
 				NTC_Delay(5000); // wait for others to enter first - helps  with curses and tentacles from spawning around you
 				print("ÿc4AutoBaal: ÿc0Entering chamber.");
 				
-				if (NTM_TakeUnit(NTC_UNIT_OBJECT, 563)) { // enter chamber
+				if (NTM_UsePortal("Portal", 132, null, portal)) { // enter chamber
 					NTM_MoveTo(15166, 5903); // go to a safe position
 				}
 				
