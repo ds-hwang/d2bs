@@ -1,0 +1,111 @@
+/* 	
+	Universal Baal leecher by Kolton with Autoleader by Ethic
+	Pure leech script for throne and Baal
+	Reenters throne/chamber upon death and picks the corpse back up
+	Make sure you setup safeMsg and baalMsg accordingly
+*/
+
+function NT_AutoBaal() {
+	// editable variables
+	var safeMsg = ["safe", "throne clear", "leechers can come", "tp is up", "1 clear"], // safe message - casing doesn't matter
+		baalMsg = ["baal"], // baal message - casing doesn't matter
+	// internal variables
+		i, baalCheck, throneCheck, leader, suspect, solofail, portal;
+		
+	addEventListener('chatmsg', // chat event, listen to what leader says
+		function (nick, msg) { // handler function
+			for (i = 0; i < safeMsg.length; i = i + 1) { // loop through all predefined messages to find a match
+				if (nick === leader && msg.toLowerCase().indexOf(safeMsg[i]) > -1) { // leader says a safe message
+					throneCheck = true; // safe to enter throne
+					break;
+				}
+			}
+			
+			for (i = 0; i < baalMsg.length; i = i + 1) { // loop through all predefined messages to find a match
+				if (nick === leader && msg.toLowerCase().indexOf(baalMsg[i]) > -1) { // leader says a baal message
+					baalCheck = true; // safe to enter baal chamber
+					break;
+				}
+			}
+		}
+	);
+	
+	function AutoLeaderDetect(destination) { // autoleader by Ethic
+		do {
+			solofail = 0;
+			suspect = getParty(); // get party object (players in game)
+			
+			do {
+				if (suspect.name !== me.name) { // player isn't alone
+					solofail = solofail + 1;
+				}
+				
+				if (suspect.area === destination) { // first player in our party found in destination area...
+					leader = suspect.name; // ... is our leader
+					print("ÿc4AutoBaal: ÿc0Autodetected " + leader);
+					return true;
+				}
+			} while (suspect.getNext()); 
+
+			if (solofail === 0) { // empty game, nothing left to do
+				return false;
+			}
+			
+			NTC_Delay(500);
+		} while (!leader); // repeat until leader is found (or until game is empty)
+		
+		return false;
+	}
+	
+	if (!NTTM_CheckAct(5)) {
+		throw new Error("NTTM_CheckAct failed."); // critical error - can't reach harrogath
+	}
+	
+	NTTMGR_TownManager();
+	
+	NTTM_TownMove("portalspot");
+	
+	if (AutoLeaderDetect(131)) { // find the first player in area 131 - throne of destruction
+		while (NTC_InMyParty(leader)) { // do our stuff while partied
+			if (throneCheck && me.area === 109) { // wait for throne signal - leader's safe message
+				print("ÿc4AutoBaal: ÿc0Trying to take TP to throne.");
+				NTM_UsePortal("BluePortal", 131, leader); // take TP to throne
+				NTC_Delay(500);
+				NTM_MoveTo(15113, 5050); // move to a safe spot
+				NTP_DoPrecast(true);
+				NTT_GetCorpses(); // check for corpse - happens if you die and reenter
+			}
+			
+			if (baalCheck && me.area === 131) { // wait for baal signal - leader's baal message
+				NTM_MoveTo(15092, 5010); // move closer to chamber portal
+				NTP_DoPrecast(true);
+				
+				while (NTC_GetUnit(NTC_UNIT_MONSTER, 543)) { // wait for baal to go through the portal
+					NTC_Delay(500);
+				}
+				
+				portal = NTC_GetUnit(NTC_UNIT_OBJECT, 563);
+				
+				NTC_Delay(5000); // wait for others to enter first - helps  with curses and tentacles from spawning around you
+				print("ÿc4AutoBaal: ÿc0Entering chamber.");
+				
+				if (NTM_TakeUnit(NTC_UNIT_OBJECT, 563)) { // enter chamber
+					NTM_MoveTo(15166, 5903); // go to a safe position
+				}
+				
+				NTT_GetCorpses(); // check for corpse - happens if you die and reenter
+			}
+			
+			if (me.mode === 0 || me.mode === 17) { // death check
+				NTC_Delay(1500);
+				me.revive(); // revive if dead
+			}
+			
+			NTC_Delay(500);
+		}
+	} else {
+		throw new Error("Empty game.");
+	}
+	
+	return true;
+}

@@ -720,15 +720,15 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true)) 
    {
-       if (!checkLineLos(me.x,me.y,target.x, target.y)) {
-         var los  = FindLOS(target,35)
-			if (los)
-			    NTM_MoveTo(los[0],los[1]);
-            else {
-              //  print ("los fail return false")
-                return false;
-            }
-    }
+//       if (!checkLineLos(me.x,me.y,target.x, target.y)) {
+//         var los  = FindLOS(target,35)
+//			if (los)
+//			    NTM_MoveTo(los[0],los[1]);
+//            else {
+//              //  print ("los fail return false")
+//                return false;
+//            }
+//    }
       NTSI_FastSnag();
 	if (getDistance(me,target )>40 )
 	    NTA_MoveCloseInt(target, 35) 
