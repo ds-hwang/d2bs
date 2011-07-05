@@ -720,15 +720,16 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
 
 	while(_maxattacks++ < maxattacks && NTA_IsValidTarget(target, true)) 
    {
-//       if (!checkLineLos(me.x,me.y,target.x, target.y)) {
-//         var los  = FindLOS(target,35)
-//			if (los)
-//			    NTM_MoveTo(los[0],los[1]);
-//            else {
-//              //  print ("los fail return false")
-//                return false;
-//            }
-//    }
+       if (!checkLineLos(me.x,me.y,target.x, target.y)) {
+         var los  = FindLOS(target,35)
+			if (los)
+			    NTM_MoveTo(los[0],los[1]);
+            else {
+               // print ("los fail return false")
+               // ntMap.Dump()
+                return false;
+            }
+    }
       NTSI_FastSnag();
 	if (getDistance(me,target )>40 )
 	    NTA_MoveCloseInt(target, 35) 
@@ -747,8 +748,6 @@ function NTA_SorceressAttackInt(target, boss, maxattacks)
          } 
 
          NTA_DoCastInt(_primaryindex, target); 
-
-
       } 
       else if(NTConfig_AttackSkill[4] > -1 && NTA_GetResistance(target, _NTA_SkillDamage[4]) < 100) 
       { 
@@ -1778,18 +1777,19 @@ var LosPos =[];
 var x 
 var y
 var denc=range*2
-
+var checked =[]
 for(var j = 0 ; j < denc; j = j+1){
     x=Math.round( range * Math.cos(6.28/denc*j)+mob.x)
     y=Math.round( range * Math.sin(6.28/denc*j)+mob.y)
    // x=Math.round(mob.x + range *(Math.cos(j)*(Math.PI/180)))
    // y=Math.round(mob.y + range *(Math.sin(j)*(Math.PI/180)))
    // print("checking "+x + " , "+y)
+    checked.push([x,y])
     if(isPtWalkable(mob.x+j,mob.y+range)  && checkLineLos(mob.x,mob.y,x,y))
         LosPos.push([x,y])
 }
 
-
+//print("FindLos range : "+range + " mob("+mob.x +", "+mob.y+ ") results:" + LosPos.toSource() + " Checked "+checked.toSource())
 //	for (var j =range*-1; j< range ; j=j+5){
 //	// check laspoint walkable then los line
 //		if (isPtWalkable(mob.x+j,mob.y+range)  && CheckColl(mob.x,mob.y,mob.x+j,mob.y+range)  && CheckColl(mob.x+1,mob.y,mob.x+j+1,mob.y+range) && CheckColl(mob.x-1,mob.y,mob.x+j-1,mob.y+range))
@@ -1926,11 +1926,10 @@ function NTA_GetAttackAuraInt(skillid)
 }
 
 function Array2D(ymin,ysize){
-var k=new Array;  
-for (var i = ymin; i < ymin+ysize; ++ i)
-	k [i] = new Array; 
-
-return k; 
+    var k=new Array;  
+    for (var i = ymin; i < ymin+ysize; ++ i)
+        k [i] = new Array; 
+    return k; 
 }
 function collMap(Area){
     this.area = Area;
@@ -1944,7 +1943,7 @@ function collMap(Area){
     this.maxY=0;
     
 }
-collMap.prototype.clear = function(){
+collMap.prototype.clear = function(){ // resets map array and bounds
     var myarea=getArea(this.area);
     this.Map=false;
     this.minX = myarea.x*5
@@ -1960,16 +1959,16 @@ collMap.prototype.getColl = function(area,x,y){
 if (this.area != area){
     this.area=area;
     this.clear()
-    this.rebuild(area)
+   // this.rebuild(area)
     
     }
     try{
         if (this.Map[x] === undefined || this.Map[x][y] === undefined){
-//           this.addRoom(x,y)// try adding data  .... this works but seems un-needed when building hole area cmap
-//                if (this.Map[x] === undefined || this.Map[x][y] === undefined)
-//                    return 99;
-//                else 
-//                    return this.Map[x][y];
+           this.addRoom(x,y)// try adding data  .... this works but seems un-needed when building hole area cmap
+                if (this.Map[x] === undefined || this.Map[x][y] === undefined)
+                    return 99;
+                else 
+                    return this.Map[x][y];
             return 99;
         } else
           return this.Map[x][y];
@@ -1987,48 +1986,40 @@ if (!this.isValidPt(x,y))
    var room = getRoom(this.area)
    do{
         if( room.x*5 <= x && (room.x*5) + room.xsize > x && room.y*5 <= y &&  (room.y*5)+room.ysize>y){
-            print("adding room "+ this.area +","+x+","+y +room.toSource())
-            var col = room.getCollision();	
-            for (var yy =0; yy < room.ysize ; yy++){
-		        for (var xx =0; xx < room.xsize; xx++){			 			
-			            try{
-				            this.Map[(room.x*5+xx)][(room.y*5+yy)] = col[yy][xx];	
-			            }catch(e){
-				            print (e + "x:"+(room.x*5+xx) +"y: "+(room.y*5+yy))
-			            }
-		         }
-	         }		
-             return true;
-        
+            //print("adding room "+ this.area +","+x+","+y +room.toSource())
+            this.addRoomData(room)
+            return true;        
         } 
-
-   } while(room.getNext());
+    } while(room.getNext());
    return false;
 }
+collMap.prototype.addRoomData = function(room){
+    var col = room.getCollision();	
+    for (var yy =0; yy < room.ysize ; yy++){
+		for (var xx =0; xx < room.xsize; xx++){			 			
+			    try{
+				    this.Map[(room.x*5+xx)][(room.y*5+yy)] = col[yy][xx];	
+			    }catch(e){
+				    print (e + "x:"+(room.x*5+xx) +"y: "+(room.y*5+yy))
+			    }
+		 }
+	 }		
+ }
+
 collMap.prototype.rebuild = function( area){
     var startTime=getTickCount()
    
     var myrooms = getRoom(area);
    	
 	do
-	{		
-    //  if(this.area === 108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100)){
-   if (this.area ===108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230)){
-      //  print("x " + myrooms.x*5 + " y " + myrooms.y*5)
-	        var col = myrooms.getCollision();	
-            for (var yy =0; yy < myrooms.ysize ; yy++){
-		        for (var xx =0; xx < myrooms.xsize; xx++){						
-			        try{
-				        this.Map[(myrooms.x*5+xx)][(myrooms.y*5+yy)] = col[yy][xx];	
-			        }catch(e){
-				        print (e + "x:"+(myrooms.x*5+xx) +"y: "+(myrooms.y*5+yy))
-			        }
-		        }
-	        }		
-	    }
-    
+	{	   
+       if (this.area ===108 &&  (myrooms.x*5 > 7600 && myrooms.x*5 < 7950 &&  myrooms.y*5 >5100 )&&! (myrooms.x*5 <7740 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5>5330) && !(myrooms.x*5 >7820 && myrooms.y *5<5230) && !(myrooms.x*5  <7740 && myrooms.y *5<5230))
+            this.addRoomData(myrooms)
+       if (this.area !== 108)
+             this.addRoomData(myrooms)
+           
 	} while(myrooms.getNext());
-//print("Generated cmap in "+(getTickCount()-startTime))
+print("Generated cmap in "+(getTickCount()-startTime))
 
 }
 collMap.prototype.Dump = function(){
@@ -2041,12 +2032,12 @@ collMap.prototype.Dump = function(){
       for(var y = this.minY; y< this.maxY; y++){
 		    line = "y:"+ y+ ">";
 			for(var x=this.minX; x< this.maxX; x++){
-			     if (this.getColl(this.area,x,y) ){					
-					    if (this.getColl(this.area,x,y) < 10)	
+			     if (this.Map[x][y] ){					
+					    if (this.Map[x][y] < 10)	
 						    car = this.getColl(this.area,x,y) + " "
 					    else 
-						    car =this.getColl(this.area,x,y)
-					    if (this.getColl(this.area,x,y) > 99) 
+						    car =this.Map[x][y]
+					    if (this.Map[x][y] > 99) 
 						    car = "$$"
 					
 				    }else
