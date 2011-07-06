@@ -331,89 +331,89 @@ function NTT_ReviveMerc(npc)
 
 function NTT_ResetWeaponMerc()
 {
-	var i, n;
-	var _merc, _items;
-	var _result = 0;
+//	var i, n;
+//	var _merc, _items;
+//	var _result = 0;
 
-	_merc = NTC_GetMerc();
+//	_merc = NTC_GetMerc();
 
-	if(!_merc)
-		return false;
+//	if(!_merc)
+//		return false;
 
-	_items = NTC_GetItems(_merc);
+//	_items = NTC_GetItems(_merc);
 
-	for(i = 0 ; i < _items.length ; i++)
-	{
-		if(_items[i].bodylocation == 4)// && _items[i].getFlag(0x4000000))
-		{
-			_result = _items[i].gid;
-			for(n = 0 ; n < 60 ; n++)
-			{
-				if((n % 20) == 0)
-			
-					clickItem(4, 4);
+//	for(i = 0 ; i < _items.length ; i++)
+//	{
+//		if(_items[i].bodylocation == 4)// && _items[i].getFlag(0x4000000))
+//		{
+//			_result = _items[i].gid;
+//			for(n = 0 ; n < 60 ; n++)
+//			{
+//				if((n % 20) == 0)
+//			
+//					clickItem(4, 4);
 
-				NTC_Delay(100);
+//				NTC_Delay(100);
 
-				if(me.itemoncursor)
-				{
-					NTC_PingDelay(1000);
-					break;
-				}
-			}
+//				if(me.itemoncursor)
+//				{
+//					NTC_PingDelay(1000);
+//					break;
+//				}
+//			}
 
-			if(n >= 60)
-				break;
+//			if(n >= 60)
+//				break;
 
-			for(n = 0 ; n < 100 ; n++)
-			{
-				if((n % 20) == 0)
-					clickItem(4, 4);
+//			for(n = 0 ; n < 100 ; n++)
+//			{
+//				if((n % 20) == 0)
+//					clickItem(4, 4);
 
-				NTC_Delay(100);
+//				NTC_Delay(100);
 
-				if(!me.itemoncursor)
-				{
-					NTC_PingDelay(500);
+//				if(!me.itemoncursor)
+//				{
+//					NTC_PingDelay(500);
 
-					break;;
-				}
-			}
+//					break;;
+//				}
+//			}
 
-			break;
-		}
-	}
-	if (_result ==0)
-		return true;
-	
-	delay(1500);
-	_items = NTC_GetItems(_merc);
-	for(i = 0 ; i < _items.length ; i++)
-	{
-		if(_items[i].bodylocation == 1 )
-		{
-			return true;
-		}
-	}
-	if(me.itemoncursor){
-		while(me.itemoncursor){
-				clickItem(4, 4);
-				NTC_Delay(1000);
-		}
-	}else {
-	var droped = NTSI_findItemGID(_result);
-	if (droped){
-		NTSI_PickUpItemInt(droped);
-		print("crap i droped merc's wepon pausing");
-		NT_Pause=true;
-		sendCopyData(null, "OOG", 0,"Stop Me");
-		NTC_Delay(100);
-	}
-	}
-	NTSI_PickItems();
-	
-	
-	return false;
+//			break;
+//		}
+//	}
+//	if (_result ==0)
+//		return true;
+//	
+//	delay(1500);
+//	_items = NTC_GetItems(_merc);
+//	for(i = 0 ; i < _items.length ; i++)
+//	{
+//		if(_items[i].bodylocation == 1 )
+//		{
+//			return true;
+//		}
+//	}
+//	if(me.itemoncursor){
+//		while(me.itemoncursor){
+//				clickItem(4, 4);
+//				NTC_Delay(1000);
+//		}
+//	}else {
+//	var droped = NTSI_findItemGID(_result);
+//	if (droped){
+//		NTSI_PickUpItemInt(droped);
+//		print("crap i droped merc's wepon pausing");
+//		NT_Pause=true;
+//		sendCopyData(null, "OOG", 0,"Stop Me");
+//		NTC_Delay(100);
+//	}
+//	}
+//	NTSI_PickItems();
+//	
+//	
+//	return false;
 }
 
 
