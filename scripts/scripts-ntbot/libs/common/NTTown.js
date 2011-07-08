@@ -1095,7 +1095,7 @@ function NTT_CleanPotions()
 			{
 				_items[i].interact();
 
-				NTC_PingDelay(500);
+				NTC_Delay(500);
 			}
 		}
 	}

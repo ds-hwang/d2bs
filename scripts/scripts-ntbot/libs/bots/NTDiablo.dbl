@@ -22,7 +22,7 @@ function NT_Diablo()
 	
 	print("ÿc5Precasting");
 	NTP_DoPrecast();
-	ntMap.getColl(108,7790,5544) // precache map
+	//ntMap.getColl(108,7790,5544) // precache map
   
 	print("ÿc8Going to Chaos Sanctuary");
 	if (!NTM_MoveTo(7797, 5600)) 
@@ -36,15 +36,11 @@ function NT_Diablo()
 		if (!NTM_MoveTo(7790, 5544)) 
 			throw new Error();
 		
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
 		NTA_ClearPosition();
 		NTSI_PickItems();
 
 		NTM_MoveTo(7790, 5544);
 
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
 		NTA_ClearPosition();
 		NTSI_PickItems();
 		NTM_MoveTo(7790, 5544);
@@ -164,8 +160,6 @@ function NT_OpenVizierSealInt(type) {
 		for (n = 0; n < 8; n++) {
 			if (NTA_KillBoss(getLocaleString(2851))) //Grand Vizier of Chaos
 			{
-				NTA_ClearPosition(25, 0x04);
-				NTA_ClearPosition(25);
 				NTA_ClearPosition();
 				NTSI_PickItems();
 				return true;//  NTM_MoveTo(7750, 5280);
@@ -200,8 +194,6 @@ function NT_OpenDeSeisSealInt(type) {
 		for (n = 0; n < 8; n++) {
 			if (NTA_KillBoss(getLocaleString(2852))) //Lord De Seis
 			{
-				NTA_ClearPosition(25, 0x04);
-				NTA_ClearPosition(25);
 				NTA_ClearPosition();
 				NTSI_PickItems();
 
@@ -238,7 +230,6 @@ for (var i = 0; i < 3; i++) {
 		for (var n = 0; n < 8; n++) {
 			if (NTA_KillBoss(getLocaleString(2853))) //"Infector of Souls"
 			{
-				NTA_ClearPosition(25);
 				NTA_ClearPosition();
 				NTSI_PickItems();
 

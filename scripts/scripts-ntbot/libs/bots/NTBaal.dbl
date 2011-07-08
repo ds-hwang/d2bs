@@ -3,7 +3,7 @@ function NT_Baal()
 	var i;
 	var _wave;
 	var _starttick;
-
+   
 	print("ÿc3Starting Baal Script");
 	
 	if (!NTTM_CheckAct())
@@ -32,15 +32,12 @@ function NT_Baal()
 	if (!NTM_MoveTo(15112, 5068))
 		throw new Error();
 
-	NTA_ClearPosition(20, 0x04);
 	NTA_ClearPosition();
 	NTSI_PickItems();
 
 	if (NTConfig_PublicMode) 
 	{
 		NTM_MoveTo(15116, 5068);
-
-		NTC_PingDelay(1000);
 
 		NTM_MakeTP();
 		NTC_Say(BaalTPMsg);
@@ -62,8 +59,10 @@ function NT_Baal()
 
 	while(true) 
 	{
-		if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) NTM_MoveTo(15092, 5028);
-		else NTM_MoveTo(15092, 5040);
+		if (me.classid == NTC_CHAR_CLASS_PALADIN || me.classid == NTC_CHAR_CLASS_BARBARIAN) 
+            NTM_MoveTo(15092, 5028);
+		else
+            NTM_MoveTo(15092, 5040);
 
 		if (me.getState(2)) NTC_PutSkill(109, NTC_HAND_RIGHT);
 
@@ -84,13 +83,11 @@ function NT_Baal()
 
 				_starttick = getTickCount();
 			}
-
+          
 			_wave = NT_ThroneCheckInt();
-		}
+        }
 		
 		
-		NTA_ClearPosition(40, 0x04);	//clear bosses
-		NTA_ClearPosition(40, 0x01);	//clear superuniques
 		NTA_ClearPosition(40);			//clear all
 		NTSI_PickItems();
 		NTT_CleanPotions();
@@ -141,8 +138,6 @@ function NT_Baal()
 	if (NTConfig_PublicMode) 
 		NTC_Say(BaalNextGameMsg);
 		
-	sendCopyData(null, "OOG", 0, "Quit:Full Run");
-	
 	return true;
 }
 
@@ -152,8 +147,8 @@ function NT_ClearThroneInt() {
 	for (var i = 0; i < _attackpos.length; i += 2) {
 		NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
 
-		NTA_ClearPosition(25, 0x04);
-		NTA_ClearPosition(25);
+		
+		NTA_ClearPosition();
 		NTSI_PickItems();
 	}
 
