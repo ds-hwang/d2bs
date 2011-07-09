@@ -10,8 +10,35 @@ function main(){
 }
 
 function announceGame(){
-	var gameInfo = ''+ me.realm +' '+ me.core +' '+ me.ladder +' '+ me.gamename +' '+ me.gamepassword;
+
+	var ClassToName = new Array(7);
+	ClassToName[0] = "Amazon";
+	ClassToName[1] = "Sorceress";
+	ClassToName[2] = "Necromancer";
+	ClassToName[3] = "Paladin";
+	ClassToName[4] = "Barbarian";
+	ClassToName[5] = "Druid";
+	ClassToName[6] = "Assassin";
+	
+	var DiffToName = new Array(3);
+	DiffToName[0] = "Normal";
+	DiffToName[1] = "Nightmare";
+	DiffToName[2] = "Hell";
+	
+	var gameInfo = ''+ 
+		me.realm +' '+ 
+		((me.playertype == 0)?'Softcore':'Hardcore') +' '+ 
+		((me.gametype == 0)?'Classic':'Expansion') +' '+
+		//me.ladder +' '+	//me.ladder is bugged in D2BS 1.4 (always false) 
+		me.name +' '+
+		me.charlvl +' '+
+		ClassToName[me.classid] +' '+
+		DiffToName[me.diff] +' '+
+		me.gamename +' '+ 
+		me.gamepassword;
+	
 	sendDDE(1, 'mIRC', 'COMMAND', '', '/announceGame '+ gameInfo);
+	
 };
 
 
