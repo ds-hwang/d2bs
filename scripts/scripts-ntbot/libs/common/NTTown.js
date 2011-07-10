@@ -199,10 +199,30 @@ function NTT_DoTrade(npc, type)
 		if(getUIFlag(0x0C))
 		{
 			NTC_PingDelay(1000);
-			if(NTSB_ShopOnNpcVisit && !type) NTSB_QuickShop(npc);
-			return true;
+			
+			if (npc.getItems()) {
+				if (NTSB_ShopOnNpcVisit && !type) {
+					NTSB_QuickShop(npc);
+				}
+				
+				return true;
+			}
+			
+			print("ÿc2NTT ÿc8:: ÿc1No items found. Retrying...")
+			NTT_MenuCancel();
+			
+			if (NTT_DoInteract(npc)) {
+				if(NTT_CheckNPC(npc.classid, 3))
+					npc.useMenu(0x0D06);
+				else if(type == 1 && NTT_CheckNPC(npc.classid, 6))
+					npc.useMenu(0x0D46);
+				else
+					npc.useMenu(0x0D44);
+			}
 		}
 	}
+	
+	NTT_MenuCancel();
 
 	return false;
 }
