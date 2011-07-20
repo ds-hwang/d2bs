@@ -1,0 +1,9 @@
+function main()
+{
+	while(true)
+	{
+		delay(10000);
+		if(me.ingame)
+			break;
+	}
+}

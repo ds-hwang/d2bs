@@ -1,0 +1,185 @@
+addEventListener('keyup', KeyHandler);
+
+
+function main()
+{
+	while(true)
+	{
+		delay(10000);
+	}
+}
+
+
+function KeyHandler(key)
+{
+	//F12 key;
+	if (key == 123)
+	{
+		me.overhead("Reavealing " +NTAR_Areas[me.area]);
+		print("Reavealing " +NTAR_Areas[me.area]);
+		RevealArea(me.area);
+	}
+}
+
+
+function RevealArea(area)
+{
+	if(area in revealedAreas)
+		return;
+	revealedAreas.push(area);
+	var room = getRoom(area);
+	var roomsRevealed = [];
+	do {
+		if(room == undefined || room.area != area)
+			return; // exit when we've finished with the rooms for this area
+		if([room.x, room.y] in roomsRevealed)
+		{
+			roomsRevealed.push([room.x, room.y]);
+			room.getNext();
+		}
+		else
+			room.reveal(true);
+	} while(room.getNext());
+}
+
+
+var revealedAreas = [];
+var NTAR_Areas = new Array(133);
+NTAR_Areas[0] = "None";
+NTAR_Areas[1] = "Rogue Encampment";
+NTAR_Areas[2] = "Blood Moor";
+NTAR_Areas[3] = "Cold Plains";
+NTAR_Areas[4] = "Stony Field";
+NTAR_Areas[5] = "Dark Wood";
+NTAR_Areas[6] = "Black Marsh";
+NTAR_Areas[7] = "Tamoe Highland";
+NTAR_Areas[8] = "Den Of Evil";
+NTAR_Areas[9] = "Cave Level 1";
+NTAR_Areas[10] = "Underground Passage Level 1";
+NTAR_Areas[11] = "Hole Level 1";
+NTAR_Areas[12] = "Pit Level 1";
+NTAR_Areas[13] = "Cave Level 2";
+NTAR_Areas[14] = "Underground Passage Level 2";
+NTAR_Areas[15] = "Hole Level 2";
+NTAR_Areas[16] = "Pit Level 2";
+NTAR_Areas[17] = "Burial Grounds";
+NTAR_Areas[18] = "Crypt";
+NTAR_Areas[19] = "Mausoleum";
+NTAR_Areas[20] = "Forgotten Tower";
+NTAR_Areas[21] = "Tower Cellar Level 1";
+NTAR_Areas[22] = "Tower Cellar Level 2";
+NTAR_Areas[23] = "Tower Cellar Level 3";
+NTAR_Areas[24] = "Tower Cellar Level 4";
+NTAR_Areas[25] = "Tower Cellar Level 5";
+NTAR_Areas[26] = "Monastery Gate";
+NTAR_Areas[27] = "Outer Cloister";
+NTAR_Areas[28] = "Barracks";
+NTAR_Areas[29] = "Jail Level 1";
+NTAR_Areas[30] = "Jail Level 2";
+NTAR_Areas[31] = "Jail Level 3";
+NTAR_Areas[32] = "Inner Cloister";
+NTAR_Areas[33] = "Cathedral";
+NTAR_Areas[34] = "Catacombs Level 1";
+NTAR_Areas[35] = "Catacombs Level 2";
+NTAR_Areas[36] = "Catacombs Level 3";
+NTAR_Areas[37] = "Catacombs Level 4";
+NTAR_Areas[38] = "Tristram";
+NTAR_Areas[39] = "Moo Moo Farm";
+NTAR_Areas[40] = "Lut Gholein";
+NTAR_Areas[41] = "Rocky Waste";
+NTAR_Areas[42] = "Dry Hills";
+NTAR_Areas[43] = "Far Oasis";
+NTAR_Areas[44] = "Lost City";
+NTAR_Areas[45] = "Valley Of Snakes";
+NTAR_Areas[46] = "Canyon Of The Magi";
+NTAR_Areas[47] = "A2 Sewers Level 1";
+NTAR_Areas[48] = "A2 Sewers Level 2";
+NTAR_Areas[49] = "A2 Sewers Level 3";
+NTAR_Areas[50] = "Harem Level 1";
+NTAR_Areas[51] = "Harem Level 2";
+NTAR_Areas[52] = "Palace Cellar Level 1";
+NTAR_Areas[53] = "Palace Cellar Level 2";
+NTAR_Areas[54] = "Palace Cellar Level 3";
+NTAR_Areas[55] = "Stony Tomb Level 1";
+NTAR_Areas[56] = "Halls Of The Dead Level 1";
+NTAR_Areas[57] = "Halls Of The Dead Level 2";
+NTAR_Areas[58] = "Claw Viper Temple Level 1";
+NTAR_Areas[59] = "Stony Tomb Level 2";
+NTAR_Areas[60] = "Halls Of The Dead Level 3";
+NTAR_Areas[61] = "Claw Viper Temple Level 2";
+NTAR_Areas[62] = "Maggot Lair Level 1";
+NTAR_Areas[63] = "Maggot Lair Level 2";
+NTAR_Areas[64] = "Maggot Lair Level 3";
+NTAR_Areas[65] = "Ancient Tunnels";
+NTAR_Areas[66] = "Tal Rashas Tomb #1";
+NTAR_Areas[67] = "Tal Rashas Tomb #2";
+NTAR_Areas[68] = "Tal Rashas Tomb #3";
+NTAR_Areas[69] = "Tal Rashas Tomb #4";
+NTAR_Areas[70] = "Tal Rashas Tomb #5";
+NTAR_Areas[71] = "Tal Rashas Tomb #6";
+NTAR_Areas[72] = "Tal Rashas Tomb #7";
+NTAR_Areas[73] = "Duriels Lair";
+NTAR_Areas[74] = "Arcane Sanctuary";
+NTAR_Areas[75] = "Kurast Docktown";
+NTAR_Areas[76] = "Spider Forest";
+NTAR_Areas[77] = "Great Marsh";
+NTAR_Areas[78] = "Flayer Jungle";
+NTAR_Areas[79] = "Lower Kurast";
+NTAR_Areas[80] = "Kurast Bazaar";
+NTAR_Areas[81] = "Upper Kurast";
+NTAR_Areas[82] = "Kurast Causeway";
+NTAR_Areas[83] = "Travincal";
+NTAR_Areas[84] = "Spider Cave";
+NTAR_Areas[85] = "Spider Cavern";
+NTAR_Areas[86] = "Swampy Pit Level 1";
+NTAR_Areas[87] = "Swampy Pit Level 2";
+NTAR_Areas[88] = "Flayer Dungeon Level 1";
+NTAR_Areas[89] = "Flayer Dungeon Level 2";
+NTAR_Areas[90] = "Swampy Pit Level 3";
+NTAR_Areas[91] = "Flayer Dungeon Level 3";
+NTAR_Areas[92] = "A3 Sewers Level 1";
+NTAR_Areas[93] = "A3 Sewers Level 2";
+NTAR_Areas[94] = "Ruined Temple";
+NTAR_Areas[95] = "Disused Fane";
+NTAR_Areas[96] = "Forgotten Reliquary";
+NTAR_Areas[97] = "Forgotten Temple";
+NTAR_Areas[98] = "Ruined Fane";
+NTAR_Areas[99] = "Disused Reliquary";
+NTAR_Areas[100] = "Durance Of Hate Level 1";
+NTAR_Areas[101] = "Durance Of Hate Level 2";
+NTAR_Areas[102] = "Durance Of Hate Level 3";
+NTAR_Areas[103] = "The Pandemonium Fortress";
+NTAR_Areas[104] = "Outer Steppes";
+NTAR_Areas[105] = "Plains Of Despair";
+NTAR_Areas[106] = "City Of The Damned";
+NTAR_Areas[107] = "River Of Flame";
+NTAR_Areas[108] = "Chaos Sanctuary";
+NTAR_Areas[109] = "Harrogath";
+NTAR_Areas[110] = "Bloody Foothills";
+NTAR_Areas[111] = "Frigid Highlands";
+NTAR_Areas[112] = "Arreat Plateau";
+NTAR_Areas[113] = "Crystalized Passage";
+NTAR_Areas[114] = "Frozen River";
+NTAR_Areas[115] = "Glacial Trail";
+NTAR_Areas[116] = "Drifter Cavern";
+NTAR_Areas[117] = "Frozen Tundra";
+NTAR_Areas[118] = "Ancient's Way";
+NTAR_Areas[119] = "Icy Cellar";
+NTAR_Areas[120] = "Arreat Summit";
+NTAR_Areas[121] = "Nihlathaks Temple";
+NTAR_Areas[122] = "Halls Of Anguish";
+NTAR_Areas[123] = "Halls Of Pain";
+NTAR_Areas[124] = "Halls Of Vaught";
+NTAR_Areas[125] = "Abaddon";
+NTAR_Areas[126] = "Pit Of Acheron";
+NTAR_Areas[127] = "Infernal Pit";
+NTAR_Areas[128] = "The Worldstone Keep Level 1";
+NTAR_Areas[129] = "The Worldstone Keep Level 2";
+NTAR_Areas[130] = "The Worldstone Keep Level 3";
+NTAR_Areas[131] = "Throne Of Destruction";
+NTAR_Areas[132] = "The Worldstone Chamber";
+
+NTAR_Areas[133] = "Matron's Den";
+NTAR_Areas[134] = "Fogotten Sands";
+NTAR_Areas[135] = "The Worldstone Chamber";
+NTAR_Areas[136] = "The Worldstone Chamber";
