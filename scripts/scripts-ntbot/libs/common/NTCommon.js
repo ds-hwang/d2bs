@@ -703,11 +703,11 @@ function NTC_Delay(amount, random)
 {
 	while (NT_Pause)
 	{
-		
 	 	delay (500);
 	}
 	
 	//debugPrint("ntc_delay:"+amount );
+	var amount = (((typeof(amount) == 'undefined') || (amount <= 0))? 1 : amount);
 	
 	if(arguments.length < 2)
 		delay(amount+1);
