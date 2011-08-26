@@ -53,11 +53,10 @@ JSAPI_PROP(unit_getProperty)
 {	
 	BnetData* pData = *p_D2LAUNCH_BnData;
 	GameStructInfo* pInfo = *p_D2CLIENT_GameInfo;
-
 	switch(JSVAL_TO_INT(id))
 	{
 		case ME_PID:
-			JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);
+			JS_NewNumberValue(cx, (jsdouble)GetCurrentProcessId(), vp);			
 			break;
 		case ME_PROFILE:
 			*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, Vars.szProfile));
@@ -172,7 +171,6 @@ JSAPI_PROP(unit_getProperty)
 	UnitAny* pUnit = D2CLIENT_FindUnit(lpUnit->dwUnitId, lpUnit->dwType);
 	if(!pUnit)
 		return JS_TRUE;
-
 	Room1* pRoom = NULL;
 
 	switch(JSVAL_TO_INT(id))
@@ -616,6 +614,8 @@ JSAPI_FUNC(unit_cancel)
 	if(!WaitForGameReady())
 		THROW_WARNING(cx, "Game not ready");
 
+
+
 	DWORD automapOn =*p_D2CLIENT_AutomapOn;
 
 	if(IsScrollingText())
@@ -818,9 +818,9 @@ JSAPI_FUNC(unit_getStat)
 		JSObject* pArray = JS_NewArrayObject(cx, 0, NULL);
 		*rval = OBJECT_TO_JSVAL(pArray);
 
-	//	InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
-		InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);
-		InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
+		InsertStatsToGenericObject(pUnit, pUnit->pStats, cx, pArray);
+	//InsertStatsToGenericObject(pUnit, pUnit->pStats->pNext, cx, pArray);  // only check the current unit stats!
+	//	InsertStatsToGenericObject(pUnit, pUnit->pStats->pSetList, cx, pArray);
 	}
 	else
 		JS_NewNumberValue(cx, D2COMMON_GetUnitStat(pUnit, nStat, nSubIndex), rval);
@@ -833,8 +833,11 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 {
 	Stat*	pStat;
 
-	for(; pStatList; pStatList = pStatList->pPrevLink)
-	{
+
+
+
+	//for(; pStatList; pStatList = pStatList->pPrevLink) // no need to jump lists
+	//{
 		if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
 		{
 			pStat = pStatList->pStat;
@@ -855,7 +858,7 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 					InsertStatsNow(pStat, nStat, cx, pArray);
 				}
 		}
-	}
+	//}
 }
 
 void InsertStatsNow(Stat* pStat, int nStat, JSContext* cx, JSObject* pArray)

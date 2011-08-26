@@ -54,12 +54,17 @@ UnitAny* GetUnit(char* szName, DWORD dwClassId, DWORD dwType, DWORD dwMode,
 
 	// If we have a valid type, just check that value, other wise, check all
 	// values. There are 6 valid types, 0-5
+	if(dwType == 3)
+		return GetUnitFromTables(p_D2CLIENT_ClientSideUnitHashTables, dwType,
+				dwType, szName, dwClassId, dwType, dwMode, dwUnitId);
+
 	if(dwType >= 0 && dwType <= 5)
 		return GetUnitFromTables(p_D2CLIENT_ServerSideUnitHashTables, dwType,
 				dwType, szName, dwClassId, dwType, dwMode, dwUnitId);
 	else
 		return GetUnitFromTables(p_D2CLIENT_ServerSideUnitHashTables, 0, 5,
 				szName, dwClassId, dwType, dwMode, dwUnitId);
+	
 
 /*	EnterCriticalSection(&Vars.cUnitListSection);
 
