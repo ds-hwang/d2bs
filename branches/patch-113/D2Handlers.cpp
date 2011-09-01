@@ -407,7 +407,7 @@ void __fastcall ChannelChatHandler(char* szAcc, char* szText)
 		Vars.bDontCatchNextMsg = FALSE;
 }
 
-DWORD __fastcall GameAttack(AttackStruct* pAttack)
+DWORD __fastcall GameAttack(UnitInteraction* pAttack)
 {
 	if(!pAttack || !pAttack->lpTargetUnit || pAttack->lpTargetUnit->dwType != UNIT_MONSTER)
 		return (DWORD)-1;

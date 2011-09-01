@@ -62,7 +62,7 @@ struct GfxCell {
 	BYTE cols;						//0x20
 };
 
-struct InteractStruct {
+struct UnitInteraction {
 	DWORD dwMoveType;			//0x00
 	UnitAny* lpPlayerUnit;		//0x04
 	UnitAny* lpTargetUnit;		//0x08
@@ -677,16 +677,6 @@ struct WardenClient_t {
 struct WardenIATInfo_t {
 	DWORD offsetModuleName;
 	DWORD offsetImportTable;
-};
-
-struct AttackStruct {
-	DWORD dwAttackType;			//0x00
-	UnitAny* lpPlayerUnit;		//0x04
-	UnitAny* lpTargetUnit;		//0x08
-	DWORD dwTargetX;			//0x0C
-	DWORD dwTargetY;			//0x10
-	DWORD _1;					//0x14
-	DWORD _2;					//0x18
 };
 
 #pragma pack(push)

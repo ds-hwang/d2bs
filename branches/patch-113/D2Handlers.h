@@ -18,7 +18,7 @@ void __fastcall WhisperHandler(char* szAcc, char* szText);
 DWORD __fastcall ChannelInput(wchar_t* wMsg);
 void __fastcall ChannelWhisperHandler(char* szAcc, char* szText);
 void __fastcall ChannelChatHandler(char* szAcc, char* szText);
-DWORD __fastcall GameAttack(AttackStruct* pAttack);
+DWORD __fastcall GameAttack(UnitInteraction* pAttack);
 void __fastcall GamePlayerAssignment(UnitAny* pPlayer);
 void GameLeave(void);
 void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
