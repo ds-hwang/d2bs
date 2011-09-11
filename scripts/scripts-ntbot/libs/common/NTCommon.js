@@ -281,8 +281,8 @@ function NTC_DoCast(skillid, usehand, x, y, retrys)
 					break;
 
 				case 3:
-					if(x.type != NTC_UNIT_MONSTER)
-						return false;
+					// if(x.type != NTC_UNIT_MONSTER)
+						// return false;
 
 					NTC_DoClick(_hand,_shift, x);
 					break;
@@ -707,7 +707,7 @@ function NTC_Delay(amount, random)
 	}
 	
 	//debugPrint("ntc_delay:"+amount );
-	var amount = ((amount <= 0)? 1 : amount);
+	amount = ((amount <= 0)? 1 : amount);
 	
 	if(arguments.length < 2)
 		delay(amount+1);

@@ -473,23 +473,22 @@ function NTM_ChangeAreaInt(how, dest, ownername, myportal)
 	{
 		var i;
 
-		for(i = 0 ; i < 50 ; i++)
+		for(i = 0 ; i < 5 ; i++)
 		{
-			if((i % 25) == 0)
-				_portal.interact();
-
 			NTC_Delay(NTC_DELAY_FRAME);
 
 			if(getUIFlag(0x14))
 			{
-				NTC_PingDelay(500);				
+				NTC_PingDelay(500);
 				break;
 			}else{
-				NTM_GetCloserInt(_portal);
+				_portal.move();
+				NTC_Delay(NTC_DELAY_FRAME);
+				_portal.interact();
 			}
 		}
 
-		if(i >= 50 || !NTM_CheckWPInt(_wpHex))
+		if(i >= 5 || !NTM_CheckWPInt(_wpHex))
 		{
 		print("checkwaypoint failed "+_wpHex+" getUIFlag(0x14)="+getUIFlag(0x14) +" ping "+ me.ping);
 			me.cancel(0);

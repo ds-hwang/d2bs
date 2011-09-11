@@ -285,10 +285,15 @@ function NTP_DoEnchant(target, force)
 		return false;
 	
 	//	TODO : Check if getDistance() is really needed here? Should it just rely on getUnit() search distance?
-	if(target.isEnchantable && getDistance(me, target) <= 60)
+	if(target.isEnchantable && getDistance(me, target) <= 60) {
+		// print("Going to enchant " + target.name);
 		NTC_DoCast(52, NTC_HAND_RIGHT, target);
+		NTC_Delay(400);
+		if (target.isEnchanted)	
+			NTC_Say(target.name + ' is enchanted.');
+		// else print('missed enchantment on '+ target.name);	//alogwe debugging;
+	}
 	
-	// if(!target.isEnchanted)	print('missed enchantment on '+ target.name);	//alogwe debugging;
 	//	TODO : Rewrite so function will return true if(NTC_DoCast()) else false;
 	return true;
 }
