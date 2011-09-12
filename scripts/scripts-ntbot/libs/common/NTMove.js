@@ -483,7 +483,7 @@ function NTM_ChangeAreaInt(how, dest, ownername, myportal)
 				break;
 			}else{
 				_portal.move();
-				NTC_Delay(NTC_DELAY_FRAME);
+				NTC_Delay(1000);
 				_portal.interact();
 			}
 		}
@@ -839,7 +839,9 @@ function NTM_GotoLevel( exitAreaId, goThru) {
 			NTM_takeTile(29)		
 			return true;
         }
-        if (exitAreaId == 74 && me.area == 54) {  //palace to arcane            NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0)
+
+        if (exitAreaId == 74 && me.area == 54) {  //palace to arcane
+            NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0)
             var _unit = NTC_GetUnit(NTC_UNIT_OBJECT, 298);
             _unit.interact();
             _unit.interact();
