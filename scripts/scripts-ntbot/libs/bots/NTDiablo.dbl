@@ -51,6 +51,9 @@ function NT_Diablo()
 		NTA_ClearRange(false,7828,5320,7760,5548);
 		
 		NTT_CleanPotions();
+
+		NTM_MoveTo(7779, 5315);
+		NTM_MakeTP();
 	}
 
 	if (!NT_OpenSealsInt()) 
