@@ -36,7 +36,7 @@ function NT_Abaddon()
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 60, 60, 0, 0))
 		throw new Error('Error: Failed moving to Abaddon');	
 	delay(500);
-	NTM_UsePortal("Portal", 2);
+	NTM_UsePortal("Portal", 125);
 	delay(500);
 	
 	if (NTConfig_ClearAbaddon)

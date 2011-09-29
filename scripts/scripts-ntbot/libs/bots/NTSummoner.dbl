@@ -31,27 +31,31 @@ function NT_Summoner()
 
 		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0))
 			throw new Error();
-			
+
 		_arcaneportal = NTC_GetUnit(NTC_UNIT_OBJECT, 298);
-		
+
 		if(_arcaneportal)
 		{
-			_arcaneportal.interact();
-			_arcaneportal.interact();
+			_arcaneportal.interact();//Touch Portal
+			delay(1000);
+			_arcaneportal.interact();//Use Portal
+			delay(1000);
 		}
 
-		delay(4000);
-		
-		if(!NTM_UsePortal("Portal", 54))
-			throw new Error();
-			
+		//delay(4000);
+
+		//if(!NTM_UsePortal("portal", 54))
+		//	throw new Error();
+
 		NTA_KillBoss(getLocaleString(2885));
 		NTA_ClearPosition(40);
 		NTSI_PickItems();
 
-		if(!NTM_UsePortal("Portal", 74))
+		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 298, 298, 0, 0))
 			throw new Error();
-	}	
+
+		NTM_UsePortal("portal", 74)
+	}
 	//end of fire eye extension;
 	
 	
