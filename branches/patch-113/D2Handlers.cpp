@@ -412,11 +412,11 @@ DWORD __fastcall GameAttack(UnitInteraction* pAttack)
 	if(!pAttack || !pAttack->lpTargetUnit || pAttack->lpTargetUnit->dwType != UNIT_MONSTER)
 		return (DWORD)-1;
 
-	if(pAttack->dwAttackType == ATTACKTYPE_UNITLEFT)
-		pAttack->dwAttackType = ATTACKTYPE_SHIFTLEFT;
+	if(pAttack->dwMoveType == ATTACKTYPE_UNITLEFT)
+		pAttack->dwMoveType = ATTACKTYPE_SHIFTLEFT;
 
-	if(pAttack->dwAttackType == ATTACKTYPE_RIGHT)
-		pAttack->dwAttackType = ATTACKTYPE_SHIFTRIGHT;
+	if(pAttack->dwMoveType == ATTACKTYPE_RIGHT)
+		pAttack->dwMoveType = ATTACKTYPE_SHIFTRIGHT;
 
 	return NULL;
 }

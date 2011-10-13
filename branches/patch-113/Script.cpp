@@ -286,9 +286,11 @@ bool Script::Include(const char* file)
 		rval = !!JS_ExecuteScript(cx, GetGlobalObject(), script, &dummy);
 		if(rval)
 			includes[fname] = true;
+		else
+			JS_ReportPendingException(cx);
 		inProgress.erase(fname);
 		JS_RemoveRoot(&scriptObj);
-	}
+	} else JS_ReportPendingException(cx);
 
 	JS_EndRequest(cx);
 	LeaveCriticalSection(&lock);

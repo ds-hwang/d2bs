@@ -363,7 +363,7 @@ void D2CLIENT_Interact(UnitAny* pUnit, DWORD dwMoveType) {
 	if(!D2CLIENT_FindUnit(pUnit->dwUnitId,pUnit->dwType))
 		return;
 
-	InteractStruct pInteract = {
+	UnitInteraction pInteract = {
 		dwMoveType,
 		D2CLIENT_GetPlayerUnit(),
 		pUnit,

@@ -296,7 +296,7 @@ ASMPTR(D2COMMON, DisplayOverheadMsg_I, -10422)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 FUNCPTR(D2NET, SendPacket, void __stdcall, (size_t aLen, DWORD arg1, BYTE* aPacket), -10024)
-FUNCPTR(D2NET, ReceivePacket_I, void __stdcall, (BYTE *aPacket, DWORD aLen), -10033)
+FUNCPTR(D2NET, ReceivePacket_I, void __fastcall, (BYTE *buffer, DWORD buflen, DWORD* packetSize), -10033)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
