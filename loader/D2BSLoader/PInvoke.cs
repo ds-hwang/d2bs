@@ -60,7 +60,9 @@
 	{
 		RunImmediately = 0x0,
 		CreateSuspended = 0x4,
-		StackSizeParamIsAReservation = 0x10000
+		StackSizeParamIsAReservation = 0x10000,
+        // NOT SUPPORTED IN WINDOWS
+        UseNtCreateThreadEx = 0x800000
 	}
 	[Flags]
 	public enum LoadLibraryFlags : uint
@@ -188,10 +190,10 @@
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool FreeLibrary(IntPtr hHandle);
 
-		public static bool LoadRemoteLibrary(Process p, string module)
+		public static bool LoadRemoteLibrary(Process p, string module, bool useNtCreateThreadEx)
 		{
 			IntPtr moduleName = WriteObject(p, module);
-			bool result = CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+			bool result = CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName, useNtCreateThreadEx);
 			FreeObject(p, moduleName);
 			return result;
 		}
@@ -199,12 +201,12 @@
 		{
 			IntPtr moduleHandle = FindModuleHandle(p, module);
 			IntPtr moduleName = WriteObject(p, moduleHandle);
-			bool result = CallRemoteFunction(p, "kernel32.dll", "FreeLibrary", moduleName);
+			bool result = CallRemoteFunction(p, "kernel32.dll", "FreeLibrary", moduleName, false);
 			FreeObject(p, moduleName);
 			return result;
 		}
 
-		public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param)
+		public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param, bool useNtCreateThreadEx)
 		{
 			IntPtr moduleHandle = FindModuleHandle(p, module);
 			IntPtr offset = FindOffset(module, function);
@@ -215,7 +217,9 @@
 			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + offset.ToInt32());
 			if(address != IntPtr.Zero)
 			{
-				IntPtr result = CreateRemoteThread(p, address, param, CreateThreadFlags.RunImmediately);
+				CreateThreadFlags flags = CreateThreadFlags.RunImmediately;
+				if(useNtCreateThreadEx) flags |= CreateThreadFlags.UseNtCreateThreadEx;
+				IntPtr result = CreateRemoteThread(p, address, param, flags);
 				if (result != IntPtr.Zero)
 					WaitForSingleObject(result, UInt32.MaxValue);
 				return result != IntPtr.Zero;
@@ -310,7 +314,7 @@
 			IntPtr handle = GetProcessHandle(p, ProcessAccessFlags.CreateThread | ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMOperation | ProcessAccessFlags.VMRead | ProcessAccessFlags.VMWrite);
 
 			try {
-				if(Environment.OSVersion.Version.Major >= 6) {
+				if(Environment.OSVersion.Version.Major >= 6 && (flags & CreateThreadFlags.UseNtCreateThreadEx) == CreateThreadFlags.UseNtCreateThreadEx) {
 					return NTDll.CreateRemoteThread(address, param, handle);
 				} else {
 					return CreateRemoteThread(address, param, flags, handle);

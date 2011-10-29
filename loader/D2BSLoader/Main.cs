@@ -19,6 +19,7 @@ namespace D2BSLoader
 							  D2Args = String.Empty,
 							  D2BSDLL = String.Empty;
 		private static int LoadDelay = 1000;
+		private static bool useNtCreateThreadEx = false;
 		private static Dictionary<string, LoadAction> actions = new Dictionary<string, LoadAction>() {
 				{"inject", Inject},
 				{"kill", Kill},
@@ -196,6 +197,9 @@ namespace D2BSLoader
 				D2Args = config.AppSettings.Settings["D2Args"].Value;
 				D2BSDLL = config.AppSettings.Settings["D2BSDLL"].Value;
 				try {
+					useNtCreateThreadEx = Convert.ToBoolean(config.AppSettings.Settings["UseVistaCreateMethod"].Value);
+				} catch { useNtCreateThreadEx = false; }
+				try {
 					LoadDelay = Convert.ToInt32(config.AppSettings.Settings["LoadDelay"].Value);
 				} catch { LoadDelay = 1000; }
 			} catch {
@@ -299,13 +303,13 @@ namespace D2BSLoader
 		{
 			if(!IsInDebug)
 				Process.EnterDebugMode();
-			string js32 = Path.Combine(Application.StartupPath, "mozjs.dll"),
-				   libnspr = Path.Combine(Application.StartupPath, "nspr4.dll"),
+			string js32 = Path.Combine(Application.StartupPath, "js32.dll"),
+				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
 				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
 			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, js32) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs);
+					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr, useNtCreateThreadEx) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, js32, useNtCreateThreadEx) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs, useNtCreateThreadEx);
 		}
 
 		private void Attach(ProcessWrapper pw)
