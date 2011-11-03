@@ -12,7 +12,7 @@ var XP_Grizzly=false;		// Set to true if you want to Summon Grizzly Bear
 var XP_PoisonVine=false;	// Set to true if you use Poison Vine
 var XP_CarrionVine=false;	// Set to true if you use Carrion Vine
 var XP_SolarCreeper=false;	// Set to true if you use SolarCreeper
-var XP_Oaksage=true;		// Set to true if you use Oaksage
+var XP_Oaksage=false;		// Set to true if you use Oaksage
 var XP_Wolverine=false;		// Set to true if you use Spirit of Wolverine
 var XP_SpiritBarbs=false;	// Set to true if you use Spirit of Barbs
 var XP_Hurricane=false;		// Set to true if you use Hurricane
@@ -20,6 +20,8 @@ var XP_Armageddon=false;	// Set to true if you use Armageddon
 
 var XP_DruidAttack=new Array();
 var XP_DruidNumber=new Array();
+var reBO=false;
+
 
 ///////////////////////////////////// Common functions ////////////////////////////////////////
 
@@ -92,7 +94,7 @@ function DA_DoPrecasts() {
 		// Summon Grizzly
 		if (_animal == 247) {
 			var myAnimal = DC_getNPC(428,ALIVE_MODE);
-			if(!myAnimal||myAnimal.mode==12||!myAnimal.getParent()||myAnimal.getParent().name!=me.name) { DC_DoCast(_animal,0); reBo=true; }
+			if(!myAnimal||myAnimal.mode==12||!myAnimal.getParent()||myAnimal.getParent().name!=me.name) { DC_DoCast(_animal,0); reBO=true; }
 		}
 		// Summon Dire Wolf
 		else if (_animal == 237) {
@@ -103,7 +105,7 @@ function DA_DoPrecasts() {
 
 				DC_DoCast(_animal,0);
 				_numAnimals++;
-				reBo=true;
+				reBO=true;
 			}
 		}
 		// Summon Spirit Wolf
@@ -115,7 +117,7 @@ function DA_DoPrecasts() {
 
 				DC_DoCast(_animal,0);
 				_numAnimals++;
-				reBo=true;
+				reBO=true;
 			}
 		}
 	}
@@ -283,10 +285,10 @@ function XP_BossAttack(target) {
 
 	while (target.hp > 0) {
 		for (var x = 0; x < XP_DruidAttack.length; x+=1) {
-			if (!DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_DruidAttack[x])) &&
-			   (!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[x]) != 1 || !isMelee(XP_DruidAttack[x]))) {
+			//if (!DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_DruidAttack[x])) &&
+			  if(!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[x]) != 1 || !isMelee(XP_DruidAttack[x])) {
 
-				if ((me.getState(139) || me.getState(140)) && isMelee(XP_DruidAttack[x]) &&
+				if (isMelee(XP_DruidAttack[x]) &&
 					DC_IsWalkable(target.x, target.y)) {
 					DM_MoveTo (target.x, target.y);
 					if (DA_GetRange(target) > 3) continue;
@@ -301,12 +303,12 @@ function XP_BossAttack(target) {
 				var hand = (DC_IsLeftSkill(XP_DruidAttack[x]) ? 2 : 0);
 
 				for (var r = 1; r <= XP_DruidNumber[x]; r+=1) {
-
+                    if(target.hp < 1) break;
 					DC_DoCast(XP_DruidAttack[x],hand,target);
 					XP_CheckAttacks ();
 					if (XP_CheckUtil(target)) { return; }
 				}
-			}
+			} else delay(100);
 		}
 	}
 }
@@ -414,7 +416,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 }
 
 function isMelee(skill) {
-	return ((skill==232)||(skill==233)||(skill==242)||(skill==248)||(skill==239)||(skill==238));
+	return ((skill==232) ||(skill==233)||(skill==238)||(skill==239)||(skill==242)||(skill==243)||(skill==248)); // || (skill==0));
 }
 
 function XP_AttackMonster(monster,range,x,y,attackSkills) {
@@ -426,11 +428,10 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range){
 
 		for (var ix = 0; ix < XP_DruidAttack.length; ix+=1) {
-			if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(XP_DruidAttack[ix])) &&
-			   (!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[ix]) != 1 || !isMelee(XP_DruidAttack[ix]))) {
+			//if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(XP_DruidAttack[ix])) &&
+			if(!me.getState(55) || DA_GetSkillDamageType(XP_DruidAttack[ix]) != 1 || !isMelee(XP_DruidAttack[ix])) {
 
-				if ((me.getState(139) || me.getState(140)) && isMelee(XP_DruidAttack[ix]) &&
-					DC_IsWalkable(monster.x, monster.y)) {
+				if (isMelee(XP_DruidAttack[ix])) { // && DC_IsWalkable(monster.x, monster.y)) {
 					DM_MoveTo (monster.x, monster.y);
 					if (DA_GetRange(monster) > 3) continue;
 				}
@@ -442,27 +443,32 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 				}
 
 				for (var r = 1; r <= XP_DruidNumber[ix]; r+=1) {
+                    if(monster.hp < 1) break;
 					var hand = (DC_IsLeftSkill(XP_DruidAttack[ix]) ? 2 : 0);
 					DC_DoCast(XP_DruidAttack[ix],hand,monster);
 					if (monster.hp < hpprev) {
 						hpprev = monster.hp;
 						attprev = _XP_AttackCompleted + 1;
-						if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)) { YAM_SafeCheck(); }
+						
 					}
-					XP_CheckAttacks ();
+					//XP_CheckAttacks ();
 				}
-			}
+                
+                if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)) { YAM_SafeCheck(); }
+                
+			} else delay(100);
 		}
 	}
 
-	//DSN_PickItems(YAM_SafeCheck);
+	DSN_PickItems(); //DSN_PickItems(YAM_SafeCheck);
 
 	return true;
 }
 
 function DA_GetSkillDamageType(skill) {
 	switch (skill) {
-		case 232:	//case "Feral Rage" :
+		case 0:	//case "base attack" :
+        case 232:	//case "Feral Rage" :
 		case 233:	//case "Maul" :
 		case 240:	//case "Twister" :
 		case 242:	//case "Hunger" :
