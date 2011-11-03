@@ -83,7 +83,18 @@ function TrXP_GoToTrav() {
     
         killRadius(30, null, 5);         //Kill Council
         killRadius(30, "Council Member");   //Kill Minions
+        killCouncil();
     }
+    PickupQuestItem(546); //Get Jade Figurine
+    
+    dprint("Pathing to and killing each boss",1);
+    pathtoFarUnit(1,760);
+    killRadius(30,345,0x01);
+    pathtoFarUnit(1,761);
+    killRadius(30,346,0x01);
+    pathtoFarUnit(1,763);
+    killRadius(30,345,0x01);
+    PickupQuestItem(546); //Get Jade Figurine
 }
 
 //////////////////////////////////////////////////////////////////////////
