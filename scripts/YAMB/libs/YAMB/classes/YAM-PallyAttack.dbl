@@ -9,6 +9,7 @@ var UseRedemption  = true;
 
 var XP_PallyAttack=112;
 var XP_PallyAura=113;
+var MeleeAttack=106;
 
 XP_KillMinions = false;
 AXP_Kamikaze = true;
@@ -70,8 +71,13 @@ function XP_BossAttack(target) {
 
 	// move to get close to the target
 	if (me.area != 74 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)){ //Darien, don't move closer in arcane, walk bots get stuck
-		if(!DM_WalkTo(target.x, target.y)) clearPath(XP_PallyAttack,1);
-	}
+		//if a Hammerdin doesn't have tele, stay put... otherwise teleport onto the target
+        if(XP_PallyAttack == 112 && !DM_CheckTeleport()) {
+            delay(10);
+	    } else {
+            if(!DM_MoveTo(target.x, target.y)) clearPath(XP_PallyAttack,1);
+        }
+    }
 	_XP_EndPosition = new XP_Coord(me.x,me.y);
 	// Set aura on the right hand
 	DC_PutSkill(XP_PallyAura,0);
@@ -92,7 +98,7 @@ function XP_BossAttack(target) {
 		i +=1;
 		if (i >2 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)) {
 			if (target.hp > (prvHP-2000)){ // still missing target.
-				if(!DM_WalkTo(target.x, target.y)) clearPath(XP_PallyAttack,1); //if walk fails could be surronded try attacking
+				if(!DM_MoveTo(target.x, target.y)) clearPath(XP_PallyAttack,1); //if walk fails could be surronded try attacking
 				// Set the aura on the right hand
 				DC_PutSkill(XP_PallyAura,0);
 			}
@@ -157,10 +163,13 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 			DA_DoPrecasts();
 		}
 		XP_HammerdinAuraIdle();
+        
+        
 		for (var i=0; i < MonsterSearch; i+=1) {
 			monster = getUnit(1,classid,mode);
 			if (monster) {
 				do {
+                    
 					if (_area==39) {
 						Cow_KingCheck(monster);
 					}
@@ -288,7 +297,11 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 			}
 		}
 		else {
-			if (DC_DoCast(XP_PallyAttack,2,monster)){
+        
+            if(monster.getStat(37) > 99) var PallyAttack = MeleeAttack;
+            else var PallyAttack = XP_PallyAttack;
+        
+			if (DC_DoCast(PallyAttack,2,monster)){
 				if (monster.hp < hpprev){
 					hpprev = monster.hp;
 					attprev = _XP_AttackCompleted + 1;
