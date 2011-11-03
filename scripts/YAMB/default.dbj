@@ -5,7 +5,6 @@
  * @purpose		gets executed upon gamejoin
  */
 
-
 js_strict(true); 
 me.debug = true;
 
