@@ -34,11 +34,12 @@ function XP_GoToThrone() {
     
 	// Goto level 3
 	commPather.InitType = 1;
+    commPather.InteractTile = true;
 	//commPather.GotoLevel(130,false,false);
 	//commPather.GotoWarp(DP_WARPNEXT,false,false);
     pathToWarp(DP_WARPNEXT); //Darien
 	DC_DoDel(DC_LagDelay);
-	DM_TakeStairs(82,83);
+	if(me.area == 129) DM_TakeStairs(82,83);
     
 	// Goto throne
 	//commPather.GotoLevel(131,false,false);
@@ -49,7 +50,7 @@ function XP_GoToThrone() {
 	}
 	XP_Precasts();
 	DC_DoDel(DC_LagDelay);
-	DM_TakeStairs(82,83);
+	if(me.area == 130) DM_TakeStairs(82,83);
     
     /*
 	// Go to throne
@@ -65,16 +66,16 @@ function XP_GoToThrone() {
     pathToDest(15097,5103); //Darien
     
 	if (PublicMode > 1) {// Clear outside for noobs
-		DM_MoveTo(15085,5106,true);
+		pathToDest(15085,5106,true);
 		XP_ClearPosition(15);
 		DSN_PickItems(YAM_SafeCheck);
 	}
 	//DM_MoveTo(15097,5103,true); //Darien
         
 	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
-	DM_MoveTo(15110,5107,true);
+	pathToDest(15110,5107,true);
 	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
-	DM_MoveTo(15111,5072); 
+	pathToDest(15111,5072); 
 	if(PublicMode == 1) { // for real pub baalers
 		for (var i=0; i < Leaders.length; i++) {
 			if (DC_PartyPlayer(Leaders[i])) 
@@ -96,36 +97,48 @@ function XP_GoToThrone() {
 			XP_ClearPosition(15);
 		}
 	}
-	DM_MoveTo(15115,5052);
+    
+	if(commPather.UseTele) DM_MoveTo(15115,5052);
+    else pathToDest(15115,5052);
 	if (PublicMode > 1){ XP_ClearPosition(15);}
-	DM_MoveTo(15115,5026);
+    
+	if(commPather.UseTele) DM_MoveTo(15115,5026);
+    else pathToDest(15115,5026);
 	if (PublicMode > 1){ XP_ClearPosition(15);}
-	DM_MoveTo(15117,5004); // at corner for tp.
+    
+	if(commPather.UseTele) DM_MoveTo(15117,5004); // at corner for tp.
+    else pathToDest(15117,5004);
 	if (XP_ClearPosition(30)) { 
 		DSN_PickItems(YAM_SafeCheck);
 		if (me.classid==3) 
 			XP_HammerdinAuraIdle(); 
 	}
-	DM_MoveTo(15091,5006);	// portal.
+    
+	if(commPather.UseTele) DM_MoveTo(15091,5006);	// portal.
+    else pathToDest(15091,5006);
 	if (XP_ClearPosition(30)) { 
 		DSN_PickItems(YAM_SafeCheck); 
 		if (me.classid==3) 
 			XP_HammerdinAuraIdle(); 
 	}
-	DM_MoveTo(15078,5006);
+	
+    if(commPather.UseTele) DM_MoveTo(15078,5006);
+    else pathToDest(15078,5006);
 	if (XP_ClearPosition(30)) { 
 		DSN_PickItems(YAM_SafeCheck); 
 		if (me.classid==3)
 			XP_HammerdinAuraIdle(); 
 	}
-	DM_MoveTo(15083,5027);
+	if(commPather.UseTele) DM_MoveTo(15083,5027);
+    else pathToDest(15083,5027);
 	if (XP_ClearPosition(30)) { 
 		DSN_PickItems(YAM_SafeCheck); 
 		if (me.classid==3) 
 			XP_HammerdinAuraIdle(); 
 	}
 	if (PublicMode > 1) { // for leechers
-		DM_MoveTo(15117,5004); // at corner for tp.
+		if(commPather.UseTele) DM_MoveTo(15117,5004); // at corner for tp.
+        else pathToDest(15117,5004);
 		for (var i=0; i < Leaders.length; i++) {
 			if (DC_PartyPlayer(Leaders[i])) 
 				break;
@@ -134,6 +147,7 @@ function XP_GoToThrone() {
 		XP_OpenTP();
 		say(YAM_TPMsg);
 	}
+    
     if(me.diff == 2 && me.classid == 3) say("I'm gonna need help killing the Undead - Immune to Magic");
     XP_Precasts();
 	if(!BossSpawned) {
