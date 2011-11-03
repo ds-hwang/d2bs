@@ -1,0 +1,823 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//      Darien's Follow Bot
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+
+
+entryFunc = FollowBot;
+//gameMsgExtendHandler = FB_GameMsgHandler;
+
+
+DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
+
+
+//==========================================================================================================================
+// for Follow Bot configure the following section
+//==========================================================================================================================
+//
+//      var theleader ="char_name";       this is the Character you want the Follow Bot to follow.
+//      var Leaderaccount="acct_name";    this is the name of the account for the "theleader" character above
+//
+//      var thefollower="char2_name";     this is the name of the Follow Bot character
+//      var followerAccount="acct2_Name"; this is the name of the Account for the Follow Bot character
+//
+//      *** ALL NAME ARE cASe seNSiTivE AND MUST APPEAR EXACTLY AS THEY DO ON BATTLE.NET *** 
+//==========================================================================================================================
+//==========================================================================================================================
+
+
+var leadername      = "LoD-TalRasha"; //"Tight_TwatBot";
+var Leaderaccount   = "whatupnow4";
+//var thefollower     = "Jordanmeister";
+//var followerAccount = "whatupnow5";
+
+
+//==========================================================================================================================
+//  Do not change the contents below this unless you know what you are doing
+//==========================================================================================================================
+
+
+var guard           = true;
+var follow          = true
+var wait            = false;
+var leader          = null;
+var doneTM          = false;
+var Done            = false;
+var leash           = 5;    		// Set this to the max length of the leash
+var attackRange     = 15;
+var atPortalSpot    = false;
+XP_QuitImmune       = false;
+
+
+//var leaderPos = new coord(me);			//Don't touch
+var leaderclassid   = 0;
+var leadergone      = false;
+var leadername      = false;
+var thisLeader      = false;
+var Leader          = false;
+var mode            = null;
+var visible         = true;
+
+var modeHook = DarienHook("mh",400,515,9,1, "Follow Bot Mode: ÿc2" + mode,2);
+
+//==========================================================================================================================
+//   Universal must fill out
+//==========================================================================================================================
+
+function YAM_KeyUpManager(keyup) {
+	sendCopyData(null, "OOG", 0,"yam keyupmanager "+keyup );
+	if(getUIFlag(0x05)==1 && keyup != 19)
+		return;
+	switch (keyup) {
+        case 220: // "\" was pressed
+			visible = !visible;
+			break;
+    }
+}
+
+function FB_parseGameMsg (who, msg) {
+	var parsedMsg = new Array();
+
+       
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+     if(!Firstword) {
+        Firstword = params;
+        params = null
+    }
+    
+    //--code for 3 words -- sloppy
+    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
+    //var Secondword= rest.substring(0, rest.indexOf(" "));
+    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
+    //var Thirdword = darest.substring(0, rest.length);
+
+		parsedMsg[0] = who;
+		parsedMsg[1] = Firstword;
+		parsedMsg[2] = params;
+		//parsedMsg[3] = Thirdword;
+	
+	return parsedMsg;
+}
+
+function FB_GameMsgHandler(who, msg) { 
+    var parsed = FB_parseGameMsg (who, msg);
+    
+    return GameMsgHandler(parsed[0],parsed[1],parsed[2]);
+}
+
+function GameMsgHandler(sender, cmd, params, c) {
+    
+    if(sender != me.name) print("Sender " + sender + " cmd: " + cmd + " params: " + params);
+
+    
+    if(cmd == "Darien" && params == "commands you") {
+        leadername = sender;
+        //Leaders.push(sender); //not using Leaders array, for academic purposes
+        say("I hear Master, and obey!");
+    }
+    
+    if (YAM_isMyLeader(sender)) {
+        if (cmd == "help") {
+            say("/w "+ sender + " You must whisper me the command like this: /w " + me.name + " command param");
+            delay(200);
+            say("/w "+ sender + " For a list of commands: /w "+me.name+" cmd");
+            delay(200);
+            say("/w "+ sender + " For a list of way point commands: /w "+me.name+" wp");
+        } else if (cmd == "cmd") {
+            say("/w "+ sender + " For enchant: /w "+me.name+" enchant");
+            delay(200);
+            say("/w "+ sender + " For bo: /w "+me.name+" bo");
+            delay(200);
+            say("/w "+ sender + " For bot to follow: /w "+me.name+" come");
+            delay(200);
+            say("/w "+ sender + " To toggle bot guard mode: /w "+me.name+" guard");
+            delay(200);
+            say("/w "+ sender + " To get me joinning your game: /w "+me.name+" Join gamename/pass");
+        } else if (cmd == "wp") {
+            say("/w "+ sender + " For way points: /w "+me.name+" <wp wanted>");
+            delay(200);
+            say("/w "+ sender + " Act1 wp commands are: cold, stony, dark, black, outer, jail, inner, cata");
+            delay(200);
+            say("/w "+ sender + " Act2 wp commands are: sewer, dry, halls, far, lost, palace, arcane, canyon");
+            delay(200);
+            say("/w "+ sender + " Act3 wp commands are: spider, great, flayer, lower, kurast, upper, trav, durance");
+            delay(200);
+            say("/w "+ sender + " Act4 wp commands are: city, river");
+            delay(200);
+            say("/w "+ sender + " Act5 wp commands are: frigid, arreat, crystal, glacial, pain, frozen, ancient, worldstone");
+        } else if (cmd == "come") {
+            YAM_TPReady = sender;
+            say("/w " + sender + " follow mode enabled!");
+            follow=true;
+            mode = "Follow";
+            wait = false;
+        } else if (cmd == "guard") {
+            guard=!guard;
+            if(guard) mode = "Guard";
+            say("/w " + sender + " _guard mode "+(guard ? "enabled" : "disabled"));
+        } else if (cmd == "stay") {
+            follow=false;
+            mode = "Stay";
+            say("/w " + sender + " follow mode disabled!");
+        } else if (cmd == "wait") {
+            //follow=false;
+            wait = true;
+            mode = "Wait";
+            Wait();
+        } else if (cmd == "town") {
+            follow=false;
+            mode = "Town";
+            YAM_TownManager();
+        } else if (cmd == "vigor" && me.classid==3) {
+            UseVigor = !UseVigor;
+            say("/w "+ sender + " UseVigor "+(UseVigor ? "enabled" : "disabled"));
+        } else if (cmd == "cast") {
+            var _leader = getUnit(0, sender);
+            if (_leader) DC_DoCast(params, 0, _leader.x, _leader.y);
+            else DC_DoCast(params, 0);
+        } else if (cmd == "opentp") {
+            if (!DC_InTown(me)) {
+                XP_OpenTP();
+            }
+        } else if (cmd == "bye") {
+            Done = true;
+            YAM_TPReady = sender;
+            say("/w "+sender+" Follow Bot is all Pau!");
+        } else if (params == "bo" && (DA_UseCTA || DC_CheckSkill(149)) && !DC_InTown(me)) {
+            var _leader = getUnit(0, sender);
+            if (_leader) {
+                //var x = me.x; var y = me.y;
+                DM_MoveTo(_leader.x, _leader.y);
+                var _temp = DA_Refresh;
+                DA_Refresh = true;
+                XP_Precasts();
+                DA_Refresh = _temp;
+                //DM_MoveTo(x, y);
+            }
+		} else if (params == "enchant" && DC_CheckSkill(52) && !DC_InTown(me)) {
+            var _leader = getUnit(0, sender);
+            if (_leader) {
+                //var x = me.x; var y = me.y;
+                DM_MoveTo(_leader.x, _leader.y);
+                if (DA_UseCTA) {DA_UseCTASkills();}
+                XP_SorcEnchant();
+            }
+		} else if (params == "precast") {
+            var _temp = DA_Refresh;
+            DA_Refresh = true;
+            XP_Precasts();
+            DA_Refresh = _temp;
+        } else if (params == "cold"){   XP_CreateTP(0x03,sender);
+        } else if (params == "stony"){ XP_CreateTP(0x04,sender);
+        } else if (params == "dark"){ XP_CreateTP(0x05,sender);
+        } else if (params == "black"){ XP_CreateTP(0x06,sender);
+        } else if (params == "outer"){ XP_CreateTP(0x1b,sender);
+        } else if (params == "jail"){ XP_CreateTP(0x1d,sender);
+        } else if (params == "inner"){ XP_CreateTP(0x20,sender);
+        } else if (params == "cata"){ XP_CreateTP(0x23,sender);
+
+        } else if (params == "sewer"){ XP_CreateTP(0x30,sender);
+        } else if (params == "dry"){ XP_CreateTP(0x2a,sender);
+        } else if (params == "halls"){ XP_CreateTP(0x39,sender);
+        } else if (params == "far"){ XP_CreateTP(0x2b,sender);
+        } else if (params == "lost"){ XP_CreateTP(0x2c,sender);
+        } else if (params == "palace"){ XP_CreateTP(0x34,sender);
+        } else if (params == "arcane"){ XP_CreateTP(0x4a,sender);
+        } else if (params == "canyon"){ XP_CreateTP(0x2e,sender);
+
+        } else if (params == "spider"){ XP_CreateTP(0x4c,sender);
+        } else if (params == "great"){ XP_CreateTP(0x4d,sender);
+        } else if (params == "flayer"){ XP_CreateTP(0x4e,sender);
+        } else if (params == "lower"){ XP_CreateTP(0x4f,sender);
+        } else if (params == "kurast"){ XP_CreateTP(0x50,sender);
+        } else if (params == "upper"){ XP_CreateTP(0x51,sender);
+        } else if (params == "trav"){ XP_CreateTP(0x53,sender);
+        } else if (params == "durance"){ XP_CreateTP(0x65,sender);
+
+        } else if (params == "city"){ XP_CreateTP(0x6a,sender);
+        } else if (params == "river"){ XP_CreateTP(0x6b,sender);
+        
+        } else if (params == "frigid"){ XP_CreateTP(0x6f,sender);
+        } else if (params == "arreat"){ XP_CreateTP(0x70,sender);
+        } else if (params == "crystal"){ XP_CreateTP(0x71,sender);
+        } else if (params == "glacial"){ XP_CreateTP(0x73,sender);
+        } else if (params == "pain"){ XP_CreateTP(0x7b,sender);
+        } else if (params == "frozen"){ XP_CreateTP(0x75,sender);
+        } else if (params == "ancient"){ XP_CreateTP(0x76,sender);
+        } else if (params == "worldstone"){ XP_CreateTP(0x81,sender);
+        }
+    }
+}
+
+
+function FollowBot() {
+    addEventListener("chatmsg",   FB_GameMsgHandler);
+    addEventListener("keyup",     YAM_KeyUpManager );
+    buildTileList();
+    
+    // Set Max Game length to infinite so we dont time out
+	me.maxgametime = 0;
+	//MonsterSearch=1;
+    
+    if(DC_InTown(me)) YAM_TownManager();
+
+    leader = DC_PlayerPresent(leadername);
+
+    while(!leader) {
+        print("Waiting for leader");
+        leader = DC_PlayerPresent(leadername);
+        modeHook.visible    = visible;
+        delay(1000);
+    }
+    
+    DC_Print("Waiting for commands from my fearless leader: " + leader.name);
+    
+    // Make sure to party the leader
+    while(!inParty(leadername)) {
+        print("Waiting for leader to party");
+        delay(1000);
+        modeHook.visible    = visible;
+    }
+
+	var _tmpdate = new Date();
+	var _lastdate = new Date() - 60000;
+
+	while (!Done) {
+    
+        modeHook.text       = "Follow Bot Mode: ÿc2" + mode;
+        modeHook.visible    = visible;
+        
+        if (!leader) {
+            print("waiting for leader");
+            leader = DC_PlayerPresent(leadername);
+            delay(1000);
+            continue;
+        }
+        if(wait) {
+            say("I'll stay here, say come when you're ready!");
+            mode = "Wait";
+            while (wait) delay(500);
+        }
+		if (follow) followTheLeader(leader);
+        else {
+            //print("set not to follow");
+            FB_GoWaitInTown();
+        }
+
+		delay(250);
+        
+		_tmpdate = new Date();
+		if (_tmpdate -_lastdate > 180000) {
+			_lastdate = _tmpdate;
+			sendCopyData( "autod2jsp", 0, SD_PING, "" )
+		}
+	}
+    
+    print("All Pau!");
+    delay(200000);  // to be removed, just for Dariens Testing purposes
+    //quit();
+}
+
+
+function Wait() {
+    mode = "Wait";
+    if(wait) {
+        say("I'll stay here, say come when you're ready!");
+        while (wait) delay(500);
+    }
+    return false;
+}
+
+function inParty(playerName) {
+    
+	var player = getParty();
+    
+	if(player) { 
+        do {
+            var InParty = (player.partyid != 65535);
+            if(player.name == playerName && InParty) {
+                return true;
+            }
+        } while (player.getNext()); 
+    }
+    return false;
+}
+
+function FB_GoWaitInTown() {
+
+    mode = "Town";
+    if (!DC_InTown(me)) { doneTM = false; YAM_MakeTP(); }
+        
+    //in Town
+    if (!doneTM) {
+        // Do town stuff in the act we are in
+        YAM_TownManager();
+        doneTM = true;
+    }
+    if(!atPortalSpot) {
+        XP_GotoTownTP();
+        atPortalSpot = true;
+    }
+	//DC_Print("Waiting for commands for a leader...");
+    delay(500);
+}
+
+function Cow_KingCheck(monster) {
+	if (Cow_NoKing) {
+		if (SM_King || monster.spectype & 1) {
+			DC_ThrowException("Cow", "King Found");
+		}
+	}
+}
+
+function XP_GotoTownTP() {
+	atPortalSpot = false;
+    YAM_InitCommTown(); // Init commTown on first visit
+	if (me.act == 1) {
+		commTown.GotoTP();
+	} else if (me.act == 2) {
+		commTown2.GotoTP();
+	} else if (me.act == 3) {
+		commTown3.GotoWP();
+	} else if (me.act == 4) {
+		commTown4.GotoStart();
+	} else if (me.act == 5) {
+		commTown5.GotoStart();
+	}
+	XP_Precasts();
+    
+    atPortalSpot = true;
+}
+
+function XP_GotoNearestWP() {
+	if (DC_InTown(me)) {
+		YAM_InitCommTown();
+		YAM_PathToWayPoint();
+		XP_Precasts();
+	}
+	else {
+		var wp = getUnit(2, "Waypoint");
+		if (wp && DC_IsWalkable(wp.x, wp.y)) {
+			commPather.GotoDest(wp.x, wp.y);
+		}
+		else {
+			commPather.InitType = 1;
+			commPather.StepActionflag = DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+			if (me.classid==3 && UseVigor){
+				commPather.StepActionflag |= DP_USEVIGOR;
+			}
+			try {
+			commPather.GotoWarp(DP_WARPWAYPOINT, false, false);
+			}
+			catch (e) {
+				YAM_MakeTP();
+			}
+		}
+	}
+}
+
+
+// create a tp at the wp that the requester asked for.
+function XP_CreateTP(wp,sender) {
+
+    follow = false;
+    
+	if (!_DM_AreaWPArray[me.area]) {
+		say ("/w "+ sender + " I don't think I have a WP around here!");
+        follow = true;
+        mode = "Follow";
+		return false;
+	}
+	XP_GotoNearestWP();
+	try {
+		DM_UsePortal("Waypoint",wp);
+	}
+	catch (e) {
+		say("/w " + sender + " Sorry, I don't have that WP!");
+        follow = true;
+        mode = "Follow";
+		return false;
+	}
+	//XP_ClearPosition(25);
+	say("/w " + sender + " Creating tp now (Waiting by my tp, say come when you need me)!");
+    wait=true;
+    mode = "Wait";
+	XP_OpenTP();
+    return true;
+}
+
+function GetLeaderAct(area) {
+	for (var i=5; i >=1; i--) {
+		if (area >= TownAreaCodes[i])
+			break;
+	}
+	return (i);
+}
+
+function CantGetToArea(leaderName) {
+	YAM_TownManager();
+	say("/w "+ leaderName + " Please open a portal and request again!");
+	//follow = false;
+    FB_GoWaitInTown();
+}
+
+
+//Darien included this function
+function YAM_isMyLeader(name) {
+    if(name == leadername) return true;
+    return false;
+}
+
+
+function YAM_isMyHelper(name) {
+	for(i=0; i < Helpers.length; i++) {
+		if(Helpers[i] == name) 
+			return true;
+	}
+	return false;
+}
+
+//returns object
+function getMyLeader() {
+	var Myleader = getParty();
+	if(Myleader) do {
+		if(Myleader.name == leadername) { print("whassup "+ Myleader.name); return (Myleader); }
+	} while(Myleader.getNext());
+	return (null);
+}
+
+//returns object
+function getLeader(){
+	var leader = getUnit(0,leadername);
+
+	if (leader) do {
+		if (leader.name == leadername) {
+			leaderPos.set(leader);
+			leaderclassid = leader.classid;
+            leadergone=false;
+			return (leader);
+		}
+	} while(leader.getNext());
+
+	leader = null;
+	return (leader);
+}
+
+
+//must enter an object - not a name
+function followTheLeader (_leader) {
+
+	if (_leader) {
+    
+        if(guard) mode = "Guard";
+        else mode = "Follow";
+        
+        //if Not in the same area as leader
+		if (me.area != _leader.area) {
+        
+            if(getRange(_leader) < 35 && !IsBlocked(me,1)) { 
+                print("Crossing areas 1");
+                DM_MoveTo(_leader.x, _leader.y); 
+                return true; 
+            }
+        
+			var leaderAct = GetLeaderAct(_leader.area);
+            print(_leader.name + " is in Act " + leaderAct + " Leader area: " + _leader.area);
+            print("leader x: " + _leader.x + ", leader y: " + _leader.y);
+            print("I am in Act " + me.act);
+            
+            
+			if (leaderAct != me.act) { //if is in different act
+            
+                //Do what it takes to get to WP
+				if (!DC_InTown(me)) {
+					if (_DM_AreaWPArray[me.area]) { XP_GotoNearestWP(); }
+					else { YAM_MakeTP(); YAM_InitCommTown(); YAM_PathToWayPoint(); }
+				}
+				else { YAM_InitCommTown(); YAM_PathToWayPoint(); }
+
+                //try to take wp to leader area, if fails go to town in leaders Act
+				if (_DM_AreaWPArray[_leader.area]) {
+					try { DM_UsePortal("Waypoint", _leader.area); }
+					catch (e) { DM_UsePortal("Waypoint",TownAreaCodes[leaderAct]); }
+				}
+				else { DM_UsePortal("Waypoint",TownAreaCodes[leaderAct]); delay(2000); }
+			}
+            
+			// Should be in the same act by now
+			var dest = _leader.area;
+			while (me.area != dest) { //if not in leaders area
+                
+                if(getRange(_leader) < 35) { 
+                    print("Crossing areas 2");
+                    DM_MoveTo(_leader, _leader); 
+                    return true; 
+                }
+                
+                //if in Town 
+                if (DC_InTown(me)) {
+                
+                    //if you're by a wp try to take it to leader area, if can't go to portal spot
+                    print("look for wp");
+                    var wp = getUnit(2, "Waypoint");
+                    
+                    if(wp && _leader.area != 0) {
+                        if(getRange(wp) < 15) {
+                            if (_DM_AreaWPArray[_leader.area]) {
+                                try { 
+                                    if(DM_UsePortal("Waypoint", _leader.area)) return true; 
+                                }
+                                catch (e) { FB_GoWaitInTown(); }
+                            } else FB_GoWaitInTown();
+                        }
+                    } 
+                    
+                    
+                    //goto Portal Spot and look for Leaders portal and enter it
+                    print("Going to Portal Spot");
+                    if(!takeLeaderPortal(dest, _leader.name)) FB_GoWaitInTown();
+                    return true;
+                } else doneTM = false;
+                
+                if (DC_InTown(_leader)) {
+                    if(getRange(_leader) < 35) {
+                        print("Walking into town with Leader");
+                        DM_MoveTo(_leader.x, _leader.y);
+                        return true;
+                    }
+                    if(!DC_InTown(me))  { 
+                        FB_GoWaitInTown(); 
+                        return false; 
+                    }
+                    
+                } else {
+                
+                    //if leader not in town then check for portal/tile/wp leader went into
+                    
+                    
+                    var entrance = getTile(_leader.area);
+                    if(entrance) {
+                        if(!DM_TakeEntrance(entrance)) {
+                            print("Can't interact with Entrance! Going to town to wait for portal");
+                            FB_GoWaitInTown();
+                            return false;
+                        } 
+                    } else {
+                        print("Lost Leader going to town to wait for portal");
+                        FB_GoWaitInTown();
+                        return false;
+                    }
+                }
+                delay(250);
+                dest = _leader.area;
+            }
+        }
+        
+        //      You and Leader are in the same area
+        
+        //      confirm or define Leader object
+        if(!Leader) {
+            var Leader = getUnit(0, leader.name);  //(0, null, null, _leader.gid);  //for some reason this works better as a var than a global
+            if(!Leader) {
+                print("no physical leader");
+                if(DC_InTown(me)) FB_GoWaitInTown();
+            }
+            
+            //if(!Leader) Leader = DC_PlayerPresent(_leader.name);
+            //if(Leader) print ("Party Leader: " + Leader.name);
+            //else print("No Party leader either");
+        } //else print ("Physical Leader " + Leader.name);
+
+
+        //Leader and you are in town - do business then follow
+        if (DC_InTown(me)) {
+            
+            YAM_TPReady = false;
+            
+            
+            if (!doneTM) {
+                // Do town stuff in the act we are in
+                print("taking a break to do Town Funcs");
+                YAM_InitCommTown();
+                YAM_TownManager();
+                doneTM = true;
+            }
+            
+            if(Leader) {
+                if(IsBlocked(Leader,1)) FB_GoWaitInTown();
+                else FollowFunctions(Leader);
+            }
+            return false;
+        }  else doneTM = false;
+        
+        // I am NOT in town and the leader is in the same area as me
+        
+        if (!Leader) { // Leader is NOT in my immediate vincinity
+            print("Leader is NOT in my immediate vincinity, pathing");
+            Leader = DC_PlayerPresent(_leader.name);
+            if (Leader && Leader.area == me.area && typeof(Leader.x) == "number") {
+                pathtoLeader(Leader);
+                return false;
+            }
+        }
+        
+        //Following Leader - do safe check crap
+        //else if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+        //    YAM_SafeCheck();
+        //}
+        
+        //Following Leader
+        else FollowFunctions(Leader);
+        
+        
+    }
+    else {
+        DC_ThrowException("followTheLeader()","Leader has disappeared!");
+    }
+    return false;
+}
+
+function FollowFunctions(Leader) {
+    //print("Leader Pos: x " + Leader.x + ", y " + Leader.y);
+    var dist = getRange(Leader);
+    
+    if(Leader.x == 0) {
+        print("leader gone");
+        return false;
+    }
+    
+    if(Leader.area != me.area) {  //&& IsBlocked(Leader,1)) {
+        if(dist > 30) {
+            takeLeaderPortal(Leader.area, Leader.name);
+            return true;
+        }
+        print("Crossing Areas 3");
+        DM_MoveTo (Leader.x, Leader.y);
+    }
+    
+    if (dist < leash) { /*print("close enuff");*/ return true; }
+
+    if(DC_InTown(me) && me.classid==3 && UseVigor) DC_PutSkill(115,0); // turn on vigor.
+    
+    var stepTo = DP_FindClosestWalkable(Leader.x, Leader.y, Leader.area, 30);
+    
+    
+    
+    if (stepTo) {
+        try {
+            
+            if(dist > 40) {
+                if(dist > 80 && me.area == Leader.area) {
+                    print("too far, using Pather to move to Leader...");
+                    pathtoLeader(Leader);
+                    return false;
+                } else {
+                    if(me.area != Leader.area) return false;
+                    print("Moving to Safe On Screen Co-ords");
+                    stepTo = commPather.GetSafeOffScreenXY(stepTo.x, stepTo.y);
+                }
+            }
+            print("step to Leader");
+            DM_MoveTo (stepTo.x, stepTo.y);
+        }
+        catch(e) {
+            print("DM_MoveTo failed");
+            return false;
+        }
+        if(!DC_InTown(me)) {
+            stepFunctions();
+            if(guard) FB_attackRadius(Leader, attackRange);
+        }
+        //return true;
+    } else {
+        print("Can't find closest walkable");
+        return false;
+    }
+    return true;
+}
+
+function stepFunctions() {
+    var _WP = getUnit(2, "Waypoint");
+    if(_WP && getRange(me, _WP) < 25 && _WP.mode != 2) { dprint("Grabbing Waypoint!",2); DM_TouchObject(_WP,1); }
+}
+
+function FB_attackRadius(_leader, range, type, spectype) {
+
+    if(!guard) return false;
+    
+    mode = "Guard";
+    
+    var fbrx = Math.round((me.x + _leader.x) / 2);
+    var fbry = Math.round((me.y + _leader.y) / 2);
+    
+    var center = new Object();
+        center.x = fbrx;
+        center.y = fbry;
+
+    var threat = returnClosestThreat(range, type, spectype, center);
+    
+    while (threat) {
+        print("attacking " + threat.name + " id: " + threat.classid); 
+        XP_Precasts();
+        if(me.classid == 0 || me.classid == 5) XP_AttackMonster(threat,range) ;
+        else XP_BossAttack(threat);
+        threat = returnClosestThreat(range, type, spectype, center);
+    }
+    
+    //killRadius(range);
+    
+    return true;
+}
+
+function takeLeaderPortal (dest,_leadername) {
+
+    var correctPortal = _DM_FindCorrectPortal(1, _leadername)
+    
+    if(correctPortal && correctPortal.objtype == dest) {
+    
+        try {
+            // When we have chosen a leader, go into his tp
+            if(DM_UsePortal ("BluePortal", dest, _leadername, correctPortal)) {
+            atPortalSpot = false;
+            return true;
+            }
+        }
+        catch (e) {
+            print("e : name = " + e.name + ", message = " + e.message);
+        }
+        return false;
+    }
+    
+    var redPortal = getUnit(2, 60);
+    if(redPortal) {
+        print("Taking Red Portal");
+        if(DM_TakeEntrance(redPortal)) return true;
+    }
+    
+    return false;
+}
+
+function pathtoLeader(_leader) {
+
+    modeHook.text = "Follow Bot Mode: ÿc2Pathing";
+    
+    DC_Print ("Using Pather to move to Leader...");
+    commPather.InitType = 1;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+    
+    if (me.classid==3 && UseVigor) commPather.StepActionflag |= DP_USEVIGOR;
+    
+    try {
+        commPather.GotoDest(_leader.x,_leader.y,false,FB_attackRadius(_leader, attackRange));
+    } catch (e) {
+        return false;
+    }
+    return false;
+
+}
+

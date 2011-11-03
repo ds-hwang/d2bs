@@ -1,0 +1,84 @@
+////////////////////////////////////////////////////////////////
+//
+//  Darien's Pindle Rush Bot
+//      takes you through Act 5 to Anya so you can pindle bot
+//
+
+
+
+
+entryFunc = pindleRush;
+
+DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
+
+function pindleRush() {
+
+    if( me.area == 40 && getRange(me,5147,5197) < 20) {
+        print("taking corrective step for TownLib.dbl");
+        DM_MoveTo(5147, 5197);
+        DM_MoveTo(5142, 5186);
+        DM_MoveTo(5123, 5181);
+        print("...starting run")
+    }
+    
+    
+    commPather.InitType = 1;
+    commPather.InteractTile = true;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+
+    //comment out the runs you don't need done
+    frigid();
+    Anya();
+    
+    say("Rush done, 100 second delay");
+    delay(100000);
+
+}
+
+function frigid() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",111);
+    say("Come Get Waypoint!");
+}
+
+function Anya() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",113);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    delay(3000);
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Anya
+	//commPather.GotoLevel(114,false,false,operDoor);
+    
+    //go to Frozen River
+    commPather.GotoWarp(DP_WARPICECAVEDOWNFLOOR,false,false,openDoor);
+    DC_DoDel(DC_LagDelay);
+    if(me.area != 114) { print("Manually taking stairs"); DM_TakeStairs(75,75); }
+    
+    //path to Anya
+    if(!pathtoFarUnit(1,527)) { 
+        if(!pathtoFarUnit(2,460)) { 
+            print("Anya not found!"); 
+            return false;
+        }
+    }
+    killRadius(30);
+    XP_OpenTP();
+    say("Come Save Anya");
+    return true;
+    
+}

@@ -1,0 +1,382 @@
+////////////////////////////////////////////////////////////////
+//
+//  Darien's Arcane Bot
+//      for walking characters!!!  tele works too =)
+//
+////////////////////////////////////////////////////////////////
+//
+//  The purpose of this bot is to level up on the easy path
+//      NOT to go to the summoner, but if he's at the end
+//      of the easy path, you can choose to kill or ignore him
+//---------------------------------------------------------
+//    `var KillSummoner = true;    set to kill
+//    `var KillSummoner = false;   set to be a pussy
+//
+//  YAM_OpenChests  should be set to true in you char config
+//      but even if it's false it will force open chests at 
+//      the loot point at the end.
+//_________________________________________________________
+
+var KillSummoner = true;
+
+entryFunc = DoArcane;
+
+//DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
+
+function DoArcane() {
+
+    DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
+    DC_LoadInclude("YAMB/common/YAM-Shrines.dbl");
+
+    DS_MaxDistance = 15;
+    YC_MaxDistance = 15;
+
+    if(me.area == 40 && getRange(me,5147,5197) < 20) {
+        print("taking corrective step for TownLib.dbl");
+        DM_MoveTo(5147, 5197);
+        DM_MoveTo(5142, 5186);
+        DM_MoveTo(5123, 5181);
+        print("...starting run")
+    }
+    
+    commPather.InitType = 1;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+
+	YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Arcane wp
+	DM_UsePortal("Waypoint",74);
+	// Do precasts after going into the portal
+	XP_Precasts();
+
+    var direction = whichWay();
+    var ArcanePath = loadPathPoints(direction);
+    
+    walkPath(ArcanePath, direction);
+    
+    say("Run done, Next game!");
+    delay(1000);
+    say("Run done, Next game!");
+    delay(1000);
+
+}
+
+
+function whichWay() {
+
+    for(var i=0; i < 3; i= i + 1) {
+        var torchIsland = getUnit(2,102);
+        if(torchIsland) { break; }
+        delay(500);
+    }
+
+    if(torchIsland) do {
+        if(torchIsland.x > 25490) { print("Found the torch Island, goin East"); return "east"; }
+        if(torchIsland.x < 25410) { print("Found the torch Island, goin West"); return "west"; }
+        if(torchIsland.y > 5490) { print("Found the torch Island, goin South"); return "south"; }
+        if(torchIsland.y < 5410) { print("Found the torch Island, goin North"); return "north"; }
+    } while(torchIsland.getNext(2,102));
+    
+    print("torch island not found");
+    return false;
+}
+
+
+function walkPath(_path, direction) {
+
+	// Go to set points and set killzone 
+    for(var z=0; z < _path.length; z++) {
+        DM_MoveTo(_path[z][0],_path[z][1]);
+        print ("killzone # " + z);
+        if(me.classid == 0) killRadius(35);
+        else killRadius(20);
+        DSN_PickItems();
+        if(ArcaneChests() || ArcaneShrines() || z == 41) {
+            DM_MoveTo(_path[z][0],_path[z][1]);
+            if(me.classid == 0) killRadius(35);
+            else killRadius(20);
+        }
+
+        if(z == 41) {       //Chest raid & Summoner functions
+
+            var Summoner = DC_FindMonster(250);
+            if(Summoner) {
+                print ("I can see the Summoner");
+                if(KillSummoner) {
+                    print("Kill him!!!");
+                    movetoSummoner(direction,Summoner);
+                } else print("Ignore him.... for now");
+            } else {
+                var lootPoint = returnlootPoint(direction);
+                print("Moving to lootPoint " + direction + ": " + lootPoint.x + ", " + lootPoint.y);
+                DM_MoveTo(lootPoint.x,lootPoint.y);
+                print ("Loot!!!");
+                if(me.classid == 0) killRadius(35);
+                else killRadius(20);
+                DSN_PickItems();
+                DM_MoveTo(lootPoint.x,lootPoint.y);
+                ArcaneChests(1);
+                ArcaneShrines();
+                DM_MoveTo(lootPoint.x,lootPoint.y);
+                DSN_PickItems();
+                DM_MoveTo(_path[z][0],_path[z][1]);
+            }
+        }
+    }
+}
+
+function endPath(_lastSteps) {
+	// Go to set points and set killzone 
+    for(var z=0; z < _lastSteps.length; z++) {
+        DM_MoveTo(_lastSteps[z][0],_lastSteps[z][1]);
+        print ("Last Steps # " + z);
+        if(me.classid == 0) killRadius(40);
+        else killRadius(15);
+        DSN_PickItems();
+        ArcaneShrines();
+    }
+}
+
+function returnlootPoint(direction) {
+
+    var lootPointx = 25447;
+    var lootPointy = 5036;
+
+    var _lootPoint = new Object();
+    _lootPoint.x = lootPointx;
+    _lootPoint.y = lootPointy;
+
+    if(direction == "west") {  //when west x = yNorth+20000; and y = xNorth-20000;
+        _lootPoint.x = lootPointy + 20000;
+        _lootPoint.y = lootPointx - 20000;
+        return _lootPoint;
+    }
+    if(direction == "south") {  //when south x = xNorth; and y = (2 * startPointY) - yNorth;
+        _lootPoint.x = lootPointx;
+        _lootPoint.y = 10896 - lootPointy;
+        return _lootPoint;
+    }
+    if(direction == "east") {  //when east x = ySouth+20000; and y = xNorth-20000;
+        _lootPoint.x = ((2 * 5448) - lootPointy) + 20000;
+        _lootPoint.y= lootPointx - 20000;
+        return _lootPoint;
+    }
+    return _lootPoint;
+}
+
+function movetoSummoner(direction, _target) {
+
+    if(direction == "north") {
+        var SumPath = new Array(
+        [25459,5042],
+        [25452,5025],
+        [25438,5019]);
+    }
+    if(direction == "east") {
+        var SumPath = new Array(
+        [25583,5447],
+        [25853,5460],
+        [25867,5462],
+        [25892,5467],
+        [25890,5448],
+        [25847,5440]);
+    }
+    if(direction =="west") {
+        var SumPath = new Array(
+        [25046,5447],
+        [25051,5477],
+        [25028,5469],
+        [25028,5461]);
+    } 
+    if(direction == "south") {
+        var SumPath = new Array(
+        [25456,5845],
+        [25462,5862],
+        [25467,5877],
+        [25467,5888],
+        [25449,5886],
+        [25440,5871]);
+    }
+    
+    print("Path direction :" + direction);
+    endPath(SumPath);
+    XP_BossAttack(_target);
+    killRadius(25);  
+    DSN_PickItems();
+    
+    for(var z=SumPath.length - 1; z > 1; z--) {
+        DM_MoveTo(SumPath[z][0],SumPath[z][1]);
+        DSN_PickItems();
+    }
+}
+
+function loadPathPoints(direction) {
+
+    var NorthPath = new Array(
+
+    [25447, 5418],
+    [25447, 5403],
+    [25447, 5388],
+    [25447, 5373],
+    [25447, 5358],
+    [25447, 5343],
+    [25447, 5327],
+
+    
+    //go left
+    [25417, 5327],
+    [25402, 5327],
+    [25387, 5327],
+    
+    //go up
+    [25387, 5316],
+    [25387, 5306],
+    [25387, 5291],
+    [25387, 5276],
+    [25387, 5261],
+    [25387, 5246],
+    [25387, 5233],
+    [25387, 5221],
+    [25387, 5207],
+    
+    //connector road
+    [25415, 5207],
+    [25425, 5207],
+    [25438, 5207],
+    [25453, 5207],
+    [25467, 5207],
+    //go back
+    [25438, 5207],
+    [25415, 5207],
+    [25387, 5207],
+    
+    //continue up
+    [25387, 5195],
+    [25387, 5175],
+    [25387, 5160],
+    [25387, 5145],
+    [25387, 5132],
+    [25387, 5120],
+    [25387, 5110],
+    [25387, 5099],
+    
+    //go to center
+    [25398, 5087],
+    [25413, 5087],
+    [25428, 5087],
+    [25438, 5087],
+    [25447, 5081],
+    
+    //go to end
+    [25447, 5066],
+    [25447, 5051],
+    
+    //go back
+    [25447, 5051],
+    [25447, 5081],
+    
+    //go clear otherside on the wayback
+    [25460, 5087],
+    [25471, 5087],
+    [25482, 5087],
+    [25491, 5087],
+    [25501, 5087],
+    [25507, 5099],
+
+    //go back down
+    [25507, 5099],
+    [25507, 5110],
+    [25507, 5120],
+    [25507, 5133],
+    [25507, 5145],
+    [25507, 5160],
+    [25507, 5175],
+    [25507, 5190],
+    [25507, 5208],
+
+    //check cross road and come back
+    [25492, 5207],
+    [25480, 5207],
+    [25507, 5207],
+    
+    //continue back down
+    [25507, 5221],
+    [25507, 5233],
+    [25507, 5246],
+    [25507, 5261],
+    [25507, 5276],
+    [25507, 5291],
+    [25507, 5306],
+    [25507, 5317],
+    [25507, 5327],
+
+    //go back to center
+    [25482, 5327],
+    [25470, 5327],
+    [25458, 5327],
+    [25447, 5327]);
+    
+    
+    
+    var startPointX = 25448;
+    var startPointY = 5448;
+    var Path = new Array();
+    var pathX = 0;
+    var pathY = 0;
+    
+    if(direction == "north") {
+    	for(var x=0; x < NorthPath.length; x++) {
+			pathX = NorthPath[x][0];
+            pathY = NorthPath[x][1];
+            Path.push([pathX,pathY]);
+		}
+    }
+    if(direction == "west") {  //when west x = yNorth+20000; and y = xNorth-20000;
+    	for(var x=0; x < NorthPath.length; x++) {
+			pathX = NorthPath[x][1] + 20000;
+            pathY = NorthPath[x][0] - 20000;
+            Path.push([pathX,pathY]);
+		}
+    }
+    if(direction == "south") {  //when south x = xNorth; and y = (2 * startPointY) - yNorth;
+    	for(var x=0; x < NorthPath.length; x++) {
+			pathX = NorthPath[x][0];
+            pathY = (2 * startPointY) - NorthPath[x][1];
+            Path.push([pathX,pathY]);
+		}
+    }
+    if(direction == "east") {  //when east x = ySouth+20000; and y = xNorth-20000;
+    	for(var x=0; x < NorthPath.length; x++) {
+			pathX = ((2 * startPointY) - NorthPath[x][1]) + 20000;
+            pathY = NorthPath[x][0] - 20000;
+            Path.push([pathX,pathY]);
+		}
+    }
+    
+    return Path;
+    
+}
+
+function ArcaneShrines() {
+
+    var _shrine = DS_CheckForShrines();
+    if(_shrine) { DC_OpenChest(_shrine); return true; }
+    else return false;
+}
+
+function ArcaneChests(flag) {
+    if(arguments.length == 1) YAM_OpenChests = true;
+    if (!YAM_OpenChests) return false;
+    
+    YC_MaxDistance = 15;
+    var _chest = YC_CheckForChests();
+    if(!_chest) return false;
+    while(_chest) {
+        DC_OpenChest(_chest);
+        DSN_PickItems();
+        _chest = YC_CheckForChests();
+    }
+    return true;
+}

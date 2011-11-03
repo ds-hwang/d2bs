@@ -1,0 +1,151 @@
+//Module by Darien
+
+entryFunc = DarienDen;
+
+
+function DarienDen() {
+    commPather.InteractTile = true;
+    
+    //class specific variables
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		_XP_UseTeleOnImmune = false;
+	}
+
+	if (me.classid == 3)
+		XP_KillMinions  = false;
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy)
+		BuildSkeleArmy();
+    
+    //Do stuff in town
+    YAM_TownManager();
+    
+    if(me.area != 1) {
+        YAM_PathToWayPoint();
+        DM_UsePortal("Waypoint",1);
+    }
+	// Do precasts before leaving town
+	XP_Precasts();
+
+	// Go to Den
+    pathToLevel(2);
+    pathToWarp(DP_WARPDEN);
+	if(me.area == 2) DM_TakeStairs(2,3);
+    
+	// Clear Den
+	if (clearDen()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+}
+
+function clearDen() {
+
+	//If Den Quest Complete, just do a corpsefire run
+	if(Sc_DoneQuest(1,1)) { 
+		dprint("looking for corpsefire!",4);
+        pathtoFarUnit(1,774);
+        
+        var Corpsefire = DC_FindMonster(267,5);
+        if(Corpsefire) XP_BossAttack(Corpsefire);
+        killRadius(25);
+        
+		DSN_PickItems();
+	    if (DSN_LogRunes) {
+		DL_SaveRuneLog();
+	}
+		return true;
+	}
+	
+	//create an array of all Preset Unit x,y co-ords in the Den
+	var Den_Monsters = getPresetUnits(me.area); 
+	var MonsterPath = new Array();
+	
+	
+	/*parse through array to find the closest monster to you, path point 1
+	  then parse through remainder or array for the monster closest 
+	  to path point 1. which is path point 2.. and so on until all of the
+	  Den_Monsters positions are entered into the MonsterPath array*/
+	  
+	dprint("Lets make a path to kill all the Den Monsters",8);
+	for(var bb=0; bb < Den_Monsters.length; bb++) {
+			
+		//Find the next monster closest to current path point
+		var closest_dist = 99999;
+		for(var b=0; b < Den_Monsters.length; b++) {
+		    var DM = getFarUnitXY(Den_Monsters[b]);
+            
+            if(getRange(me,DM) < 10) continue; // if Preset Unit is very close don't add to path
+            
+			//skip any monsters once they have been added to Pathing array
+			var skip=false;
+			for(var c=0; c < MonsterPath.length; c++) {
+                var MP = getFarUnitXY(MonsterPath[c]);
+                
+				if(DM.x == MP.x && DM.y == MP.y) var skip=true;
+			}
+			if(skip) continue;
+            
+			if(bb == 0) var distance = getRange(DM,me);
+			else {
+			    var lp = MonsterPath.length -1;
+		    	var MPlp = getFarUnitXY(MonsterPath[lp]);
+                var distance = getRange(DM,MPlp);
+            }
+			if (distance < closest_dist) {
+				var closest_dist = distance;
+				var closestMon = Den_Monsters[b];
+			}
+		}
+		
+		MonsterPath.push(closestMon);
+	}
+	
+	dprint("Den Path made from " + MonsterPath.length + " Preset Unit locations",2);
+	
+	var pathPoint=0;
+	while(!me.getQuest(1,1) && MonsterPath[pathPoint]) {
+		dprint("Moving to Pathpoint " + pathPoint + " - Dist: " + getRange(me,getFarUnitXY(MonsterPath[pathPoint])),8);
+		pathtoFarUnit(MonsterPath[pathPoint]);
+		pathPoint++;
+        killRadius(30);
+	}
+	if (me.getQuest(1,1)) return true;
+	
+	
+	//just in case we missed any monsters retrace steps and use MonSearch_and_Destroy();
+	dprint("OK, we gonna retrace our steps to each path point and use search and destroy mode!",9);
+	var pathPoint=1;
+	while(!me.getQuest(1,1) && MonsterPath[MonsterPath.length - pathPoint]) {
+		var retrace = MonsterPath.length - pathPoint;
+		dprint("Moving to Pathpoint " + retrace,8);
+		pathtoFarUnit(MonsterPath[retrace]);
+		pathPoint++;
+
+        killRadius(30);
+        Search_and_Destroy();
+	}
+
+    killRadius(30);
+    Search_and_Destroy();
+    
+    var pathPoint=0;
+	while(!me.getQuest(1,1) && MonsterPath[pathPoint]) {
+		dprint("Moving to Pathpoint " + pathPoint,8);
+		pathtoFarUnit(MonsterPath[pathPoint]);
+		pathPoint++;
+
+        killRadius(30);
+        Search_and_Destroy();
+	}
+	if (me.getQuest(1,1)) return true;
+	else {
+		dprint("sorry, must not have worked! It'll get them next game!");
+		THEENDsc();
+	}
+    return true;
+}
+

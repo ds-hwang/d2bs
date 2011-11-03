@@ -1,0 +1,141 @@
+//module by Darien
+
+entryFunc = RadamentXP;
+
+function RadamentXP() {
+
+	if (me.classid == 1) {
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		_XP_UseTeleOnImmune = false;
+	}
+
+	if (me.classid == 3)
+		XP_KillMinions  = false;
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy)
+		BuildSkeleArmy();
+    
+    if(me.area == 40 && getRange(me,5147,5197) < 20) {
+        print("taking corrective step for TownLib.dbl");
+        DM_MoveTo(5147, 5197);
+        DM_MoveTo(5142, 5186);
+        DM_MoveTo(5123, 5181);
+        print("...starting run")
+    }
+    
+    YAM_TownManager();
+    
+	// Path to Radament
+	pathToRadament();
+	// Go attack Radament
+    var Radament = DC_FindMonster(229,0x01);
+    if(Radament) XP_BossAttack(Radament);
+    killRadius(25);
+    
+    //Get Book
+    dprint("Gimmie Dat Book Bitch!",7);
+    PickupQuestItem(552);
+    PickupQuestItem(552);
+    PickupQuestItem(552);
+    delay(1000);
+        
+    //Open Chest
+    dprint("Gimmie Dat Chest Sukka!",7);
+    pathtoFarUnit(2,355);
+    var uberChest = getUnit(2,355);
+    if(uberChest) DC_OpenChest(uberChest)
+    delay(1000);
+
+    DSN_PickItems(YAM_SafeCheck);
+
+	if (DSN_LogRunes)
+    DL_SaveRuneLog();
+    
+    
+    // go see Atma to finish quest
+    YAM_MakeTP();
+    commPather.GotoNPC(D2JSP_NPC_ATMA,40);
+    clearNPC(DC_getNPC(D2JSP_NPC_ATMA));
+
+}
+
+
+function pathToRadament() {
+    commPather.InteractTile = true;
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+    
+	// Use the WP to go to the Sewers wp
+    if(!haveWP(10)) {
+        dprint("We don't have sewers waypoint.",1);
+        
+        if(me.area != 40) {
+            if(!haveWP(9)) dprint("We don't have Act2 waypoint!",1);
+            else DM_UsePortal("Waypoint",40); 
+        }
+    } else DM_UsePortal("Waypoint",48);
+    
+    delay(1000);
+    
+    if(me.area != 48) {
+        //pathToDest(5223, 5182);
+        pathToWarp(DP_WARPTOWNTOSEWERDOCK);
+        if(me.area ==40) DM_TakeStairs(20,20);
+        
+        //level 1 (47)
+    	// Do precasts before pathing to level 2
+	    XP_Precasts();
+        
+        pathToWarp(DP_WARPNEXT);
+        if(me.area == 47) DM_TakeStairs(23,23);
+        
+        //level 2 (48)
+        XP_Precasts();
+        
+        pathToWP();
+        var sewerWP = getUnit(2, "Waypoint");
+        if(!sewerWP) sewerWP = getUnit(2, "waypoint");
+        DM_TouchObject(sewerWP);
+    }
+    
+    XP_Precasts();
+    pathToWarp(DP_WARPNEXT);
+    if(me.area == 48) DM_TakeStairs(23,23);
+    
+    //level 3 (49)
+    XP_Precasts();
+        
+    //path to Radament
+    
+    // area 49: path to Radament
+    
+	if(!pathtoFarUnit(1,744,49)) { print("Radament not found!, path to his treasure chest"); pathtoFarUnit(2,355) } 
+
+}
+
+function haveWP(num) {
+    
+    var have=0;
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+        
+        if(getWaypoint(num)) have=1;
+        var ll=0;
+		while(getUIFlag(0x14) && ll++ < 40){
+			DT_MenuCancel();
+			delay(10);
+			
+		}
+	} else dprint("Can't find wp?",1);
+    return have;
+}
+
+

@@ -1,0 +1,530 @@
+////////////////////////////////////////////////////////////////
+//
+//  Darien's Rush Bot
+//      
+//
+
+
+
+
+entryFunc = Rush;
+
+DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
+
+
+function Rush() {
+    DC_LoadInclude("YAMB/YAM_Diablo.dbl");
+    DC_LoadInclude("YAMB/YAM_Ancients.dbl");
+    
+    say("starting rush bot");
+
+    if( me.area == 40 && getRange(me,5147,5197) < 20) {
+        print("taking corrective step for TownLib.dbl");
+        DM_MoveTo(5147, 5197);
+        DM_MoveTo(5142, 5186);
+        DM_MoveTo(5123, 5181);
+        print("...starting run")
+    }
+    
+    
+    commPather.InitType = 1;
+    commPather.InteractTile = true;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+
+    //comment out the runs you don't need done
+    //Andy();
+    //getCube();
+    //maggotLair();
+    //viperAmy();
+    //DoSummoner();
+    //DoDuriel();
+    //Travancal();
+    //Meph();
+    //DiabloXP();
+    //frigid();
+    Anya();
+    AncientsXP();
+    WorldStoneWP();
+    
+    say("Rush done, 100 second delay");
+    delay(100000);
+
+}
+
+
+function Andy() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",35);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Andy
+	//commPather.GotoLevel(37,false,false,operDoor);
+    
+    //go from level 2 to level 4
+    for(var x=0; x < 2; x++) {
+        commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+	    DC_DoDel(DC_LagDelay);
+        
+        var newarea = 36 + x;
+	    if(me.area != newarea) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
+    }
+    
+    if(!commPather.UseTele) commPather.GotoDest(22586,9598,false,false,openDoor);
+    else DM_MoveTo(22586,9598);
+    XP_OpenTP();
+    say("Come get Quest while I kill Andariel!");
+    if(!pathtoFarUnit(1,156)) { 
+        print("Andariel not found!"); 
+        DM_MoveTo(22570,9591);
+    } 
+    killRadius(30);
+    say("Andy's Dead! Hurry to Act 2");
+    return true;
+    
+}
+
+function getCube() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Far Oasis wp
+	if(!DM_UsePortal("Waypoint",57)) return false;    
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Halls of Dead Level 3
+	//commPather.GotoLevel(60,false,false,operDoor);
+	commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+	DC_DoDel(DC_LagDelay);
+	if(me.area != 60) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
+    
+    // area 60: path to "Bloodwitch the Wild"
+	if(!pathtoFarUnit(1,745,60)) { print("Bloodwitch the Wild not found!"); return false; } 
+    killRadius(25);
+    say("Cube Portal is up! Let's Go!");
+    return true;
+    
+}
+
+function maggotLair() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Far Oasis wp
+	DM_UsePortal("Waypoint",43);    
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+
+    // area 43: path to maggot lair
+	//commPather.GotoLevel(64,false,false,operDoor);
+	commPather.GotoWarp(DP_WARPMAGGOT,false,false,openDoor);
+	DC_DoDel(DC_LagDelay);
+	if(me.area != 62) { print("Manually taking stairs"); DM_TakeStairs(48,49); }
+    
+    //go from level 1 to level 3
+    for(var x=0; x < 2; x++) {
+        commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+	    DC_DoDel(DC_LagDelay);
+        
+        var newarea = 63 + x;
+	    if(me.area != newarea) { print("Manually taking stairs"); DM_TakeStairs(48,49); }
+    }
+    
+    // area 64: path to "Coldworm the Burrower"
+    if(!pathtoFarUnit(1,749,64)) { print("Coldworm the Burrower not found!"); return false; } 
+    killRadius(25);
+    say("Staff Portal is up! Let's Go!");
+    return true;
+    
+}
+
+function viperAmy() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Lost City
+	DM_UsePortal("Waypoint",44);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+    //wait until rushee's catch up
+    var rushee = false;
+    while(!rushee) {
+        var player = getUnit(0);
+        if(player) do {
+            if(player.name != me.name) rushee = true;
+        } while(player.getNext());
+        delay(2000);
+    }
+    
+	// Do precasts b4 pathing
+	XP_Precasts();
+    
+    // path to ViperTemple
+    pathtoFarUnit(2,285,45);
+    if(me.area != 58) { print("Manually taking stairs"); DM_TakeStairs(37,37); }
+    
+    //goto second level
+    commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+    DC_DoDel(DC_LagDelay);
+    if(me.area != 61) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
+    
+    // path to sun altar
+    pathtoFarUnit(2,149);
+    killRadius(25);
+    say("Viper Amy Portal is up! Let's Go!");
+}
+
+function sumArea(sum) {
+    if(sum.x > 25490) { print("Found the Summoner, goin East"); return { x: 25845, y: 5447 }; }
+    if(sum.x < 25410) { print("Found the Summoner, goin West"); return { x: 25051, y: 5447 }; }
+    if(sum.y > 5490) { print("Found the Summoner, goin South"); return { x: 25447, y: 5845 }; }
+    if(sum.y < 5410) { print("Found the Summoner, goin North"); return { x: 25447, y: 5051 }; }
+    print("direction not found");
+    return false;
+}
+
+function DoSummoner() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",74);
+    XP_OpenTP();
+    say("Come Get Waypoint!, I'm waiting for you.");
+    
+    //wait until rushee's catch up
+    var rushee = false;
+    while(!rushee) {
+        var player = getUnit(0);
+        if(player) do {
+            if(player.name != me.name) rushee = true;
+        } while(player.getNext());
+        delay(2000);
+    }
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Safe Portal Spot
+    var dest = getFarUnitXY(1,250)
+    if(!dest) print("Summoner not found!");
+    var portalSpot = sumArea(dest);
+    if(!portalSpot) print("can't determine direction");
+    else commPather.GotoDest(portalSpot.x,portalSpot.y,false,false,openDoor);
+    killRadius(20);
+    
+    // Open portal
+    say("Come get Quest while I kill Summoner!");
+    XP_OpenTP();
+    delay(3000);
+    
+    // path to and kill Summoner
+    pathtoFarUnit(1,250);
+    killRadius(30);
+    say("Andy's Dead! Hurry to Act 2");
+    return true;
+    
+}
+
+function DoDuriel() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+    
+    DM_UsePortal("Waypoint",46);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+	// Do precasts after going into the portal
+	XP_Precasts();
+	killRadius(20);
+	DSN_PickItems(YAM_SafeCheck);
+	var _TalTomb = getRoom();
+	var correctTalTomb = _TalTomb.correcttomb;
+	commPather.InitType = 0;
+	if(correctTalTomb) {
+		switch(correctTalTomb) {
+			case 66:    commPather.GotoWarp(DP_WARPTALTOMB1, false, false, openDoor);  break;
+			case 67:    commPather.GotoWarp(DP_WARPTALTOMB2, false, false, openDoor);  break;
+			case 68:    commPather.GotoWarp(DP_WARPTALTOMB3, false, false, openDoor);  break;
+			case 69:    commPather.GotoWarp(DP_WARPTALTOMB4, false, false, openDoor);  break;
+			case 70:    commPather.GotoWarp(DP_WARPTALTOMB5, false, false, openDoor);  break;
+			case 71:    commPather.GotoWarp(DP_WARPTALTOMB6, false, false, openDoor);  break;
+			case 72:    commPather.GotoWarp(DP_WARPTALTOMB7, false, false, openDoor);  break;
+		}
+        delay(1500);
+        if(me.area == 46) {
+		    var tile = correctTalTomb-66+38;
+            print("Manually Taking Stairs");
+		    DM_TakeStairs(tile, tile);
+        }
+		killRadius(20);
+		DSN_PickItems();
+        
+		// Move to the Orifice
+        commPather.InteractTile = false;
+        pathtoFarUnit(2,152);
+        killRadius(25);
+        XP_OpenTP();
+        say("Come open up Duriels Lair");
+        XP_Precasts();
+        
+		var Lair = getUnit(2, 100);
+		while (!Lair) {
+			delay(3000);
+            print("Waiting for Lair");
+            Lair = getUnit(2, 100);
+		}
+        
+		var count = 0;
+		while(me.area != 73 && count < 5) {
+			DM_TakeEntrance(Lair);
+			if(me.area != 73) {
+				if(orifice) {
+					DM_MoveTo (orifice.x,orifice.y);
+				}
+				killRadius(30);
+				if(Lair) {
+					DM_MoveTo(Lair.x,Lair.y);
+					killRadius(30);
+					Lair.move();
+					killRadius(30);
+				}
+				DSN_PickItems(YAM_SafeCheck);
+				count++;
+			}
+		}
+		if (me.area != 73) {
+			print("ÿc1Error: Could not enter Duriel's Lair!");
+			return false;
+		}
+        killRadius(30);
+	}
+	else {
+		print("ÿc1Error: Could not find Tal's Tomb!");
+		return false;
+	}
+	return true;
+}
+
+function Travancal() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Far Oasis wp
+	DM_UsePortal("Waypoint",83);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+    //wait until rushee's catch up
+    var rushee = false;
+    while(!rushee) {
+        var player = getUnit(0);
+        if(player) do {
+            if(player.name != me.name) rushee = true;
+        } while(player.getNext());
+        delay(2000);
+    }
+    
+    
+	// Do precasts before pathing
+	XP_Precasts();
+    say("Go to town, and wait for my portal behind the altar, so you'll get Quest!");
+    delay(3000);
+    
+    var dStairs = getFarUnitXY(5,64);
+    
+    pathToDest(dStairs.x, dStairs.y - 30);
+    killRadius(15);
+    delay(2000);
+    killRadius(15);
+    pathToDest(dStairs.x - 30, dStairs.y - 30);
+    killRadius(15);
+    delay(2000);
+    killRadius(15);
+    pathToDest(dStairs.x + 30, dStairs.y - 30);
+    killRadius(15);
+    delay(2000);
+    killRadius(15);
+    pathToDest(dStairs.x, dStairs.y - 30);
+    killRadius(15);
+    
+    XP_OpenTP();
+    killRadius(15);
+    
+    say("Come hide here until you get the Quest!");
+    DM_MoveTo(me.x + 45, me.y + 45);
+    
+    // area 83: path to Council 760 - 761 - 763
+    
+    Assassinate("Ismail Vilehand",760); // Ismail Vilehand -- classid 345
+    Assassinate(346,761);               // Geleb Flamefinger
+    Assassinate("Toorc Icefist",763);  // Toorc Icefist -- classid 345
+    
+    
+    //pathtoFarUnit(1,760); killRadius(30,345,0x01); killRadius(30, "Council Member"); killRadius(25);
+    //pathtoFarUnit(1,761); killRadius(30,346,0x01); killRadius(30, "Council Member"); killRadius(25);
+    //pathtoFarUnit(1,763); killRadius(30,"Toorc Icefist",0x01); killRadius(30, "Council Member"); killRadius(25);
+    
+    /*
+    if(!pathtoFarUnit(1,760)) { 
+        if(!pathtoFarUnit(1,761)) {
+            if(!pathtoFarUnit(1,763)) {
+                dprint("Council not found!",1);
+                return false;
+            }
+        }
+    } */
+    
+    
+    killRadius(30, "Council Member");
+    killRadius(25);
+    killRadius(30, "Council Member");
+    say("Hope you got Quest! Talk to cain and get Durance Wp! Let's Go!");
+    return true;
+    
+}
+
+function Meph() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the durance 2 wp
+	DM_UsePortal("Waypoint",101);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    delay(8000);
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Meph
+	//commPather.GotoLevel(102,false,false,operDoor);
+    
+    //go from level 2 to level 3
+    commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+    DC_DoDel(DC_LagDelay);
+    if(me.area != 102) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
+
+    // go to safe spot to open portal
+    commPather.GotoDest(17582,8058,false,false,openDoor);
+    XP_OpenTP();
+    say("Come get Quest while I kill Meph!");
+    delay(3000);
+    
+    if(!pathtoFarUnit(1,242)) { 
+        print("Meph not found!"); 
+        DM_MoveTo(17565,8066);
+    } 
+    killRadius(30);
+    var Meph = DC_FindMonster(242);
+    if(Meph) XP_BossAttack(Meph);
+    killRadius(30);
+    say("Meph's Dead! Hurry to Act 4");
+    
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the River of Flame wp
+	DM_UsePortal("Waypoint",107);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    
+    return true;
+    
+}
+
+
+
+function frigid() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",111);
+    say("Come Get Waypoint!");
+}
+
+function Anya() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the catacombs 2 wp
+	DM_UsePortal("Waypoint",113);
+    XP_OpenTP();
+    say("Come Get Waypoint!");
+    delay(3000);
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Anya
+	//commPather.GotoLevel(114,false,false,operDoor);
+    
+    //go to Frozen River
+    commPather.GotoWarp(DP_WARPICECAVEDOWNFLOOR,false,false,openDoor);
+    DC_DoDel(DC_LagDelay);
+    if(me.area != 114) { print("Manually taking stairs"); DM_TakeStairs(75,75); }
+    
+    //path to Anya
+    if(!pathtoFarUnit(1,527)) { 
+        if(!pathtoFarUnit(2,460)) { 
+            print("Anya not found!"); 
+            return false;
+        }
+    }
+    killRadius(30);
+    XP_OpenTP();
+    say("Come Save Anya");
+    return true;
+    
+}
+
+function WorldStoneWP() {
+    YAM_TownManager();
+	YAM_PathToWayPoint();
+	XP_Precasts();
+	// Use the WP to go to Worldstone 2
+	DM_UsePortal("Waypoint",0x81);
+    XP_OpenTP();
+    say("Come Get Waypoint and buffs!");
+    delay(3000);
+    XP_Precasts();
+
+}
+
+

@@ -1,0 +1,410 @@
+
+entryFunc = DoTrist;
+
+
+/////      Darien's Trist Bot
+
+//edit settings
+var kill_Revives_First = true;
+var killRakanishu      = true;
+YAM_OpenChests       = false;
+
+
+//////////////////////////////////////
+//end config
+
+
+
+
+function DoTrist() {
+
+    commPather.InitType = 1;
+    commPather.InteractTile = true;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+    
+    YAM_TownManager();
+    
+    //Do Blood Raven if you haven't already
+    if(!Sc_DoneQuest(1,2) && me.diff == 0) {
+    
+        if(me.getQuest(2,1)) dprint("ÿc1Time to talk to Kashya for doing Blood Raven Quest!",2);
+        else {
+            DC_LoadInclude("YAMB/YAM_BloodRaven.dbl");
+            dprint("I need to kill Blood Raven and get a Merc", 1);
+            RavenXP();
+            YAM_TownManager();
+        }
+        //Talk to her to get quest and your merc
+        commPather.GotoNPC(D2JSP_NPC_KASHYA);
+        clearNPC(DC_getNPC(D2JSP_NPC_KASHYA));
+    }
+    
+    
+    //if you haven't completed Cain quest
+    if(!Sc_DoneQuest(1,3) && !me.getQuest(4,4)) {
+        dprint("I need to save cain and open trist", 1);
+        
+        //if you have Scroll, don't bother getting it -- need to update with me.getQuest instead
+        var scroll = getUnit(4, 524);
+        if(scroll  && scroll.mode < 2) {
+            dprint("I have scroll, going to talk with Akara",1);
+            commPather.GotoNPC(148);
+            clearNPC(DC_getNPC(148));
+        }
+        
+        var key = getUnit(4, 525);
+        if(key && key.mode < 2) dprint("I have key to Carin Stones, lets open them",1);
+        //if you don't have the scroll, get it, will path if you don't have wps
+        else openTrist();
+    }
+    
+    if(me.getQuest(4,1)) {
+        dprint("I saved cain, talk to Akara and cain to finish quest",1);
+        commPather.GotoNPC(148);
+        clearNPC(DC_getNPC(148));
+        dprint("Now for cain",1);
+        commPather.GotoNPC(265);
+        clearNPC(DC_getNPC(265));
+    }
+    
+    //start of normal trist run
+    YAM_MinGameLength    = 90;
+    print("Warning! - minimum game time set to 90 seconds");
+	YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Stony Field
+	Path2WP(2); // take stoney wp
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Move from WP to Cairn Stones
+	commPather.InitType = 0;
+    pathtoFarUnit(2,17);
+    
+	// Wait for red portal to open and monsters to move away from it
+    if(commPather.UseTele) delay(2000);
+    
+	//// Add option to kill Rakanishu
+    if(killRakanishu) {
+    	attackMonster("Rakanishu", 0x01);    //classid = killRange; spectype = 5;
+        if(me.classid == 0) killRadius(30);
+        else killRadius(15);
+        if(!attackMonster("Rakanishu", 0x01)) print("Take that Rakanishu!");
+        delay(750);
+        var stoneAlpha = getPresetUnits(me.area, 2, 17, null)[0];
+    	//DM_MoveTo(stoneAlpha.roomx * 5 -5, stoneAlpha.roomy * 5 +10);
+    }
+    
+	delay(500);
+	// Take portal to Tristram
+    
+    var tristPortal = returnClosestObject(me, 2, 60, 60);
+    
+    // in case there is no portoal
+	if(!tristPortal) {
+        if(!Sc_DoneQuest(1,3)) { carinStones(); delay(2500); }// if you haven't already completed quest, open portal
+        
+        // if you have completed quest
+        else {
+            print("Pathing likely failed, 2nd attempt");
+            pathtoFarUnit(2,17);
+            tristPortal = returnClosestObject(me, 2, 60, 60);
+            delay(1000);
+        }
+    }
+    
+    // second attempt after repathing to portal, or opening portal during quest
+    tristPortal = returnClosestObject(me, 2, 60, 60);
+    
+    if(!Sc_DoneQuest(1,3)) {
+        var ticker=0;
+        while(!tristPortal && ticker < 30) {
+        ticker++;
+            delay(500);
+            tristPortal = returnClosestObject(me, 2, 60, 60);
+        }
+    }
+    
+    if(tristPortal) {
+        
+        if(getRange(tristPortal > 35)) pathToDest(tristPortal.x, tristPortal.y);
+        if(!DM_TakeEntrance(tristPortal)) DC_ThrowException("Failed to Take Trist Portal!");
+        
+    } else  DC_ThrowException("Trist Portal not Found!");
+    
+    DM_MoveTo(me.x,me.y + 8);
+    XP_OpenTP();
+    say("Tristram portal is up! Let's Go!");
+    
+    // if you haven't completed quest free cain
+    if(!Sc_DoneQuest(1,3)) {
+        dprint("I need to save cain", 1);
+        pathtoFarUnit(2,26);
+        var cage = getUnit(2,26);
+        while(cage && cage.mode < 2) {
+            delay(500);
+            DM_TouchObject(cage);
+        }
+        YAM_MakeTP();
+        // go see akara to finish quest
+        commPather.GotoNPC(148);
+        clearNPC(DC_getNPC(148));
+        
+        commPather.GotoNPC(D2JSP_NPC_CAIN_ACT_1);
+        clearNPC(DC_getNPC(D2JSP_NPC_CAIN_ACT_1));
+        
+        dprint("Quest complete! new game!");
+        delay(1000);
+        quit();
+    }
+    
+    // clear out tristram
+    var reviverRange = 25;
+    var killRange = 20;
+
+    DM_MoveTo(25175,5122); { print ("killzone # 1");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25171,5145); { print ("killzone # 2");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25165,5183); { print ("killzone # 3");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+    attackMonster("Griswold", 0x01);
+	//DM_MoveTo(25158,5200); { print ("killzone # 4");  killRadius(reviverRange, 59); killRadius(20); }
+    //attackMonster("Griswold", 0x01);    //classid = 365; spectype = 5;
+	DM_MoveTo(25126,5187); { print ("killzone # 5");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+    attackMonster("Griswold", 0x01);
+	DM_MoveTo(25129,5167); { print ("killzone # 6");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25123,5144); { print ("killzone # 7");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25103,5136); { print ("killzone # 8");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25080,5136); { print ("killzone # 9");  if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25078,5169); { print ("killzone # 10"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25071,5194); { print ("killzone # 11"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25053,5198); { print ("killzone # 12"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25045,5176); { print ("killzone # 13"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25045,5128); { print ("killzone # 14"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25062,5097); { print ("killzone # 15"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25076,5086); { print ("killzone # 16"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25101,5089); { print ("killzone # 17"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25108,5082); { print ("killzone # 18"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+	DM_MoveTo(25122,5062); { print ("killzone # 19"); if(kill_Revives_First) { killRadius(reviverRange, 59); } killRadius(killRange); } DSN_PickItems();
+    
+    say("Run done, Next game!");
+    delay(1000);
+    say("Run done, Next game!");
+    delay(1000);
+}
+
+
+function GetWP(inID){
+	var wp = getUnit(2,inID);
+	if(wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,wp);
+			delay(10);
+			
+		}
+		l=0;
+		while(getUIFlag(0x14) && l++ < 40) {
+			wp.cancel(0);
+			delay(10);
+		}
+	}
+}
+
+function getClosestWP(wpnum) {
+    for(var n=wpnum; n >= 0; n--) {
+        for(var nn=0; nn < 3; nn++) {
+            if(getWaypoint(n)) return n;
+        }
+    }
+    dprint("I don't have any waypoints",1)
+    return 0;
+}
+
+function Path2WP(targetwp) {
+
+    print("shooting for wp: " + targetwp);
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+	}
+    
+    var wp = getClosestWP(targetwp);
+    
+    print("closest wp is " + wp);
+    
+    if(wp < 1) {
+        DT_MenuCancel();
+        dprint("goto cold plains",2);
+        commPather.GotoLevel(2, true);
+        pathToLevel(3);
+        pathToWP(3);
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 2) {
+        dprint("goto stoney",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",3);
+        XP_Precasts();
+        pathToLevel(4);
+        pathToWP(4);
+        GetWP(commPather.TargetID);
+    }
+    if(wp == 2 && targetwp == 2) {
+        XP_Precasts();
+        DM_UsePortal("Waypoint",4);
+        XP_Precasts();
+    }
+    if(wp < 3 && targetwp == 3) {
+        dprint("goto underground",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",4);
+        XP_Precasts();
+        if(!pathToWarp(DP_WARPUNDERGROUNDPASSAGE)) { //0
+            dprint("Type 1 failed, attempting type 2",1);
+            if(!pathToWarp(DP_WARPUNDERGROUNDPASSAGEOTHER)) { //3
+                dprint("Type 1 failed, attempting last type",1);
+                pathToWarp(1,false,false,openDoor); //1
+            }
+        }
+        if(me.area != 10) { 
+            print("Manually taking stairs"); 
+            //var passage = returnClosestObject(me,5,15);
+            //DM_TakeEntrance(passage)
+            DM_TakeStairs(0,3); 
+        }
+        dprint("goto Darkwood",2);
+        XP_Precasts();
+        var exits = getPresetUnits(10, 5, 4);
+        dprint("Number of exits found: " + exits.length);
+        //don't take the exit you just came through
+        for(var c=0; c < exits.length; c++) {
+            // get co-ords and check dist to exit
+            var dwExit = getFarUnitXY (exits[c]);
+            var exitDist = getRange(dwExit);
+            //if exit isn't right next to you, it's the correct one
+            if(exitDist > 30) { dprint("exit is " + exitDist + " yards away"); break; }
+        } 
+        // path to exit
+        if(!pathToDest(dwExit.x, dwExit.y)) dprint("Underground Pathing Failed!",1); 
+        if(me.area != 5) { print("Manually taking stairs"); DM_TakeStairs(4,4); }
+        //get DW wp
+        XP_Precasts();
+        pathToWP();
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 4 && targetwp == 3) {
+        // go to Dark Wood
+        XP_Precasts();
+        DM_UsePortal("Waypoint",5);
+        XP_Precasts();
+    }
+}
+
+function openTrist() {
+
+    print("I Need to open trist");
+    
+    commPather.GotoWaypoint(0);
+    GetWP(commPather.TargetID);
+
+    Path2WP(3);
+
+    // path to TreeHead
+    XP_Precasts();
+    DM_UsePortal("Waypoint",5);
+    XP_Precasts();
+    //pathtoFarUnit(1,738);
+    var TH = getFarUnitXY(1,738);
+    pathToDest(TH.x,TH.y,killZone);
+    
+    var TreeX = me.x;
+    var TreeY = me.y;
+    
+    killRadius(30);
+    
+    //get scroll
+    var inifuss = getUnit(2, 30);
+    var timer=0;
+    
+    while(!inifuss && timer < 5) {
+        timer++;
+        pathToDest(TreeX,TreeY);
+        var inifuss = getUnit(2, 30);
+    }
+    if(inifuss) DM_TouchObject(inifuss);
+    else dprint("Something went wrong, No Tree!",1);
+    
+    delay(2000);
+    PickupQuestItem(524); // bks is 524 "Scroll of Inifuss", after Akara id's it, it becomes bkd - 525 - "Key to the Carin Stones"
+        
+    // go see akara
+    YAM_MakeTP()
+    commPather.GotoNPC(148);
+    clearNPC(DC_getNPC(148));
+    
+    //town stuff
+    YAM_TownManager();
+
+}
+
+
+function carinStones() {
+    var yTrys=0;
+    var tristPortal = returnClosestObject(me, 2, 60, 60);
+    
+    dprint("Opening Trist Portal", 2);
+    while(!tristPortal && yTrys < 5) {
+        var carinStone = getUnit(2);
+        if(carinStone) do {
+            if(carinStone.classid > 16 && carinStone.classid < 22 && carinStone.mode < 2) {
+                DM_MoveTo(carinStone.x,carinStone.y);
+                delay(100);
+                DM_TouchObject(carinStone);
+                delay(100);
+                DM_TouchObject(carinStone);
+            }
+        } while(carinStone.getNext());
+        yTrys++;
+    }
+}
+
+/*
+cain quest activated
+ me.getQuest(3, 18) = 1
+ me.getQuest(4, 2) = 1
+
+
+Tree Head Dead
+Holding scroll
+pressed q button
+ me.getQuest(3, 18) = 1
+ me.getQuest(3, 19) = 1
+ me.getQuest(4, 2) = 1
+ me.getQuest(4, 3) = 1
+
+talk to akara 524 to 525... no change in quest info
+
+portal open
+me.getQuest(4, 4) = 1
+rest same
+
+
+saved cain, new game, talked with no one
+ me.getQuest(3, 17) = 1
+ me.getQuest(3, 18) = 1
+ me.getQuest(3, 19) = 1
+ me.getQuest(4, 1) = 1
+ me.getQuest(4, 2) = 1
+ me.getQuest(4, 3) = 1
+ me.getQuest(4, 4) = 1
+ me.getQuest(4, 15) = 1
+
+*/
