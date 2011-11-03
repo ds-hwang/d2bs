@@ -13,7 +13,6 @@ var XP_UseFindItem=false;
 var XP_ChangeWpnHork=false;
 
 
-
 ///////////////////////////////////// Common functions ////////////////////////////////////////
 
 function DA_DoPrecasts() {
