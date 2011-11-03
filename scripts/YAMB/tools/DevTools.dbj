@@ -1,6 +1,7 @@
 //include("YAMB/common/YAM-Common.dbl");
 //include("YAMB/common/YAM-Attack.dbl");
 
+
 var pid =   new Text();
 var rid =   new Text();
 var ptype = new Text();
