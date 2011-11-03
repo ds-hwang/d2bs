@@ -123,6 +123,7 @@
 108	Blessed Aim
 109	Cleansing
 110	Resist Lightning
+
 111	Vengeance
 112	Blessed Hammer
 113	Concentration
