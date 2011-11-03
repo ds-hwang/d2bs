@@ -4,19 +4,36 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+//      Bot will sit in town and wait for you to active him by saying "Darien commands you" you must also party
+//          with the bot. You do not need to whisper. Once partied and activated (Darien commands you) the bot 
+//          will come find you (no need to be in the same Act or in town) and follow you and accept other commands.
+//          The bot will come to you outside of town if you're close to a wp, but if not he'll wait in town for you
+//          to open a portal. If you are not by your portal when you call the bot it will path to you, but it will
+//          only take your portal if you are in the same area as the portal.
 //
+//      Commands: 
+//          guard       toggles between guard and follow: both follow but guard mode fights.
+//          wait        Bot will stay put, and wait for you to say come. wait mode.
+//          town        Bot makes portal and goes to town, does town functions and waits by portal spot for you to say come.
+//          stay        Same as town but it doesn't call YAM_TownManager(); it just stays in town.
+//          come        Bot will end wait or town mode and resume either Follow or Guard mode
+//          opentp      Bot will open a town portal
+//          help        basic instructions
+//          cmd         list commands
+//          wp          list waypoint commands. Just say open waypointName, the bot will give you a portal to that wp
+//                          and will wait there until you say come.
+//          precast     Bot will do precasts
+//          vigor       toggles vigor aura in paladin bot
+//          bye         will end the script
+//          cast enchant        will have the bot enchant you
+//          cast (skillname)    Just like it says cast Holy Shield will cast Holy Shield, cast Battle Orders,
+//                              cast Conviction, cast Hyrda, etc.  bust be the exact skill name and case sensitive
 //
-
-
-entryFunc = FollowBot;
-//gameMsgExtendHandler = FB_GameMsgHandler;
-
-
-DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 //==========================================================================================================================
-// for Follow Bot configure the following section
+// for Follow Bot configure the following section ----> unnecessary at this point --> say "Darien commands you"
 //==========================================================================================================================
 //
 //      var theleader ="char_name";       this is the Character you want the Follow Bot to follow.
@@ -29,11 +46,20 @@ DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
 //==========================================================================================================================
 //==========================================================================================================================
 
+entryFunc = FollowBot
+//gameMsgExtendHandler = FB_GameMsgHandler;
 
-var leadername      = "LoD-TalRasha"; //"Tight_TwatBot";
-var Leaderaccount   = "whatupnow4";
-//var thefollower     = "Jordanmeister";
-//var followerAccount = "whatupnow5";
+
+DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
+
+
+
+
+
+var leadername      = "LeadersNameHere"; 
+var Leaderaccount   = "AcctNamehere";
+//var thefollower     = "BotsName";
+//var followerAccount = "BotsAccount";
 
 
 //==========================================================================================================================
@@ -123,33 +149,44 @@ function GameMsgHandler(sender, cmd, params, c) {
     
     if (YAM_isMyLeader(sender)) {
         if (cmd == "help") {
-            say("/w "+ sender + " You must whisper me the command like this: /w " + me.name + " command param");
+            say("You don't have to whisper just type command param, I only listen to you");
             delay(200);
-            say("/w "+ sender + " For a list of commands: /w "+me.name+" cmd");
+            say("For a list of commands, say:  cmd");
             delay(200);
-            say("/w "+ sender + " For a list of way point commands: /w "+me.name+" wp");
+            say("For a list of waypoint commands, say: wp");
+            delay(200);
+            say("For a complete list of commands and instructions open YAM_FollowBot.dbl");
         } else if (cmd == "cmd") {
-            say("/w "+ sender + " For enchant: /w "+me.name+" enchant");
+            say("For bot to follow: come");
             delay(200);
-            say("/w "+ sender + " For bo: /w "+me.name+" bo");
+            say("To toggle bot guard mode: guard");
             delay(200);
-            say("/w "+ sender + " For bot to follow: /w "+me.name+" come");
+            say("Tell the bot to hold still and wait: wait");
             delay(200);
-            say("/w "+ sender + " To toggle bot guard mode: /w "+me.name+" guard");
+            say("Go to town and wait: stay");
+            delay(200)
+            say("Do Town Functions and wait in town: town");
             delay(200);
-            say("/w "+ sender + " To get me joinning your game: /w "+me.name+" Join gamename/pass");
+            say("For bot to open a portal: opentp");
+            delay(200);
+            say("For bot to cast a skill: cast skillName");
+            delay(200);
+            say("For bot to do Precasts: precast");
+            delay(200);
+            say("For bot to end script: bye");
+            delay(200);
         } else if (cmd == "wp") {
-            say("/w "+ sender + " For way points: /w "+me.name+" <wp wanted>");
+            say("For way points: open <wp wanted>");
             delay(200);
-            say("/w "+ sender + " Act1 wp commands are: cold, stony, dark, black, outer, jail, inner, cata");
+            say("Act1 wp commands are: cold, stony, dark, black, outer, jail, inner, cata");
             delay(200);
-            say("/w "+ sender + " Act2 wp commands are: sewer, dry, halls, far, lost, palace, arcane, canyon");
+            say("Act2 wp commands are: sewer, dry, halls, far, lost, palace, arcane, canyon");
             delay(200);
-            say("/w "+ sender + " Act3 wp commands are: spider, great, flayer, lower, kurast, upper, trav, durance");
+            say("Act3 wp commands are: spider, great, flayer, lower, kurast, upper, trav, durance");
             delay(200);
-            say("/w "+ sender + " Act4 wp commands are: city, river");
+            say("Act4 wp commands are: city, river");
             delay(200);
-            say("/w "+ sender + " Act5 wp commands are: frigid, arreat, crystal, glacial, pain, frozen, ancient, worldstone");
+            say("Act5 wp commands are: frigid, arreat, crystal, glacial, pain, frozen, ancient, worldstone");
         } else if (cmd == "come") {
             YAM_TPReady = sender;
             say("/w " + sender + " follow mode enabled!");
@@ -175,7 +212,7 @@ function GameMsgHandler(sender, cmd, params, c) {
             YAM_TownManager();
         } else if (cmd == "vigor" && me.classid==3) {
             UseVigor = !UseVigor;
-            say("/w "+ sender + " UseVigor "+(UseVigor ? "enabled" : "disabled"));
+            say("UseVigor "+(UseVigor ? "enabled" : "disabled"));
         } else if (cmd == "cast") {
             var _leader = getUnit(0, sender);
             if (_leader) DC_DoCast(params, 0, _leader.x, _leader.y);
@@ -319,7 +356,7 @@ function FollowBot() {
 	}
     
     print("All Pau!");
-    delay(200000);  // to be removed, just for Dariens Testing purposes
+    //delay(200000);  // to be removed, just for Dariens Testing purposes
     //quit();
 }
 
@@ -426,9 +463,11 @@ function XP_GotoNearestWP() {
 function XP_CreateTP(wp,sender) {
 
     follow = false;
+    wait=true;
+    mode = "Waypoint";
     
 	if (!_DM_AreaWPArray[me.area]) {
-		say ("/w "+ sender + " I don't think I have a WP around here!");
+		say ("I don't think I have a WP around here!");
         follow = true;
         mode = "Follow";
 		return false;
@@ -445,7 +484,6 @@ function XP_CreateTP(wp,sender) {
 	}
 	//XP_ClearPosition(25);
 	say("/w " + sender + " Creating tp now (Waiting by my tp, say come when you need me)!");
-    wait=true;
     mode = "Wait";
 	XP_OpenTP();
     return true;

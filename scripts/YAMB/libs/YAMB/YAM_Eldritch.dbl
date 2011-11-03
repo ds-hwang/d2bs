@@ -1,3 +1,8 @@
+/////////////////////////////////////////////////////////////////////
+// Eldritch Module for YAMB                                        //
+// updated by Darien                                               //
+/////////////////////////////////////////////////////////////////////
+
 entryFunc = EldritchXP;
 
 function EXP_AttackEldritch() {

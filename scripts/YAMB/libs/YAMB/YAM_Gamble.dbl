@@ -1,9 +1,11 @@
-/**
- * @filename	YAM_Gamble.dbl
- * @author		Insomniac
- * @modified	12-28-2009
- * @purpose		Gamble at Gheed and stash when full.
- */
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// Gamble Module for YAMB                                          //
+//                                                                 //
+// credit to Insomniac for original                                //
+/////////////////////////////////////////////////////////////////////
+//
+//  known issue: gets stuck at Anya's trade screen sometimes.
  
 entryFunc = Gamble;
  

@@ -1,8 +1,10 @@
-////////////////////////////////////////////////////////////////
-//
-//  Darien's Rush Bot
-//      
-//
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+//              Darien's Rush Bot                                  //
+//                                                                 //
+/////////////////////////////////////////////////////////////////////
+
+// CONFIG:  go down 30 lines and comment out the runs you don't need
 
 
 
@@ -32,16 +34,16 @@ function Rush() {
     commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
 
     //comment out the runs you don't need done
-    //Andy();
+    Andy();
     //getCube();
-    //maggotLair();
-    //viperAmy();
-    //DoSummoner();
-    //DoDuriel();
-    //Travancal();
-    //Meph();
-    //DiabloXP();
-    //frigid();
+    maggotLair();
+    viperAmy();
+    DoSummoner();
+    DoDuriel();
+    Travancal();
+    Meph();
+    DiabloXP();
+    frigid();
     Anya();
     AncientsXP();
     WorldStoneWP();

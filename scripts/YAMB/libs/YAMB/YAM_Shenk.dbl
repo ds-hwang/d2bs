@@ -1,4 +1,7 @@
-// Modified for non-tele chars by keksdosendieb
+/////////////////////////////////////////////////////////////////////
+// Shenk Module for YAMB                                           //
+// updated by Darien                                               //
+/////////////////////////////////////////////////////////////////////
 
 entryFunc = ShenkXP;
 

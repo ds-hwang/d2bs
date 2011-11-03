@@ -1,4 +1,13 @@
-//Module by Darien
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// Darien's Den Bot                                                //
+//                                                                 //
+//=================================================================//
+// This Bot will take a brand new character from Act 1 town and    //
+// complete the Den of Evil quest, then perform corpsefire runs    //
+// once the quest is completed.                                    //
+/////////////////////////////////////////////////////////////////////
+
 
 entryFunc = DarienDen;
 

@@ -1,8 +1,13 @@
+/////////////////////////////////////////////////////////////////////
+// Darien's Trist Bot                                              //
+// credit to the original YAMB module for basic framework          //
+//                                                                 //
+// This Bot will take a brand new character from Act 1 town and    //
+// to Darkwood and do the entire quest, then perform trist runs    //
+// once the quest is completed.                                    //
+/////////////////////////////////////////////////////////////////////
 
 entryFunc = DoTrist;
-
-
-/////      Darien's Trist Bot
 
 //edit settings
 var kill_Revives_First = true;

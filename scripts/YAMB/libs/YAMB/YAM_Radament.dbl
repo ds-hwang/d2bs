@@ -1,4 +1,12 @@
-//module by Darien
+/////////////////////////////////////////////////////////////////////
+//                                                                 //
+// Darien's Radament Bot                                           //
+//                                                                 //
+//=================================================================//
+// This Bot will take a character from Act 2 town and complete the //
+// Radament quest for Atma, then Grab the book of Skill when the   //
+// quest is being completed.                                       //
+/////////////////////////////////////////////////////////////////////
 
 entryFunc = RadamentXP;
 

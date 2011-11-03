@@ -1,5 +1,7 @@
 // Baal script written By Sumo.
 // Configure Baal specific variables. Those are set in config file, don't change anything here!
+// -minor updates by Darien
+
 entryFunc = BaalXP;
 gameMsgExtendHandler = BaalGameMsgHandler;
 
@@ -132,7 +134,7 @@ function XP_GoToThrone() {
 		XP_OpenTP();
 		say(YAM_TPMsg);
 	}
-    say("I'm gonna need help killing the Undead - Immune to Magic");
+    if(me.diff == 2 && me.classid == 3) say("I'm gonna need help killing the Undead - Immune to Magic");
     XP_Precasts();
 	if(!BossSpawned) {
 		DM_MoveTo(15074,5041);

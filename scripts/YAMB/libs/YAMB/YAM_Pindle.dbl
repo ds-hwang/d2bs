@@ -1,3 +1,9 @@
+/////////////////////////////////////////////////////////////////////
+// Pindleskin Module for YAMB                                      //
+// updated by Darien                                               //
+/////////////////////////////////////////////////////////////////////
+
+
 entryFunc = PindleXP;
 
 function PXP_AttackPindle() {
