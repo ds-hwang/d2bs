@@ -621,7 +621,7 @@ function LW_TownQuit(message, smsg) {
 }
 
 function LW_GetMerc() {
-	LW_DPrint("LW_GetMerc() : Entering function");
+	//LW_DPrint("LW_GetMerc() : Entering function");
 	//var _merc = DC_GetMerc();
 	var _merc = me.getMerc();
 	if (_merc) {
@@ -643,7 +643,8 @@ function LW_GetPotByClassID(classid) {
 		return null; 
 	}
 	var _altPot = null;
-	var _pot    = me.getItem(classid,2);
+	//var _pot    = me.getItem(classid,2);
+    var _pot    = getUnit(4,classid,2);
 	if (_pot) { 
 		do {
 			if (DC_CheckOwner(_pot)) {
