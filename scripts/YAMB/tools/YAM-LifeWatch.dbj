@@ -57,7 +57,7 @@
 // If, on the other hand, LW_UseTownChicken is set to true, the bot will be signaled to tp to town if any of the above conditions are true.
 // If you want the bot to ignore any of one these conditions (i.e. not to quit the game or tp to town irregardless of the value of LW_UseTownChicken),
 // you should set the respective boolean value of the condition above to false, or set it to -1, if it is a number.
-//--------------------------------------------------------------------
+//---------------------------------------------------------------------
 var LW_UseTownChicken          = true;
 
 var LW_LifeThresh              = -70;
