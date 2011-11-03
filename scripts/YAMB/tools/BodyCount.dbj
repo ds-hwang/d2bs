@@ -1,5 +1,5 @@
 ///////////////////////////////////////////// Body Count //////////////////////////////////////////////////
-//                                               v2.5
+//                                               v2.7
 //					                BODYCOUNT AND EXP CALCULATOR
 //						                          by
 //						                        Darien
@@ -33,6 +33,9 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
+//  v2.7    update for D2bs core 1.4.1 and battle.net 1.13d
+//          pressing "x" will stop YAMB pressing "'" will reload YAMB
+//          
 //  v2.6    updated DarienHook() function to include click and hover handler function paramaters
 //          the backslash key "\" will now toggle all screenhooks on/off
 //
@@ -386,6 +389,7 @@ function YAM_KeyUpManager(keyup) {
 	if(getUIFlag(0x05)==1 && keyup != 19)
 		return;
 	switch (keyup) {
+        case 222: { load("bots/YAMB.dbj"); break; } // '
         case 220: // "\" was pressed
 			visible = !visible;
 			break;
