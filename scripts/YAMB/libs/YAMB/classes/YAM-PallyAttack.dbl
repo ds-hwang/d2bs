@@ -153,7 +153,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 		// BO every once in a while if we run out - darkspirit
 		if (DA_UseCTA){
 			if (me.getState(32) == 0 && me.hpmax <= MaxLife && DC_CheckSkill(149)) {
-				_temp = DA_Refresh;
+				var _temp = DA_Refresh;
 				DA_Refresh = true;
 				XP_Precasts();
 				DA_Refresh = _temp;
