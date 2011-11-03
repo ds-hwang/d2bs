@@ -2,7 +2,6 @@
 //include("YAMB/common/YAM-Attack.dbl");
 
 
-
 function YAM_KeyUpManager(keyup) {
 	sendCopyData(null, "OOG", 0,"yam keyupmanager "+keyup );
 	if(getUIFlag(0x05)==1 && keyup != 19)
