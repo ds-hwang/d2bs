@@ -150,6 +150,11 @@ function DA_CheckRunewordSkill(item, whichstat, stattype) {
 
 //Kill those in within a certain range
 
+function isAlive(mon_id,spectype) {
+    var subject = getMonster(mon_id,spectype);
+    if(Dead(subject)) return 0;
+    else return 1;
+}
 
 function Dead(who) {
         if (who.hp < 1) {
@@ -209,17 +214,17 @@ function IsBlocked(target,type) {
 
 function canAttack(monsta, ranged) {
     
-   	if (ranged && IsBlocked(monsta,2)) return false;   // ignore if ranged attack if range is blocked
+   	if (ranged && IsBlocked(monsta,2)) return false;   // ignore if using ranged attack and range is blocked
     if(!ranged && IsBlocked(monsta,1)) return false;   // ignore if not using ranged attack and walking is blocked
     
    	if(IsBlocked(monsta,11)) {
    	//ingnore if Monster on the other side of a Door
-   		print("Don't Attack Monsters on the other Side of a closed Door!");
+   		//print("Don't Attack Monsters on the other Side of a closed Door!");
    		return false; 
    	}
     if((me.area > 28 && me.area < 32) || (me.area > 50 && me.area < 55)) {
-        if(!pathDistMon && !useTele && IsBlocked(monsta,4) && IsBlocked(monsta,10)) {
-            print("Don't Attack Monsters on the other Side of a special Door!");
+        if(!DM_UseTeleport && IsBlocked(monsta,4) && IsBlocked(monsta,10)) {
+            //print("Don't Attack Monsters on the other Side of a special Door!");
             return false; 
         }
     }
@@ -280,7 +285,7 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
    }
    
    //sorc usually shouldn't attack lightning spire. only physical attacks to well on them
-   if(monsta.classid == 371 && me.classid == 1) return false; //Arcane Lightning Spire -- optional, comment this line out to attack them
+   if(monsta.classid == 371 && !XP_AttackSpire) return false; //Arcane Lightning Spire -- optional, comment this line out to attack them
    
    if(monsta.getParent()) return false;					//exclude your mercs and minions
    if(monsta.name == "Baal" && me.area != 132) return false;      		//Don't attack Baal unless at final room
@@ -293,6 +298,7 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
     return true;
 }
 
+//Darien
 function killRadius(range, type, spectype) {
 
     var krx = me.x;
@@ -303,11 +309,12 @@ function killRadius(range, type, spectype) {
         center.y = kry;
 
     var threat = returnClosestThreat(range, type, spectype, center);
-    
+    if(threat) XP_Precasts();
     while (threat) {
-        print("attacking " + threat.name + " id: " + threat.classid); 
-        XP_Precasts();
-        XP_BossAttack(threat);
+        print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + getRange(me,threat)); 
+        //XP_Precasts();
+        if(me.classid == 0 || me.classid == 5) XP_AttackMonster(threat,range) ;
+        else XP_BossAttack(threat);
         threat = returnClosestThreat(range, type, spectype, center);
     }
 }
@@ -325,9 +332,12 @@ function returnClosestThreat(range, classid, spectype, who) {  //add argument at
     var closest_dist = range;
     var mons = getUnit(1,classid);
     
+    if(me.classid >= 1) var useRanged = false;
+    else var useRanged = true;
+    
 	var closestMON = false;
 	if (mons) do {
-		if (ValidMonster(mons) && canAttack(mons)) {
+		if (ValidMonster(mons) && canAttack(mons,useRanged)) {
 			var distance = getRange(who,mons);
 			if (distance < closest_dist) {
                 if(spectype && spectype != "null") {
@@ -346,14 +356,77 @@ function returnClosestThreat(range, classid, spectype, who) {  //add argument at
 	return (closestMON);
 }
 
+function Assassinate(monid, farunit, spectype){
+
+    if(arguments.length < 3) spectype = 5;
+
+    if(!pathtoFarUnit(1,farunit)) dprint("target not found", 1); 
+    killRadius(30,monid,spectype);
+    
+    var subject = getMonster(monid,spectype);
+    
+    if(subject) {
+        dprint("Assassinating " + subject.name, 2);
+        while(!Dead(subject)) {
+            XP_BossAttack(subject);
+        }
+        dprint(subject.name + " is dead!");
+    }
+}
+
+
+//Darien - for clearing level's like Den quest
+function Search_and_Destroy(range) {
+    
+    var beginX = me.x;
+    var beginY = me.y;
+    if(arguments.length == 0) range = 999;
+    
+    var victim = returnClosestThreat(range);
+    
+    if(victim) {
+    
+        dprint("Search and Destroy Mode Engaged",1);
+        while(victim) {
+            var victim = returnClosestThreat(range);
+            pathToDest(victim.x,victim.y);
+            killRadius(25);
+            var victim = returnClosestThreat(range);
+        }
+        dprint("Search and Destroy mode over... return to start point",2);
+        pathToDest(beginX,beginY);
+        
+    } else {
+        dprint("Search and Destroy: No Victims found",2);
+    }
+    
+
+}
+
+function headCount(range) {  //returns number of monsters
+    
+    var mons = getUnit(1);
+    var count = 0;
+    
+	if (mons) do {
+        var distance = getRange(me,mons);
+		if (ValidMonster(mons) && canAttack(mons) && distance < range) count++;
+	}while(mons.getNext());
+    //if(me.area == 74) 
+    print("Monsters in group: " + count);
+	return (count);
+}
+
 function clearPath(attackskill, hand) {
 
     var blocker = returnClosestThreat(3);
     
-    while (threat) {
+    while (blocker) {
         print("attacking " + blocker.name + " to clear the path"); 
         XP_Precasts();
-        DC_DoCast(attackskill,hand, blocker);
+        //DC_DoCast(attackskill,hand, blocker);
+        if(me.classid == 0) XP_AttackMonster(blocker,3) ;
+        else XP_BossAttack(blocker);
         blocker = returnClosestThreat(3);
     }
 }
@@ -392,6 +465,7 @@ function attackMonster(mon_id,spectype) {
         return 1;
     }
 }
+
 
 ///////////////////////////  end Darien //////////////////////////////////////////
 

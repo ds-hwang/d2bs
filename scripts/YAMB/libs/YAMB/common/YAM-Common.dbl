@@ -246,6 +246,235 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
     return false;
 }
 
+function openDoor() {
+    if(me.getStat(12) < 4) killRadius(20);
+    if(!me.classid || me.area == 8) killRadius(20);
+    else killRadius(2);
+    if(me.classid == 2) XP_NecroRevive();
+    if(me.classid == 5) DA_DoPrecasts();
+    return DP_STEPAHEAD;
+}
+
+function killZone() {
+    killRadius(20);
+    if(me.classid == 2) XP_NecroRevive();
+    if(me.classid == 5) DA_DoPrecasts();
+    return DP_STEPAHEAD;
+}
+
+function dprint(crap, color) { 
+    if(arguments.length == 1) color = 0;
+    print("ÿc" + color + crap); 
+}
+
+function clearNPC(npc) {
+    dprint("Get rid of quest dialog",1);
+    dprint("interact",1);
+    for(var x=0; x < 3; x++) {
+        DC_DoClick(0,0,npc);
+        delay(250)
+    }
+    dprint("cancel",1);
+    var tries = 0;
+    //while(getUIFlag(0x0F) && tries < 20) {
+    for(var cc=0; cc < 6; cc++) {
+        //print(tries);
+        me.cancel(0);
+        delay(250);
+        me.cancel(1);
+        delay(250);
+        cc++;
+    }
+}
+
+function Sc_DoneQuest(act, quest) // taken from Scavenger
+{
+    var qarray = [1,2,4,5,3,6,9,10,11,12,13,14,20,19,18,17,21,22,25,27,26,0,0,0,29,30,31,32,33,34];
+	var qnum = quest-1+(act-1)*6;
+	return me.getQuest(qarray[qnum],0);
+
+}
+
+//Function by Darien
+function returnClosestObject(parent, type, range, name, mode) { 
+
+	var closest_dist = range;
+	var objs = getUnit(type,name,mode);
+	var closestOBJ = false;
+
+	if (objs) do {
+
+        var distance = getRange(parent,objs);
+        if (distance < closest_dist) {
+            closest_dist = distance;
+            var closestOBJ = copyUnit(objs);
+        }
+
+	}while(objs && objs.getNext(name,mode));
+
+	if (closestOBJ) return (closestOBJ);
+	else return false;
+}
+
+function getFarUnit (type,IDnumb,area) {
+	if(!area) area = me.area;
+	var Darien_PresetUnits = getPresetUnits(area,type,IDnumb,null);
+	
+	if(!Darien_PresetUnits) {
+		dprint("Preset Unit does not exist!",1);
+		return false;
+	}
+	
+	for (var p = 0; p < Darien_PresetUnits.length; p++) {
+			
+		if(Darien_PresetUnits[p].type == type && 
+		Darien_PresetUnits[p].id == IDnumb) {
+			//break;
+            return Darien_PresetUnits[p];
+		}
+	}
+	
+	//print(Darien_PresetUnits[p].x +", " + Darien_PresetUnits[p].y);
+	//print(Darien_PresetUnits[p].name);	
+	
+	return false
+}
+
+function getFarUnitXY (type,IDnumb,area) {
+	if(!area) area = me.area;
+	if(arguments.length > 1) {
+		var unit =  getFarUnit(type,IDnumb,area);
+		if(!unit) {
+            dprint("Can't Find the pathing unit!",1);
+            return false;
+	    }
+		var unitX = ((unit.roomx * 5) + unit.x);
+		var unitY = ((unit.roomy * 5) + unit.y);
+	} else { 
+		var unitX = ((type.roomx * 5) + type.x);
+		var unitY = ((type.roomy * 5) + type.y);
+	}
+
+	return { x: unitX, y: unitY }
+}
+
+/*
+same as getFarUnitXY above
+
+function realXY(psu) {
+	var realX = ((psu.roomx * 5) + psu.x);
+    var realY = ((psu.roomy * 5) + psu.y);
+    
+    return { x: realX, y: realY }
+}
+
+same as pathtoFarUnit below
+
+function pathToPSU(presetUnit) {
+    var location = realXY(presetUnit);
+    dprint("Pathing to Preset Unit",2);
+    pathToDest(location.x,location.y);
+}
+*/
+
+function pathtoFarUnit(type, id, fuarea) {
+    if(!fuarea) fuarea = me.area;
+    
+    if(arguments.length == 1) var farUnit = getFarUnitXY (type);
+    else var farUnit = getFarUnitXY (type, id, fuarea); 
+    
+    if(farUnit) {
+        dprint("Pathing to Far Unit " + id,2);
+        pathToDest(farUnit.x, farUnit.y);
+    } else { 
+        dprint("Pathing Failed... Far Unit " + id + " not found!",1); return false; 
+    }
+    
+    return true;
+}
+
+function pathToDest(x,y,stepHandler) {
+    dprint("Pathing to Dest: " + x + ", " + y,2);
+    var attempts=1;
+    
+    if(arguments.length == 2) stepHandler = openDoor;
+    
+    while(!commPather.GotoDest(x, y, false, false, stepHandler) && attempts < 6) {
+        dprint("Pathing Attempt: " + attempts + " , to co-ordinates failed!", 1);
+        attempts++;
+        delay(500);
+    }
+    if(attempts == 6) { dprint("Pathing failed... miserably",1); return false; }
+    else return true;
+}
+
+function pathToLevel(x,stepHandler) {
+    var attempts=1;
+    var oldarea = me.area;
+    
+    if(arguments.length == 1) stepHandler = openDoor;
+    
+    dprint("Pathing to Area: " + x, 2);
+    while(!commPather.GotoLevel(x, true, false, false, stepHandler) && attempts < 6) {
+        attempts++;
+        if(me.area == oldarea) dprint("Pathing Attempt: " + attempts + " , to area: " + x + " failed!", 1);
+        delay(500);
+    }
+    if(attempts == 6) { 
+        dprint("Pathing failed... miserably",1); 
+        return false; 
+    }
+    return true;
+}
+
+function pathToWarp(WARPID,stepHandler) {
+    dprint("Pathing to Warp: " + WARPID, 2);
+    var attempts=1;
+    
+    if(arguments.length == 1) stepHandler = openDoor;
+    
+    while(!commPather.GotoWarp(WARPID, false, false, stepHandler) && attempts < 6) {
+        dprint("Pathing Attempt: " + attempts + " , to WARP ID: " + WARPID + " failed!", 1);
+        attempts++;
+        delay(500);
+    }
+    if(attempts == 6) { dprint("Pathing failed... miserably",1); return false; }
+    else return true;
+}
+
+function pathToWP(area) {
+    if(!area) area = me.area;
+    
+    dprint("Pathing to WP in area " + area, 2);
+    var attempts=1;
+    while(!commPather.GotoWaypoint(area, false, false, openDoor) && attempts < 6) {
+        dprint("Pathing Attempt: " + attempts + " , to area: " + area + " failed!", 1);
+        attempts++;
+        delay(500);
+    }
+    if(attempts == 6) { dprint("Pathing failed... miserably",1); return false; }
+    else return true;
+}
+
+function PickupQuestItem(itemcode) {
+	var Item = getUnit(4, itemcode);
+    
+    if(!Item) { dprint("Item: " + itemcode + " not found!", 1); return false; }
+    
+    var trys = 0;
+    while(Item.mode == 3 && trys < 5) {
+        if(getRange(me, Item) > 4) { print("moving to item"); pathToDest(Item.x, Item.y); } 
+        while(Item.mode == 3 && !Dead(me)) { 
+            DC_DoClick(0,0,Item);
+            delay(200); 
+        }
+        trys++;
+        if(Item.mode == 4) clearcursor();
+    }
+    if(Item.mode < 2) { dprint("Have item: " + Item.name + ", classid: " + itemcode, 2); return true; }
+    else dprint("Something went wrong?",1);
+    return false;
+}
 
 // Function by HolyCoitus
 // Modified by Xizeta
@@ -1497,7 +1726,7 @@ function DC_StripQuotes(string,numline) {
 // Function by Aeternus, modified by Xizeta
 // Return value : Number of rows in a belt, IE 1 to 4.
 function DC_GetBeltSize(){ 
-	var _item = DC_getMyItem();
+	var _item = DC_getItem(); // don't use DC_getMyItem
 	if(_item) { 
 		do {
 			// If the belt is equipped, check the amount depending on the item code

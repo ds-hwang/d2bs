@@ -360,8 +360,8 @@ function DCU_CheckJobs() {
 				DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem1.name + ", location=" + loopitem1.location + ", mode=" + loopitem1.mode);
 				if(DCU_Codes[i][1] == DCU_Codes[i][2]) {
 					if(DCU_Codes[i].length > 3) { //mix recipe
-						needseconditem = true;
-						loopitem2 = DCU_getItem(DCU_Codes[i][3],0);
+						var needseconditem = true;
+						var loopitem2 = DCU_getItem(DCU_Codes[i][3],0);
 						if(loopitem2 && DCU_MyItem(loopitem2))
 							do {
 								DCU_Codes[i][4]++;

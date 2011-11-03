@@ -86,7 +86,7 @@ const DP_CLEARWHENSTUCK    = 0x0002;	// Will check for monsters to kill if it is
 const DP_PICKDROPS         = 0x0004;	// Will activate item grabbing along the way.(value 4)
 const DP_USESHRINES        = 0x0008;	// Will use 1 shrine/step (YAM_UseShrines has to be set to true)(value 8)
 const DP_OPENCHESTS        = 0x0010;	// Will open 1 chest/step (YAM_OpenChests has to be set to true)(value 16)
-const DP_SAFECHECK         = 0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
+const DP_SAFECHECK         = 0;         //0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
 const DP_USEVIGOR          = 0x0040;	// Will enable vigor aura (Paladins only).(value 64)
 // IMPORTANT: Do not redefine monster bits without updating walkcalls function below!!!
 const DP_KILLSUPERUS       = 0x0100;	// Will kill SuperUniques.(value 256)
@@ -97,8 +97,8 @@ const DP_CLEARMONSTERS     = 0x1000;	// Will kill normal monsters along the way(
 const DP_INCUSERSTEP       = 0x8000;	// Will include (bitwise OR) DP_StepPath user config variable with the walkcallflag(value 32768)
 
 
-var DP_StepPath  = (DP_INCUSERSTEP);	// User configurable control flag default value
-//var DP_StepPath  = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
+//var DP_StepPath  = (DP_INCUSERSTEP);	// User configurable control flag default value
+var DP_StepPath  = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -183,12 +183,12 @@ var D2JSP_UNIT_STASH        = 267;
 //Pitspawn Fouldog         = 711	7
 //Flamespike the Crawler   = 712	8
 //Boneash                  = 713	9
-//Radament                 = 714	10
-//Bloodwitch the Wild      = 715	11
+//Radament                 = 714	10   actually it's 744 //Darien add 30
+//Bloodwitch the Wild      = 715	11   actually it's 745 //Darien add 30
 //Fangskin                 = 716	12
 //Beetleburst              = 717	13
 //Leatherarm               = 718	14
-//Coldworm the Burrower    = 719	15
+//Coldworm the Burrower    = 719	15  //Darien i get 749 seems to be this # + 30.. atleast in normal.. haven't checked NM or Hell
 //Fire Eye                 = 720	16
 //Dark Elder               = 721	17
 //The Summoner             = 722	18 (this does not work, MH reports as 250)
@@ -199,10 +199,10 @@ var D2JSP_UNIT_STASH        = 267;
 //Stormtree                = 727	23
 //Sarina the Battlemaid    = 728	24
 //Icehawk Riftwing         = 729	25
-//Ismail Vilehand          = 730	26
-//Geleb Flamefinger        = 731	27
+//Ismail Vilehand          = 730	26 //Darien add 30
+//Geleb Flamefinger        = 731	27 //Darien add 30
 //Bremm Sparkfist          = 732	28
-//Toorc Icefist            = 733	29
+//Toorc Icefist            = 733	29 //Darien add 30
 //Wyand Voidfinger         = 734	30
 //Maffer Dragonhand        = 735	31
 //Winged Death             = 736	32
@@ -213,8 +213,9 @@ var D2JSP_UNIT_STASH        = 267;
 //Lord De Seis             = 741	37
 //Grand Vizier of Chaos    = 742	38
 //The Cow King             = 743	39
-//Corpsefire               = 744	40
+//Corpsefire               = 744	40  actually it's 774 //Darien add 30
 //The Feature Creep        = 745	41 (Name change from MPQ = hephasto) = 745
+//Bloodwitch the Wild      = 745
 //Siege Boss               = 746	42 (Shenk the Overseer) = 746
 //Ancient Barbarian 1      = 747	43
 //Ancient Barbarian 2      = 748	44
@@ -239,7 +240,7 @@ var D2JSP_UNIT_STASH        = 267;
 //Baal Subject 3           = 767	63
 //Baal Subject 4           = 768	64
 //Baal Subject 5           = 769	65
-//Bloodraven               = 775    (Not in MPQ file, but seems to be ID for Bloodraven)
+//Bloodraven               = 775    (Not in MPQ file, but seems to be ID for Bloodraven)  --> // Darien now like others, add 30 805 works 775 doesn't
 //Izual                    = 256
 
 
@@ -300,9 +301,9 @@ function DP_DPrint(a){
 }
 
 function DP_CheckSafety(){ 
-	if(typeof(YAM_SafeCheck) == 'function'){
-		return YAM_SafeCheck();
-	}
+	//if(typeof(YAM_SafeCheck) == 'function'){
+	//	return YAM_SafeCheck();
+	//}
 	// fallback default behavior 
 	// MAKE A SAFE CHECK FUNCTION!!!!!!
 	return false;
@@ -411,6 +412,8 @@ function pathMove(_info) {
 	//(no need to immediately fail pathing unless thepoint we are aiming for can NOT be reached from where we are)
 	this.TargetX     = 0; 
 	this.TargetY     = 0; 
+	this.CrossPointX = 0; 
+	this.CrossPointY = 0; 
 	this.TargetType  = 0; 
 	this.TargetRoom  = false;
 	this.TargetID    = false;
@@ -654,29 +657,51 @@ function pathMove(_info) {
 
 	//this.GotoLevel = function( destlevel, pMoveDist, databack, _door) {
 	//	DP_DPrint("GotoLevel() -> FUNCTION BROKEN - please use some other function till fixed! - TechnoHunter");
-	this.GotoLevel = function( exitAreaId, goThru) {
+	this.GotoLevel = function( exitAreaId, goThru, pMoveDist, pDataback, pDoorHandler) {  // added full parameters
 		var exit = getArea(me.area).exits;
 		for(var n in exit) {
 			if(exit[n].target == exitAreaId) {
 				var oldArea = me.area;
-				this.GotoDest(exit[n].x,exit[n].y);
+				this.GotoDest(exit[n].x,exit[n].y, pMoveDist, pDataback, pDoorHandler);
 				this.TargetID=exit[n].tileid;
 				if(goThru) {
 					if(exit[n].type == 2) {
 						return this.takeTile(exit[n].tileid);
 					}
+                    
 					var otherExit = getArea(exitAreaId).exits;
 					//print(otherExit.toSource ());
 					for(var l = 0; l < otherExit.length; l++) {
 						if(otherExit[l].target == oldArea) {
 							//this.useDoors();
-							while(oldArea == me.area){
-								this.GotoDest(exit[n].x,exit[n].y);
-								clickMap(0, 0, me.x+rand(-3, 3), me.y+rand(-3, 3));
+                            
+                            //Darien
+                            if(getRange(me, this.TargetX, this.TargetY) > 10) {
+                                print("ÿc1Pathing failed!!");
+                                return false;
+                            }
+                            
+                            //Darien
+                            print("Moving to Area Crossing Point " + this.CrossPointX + ", " + this.CrossPointY);
+                            if(getRange(me,this.CrossPointX,this.CrossPointY) > 30) return false;
+                            DM_MoveTo(this.TargetX, this.TargetY);
+                            DM_MoveTo(this.CrossPointX, this.CrossPointY);
+                            if(me.area != oldArea) return true;
+                            
+                            ///Darien - random move was my old fix, I have better one now
+                            var fail=0;
+							while(oldArea == me.area && fail < 10){
+                                print("Border crossing");
+                                var bc = BorderCrossing(me.x,me.y,this.ilastX, this.ilastY)
+                                DM_MoveTo(bc.x,bc.y);
+								//this.GotoDest(exit[n].x,exit[n].y);
+								//clickMap(0, 0, me.x+rand(-3, 3), me.y+rand(-3, 3)); 
 								DC_DoDel(300);
+                                fail++;
 							}
-						}
-					}
+                            if(fail == 10) return false;
+						} 
+                    }
 				}
 				return true;
 			}
@@ -717,9 +742,12 @@ function pathMove(_info) {
 // Mover Section
 ////////////////////////////////////////////////////////////////////////////////
 	this.MovePath = function( pPath, pMoveDist, pDataback, pDoorHandler ) {
+
 		//DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
-		this.TargetX     = pPath[pPath.length-1][0];
-		this.TargetY     = pPath[pPath.length-1][1];
+		this.TargetX            = pPath[pPath.length-1].x;
+		this.TargetY            = pPath[pPath.length-1].y;
+        this.beforeTargetX      = pPath[pPath.length-2].x;
+		this.beforeTargetY      = pPath[pPath.length-2].y;
 		// Reset all internal vars (used in MoveToNode)
 		this.iFailedCount  = 0;
 		this.ilastX        = 0;
@@ -730,9 +758,14 @@ function pathMove(_info) {
 		// Starts at zero and loops thru the entire path array until we reach the end
 		var _cNode = 0, _retval = 0;
 		var movedNodes = [];
+        //Darien
+        var crossPoint = BorderCrossing(this.TargetX, this.TargetY, this.beforeTargetX, this.beforeTargetY);
+        this.CrossPointX = crossPoint.x; 
+	    this.CrossPointY = crossPoint.y; 
+        
 		while(_cNode < pPath.length-1) {
 			movedNodes[movedNodes.length] = _cNode;
-			//if(me.x == pPath[_cNode][0] && me.y == pPath[_cNode][1]){
+			//if(me.x == pPath[_cNode].x && me.y == pPath[_cNode].y){
 				//DP_DPrint("MovePath() -> My X/Y same as cNode's, skipping to next node");
 				//_cNode++;
 				//continue;
@@ -781,7 +814,7 @@ function pathMove(_info) {
 			////////////////////////////////////////////////////////////////////////////
 			// sanity check, to make sure we didnt deviate too much
 			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
-			//if(Math.abs(me.x-pPath[_cNode][0])>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode][1])>(bounceOrWalk ? 6 : 3)){
+			//if(Math.abs(me.x-pPath[_cNode].x)>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode].y)>(bounceOrWalk ? 6 : 3)){
 			if(getDistance(me, pPath[_cNode].x, pPath[_cNode].y) >(bounceOrWalk ? 6 : 3)){
 			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
 				// If the char is off from the path by nDist, make a new path instead
@@ -789,10 +822,10 @@ function pathMove(_info) {
 				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode].x, pPath[_cNode].y ) > (nDist * nDist) ) {
 					//DP_DPrint("MovePath() -> Distance between me and target node farther than " + nDist + ", rebuilding a path");
 					if(Math.abs(me.x-pPath[_cNode].x)>nDist){
-					//	DP_DPrint("MovePath() -> " + Math.abs(me.x-pPath[_cNode][0]) + " larger than " + nDist + " me.x:" + me.x + " cNode: "+ pPath[_cNode][0] );
+					//	DP_DPrint("MovePath() -> " + Math.abs(me.x-pPath[_cNode].x) + " larger than " + nDist + " me.x:" + me.x + " cNode: "+ pPath[_cNode].x );
 					}
 					if(Math.abs(me.y-pPath[_cNode].y)>nDist){
-					//	DP_DPrint("MovePath() -> " + Math.abs(me.y-pPath[_cNode][1]) + " larger than " + nDist + " me.y:" + me.y + " cNode: "+ pPath[_cNode][1] );
+					//	DP_DPrint("MovePath() -> " + Math.abs(me.y-pPath[_cNode].y) + " larger than " + nDist + " me.y:" + me.y + " cNode: "+ pPath[_cNode].y );
 					}
 					// If a new path is built, put it in the old path array and reset the vars
 					var _myPath = getPath( me.area, me.x, me.y, this.TargetX, this.TargetY, (this.UseTele && !InTown(me)), pMoveDist, !this.UseTele );
@@ -964,7 +997,9 @@ function pathMove(_info) {
 			if(this.ifailedMoves > 5 ) {
 				this.ifailedMoves = 0;
 				if(typeof(DC_ThrowException) == 'function'){
-					DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
+					//DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
+                    print("got stuck -- not aborting");
+                    return DP_STOP;  //Darien mod
 				}
 				else{
 					DP_DPrint("MoveToNode() -> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
@@ -1092,11 +1127,11 @@ function pathMove(_info) {
 				if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
 					YC_MaxDistance = 19;
 					YC_CheckForChests();
-					DSN_PickItems(DP_CheckSafety);
+					DSN_PickItems();
 				}
 				// Pickup drops
 				if(outaTown && ctrlFlag & DP_PICKDROPS){
-					DSN_PickItems(DP_CheckSafety);
+					DSN_PickItems();
 				}
 				// Enable Vigor
 				if(me.classid==3 && ctrlFlag & DP_USEVIGOR) {
@@ -1413,4 +1448,26 @@ function isRoomReachable(room){
 		}
 	}
 	return false;
+}
+
+//Darien
+function BorderCrossing(targetX, targetY, lastX, lastY) {
+    //print("ÿc2Darien is crossing levels");
+    var xDiff = targetX - lastX;
+    var yDiff = targetY - lastY;
+    
+    if(getRange(targetX, targetY, lastX, lastY) < 4) {
+        xDiff = xDiff * 3;
+        yDiff = yDiff * 3;
+    }
+
+    var xNext = targetX + xDiff ;
+    var yNext = targetY + yDiff ;
+
+    //print("lastX = " + lastX + ", lastY = " + lastY);
+    //print("X = " + me.x + ", Y= " + me.y);
+    //print("nextX = " + xNext + ", nextY = " + yNext);
+
+    return { x: xNext, y: yNext } 
+    
 }

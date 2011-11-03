@@ -22,7 +22,7 @@ function YAM_Act2TownManager() {
 		commTown2.GotoFara();
 		YAM_NPCinteract(DC_getNPC(178));
 	}
-	if (_YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt())) {
+	if (_YAM_OutOfPots || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt())) {
 		commTown2.GotoDrognan();
 		YAM_NPCinteract(DC_getNPC(177));
 		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident

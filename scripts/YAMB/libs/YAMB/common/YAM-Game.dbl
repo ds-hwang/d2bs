@@ -57,7 +57,7 @@ function StepCallBack(attack) {
 
       XP_ClearPosition(28,false,ATTACKING_MODE,null,specType); 
       XP_ClearPosition(28,false,ALIVE_MODE,null,specType); 
-      DSN_PickItems(YAM_SafeCheck); 
+      DSN_PickItems(); 
       if (YAM_OpenChests) { 
          YC_MaxDistance = 19; 
          YC_CheckForChests(); 
@@ -497,7 +497,7 @@ function AttackBoss(classid,type) {
       }
       XP_ClearPosition(28);
    } 
-   DSN_PickItems(YAM_SafeCheck); 
+   DSN_PickItems(); 
    return true; 
 } 
 
