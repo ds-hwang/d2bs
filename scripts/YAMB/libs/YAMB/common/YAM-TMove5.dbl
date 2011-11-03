@@ -19,7 +19,8 @@ function YAM_Act5TownManager() {
 	if (_YAM_GoToHealer || YAM_AlwaysMalah || _YAM_NeedKeys || _YAM_NeedTP || _XP_GetNumUnId > 0 || (YAM_UseBeltManager && DT_CheckBelt()) || NPCnum>=rand(2,9)) {
 		commTown5.GotoMalah();
 		YAM_NPCinteract(DC_getNPC(513));
-		DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
+        if(me.y < 5027) { print("Darien's Corrective Step"); DM_MoveTo(5075,5031); } // Darien Fix
+        DSN_SnagIt(); // Check the ground to see if any nice item is dropped by accident
 	}
 	if (_YAM_GoToRepair || YAM_AlwaysLarzuk || NPCnum>=rand(2,9)) {
 		commTown5.GotoLarzuk();
@@ -53,9 +54,7 @@ function YAM_NPCinteract5(npc) {
 			if (_XP_GetNumUnId > 0) { 
 				XP_DoCheckItems(npc); 
 			}
-			if (YAM_UseBeltManager) { 
-				YAM_CheckBelt(npc); 
-			}
+            //while(!getUIFlag(0x0c)) { DT_DoTrade(npc); delay(1000); }
 			if (_YAM_NeedTP) { 
 				var _tptome = DT_GetTome(1);
 				if (_tptome) { 
@@ -68,6 +67,9 @@ function YAM_NPCinteract5(npc) {
 						DC_StopMessage("Failed to buy TP Scroll!"); 
 					}
 				}
+			}
+            if (YAM_UseBeltManager) { 
+				YAM_CheckBelt(npc); 
 			}
 			if (_YAM_NeedKeys) {
 				DT_BuyKeys(npc);
