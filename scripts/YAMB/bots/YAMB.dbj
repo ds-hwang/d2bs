@@ -14,7 +14,7 @@
 
 ******************************* Yet Another Multi Bot **********************************/
 
-js_strict(true); // Tells you when you fucked up coding
+js_strict(true); //  Tells you when you fucked up coding
 
 var YAM_Version        = "0.9.8.0 Beta";
 var YAM_madeConfigs    = false;
