@@ -1,0 +1,33 @@
+; ======== potions.nip ========
+; Last update : 2010-02-15 
+
+; === Rejuvenation potions ===
+Name = Rejuvenation Potion
+Name = Full Rejuvenation Potion
+
+; === Healing potions ===
+Name = Minor Healing Potion
+Name = Light Healing Potion
+Name = Healing Potion
+Name = Greater Healing Potion
+Name = Super Healing Potion
+
+; === Mana potions ===
+Name = Minor Mana Potion
+Name = Light Mana Potion
+Name = Mana Potion
+Name = Greater Mana Potion
+Name = Super Mana Potion
+
+; === Other potions ===
+;Name = Stamina Potion
+;Name = Antidote Potion
+;Name = Thawing Potion
+
+; === Throwing potions ===
+;Name = Rancid Gas Potion
+;Name = Choking Gas Potion
+;Name = Strangling Gas Potion
+;Name = Oil Potion
+;Name = Exploding Potion
+;Name = Fulminating Potion
