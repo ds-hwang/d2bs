@@ -18,6 +18,7 @@ var XP_BowAttack=new Array();
 var XP_JavAttack=new Array();
 var XP_BowNumber=new Array();
 var XP_JavNumber=new Array();
+var weaponGID=0;
 
 AXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
 SXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
@@ -210,8 +211,12 @@ function XP_BossAttack(target) {
 						   !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_BowAttack[y]))) {
 							for (var x = 1; x <= XP_BowNumber[y]; x+=1) {
 								attempted = true;
-								DC_DoCast(XP_BowAttack[y],hand,target);
-								XP_CheckAttacks();
+                                var targit = commPather.GetSafeOffScreenXY(me.x,me.y,target.x,target.y); // darien
+								if(targit) {
+                                    DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                    print("Shooting target: " + target.name);
+                                }
+                                XP_CheckAttacks();
 								if (XP_CheckUtil(target)) { XP_AmazonShield(); return; }
 							}
 						}
@@ -231,6 +236,8 @@ function XP_BossAttack(target) {
 			DC_DoWeaponSwitch();
 		}
 	}
+    //XP_AmazonShield();
+	DSN_PickItems();
 }
 
 function XP_AmazonShield() {
@@ -353,7 +360,81 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 	return retval;
 }
 
+function simpleAttack(monster,range,x,y,attackSkills) {
+    print("Simple Attack");
+	var hand;
+	var attempted = false;
+
+	if (!monster || monster.hp < 1) return false;
+
+	var hpprev = 129;
+	var attprev = _XP_AttackCompleted;
+
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range) {
+        //Bow attacks
+
+        
+        for (y = 0; y < XP_BowAttack.length; y+=1) {
+        
+            if(y == 0) {
+            
+                var safeCount=0;
+                while(headCount(range) > 2 && safeCount < 10) {  //do first in array (multi for crowd controll
+                    safeCount++;
+                    //var targit = false;
+                    var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                    if(targit) {
+                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                        else DC_DoCast(0,hand,targit.x,targit.y);
+                        print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                    } else {
+                        print("Can't get SafeShot on Target");
+                        DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                    }
+                    XP_CheckAttacks();
+                    if (monster.hp < hpprev) {
+                        hpprev = monster.hp;
+                        attprev = _XP_AttackCompleted + 1;
+                        if (_YAM_MercDead||_YAM_OutOfPots||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                    }
+                    if(IsBlocked(monster,2)) { print("LOS blocked, return false"); return false; }
+                }
+            } else {
+                if(XP_BowAttack.length == 1) y = 0;
+                for (x = 1; x <= XP_BowNumber[y]; x+=1) {
+                    var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                    if(targit) {
+                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                        else DC_DoCast(0,hand,targit.x,targit.y);
+                        print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                    } else {
+                        print("Can't get SafeShot on Target");
+                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                        else DC_DoCast(0,hand,targit.x,targit.y);
+                    }
+                    XP_CheckAttacks();
+                    if (monster.hp < hpprev) {
+                        hpprev = monster.hp;
+                        attprev = _XP_AttackCompleted + 1;
+                        if (_YAM_MercDead||_YAM_OutOfPots||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                    }
+                    if(IsBlocked(monster,2)) { print("LOS blocked, return false"); return false; }
+                }
+            }
+        }
+    }    
+	//XP_AmazonShield();
+	//DSN_PickItems();
+
+	return true;
+}
+
+
+
 function XP_AttackMonster(monster,range,x,y,attackSkills) {
+
+    /*if(me.getStat(12) < 17)*/ return simpleAttack(monster,range,x,y,attackSkills);
+    
 	var hand;
 	var attempted = false;
 
@@ -366,66 +447,209 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 		attempted = false;
 
-		var _weapon = DC_getMyItem();
+		if(!weaponGID) var _weapon = DC_getMyItem();
+        
+		if (_weapon && !weaponGID) { 
+            do {
 
-		if (_weapon) { do {
+    			// If the weapon is in the first tab
+	    		if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+            
+			    	//Jav attacks
+				    if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
 
-			// If the weapon is in the first tab
-			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+					    for (x = 0; x < XP_JavAttack.length; x+=1) {
+						    hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
 
-				//Jav attacks
-				if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
+    						if (me.mp > ManaCost(XP_JavAttack[x]) &&
+	    					   ((isPhysical(XP_JavAttack[x]) && monster.getStat(36) < 100) ||
+		    				   (isLightning(XP_JavAttack[x]) && monster.getStat(41) < 100) ||
+			    			   (isPoison(XP_JavAttack[x]) && monster.getStat(45) < 100)) &&
+				    		   (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
+					    	   (DA_GetRange(monster) < 5 || !isMelee(XP_JavAttack[x]))) {
+						    	for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
+							    	attempted = true;
+								    DC_DoCast(XP_JavAttack[x],hand,monster);
+    								XP_CheckAttacks();
+	    							if (monster.hp < hpprev) {
+		    							hpprev = monster.hp;
+			    						attprev = _XP_AttackCompleted + 1;
+				    					if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+					    			}
+						    	}
+    						}
+	    				}
+		    		}
 
-					for (x = 0; x < XP_JavAttack.length; x+=1) {
-						hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
+			    	//Bow attacks
+				    if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+                    
+                        weaponGID = _weapon.gid;
 
-						if (me.mp > ManaCost(XP_JavAttack[x]) &&
-						   ((isPhysical(XP_JavAttack[x]) && monster.getStat(36) < 100) ||
-						   (isLightning(XP_JavAttack[x]) && monster.getStat(41) < 100) ||
-						   (isPoison(XP_JavAttack[x]) && monster.getStat(45) < 100)) &&
-						   (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
-						   (DA_GetRange(monster) < 5 || !isMelee(XP_JavAttack[x]))) {
-							for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
-								attempted = true;
-								DC_DoCast(XP_JavAttack[x],hand,monster);
-								XP_CheckAttacks();
-								if (monster.hp < hpprev) {
-									hpprev = monster.hp;
-									attprev = _XP_AttackCompleted + 1;
-									if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
-								}
-							}
-						}
-					}
-				}
+    					for (y = 0; y < XP_BowAttack.length; y+=1) {
+	    					hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
 
-				//Bow attacks
-				if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+		    				if (me.mp > ManaCost(XP_BowAttack[y]) &&
+			    			   ((isPhysical(XP_BowAttack[y]) && monster.getStat(36) < 100) ||
+				    		   (isCold(XP_BowAttack[y]) && monster.getStat(43) < 100) ||
+					    	   (isFire(XP_BowAttack[y]) && monster.getStat(39) < 100) ||
+						       (isMagic(XP_BowAttack[y]) && monster.getStat(37) < 100))) {
+                           
+                                if(y == 0) {
+                                    var safeCount = 0;
+                                    while(monster.hp > 0 && headCount(range) > 2 && safeCount < 10) {  //do first in array (multi for crowd controll
+                                        safeCount++;
+	    	    						attempted = true;
+                                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+    		    						if(targit) {
+                                            DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                                        } else {
+                                            print("Can't get SafeShot on Target");
+                                            DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                                        }
+    						    		XP_CheckAttacks();
+	    				    			if (monster.hp < hpprev) {
+		    		    					hpprev = monster.hp;
+			        						attprev = _XP_AttackCompleted + 1;
+		    	    						if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+	    			    				}
+    					    		}
+                            } else {
+			    			    	for (x = 1; x <= XP_BowNumber[y]; x+=1) {  //Do guided or second in array to finish up
+		    					    	attempted = true;
+                                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+        								if(targit) {
+                                            DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                                        } else {
+                                            print("Can't get SafeShot on Target");
+                                            DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                                        }
+						        		XP_CheckAttacks();
+					    		    	if (monster.hp < hpprev) {
+				    				    	hpprev = monster.hp;
+			    						    attprev = _XP_AttackCompleted + 1;
+    		    							if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+	        							}
+    	    						}
+                                }
+    						} else print("Monster resists?");
+	    				}
+		    		}
+			    }
+		    } while (_weapon.getNext()); 
+        
+        } else {
+        
+            var _weapon = getUnit(4, null, null, weaponGID);
+            
+            //Jav attacks
+            if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
 
-					for (y = 0; y < XP_BowAttack.length; y+=1) {
-						hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
+                for (x = 0; x < XP_JavAttack.length; x+=1) {
+                    hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
 
-						if (me.mp > ManaCost(XP_BowAttack[y]) &&
-						   ((isPhysical(XP_BowAttack[y]) && monster.getStat(36) < 100) ||
-						   (isCold(XP_BowAttack[y]) && monster.getStat(43) < 100) ||
-						   (isFire(XP_BowAttack[y]) && monster.getStat(39) < 100) ||
-						   (isMagic(XP_BowAttack[y]) && monster.getStat(37) < 100))) {
-							for (x = 1; x <= XP_BowNumber[y]; x+=1) {
-								attempted = true;
-								DC_DoCast(XP_BowAttack[y],hand,monster);
-								XP_CheckAttacks();
-								if (monster.hp < hpprev) {
-									hpprev = monster.hp;
-									attprev = _XP_AttackCompleted + 1;
-									if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
-								}
-							}
-						}
-					}
-				}
-			}
-		} while (_weapon.getNext()); }
+                    if (me.mp > ManaCost(XP_JavAttack[x]) &&
+                        ((isPhysical(XP_JavAttack[x]) && monster.getStat(36) < 100) ||
+                        (isLightning(XP_JavAttack[x]) && monster.getStat(41) < 100) ||
+                        (isPoison(XP_JavAttack[x]) && monster.getStat(45) < 100)) &&
+                        (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
+                        (DA_GetRange(monster) < 5 || !isMelee(XP_JavAttack[x]))) {
+                        for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
+                            attempted = true;
+                            DC_DoCast(XP_JavAttack[x],hand,monster);
+                            XP_CheckAttacks();
+                            if (monster.hp < hpprev) {
+                                hpprev = monster.hp;
+                                attprev = _XP_AttackCompleted + 1;
+                                if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                            }
+                        }
+                    }
+                }
+            }
 
+            //Bow attacks
+            if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+
+                for (y = 0; y < XP_BowAttack.length; y+=1) {
+                    hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
+
+                    if (me.mp > ManaCost(XP_BowAttack[y]) &&
+                        ((isPhysical(XP_BowAttack[y]) && monster.getStat(36) < 100) ||
+                        (isCold(XP_BowAttack[y]) && monster.getStat(43) < 100) ||
+                        (isFire(XP_BowAttack[y]) && monster.getStat(39) < 100) ||
+                        (isMagic(XP_BowAttack[y]) && monster.getStat(37) < 100))) {
+                           
+                           if(y == 0) {
+                                var safeCount = 0;
+                                if(me.area == 74) {
+                                    while(headCount(range) > 2 && safeCount < 10) {  //do first in array (multi for crowd controll
+                                        safeCount++;
+                                        attempted = true;
+                                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                                        if(targit) {
+                                            DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                                        } else {
+                                            print("Can't get SafeShot on Target");
+                                            DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                                        }
+                                        XP_CheckAttacks();
+                                        if (monster.hp < hpprev) {
+                                            hpprev = monster.hp;
+                                            attprev = _XP_AttackCompleted + 1;
+                                            if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                                        }
+                                    }
+                                } else {
+                                    for (x = 1; x <= XP_BowNumber[y]; x+=1) { 
+                                        attempted = true;
+                                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                                        if(targit) {
+                                            DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                                        } else {
+                                            print("Can't get SafeShot on Target");
+                                            DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                                        }
+                                        XP_CheckAttacks();
+                                        if (monster.hp < hpprev) {
+                                            hpprev = monster.hp;
+                                            attprev = _XP_AttackCompleted + 1;
+                                            if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                                        }
+                                    }
+                                }
+                            } else {
+                                for (x = 1; x <= XP_BowNumber[y]; x+=1) {  //Do guided or second in array to finish up
+                                    attempted = true;
+                                    var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                                    if(targit) {
+                                        DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                                        print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                                    } else {
+                                        print("Can't get SafeShot on Target");
+                                        DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                                    }
+                                    XP_CheckAttacks();
+                                    if (monster.hp < hpprev) {
+                                        hpprev = monster.hp;
+                                        attprev = _XP_AttackCompleted + 1;
+                                        if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                                    }
+                                }
+                            }
+                        
+                        
+                    } else print("Monster resists?");
+                }
+            }
+        }
+        //print("GID = " + _weapon.gid);
+        
+/*
 		if (!attempted && XP_SwitchAdapt) {
 			DC_DoWeaponSwitch();
 			XP_AttacksCount=0;
@@ -437,15 +661,19 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 			DC_Print("Switch attacks!");
 			DC_DoWeaponSwitch();
 		}
-
+*/
 		//XP_CheckAttacks ();
 	}
 
 	//XP_AmazonShield();
-	//DSN_PickItems(YAM_SafeCheck);
+	DSN_PickItems();
 
 	return true;
 }
+
+
+
+
 
 function XP_PreAttack(x,y) {
 	// Cast Decoy on the boss if XP_DecoyPosition is at 0

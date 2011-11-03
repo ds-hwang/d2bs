@@ -9,7 +9,7 @@ var _XP_CurrentTimed        = 0;
 var _XP_CurrentUntimed      = 0;
 var _XP_NumImmune           = 0;
 var _XP_UseTeleOnImmune     = true;
-
+var XP_AttackSpire          = false;
 // Sorceress auto setting vars dont touch! - TechnoHunter
 var _chillingarmor          = false;
 var _shiverarmor            = false;
@@ -239,7 +239,7 @@ function XP_BossAttack(target) {
 	_XP_haveUntimed    = (_XP_CurrentUntimed >= 0) ? true : false;
 	_XP_EndPosition    = new XP_Coord(me.x,me.y);
 
-	if (XP_Static > 0) {XP_CastStatic(target); }
+	if (XP_Static > 0) { XP_CastStatic(target); }
 	if (XP_UntimedRepeat == 0) { XP_UntimedRepeat = 1; }
 	if (!_XP_haveTimed && !_XP_haveUntimed) {
 		DC_Print("ÿc1Warning: " + target.name + " is immune to all your defined attacks!ÿc0");
