@@ -50,7 +50,7 @@
 
 YAMXXP.push("Gamble");
 
-//Darien's Scripts
+//Darien's Scripts - (All support walking characters)
 
 //YAMXXP.push("DK_Rush");     //Darien's Rush Bot -- need to configure the file to select which quests
 //YAMXXP.push("FollowBot");   // My old school follow bot - with commands
