@@ -220,6 +220,7 @@ function DA_GetSkillDamageType(skill) {
 	}
 }
 
+
 function XP_BossAttack(target) {
 	DC_DPrint("XP_BossAttack() : Entering function.");
 	_XP_AttackCompleted = 0;
