@@ -1,0 +1,47 @@
+//include("YAMB/common/YAM-Common.dbl");
+//include("YAMB/common/YAM-Attack.dbl");
+
+
+
+function YAM_KeyUpManager(keyup) {
+	sendCopyData(null, "OOG", 0,"yam keyupmanager "+keyup );
+	if(getUIFlag(0x05)==1 && keyup != 19)
+		return;
+	switch (keyup) {
+		case 222: // "'" was pressed
+            load("bots/YAMB.dbj");
+			break;
+    }
+}
+            
+            
+function main() {
+
+    addEventListener("keyup",     YAM_KeyUpManager  );
+
+
+
+	while(1) {
+		
+        
+          
+		delay(20);
+        
+        //} while (unit.getNext());
+
+	}
+}
+
+function InTown(who) {
+	while (who.area == 0) { delay(50); }
+	return ((who.area == 1 || who.area == 40 || who.area == 75 || who.area == 103 || who.area == 109) ? true : false);
+}
+
+function getRange (a,b,c,d) {
+        if (arguments.length == 1) { var obj1x = me.x; var obj1y = me.y; var obj2x = a.x; var obj2y = a.y; }
+        if (arguments.length == 2) { var obj1x = a.x;  var obj1y = a.y;  var obj2x = b.x; var obj2y = b.y; }
+        if (arguments.length == 3) { var obj1x = a.x;  var obj1y = a.y;  var obj2x = b;   var obj2y = c;   }
+        if (arguments.length == 4) { var obj1x = a;    var obj1y = b;    var obj2x = c;   var obj2y = d;   }
+
+        return (parseInt (Math.sqrt (Math.pow (obj1x-obj2x, 2) + Math.pow (obj1y-obj2y, 2))));
+}

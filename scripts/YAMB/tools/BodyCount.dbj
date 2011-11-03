@@ -1,0 +1,394 @@
+///////////////////////////////////////////// Body Count //////////////////////////////////////////////////
+//                                               v2.5
+//					                BODYCOUNT AND EXP CALCULATOR
+//						                          by
+//						                        Darien
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+//	This module was originated as a part of my old Self Rush / Bodyguard Follow Bot
+//	It basically just has screenhooks display some stats for you. 
+//	it displays:
+//		Character Name
+//		BodyCount	-- # of monsters killed since start of script
+//		Exp 	---------- amount of Exp gained since start of script
+//		Avg Exp  --------- Exp divided by BodyCount -- avg exp per kill
+//		Avg Mer Exp ------ Avg Exp your Merc gets per Kill
+//		Gold 	---------- Amount of gold gained on this run
+//
+//     Game Time           Lets you know the current lenth of time you've been in a game
+//
+//     Blocking            Blocking % and it accounts for blocking reducing to 1/3 when running
+//     Damage Reduction    Very important stat not calculated in D2, aka Physical Resistance
+//     Magic Find          Another Very important stat not calculated in D2
+//     Merc Magic Find     Another Very important stat not calculated in D2
+//     Gold Find           Another Very important stat not calculated in D2
+//     Merc Gold Find      Another Very important stat not calculated in D2
+//
+//	**Note this bot gives an estimation of Experience gained, not quite Exact-- Very Very Close**
+//		the bot records the act of dying, will "sometimes" miss a count if a frozen enemy shatters 
+//		the bot will count All monster dying so if there are other players in your area who you
+//		aren't partied with (not sharing their exp).. it will count their kills too that you don't
+//		get exp for... This will skew your Avg Exp per kill
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 
+//  v2.6    updated DarienHook() function to include click and hover handler function paramaters
+//          the backslash key "\" will now toggle all screenhooks on/off
+//
+//  v2.5    Updated for D2BS
+//          -Known Issues: Blocking isn't working correctly, old d2jsp shield functions are outdated, 
+//           need to learn new equivelent D2BS functions. Not sure if Merc exp is working or not, needs testing.
+//          No longer display's ping since D2BS does that standard now
+//          made all functions object based
+//
+//  v2.4    Fixed merc Exp Calculation Bug
+// 
+//  v2.3a   Merc Detection Bug Fix
+//          other minor bug fixes
+//
+//  v2.2    ReWrote the entire lib to be object based 
+//          Defined var's properly
+// 
+//	v2.1	Fixed the myShield.getParent() Bug
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var BCloopdelay=350;   	//loopdelay can set this but don't set too high or all kills won't be recorded
+			            // 350 or more good with Follow Bot... 100 good Stand Alone.
+var quiterror=false;		//true to quit on errors.. false not to.
+
+//Don't Touch a DAMN thing below here!!!!! Just start Killin'
+//**************************************************************
+
+ /*
+    Text Object explained
+    Text(string, X, Y, Color);  --not sure if you can pass more than 4 arguments
+
+    Colors
+    Note: some of the colors change color based on the font. notations made
+    
+    0   = default color for the font white or gold
+    1   = red
+    2   = green bright
+    3   = blue
+    4   = gold / tan / brown
+    5   = grey
+    6   = black
+    7   = dark yellow / gold
+    8   = orange
+    9   = yellow bright
+    10  = green dark
+    11  = purple
+    12  = green
+    13  = white  // also light gold
+    14  = black
+    15  = off white - 21 same // also dark gold
+    16  = light grey    // light gold
+    17  = weird green / yellow outline
+    18  = bright white
+    19  = red
+    20  = weird outline
+    21  = off white // also light gold
+    22  = black
+    23  = black
+    24  = black
+    --not tested past 24
+    
+    Fonts
+    0   = default font 
+    1   = Exocet tiny bright
+    2   = Exocet Large
+    3   = Exocet Huge
+    4   = skinny default
+    5   = big default
+    6   = tiny default font - exact same as #12
+    7   = Exocet normal
+    8   = larger taller default
+    9   = Exocet Outlined
+    10  = similar to exocet - Outlind (10 is 11 outlined)
+    11  = similar to exocet
+    12  = tiny default font - same as #6
+    13  = similar to default, slightly larger
+    --font's end at 13
+
+edit:  McGod schooled me... just go here
+http://mcgod.cc/files/colors.jpg
+
+*/
+
+var visible = true;
+
+//for name enter a text object or enter a name as a string and it will create an object with that name
+// align 0,1,2 = right, left, center
+function DarienHook(name,X,Y,Color,Font,string, align, clickFunc, hoverFunc) {
+
+    if(typeof name == "string") {
+        name = new Text (string, X, Y, Color, Font, align, null, clickFunc, hoverFunc);
+        return name;
+    } else {
+        name.x      = X;
+        name.y      = Y;
+        name.color  = Color;
+        name.font   = Font;
+        if(arguments.length > 5) name.text = string;
+        if(arguments.length > 6) name.align = align;
+        if(arguments.length > 7 && typeOf(click) == "function") name.click = clickFunc;
+        if(arguments.length > 8 && typeOf(hover) == "function") name.hover = hoverFunc;
+    }
+    return false;
+}
+
+function clickHandler() {
+    print("Click");
+}
+
+
+function Char(who) {
+
+    if(arguments.length < 1) who = me;
+
+    this.Who        = who;
+    this.BodyCount  = 0;
+    this.NewExp     = 0;
+    this.NewAvg     = 0;
+    this.BodyCountM = 0;
+    this.NewExpM    = 0;
+    this.NewAvgM    = 0;
+    this.AvgM       = 0;
+    this.mercNew    = false;
+   
+    this.GID        = new Array();
+    this.TotalGold  = this.Who.getStat(14) + this.Who.getStat(15);
+    this.myMF       = this.Who.getStat(80) + this.Who.getStat(240);
+    this.myGF       = this.Who.getStat(79) + this.Who.getStat(239);
+    this.eDex       = this.Who.getStat(2) - 15;
+    this.dr         = this.Who.getStat(36);
+    this.startExp   = this.Who.getStat(13);
+
+    this.inTown     = inTown;
+    this.BodyNum    = BodyNum;
+    this.CalcExp    = CalcExp;
+    this.CalcAvg    = CalcAvg;
+    this.startmerc  = startmerc;
+    this.MercCalc   = MercCalc;
+    this.findShield = findShield;
+    this.finalBlock = finalBlock;
+    this.refresh    = refreshCalc;
+    this.gametime   = gametime;
+
+    //this.Merc       = this.startmerc();
+    this.Merc       = me.getMerc();
+    if(this.Merc) 
+    this.startExpM  = this.Merc.getStat(13);
+
+    function inTown() {
+        if ((this.Who.area != 1) && (this.Who.area != 40) && (this.Who.area != 75) && (this.Who.area != 103) && (this.Who.area != 109)) return 0;
+        else return 1;
+    }  
+
+    function startmerc() { // added code from Fruitbar -- modded by Darien
+    	var merc = getUnit(1);
+    	if (merc) do
+    	{
+    		if(merc.classid!=271 && merc.classid!=338 && merc.classid!=359 && merc.classid!=561)
+    			continue;
+            //print("name -- " + merc.name);
+    		var parent = merc.getParent();
+            //print("parent -- " + parent);
+            
+            if(merc.hp > 0) return merc; // erase this line when merc.getParent(); is fixed.
+    		if (parent && parent.name == this.Who.name && merc.hp > 0)
+            //if (parent && parent.name == me.name && merc.hp > 0) 
+    			return merc;
+    		
+    	} while(merc && merc.getNext());
+    	return false;
+    }
+
+    function refreshCalc() {
+        this.TotalGold  = this.Who.getStat(14) + this.Who.getStat(15);
+        this.myMF       = this.Who.getStat(80) + this.Who.getStat(240);
+        this.myGF       = this.Who.getStat(79) + this.Who.getStat(239);
+        this.dr         = this.Who.getStat(36);
+    }
+
+    function MercCalc() {
+        if(this.Merc) {
+    		this.mercMF    = this.Merc.getStat(80) + this.Merc.getStat(240);
+    		this.mercGF    = this.Merc.getStat(79) + this.Merc.getStat(239);
+    	}
+
+    }
+
+    function BodyNum() {
+	
+        var Body = getUnit(1,null,0);
+        if(Body) do {
+               if(Body.mode == 0 && !Body.getParent()) {
+                   var bodylogged=false;
+                   for(var jj = 0; jj<this.GID.length; jj++) {
+                       if(this.GID[jj] == Body.gid) bodylogged = true;
+                   }
+                   if(!bodylogged) {
+                       this.GID.push(Body.gid);
+                       this.BodyCount++;
+                       if(this.Merc) this.BodyCountM++;
+                   }
+               }
+        }while(Body.getNext(null,0));
+    }
+    
+    function CalcExp() { 
+    	this.NewExp = this.Who.getStat(13) - this.startExp; 
+    	if(this.Merc) this.NewExpM = this.Merc.getStat(13) - this.startExpM;
+    }
+
+    function CalcAvg() { 
+    	if(this.BodyCount == 0 || this.NewExp == 0) this.NewAvg=0;
+    	else this.NewAvg = Math.round(this.NewExp/this.BodyCount);
+    	if(this.Merc) {
+    		if(this.BodyCountM == 0 || this.NewExpM == 0) this.NewAvgM=0;
+    		else this.NewAvgM = Math.round(this.NewExpM/this.BodyCountM);
+    	}     
+    }
+    
+    function findShield() {
+    	var myShield=getUnit(4,null,1);
+    	if(myShield) do {
+    		var shieldOwner = myShield.getParent();
+    		if(shieldOwner && (shieldOwner.name == who.name) /*&& 
+    		(myShield.itemtype == 69 || myShield.itemtype == 70 || myShield.itemtype == 51 || myShield.itemtype == 2) && 
+    		(myShield.itemloc == 4 || myShield.itemloc == 5)*/) return myShield;
+    	}while(myShield.getNext(null,1));
+    		
+    	return false;
+    }
+
+    function finalBlock() {
+        //print("GCS 23: " + getBaseStat(15, this.Who.classid, 23));
+        //print("GS20: " + this.Who.getStat(20));
+        
+        var _blocking = this.Who.getStat(20) + getBaseStat(15, this.Who.classid, 23);
+    	if(this.eDex < 1) this.eDex = 1;
+    	var block = Math.round((_blocking * this.eDex)/(this.Who.getStat(12) * 2));
+        if(this.Who.mode == 2 || this.Who.mode == 3) block = Math.round(block/3);
+    	if(block > 75) block = 75;
+    	if(!findShield()) block = "ÿc2N/A";
+        return block;
+    }
+    
+    function gametime() {
+        var totalsec = Math.round((getTickCount() - me.gamestarttime)/1000);
+        var min = Math.floor(totalsec/60);
+        var sec = totalsec - (min*60);
+        return ("Game Time: ÿc9" + min + "ÿc2minÿc9 " + sec + "ÿc2sec");
+    }
+}
+
+function main() {
+    addEventListener("keyup",     YAM_KeyUpManager  );
+    if(quiterror) me.quitonerror=1;
+    print("ÿc1BodyCount by Darien");
+
+    var mychar = new Char(me);
+    //var _shtX = me.screensize == 2 ? 800 : 640;
+    var ticker = "Game Time: ÿc9" + mychar.gametime();
+
+    //left
+    var _Name =     DarienHook("Name",20,450,2,7,mychar.Who.name);
+    var BC =        DarienHook("BC",20,465,7,1,"BodyCount: " + mychar.BodyCount);
+    var gold =      DarienHook("gold",20,480,7,1,"Gold: " + mychar.TotalGold);
+    var Exp =       DarienHook("Exp",20,493,7,1,"Run Exp: " + mychar.NewExp);
+    var Avg =       DarienHook("Avg",20,516,7,1,"Avg Exp: " + mychar.NewExp);
+    var AvgM =      DarienHook("AvgM",20,528,7,1, null);
+    
+    //right
+    var b =         DarienHook("b",635,450,1,1,"Block: " + mychar.finalBlock() + "%");
+    var DR =        DarienHook("DR",635,465,1,1,"Damage Reduce: " + mychar.dr + "%");
+    var MFme =      DarienHook("MFme",635,480,8,1,"Magic Find: " + mychar.myMF + "%");
+    var GFme =      DarienHook("GFme",635,493,8,1,"Gold Find: " + mychar.myGF + "%");
+    var MFmerc =    DarienHook("MFmerc",635,516,8,1);
+    var GFmerc =    DarienHook("GFmerc",635,528,8,1);
+    
+    //Center
+    var tick =      DarienHook("t",400,535,2,7,ticker,2);
+    var BCtitle = DarienHook("BCtitle",345,65,1,1,"--Body Count--");
+    
+    mychar.startmerc();
+    mychar.MercCalc();
+    
+    while(!0){
+    
+         _Name.visible = visible;
+         BC.visible = visible;
+         gold.visible = visible;
+         Exp.visible = visible;
+         Avg.visible = visible;
+         AvgM.visible = visible;
+         b.visible = visible;
+         DR.visible = visible;
+         MFme.visible = visible;
+         GFme.visible = visible;
+         MFmerc.visible = visible;
+         GFmerc.visible = visible;
+         tick.visible = visible;
+         BCtitle.visible = visible;
+    
+
+        mychar.refresh();
+        tick.text = mychar.gametime();
+        if(!mychar.Merc || (mychar.Merc && mychar.Merc.mode == 0) || (mychar.Merc && mychar.Merc.mode == 12)){
+            mychar.Merc = mychar.startmerc();
+            if(mychar.Merc && mychar.Merc.mode != 0 && mychar.Merc.mode != 12) {
+                mychar.startExpM  = mychar.Merc.getStat(13);
+                mychar.MercCalc();
+            } else {
+                AvgM.text = "Merc DEAD!";
+                MFmerc.text = "Merc MF: N/A";
+                GFmerc.text = "Merc GF: N/A";
+            }
+        }
+        if(mychar.Merc && mychar.Merc.mode != 0 && mychar.Merc.mode != 12) {
+            mychar.MercCalc();
+            AvgM.text = "Avg Merc Exp: " + mychar.NewAvgM;
+            MFmerc.text = "Merc MF: " + mychar.mercMF + "%";
+            GFmerc.text = "Merc GF: " + mychar.mercGF + "%";
+        }
+        
+        var BCa=mychar.BodyCount;
+        if(mychar.Merc) var BCMa=mychar.BodyCountM;
+        var BCc=mychar.NewExp;
+        if(mychar.Merc) var BCMc=mychar.NewExpM;
+        delay(BCloopdelay/2);
+        mychar.BodyNum();
+        mychar.CalcExp();
+        mychar.CalcAvg();
+        if(BCa != mychar.BodyCount) BC.text = "BodyCount: ÿc1" + mychar.BodyCount;
+        
+        if(BCc != mychar.NewExp) Exp.text = "Exp: " + mychar.NewExp;
+        if(BCa != mychar.BodyCount || BCc != mychar.NewExp) Avg.text = "Avg Exp: " + mychar.NewAvg;
+        
+        MFme.text = "Magic Find: " + mychar.myMF + "%";
+        GFme.text = "Gold Find: " + mychar.myGF + "%";
+        gold.text = "Gold: " + mychar.TotalGold;
+
+        if(!mychar.findShield()) block = "ÿc2N/A";
+        if(mychar.finalBlock() != "N/A" && mychar.finalBlock() >= 75) b.text = "Block: ÿc4" + mychar.finalBlock() + "%";
+        else b.text = "Block: " + mychar.finalBlock() + "%";
+        DR.text = "Damage Reduce: " + mychar.dr + "%";
+        delay(BCloopdelay/2);
+	}
+}
+
+function YAM_KeyUpManager(keyup) {
+	sendCopyData(null, "OOG", 0,"yam keyupmanager "+keyup );
+	if(getUIFlag(0x05)==1 && keyup != 19)
+		return;
+	switch (keyup) {
+        case 220: // "\" was pressed
+			visible = !visible;
+			break;
+    }
+}
+
