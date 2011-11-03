@@ -20,9 +20,10 @@ var havetele=false;  // default not cause i like amazons for shenk
 
 
 function SXP_GoToShenk() {
-   if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck); }
+/*
+   if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(); }
 	DM_MoveTo(3797,5102,true); //above stairs
-	if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck); }
+	if (!SXP_Kamikaze) { XP_ClearPosition(15); DSN_PickItems(); }
 	// Check health/mana, belt and if cursed, go to healer if needed
 	if (!SXP_Kamikaze && ShenkSafeCheck) { 
 		if (YAM_SafeCheck()) 
@@ -31,7 +32,7 @@ function SXP_GoToShenk() {
 	DM_MoveTo(3820,5106,true); //middle stairs
 	if (!SXP_Kamikaze) { 
 		XP_ClearPosition(15); 
-		DSN_PickItems(YAM_SafeCheck); 
+		DSN_PickItems(); 
 	}
 	// Check health/mana, belt and if cursed, go to healer if needed
 	if (!SXP_Kamikaze && ShenkSafeCheck) { 
@@ -44,7 +45,7 @@ function SXP_GoToShenk() {
 	} 
 	if (!SXP_Kamikaze) { 
 		XP_ClearPosition(15); 
-		DSN_PickItems(YAM_SafeCheck); 
+		DSN_PickItems(); 
 	}
 	// Check health/mana, belt and if cursed, go to healer if needed
 	if (!SXP_Kamikaze && ShenkSafeCheck) { 
@@ -61,8 +62,23 @@ function SXP_GoToShenk() {
 	}
 	if (!SXP_Kamikaze) { 
 		XP_ClearPosition(20); 
-		DSN_PickItems(YAM_SafeCheck); 
+		DSN_PickItems(); 
 	}
+*/
+    dprint("Pathing to Shenk",3); //classid 479
+    //pathToLevel(110);
+    
+    if(commPather.UseTele) {
+        if(!pathtoFarUnit(1,776,110)) { pathToDest(3870,5115); pathToDest(3859,5129); }
+    } else {
+        pathToDest(3859,5129); 
+        pathToDest(3876,5118); 
+        killRadius(15, "Enslaved");
+        pathToDest(3892,5112);
+        killRadius(25, "Enslaved");
+    }
+    
+    if(me.classid == 0) killRadius(40, "Enslaved");
 }
 
 function SXP_AttackShenk() {
@@ -110,7 +126,7 @@ function SXP_AttackShenk() {
 					delay(50); 
 					i+=1; 
 				} while (!XP_ClearPosition(30,target,ALIVE_MODE) && i < 3);
-				DSN_PickItems(YAM_SafeCheck);
+				DSN_PickItems();
 				// Check health/mana, belt and if cursed, go to healer if needed
 				if (ShenkSafeCheck && target.hp > 0) { 
 					if (YAM_SafeCheck()) 
@@ -123,6 +139,7 @@ function SXP_AttackShenk() {
 				DM_MoveTo(target.x,target.y,true);
 			}
 		}
+        commPather.GotoDest(target.x,target.y, false, false, openDoor);
 		print("Killing Shenk the Overseer...");
 		XP_BossAttack(target);
 		// If we switched weapons on kill, switch back to the attack tab
@@ -138,6 +155,7 @@ function SXP_AttackShenk() {
 		target=false;
 	} else {
 		print("Shenk not found!! Skip to next boss...");
+        //pathtoFarUnit
 		return false;
 	}
 	return true;
@@ -150,11 +168,18 @@ function ShenkXP() {
 		XP_Static = SXP_Static;
 		_XP_UseTeleOnImmune = false;
 	}
+    
+    //Darien
+    commPather.InitType = 1;
+    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+    
+    
 	XP_SwitchHP         = SXP_SwitchHP;
 	XP_StallHP          = SXP_StallHP;
 	XP_StallKill        = SXP_StallKill;
 	XP_QuitImmune       = SXP_QuitImmune;
 	XP_MinionStand      = false;
+    YAM_OpenChests       = false;
 	if (me.classid == 3) { 
 		XP_KillMinions = false; 
 	}
@@ -165,7 +190,7 @@ function ShenkXP() {
 	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
 	BuildSkeleArmy();
 	}
-	if(me.area != 111){
+	//if(me.area != 111){
 		// Do town stuff in the act we are in
 		YAM_TownManager();
 		YAM_PathToWayPoint();
@@ -173,7 +198,7 @@ function ShenkXP() {
 		XP_Precasts();
 		// Take WP to Frigid
 		DM_UsePortal("Waypoint",0x6f);
-	}
+	//}
 	// Do precasts after going into the portal
 	XP_Precasts();
 	// Path to Shenk
@@ -181,7 +206,7 @@ function ShenkXP() {
 	// Go Kill Shenk
 	if (SXP_AttackShenk()) {
 		DL_AddKill();
-		DSN_PickItems(YAM_SafeCheck);
+		DSN_PickItems();
 	}
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog(); 

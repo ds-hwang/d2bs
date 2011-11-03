@@ -18,10 +18,11 @@ function PXP_AttackPindle() {
 	// If you don't use teleport, go to the doorway before getting in the end position
 	if (!DM_CheckTeleport()) {
 		DM_MoveTo(10057,13245); //<-- Doorway position
-		// Cast Decoy at the doorway if DecoyPosition is at 1 and you are a amazon
-		if (me.classid == 0 && XP_CastDecoy && XP_DecoyPosition==1) { 
-			DC_DoCast(28,0,me.x,me.y); 
-		}
+		// Cast Decoy at the doorway if DecoyPosition is at 1 and you are a amazon - Darien Fix
+		if (me.classid == 0 && XP_CastDecoy) {
+            if(XP_DecoyPosition == 1) DC_DoCast(28,0,me.x,me.y); 
+		    else DC_DoCast(28,0,me.x,me.y-25); 
+        }
 	}
 	// Go to the final spot
 	DM_MoveTo(10061 + PXP_OffsetX, 13234 - PXP_OffsetY);
@@ -47,12 +48,27 @@ function PXP_AttackPindle() {
 			//DSN_PickItems(YAM_SafeCheck);
 		}
 		DC_Print("Killing Pindleskin...");
+        if(me.classid == 0) killRadius(30, 440);
 		XP_BossAttack(target);
 		// If we switched weapons on kill, switch back to the attack tab
 		if (XP_SwitchOnKill) {
 			DC_SelectTab(1);
 		}
 		DC_Print("Pindleskin killed !");
+        
+        
+        killRadius(15, 440);
+        
+        /*
+        var minion = getUnit(1,440); //"Defiled Warrior");
+        while (minion && minion.mode != 12 && minion.mode != 0) {
+            XP_BossAttack(minion);
+            var minion = getUnit(1,"Defiled Warrior");
+        }
+        */
+        
+        DSN_PickItems();
+        
 		// If we want to attack the monsters around, do it now
 		if (XP_KillMinions) {
 			XP_ClearPosition(30,null,ALIVE_MODE,440);
@@ -90,6 +106,7 @@ function XP_Zombies() {
 }
 
 function PindleXP() {
+
 	// Configure Pindle specific variables. Those are set in config file, don't change anything here!
 	if (me.classid == 1) {
 		XP_SetSorcSkills(((PXP_SorcSkill.length > 0) ? PXP_SorcSkill : YAM_SorcSkill),Monster_SorcSkill);
@@ -112,6 +129,7 @@ function PindleXP() {
 		DM_UsePortal("Waypoint",0x6d);
 		YAM_InitCommTown();
 	}
+    //say("Killing Pindle real quick first");
 	// Go to the portal Area
 	commTown5.GotoAnya();
 	_YAM_Position="anya";
@@ -128,7 +146,7 @@ function PindleXP() {
 	// Go Kill Pindleskin
 	if (PXP_AttackPindle()) {
 		DL_AddKill();
-		DSN_PickItems(YAM_SafeCheck);
+		DSN_PickItems();
 		// If we want to attack the courtyard zombies, go attack them
 		if (XP_AttackZombies) {
 			XP_Zombies();
