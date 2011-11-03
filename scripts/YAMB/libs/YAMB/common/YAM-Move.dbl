@@ -162,6 +162,7 @@ function DM_TeleportTo(x,y,dontwalk,truetele) {
 	}
 }
 
+/*
 function DM_WalkTo(x,y) {
 	var _targetx = me.x;
 	var _targety = me.y;
@@ -188,6 +189,8 @@ function DM_WalkTo(x,y) {
 
 	return false;
 }
+*/
+
 
 // Function from Pwnage Pindle, modified by Xizeta
 function _DM_WalkTo(x,y) {
@@ -245,12 +248,171 @@ function _DM_WalkTo(x,y) {
 	// If we didn't succeed moving to the end coords, we got a problem so abort the game
 	if(Math.abs(me.x - x) > 4 || Math.abs(me.y - y) > 4) {
 		if(me.mode != 17) {
-			DC_ThrowException("DM_WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
-		}
+			//DC_ThrowException("DM_WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
+		    print("Damn it! I'm stuck!");
+        }
 		return false;
 	}
 	return true;
 }
+
+
+//from mattlant's BotOS pathing modded by Darien
+function mlmemove(x, y, type)
+{
+
+//clickMap clicktype = 0 left down, 1 left hold, 2 left up, 3 right down, 4 right hold, 5 right up
+
+    //button down
+	if(arguments.length == 2) clickMap(0, 0, x, y);
+	else me.move(x, y);
+
+    //delay
+	var xoff = parseInt(rnd(0,12)/6) * (x - me.x<0 ? -1 : 1);
+	var yoff = parseInt(rnd(0,12)/6) * (y - me.y<0 ? -1 : 1);
+	delay(rnd(20,70));
+    
+    //button up
+	if(arguments.length == 2) clickMap(2, 0, x+xoff, y+yoff); //Darien changed
+}
+
+
+//////////////////////////////////
+//  rnd(a,z)
+//-------------------------------
+//  Function by Darien - made to replace D2jsp core function
+//  Creates a random number between 2 numbers
+//  rnd(0,10) creates a random number between 0 and 10
+function rnd(a,z) {
+    //print("Random # from " + from + " to " + toA);
+    var Size = (z - a) + 1;
+    var randomNumber=Math.floor(Math.random()* Size) + a;
+    
+    //print("Rnd: " + randomNumber);
+    return randomNumber
+}
+
+//////////////////////////////////////////////////////////////////////
+// mlwalkto(x, y, walkcallflag, _doorOpener)
+// -------------------------------------------------------------------
+// walks to the given coordinates
+// returns: true on success, false on failure
+// x,y: obvious
+// walkcallflag: optional function to call during mlwalkto();
+// _doorOpener: optional function to call during mlwalkto(); to check for and open Doors
+// requires mlMapInitializeMap: NO
+//////////////////////////////////////////////////////////////////////
+//function mlwalkto(x, y, walkcall, _doorOpener) {
+
+function DM_WalkTo(x, y, walkcall, _doorOpener) {
+
+	var startX = me.x;
+	var startY = me.y;
+	var currDestX = x;
+	var currDestY = y;
+    
+	if (Math.abs(me.x - x) <= 2 && Math.abs(me.y - y) <= 2) return 1;  //old dist 1 - stuck on larger shrines/objects
+	var trys = 0;
+	var ntrys=12;
+	var thrash = 0;
+	var nthrash=3;
+	var startX = me.x;
+	var startY = me.y;
+	var currDestX = x;
+	var currDestY = y;
+	var door;
+
+	var directionalmove=0;
+    
+	while ((Math.abs(me.x - x) > 3 || Math.abs(me.y - y) > 3) && trys <= ntrys) //old dist 2 - stuck on larger shrines/objects
+	{
+		mlmemove(currDestX, currDestY);
+        
+        //Darien's Door Check
+        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) doorOpener(currDestX, currDestY, _doorOpener);
+
+		//call optional function if true
+		if (walkcall  && typeof(walkcall)=="function" && !DC_InTown(me)) walkcall(x,y);
+		
+		delay(DM_WalkDel);
+		trys++;
+        
+		if ((Math.abs(me.x - startX) < 3 && Math.abs(me.y - startY) < 3))
+		{
+			if (thrash >= nthrash)
+			{
+				var direction = Math.abs(Math.floor((Math.atan2(x-me.x , y-me.y)) * 180 / 3.1415) - 180);
+				if (direction > 0 && direction < 45){
+					currDestX = me.x+5;
+					currDestY = me.y+1;
+				}
+				else if(direction > 45 && direction < 90) {
+					currDestX = me.x-1;
+					currDestY = me.y-5;
+				}
+				else if (direction > 90 && direction < 135){
+					currDestX = me.x-1;
+					currDestY = me.y+5;
+				}
+				else if(direction > 135 && direction < 180) {
+					currDestX = me.x+5;
+					currDestY = me.y-1;
+				}
+				else if (direction > 180 && direction < 225){
+					currDestX = me.x-5;
+					currDestY = me.y-1;
+				}
+				else if(direction > 225 && direction < 270) {
+					currDestX = me.x+1;
+					currDestY = me.y+5;
+				}
+				else if (direction > 270 && direction < 315){
+					currDestX = me.x+1;
+					currDestY = me.y-5;
+				}
+				else if(direction > 315 && direction < 360) {
+					currDestX = me.x-5;
+					currDestY = me.y+1;
+				}
+				else
+				{
+					//make a randome move
+					var dx = currDestX - startX;
+					var dy = currDestY - startY;
+					var a = Math.atan2(dx, dy);
+					a = Math.floor(a * 100) + 157;  // + pi/2;
+					var direction = rnd(a, a+314)/100;  // + pi
+					currDestX = Math.floor(Math.sin(direction)*20) + me.x;
+					currDestY = Math.floor(Math.cos(direction)*20) + me.y;
+				}
+				directionalmove = 0;
+
+				//########################################
+				thrash=0;
+				directionalmove++;
+				while (me.mode !=1)
+					delay(50);
+			} else thrash++;
+		}
+		else
+		{
+			startX = me.x;
+			startY = me.y;
+			currDestX = x;
+			currDestY = y;
+		}
+
+	}
+	if (Math.abs(me.x - x) > 4 || Math.abs(me.y - y) > 4)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
 
 // Function from PSI_Orion, modified by Xizeta
 // Parameters :
@@ -334,6 +496,7 @@ function DM_Dist(x1, y1, x2, y2) { return Math.sqrt(Math.abs((x1 - x2) * (x1 - x
 function DM_UsePortal(how, dest, ownername, portal) {
 	// no need to use this function when we're already in the destination area
 	if(me.area == dest) { return true;}
+    if(dest == 0) { dprint("Area 0 doesn't exist!",1); return false; }
 	if(how == "myPortal") how = "BluePortal";
 	// try to change the area
 	var _msg_select = _DM_ChangeArea(how, dest, ownername, portal);
@@ -348,6 +511,9 @@ function DM_UsePortal(how, dest, ownername, portal) {
 		} while(_delLoop >= 0);
 		return true;
 	}
+    
+    
+    
 	// darkspirit: attempt to recover from unable to reach dest
 	if(_msg_select == -7) {
 		// Random click
@@ -375,7 +541,7 @@ function DM_MakeTP(from,dest) {
 	if(me.area == from) {
 		var _portal=null;
 		// Get the book or scroll object first
-		var _scroll= me.getItem("tbk",100);
+		var _scroll= getUnit(4,"tbk",100);
 		// If we don't have a book, check for a scroll
 		if(!_scroll || !_scroll.getStat(70)) {
 			_scroll= DC_getMyItem("tsc",100);
@@ -475,7 +641,7 @@ function _DM_ChangeArea(how, dest, ownername, myportal) {
 	// If the user supplied a portal to use, use that unit instead of finding one
 	if(arguments.length > 3 && myportal){
 		portal = copyUnit(myportal);
-        }
+    }
 	// search for the portal/wp
 	else if(how == "Portal") {
 		portal = _DM_FindCorrectPortal(PlayerPortal, ownername);
@@ -665,7 +831,7 @@ function _DM_UseScroll(scroll) {
 // Function from Muellsammler, modified by Xizeta
 function XP_OpenTP() {
 	// Get the book or scroll object first
-	var _scroll= me.getItem("tbk",100);
+	var _scroll= getUnit(4,"tbk",100);
 	// If we don't have a book, check for a scroll
 	if(!_scroll || !_scroll.getStat(70)) {
 		_scroll= DC_getMyItem("tsc",100);
@@ -721,10 +887,10 @@ function XP_OpenTP() {
 	return true;
 }
 
-// Fixed by darkspirit
+// Fixed by darkspirit -- Changed by Darien to turn success or failure true or false;
 function DM_TakeEntrance(entrance) {
 	if(!entrance) 
-		return;
+		return false;
 	var i = 0;
 	DM_MoveTo(entrance.x, entrance.y);
 	var _waitloops = parseInt(DM_ChangeAreaTimeout/500,10);
@@ -735,6 +901,8 @@ function DM_TakeEntrance(entrance) {
 		delay(500);
 		i++;
 	}
+    if(me.area == fromarea) return false;
+    return true;
 }
 
 function DM_TouchObject(obj, wait4Mode2) {
