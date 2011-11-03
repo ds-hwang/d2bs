@@ -64,6 +64,7 @@ var quiterror=false;		//true to quit on errors.. false not to.
 //Don't Touch a DAMN thing below here!!!!! Just start Killin'
 //**************************************************************
 
+
  /*
     Text Object explained
     Text(string, X, Y, Color);  --not sure if you can pass more than 4 arguments
