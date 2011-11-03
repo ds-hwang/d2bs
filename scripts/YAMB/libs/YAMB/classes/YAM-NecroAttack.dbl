@@ -607,3 +607,4 @@ function XP_PreAttack(x,y) {
 	//if (DC_DoCast(78,0,x,y)) { return true; }
 	return false;
 }
+
