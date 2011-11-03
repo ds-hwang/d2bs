@@ -182,13 +182,13 @@ function YAM_KeyUpManager(keyup) {
 		case 220: // "\" was pressed
 			DT_DisplayMF();
 			break;
-		case 222: // "'" was pressed
-			YAM_Debug = !YAM_Debug;
-			if (YAM_Debug)
-				DC_Print("ÿc2YAM Debugging Activated!");
-			else
-				DC_Print("ÿc3YAM Debugging Deactivated.");
-			break;
+//		case 222: // "'" was pressed
+//			YAM_Debug = !YAM_Debug;
+//			if (YAM_Debug)
+//				DC_Print("ÿc2YAM Debugging Activated!");
+//			else
+//				DC_Print("ÿc3YAM Debugging Deactivated.");
+//			break;
 		case 186: // ";" was pressed
 			dt = DC_FindScript("tools/DevTools.dbj");
 			if (!dt)
@@ -203,9 +203,11 @@ function YAM_KeyUpManager(keyup) {
 function YAM_gamemsgHandler(msg, c) {
 	sendCopyData(null, "OOG", 0,"yam gamemsghandler " );
 	// Ignore d2bs messages
-	if (c == 0 && (msg.indexOf("ÿc4") == -1 || msg.indexOf(":") == -1))
-		return;
-	if ( YAM_MonitorDCloneMsg){ //&& c == 4 colors not in message atm
+	//if (c == 0 && (msg.indexOf("ÿc4") == -1 || msg.indexOf(":") == -1))
+		//return;
+	
+    print("message received");
+    if ( YAM_MonitorDCloneMsg){ //&& c == 4 colors not in message atm
 		if(GoldMsgHandler(msg))
 			YAM_MustIdle = true;
 	}
@@ -243,7 +245,7 @@ function YAM_gamemsgHandler(msg, c) {
 	}
 	if (gameMsgExtendHandler) {
 		try {
-			gameMsgExtendHandler(parsed[0], parsed[1], parsed[2], c);
+			gameMsgExtendHandler(parsed[0], parsed[1], parsed[2], c); 
 		}
 		catch (YAM_Exception) {
 			DL_AddError();
@@ -455,7 +457,7 @@ function YAM() {
 	addEventListener("keyup",     YAM_KeyUpManager  );
 	addEventListener("copydata",  YAM_CheckEvents   );
 	addEventListener("gamemsg",   YAM_gamemsgHandler);//regular chat "tp up"
-	addEventListener("chatcmd",   YAM_gamemsgHandler);//soj dclone
+	//addEventListener("chatcmd",   YAM_gamemsgHandler);//soj dclone
 	
 	sendCopyData(null, "OOG", 0,"yam registerEvents returned safe" );
 	// Load and setup the cubing support if user wants it before loading main snagit
@@ -566,7 +568,7 @@ function main() {
 		YAM();
 	}
 	catch (YAM_Exception) {
-		sendCopyData(null, "OOG", 0,"yam catchException " );
+		sendCopyData(null, "OOG", 0,"yam catchException " );    
 		//DL_AddFailure();
 		// Got an exception : print it to screen and write the error in the file
 		DC_LogError("YAM_Exception : name = " + YAM_Exception.name + ", message = " + YAM_Exception.message);
@@ -575,3 +577,4 @@ function main() {
 		(!DC_InTown(me)) ? quit() : stop();
 	}
 }
+
