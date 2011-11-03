@@ -1,9 +1,13 @@
 entryFunc = EldritchXP;
 
 function EXP_AttackEldritch() {
-	DM_MoveTo(3760,5098);
-	DM_MoveTo(3750 - EXP_OffsetX,5084 - EXP_OffsetY);
 
+    if(commPather.UseTele) {
+        DM_MoveTo(3760,5098);
+        DM_MoveTo(3750 - EXP_OffsetX,5084 - EXP_OffsetY);
+    } else {
+        commPather.GotoDest(3750 - EXP_OffsetX,5084 - EXP_OffsetY, false, false, openDoor);
+    }
 	// Detecting Eldritch with 3 retries to be sure to get the target
 	for (var i = 0; i < 3; i+=1) {
 		var target = DC_FindMonster(453,0x01);
@@ -19,6 +23,16 @@ function EXP_AttackEldritch() {
 
 		//DM_MoveTo(3740,5086);
 		DC_DoDel(20);
+        print("Killing Eldritch...");
+        if(me.classid == 0) killRadius(30, "Enslaved");
+		XP_BossAttack(target);
+        killRadius(20, "Enslaved");
+        killRadius(20);
+        //print("correction move");
+        //DM_MoveTo(me.x-15,me.y+15);
+        
+        
+        /*
 		if (XP_KillMinions)	{
 			// Wait a while until we kill some minions
 			XP_ClearPosition(30,target,ATTACKING_MODE,453);
@@ -28,9 +42,8 @@ function EXP_AttackEldritch() {
 			do { DC_DoDel(50); i+=1; } while (!XP_ClearPosition(30,target) && i < 3);
 			//DSN_PickItems(YAM_SafeCheck);
 		}
+        */
 
-		print("Killing Eldritch...");
-		XP_BossAttack(target);
 
 		// If we switched weapons on kill, switch back to the attack tab
 		if (XP_SwitchOnKill) { DC_SelectTab(1); }
@@ -39,12 +52,12 @@ function EXP_AttackEldritch() {
 
 		// If we want to attack the monsters around, do it now
 
-		if (XP_KillMinions) {
-			XP_ClearPosition(30);
-		}
+		//if (XP_KillMinions) {
+		//	XP_ClearPosition(30);
+		//}
 
 		// Move to where he died to check for items
-		DM_MoveTo(target.x,target.y);
+		//DM_MoveTo(target.x,target.y);
 
 		target=false;
 	} else {
@@ -56,6 +69,7 @@ function EXP_AttackEldritch() {
 
 function EldritchXP() {
 	// Configure Eldritch specific variables. Those are set in config file, don't change anything here!
+
 	if (me.classid == 1) {
 		XP_SetSorcSkills(((EXP_SorcSkill.length > 0) ? EXP_SorcSkill : YAM_SorcSkill),Monster_SorcSkill);
 		XP_Static = EXP_Static;
@@ -84,7 +98,7 @@ function EldritchXP() {
 	// Go Kill Eldritch
 	if (EXP_AttackEldritch()) {
 		DL_AddKill();
-		DSN_PickItems(YAM_SafeCheck);
+		DSN_PickItems();
 	}
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog();

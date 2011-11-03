@@ -61,11 +61,11 @@ function Cow_RoomCallback() {
 }
 
 function Cow_StepCallback() {
-	i = 0;
+	var i = 0;
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
 	// Record our current coords so they can be restored
-	step_x = me.x;
-	step_y = me.y;
+	var step_x = me.x;
+	var step_y = me.y;
 	XP_ClearPosition(30,null,ATTACKING_MODE);
 	if (SM_King)
 		DC_ThrowException("Cow", "King Found");
@@ -152,12 +152,15 @@ function Cow_GetLeg() {
 	DM_MoveTo(25047,5166);
 	DM_MoveTo(25049,5177);
 	// Kill monsters around to be safe
+    print("clear position");
 	XP_ClearPosition(20);
 	// Tele beside Wirt's body if I'm too far
 	if (Math.abs(25048 - me.x) > 5 || Math.abs(5181 - me.y) > 5)
 		DM_MoveTo(25048,5181);
-	wirtBody = null;
-	for (x=0; x < 5; x++) {
+        
+    print("find body");
+	var wirtBody = null;
+	for (var x=0; x < 5; x++) {
 		wirtBody=getUnit(2,268);
 		if (wirtBody)
 			break;
@@ -166,11 +169,14 @@ function Cow_GetLeg() {
 	if (typeof wirtBody == "undefined")
 		DC_ThrowException("YAM_Cow()", "Could not find Wirt's body.");
 	// Interact with Wirt
+    print("loot body");
 	for (x=0; x < 3 && wirtBody.mode != 2; x++) {
 		DC_DoClick(0,0,wirtBody);
 		delay(500);
 	}
-	wirtLeg = null;
+    
+    print("find leg");
+	var wirtLeg = null;
 	for (x=0; x < 5; x++) {
 		wirtLeg=getUnit(4,"leg");
   		if (wirtLeg)
@@ -191,7 +197,7 @@ function Cow_OpenCowPortal() {
 		DCU_countrycode=1;
 	}
 	// Make 100% sure we have items because we crash if we don't, choose the right tome
-	extraTome = getUnit(4,"tbk");
+	var extraTome = getUnit(4,"tbk");
 	while(extraTome) {
 		if (extraTome.mode == 0) {
 			if (extraTome.bodylocation == 0) {
@@ -219,7 +225,7 @@ function Cow_OpenCowPortal() {
 	}
 	if (!extraTome)
 		return "no tome.";
-	wirtLeg=getUnit(4,"leg");
+	var wirtLeg=getUnit(4,"leg");
 	if (wirtLeg) {
 		if (wirtLeg.mode != 0) {
 			if (wirtLeg.mode == 3) {
@@ -232,10 +238,10 @@ function Cow_OpenCowPortal() {
 	}
 	if (!wirtLeg)
 		return "no leg.";
-	mychest = getUnit(2,"bank");
+	var mychest = getUnit(2,"bank");
 	if (!mychest)
 		return "no stash!";
-	mycube = getUnit(4, "box");
+	var mycube = getUnit(4, "box");
 	if (!mycube)
 		return "no cube. Cow module requires a cube to run !";
 	// Clear the cube of any items
@@ -346,8 +352,10 @@ function DoCow() {
 		if (needTBK) {
 			commTown.GotoAkara();
 			var npc = DC_getNPC(148);
+            //if(npc) print("DC_getNPC isn't the problem");
 			if (!npc || !DT_DoInteract(npc)) DC_ThrowException("Cow", "Unable to interact with Akara !");
 			DT_DoTrade(npc);
+            print("wasn't DoTrade either");
 			if (_XP_GetNumUnId > 0) XP_DoCheckItems(npc);
 			var _tptome = DT_GetTome(1);
 			if (!_tptome) DT_BuyScrolls(npc,1,1);

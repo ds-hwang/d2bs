@@ -29,34 +29,46 @@ function BaalGameMsgHandler(sender, cmd, params, c) {
 
 function XP_GoToThrone() {
 	var _merc;
+    
 	// Goto level 3
 	commPather.InitType = 1;
 	//commPather.GotoLevel(130,false,false);
-	commPather.GotoWarp(DP_WARPNEXT,false,false);
+	//commPather.GotoWarp(DP_WARPNEXT,false,false);
+    pathToWarp(DP_WARPNEXT); //Darien
 	DC_DoDel(DC_LagDelay);
 	DM_TakeStairs(82,83);
+    
 	// Goto throne
 	//commPather.GotoLevel(131,false,false);
-	commPather.GotoWarp(DP_WARPNEXT,false,false);
-	if (!PublicMode){
+	//commPather.GotoWarp(DP_WARPNEXT,false,false);
+	pathToWarp(DP_WARPNEXT); //Darien
+    if (!PublicMode){
 		YAM_SafeCheck();
 	}
 	XP_Precasts();
 	DC_DoDel(DC_LagDelay);
 	DM_TakeStairs(82,83);
+    
+    /*
 	// Go to throne
+    DM_MoveTo(me.x+30,me.y,true);
+    DM_MoveTo(me.x,me.y-10,true);
 	DM_MoveTo(15096,5213,true);
 	DM_MoveTo(15111,5204,true);
 	DM_MoveTo(15112,5185,true);
 	DM_MoveTo(15112,5164,true);
 	DM_MoveTo(15112,5142,true);
 	DM_MoveTo(15112,5122,true);
+    */
+    pathToDest(15097,5103); //Darien
+    
 	if (PublicMode > 1) {// Clear outside for noobs
 		DM_MoveTo(15085,5106,true);
 		XP_ClearPosition(15);
 		DSN_PickItems(YAM_SafeCheck);
 	}
-	DM_MoveTo(15097,5103,true);
+	//DM_MoveTo(15097,5103,true); //Darien
+        
 	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
 	DM_MoveTo(15110,5107,true);
 	if (PublicMode > 1){ XP_ClearPosition(15); DSN_PickItems(YAM_SafeCheck);}
@@ -120,6 +132,8 @@ function XP_GoToThrone() {
 		XP_OpenTP();
 		say(YAM_TPMsg);
 	}
+    say("I'm gonna need help killing the Undead - Immune to Magic");
+    XP_Precasts();
 	if(!BossSpawned) {
 		DM_MoveTo(15074,5041);
 		if (XP_ClearPosition(30)) { 
@@ -211,6 +225,7 @@ function XP_ClearThrone() {
 						if (DM_CheckTeleport()) { // if we have teleport, go to safe place from hydra.
 							DM_MoveTo(15110,5008);
 							if (me.classid == 3) {
+                                XP_Precasts();
 								XP_HammerdinAuraIdle();
 							}
 							do{
@@ -248,14 +263,14 @@ function XP_ClearThrone() {
 						}
 					}
 					killbaalmsg();
-//					DT_CleanPotions();
+					DT_CleanPotions();
 					saybaal=false;
-					if(!YAM_SafeCheck()) {
+					//if(!YAM_SafeCheck()) {
 						if (me.classid == 3) {
 							XP_HammerdinAuraIdle();
 						}
 						DC_DoDel(3500);
-					}
+					//}
 				}
 			}
 		}

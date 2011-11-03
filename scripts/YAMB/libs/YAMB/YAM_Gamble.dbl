@@ -8,6 +8,9 @@
 entryFunc = Gamble;
  
 function Gamble() {
+
+    if(DC_MyGold() < 2500000) { dprint("Not enough gold to Gamble", 1); return false; }
+
 	var count = 1;
 	DC_DPrint("Setting Infinite Game Length!");
 	if(YAM_MaxGameLength){
@@ -21,26 +24,27 @@ function Gamble() {
 	DC_DPrint("ÿc1Warning: This module runs in an infinite loop!ÿc0");
 	// Do town stuff in the act we are in
 	YAM_TownManager();
+    //YAM_InitCommTown();
 	// Use the WP to Act 1 if need be
-	if (me.area != 1) { 
+	if (me.area != 5) { 
 		YAM_PathToWayPoint(); 
-		DM_UsePortal("Waypoint",0x1); 
+		DM_UsePortal("Waypoint",0x6d); 
 		YAM_InitCommTown(); 
 	}
-	while (true) {
+    
+    
+	while (DC_MyGold() > 2500000) {
 		print("in loop, count is " + count);
-		while (DC_MyGoldCarry() != 990000) {
-			say("gold 990000");
-			delay(500);
-		}
 		count++;
 		// Do town stuff in the act we are in
-		YAM_TownManager();
+		//YAM_TownManager();
 
-		if (YAM_VisitGheed) {
+		//if (YAM_VisitGheed) {
 			//print("in visit gheed");
-			commTown.GotoGheed();
-			YAM_NPCinteract(DC_getNPC(147));
-		}
+			commTown5.GotoAnya();
+			YAM_NPCinteract(DC_getNPC(512));
+            DT_MenuCancel(me,1);
+		//}
 	}
+    return true;
 }

@@ -1,5 +1,7 @@
 	entryFunc = FindWaypoints();
-	function FindWaypoints(){
+    
+    
+function FindWaypoints(){
 	YAM_TownManager();
 	YAM_PathToWayPoint();
 	// Do precasts before going into the portal

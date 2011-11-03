@@ -229,11 +229,20 @@ function DXP_GoToCS() {
 //		DM_RandomMove = _rm;
 	}
 
-	// Chaos Entrance to Diablo Circle
+    print("done pathing, in chaos now");
+    
+    var eTry = 0;
+    while(me.area != 108 && eTry < 5) { DM_MoveTo(me.x,me.y-10); eTry++; }
+	
+    print("hopefully in sanctuary");
+    // Chaos Entrance to Diablo Circle
 	DM_MoveToAttack(7790,5548,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7792,5525,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7793,5513,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7793,5501,true,DXP_SealKamikaze); //end of entry hall
+    
+    print("end of entry hall");
+    
 	DM_MoveToAttack(7773,5495,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7768,5480,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7767,5458,true,DXP_SealKamikaze);
@@ -245,6 +254,8 @@ function DXP_GoToCS() {
 	DM_MoveToAttack(7769,5345,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7770,5320,true,DXP_SealKamikaze); //corner before Vizier
 	DM_MoveToAttack(7780,5308,true,DXP_SealKamikaze); //tip of circle
+    
+    print("Tip of Cirlce");
 
 
 	if(PublicMode) {
@@ -348,9 +359,9 @@ function DXP_OpenDeSeisSeal(thefinal) {
 		DM_MoveToAttack(7789,5157,true,false);
 		DM_MoveToAttack(7769,5158,true,false);
 		ret = DXP_OpenSeal(394,7769,5158,thefinal); //the seal that doesn't like to open
-		if(DXP_SafeCheck) {
-			YAM_SafeCheck();
-		}
+		//if(DXP_SafeCheck) {
+		//	YAM_SafeCheck();
+		//}
 		DXP_Precasts();
 		DM_MoveToAttack(7792,5157,true,true);
 		DM_MoveToAttack(7811,5171,true,true);

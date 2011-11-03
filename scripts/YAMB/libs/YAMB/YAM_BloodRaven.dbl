@@ -38,6 +38,7 @@ function RXP_GoToRaven() {
 	if(!DC_InTown(me) && !_DM_AreaWPArray[me.area] && me.area > 4){
 		YAM_MakeTP();
 	}
+    
 	commPather.GotoWaypoint((me.area == 2 ? 3 : 0));
 	GetWP(commPather.TargetID);
 	// Take WP to Cold Plains if we have it, else goto Rogue Encampment
@@ -45,14 +46,18 @@ function RXP_GoToRaven() {
 	// Do precasts after going into the portal
 	XP_Precasts();
 	if (me.area ==1 && !getWaypoint(1)){
-		commPather.GotoLevel(2, true);
-		commPather.GotoLevel(3, true);
-		commPather.GotoWaypoint(3);
+        print("Cross Level Pathing");
+		pathToLevel(2);
+		pathToLevel(3);
+		pathToWP(3);
 		GetWP(commPather.TargetID);
 	}
 	// Move to BloodRaven
-	commPather.GotoLevel(17, true);
-	commPather.GotoNPC(805,17);
+    dprint("Path to area 17", 2);
+	pathToLevel(17);
+	//commPather.GotoNPC(775,17);
+    dprint("Path to Blood Raven from area: " + me.area, 2);
+    if(!pathtoFarUnit(1,805,17)) { dprint("805 failed, trying 775", 1); pathtoFarUnit(1,775,17); }
 }
 
 function AttackRaven() {

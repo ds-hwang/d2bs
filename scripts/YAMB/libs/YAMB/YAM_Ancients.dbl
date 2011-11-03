@@ -4,17 +4,19 @@ entryFunc = AncientsXP;
 
 function AnXP_GoToAncients() {
 	commPather.InitType = 1;
-	commPather.GotoWarp(DP_WARPNEXT);
+    commPather.InteractTile = true;
+	pathToWarp(DP_WARPNEXT); //Darien
 	if(PublicMode > 0) {
 		XP_OpenTP();
 		say (YAM_TPMsg);
 		delay(15000);
 	}
-	DM_TakeStairs(74,74);
+	if(me.area == 118) DM_TakeStairs(74,74);
 	//DM_MoveTo(10055,12653);
 	//DM_MoveTo(10050,12632);
 	//DM_MoveTo(10047,12617);
-	commPather.GotoDest(10047,12617);
+	//commPather.GotoDest(10047,12617);
+    pathtoFarUnit(2,546); //Darien
 	aAltar();
 	delay(500);
 	me.cancel(1);
@@ -134,6 +136,8 @@ function AnXP_AttackMadawc() {
 
 function aAltar() {
 	var ancAltar = getUnit(2, 546);
+    XP_Precasts();
+    DA_UseCTASkills();
 	if (!ancAltar)
 		DC_ThrowException("YAM_Ancients()", "Could not find location of Ancients Altar.");
 	if (getDistance(me, ancAltar) > 7)
@@ -168,6 +172,8 @@ function AncientsXP() {
 	// Do precasts after going into the portal
 	XP_Precasts();
 	AnXP_GoToAncients();
+    
+    
 	// Go attack Trav Guys
 	if (AnXP_AttackTalic()) {
 		AncientsKilled += 1;
