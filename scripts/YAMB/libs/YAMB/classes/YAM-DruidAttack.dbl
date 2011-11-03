@@ -534,3 +534,4 @@ function XP_PreAttack(x,y) {
 		default:	return 0;
 	}
 }*/
+
