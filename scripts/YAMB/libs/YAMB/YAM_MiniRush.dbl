@@ -5,8 +5,6 @@
 //
 
 
-
-
 entryFunc = miniRush;
 
 DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
