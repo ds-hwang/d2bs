@@ -13,7 +13,6 @@ var DM_CatchUpWait = 0; // Delay to let the game catch up before resuming the sc
 // If the pathing lib is loaded, set DM_UseTeleport to the one from d2jsp-pathing
 //if(typeof(DP_version) != 'undefined') { DM_UseTeleport = _DP_UseTele; }
 
-
 //////////////////////////////////////////////////////////////////////
 // Private variables
 //////////////////////////////////////////////////////////////////////
