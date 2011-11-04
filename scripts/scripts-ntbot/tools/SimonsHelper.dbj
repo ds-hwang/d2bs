@@ -167,6 +167,9 @@ function main()
 		case "stay":
 			followStop = true;
 			break;
+		case "DoChantAll":
+			DoChantAll();
+			break;
 	} 
     
 	var a = getScript();

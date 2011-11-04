@@ -27,6 +27,7 @@
  * Town = will make the bot create a tp to town and take it (might need tome of tp with scrolls for this to work)
  * To Town = will make the bot create a tp to town and take it (might need tome of tp with scrolls for this to work)
  * Clear Area = will clear the surrounding area wherever the bot is
+ * Chant All = will make the bot (if it's a sorceress with enchant) enchant all players/enchantable units
  */
 
 var Scolor = 0 ;
@@ -407,166 +408,182 @@ return poi;
 }
 
 function SimonMsg(who,msg){
-  if (SimonEnableCommands){
-  
-	print(who +" said "+ msg);
-	msg = msg.toLowerCase();	//to get rid of the case sensitivity;
-	
-	if(msg == "quit game"){
-		NTC_Say("Goodbye.");
-		quit();
-	}
-	if(msg == "get wps"){
-		currentAction="Getting Waypoints";
-		SetObjective("GetWps");			
-		//getwaypoints();	currentAction="";		
-	}
-	if(msg == "rush all"){	
-		currentAction="Rushing "+who;
-		SetObjective("RushAll");	
-	}
-	if(msg == "fast rush"){
-		currentAction="Rushing "+who;
-		SetObjective("FastRush");
-	}
-	if(msg == "rush 1"){
-		currentAction = "Rush 1 " +who;
-		SetObjective("Rush1");
-	}
-	if(msg == "rush 2"){
-		currentAction = "Rush 2 " +who;
-		SetObjective("Rush2");		
-	}
-	if(msg == "rush 3"){
-		currentAction = "Rush 3 " +who;
-		SetObjective("Rush3");		
-	}
-	if(msg == "rush 4"){
-		currentAction = "Rush 4 " +who;
-		SetObjective("Rush4");
-	}
-	if(msg =="rush 5"){
-		currentAction = "Rush 5 " +who;
-		SetObjective("Rush5");
-	}
-	if(msg == "clear area"){
-		currentAction ="clearing "+ NTAR_Areas[me.area];
-		SetObjective("ClearArea");		
-	}
-	if(msg == 'follow' || msg == 'follow me'){
-		currentAction = "Following "+who;
-		SetObjective("FollowLead:"+who);		
-	}
-	if(msg == 'town' || msg == 'to town'){
-		currentAction = "Escaping to town "+ who;
-		SetObjective("GoToTown");
-	}
-	if(msg == 'stay' || msg == 'stop'){
-		currentAction = "Stopped "+ who;
-		SetObjective("stay");
-	}
-	if(msg == "do cain"){
-		currentAction = "Cain " +who;
-		SetObjective("DoCain");
-	}
-	if(msg == "do raven"){
-		currentAction = "Raven " +who;
-		SetObjective("DoRaven");
-	}
-	if(msg == "do smith"){
-		currentAction = "Smith " +who;
-		SetObjective("DoSmith");
-	}
-	if(msg == "do andariel"){
-		currentAction = "Andariel " +who;
-		SetObjective("DoAndariel");
-	}
-	if(msg == "do radament"){
-		currentAction = "Radament " +who;
-		SetObjective("DoRadament");
-	}
-	if(msg == "do cube"){
-		currentAction = "Cube " +who;
-		SetObjective("DoCube");
-	}
-	if(msg == "do staff"){
-		currentAction = "Staff " +who;
-		SetObjective("DoStaff");
-	}
-	if(msg == "do summoner"){
-		currentAction = "Summoner " +who;
-		SetObjective("DoSummoner");
-	}
-	if(msg == "do duriel"){
-		currentAction = "Duriel " +who;
-		SetObjective("DoDuriel");
-	}
-	if(msg == "do tome"){
-		currentAction = "Tome " +who;
-		SetObjective("DoTome");
-	}
-	if(msg == "do travincal"){
-		currentAction = "Travincal " +who;
-		SetObjective("DoTravincal");
-	}
-	if(msg == "do mephisto"){
-		currentAction = "Mephisto " +who;
-		SetObjective("DoMephisto");
-	}
-	if(msg == "do izual"){
-		currentAction = "Izual " +who;
-		SetObjective("DoIzual");
-	}
-	if(msg == "do forge"){
-		currentAction = "Forge " +who;
-		SetObjective("DoForge");
-	}
-	if(msg == "do diablo"){
-		currentAction = "Diablo " +who;
-		SetObjective("DoDiablo");
-	}
-	if(msg == "do shenk"){
-		currentAction = "Shenk " +who;
-		SetObjective("DoShenk");
-	}
-	if(msg == "do anya"){
-		currentAction = "Anya " +who;
-		SetObjective("DoAnya");
-	}
-	if(msg == "do ancients"){
-		currentAction = "Ancients " +who;
-		SetObjective("DoAncients");
-	}
-	if(msg == "do baal"){
-		currentAction = "Baal " +who;
-		SetObjective("DoBaal");
-	}
-	if (msg == "give wps 1") {
-		currentAction = "Getting Act 1 Waypoints" +who;
-		SetObjective("GiveWps1");
-	}
-	if (msg == "give wps 2") {
-		currentAction = "Getting Act 2 Waypoints";
-		SetObjective("GiveWps2");
-	}
-	if (msg == "give wps 3") {
-		currentAction = "Getting Act 3 Waypoints";
-		SetObjective("GiveWps3");
-	}
-	if (msg == "give wps 4") {
-		currentAction = "Getting Act 4 Waypoints";
-		SetObjective("GiveWps4");
-	}
-	if (msg == "give wps 5") {
-		currentAction = "Getting Act 5 Waypoints";
-		SetObjective("GiveWps5");
-	}
-	if (msg == "give wps all") {
-		currentAction = "Getting All Waypoints";
-		SetObjective("GiveWpsAll");
+	if (SimonEnableCommands){
+		print(who +" said "+ msg);
+		msg = msg.toLowerCase();	//to get rid of the case sensitivity;
+		
+		if(msg == "quit game"){
+			NTC_Say("Goodbye.");
+			quit();
 		}
-	}		
-  }// if accepting commands
+		if(msg == "get wps"){
+			currentAction="Getting Waypoints";
+			SetObjective("GetWps");			
+			//getwaypoints();	currentAction="";		
+		}
+		if(msg == "rush all"){	
+			currentAction="Rushing "+who;
+			SetObjective("RushAll");	
+		}
+		if(msg == "fast rush"){
+			currentAction="Rushing "+who;
+			SetObjective("FastRush");
+		}
+		if(msg == "rush 1"){
+			currentAction = "Rush 1 " +who;
+			SetObjective("Rush1");
+		}
+		if(msg == "rush 2"){
+			currentAction = "Rush 2 " +who;
+			SetObjective("Rush2");		
+		}
+		if(msg == "rush 3"){
+			currentAction = "Rush 3 " +who;
+			SetObjective("Rush3");		
+		}
+		if(msg == "rush 4"){
+			currentAction = "Rush 4 " +who;
+			SetObjective("Rush4");
+		}
+		if(msg =="rush 5"){
+			currentAction = "Rush 5 " +who;
+			SetObjective("Rush5");
+		}
+		if(msg == "clear area"){
+			currentAction ="clearing "+ NTAR_Areas[me.area];
+			SetObjective("ClearArea");		
+		}
+		if(msg == 'follow' || msg == 'follow me'){
+			currentAction = "Following "+who;
+			SetObjective("FollowLead:"+who);		
+		}
+		if(msg == 'town' || msg == 'to town'){
+			currentAction = "Escaping to town "+ who;
+			SetObjective("GoToTown");
+		}
+		if(msg == 'stay' || msg == 'stop'){
+			currentAction = "Stopped "+ who;
+			SetObjective("stay");
+		}
+		if(msg == "do cain"){
+			currentAction = "Cain " +who;
+			SetObjective("DoCain");
+		}
+		if(msg == "do raven"){
+			currentAction = "Raven " +who;
+			SetObjective("DoRaven");
+		}
+		if(msg == "do smith"){
+			currentAction = "Smith " +who;
+			SetObjective("DoSmith");
+		}
+		if(msg == "do andariel"){
+			currentAction = "Andariel " +who;
+			SetObjective("DoAndariel");
+		}
+		if(msg == "do radament"){
+			currentAction = "Radament " +who;
+			SetObjective("DoRadament");
+		}
+		if(msg == "do cube"){
+			currentAction = "Cube " +who;
+			SetObjective("DoCube");
+		}
+		if(msg == "do staff"){
+			currentAction = "Staff " +who;
+			SetObjective("DoStaff");
+		}
+		if(msg == "do summoner"){
+			currentAction = "Summoner " +who;
+			SetObjective("DoSummoner");
+		}
+		if(msg == "do duriel"){
+			currentAction = "Duriel " +who;
+			SetObjective("DoDuriel");
+		}
+		if(msg == "do tome"){
+			currentAction = "Tome " +who;
+			SetObjective("DoTome");
+		}
+		if(msg == "do travincal"){
+			currentAction = "Travincal " +who;
+			SetObjective("DoTravincal");
+		}
+		if(msg == "do mephisto"){
+			currentAction = "Mephisto " +who;
+			SetObjective("DoMephisto");
+		}
+		if(msg == "do izual"){
+			currentAction = "Izual " +who;
+			SetObjective("DoIzual");
+		}
+		if(msg == "do forge"){
+			currentAction = "Forge " +who;
+			SetObjective("DoForge");
+		}
+		if(msg == "do diablo"){
+			currentAction = "Diablo " +who;
+			SetObjective("DoDiablo");
+		}
+		if(msg == "do shenk"){
+			currentAction = "Shenk " +who;
+			SetObjective("DoShenk");
+		}
+		if(msg == "do anya"){
+			currentAction = "Anya " +who;
+			SetObjective("DoAnya");
+		}
+		if(msg == "do ancients"){
+			currentAction = "Ancients " +who;
+			SetObjective("DoAncients");
+		}
+		if(msg == "do baal"){
+			currentAction = "Baal " +who;
+			SetObjective("DoBaal");
+		}
+		if (msg == "give wps 1") {
+			currentAction = "Getting Act 1 Waypoints" +who;
+			SetObjective("GiveWps1");
+		}
+		if (msg == "give wps 2") {
+			currentAction = "Getting Act 2 Waypoints";
+			SetObjective("GiveWps2");
+		}
+		if (msg == "give wps 3") {
+			currentAction = "Getting Act 3 Waypoints";
+			SetObjective("GiveWps3");
+		}
+		if (msg == "give wps 4") {
+			currentAction = "Getting Act 4 Waypoints";
+			SetObjective("GiveWps4");
+		}
+		if (msg == "give wps 5") {
+			currentAction = "Getting Act 5 Waypoints";
+			SetObjective("GiveWps5");
+		}
+		if (msg == "give wps all") {
+			currentAction = "Getting All Waypoints";
+			SetObjective("GiveWpsAll");
+		}
+		if (msg == "chant all" ) {
+			currentAction = "Chanting";
+			SetObjective("DoChantAll");
+		}
+	}// if accepting commands
+}
+
+function DoChantAll(){
+   NTC_Say("Please be in my party and standing near me.");
+   NTP_DoPrecast();
+   if (me.classid == NTC_CHAR_CLASS_SORCERESS) {
+        NTP_DoEnchantAll(true);
+   } else {
+      NTC_Say("UUmmm...I am not a sorceress!!!");
+      return false;
+   }
+   return true;
+}
+
 function getwaypoints(){
 print("Getting Waypoints");
    for (var i =0; i<122; i++){
@@ -582,7 +599,8 @@ print("Getting Waypoints");
 			NTM_GotoWaypoint(i,true,10000);
 		}		
    }
-}	
+}
+
 function waitForSomeone(){
 NTM_MakeTP();
 	var peeps = 0
@@ -600,6 +618,7 @@ NTM_MakeTP();
 		NTC_Delay(500);
 	}while (peeps < 2)
 }
+
 function Rush1() {
 	if (NTConfig_DoCain) {
 		DoCain();
@@ -614,6 +633,7 @@ function Rush1() {
 		NTM_UsePortal("BluePortal", 1, me.charname);
 	return true;
 }
+
 function Rush2() {
 	NTTMGR_TownManager();
 	NTC_Say("Please Standby at the Act 2 Portal Area");
@@ -629,6 +649,7 @@ function Rush2() {
 		NTM_TravelTO(40); // have to pop new tp, as there will be no old one in duriels crib
 	return true;
 }
+
 function Rush3() {
 	NTTMGR_TownManager();
 	NTC_Say("Please Standby at the Act 3 Portal Area");
@@ -640,6 +661,7 @@ function Rush3() {
 		NTM_UsePortal("BluePortal", 75, me.charname);
 	return true;	
 }
+
 function Rush4() {
 	NTTMGR_TownManager();
 	NTC_Say("Please Standby at the Act 4 Portal Area");
@@ -653,6 +675,7 @@ function Rush4() {
 		NTM_UsePortal("BluePortal", 103, me.charname);
 	return true;
 }
+
 function Rush5() {
 	NTTMGR_TownManager();
 	NTC_Say("Please Standby at the Act 5 Portal Area");
@@ -671,6 +694,7 @@ function Rush5() {
 		NTM_TravelTO(109); // same as duriel, you will have no old tp in baals throne room!
 	return true;
 }
+
 function FastRush() {
 	NTC_Say("Please standby at Act 1 TP area.")
 	DoAndariel();
@@ -687,27 +711,33 @@ function FastRush() {
 	NTC_Say("Please Standby at Act 4 TP Area");
 	DoDiablo();
 	return true;
-	}
+}
+
 function GiveWps1() {
 	NTTMGR_TownManager();
 	Act1Wps()
 }
+
 function GiveWps2() {
 	NTTMGR_TownManager();
 	Act2Wps()
 }
+
 function GiveWps3() {
 	NTTMGR_TownManager();
 	Act3Wps()
 }
+
 function GiveWps4() {
 	NTTMGR_TownManager();
 	Act4Wps()
 }
+
 function GiveWps5(){
 	NTTMGR_TownManager();
 	Act5Wps()
 }
+
 function Act1Wps(){
 	var Act1WpID = [3, 4, 5, 6, 27, 29, 32, 35]
 	   	for(var i = 0; i < Act1WpID.length; i++) {
@@ -721,6 +751,7 @@ function Act1Wps(){
 		}
 	return true;	
 }
+
 function Act2Wps(){
 	var Act2WpID = [48, 57, 42, 43, 44, 52, 74, 46]
 	   	for(var i = 0; i < Act2WpID.length; i++) {
@@ -729,11 +760,12 @@ function Act2Wps(){
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 40, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        	NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+				NTC_PutSkill(115, NTC_HAND_RIGHT);
+			}
 		}
-		return true;	
+	return true;	
 }
+
 function Act3Wps(){
 	var Act3WpID = [76, 77, 78, 79, 80, 81, 83, 101]
 	   	for(var i = 0; i < Act3WpID.length; i++) {
@@ -742,11 +774,12 @@ function Act3Wps(){
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 75, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        	NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+				NTC_PutSkill(115, NTC_HAND_RIGHT);
+			}
 		}
-		return true;	
+	return true;	
 }
+
 function Act4Wps(){
 	var Act4WpID = [106, 107]
 	   	for(var i = 0; i < Act4WpID.length; i++) {
@@ -755,11 +788,12 @@ function Act4Wps(){
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 103, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        	NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+				NTC_PutSkill(115, NTC_HAND_RIGHT);
+			}
 		}
-		return true;	
+	return true;	
 }
+
 function Act5Wps(){
 	var Act5WpID = [111, 112, 113, 115, 117, 118, 129]
 	   	for(var i = 0; i < Act5WpID.length; i++) {
@@ -768,52 +802,54 @@ function Act5Wps(){
 			waitForSomeone();
 			NTM_UsePortal("BluePortal", 109, me.charname);
 			if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        	NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+				NTC_PutSkill(115, NTC_HAND_RIGHT);
+			}
+		}
+	return true;	
+}
+
+function DoCain() {
+	NTC_Say("Getting Cain")
+	NTM_TravelTO(5);
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 30, 30, 0, 0)) 
+		NTA_ClearPosition(40);
+	NTC_Say("Scroll Up")
+	NTC_Say("Go talk to Akara once you have the scroll")
+	waitForSomeone();
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		NTC_PutSkill(115, NTC_HAND_RIGHT);
+	}
+	NTM_TravelTO(4);
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5)) 
+		NTA_ClearPosition(40);
+	NTC_Say("Stones Up")
+	NTC_Say("Once you have the portal to tristram open, take my tp to cold plains so we can continue")
+	waitForSomeone();
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		NTC_PutSkill(115, NTC_HAND_RIGHT);
+	}
+	NTM_TravelTO(3);
+	NTA_ClearPosition(20);
+	waitForSomeone();
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		NTC_PutSkill(115, NTC_HAND_RIGHT);
+	}
+	NTM_TravelTO(38);
+	if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 26, 26, 0, 0)) 
+		NTA_ClearPosition(40);
+	NTC_Say("Come in and get Cain")
+	NTC_Say("Once he is rescued, go back to town")
+	waitForSomeone();
+	NTM_UsePortal("BluePortal", 1, me.charname);
+	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
+		NTC_PutSkill(115, NTC_HAND_RIGHT);
 	}
 	return true;	
 }
-function DoCain() {
-	NTC_Say("Getting Cain")
-		NTM_TravelTO(5);
-		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 30, 30, 0, 0)) 
-			NTA_ClearPosition(40);
-		NTC_Say("Scroll Up")
-		NTC_Say("Go talk to Akara once you have the scroll")
-		waitForSomeone();
-		NTM_UsePortal("BluePortal", 1, me.charname);
-		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
-		NTM_TravelTO(4);
-		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 17, 17, 5, 5)) 
-			NTA_ClearPosition(40);
-		NTC_Say("Stones Up")
-		NTC_Say("Once you have the portal to tristram open, take my tp to cold plains so we can continue")
-		waitForSomeone();
-		NTM_UsePortal("BluePortal", 1, me.charname);
-		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
-		NTM_TravelTO(3);
-		NTA_ClearPosition(20);
-		waitForSomeone();
-		NTM_UsePortal("BluePortal", 1, me.charname);
-		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
-		NTM_TravelTO(38);
-		if (!NTM_MoveToObject(NTC_UNIT_OBJECT, 26, 26, 0, 0)) 
-			NTA_ClearPosition(40);
-		NTC_Say("Come in and get Cain")
-		NTC_Say("Once he is rescued, go back to town")
-		waitForSomeone();
-		NTM_UsePortal("BluePortal", 1, me.charname);
-		if (me.classid == NTC_CHAR_CLASS_PALADIN) {
-        NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
-		return true;	
-}
+
 function DoRaven() {
 	NTM_TravelTO(17);
 	NTP_DoPrecast();
@@ -825,9 +861,10 @@ function DoRaven() {
 	NTM_UsePortal("BluePortal", 1, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
         NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+	}
 	return true;
 }
+
 function DoSmith() {
 	NTM_TravelTO(28);
 	NTP_DoPrecast();
@@ -845,9 +882,10 @@ function DoSmith() {
 	NTM_UsePortal("BluePortal", 1, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
         NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+	}
 	return true;
 }
+
 function DoAndariel () {
 	NTM_TravelTO(37);
 	NTM_MoveTo(22589,9581);	
@@ -863,9 +901,10 @@ function DoAndariel () {
 	NTM_UsePortal("BluePortal", 1, me.charname);
 	if (me.classid == NTC_CHAR_CLASS_PALADIN) {
         NTC_PutSkill(115, NTC_HAND_RIGHT);
-        }
+	}
 	return true;
 }
+
 function DoRadament() {
 		NTM_TravelTO(49);
 		NTC_Say("Get ready to enter my portal as soon as it opens, if you die STAY DEAD")
@@ -884,6 +923,7 @@ function DoRadament() {
         }
 				return true;	
 }
+
 function DoCube() {
 	NTM_TravelTO(60);
 		if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 354, 354, 0, 0))
@@ -901,6 +941,7 @@ function DoCube() {
         }
 		return true;
 }
+
 function DoStaff() {
 	NTM_TravelTO(64);
 	if(!NTM_MoveToObject(NTC_UNIT_OBJECT, 356, 365, 0, 0))
