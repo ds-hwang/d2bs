@@ -46,15 +46,6 @@
 //==========================================================================================================================
 //==========================================================================================================================
 
-entryFunc = FollowBot
-//gameMsgExtendHandler = FB_GameMsgHandler;
-
-
-DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
-
-
-
-
 
 var leadername      = "LeadersNameHere"; 
 var Leaderaccount   = "AcctNamehere";
@@ -65,6 +56,11 @@ var Leaderaccount   = "AcctNamehere";
 //==========================================================================================================================
 //  Do not change the contents below this unless you know what you are doing
 //==========================================================================================================================
+
+entryFunc = FollowBot
+//gameMsgExtendHandler = FB_GameMsgHandler;
+
+DC_LoadInclude("YAMB/common/YAM-Tiles.dbl");
 
 
 var guard           = true;
