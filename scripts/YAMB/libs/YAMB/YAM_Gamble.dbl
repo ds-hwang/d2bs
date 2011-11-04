@@ -7,6 +7,7 @@
 //
 //  known issue: gets stuck at Anya's trade screen sometimes.
  
+ 
 entryFunc = Gamble;
  
 function Gamble() {
