@@ -50,7 +50,6 @@ function Rush() {
     
     say("Rush done, 100 second delay");
     delay(100000);
-
 }
 
 
