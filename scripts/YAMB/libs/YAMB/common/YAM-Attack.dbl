@@ -148,7 +148,6 @@ function DA_CheckRunewordSkill(item, whichstat, stattype) {
 
 ///////////////////////////////////// Darien Common functions ////////////////////////////////////////
 
-//Kill those in within a certain range
 
 function isAlive(mon_id,spectype) {
     var subject = getMonster(mon_id,spectype);
@@ -298,7 +297,7 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
     return true;
 }
 
-//Darien
+//Darien -- Kill those in within a certain range
 function killRadius(range, type, spectype) {
 
     var krx = me.x;
