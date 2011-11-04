@@ -49,7 +49,6 @@ function EXP_AttackEldritch() {
 		}
         */
 
-
 		// If we switched weapons on kill, switch back to the attack tab
 		if (XP_SwitchOnKill) { DC_SelectTab(1); }
 
