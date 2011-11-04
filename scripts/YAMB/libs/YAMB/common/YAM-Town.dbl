@@ -458,4 +458,3 @@ function YAM_PathToWayPoint() {
 	}
 	_YAM_Position = "waypoint";
 }
-
