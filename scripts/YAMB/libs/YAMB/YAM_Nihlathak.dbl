@@ -21,6 +21,7 @@ entryFunc = YAM_Nihlathak;
 var Nihx;
 var Nihy;
 
+
 // Adapted from Darien's libs
 function SafeNihlathak(target) {
 	var pi=Math.PI;
