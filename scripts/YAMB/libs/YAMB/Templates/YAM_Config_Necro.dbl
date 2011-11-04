@@ -537,7 +537,7 @@ DC_UseCheckLoop      = true;
 MXP_BridgeWait       = 1500;
 DSN_UsePathing       = false;
 
-
+var XP_AttackSpire       = true;  //true to attack Arcane Lightning spires
 //////////////////////////////////////////////////////////////////////
 // End of general configuration section
 //////////////////////////////////////////////////////////////////////
