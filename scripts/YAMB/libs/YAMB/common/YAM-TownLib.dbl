@@ -1092,7 +1092,7 @@ function DT_GetTome(type, name, code) {
 
 	// Get the book
 	var _tome = (name == me.name) ? DC_getItem(type, code) : getInteractedNPC().getItem(type, code); //Darien Fix took "me." off of me.getInteractedNPC() and change to DC_getItem(type, code)
-
+ 
 	// Loop availiable tomes checking owner and return the tome object if we found it
 	do {
 		if(_tome && DC_CheckOwner(_tome,name) == true) {
