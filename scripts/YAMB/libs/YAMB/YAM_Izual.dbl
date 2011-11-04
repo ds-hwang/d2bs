@@ -68,6 +68,7 @@ function GotoIzual() {
 	DM_RandomMove = _rm;
 }
 
+
 function AttackIzual() {
 	var target;
 	// Detecting Izual with 3 retries to be sure to get the target
