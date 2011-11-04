@@ -37,7 +37,7 @@ function Shopping() {
     var percent = 0;
     var _shtX = me.screensize == 2 ? 800 : 640;
 	var _shtY = me.screensize == 2 ? 640 : 480;
-    var _string = ("Shopping Trips: " + count + " ------- Successful Trips: " + success + " ------------ Percent: " + percent + "%");
+    var _string = ("Shopping Trips: " + count + " ------- Successful Trips: " + success + " ------- Percent: " + percent + "%");
     var _width = getTextSize(_string,8);
 	var _sht = null;
 	var _sht = new Text(_string,220,500,-1);
@@ -95,7 +95,7 @@ function Shopping() {
         if(count > 0 && success > 0) percent = getPercent(success, count);
         else percent = 100;
         
-        _string = "Shopping Trips: " + count + " ----------- Successful Trips: " + success + " ---------------- Percent: " + percent + "%";
+        _string = "Shopping Trips: " + count + " ------- Successful Trips: " + success + " ------- Percent: " + percent + "%";
         _width = getTextSize(_string,8);
         _shtxx = parseInt((_shtX - _width[0])/2,10);
         _sht.x = _shtxx - 15;
@@ -127,7 +127,7 @@ function NPCinteract(npc) {
 	if(!npc) {
 		return false;
 	}
-    
+
 	// Interact with the npc
 	if(!DT_DoInteract(npc)) {
         //print("Failed to interact");
