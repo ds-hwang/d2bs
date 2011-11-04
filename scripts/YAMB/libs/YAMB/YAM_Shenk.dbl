@@ -176,7 +176,6 @@ function ShenkXP() {
     commPather.InitType = 1;
     commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
     
-    
 	XP_SwitchHP         = SXP_SwitchHP;
 	XP_StallHP          = SXP_StallHP;
 	XP_StallKill        = SXP_StallKill;
