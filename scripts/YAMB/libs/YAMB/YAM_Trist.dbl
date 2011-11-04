@@ -14,7 +14,6 @@ var kill_Revives_First = true;
 var killRakanishu      = true;
 YAM_OpenChests       = false;
 
-
 //////////////////////////////////////
 //end config
 
