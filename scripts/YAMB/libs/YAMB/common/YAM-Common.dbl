@@ -476,6 +476,11 @@ function PickupQuestItem(itemcode) {
     return false;
 }
 
+
+
+////////////////////  End Darien Section ///////////////////////////////////
+
+
 // Function by HolyCoitus
 // Modified by Xizeta
 // Parameter :
