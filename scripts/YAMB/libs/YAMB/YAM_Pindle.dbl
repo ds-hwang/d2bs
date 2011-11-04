@@ -62,7 +62,6 @@ function PXP_AttackPindle() {
 		}
 		DC_Print("Pindleskin killed !");
         
-        
         killRadius(15, 440);
         
         /*
