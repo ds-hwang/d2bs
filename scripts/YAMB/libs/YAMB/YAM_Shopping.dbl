@@ -47,7 +47,6 @@ function Shopping() {
     _sht.x = _shtxx - 25;
     var firstrun = 1;
     
-    
 	print ("Setting Infinite Game Length!");
 	me.maxgametime = 0;
 	if (!YAM_ShopIt) {
@@ -64,11 +63,11 @@ function Shopping() {
 	while (true) {
 		count++;
         commTown5.GotoLarzuk();
-        
+
         //if(!firstrun) DM_MoveTo(me.x+6, me.y-10);
         var _merc = me.getMerc();
-        if (getRange(me, _merc) > 30) commTown5.GotoStash();
-        
+        if (_merc && getRange(me, _merc) > 30) commTown5.GotoStash();
+
 		if(!NPCinteract(DC_getNPC(511))) {
             print("Lag, correcting");
             commTown5.GotoStash();
@@ -79,7 +78,7 @@ function Shopping() {
                 print("Bummer, failed to interact... oh well");
             } else success++;
         } else success++;
-        
+
 		if (YAM_VisitAnya) {
 			commTown5.GotoAnya();
 			YAM_NPCinteract(DC_getNPC(512));
@@ -92,7 +91,10 @@ function Shopping() {
 			_lastdate = _tmpdate;
 			DC_LogToautod2jsp("Shopping Trips: " + count + " Successful Trips: " + success + "Gametime: " + _idlerunTime);
 		}
-        percent = getPercent(success, count);
+
+        if(count > 0 && success > 0) percent = getPercent(success, count);
+        else percent = 100;
+        
         _string = "Shopping Trips: " + count + " ----------- Successful Trips: " + success + " ---------------- Percent: " + percent + "%";
         _width = getTextSize(_string,8);
         _shtxx = parseInt((_shtX - _width[0])/2,10);
@@ -116,8 +118,8 @@ function Shopping() {
     _sht.remove();
 }
 
-function getPercent(t,b) {
-    return Math.round((t/b)*100);
+function getPercent(t, bbb) {
+    return Math.round((t / bbb) * 100);
 }
 
 function NPCinteract(npc) {
