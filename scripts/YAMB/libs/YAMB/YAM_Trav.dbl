@@ -126,7 +126,6 @@ function councilCheck(num) {
 //Water Watcher=258/261
 //Zealot=237  Heirophant=240  Nightlord=132
 
-
 function TrXP_AttackTrav() {
 	// Attack Council by the Stairs
 	DM_MoveToAttack(5795,1490,true,false); //Durance Stairs
