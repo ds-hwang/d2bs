@@ -174,4 +174,3 @@ function getTile(n) {
 	}
     return false;
 }
-
