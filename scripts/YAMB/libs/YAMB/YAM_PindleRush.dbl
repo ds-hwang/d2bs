@@ -4,9 +4,6 @@
 //      takes you through Act 5 to Anya so you can pindle bot
 //
 
-
-
-
 entryFunc = pindleRush;
 
 DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
