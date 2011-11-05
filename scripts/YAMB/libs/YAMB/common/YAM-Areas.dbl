@@ -160,6 +160,10 @@ DAR_Areas[130] = "The Worldstone Keep Level 3";
 DAR_Areas[131] = "Throne Of Destruction";
 DAR_Areas[132] = "The Worldstone Chamber";
 
+DAR_Areas[133] = "Matron's Den";
+DAR_Areas[134] = "Forgotten Sands";
+DAR_Areas[135] = "The Worldstone Chamber";
+DAR_Areas[136] = "The Worldstone Chamber";
 
 //////////////////////////////////////////////////////////////////////
 // Public functions
