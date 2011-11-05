@@ -72,9 +72,9 @@ function YAM_KeyUpManager(keyup) {
         case 219: break;   // [ 
         case 186: break;   // ;
         case 120: break;   // F9
-        case 121: break;   // F10
+        case 121: { listPresetUnits(me.area,1,20); break; }   // F10
         case 122: { unitHooks(1,15,20); break; }   // F11
-        case 123: { listPresetUnits(me.area,1,20); break; }  // F12
+        case 123: {  break; }  // F12
             break;
     }
 }
