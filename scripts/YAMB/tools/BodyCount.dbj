@@ -1,5 +1,5 @@
 ///////////////////////////////////////////// Body Count //////////////////////////////////////////////////
-//                                               v2.7
+//                                               v2.8
 //					                BODYCOUNT AND EXP CALCULATOR
 //						                          by
 //						                        Darien
@@ -33,6 +33,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
+//  v2.8    Stole reveal map from ntBot and added it to Body Count, thanks! =) F12 reveals
+//
 //  v2.7    update for D2bs core 1.4.1 and battle.net 1.13d
 //          pressing "x" will stop YAMB pressing "'" will reload YAMB
 //          
@@ -390,6 +392,7 @@ function YAM_KeyUpManager(keyup) {
 	if(getUIFlag(0x05)==1 && keyup != 19)
 		return;
 	switch (keyup) {
+        case 123: { me.overhead("Map Hack"); RevealArea(me.area); break; }  // F12
         case 222: { load("bots/YAMB.dbj"); break; } // '
         case 220: // "\" was pressed
 			visible = !visible;
@@ -397,3 +400,25 @@ function YAM_KeyUpManager(keyup) {
     }
 }
 
+//Map Reveal from NTbot
+function RevealArea(area)
+{
+        if(area in revealedAreas)
+                return;
+        revealedAreas.push(area);
+        var room = getRoom(area);
+        var roomsRevealed = [];
+        do {
+                if(room == undefined || room.area != area)
+                        return; // exit when we've finished with the rooms for this area
+                if([room.x, room.y] in roomsRevealed)
+                {
+                        roomsRevealed.push([room.x, room.y]);
+                        room.getNext();
+                }
+                else
+                        room.reveal(true);
+        } while(room.getNext());
+}
+
+var revealedAreas = [];
