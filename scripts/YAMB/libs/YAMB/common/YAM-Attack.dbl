@@ -13,7 +13,9 @@ var _XP_haveUntimed = false;
 ///////////////////////////////////// Precasts ////////////////////////////////////////
 
 function DA_UseCTASkills() {
+
 	if(DA_UseCTA && me.classid != 4 && !DC_InTown(me)) {
+
 		DA_BOSwitch("bo");
 		DC_DoCast(155,0);
 		var ret = DC_DoCast(149,0);
@@ -32,7 +34,7 @@ function DA_BOSwitch(which) {
 	var _mainbo      = 0;
 	var _switchbo    = 0;
 	var _switchavail = false;
-	var _weapon      = DC_getMyItem(null, 1);
+	var _weapon      = DC_getItem(null, 1); //DC_getItem used instead of DC_getMyItem
 	if(_weapon) { 
 		do {
 			if(DC_CheckOwner(_weapon)) {
