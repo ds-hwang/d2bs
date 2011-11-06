@@ -709,6 +709,7 @@ function DT_CheckAmmo() {
 // -npc		NPC object to shop for ammo
 // Return value : Success of the function
 function DT_BuyAmmo(npc) {
+    DC_DPrint("DT_BuyAmmo");
 	// Check if we need to refill the ammunition
 	if(!DT_CheckAmmo()) {
 		DC_DPrint("DC_BuyAmmo() : No need to buy ammunition!");
@@ -761,14 +762,15 @@ function DT_BuyAmmo(npc) {
 			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,1)); }
             
 			// Get the ammo object from the npc window
-			_ammo = npc.getItem(_DT_AmmoArray[zx].CheckCode);
+			//_ammo = npc.getItem(_DT_AmmoArray[zx].CheckCode);
+            _ammo = getUnit(4,_DT_AmmoArray[zx].CheckCode,0);  //Darien
 			// If we found ammo on the trade window,
 			if(_ammo) { do {
-					if(DC_CheckOwner(_ammo) == false) {
+					//if(DC_CheckOwner(_ammo) == false) { //Darien
 						DC_Print("Buying ammo!");
 						DT_BuyItem(_ammo,npc,2);
 						break;
-					}
+					//}
 			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,0));}
             
 			// If it is switched, switch back to the original tab
