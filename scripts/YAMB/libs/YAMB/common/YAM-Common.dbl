@@ -267,6 +267,31 @@ function dprint(crap, color) {
     print("ÿc" + color + crap); 
 }
 
+function haveWP(num) {
+    
+    var have=0;
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+        
+        if(getWaypoint(num)) have=1;
+        var ll=0;
+		while(getUIFlag(0x14) && ll++ < 40){
+			DT_MenuCancel();
+			delay(10);
+			
+		}
+	} else dprint("Can't find wp?",1);
+    return have;
+}
+
 function clearNPC(npc) {
     dprint("Get rid of quest dialog",1);
     dprint("interact",1);
