@@ -764,6 +764,8 @@ function pathMove(_info) {
         this.CrossPointX = crossPoint.x; 
 	    this.CrossPointY = crossPoint.y; 
         
+        if(pPath == null || !pPath || !pPath.length) { DC_DPrint("No path array object!"); return false; } // Darien
+        
 		while(_cNode < pPath.length-1) {
 			movedNodes[movedNodes.length] = _cNode;
 			//if(me.x == pPath[_cNode].x && me.y == pPath[_cNode].y){
@@ -816,7 +818,7 @@ function pathMove(_info) {
 			// sanity check, to make sure we didnt deviate too much
 			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
 			//if(Math.abs(me.x-pPath[_cNode].x)>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode].y)>(bounceOrWalk ? 6 : 3)){
-			if(getDistance(me, pPath[_cNode].x, pPath[_cNode].y) >(bounceOrWalk ? 6 : 3)){
+			if(pPath[_cNode] && getRange(me, pPath[_cNode].x, pPath[_cNode].y) > (bounceOrWalk ? 6 : 3)){   // Darien changed getDistance() to getRange();
 			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
 				// If the char is off from the path by nDist, make a new path instead
 				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
