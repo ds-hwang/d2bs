@@ -48,6 +48,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 YAMXXP.push("Gamble");
+//YAMXXP.push("Shopping");
 
 //Darien's Scripts - (All support walking characters)
 
@@ -65,17 +66,15 @@ YAMXXP.push("Eldritch");     //updated
 //YAMXXP.push("Baal");       // minor updates
 
 //  Remove comments below ( both open /*  and close */ ) for Dariens new character leveling.
-//   All other runs must be commented out.
-//   Give good low level equipment and a good bow and a Act1 merc with good bow
-//   give it a little money and let it run... come back a few hours later level 20
-
+//   All other runs must be commented out. Set XP_BarbAttack = 0; for default attack
+//   Give good low level equipment and a good bow to your character and Act1 merc, 
+//   give some cash and let it run... come back a few hours later level 20
 /*
 if(me.getStat(12) < 20) DSN_NIPFilePath.push("LowLevelpotions.nip");
-if(me.getStat(12) < 16) YAMXXP.push("Trist");
-else { 
-    if(me.getStat(12) < 18) YAMXXP.push("Radament");
-    else YAMXXP.push("Arcane");
-}
+if(me.getStat(12) > 15) {
+    if(me.getStat(12) > 16) YAMXXP.push("Arcane");
+    else YAMXXP.push("Radament");
+} else YAMXXP.push("Trist"); 
 */
 
 // YAMB scripts
@@ -656,6 +655,40 @@ SXP_Kamikaze  = false;
 TrXP_Kamikaze = false;
 IXP_Kamikaze  = false;
 
+/*
+********** Barbarian **********
+
+126	Bash
+127	Sword Mastery
+128	Axe Mastery
+129	Mace Mastery
+130	Howl
+131	Find Potion
+132	Leap
+133	Double Swing
+134	Pole Arm Mastery
+135	Throwing Mastery
+136	Spear Mastery
+137	Taunt
+138	Shout
+139	Stun
+140	Double Throw
+141	Increased Stamina
+142	Find Item
+143	Leap Attack
+144	Concentrate
+145	Iron Skin
+146	Battle Cry
+147	Frenzy
+148	Increased Speed
+149	Battle Orders
+150	Grim Ward
+151	Whirlwind
+152	Berserk
+153	Natural Resistance
+154	War Cry
+155	Battle Command
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 // Configurable variables for bosses.
 //--------------------------------------------------------------------

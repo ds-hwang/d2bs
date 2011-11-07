@@ -48,6 +48,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 YAMXXP.push("Gamble");
+//YAMXXP.push("Shopping");
 
 //Darien's Scripts - (All support walking characters)
 
@@ -65,17 +66,15 @@ YAMXXP.push("Eldritch");     //updated
 //YAMXXP.push("Baal");       // minor updates
 
 //  Remove comments below ( both open /*  and close */ ) for Dariens new character leveling.
-//   All other runs must be commented out.
-//   Give good low level equipment and a good bow and a Act1 merc with good bow
-//   give it a little money and let it run... come back a few hours later level 20
-
+//   All other runs must be commented out. Set XP_DruidAttack.push(0); for default attack
+//   Give good low level equipment and a good bow to your character and Act1 merc, 
+//   give some cash and let it run... come back a few hours later level 20
 /*
 if(me.getStat(12) < 20) DSN_NIPFilePath.push("LowLevelpotions.nip");
-if(me.getStat(12) < 16) YAMXXP.push("Trist");
-else { 
-    if(me.getStat(12) < 18) YAMXXP.push("Radament");
-    else YAMXXP.push("Arcane");
-}
+if(me.getStat(12) > 15) {
+    if(me.getStat(12) > 16) YAMXXP.push("Arcane");
+    else YAMXXP.push("Radament");
+} else YAMXXP.push("Trist"); 
 */
 
 // YAMB scripts
@@ -680,7 +679,40 @@ XP_CastOnBoss=false;
 
 AXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
 SXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
+/*
+********** Druid **********
 
+221	Raven
+222	Poison Creeper
+223	Wearwolf
+224	Lycanthropy
+225	Firestorm
+226	Oak Sage
+227	Summon Spirit Wolf
+228	Wearbear
+229	Molten Boulder
+230	Arctic Blast
+231	Fissure
+232	Feral Rage
+233	Maul
+234	Carrion Vine
+235	Cyclone Armor
+236	Heart of Wolverine
+237	Summon Dire Wolf
+238	Rabies
+239	Fire Claws
+240	Twister
+241	Solar Creeper
+242	Hunger
+243	Shock Wave
+244	Volcano
+245	Tornado
+246	Spirit of Barbs
+247	Summon Grizzly
+248	Fury
+249	Armageddon
+250	Hurricane
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 // Configurable variables for bosses.
 //--------------------------------------------------------------------

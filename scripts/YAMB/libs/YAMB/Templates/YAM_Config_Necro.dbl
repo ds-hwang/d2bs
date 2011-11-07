@@ -49,6 +49,7 @@
 
 
 YAMXXP.push("Gamble");
+//YAMXXP.push("Shopping");
 
 //Darien's Scripts - (All support walking characters)
 
@@ -66,17 +67,15 @@ YAMXXP.push("Eldritch");     //updated
 //YAMXXP.push("Baal");       // minor updates
 
 //  Remove comments below ( both open /*  and close */ ) for Dariens new character leveling.
-//   All other runs must be commented out.
-//   Give good low level equipment and a good bow and a Act1 merc with good bow
-//   give it a little money and let it run... come back a few hours later level 20
-
+//   All other runs must be commented out. Set XP_NecroSkill = 0; and XP_NecroMinionSkill = 0; for default attack
+//   Give good low level equipment and a good bow to your character and Act1 merc, 
+//   give some cash and let it run... come back a few hours later level 20
 /*
 if(me.getStat(12) < 20) DSN_NIPFilePath.push("LowLevelpotions.nip");
-if(me.getStat(12) < 16) YAMXXP.push("Trist");
-else { 
-    if(me.getStat(12) < 18) YAMXXP.push("Radament");
-    else YAMXXP.push("Arcane");
-}
+if(me.getStat(12) > 15) {
+    if(me.getStat(12) > 16) YAMXXP.push("Arcane");
+    else YAMXXP.push("Radament");
+} else YAMXXP.push("Trist"); 
 */
 
 // YAMB scripts
@@ -664,12 +663,44 @@ XP_useSkelMage      = true;
 XP_useRevive        = false;
 XP_ToRevive         = 3;
 
-
 AXP_Kamikaze  = false;
 SXP_Kamikaze  = false;
 TrXP_Kamikaze = false;
 IXP_Kamikaze  = false;
+/*
+********** Necromancer **********
 
+66	Amplify Damage
+67	Teeth
+68	Bone Armor
+69	Skeleton Mastery
+70	Raise Skeleton
+71	Dim Vision
+72	Weaken
+73	Poison Dagger
+74	Corpse Explosion
+75	Clay Golem
+76	Iron Maiden
+77	Terror
+78	Bone Wall
+79	Golem Mastery
+80	Raise Skeletal Mage
+81	Confuse
+82	Life Tap
+83	Poison Explosion
+84	Bone Spear
+85	Blood Golem
+86	Attract
+87	Decrepify
+88	Bone Prison
+89	Summon Resist
+90	Iron Golem
+91	Lower Resist
+92	Poison Nova
+93	Bone Spirit
+94	FireGolem
+95	Revive
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 // Configurable variables for bosses.
 //--------------------------------------------------------------------

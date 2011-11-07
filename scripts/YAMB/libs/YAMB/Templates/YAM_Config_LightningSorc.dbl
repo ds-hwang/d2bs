@@ -49,6 +49,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 YAMXXP.push("Gamble");
+//YAMXXP.push("Shopping");
 
 //Darien's Scripts - (All support walking characters)
 
@@ -66,17 +67,15 @@ YAMXXP.push("Eldritch");     //updated
 //YAMXXP.push("Baal");       // minor updates
 
 //  Remove comments below ( both open /*  and close */ ) for Dariens new character leveling.
-//   All other runs must be commented out.
-//   Give good low level equipment and a good bow and a Act1 merc with good bow
-//   give it a little money and let it run... come back a few hours later level 20
-
+//   All other runs must be commented out. Set YAM_SorcSkill.push(0); for default attack
+//   Give good low level equipment and a good bow to your character and Act1 merc, 
+//   give some cash and let it run... come back a few hours later level 20
 /*
 if(me.getStat(12) < 20) DSN_NIPFilePath.push("LowLevelpotions.nip");
-if(me.getStat(12) < 16) YAMXXP.push("Trist");
-else { 
-    if(me.getStat(12) < 18) YAMXXP.push("Radament");
-    else YAMXXP.push("Arcane");
-}
+if(me.getStat(12) > 15) {
+    if(me.getStat(12) > 16) YAMXXP.push("Arcane");
+    else YAMXXP.push("Radament");
+} else YAMXXP.push("Trist"); 
 */
 
 // YAMB scripts
@@ -683,6 +682,40 @@ PXP_SorcSkill.push(49); 		// Lightning
 YAM_SorcSkill.push(53); 	// Chain Lightning
 YAM_SorcSkill.push(49); 	// Lightning 
 
+/*
+********** Sorceress **********
+
+36	Fire Bolt
+37	Warmth
+38	Charged Bolt
+39	Ice Bolt
+40	Frozen Armor
+41	Inferno
+42	Static Field
+43	Telekinesis
+44	Frost Nova
+45	Ice Blast
+46	Blaze
+47	Fire Ball
+48	Nova
+49	Lightning
+50	Shiver Armor
+51	Fire Wall
+52	Enchant
+53	Chain Lightning
+54	Teleport
+55	Glacial Spike
+56	Meteor
+57	Thunder Storm
+58	Energy Shield
+59	Blizzard
+60	Chilling Armor
+61	Fire Mastery
+62	Hydra
+63	Lightning Mastery
+64	Frozen Orb
+65	Cold Mastery
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 // Monster skill section
 //--------------------------------------------------------------------

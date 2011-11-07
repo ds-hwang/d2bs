@@ -48,8 +48,9 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 YAMXXP.push("Gamble");
+//YAMXXP.push("Shopping");
 
-//Darien's Scripts - (Never used assassin attacks never tested them sorry)
+//Darien's Scripts - (All support walking characters)
 
 //YAMXXP.push("DK_Rush");     //Darien's Rush Bot -- need to configure the file to select which quests
 //YAMXXP.push("FollowBot");   // My old school follow bot - with commands
@@ -65,17 +66,15 @@ YAMXXP.push("Eldritch");     //updated
 //YAMXXP.push("Baal");       // minor updates
 
 //  Remove comments below ( both open /*  and close */ ) for Dariens new character leveling.
-//   All other runs must be commented out.
-//   Give good low level equipment and a good bow and a Act1 merc with good bow
-//   give it a little money and let it run... come back a few hours later level 20
-
+//   All other runs must be commented out. Set your attack = 0; for default attack
+//   Give good low level equipment and a good bow to your character and Act1 merc, 
+//   give some cash and let it run... come back a few hours later level 20
 /*
 if(me.getStat(12) < 20) DSN_NIPFilePath.push("LowLevelpotions.nip");
-if(me.getStat(12) < 16) YAMXXP.push("Trist");
-else { 
-    if(me.getStat(12) < 18) YAMXXP.push("Radament");
-    else YAMXXP.push("Arcane");
-}
+if(me.getStat(12) > 15) {
+    if(me.getStat(12) > 16) YAMXXP.push("Arcane");
+    else YAMXXP.push("Radament");
+} else YAMXXP.push("Trist"); 
 */
 
 // YAMB scripts
@@ -664,6 +663,41 @@ AXP_Kamikaze  = false;
 SXP_Kamikaze  = false;
 TrXP_Kamikaze = false;
 IXP_Kamikaze  = false;
+
+/*
+********** Assassin **********
+
+251	Fire Blast
+252	Claw Mastery
+253	Psychic Hammer
+254	Tiger Strike
+255	Dragon Talon
+256	Shock Web
+257	Blade Sentinel
+258	Burt of Speed
+259	Fists of Fire
+260	Dragon Claw
+261	Charged Bolt Sentry
+262	Wake of Fire
+263	Weapon Block
+264	Cloak of Shadows
+265	Cobra Strike
+266	Blade Fury
+267	Fade
+268	Shadow Warrior
+269	Claws of Thunder
+270	Dragon Tail
+271	Lightning Sentry
+272	Wake of Inferno
+273	Mind Blast
+274	Blades of Ice
+275	Dragon Flight
+276	Death Sentry
+277	Blade Shield
+278	Venom
+279	Shadow Master
+280	Phoenix Strike
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Configurable variables for bosses.
