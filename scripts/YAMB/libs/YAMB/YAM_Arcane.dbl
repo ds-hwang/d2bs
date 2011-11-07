@@ -46,8 +46,19 @@ function DoArcane() {
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
 	XP_Precasts();
-	// Use the WP to go to the Arcane wp
-	DM_UsePortal("Waypoint",74);
+	// Use the WP to go to the Arcane wp -- if Fails Throw Exception and Do Radament
+    if(!haveWP(16)) {
+        dprint("We don't have Arcane waypoint.",1);
+        if(me.area != 40) {
+            if(!haveWP(9)) {
+                YAMXXP.push("Trist"); 
+                DC_ThrowException("We don't have Act2 waypoint!, Running Trist Instead.");
+            } else DM_UsePortal("Waypoint",40); 
+        }
+        YAMXXP.push("Radament"); 
+        DC_ThrowException("We don't have Arcane waypoint!, Running Radament Trist Instead.");
+    } else DM_UsePortal("Waypoint",74);
+    
 	// Do precasts after going into the portal
 	XP_Precasts();
 
