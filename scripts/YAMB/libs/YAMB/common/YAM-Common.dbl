@@ -317,7 +317,21 @@ function Sc_DoneQuest(act, quest) // taken from Scavenger
     var qarray = [1,2,4,5,3,6,9,10,11,12,13,14,20,19,18,17,21,22,25,27,26,0,0,0,29,30,31,32,33,34];
 	var qnum = quest-1+(act-1)*6;
 	return me.getQuest(qarray[qnum],0);
+}
 
+function inParty(playerName) {
+    
+	var player = getParty();
+    
+	if(player) { 
+        do {
+            var InParty = (player.partyid != 65535);
+            if(player.name == playerName && InParty) {
+                return true;
+            }
+        } while (player.getNext()); 
+    }
+    return false;
 }
 
 //Function by Darien
