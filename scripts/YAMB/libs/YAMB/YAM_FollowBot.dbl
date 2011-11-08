@@ -366,21 +366,6 @@ function Wait() {
     return false;
 }
 
-function inParty(playerName) {
-    
-	var player = getParty();
-    
-	if(player) { 
-        do {
-            var InParty = (player.partyid != 65535);
-            if(player.name == playerName && InParty) {
-                return true;
-            }
-        } while (player.getNext()); 
-    }
-    return false;
-}
-
 function FB_GoWaitInTown() {
 
     mode = "Town";
