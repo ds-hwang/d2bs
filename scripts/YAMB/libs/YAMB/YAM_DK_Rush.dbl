@@ -1,20 +1,144 @@
-/////////////////////////////////////////////////////////////////////
-//                                                                 //
-//              Darien's Rush Bot                                  //
-//                                                                 //
-/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//                    Darien's Rush Bot                                  //
+//                                                                       //
+///////////////////////////////////////////////////////////////////////////
 
-// CONFIG:  go down 30 lines and comment out the runs you don't need
+// CONFIG:  not needed -  Say "Darien commands you" to control Rush Bot
+var endDelay = 20; // How many seconds to pause after the Rush is Done
 
-
+//======================================================================//
 
 
 entryFunc = Rush;
 
 DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
 
+var startQuest = -1;
+var rushee = false;
+
+var names = new Array();
+
+names[0]  = "Andy";
+names[1]  = "Cube";
+names[2]  = "Staff";
+names[3]  = "Viper Amulet";
+names[4]  = "Summoner";
+names[5]  = "Duriel";
+names[6]  = "Travancal";
+names[7]  = "Meph";
+names[8]  = "Diablo";
+names[9]  = "Frigid Waypoint";
+names[10] = "Anya";
+names[11] = "Ancients";
+names[12] = "Baal Waypoint";
+
+
+function GameMsgHandler(sender, cmd, params, c) {
+    
+    if(sender != me.name) print("Sender " + sender + " cmd: " + cmd + " params: " + params);
+    
+    var command = cmd.toLowerCase();
+    if(params) params = params.toLowerCase();
+    
+    if(command == "darien" && params == "commands you") {
+        rushee = sender;
+        say("Party up Master " + rushee + "? So I can Rush you");
+    }
+    
+    if (sender == rushee) {
+        
+        switch(command) {
+            case "andy":            startQuest = 0;     break;
+            case "andariel":        startQuest = 0;     break;
+            case "act1":            startQuest = 0;     break;
+            
+            case "cube":            startQuest = 1;     break;
+            case "staff":           startQuest = 2;     break;
+            case "maggot":          startQuest = 2;     break;
+            
+            case "viper":           startQuest = 3;     break;
+            case "amulet":          startQuest = 3;     break;
+            
+            case "arcane":          startQuest = 4;     break;
+            case "summoner":        startQuest = 4;     break;
+            
+            case "duriel":          startQuest = 5;     break;
+            case "tomb":            startQuest = 5;     break;
+            
+            case "trav":            startQuest = 6;     break;
+            case "travancal":       startQuest = 6;     break;
+            case "council":         startQuest = 6;     break;
+            case "act3":            startQuest = 6;     break;
+            
+            case "meph":            startQuest = 7;     break;
+            case "mephisto":        startQuest = 7;     break;
+            case "durance":         startQuest = 7;     break;
+            
+            case "diablo":          startQuest = 8;     break;
+            case "bigD":            startQuest = 8;     break;
+            case "act4":            startQuest = 8;     break;
+            
+            case "frigid":          startQuest = 9;     break;
+            case "act5":            startQuest = 9;     break;
+            
+            case "anya":            startQuest = 10;    break;
+            case "pindle":          startQuest = 10;    break;
+            case "pindleskin":      startQuest = 10;    break;
+            
+            case "ancients":        startQuest = 11;    break;
+            case "baal":            startQuest = 12;    break;
+            case "worldstone":      startQuest = 12;    break;
+            
+            case "act":    if(params == "1") startQuest = 0;
+                            if(params == "2") say("Which Quest in Act2 Master?");
+                            if(params == "3") startQuest = 6;
+                            if(params == "4") startQuest = 8;
+                            if(params == "5") startQuest = 9; break;
+            
+            case "open":   if(params == "tomb") startQuest = 5; break;
+            
+            case "0":    startQuest = 0;     break;
+            case "1":    startQuest = 1;     break;
+            case "2":    startQuest = 2;     break;
+            case "3":    startQuest = 3;     break;
+            case "4":    startQuest = 4;     break;
+            case "5":    startQuest = 5;     break;
+            case "6":    startQuest = 6;     break;
+            case "7":    startQuest = 7;     break;
+            case "8":    startQuest = 8;     break;
+            case "9":    startQuest = 9;     break;
+            case "10":   startQuest = 10;    break;
+            case "11":   startQuest = 11;    break;
+            case "12":   startQuest = 12;    break;
+
+            case "help":    say("After my Master Activates me, tell me where to start. Say, Andy, Cube, Staff, Amulet, Summoner, Duriel, Trav, Meph, Diablo, Frigid, Anya, Ancients or Baal"); break;
+            default: break; //not needed, just for good looks
+        }
+    }
+}
+
+function rushQuests(start) {
+    switch(start) {
+        case 0:  Andy();
+        case 1:  if(!me.diff) getCube();
+        case 2:  maggotLair();
+        case 3:  viperAmy();
+        case 4:  DoSummoner();
+        case 5:  DoDuriel();
+        case 6:  Travancal();
+        case 7:  Meph();
+        case 8:  DiabloXP();
+        case 9:  frigid();
+        case 10: Anya();
+        case 11: AncientsXP();
+        case 12: WorldStoneWP();
+    }
+}
 
 function Rush() {
+    addEventListener("chatmsg",   DK_GameMsgHandler);
+
     DC_LoadInclude("YAMB/YAM_Diablo.dbl");
     DC_LoadInclude("YAMB/YAM_Ancients.dbl");
     
@@ -28,28 +152,41 @@ function Rush() {
         print("...starting run")
     }
     
-    
     commPather.InitType = 1;
     commPather.InteractTile = true;
     commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
 
-    //comment out the runs you don't need done
-    Andy();
-    //getCube();
-    maggotLair();
-    viperAmy();
-    DoSummoner();
-    DoDuriel();
-    Travancal();
-    Meph();
-    DiabloXP();
-    frigid();
-    Anya();
-    AncientsXP();
-    WorldStoneWP();
+    if(!rushee) say("Waiting for My Master");
     
-    say("Rush done, 100 second delay");
-    delay(100000);
+    var timer = 0;
+    while(!rushee && timer < 60) {
+        delay(1000);
+        timer++;
+    }
+    
+    // Make sure to party the rushee
+    var times = 0;
+    while(!inParty(rushee)) {
+        if(times > 10) {
+            say("Join my Party so we can start the Rush");
+            times = 0;
+        }
+        delay(1000);
+    }
+    
+    say("What is thy bidding Master " + rushee + "? Which Quest to Start?");
+    var timer = 0;
+    while(startQuest < 0 && timer < 30) {
+        delay(1000);
+    }
+    
+    if(startQuest < 0) say("Since your not speaking, I'll start from the begining");
+    else say("Starting Rush with Quest: " + names[startQuest]);
+    
+    rushQuests(startQuest);
+    
+    say("Rush done, " + endDelay + " second delay");
+    delay(endDelay * 1000);
 }
 
 
@@ -72,14 +209,15 @@ function Andy() {
     
     //go from level 2 to level 4
     for(var x=0; x < 2; x++) {
-        commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+        //commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+        pathToWarp(DP_WARPNEXT);
 	    DC_DoDel(DC_LagDelay);
         
         var newarea = 36 + x;
 	    if(me.area != newarea) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
     }
     
-    if(!commPather.UseTele) commPather.GotoDest(22586,9598,false,false,openDoor);
+    if(!commPather.UseTele) pathToDest(22586,9598);
     else DM_MoveTo(22586,9598);
     XP_OpenTP();
     say("Come get Quest while I kill Andariel!");
@@ -109,7 +247,8 @@ function getCube() {
 
     //path to Halls of Dead Level 3
 	//commPather.GotoLevel(60,false,false,operDoor);
-	commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+	//commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+    pathToWarp(DP_WARPNEXT);
 	DC_DoDel(DC_LagDelay);
 	if(me.area != 60) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
     
@@ -138,13 +277,13 @@ function maggotLair() {
 
     // area 43: path to maggot lair
 	//commPather.GotoLevel(64,false,false,operDoor);
-	commPather.GotoWarp(DP_WARPMAGGOT,false,false,openDoor);
+	pathToWarp(DP_WARPMAGGOT);
 	DC_DoDel(DC_LagDelay);
 	if(me.area != 62) { print("Manually taking stairs"); DM_TakeStairs(48,49); }
     
     //go from level 1 to level 3
     for(var x=0; x < 2; x++) {
-        commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+        pathToWarp(DP_WARPNEXT);
 	    DC_DoDel(DC_LagDelay);
         
         var newarea = 63 + x;
@@ -171,11 +310,11 @@ function viperAmy() {
     say("Come Get Waypoint!");
     
     //wait until rushee's catch up
-    var rushee = false;
-    while(!rushee) {
+    var _rushee = false;
+    while(!_rushee) {
         var player = getUnit(0);
         if(player) do {
-            if(player.name != me.name) rushee = true;
+            if(player.name != me.name) _rushee = true;
         } while(player.getNext());
         delay(2000);
     }
@@ -188,7 +327,7 @@ function viperAmy() {
     if(me.area != 58) { print("Manually taking stairs"); DM_TakeStairs(37,37); }
     
     //goto second level
-    commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+    pathToWarp(DP_WARPNEXT);
     DC_DoDel(DC_LagDelay);
     if(me.area != 61) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
     
@@ -199,10 +338,10 @@ function viperAmy() {
 }
 
 function sumArea(sum) {
-    if(sum.x > 25490) { print("Found the Summoner, goin East"); return { x: 25845, y: 5447 }; }
-    if(sum.x < 25410) { print("Found the Summoner, goin West"); return { x: 25051, y: 5447 }; }
-    if(sum.y > 5490) { print("Found the Summoner, goin South"); return { x: 25447, y: 5845 }; }
-    if(sum.y < 5410) { print("Found the Summoner, goin North"); return { x: 25447, y: 5051 }; }
+    if(sum.x > 25490) { print("Found the Summoner, goin East");  return { x: 25845, y: 5447 }; }
+    if(sum.x < 25410) { print("Found the Summoner, goin West");  return { x: 25051, y: 5447 }; }
+    if(sum.y > 5490)  { print("Found the Summoner, goin South"); return { x: 25447, y: 5845 }; }
+    if(sum.y < 5410)  { print("Found the Summoner, goin North"); return { x: 25447, y: 5051 }; }
     print("direction not found");
     return false;
 }
@@ -219,11 +358,11 @@ function DoSummoner() {
     say("Come Get Waypoint!, I'm waiting for you.");
     
     //wait until rushee's catch up
-    var rushee = false;
-    while(!rushee) {
+    var _rushee = false;
+    while(!_rushee) {
         var player = getUnit(0);
         if(player) do {
-            if(player.name != me.name) rushee = true;
+            if(player.name != me.name) _rushee = true;
         } while(player.getNext());
         delay(2000);
     }
@@ -236,7 +375,7 @@ function DoSummoner() {
     if(!dest) print("Summoner not found!");
     var portalSpot = sumArea(dest);
     if(!portalSpot) print("can't determine direction");
-    else commPather.GotoDest(portalSpot.x,portalSpot.y,false,false,openDoor);
+    else pathToDest(portalSpot.x,portalSpot.y);
     killRadius(20);
     
     // Open portal
@@ -270,13 +409,13 @@ function DoDuriel() {
 	commPather.InitType = 0;
 	if(correctTalTomb) {
 		switch(correctTalTomb) {
-			case 66:    commPather.GotoWarp(DP_WARPTALTOMB1, false, false, openDoor);  break;
-			case 67:    commPather.GotoWarp(DP_WARPTALTOMB2, false, false, openDoor);  break;
-			case 68:    commPather.GotoWarp(DP_WARPTALTOMB3, false, false, openDoor);  break;
-			case 69:    commPather.GotoWarp(DP_WARPTALTOMB4, false, false, openDoor);  break;
-			case 70:    commPather.GotoWarp(DP_WARPTALTOMB5, false, false, openDoor);  break;
-			case 71:    commPather.GotoWarp(DP_WARPTALTOMB6, false, false, openDoor);  break;
-			case 72:    commPather.GotoWarp(DP_WARPTALTOMB7, false, false, openDoor);  break;
+			case 66:    pathToWarp(DP_WARPTALTOMB1);  break;
+			case 67:    pathToWarp(DP_WARPTALTOMB2);  break;
+			case 68:    pathToWarp(DP_WARPTALTOMB3);  break;
+			case 69:    pathToWarp(DP_WARPTALTOMB4);  break;
+			case 70:    pathToWarp(DP_WARPTALTOMB5);  break;
+			case 71:    pathToWarp(DP_WARPTALTOMB6);  break;
+			case 72:    pathToWarp(DP_WARPTALTOMB7);  break;
 		}
         delay(1500);
         if(me.area == 46) {
@@ -345,11 +484,11 @@ function Travancal() {
     say("Come Get Waypoint!");
     
     //wait until rushee's catch up
-    var rushee = false;
-    while(!rushee) {
+    var _rushee = false;
+    while(!_rushee) {
         var player = getUnit(0);
         if(player) do {
-            if(player.name != me.name) rushee = true;
+            if(player.name != me.name) _rushee = true;
         } while(player.getNext());
         delay(2000);
     }
@@ -432,12 +571,12 @@ function Meph() {
 	//commPather.GotoLevel(102,false,false,operDoor);
     
     //go from level 2 to level 3
-    commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
+    pathToWarp(DP_WARPNEXT);
     DC_DoDel(DC_LagDelay);
     if(me.area != 102) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
 
     // go to safe spot to open portal
-    commPather.GotoDest(17582,8058,false,false,openDoor);
+    pathToDest(17582,8058);
     XP_OpenTP();
     say("Come get Quest while I kill Meph!");
     delay(3000);
@@ -497,7 +636,7 @@ function Anya() {
 	//commPather.GotoLevel(114,false,false,operDoor);
     
     //go to Frozen River
-    commPather.GotoWarp(DP_WARPICECAVEDOWNFLOOR,false,false,openDoor);
+    pathToWarp(DP_WARPICECAVEDOWNFLOOR);
     DC_DoDel(DC_LagDelay);
     if(me.area != 114) { print("Manually taking stairs"); DM_TakeStairs(75,75); }
     
@@ -528,4 +667,21 @@ function WorldStoneWP() {
 
 }
 
-
+function DK_GameMsgHandler(who, msg) {
+	var parsedMsg = new Array();
+       
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+     if(!Firstword) {
+        Firstword = params;
+        params = null
+    }
+    
+    //--code for 3 words -- sloppy
+    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
+    //var Secondword= rest.substring(0, rest.indexOf(" "));
+    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
+    //var Thirdword = darest.substring(0, rest.length);
+	
+	return GameMsgHandler(who,Firstword,params);
+}
