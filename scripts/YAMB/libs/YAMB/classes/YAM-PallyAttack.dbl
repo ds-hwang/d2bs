@@ -343,10 +343,11 @@ function XP_HammerdinAuraIdle() {
 	return false;
 }
 
-function XP_PreAttack() {
+function XP_PreAttack(times) {
+    if(!times) times = preAttackAmount;
 	if (!XP_HammerdinAuraIdle() && DC_CheckSkill(112)) {
 		DC_PutSkill(XP_PallyAura,0);
-		for(var i=0; i < preAttackAmount; i+=1){
+		for(var i=0; i < times; i+=1){
 			DC_DoCast (XP_PallyAttack, 2, me.x,me.y);
 			DC_DoDel(50);
 		}
