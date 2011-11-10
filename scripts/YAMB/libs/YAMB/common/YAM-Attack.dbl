@@ -400,8 +400,40 @@ function Search_and_Destroy(range) {
     } else {
         dprint("Search and Destroy: No Victims found",2);
     }
-    
+}
 
+function waitForSpawn(cid, spectype, seconds) {
+    if(!spectype) spectype = 5;
+    if(!seconds) seconds = 15;
+    var counter = seconds * 2;
+    
+    dprint("Waiting for Spawn: " + cid,1);
+    var spawn = DC_FindMonster(cid,spectype);
+    while(!spawn && counter > 0) {
+        var spawn = DC_FindMonster(cid,spectype);
+        delay(500);
+        killRadius(4); // Defend yourself if pee-on's attack you while you're waiting
+        counter--;
+    }
+    return spawn;
+}
+
+function ambushSpawn(cid) {
+    var spawn = waitForSpawn(cid);
+    
+    if(!spawn) { dprint("Spawn NOT found!",1); return false; }
+    
+    dprint("Ambushing " + spawn.name, 2);
+    while(!Dead(spawn)) { 
+        dprint("Hunt down and kill Spawn!",1);
+        pathToDest(spawn.x, spawn.y);
+        XP_BossAttack(spawn);
+        killRadius(30,cid,5);
+        killRadius(30);
+    }
+    
+    dprint(spawn.name + " is DEAD!",1);
+    return true;
 }
 
 function headCount(range) {  //returns number of monsters
