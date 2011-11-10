@@ -416,15 +416,16 @@ function pathToPSU(presetUnit) {
 }
 */
 
-function pathtoFarUnit(type, id, fuarea) {
+function pathtoFarUnit(type, id, fuarea, stepHandler) {
     if(!fuarea) fuarea = me.area;
+    if(!stepHandler) stepHandler = openDoor;
     
     if(arguments.length == 1) var farUnit = getFarUnitXY (type);
     else var farUnit = getFarUnitXY (type, id, fuarea); 
     
     if(farUnit) {
         dprint("Pathing to Far Unit " + id,2);
-        pathToDest(farUnit.x, farUnit.y);
+        pathToDest(farUnit.x, farUnit.y, stepHandler);
     } else { 
         dprint("Pathing Failed... Far Unit " + id + " not found!",1); return false; 
     }
@@ -515,6 +516,14 @@ function PickupQuestItem(itemcode) {
     return false;
 }
 
+function openObjectID(classid) {
+
+    var obj = returnClosestObject(me, 2, 20, classid); 
+    
+    if(!obj) { dprint("Object not found!",1); return false; }
+    if(obj.mode == 2) { dprint("Object already opened.",2); return true; }
+    return DM_TouchObject(obj);
+}
 
 
 ////////////////////  End Darien Section ///////////////////////////////////
