@@ -79,7 +79,7 @@ function buildTileList() {
    tilelist[57][56]=45; // Halls 2 - Halls 1
    tilelist[57][60]=46; // Halls 2 - Halls 3
    tilelist[60][57]=45; // Halls 3 - Halls 2
-   tilelist[43][62]=47; // Far Oasis - Maggot 1
+   tilelist[43][62]=47; // Far Oasis - Maggot 1 // Darien 48 has been working?
    tilelist[62][43]=48; // Maggot 1 - Far Oasis
    tilelist[62][63]=49; // Maggot 1 - Maggot 2
    tilelist[63][62]=48; // Maggot 2 - Maggot 1
