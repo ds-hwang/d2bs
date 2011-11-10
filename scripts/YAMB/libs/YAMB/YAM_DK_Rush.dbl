@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////
 //                                                                       //
-//                    Darien's Rush Bot                                  //
+//                    Darien's Rush Bot  2.0                             //
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
@@ -14,9 +14,12 @@ entryFunc = Rush;
 
 DC_LoadInclude("YAMB/common/YAM-Chests.dbl");
 
-var startQuest = -1;
-var rushee = false;
 
+var startQuest = -1;
+var currentQuest = "";
+var questHook = DarienHook("qh",400,515,9,1, "Rush Quest: ÿc2 TBD",2);
+var rushee = false;
+var needCube = false;
 var names = new Array();
 
 names[0]  = "Andy";
@@ -28,10 +31,10 @@ names[5]  = "Duriel";
 names[6]  = "Travancal";
 names[7]  = "Meph";
 names[8]  = "Diablo";
-names[9]  = "Frigid Waypoint";
+names[9]  = "Shenk";
 names[10] = "Anya";
 names[11] = "Ancients";
-names[12] = "Baal Waypoint";
+names[12] = "Baal";
 
 
 function GameMsgHandler(sender, cmd, params, c) {
@@ -41,9 +44,28 @@ function GameMsgHandler(sender, cmd, params, c) {
     var command = cmd.toLowerCase();
     if(params) params = params.toLowerCase();
     
+    //the Magic Words to Activate the Bot "Darien commands you"
     if(command == "darien" && params == "commands you") {
         rushee = sender;
-        say("Party up Master " + rushee + "? So I can Rush you");
+        say("Party up Master " + rushee + ". So I can Rush you");
+    }
+    
+    // "Darien banishes you" the bot will quit the game
+    if(command == "darien" && params == "banishes you") {
+        say("Goodbye Master");
+        quit();
+    }
+    
+    // See if anyone needs the Cube
+    if(command == "need" && params == "cube") {
+        say("OK.  I'll rush the cube for you.");
+        needCube = true;
+    }
+
+    if(command == "help"){
+        say("My Master must activates me by saying the Magic Words"); delay(500);
+        say("Then he must tell me where to start: Andy, Cube, Staff, Amulet, Summoner, Duriel, Trav, Meph, Diablo, Frigid, Anya, Ancients or Baal"); delay(500);
+        say("If I'm not told where to start, I will start the Rush from the start in Act 1");
     }
     
     if (sender == rushee) {
@@ -52,6 +74,7 @@ function GameMsgHandler(sender, cmd, params, c) {
             case "andy":            startQuest = 0;     break;
             case "andariel":        startQuest = 0;     break;
             case "act1":            startQuest = 0;     break;
+            case "start":           startQuest = 0;     break;
             
             case "cube":            startQuest = 1;     break;
             case "staff":           startQuest = 2;     break;
@@ -76,10 +99,12 @@ function GameMsgHandler(sender, cmd, params, c) {
             case "durance":         startQuest = 7;     break;
             
             case "diablo":          startQuest = 8;     break;
-            case "bigD":            startQuest = 8;     break;
+            case "bigd":            startQuest = 8;     break;
             case "act4":            startQuest = 8;     break;
             
             case "frigid":          startQuest = 9;     break;
+            case "shenk":           startQuest = 9;     break;
+            case "socket":          startQuest = 9;     break;
             case "act5":            startQuest = 9;     break;
             
             case "anya":            startQuest = 10;    break;
@@ -90,11 +115,12 @@ function GameMsgHandler(sender, cmd, params, c) {
             case "baal":            startQuest = 12;    break;
             case "worldstone":      startQuest = 12;    break;
             
-            case "act":    if(params == "1") startQuest = 0;
-                            if(params == "2") say("Which Quest in Act2 Master?");
-                            if(params == "3") startQuest = 6;
-                            if(params == "4") startQuest = 8;
-                            if(params == "5") startQuest = 9; break;
+            case "act":    if(params == "1") { startQuest = 0; break; }
+                            if(params == "2") { say("Which Quest in Act2 Master?"); break; }
+                            if(params == "3") { startQuest = 6; break; }
+                            if(params == "4") { startQuest = 8; break; }
+                            if(params == "5") { startQuest = 9; break; }
+                            say("Which Act?"); break;
             
             case "open":   if(params == "tomb") startQuest = 5; break;
             
@@ -111,8 +137,7 @@ function GameMsgHandler(sender, cmd, params, c) {
             case "10":   startQuest = 10;    break;
             case "11":   startQuest = 11;    break;
             case "12":   startQuest = 12;    break;
-
-            case "help":    say("After my Master Activates me, tell me where to start. Say, Andy, Cube, Staff, Amulet, Summoner, Duriel, Trav, Meph, Diablo, Frigid, Anya, Ancients or Baal"); break;
+            
             default: break; //not needed, just for good looks
         }
     }
@@ -121,28 +146,23 @@ function GameMsgHandler(sender, cmd, params, c) {
 function rushQuests(start) {
     switch(start) {
         case 0:  Andy();
-        case 1:  if(!me.diff) getCube();
+        case 1:  if(startQuest == 1 || needCube) getCube();
         case 2:  maggotLair();
         case 3:  viperAmy();
         case 4:  DoSummoner();
         case 5:  DoDuriel();
         case 6:  Travancal();
         case 7:  Meph();
-        case 8:  DiabloXP();
-        case 9:  frigid();
+        case 8:  Diablo();
+        case 9:  Shenk();
         case 10: Anya();
-        case 11: AncientsXP();
-        case 12: WorldStoneWP();
+        case 11: Ancients();
+        case 12: Baal();
     }
 }
 
 function Rush() {
     addEventListener("chatmsg",   DK_GameMsgHandler);
-
-    DC_LoadInclude("YAMB/YAM_Diablo.dbl");
-    DC_LoadInclude("YAMB/YAM_Ancients.dbl");
-    
-    say("starting rush bot");
 
     if( me.area == 40 && getRange(me,5147,5197) < 20) {
         print("taking corrective step for TownLib.dbl");
@@ -155,8 +175,8 @@ function Rush() {
     commPather.InitType = 1;
     commPather.InteractTile = true;
     commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
-
-    if(!rushee) say("Waiting for My Master");
+    
+    if(!rushee) say("Darien's Rush Bot -- I'm waiting for My Master to say the Magic Words.");
     
     var timer = 0;
     while(!rushee && timer < 60) {
@@ -164,25 +184,32 @@ function Rush() {
         timer++;
     }
     
-    // Make sure to party the rushee
-    var times = 0;
-    while(!inParty(rushee)) {
-        if(times > 10) {
-            say("Join my Party so we can start the Rush");
-            times = 0;
+    if(rushee) {
+        // Make sure to party the rushee
+        var times = 0;
+        while(!inParty(rushee)) {
+            if(times > 10) {
+                say("Join my Party so we can start the Rush");
+                times = 0;
+            }
+            delay(1000);
         }
-        delay(1000);
-    }
-    
-    say("What is thy bidding Master " + rushee + "? Which Quest to Start?");
-    var timer = 0;
-    while(startQuest < 0 && timer < 30) {
-        delay(1000);
+        
+        say("What is thy bidding Master " + rushee + "? Which Quest to Start?");
+        var timer = 0;
+        while(startQuest < 0 && timer < 30) {
+            delay(1000);
+        }
+    } else {
+        say("My Master remains silent, so I will start the Rush from the begining");
+        startQuest = 0;
     }
     
     if(startQuest < 0) say("Since your not speaking, I'll start from the begining");
     else say("Starting Rush with Quest: " + names[startQuest]);
     
+    currentQuest = startQuest;
+    questHook.text = "Rush Quest: ÿc2" + names[currentQuest];
     rushQuests(startQuest);
     
     say("Rush done, " + endDelay + " second delay");
@@ -193,61 +220,64 @@ function Rush() {
 function Andy() {
 
     YAM_TownManager();
+    
+    say("If anyone needs the cube just say: need cube");
+    
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
 	XP_Precasts();
 	// Use the WP to go to the catacombs 2 wp
 	DM_UsePortal("Waypoint",35);
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Catacombs 2 Waypoint!");
     
 	// Do precasts before pathing
 	XP_Precasts();
-
-    //path to Andy
-	//commPather.GotoLevel(37,false,false,operDoor);
     
     //go from level 2 to level 4
     for(var x=0; x < 2; x++) {
-        //commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
         pathToWarp(DP_WARPNEXT);
 	    DC_DoDel(DC_LagDelay);
-        
         var newarea = 36 + x;
 	    if(me.area != newarea) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
     }
     
-    if(!commPather.UseTele) pathToDest(22586,9598);
-    else DM_MoveTo(22586,9598);
+    //Go to safe spot, clear, open portal, wait for and buff rushee;
+    DM_MoveTo(22586,9598);
+    killRadius(10);
     XP_OpenTP();
     say("Come get Quest while I kill Andariel!");
+    waitForRushee();
+    
     if(!pathtoFarUnit(1,156)) { 
         print("Andariel not found!"); 
         DM_MoveTo(22570,9591);
     } 
     killRadius(30);
     say("Andy's Dead! Hurry to Act 2");
+    delay(500);
+    say("If anyone needs the cube just say: need cube");
+    updateHook();
     return true;
     
 }
 
 function getCube() {
 
+    questHook.text = "Rush Quest: ÿc2 Cube"
     YAM_TownManager();
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
 	XP_Precasts();
 	// Use the WP to go to the Far Oasis wp
-	if(!DM_UsePortal("Waypoint",57)) return false;    
+	if(!DM_UsePortal("Waypoint",57)) { say("I don't have the waypoint for the Cube."); return false; }
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Halls of the Dead 2 Waypoint!");
     
 	// Do precasts before pathing
 	XP_Precasts();
 
     //path to Halls of Dead Level 3
-	//commPather.GotoLevel(60,false,false,operDoor);
-	//commPather.GotoWarp(DP_WARPNEXT,false,false,openDoor);
     pathToWarp(DP_WARPNEXT);
 	DC_DoDel(DC_LagDelay);
 	if(me.area != 60) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
@@ -255,12 +285,19 @@ function getCube() {
     // area 60: path to "Bloodwitch the Wild"
 	if(!pathtoFarUnit(1,745,60)) { print("Bloodwitch the Wild not found!"); return false; } 
     killRadius(25);
+    delay(1000);
     say("Cube Portal is up! Let's Go!");
+    killRadius(25);
+    needCube = false;
+    if(currentQuest == 1) updateHook();
+    else questHook.text = "Rush Quest: ÿc2" + names[currentQuest];
     return true;
     
 }
 
 function maggotLair() {
+
+    if(needCube) getCube();
 
     YAM_TownManager();
     YAM_PathToWayPoint();
@@ -269,7 +306,7 @@ function maggotLair() {
 	// Use the WP to go to the Far Oasis wp
 	DM_UsePortal("Waypoint",43);    
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Far Oasis Waypoint!");
     
 	// Do precasts before pathing
 	XP_Precasts();
@@ -283,7 +320,7 @@ function maggotLair() {
     
     //go from level 1 to level 3
     for(var x=0; x < 2; x++) {
-        pathToWarp(DP_WARPNEXT);
+        if(!pathToWarp(DP_WARPNEXT)) pathToWarp(DP_WARPMAGGOT);
 	    DC_DoDel(DC_LagDelay);
         
         var newarea = 63 + x;
@@ -292,13 +329,18 @@ function maggotLair() {
     
     // area 64: path to "Coldworm the Burrower"
     if(!pathtoFarUnit(1,749,64)) { print("Coldworm the Burrower not found!"); return false; } 
-    killRadius(25);
+    killRadius(30);
+    pathtoFarUnit(1,749,64);
+    killRadius(30);
     say("Staff Portal is up! Let's Go!");
+    updateHook();
     return true;
     
 }
 
 function viperAmy() {
+    say("If anyone needs the cube just say: need cube");
+    if(needCube) getCube();
 
     YAM_TownManager();
     YAM_PathToWayPoint();
@@ -307,34 +349,30 @@ function viperAmy() {
 	// Use the WP to go to the Lost City
 	DM_UsePortal("Waypoint",44);
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Lost City Waypoint!");
     
-    //wait until rushee's catch up
-    var _rushee = false;
-    while(!_rushee) {
-        var player = getUnit(0);
-        if(player) do {
-            if(player.name != me.name) _rushee = true;
-        } while(player.getNext());
-        delay(2000);
-    }
-    
-	// Do precasts b4 pathing
-	XP_Precasts();
-    
+    waitForRushee();
+
     // path to ViperTemple
     pathtoFarUnit(2,285,45);
     if(me.area != 58) { print("Manually taking stairs"); DM_TakeStairs(37,37); }
     
     //goto second level
-    pathToWarp(DP_WARPNEXT);
+    pathtoFarUnit(5, 46); // path to tile preset unit
+    //if(!pathToWarp(DP_WARPNEXT)) pathToWarp(DP_WARPVIPER);
+    
     DC_DoDel(DC_LagDelay);
     if(me.area != 61) { print("Manually taking stairs"); DM_TakeStairs(46,46); }
     
-    // path to sun altar
+    // path to sun altar and clear it
     pathtoFarUnit(2,149);
-    killRadius(25);
+    killRadius(30);
+    pathtoFarUnit(2,149);
+    killRadius(30);
     say("Viper Amy Portal is up! Let's Go!");
+    pathtoFarUnit(2,149);
+    updateHook();
+    return true;
 }
 
 function sumArea(sum) {
@@ -348,6 +386,8 @@ function sumArea(sum) {
 
 function DoSummoner() {
 
+    if(needCube) getCube();
+    
     YAM_TownManager();
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
@@ -355,20 +395,8 @@ function DoSummoner() {
 	// Use the WP to go to the catacombs 2 wp
 	DM_UsePortal("Waypoint",74);
     XP_OpenTP();
-    say("Come Get Waypoint!, I'm waiting for you.");
-    
-    //wait until rushee's catch up
-    var _rushee = false;
-    while(!_rushee) {
-        var player = getUnit(0);
-        if(player) do {
-            if(player.name != me.name) _rushee = true;
-        } while(player.getNext());
-        delay(2000);
-    }
-    
-	// Do precasts before pathing
-	XP_Precasts();
+    say("Come Get Arcane Waypoint!, I'm waiting for you.");
+    waitForRushee();
 
     //path to Safe Portal Spot
     var dest = getFarUnitXY(1,250)
@@ -379,26 +407,30 @@ function DoSummoner() {
     killRadius(20);
     
     // Open portal
-    say("Come get Quest while I kill Summoner!");
+    say("Come get Quest! I'll kill the Summoner once you're here.");
     XP_OpenTP();
-    delay(3000);
+    killRadius(20);
+    waitForRushee();
+    killRadius(10);
     
     // path to and kill Summoner
     pathtoFarUnit(1,250);
     killRadius(30);
-    say("Andy's Dead! Hurry to Act 2");
+    say("Summoner's Dead! Go grab Canyon wp.");
+    updateHook();
     return true;
-    
 }
 
 function DoDuriel() {
 
+    if(needCube) getCube();
+    
     YAM_TownManager();
     YAM_PathToWayPoint();
     
     DM_UsePortal("Waypoint",46);
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Canyon Waypoint!");
     
 	// Do precasts after going into the portal
 	XP_Precasts();
@@ -432,7 +464,7 @@ function DoDuriel() {
         killRadius(25);
         XP_OpenTP();
         say("Come open up Duriels Lair");
-        XP_Precasts();
+        waitForRushee();
         
 		var Lair = getUnit(2, 100);
 		while (!Lair) {
@@ -460,15 +492,16 @@ function DoDuriel() {
 			}
 		}
 		if (me.area != 73) {
-			print("ÿc1Error: Could not enter Duriel's Lair!");
+			DC_ThrowException("Could not enter Duriel's Lair!");
 			return false;
 		}
         killRadius(30);
 	}
 	else {
-		print("ÿc1Error: Could not find Tal's Tomb!");
+		DC_ThrowException("ÿc1Error: Could not find Tal's Tomb!");
 		return false;
 	}
+    updateHook();
 	return true;
 }
 
@@ -481,26 +514,14 @@ function Travancal() {
 	// Use the WP to go to the Far Oasis wp
 	DM_UsePortal("Waypoint",83);
     XP_OpenTP();
-    say("Come Get Waypoint!");
-    
-    //wait until rushee's catch up
-    var _rushee = false;
-    while(!_rushee) {
-        var player = getUnit(0);
-        if(player) do {
-            if(player.name != me.name) _rushee = true;
-        } while(player.getNext());
-        delay(2000);
-    }
-    
-    
-	// Do precasts before pathing
-	XP_Precasts();
+    say("Come Get Travancal Waypoint!");
+    waitForRushee();
+
     say("Go to town, and wait for my portal behind the altar, so you'll get Quest!");
     delay(3000);
-    
+
     var dStairs = getFarUnitXY(5,64);
-    
+
     pathToDest(dStairs.x, dStairs.y - 30);
     killRadius(15);
     delay(2000);
@@ -518,36 +539,22 @@ function Travancal() {
     
     XP_OpenTP();
     killRadius(15);
+    say("Take my portal and Stand here until you get the Quest!");
+    waitForRushee();
     
-    say("Come hide here until you get the Quest!");
     DM_MoveTo(me.x + 45, me.y + 45);
+    say("Make your own portal so you can get back to town once the quest is over.");
     
     // area 83: path to Council 760 - 761 - 763
-    
     Assassinate("Ismail Vilehand",760); // Ismail Vilehand -- classid 345
     Assassinate(346,761);               // Geleb Flamefinger
     Assassinate("Toorc Icefist",763);  // Toorc Icefist -- classid 345
-    
-    
-    //pathtoFarUnit(1,760); killRadius(30,345,0x01); killRadius(30, "Council Member"); killRadius(25);
-    //pathtoFarUnit(1,761); killRadius(30,346,0x01); killRadius(30, "Council Member"); killRadius(25);
-    //pathtoFarUnit(1,763); killRadius(30,"Toorc Icefist",0x01); killRadius(30, "Council Member"); killRadius(25);
-    
-    /*
-    if(!pathtoFarUnit(1,760)) { 
-        if(!pathtoFarUnit(1,761)) {
-            if(!pathtoFarUnit(1,763)) {
-                dprint("Council not found!",1);
-                return false;
-            }
-        }
-    } */
-    
     
     killRadius(30, "Council Member");
     killRadius(25);
     killRadius(30, "Council Member");
     say("Hope you got Quest! Talk to cain and get Durance Wp! Let's Go!");
+    updateHook();
     return true;
     
 }
@@ -561,7 +568,7 @@ function Meph() {
 	// Use the WP to go to the durance 2 wp
 	DM_UsePortal("Waypoint",101);
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Durance Waypoint!");
     delay(8000);
     
 	// Do precasts before pathing
@@ -573,13 +580,14 @@ function Meph() {
     //go from level 2 to level 3
     pathToWarp(DP_WARPNEXT);
     DC_DoDel(DC_LagDelay);
-    if(me.area != 102) { print("Manually taking stairs"); DM_TakeStairs(18,18); }
+    if(me.area != 102) { print("Manually taking stairs"); DM_TakeStairs(67,68) };
 
     // go to safe spot to open portal
     pathToDest(17582,8058);
+    killRadius(15);
     XP_OpenTP();
     say("Come get Quest while I kill Meph!");
-    delay(3000);
+    waitForRushee();
     
     if(!pathtoFarUnit(1,242)) { 
         print("Meph not found!"); 
@@ -591,30 +599,95 @@ function Meph() {
     killRadius(30);
     say("Meph's Dead! Hurry to Act 4");
     
-    YAM_TownManager();
-    YAM_PathToWayPoint();
-	// Do precasts before going into the portal
-	XP_Precasts();
-	// Use the WP to go to the River of Flame wp
-	DM_UsePortal("Waypoint",107);
-    XP_OpenTP();
-    say("Come Get Waypoint!");
-    
+    updateHook();
     return true;
-    
 }
 
-
-
-function frigid() {
+function Diablo() {
 
     YAM_TownManager();
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
 	XP_Precasts();
-	// Use the WP to go to the catacombs 2 wp
+	// Use the WP to go to the durance 2 wp
+	DM_UsePortal("Waypoint",107);
+    XP_OpenTP();
+    say("Come Get River of Flame Waypoint!");
+    delay(8000);
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Chaos Sanctuary
+    pathToLevel(108);
+    dprint("Moving across border",1);
+    var times = 0;
+    while(me.area != 108 && times < 10) { DM_MoveTo(me.x, me.y-10); delay(100); times++; }
+    dprint("In Chaos Sanctuary",1);
+	pathToDest(7780,5308); // pentagram
+    killRadius(30);
+    XP_OpenTP();
+    say("Leech Portal is Open Master.  Be careful.");
+    killRadius(30);
+
+    var GrandVizer = false;
+    var LordDeSeis = false;
+    var InfectorOfSouls = false;
+    
+    for(var cid = 396; cid > 391; cid--) {
+        pathtoFarUnit(2,cid,108,killSuperUniques);
+        openObjectID(cid);
+        killRadius(30);
+        if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
+        if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
+        if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
+        killRadius(30,null,5);
+    }
+    
+    say("Come get Quest while I kill Diablo!");
+    pathToDest(7795,5265,killSuperUniques);
+    XP_OpenTP();
+    say("Quick! Take my portal and get to the safe spot!"); 
+    pathToDest(7795,5295,killSuperUniques);
+    
+    if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
+        if(!GrandVizer)      { pathtoFarUnit(2,306,108,killSuperUniques); ambushSpawn(306); }
+        if(!LordDeSeis)      { pathtoFarUnit(2,312,108,killSuperUniques); ambushSpawn(312); }
+        if(!InfectorOfSouls) { pathtoFarUnit(2,362,108,killSuperUniques); ambushSpawn(362); }
+        pathToDest(7795,5295,killSuperUniques);
+        ambushSpawn(243);
+    }
+    updateHook();
+    return true;
+}
+
+function Shenk() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the Frigid Highlands wp
 	DM_UsePortal("Waypoint",111);
-    say("Come Get Waypoint!");
+    XP_OpenTP();
+    say("Come Get Frigid Waypoint, then run to Shenk for quest");
+    waitForRushee();
+    
+    say("Let's Kill Shenk! Run down to him or go to town and wait for my portal to get quest!"); //classid 479
+    delay(2000);
+
+    pathToDest(3868,5100,killZone);
+    XP_OpenTP();
+    say("Take my portal to get socket quest!");
+    waitForRushee();
+    
+    var Shenk = DC_FindMonster(479,5);
+    if(!Shenk) { pathToDest(3905,5113,killZone); var Shenk = DC_FindMonster(479,5); }
+    if(Shenk) XP_BossAttack(Shenk);
+    else pathtoFarUnit(1,776,110);
+    killRadius(25);
+    updateHook();
+    return true;
 }
 
 function Anya() {
@@ -623,17 +696,14 @@ function Anya() {
     YAM_PathToWayPoint();
 	// Do precasts before going into the portal
 	XP_Precasts();
-	// Use the WP to go to the catacombs 2 wp
+	// Use the WP to go to the Crystalline wp
 	DM_UsePortal("Waypoint",113);
     XP_OpenTP();
-    say("Come Get Waypoint!");
+    say("Come Get Crystalline Passage Waypoint!");
     delay(3000);
     
 	// Do precasts before pathing
 	XP_Precasts();
-
-    //path to Anya
-	//commPather.GotoLevel(114,false,false,operDoor);
     
     //go to Frozen River
     pathToWarp(DP_WARPICECAVEDOWNFLOOR);
@@ -650,21 +720,157 @@ function Anya() {
     killRadius(30);
     XP_OpenTP();
     say("Come Save Anya");
+    delay(10000);
+    killRadius(30);
+    updateHook();
     return true;
-    
 }
 
-function WorldStoneWP() {
+function Ancients() {
+
     YAM_TownManager();
-	YAM_PathToWayPoint();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
 	XP_Precasts();
-	// Use the WP to go to Worldstone 2
-	DM_UsePortal("Waypoint",0x81);
+	// Use the WP to go to the Ancients wp
+	DM_UsePortal("Waypoint",118);
     XP_OpenTP();
-    say("Come Get Waypoint and buffs!");
+    say("Come Get Ancients Waypoint!");
+    delay(3000);
+    
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Ancients
+	pathToWarp(DP_WARPNEXT);
+    XP_OpenTP();
+    say("Ancients Ready!");
+    waitForRushee();
+    
+    say("Let's Go!");
+	if(me.area == 118) DM_TakeStairs(74,74);
+    
+    // Go to altar, wait for rushee, cast buff's and open
+    pathtoFarUnit(2,546);
+    delay(1500);
+    XP_Precasts();
+    DA_UseCTASkills();
+    say("Summoning Ancients");
+	openObjectID(546);
+	delay(500);
+	me.cancel(1);
+	delay(1500);
+    
+    // Attack Sequence
+    while(!ambushSpawn("Madawc") || !ambushSpawn("Talic") || !ambushSpawn("Korlic")) killRadius(5);
+    killRadius(30); //not needed - for good measure
+    updateHook();
+    return true;
+}
+
+function Baal() {
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+    XP_Precasts();
+    
+    // Use the WP to go to Worldstone 2
+	DM_UsePortal("Waypoint",129); // 0x81);
+    XP_OpenTP();
+    say("Come Get Worldstone Waypoint for Baal runs!");
     delay(3000);
     XP_Precasts();
+    DA_UseCTASkills();
+    
+    // Path to last area
+    pathToWarp(DP_WARPNEXT); //Darien
+	DC_DoDel(DC_LagDelay);
+	if(me.area == 129) DM_TakeStairs(82,83);
+    
+    pathToWarp(DP_WARPNEXT); //Darien
+	XP_Precasts();
+    DA_UseCTASkills();
+	DC_DoDel(DC_LagDelay);
+	if(me.area == 130) DM_TakeStairs(82,83);
+    
+    // Go to throne
+	pathToDest(15091,5072); 
+    killRadius(30); DSN_PickItems();
+    
+    //clearing tp spot in main room
+    say("Clearing tp spot");
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    killRadius(30); 
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    killRadius(30);
+    DM_MoveTo(15115,5052); // Near midsection
+    killRadius(30);
+    DM_MoveTo(15115,5052); // Near midsection
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    killRadius(30);
+    XP_OpenTP();
+    say("Portal is safe, come get Buffs!");
+    waitForRushee(10)
+    
+    // Clearing main room
+    clearThrone();
+    
+    // Clear out 5 Minion Boss Groups
+    var count = 0;
+    while(!0) {
+        if(killRadius(30)) {
+            var count = 0;
+            DSN_PickItems();
+            pathToDest(15092,5026);
+            if(killRadius(30)) pathToDest(15092,5026);
+            delay(2500);
+            if(killRadius(30)) pathToDest(15092,5026);
+            
+        } else { // nothing to attack
+            if(count > 100) {
+                clearThrone();
+                count = 0;
+            }
+            XP_Precasts();
+            XP_PreAttack(5);
+            count++;
+        }
+        if(!DC_FindMonster(543)) break;	// check for baal in throne room, stop loop if he is not present
+    }
+    
+    //Minions Cleared, pick items check for merc
+    DSN_PickItems();
+	if(!DC_GetMerc()) YAM_SafeCheck();
 
+    //Go to Worldstone chamber
+    pathToDest(15091,5006);
+    say("Let's Get Baal!");
+    delay(1000);
+    say("Time for Buffs!");
+    delay(1000);
+    
+    // Do precasts before going into the portal
+    XP_Precasts();
+    DA_UseCTASkills();
+    DC_DPrint("Entering Worldstone Chamber...");
+    
+    // Enter world chamber.
+    for (var x=1; x < 3; x++) {
+        var ptol = getUnit(2,563);
+        if (ptol) {
+            DM_UsePortal("Portal", 132, null, ptol);
+            break;
+        }
+    }
+    
+    //Find and Kill Baal
+    Assassinate(544, 544, 4);
+    DSN_PickItems();
+    
+    // Just incase he spawns a twin
+    Assassinate(544, 544, 4);
+    DSN_PickItems();
+    
+    return true;
 }
 
 function DK_GameMsgHandler(who, msg) {
@@ -684,4 +890,59 @@ function DK_GameMsgHandler(who, msg) {
     //var Thirdword = darest.substring(0, rest.length);
 	
 	return GameMsgHandler(who,Firstword,params);
+}
+
+function waitForRushee(secs) {
+
+    if(!secs) secs = 3000;
+    
+    //wait until rushee's catch up
+    say("I'll wait here until you come Master. Please be quick");
+    var _rushee = false;    var tick = 0;
+    while(!_rushee && tick < secs) {
+        var player = getUnit(0);
+        if(player) do {
+            if(player.name != me.name) _rushee = true;
+        } while(player.getNext());
+        delay(1000);
+        killRadius(20);
+        tick++;
+    }
+    XP_Precasts();
+    DA_UseCTASkills();
+}
+
+function updateHook() {
+    if(!currentQuest && !needCube) currentQuest = currentQuest + 2;
+    else currentQuest++;
+    questHook.text = "Rush Quest: ÿc2" + names[currentQuest];
+}
+
+function killSuperUniques() {
+    killRadius(30,null,5);
+}
+
+function clearThrone() {
+    DM_MoveTo(15115,5052); // back near corner
+    killRadius(30); 
+    DM_MoveTo(15115,5026); // Near midsection
+    killRadius(30); 
+    DM_MoveTo(15117,5004); // at corner for tp.
+    killRadius(30); 
+    DM_MoveTo(15091,5006); // red portal.
+    killRadius(30); 
+    DM_MoveTo(15071,5006); //far left corner
+    killRadius(30); 
+    DM_MoveTo(15071,5027); // far mid section
+    killRadius(30); 
+    DM_MoveTo(15071,5052); // back far corner
+    killRadius(30); 
+    DM_MoveTo(15092,5052); // back center
+    killRadius(30); 
+    DM_MoveTo(15115,5052); // back near corner
+    killRadius(30); DSN_PickItems();
+    DM_MoveTo(15115,5026); // Near midsection
+    killRadius(30); 
+    DM_MoveTo(15092,5026); // Middle
+    killRadius(30); DSN_PickItems();
 }
