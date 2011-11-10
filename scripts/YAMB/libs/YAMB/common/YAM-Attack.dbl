@@ -310,7 +310,9 @@ function killRadius(range, type, spectype) {
         center.y = kry;
 
     var threat = returnClosestThreat(range, type, spectype, center);
-    if(threat) XP_Precasts();
+    if(!threat) return false; 
+    
+    XP_Precasts();
     while (threat) {
         print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + getRange(me,threat)); 
         //XP_Precasts();
@@ -318,6 +320,7 @@ function killRadius(range, type, spectype) {
         else XP_BossAttack(threat);
         threat = returnClosestThreat(range, type, spectype, center);
     }
+    return true;
 }
 
 //Returns closest attackable monster
