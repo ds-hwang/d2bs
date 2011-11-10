@@ -407,7 +407,8 @@ function YAM_NPCinteract(npc) {
 	// If the npc object is not present, abort the game
 	if(!npc) {
 		DL_AddAbort();
-		DC_QuitMessage("No NPC available!");
+		//DC_QuitMessage("No NPC available!"); // no need to quit?
+        dprint("No NPC available!",1); //Darien
 		return false;
 	}
 	// Interact with the npc
