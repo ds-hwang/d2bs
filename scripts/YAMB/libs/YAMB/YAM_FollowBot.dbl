@@ -136,8 +136,10 @@ function GameMsgHandler(sender, cmd, params, c) {
     
     if(sender != me.name) print("Sender " + sender + " cmd: " + cmd + " params: " + params);
 
+    var cmd = cmd.toLowerCase();
+    if(params) params = params.toLowerCase();
     
-    if(cmd == "Darien" && params == "commands you") {
+    if(cmd == "darien" && params == "commands you") {
         leadername = sender;
         //Leaders.push(sender); //not using Leaders array, for academic purposes
         say("I hear Master, and obey!");
