@@ -118,6 +118,9 @@ function FB_parseGameMsg (who, msg) {
     //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
     //var Thirdword = darest.substring(0, rest.length);
 
+    Firstword = Firstword.toLowerCase();
+    if(params) params = params.toLowerCase();
+    
 		parsedMsg[0] = who;
 		parsedMsg[1] = Firstword;
 		parsedMsg[2] = params;
@@ -135,9 +138,6 @@ function FB_GameMsgHandler(who, msg) {
 function GameMsgHandler(sender, cmd, params, c) {
     
     if(sender != me.name) print("Sender " + sender + " cmd: " + cmd + " params: " + params);
-
-    var cmd = cmd.toLowerCase();
-    if(params) params = params.toLowerCase();
     
     if(cmd == "darien" && params == "commands you") {
         leadername = sender;
