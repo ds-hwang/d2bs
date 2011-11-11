@@ -33,6 +33,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
+//      pressing F12 will reveal map in your current area
+//      pressing ' (apostrophy) will reload YAMB is the script ends or you stop YAMB by pressing x
+//      pressing \ will toggle screenhooks on or off
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //  v2.8    Stole reveal map from ntBot and added it to Body Count, thanks! =) F12 reveals
 //
 //  v2.7    update for D2bs core 1.4.1 and battle.net 1.13d
@@ -124,6 +130,7 @@ http://mcgod.cc/files/colors.jpg
 */
 
 var visible = true;
+var revealedAreas = [];
 
 //for name enter a text object or enter a name as a string and it will create an object with that name
 // align 0,1,2 = right, left, center
@@ -421,4 +428,4 @@ function RevealArea(area)
         } while(room.getNext());
 }
 
-var revealedAreas = [];
+
