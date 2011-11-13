@@ -41,7 +41,7 @@ function AncXP_GoToAnc() {
 function AncXP_ClearAnc() {
 	//roomlist = new Array();
 	//troom    = getRoom();
-	//_temp = commPather.StepActionflag;  //using the callback instead of step actiont to clear
+	//_temp = commPather.StepActionflag;  //using the callback instead of step action to clear
 	commPather.InitType = 1;
 	// Ability to control the types of the monster you want to kill
 	//commPather.StepActionflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP);
