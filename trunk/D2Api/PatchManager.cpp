@@ -1,4 +1,7 @@
+#include <cstdio>
+
 #include "PatchManager.hpp"
+#include "PointerManager.hpp" // Only temp
 
 bool PatchManager::InstallPatches(void)
 {

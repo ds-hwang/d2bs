@@ -2,6 +2,7 @@
 #include <cstdio>
 
 //#include "D2Structs.h"
+#include "D2Api.hpp"
 #include "PointerManager.hpp"
 
 using namespace std;

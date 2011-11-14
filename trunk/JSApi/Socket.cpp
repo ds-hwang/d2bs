@@ -1,3 +1,5 @@
+#include "js32.hpp"
+
 #include "Stream.hpp"
 #include "Socket.hpp"
 

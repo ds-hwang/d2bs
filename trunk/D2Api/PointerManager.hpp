@@ -5,8 +5,6 @@
 #include <vector>
 #include <Windows.h>
 
-//#include "D2Api.hpp"
-
 //#include "D2Structs.h"
 
 using namespace std;

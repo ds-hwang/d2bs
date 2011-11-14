@@ -9,10 +9,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="sqlite3.c">
       <Filter>Dependencies</Filter>
     </ClCompile>
+    <ClCompile Include="Settings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Dependencies">

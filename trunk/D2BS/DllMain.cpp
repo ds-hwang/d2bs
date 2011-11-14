@@ -4,8 +4,8 @@
 #include <fcntl.h>
 
 #include "sqlite3.h"
-#include "Engine.hpp"
 #include "D2Api.hpp"
+#include "Engine.hpp"
 
 using namespace Core;
 
@@ -14,6 +14,19 @@ HINSTANCE hModule;
 char base[MAX_PATH] = "";
 bool isGuarded = false;
 sqlite3* settings = nullptr;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	EXPORT void __fastcall Init(void)
+	{
+	}
+
+#ifdef __cplusplus
+}
+#endif
+
 
 BOOL WINAPI DllMain(HINSTANCE hMod, DWORD dwReason, LPVOID lpReserved)
 {

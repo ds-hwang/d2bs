@@ -1,4 +1,5 @@
 #include "Engine.hpp"
+#include "Script.hpp"
 
 #include "Stream.hpp"
 
@@ -7,7 +8,7 @@
 #include <process.h>
 #include <iostream>
 
-#include <boost/make_shared.hpp>
+//#include <boost/make_shared.hpp>
 
 using namespace std;
 using namespace Core;
@@ -85,9 +86,18 @@ int main(int argc, const char** argv)
 	engine.RegisterModule(stream_modules);
 
 	cout << "Starting test.js" << endl;
-	engine.CompileScript(L"test.js")->Start();
+	auto scriptObj = engine.CompileScript(L"test.js");
+	if(!scriptObj)
+		cout << "Failed to compile test.js" << endl;
 
-	getchar();
+	for(int i = 0; i < 1000; ++i)
+	{
+		scriptObj->Start();
+		//while(scriptObj->GetState() != Done)
+		//	Sleep(10);
+		scriptObj->Stop();
+	}
+	//getchar();
 
 	return 0;
 }

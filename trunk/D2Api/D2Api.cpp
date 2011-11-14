@@ -2,7 +2,7 @@
 
 namespace D2Client {
 	/* D2Client Functions */
-	//PrintGameString_t PrintGameString;
+	PrintGameString_t PrintGameString;
 
 	/* D2Client Vars */
 	//UnitAny** PlayerUnit;
@@ -46,13 +46,5 @@ namespace Fog {
 }
 
 namespace Storm {
-
-}
-
-extern "C" {
-
-void __fastcall Init(void)
-{
-}
 
 }

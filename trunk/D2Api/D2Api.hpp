@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Windows.h>
+//#include <Windows.h>
 
 #include "Exports.hpp"
 
@@ -73,8 +73,3 @@ namespace Fog {
 
 namespace Storm {
 }
-
-extern "C" {
-	EXPORT void __fastcall Init(void);
-}
-

@@ -1,5 +1,4 @@
 #pragma once
-#include "js32.hpp"
 
 JSAPI_FUNC(Socket);
 

@@ -1,4 +1,4 @@
-#include "js32.hpp"
+#pragma once
 
 extern JSClass stream_class;
 extern JSFunctionSpec stream_methods[];
