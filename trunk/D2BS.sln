@@ -10,12 +10,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "D2BS", "D2BS\D2BS.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Cmd", "Cmd\Cmd.vcxproj", "{15E6186B-69A6-456B-8DB0-FE7EC649620E}"
 	ProjectSection(ProjectDependencies) = postProject
+		{5365DF36-54ED-4C2B-AA22-7713E23C6E53} = {5365DF36-54ED-4C2B-AA22-7713E23C6E53}
 		{A3DAD180-7C87-4246-98A7-B47202480C53} = {A3DAD180-7C87-4246-98A7-B47202480C53}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{A3DAD180-7C87-4246-98A7-B47202480C53}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JSApi", "JSApi\JSApi.vcxproj", "{5365DF36-54ED-4C2B-AA22-7713E23C6E53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A3DAD180-7C87-4246-98A7-B47202480C53} = {A3DAD180-7C87-4246-98A7-B47202480C53}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

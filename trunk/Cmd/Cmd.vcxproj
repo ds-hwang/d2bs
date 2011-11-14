@@ -68,7 +68,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libboost_system-vc100-mt-gd.lib;kernel32.lib;User32.lib;advapi32.lib;Engine.lib;JSApi.lib;shlwapi.lib;winmm.lib</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;User32.lib;advapi32.lib;Engine.lib;JSApi.lib;shlwapi.lib;winmm.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\boost_1_46_1\boost_1_46_1\stage\lib;$(SolutionDir)\Engine\dependencies;$(SolutionDir)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
@@ -84,7 +84,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_ALL_NO_LIB;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>

@@ -96,14 +96,12 @@
       <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_WIN32_WINNT=0x501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAsManaged>false</CompileAsManaged>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4100;4365;4480;4668;4710;4800;4820;4986;4127;4132;4244;4255</DisableSpecificWarnings>
-      <StringPooling>true</StringPooling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -112,6 +110,7 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>$(SolutionDir)\Engine\;$(SolutionDir)\Engine\dependencies\include;D:\boost_1_46_1\boost_1_46_1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
