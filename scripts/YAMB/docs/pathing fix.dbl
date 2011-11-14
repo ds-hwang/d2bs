@@ -1,0 +1,168 @@
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@		functions added by Darien 1-30-05 and 3-2-05
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+////////////////////////////////////////////////////////////////////////
+//	This Function is Fix to the Barricaded Tower Pathing bug which
+//	which has been around since the dawn of pathing...this a D2 bug
+//
+//	Note: getPresetUnits() is grabbing most but not all of the Towers 
+//	      that are classid 435, skips some of the classid 435 towers
+
+
+function barricadedTowerFix(area,init) {
+	print("Marking Barricaded Towers onto Map for area " + area);
+	
+	//check preset units for barricaded towers		
+	var units = getPresetUnits(area,null,435,null);
+    var _units = getPresetUnits(area,null,482,null);	
+		
+	//make an array to place the towers into
+	var bTowers = new Array;
+	
+		/* DeBugging Functions
+		if(units) print("preset unit length " + units.length);
+		print("D2 Max X " + cMapping.MaxX);
+		print("D2 Max Y " + cMapping.MaxY);
+
+		print("Map Min x " + cMapping.x);
+		print("Map Min y " + cMapping.y);
+
+		print("Map width " + cMapping.Width);
+		print("Map height " + cMapping.Height);
+
+			//puts you in a box -- pathing will fail
+			//markMapAt(coord_Adjuster(me.x,0,init),coord_Adjuster(me.y,1,init)); 
+		*/
+	
+	
+	//scroll through preset unit array looking for barricaded towers
+	for (var p = 0; p < units.length; p++) {
+		
+		if(units[p].id == 435) {  //unnecessary, just in case
+			var newTower=1;
+			
+			/* Sadly, if we use this check we miss about 15% of the towers
+				and the pathing will sometimes fail.  Somehow the blatant
+				redundancy when bypassing this check helps get all towers
+			
+			//Check to make sure we don't get duplicate Towers
+			for(var _t=0; _t < bTowers.length; _t++) {
+				if(units[p].x == bTowers[_t].x && 
+					units[p].y == bTowers[_t].y) newTower=0;
+			}
+			*/
+			
+			//If Tower isn't a duplicate add it to array and find real co-ords
+			if(newTower) {	
+				bTowers.push(units[p]);
+				
+				//find D2 Game Co ords
+				var X=((units[p].roomx * 5) + units[p].x);
+				var Y=((units[p].roomy * 5) + units[p].y);
+				   //print(barricaded tower at x: " + X + " and y: " + Y);
+				
+				//Convert D2 Game Co-ords to Map Array Co-ords and mark on Map
+				markMapAt(coord_Adjuster(X,0,init), coord_Adjuster(Y,1,init));
+                if(units[p].roomid == 919) {
+                    print("correcting Room 919 error");
+                    markMapAt(coord_Adjuster(X+18,0,init), coord_Adjuster(Y-3,1,init));
+                }
+			}
+		}
+	}
+    for (var q = 0; q < _units.length; q++) {
+        if(_units[q].id == 482 && _units[q].roomid == 933) {
+            print("correcting Room 933 error");
+            var X=((_units[q].roomx * 5) + _units[q].x);
+            var Y=((_units[q].roomy * 5) + _units[q].y);
+            markMapAt(coord_Adjuster(X+22,0,init), coord_Adjuster(Y+22,1,init));
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//	This functions takes D2 Game Co ords and returns Collsion Map Co ords
+//	  coord is the x or y you want converted
+//	  z=0; means it's and x coord
+//	  z=1; for a y coord
+
+function coord_Adjuster(coord,z,initType) {
+	if(!z)  var base = cMapping.x;
+	else	var base = cMapping.y;
+	
+	var new_coord = coord - base;
+	
+	if(!initType) return Math.round(new_coord / 2);
+	return new_coord;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//	This function will make a Box around the selected Collsion Map Co-ords
+
+function markMapAt(x,y) {
+	//print("Marking a Tower on the Map at: " + x + ", " + y);
+	var yy = y-2;	
+	for(var ty=0; ty < 5; ty++) {
+		var xx = x-2;
+		for(var tx=0; tx < 5; tx++) {
+			if(ty == 0 || ty == 4) cMapping.CollisionData[yy][xx] = entry(ty);
+			else cMapping.CollisionData[yy][xx] = entry(tx);
+			xx++;
+		}
+		yy++;
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////////
+//	This function decides wether to mark an "X" or a "." to the Map
+
+function entry(n) {
+	if(n == 0 || n == 4) return 1;
+	return 0;	
+}	
+
+////////////////////////////////////////////////////////////////////////////
+//	This function marks borders around the map
+
+function markBorders(area) {
+	print("Marking Borders for area: " + area);
+	var Height= cMapping.CollisionData.length - 1;
+	var Width = cMapping.CollisionData[0].length - 1;
+	
+	//Mark Bottom Border of Map
+	for(var u=0; u < Width; u++) {
+		cMapping.CollisionData[Height][u]=1;
+	}
+	
+	for(var v=0; v < Height; v++) {
+		cMapping.CollisionData[v][Width]=1;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////
+//	This function checks the list of areas that need a border
+
+function AreaNeedBorders(area) {
+	/*
+	switch(area) {
+		case 32:
+		case 33:
+		case 37:
+		case 50:
+		case 51:
+		case 52:
+		case 53:
+		case 54:
+			return true;
+	}
+	*/
+	
+	//rather than check every indoor area to see which ones don't work
+	//	simply but a border on every in door area
+	if(mlAREASOUTDOORFLAG[area]) return false;
+	else return true;
+}
