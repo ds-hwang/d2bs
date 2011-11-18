@@ -672,7 +672,7 @@ function NTT_ManageStash(invitem)
 
 	for(i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORYSTASH)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_STASH)
 		{
 			for(y = 0 ; y < _items[i].sizey ; y++)
 			{
