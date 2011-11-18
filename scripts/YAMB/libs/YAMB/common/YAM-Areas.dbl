@@ -19,6 +19,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 var DAR_Version="1.0";
+
+/*
 var DAR_Areas = new Array(137);
 
 
@@ -164,13 +166,15 @@ DAR_Areas[133] = "Matron's Den";
 DAR_Areas[134] = "Forgotten Sands";
 DAR_Areas[135] = "The Worldstone Chamber";
 DAR_Areas[136] = "The Worldstone Chamber";
+*/
 
 //////////////////////////////////////////////////////////////////////
 // Public functions
 //////////////////////////////////////////////////////////////////////
 
 function DAR_GetAreaName(_area) {
-	return ((_area < 0 || _area > 132) ? ("Unknown") : (DAR_Areas[_area]));
+	//return ((_area < 0 || _area > 132) ? ("Unknown") : (DAR_Areas[_area]));
+	return getArea(_area).name;
 }
 
 function DAR_GetAreaID(_areaName) {

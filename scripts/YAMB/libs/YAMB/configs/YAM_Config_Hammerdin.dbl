@@ -71,16 +71,17 @@
 //YAMXXP.push("HOTIP");
 //YAMXXP.push("Pindle");
 //YAMXXP.push("Nihlathak");
-//YAMXXP.push("Eldritch");
-//YAMXXP.push("Shenk");
-//YAMXXP.push("ThreshSocket");
+//YAMXXP.push("PainPindle");
+YAMXXP.push("Eldritch");
+YAMXXP.push("Shenk");
+YAMXXP.push("ThreshSocket");
 //YAMXXP.push("BloodRaven"); // HAS PROBLEMS
 //YAMXXP.push("Countess");
-//YAMXXP.push("Andy");
-//YAMXXP.push("Summoner");
-//YAMXXP.push("Duriel");
+YAMXXP.push("Andy");
+YAMXXP.push("Summoner");
+YAMXXP.push("Duriel");
 //YAMXXP.push("Trav");
-//YAMXXP.push("Meph");
+YAMXXP.push("Meph");
 //YAMXXP.push("Izual");
 //YAMXXP.push("Hephasto");
 //YAMXXP.push("Pit");
@@ -88,11 +89,13 @@
 //YAMXXP.push("Ancients");
 YAMXXP.push("Diablo");
 //YAMXXP.push("Tunnels");   // WTF? need to look at script.. BADLY
-//YAMXXP.push("Baal");
+YAMXXP.push("Baal");
 // Leecher module.
 //YAMXXP.push("Parasite");
 // Follower, enchanter, bo script
 //YAMXXP.push("Symbiote");
+// Gamble script
+//YAMXXP.push("Gamble");
 
 //////////////////////////////////////////////////////////////////////
 // IP configuration
@@ -109,7 +112,7 @@ YAMXXP.push("Diablo");
 //									the bot will "force" load the HOTIP module and idle in the game.
 //--------------------------------------------------------------------
 
-YAM_DisplayIP        = false;
+YAM_DisplayIP        = true;
 YAM_AlertOnHotIP     = "both";
 YAM_SayCmdOnHotIP    = "/f m";
 YAM_MonitorDCloneMsg = true;
@@ -278,16 +281,16 @@ DuXP_QuitImmune         = false;
 if(YAM_UseNJIP){
 	DSN_NIPFilePath.push("potions.nip");
 	if(PublicMode==0){ // Added on request to allow faster public baaling, if you want items.. do private runs! - TechnoHunter
-//		DSN_NIPFilePath.push("runes.nip");
-//		DSN_NIPFilePath.push("uniques.nip");
-//		DSN_NIPFilePath.push("sets.nip");
-//		DSN_NIPFilePath.push("whites.nip");
-//		DSN_NIPFilePath.push("rares.nip");
-//		DSN_NIPFilePath.push("magics.nip");
-//		DSN_NIPFilePath.push("gems.nip");
-//		DSN_NIPFilePath.push("charmsjewels.nip");
-//		DSN_NIPFilePath.push("ringsamulets.nip");
-//		DSN_NIPFilePath.push("moneymaker.nip");
+		DSN_NIPFilePath.push("runes.nip");
+		DSN_NIPFilePath.push("uniques.nip");
+		DSN_NIPFilePath.push("sets.nip");
+		DSN_NIPFilePath.push("whites.nip");
+		DSN_NIPFilePath.push("rares.nip");
+		DSN_NIPFilePath.push("magics.nip");
+		DSN_NIPFilePath.push("gems.nip");
+		DSN_NIPFilePath.push("charmsjewels.nip");
+		DSN_NIPFilePath.push("ringsamulets.nip");
+		DSN_NIPFilePath.push("moneymaker.nip");
 	}
 }
 // ------------------------------------------------------------------
@@ -369,10 +372,10 @@ YAM_ClearInv      = true;
 // your existing items!
 //--------------------------------------------------------------------
 
-DT_Columns[0]=[1,1,1,1,1,1,1,1,0,0];
-DT_Columns[1]=[1,1,1,1,1,1,1,1,0,0];
-DT_Columns[2]=[1,1,1,1,1,1,1,1,0,0];
-DT_Columns[3]=[1,1,1,1,1,1,1,1,0,0];
+DT_Columns[0]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[1]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[2]=[1,1,1,0,0,0,0,0,0,0];
+DT_Columns[3]=[1,1,1,0,0,0,0,0,0,0];
 
 
 ///////////////////////////////////////////////////////////////////
@@ -573,7 +576,7 @@ DA_Refresh      = false;
 // BXP_NextGameMsges			What you want to say for the next game (picked at random)
 // BXP_ClearFirst=true/false	Set to true to clear the area around the tp first before saying the YAM_TPMsg msg
 //--------------------------------------------------------------------
-SkipBaal        = false;
+SkipBaal        = true;
 AvoidHydra      = false;
 VenomLordCTA    = false;
 MonsterSearch   = 6;
@@ -581,7 +584,7 @@ MonsterWait     = 20;
 AbortDoll       = false;
 preAttackAmount = 5;
 RemovePoison    = false;
-//BXP_KillBaalMsges.push("lets kill baal");
+BXP_KillBaalMsges.push("lets kill baal");
 //BXP_KillBaalMsges.push("kill baal");
 //BXP_KillBaalMsges.push("baal");
 //BXP_KillBaalMsges.push("BAAL");
@@ -590,7 +593,7 @@ RemovePoison    = false;
 //BXP_KillBaalMsges.push("baal");
 //BXP_KillBaalMsges.push("do baal");
 
-//BXP_NextGameMsges.push("ng");
+BXP_NextGameMsges.push("ng");
 //BXP_NextGameMsges.push("next");
 //BXP_NextGameMsges.push("next game");
 //BXP_NextGameMsges.push("gogo next game");
@@ -807,7 +810,7 @@ DA_Enchantments[12] = false;	//Multiple Shot
 // DA_EnchantmentsCombos[next number] = new Array(enchantment#,enchantment#,true/false);
 //--------------------------------------------------------------------
 
-DA_EnchantmentsCombos[1] = new Array(6,12,false);	// Multiple Shot LE
+DA_EnchantmentsCombos[1] = new Array(6,12,true);	// Multiple Shot LE
 DA_EnchantmentsCombos[2] = new Array(1,3,false);	// Extra Strong Cursed
 DA_EnchantmentsCombos[3] = new Array(2,8,false);	// Extra Fast Mana Burn
 
@@ -830,11 +833,11 @@ DA_Auras[7] = false;	//Fanaticism
 //--------------------------------------------------------------------
 
 DA_EnchantAuraCombos[1] = new Array(1,2,false);	// Extra Strong Might
-DA_EnchantAuraCombos[2] = new Array(1,7,false );	// Extra Strong Fanaticism
-DA_EnchantAuraCombos[3] = new Array(2,2,false );	// Extra Fast Might
-DA_EnchantAuraCombos[4] = new Array(2,7,false );	// Extra Fast Fanaticism
+DA_EnchantAuraCombos[2] = new Array(1,7,true );	// Extra Strong Fanaticism
+DA_EnchantAuraCombos[3] = new Array(2,2,true );	// Extra Fast Might
+DA_EnchantAuraCombos[4] = new Array(2,7,true );	// Extra Fast Fanaticism
 DA_EnchantAuraCombos[5] = new Array(2,5,false);	// Extra Fast Holy Freeze
-DA_EnchantAuraCombos[6] = new Array(6,1,false );	// LE Conviction
+DA_EnchantAuraCombos[6] = new Array(6,1,true );	// LE Conviction
 
 //--------------------------------------------------------------------
 // Immunity / Aura Combinations

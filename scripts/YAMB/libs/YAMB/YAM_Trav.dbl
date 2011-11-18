@@ -23,8 +23,8 @@ function DM_MoveToAttack(x,y,nowalk,noattack) {
 	DC_DPrint("X:"+x+" Y:"+y);
 	DM_MoveTo(x,y,nowalk,true); //use true tele
 	if (!noattack) {
-		//XP_ClearPosition(26,false,ATTACKING_MODE);
-		//XP_ClearPosition(26,false,ALIVE_MODE);
+		XP_ClearPosition(26,false,ATTACKING_MODE);
+		XP_ClearPosition(26,false,ALIVE_MODE);
 		//DSN_PickItems(YAM_SafeCheck); //too dangerous
 		DM_CheckPosition(x,y,nowalk);
 	}
@@ -39,7 +39,7 @@ function DM_MoveToPick(x,y,nopick) {
 	y = y + (_TrXP_wp.y - _TrXP_ybase);
 	DM_MoveTo(x,y,true,true); //use true tele
 	if (!nopick) {
-		DSN_PickItems();
+		DSN_PickItems(YAM_SafeCheck);
 		DM_CheckPosition(x,y,true);
 	}
 }
@@ -173,24 +173,11 @@ function TravXP() {
 	XP_Precasts();
 	// Goto the Travincal Lair
 	TrXP_GoToTrav();
-    
-    
 	// Clear the Travincal Lair - shut off by Darien, made improvements
 	//if (TrXP_AttackTrav()) {
 	//	DL_AddKill();
 	//}
-    
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog(); 
 	}
-    
-    // End in Act 4
-    	// Do town stuff in the act we are in
-	//YAM_TownManager();
-	//if (me.area != 103) {
-	//	YAM_PathToWayPoint();
-	//	DM_UsePortal("Waypoint",0x67); //0x6a = City  0x6b = River
-    //YAM_InitCommTown()
-	//}
-    
 }

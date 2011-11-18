@@ -25,7 +25,7 @@ function main() {
 	var alone = true;
 	var meP = getParty();
 	var skip;
-	print("loading Party Up!");
+	//print("loading Party Up!");
 	plist.push(me.name);
 	while(1) {
 		attempted = false;

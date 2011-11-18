@@ -86,7 +86,7 @@ const DP_CLEARWHENSTUCK    = 0x0002;	// Will check for monsters to kill if it is
 const DP_PICKDROPS         = 0x0004;	// Will activate item grabbing along the way.(value 4)
 const DP_USESHRINES        = 0x0008;	// Will use 1 shrine/step (YAM_UseShrines has to be set to true)(value 8)
 const DP_OPENCHESTS        = 0x0010;	// Will open 1 chest/step (YAM_OpenChests has to be set to true)(value 16)
-const DP_SAFECHECK         = 0;         //0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
+const DP_SAFECHECK         = 0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
 const DP_USEVIGOR          = 0x0040;	// Will enable vigor aura (Paladins only).(value 64)
 // IMPORTANT: Do not redefine monster bits without updating walkcalls function below!!!
 const DP_KILLSUPERUS       = 0x0100;	// Will kill SuperUniques.(value 256)
@@ -97,8 +97,8 @@ const DP_CLEARMONSTERS     = 0x1000;	// Will kill normal monsters along the way(
 const DP_INCUSERSTEP       = 0x8000;	// Will include (bitwise OR) DP_StepPath user config variable with the walkcallflag(value 32768)
 
 
-//var DP_StepPath  = (DP_INCUSERSTEP);	// User configurable control flag default value
-var DP_StepPath  = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
+var DP_StepPath  = (DP_INCUSERSTEP);	// User configurable control flag default value
+//var DP_StepPath  = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK);	// User configurable control flag default value
 //////////////////////////////////////////////////////////////////////
 // Constants
 //////////////////////////////////////////////////////////////////////
@@ -301,9 +301,9 @@ function DP_DPrint(a){
 }
 
 function DP_CheckSafety(){ 
-	//if(typeof(YAM_SafeCheck) == 'function'){
-	//	return YAM_SafeCheck();
-	//}
+	if(typeof(YAM_SafeCheck) == 'function'){
+		return YAM_SafeCheck();
+	}
 	// fallback default behavior 
 	// MAKE A SAFE CHECK FUNCTION!!!!!!
 	return false;
@@ -436,7 +436,7 @@ function pathMove(_info) {
 			DP_DPrint("GotoDest() -> Warning! pMoveDist not entered, setting to " + pMoveDist + "!");
 		}
 		// Get the path to the destination coordinates
-		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)))// pMoveDist, !this.UseTele );
+		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)), pMoveDist);
 		// If a path is not found
 		if  ( !myPath ) {
 			DP_DPrint("GotoDest() -> Unable to find path to dest. Trying again to find path, current ping : " + me.ping);
@@ -818,7 +818,7 @@ function pathMove(_info) {
 			// sanity check, to make sure we didnt deviate too much
 			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
 			//if(Math.abs(me.x-pPath[_cNode].x)>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode].y)>(bounceOrWalk ? 6 : 3)){
-			if(pPath[_cNode] && getRange(me, pPath[_cNode].x, pPath[_cNode].y) > (bounceOrWalk ? 6 : 3)){   // Darien changed getDistance() to getRange();
+			if(pPath[_cNode] && getDistance(me, pPath[_cNode].x, pPath[_cNode].y) > (bounceOrWalk ? 6 : 3)){
 			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
 				// If the char is off from the path by nDist, make a new path instead
 				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
@@ -1000,9 +1000,7 @@ function pathMove(_info) {
 			if(this.ifailedMoves > 5 ) {
 				this.ifailedMoves = 0;
 				if(typeof(DC_ThrowException) == 'function'){
-					//DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
-                    print("got stuck -- not aborting");
-                    return DP_STOP;  //Darien mod
+					DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
 				}
 				else{
 					DP_DPrint("MoveToNode() -> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
@@ -1130,11 +1128,11 @@ function pathMove(_info) {
 				if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
 					YC_MaxDistance = 19;
 					YC_CheckForChests();
-					DSN_PickItems();
+					DSN_PickItems(DP_CheckSafety);
 				}
 				// Pickup drops
 				if(outaTown && ctrlFlag & DP_PICKDROPS){
-					DSN_PickItems();
+					DSN_PickItems(DP_CheckSafety);
 				}
 				// Enable Vigor
 				if(me.classid==3 && ctrlFlag & DP_USEVIGOR) {

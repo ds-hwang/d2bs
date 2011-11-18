@@ -102,7 +102,7 @@ function EldritchXP() {
 	// Go Kill Eldritch
 	if (EXP_AttackEldritch()) {
 		DL_AddKill();
-		DSN_PickItems();
+		DSN_PickItems(YAM_SafeCheck);
 	}
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog();

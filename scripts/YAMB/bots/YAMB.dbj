@@ -146,7 +146,8 @@ function YAM_KeyUpManager(keyup) {
 			removeEventListener(YAM_KeyUpManager);
 			DC_Print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
 			scriptBroadcast( "starter:pause" );
-			var pscript = DC_FindScript(YAM_PausePath);
+			//var pscript = DC_FindScript(YAM_PausePath);
+			var pscript = getScript(YAM_PausePath); // TESTING - TECHNOHUNTER
 			if (!pscript) {
 				load(YAM_PausePath);
 				var lp=1;
@@ -154,7 +155,8 @@ function YAM_KeyUpManager(keyup) {
 					print("paused : in loop"); // spamming to see if still in loop TESTING
 					delay (1000);// increasing delay from 500 for testing - TechnoHunter TESTING
 					if(!pscript){ // seeing if finding it once will still work. TESTING
-						pscript = DC_FindScript(YAM_PausePath);
+						//pscript = DC_FindScript(YAM_PausePath);
+						pscript = getScript(YAM_PausePath); // TESTING - TECHNOHUNTER
 						print("lp = " +lp );
 					}
 					lp++;
@@ -205,8 +207,6 @@ function YAM_gamemsgHandler(msg, c) {
 	// Ignore d2bs messages
 	//if (c == 0 && (msg.indexOf("ÿc4") == -1 || msg.indexOf(":") == -1))
 		//return;
-	
-    print("message received");
     if ( YAM_MonitorDCloneMsg){ //&& c == 4 colors not in message atm
 		if(GoldMsgHandler(msg))
 			YAM_MustIdle = true;

@@ -339,8 +339,8 @@ function XP_DoCheckItems(npc) {
 				// Loop until all items is sold to the npc or my pockets is full
 				do {
 					// Get the item
-					_baditem = getUnit(4,null,null,_baditems.pop());
-					//_baditem = me.getItem(null, null, _baditems.pop());
+					//_baditem = getUnit(4,null,null,_baditems.pop());
+					_baditem = me.getItem(null, null, _baditems.pop());
 					if(_baditem) {
 						if(DL_LogMode > 1) {
 							_stats = _baditem.description;
@@ -361,8 +361,8 @@ function XP_DoCheckItems(npc) {
 				// Loop until all items is dropped on ground
 				do {
 					// Get the item
-					_baditem = getUnit(4,null,null,_baditems.pop());
-					//_baditem = me.getItem(null, null, _baditems.pop());
+					//_baditem = getUnit(4,null,null,_baditems.pop());
+					_baditem = me.getItem(null, null, _baditems.pop());
 					if(_baditem) {
 						if(DL_LogMode > 1) {
 							_stats = _baditem.description;
@@ -459,3 +459,4 @@ function YAM_PathToWayPoint() {
 	}
 	_YAM_Position = "waypoint";
 }
+

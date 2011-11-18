@@ -34,7 +34,7 @@ function DA_BOSwitch(which) {
 	var _mainbo      = 0;
 	var _switchbo    = 0;
 	var _switchavail = false;
-	var _weapon      = DC_getItem(null, 1); //DC_getItem used instead of DC_getMyItem
+	var _weapon      = DC_getMyItem(null, 1);
 	if(_weapon) { 
 		do {
 			if(DC_CheckOwner(_weapon)) {

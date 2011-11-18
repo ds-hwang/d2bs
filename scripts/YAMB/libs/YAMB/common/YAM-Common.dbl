@@ -5,12 +5,12 @@ DC_LoadInclude("baseStats/base_skills.dbl");
 //////////////////////////////////////////////////////////////////////
 // Public global variables
 //////////////////////////////////////////////////////////////////////
-var DC_DebugLevel     = 3; 	// 0 = no debug messages, 1 = file only, 2= screen only, 3 = on screen and on file
+var DC_DebugLevel     = 0; 	// 0 = no debug messages, 1 = file only, 2= screen only, 3 = on screen and on file
 var DC_DebugPrintDel  = 0;
 var DC_AbortPrintDel  = 2000;
 var DC_Verbose        = true;
 var DC_Language       = 0; 	// 0 = english, 1 = german, 2 = french
-var DC_Timeout        = 8;
+var DC_Timeout        = 3;
 var DC_SwitchTimeout  = 3;
 var DC_RandomDel      = true;
 var DC_LagDelay       = 10;
@@ -26,13 +26,13 @@ var DC_Console        = null; // Console object to be used for printing. Leave t
 //////////////////////////////////////////////////////////////////////
 // Item Location Constants
 //////////////////////////////////////////////////////////////////////
-const ITEMLOC_GROUND	= 0;
+const ITEMLOC_GROUND		= 0;
 const ITEMLOC_EQUIP		= 1;
-const ITEMLOC_BELT		= 2;
-const ITEMLOC_INVENTORY = 3;
+const ITEMLOC_BELT			= 2;
+const ITEMLOC_INVENTORY	= 3;
 const ITEMLOC_STORE		= 4;
 const ITEMLOC_TRADE		= 5;
-const ITEMLOC_CUBE		= 6;
+const ITEMLOC_CUBE			= 6;
 const ITEMLOC_STASH		= 7;
 
 //////////////////////////////////////////////////////////////////////
@@ -1790,7 +1790,7 @@ function DC_StripQuotes(string,numline) {
 // Function by Aeternus, modified by Xizeta
 // Return value : Number of rows in a belt, IE 1 to 4.
 function DC_GetBeltSize(){ 
-	var _item = DC_getItem(); // don't use DC_getMyItem
+	var _item = DC_getMyItem();
 	if(_item) { 
 		do {
 			// If the belt is equipped, check the amount depending on the item code

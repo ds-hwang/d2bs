@@ -1,5 +1,5 @@
 /*
-        D2JSP-CUBING.DBL
+        YAM-Cubing.dbl
         by Muellsammler
 
         credits to blue mind for his basic work
@@ -509,7 +509,7 @@ function DCU_MoveItemToCube(moveitem, xmod, ymod) {  //item, coordinates in cube
 			break;
 		case ITEMLOC_CUBE: //cube
 		default:
-			DCU_debugmessage(DCU_msg(407) + moveitem.bodylocation + DCU_msg(408));
+			DCU_debugmessage(DCU_msg(407) + moveitem.location + DCU_msg(408));
 			break;
 	}
 	DCU_debugmessage("ÿc0DCU_MoveItemToCube -> trying to move item: " + moveitem.name + " currently in  " + ((moveitem.bodylocation == 0) ? "inventory" :  (moveitem.bodylocation == 4) ? "stash" : (moveitem.bodylocation == 3) ? "cube" : "INVALID LOCATION") + " to cube");
@@ -887,7 +887,7 @@ function DCU_debugmessage(message) {
 	DC_DebugLevel = dbgLvl;
 }
 
-// we don't wanna use items which are not belonging to us ;)
+// we don't want to use items which do not belong to us ;)
 function DCU_MyItem(item) {
 //	DCU_debugmessage("ÿc0DCU_MyItem ->  Entering function.");
 	if(item){
@@ -949,7 +949,8 @@ function DCU_CloseStash() {
 //open the cube
 function DCU_OpenCube() {
 //	DCU_debugmessage("ÿc0DCU_OpenCube -> Entering function.");
-	var DCU_mycube = DCU_getItem("box", 0);
+//	var DCU_mycube = DCU_getItem("box", 0);
+	var DCU_mycube = DCU_getItem(549, 0);
 	if(!DCU_mycube)
 		DCU_quitmessage(DCU_msg(424));
 	if(getUIFlag(0x1A)){
@@ -1098,7 +1099,7 @@ function DCU_ImproveFName(checkString) {
 /*          functions/variables which are used from other libs          */
 /************************************************************************/
 
-function DCU_quitmessage(message) { DC_ThrowException("d2jsp-cubing", message); }
+function DCU_quitmessage(message) { DC_ThrowException("YAM-Cubing", message); }
 function DCU_stopmessage(message) { DC_StopMessage(message);    } // ok
 function DCU_clearcursor()        { return DC_ClearCursor();   } // ok
 function DCU_getItem(a, b)        { return DC_getMyItem(a, b); } // ok

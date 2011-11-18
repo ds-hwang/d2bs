@@ -21,7 +21,6 @@ var DT_Columns        = new Array(4);
 	DT_Columns[2]     = new Array(10);
 	DT_Columns[3]     = new Array(10);
 var _DT_BeltSize      = false;
-_YAM_Town = false;
 
 
 //////////////////////////////////////////////////////////////////////
@@ -42,7 +41,7 @@ var DT_GambleItem = new Array();
 var DT_UseMerc = true;
 
 // Minimum wear or amount percent before needing a action
-var DT_RepairPercent = 15; // Repair items
+var DT_RepairPercent = 25; // Repair items
 var DT_AmmoPercent = 30; // Ammo recharge
 var DT_ThrowPercent = 50; // Ethereal throwing recharge
 
@@ -50,8 +49,8 @@ var DT_ThrowPercent = 50; // Ethereal throwing recharge
 var DT_ThrowRechTimeout = 40000;
 
 // Minimum life and mana percent before needing healing
-var DT_SkipHealLife = 20;
-var DT_SkipHealMana = 10;
+var DT_SkipHealLife = 75;
+var DT_SkipHealMana = 35;
 
 // Type of potion used in each belt column
 // Available types : "hp" = health | "mp" = mana | "rv" = rejuv. Can use other potion types too (untested!).
@@ -71,10 +70,10 @@ DT_BeltColType[3]="mp"; // Yep, you guessed it, 4.
 // Set to 4 to go shopping as soon as there's a potion missing.
 // Recommend leaving columns set to "rv" at 0. Since shops won't carry rejuvs.
 
-DT_BeltColMin[0]=1;
-DT_BeltColMin[1]=1;
-DT_BeltColMin[2]=1;
-DT_BeltColMin[3]=1;
+DT_BeltColMin[0]=4;
+DT_BeltColMin[1]=4;
+DT_BeltColMin[2]=4;
+DT_BeltColMin[3]=4;
 
 // Advanced configuration variable
 var DT_NPCDelay    = 750;
@@ -299,7 +298,7 @@ function DT_DoInteract(npc) {
 	}while(!getUIFlag(_uiflag) && _timer > 0);
 	// After the loop, if we are still not interacted, display a error
 	if(!getUIFlag(_uiflag)) {
-		//DC_ThrowException("DT_DoInteract()", "Failed to interact with " + npc.name);
+		DC_ThrowException("DT_DoInteract()", "Failed to interact with " + npc.name);
 		return false;
 	}
 	// Wait a certain delay before returning to the caller
@@ -537,7 +536,7 @@ function DT_ReviveMerc(npc) {
 function DT_CheckRepair(repairpercent) {
 	var _needrepair = false;
 	// Loop thru the equipement
-	var _item = DC_getItem();
+	var _item = DC_getMyItem();
 	if(_item) {
 		do {
 			// ignore all items in merc, ethereal, non equipped or indestructible
@@ -545,7 +544,7 @@ function DT_CheckRepair(repairpercent) {
 				// If it is a throwing item, check the stack quantity
 				if(_item.itemType == 42 || _item.itemType == 43 || _item.itemType == 44 || _item.itemType == 87) {
 					// Get the current quantity
-					var _stackamount = _item.getStat(70);DC_getItem
+					var _stackamount = _item.getStat(70);
 					// Get the maximum stack size
 					var _maxstack = DT_GetMaxStackSize(_item);
 					// Get the extra stack size amount
@@ -625,7 +624,7 @@ function DT_RepairItems(npc) {
 // Return value : True if we need to wait until the ethereal throwing weapon is recharging
 function DT_CheckRecharge() {
 	var _needrecharge=false;
-	var _check=DC_getItem(null,1);
+	var _check=DC_getMyItem(null,1);
 	if(_check) { do {
 		if(_DT_ItemLoc(_check)) {
 			// If it is a ethereal throwing weapon, check the stack quantity
@@ -663,7 +662,7 @@ function DT_DoRecharge() {
 function DT_CheckAmmo() {
 	// Clean the array
 	_DT_AmmoArray=new Array();
-	var _weapon = DC_getItem(null,1);
+	var _weapon = DC_getMyItem(null,1);
 	if(_weapon) { do {
 		if(_DT_ItemLoc(_weapon)) {
 			if(_DT_BowCheck(_weapon)) {
@@ -672,7 +671,7 @@ function DT_CheckAmmo() {
 			}
 		}
 	} while(_weapon.getNext(null,1)); }
-	var _ammo = DC_getItem(null,1);
+	var _ammo = DC_getMyItem(null,1);
 	if(_ammo) { do {
 		// If the ammo is in one of the weapon tabs
 		if(_DT_ItemLoc(_ammo)) {
@@ -751,7 +750,7 @@ function DT_BuyAmmo(npc) {
 			}
             
 			// Check if we have ammo in the tab
-			var _ammo = DC_getItem(_DT_AmmoArray[zx].CheckCode,1);
+			var _ammo = DC_getMyItem(_DT_AmmoArray[zx].CheckCode,1);
 			if(_ammo) { do {
 					// If it is correct and on the active weapon tab, sell back
 					if(_ammo.location!=11 && _ammo.location!=12 && DC_CheckOwner(_ammo) == true) {
@@ -777,22 +776,6 @@ function DT_BuyAmmo(npc) {
 			//if(SwitchedWeapons) { DC_DoWeaponSwitch(); }
 		}
 	}
-    
-    /*
-    var _weapon = DC_getMyItem(null,1);
-	if(_weapon) {
-        do {
-		    if(_DT_ItemLoc(_weapon)) {
-                var _ammo = _DT_BowCheck(_weapon);
-			    if(_ammo) break;
-            }
-	    } while(_weapon.getNext(null,1)); 
-    }
-    print("_ammo is " + _ammo);
-    var Ammo = npc.getItem(_ammo);
-    if(Ammo) DT_BuyItem(Ammo,npc,2);
-    else print ("Cant find ammo");
-    */
 	return true;
 }
 
@@ -820,7 +803,7 @@ function DT_CheckInventory() {
 	}
 	// Start looping thru the inventory to mark the occupied space
 	var _invItems = me.getItems();
-	var _invitem = DC_getItem(null,100);
+	var _invitem = DC_getMyItem(null,100);
 	var _ignoreitem;
 	var _invitemy;
 	var _invitemx;
@@ -895,7 +878,7 @@ function DT_CheckStash() {
 	}
 
 	// Get the first item in stash
-	var _sitem = DC_getItem(null,104);
+	var _sitem = DC_getMyItem(null,104);
 
 
 	// Mark the space occupied by the item as full
@@ -958,7 +941,7 @@ function DT_ManageStash() {
 		}
 	}
 	// Get the first item in stash
-	var _sitem = DC_getItem(null,104);
+	var _sitem = DC_getMyItem(null,104);
 	// Mark the space occupied by the item as full
 	if(_sitem) { do {
 		for(var y = 0; y < _sitem.sizey; y+=1){
@@ -968,7 +951,7 @@ function DT_ManageStash() {
 		}
 	} while (_sitem.getNext(null,104)); } // 104 == stash
 	// Get the first item in inventory
-	var _invitem = DC_getItem(null,100); // 100 == inventory
+	var _invitem = DC_getMyItem(null,100); // 100 == inventory
 	// If there is a item, loop until all is stashed or ignored
 	if(_invitem) {
 		do {
@@ -1065,7 +1048,6 @@ function DT_ManageStash() {
 			}
 		} while (_invitem.getNext(null,100)); 
 	}
-
 	return _stashed ? 2 : true;
 }
 
@@ -1077,7 +1059,7 @@ function DT_GetScroll(type) {
 	// If no arguments is entered, use 0 by default
 	if(arguments.length < 1) { type = 0; }
 	// Get the scroll in inventory
-	var _scroll = (type == 0) ? DC_getItem("isc", 100) : DC_getItem("tsc", 100); //using DC_getItem instead of DC_getMyItem
+	var _scroll = (type == 0) ? DC_getMyItem("isc", 100) : DC_getMyItem("tsc", 100);
 	// Return the scroll object if we have it
 	return (_scroll && DC_CheckOwner(_scroll) == true) ? _scroll : false;
 }
@@ -1093,7 +1075,7 @@ function DT_GetTome(type, name, code) {
 	if(type == 0) { type = "ibk"; } else if(type == 1) { type = "tbk"; }
 
 	// Get the book
-	var _tome = (name == me.name) ? DC_getItem(type, code) : getInteractedNPC().getItem(type, code); //Darien Fix took "me." off of me.getInteractedNPC() and change to DC_getItem(type, code)
+	var _tome = (name == me.name) ? DC_getMyItem(type, code) : getInteractedNPC().getItem(type, code);
  
 	// Loop availiable tomes checking owner and return the tome object if we found it
 	do {
@@ -1130,14 +1112,8 @@ function DT_FillTome(npc,type) {
 		if(_tome.getStat(70) == 20) { 
 			return true; 
 		}
-		//var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
-        //var _scroll = (type == 0) ? DC_getItem("isc",0) : DC_getItem("tsc",0);
-        if(type) var _scroll = getUnit(4,"tsc",0);
-        else var _scroll = getUnit(4,"isc",0);
-        
-        
+		var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
 		if(_scroll) {
-            //print("trying to buy scrolls");
 			if(DT_BuyItem(_scroll,npc,3)) { 
 				return true; 
 			}
@@ -1147,7 +1123,6 @@ function DT_FillTome(npc,type) {
 			}
 		}
 		else {
-            print("couldn't find store scroll");
 			DC_DPrint("DT_FillTome() : Unable to get a scroll from the npc!");
 			return false;
 		}
@@ -1155,9 +1130,7 @@ function DT_FillTome(npc,type) {
 	// If not, display a error message and return false <--NO
 	// Darien Fix --> Buy the Damn Thing!!!
 	else {
-        print("no book, buy it");
-		//_tome = (type == 0) ? npc.getItem("ibk") : npc.getItem("tbk");
-		_tome = (type == 0) ? getUnit(4,"ibk",0) : getUnit(4,"tbk",0);
+		_tome = (type == 0) ? npc.getItem("ibk") : npc.getItem("tbk");
         if(_tome) {
 			if(DT_BuyItem(_tome,npc,3)) {
 				return true;
@@ -1198,9 +1171,7 @@ function DT_BuyScrolls(npc,type,amount) {
 	// If the user entered 0, return false because we didn't buy any scroll
 	if(amount == 0) { return false; }
 
-	//var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
-    var _scroll = (type == 0) ? DC_getItem("isc",0) : DC_getItem("tsc",0);
-    
+	var _scroll = (type == 0) ? npc.getItem("isc") : npc.getItem("tsc");
 	if(_scroll) {
 
 		var _counter=0;
@@ -1249,7 +1220,7 @@ function DT_BuyKeys(npc) {
 	if(!_keys) {
 
 		// Get a key from the npc trade window
-		var _shopkey = getUnit(4,"key",0);
+		var _shopkey = npc.getItem("key");
 		// If no key is found in the shop window, return false
 		if(!_shopkey) {
 
@@ -1269,7 +1240,7 @@ function DT_BuyKeys(npc) {
 	}
 
 	// Get a key from the npc trade window
-	_shopkey = getUnit(4,"key",0);
+	_shopkey = npc.getItem("key");
 	// If no key is found in the shop window, return false
 	if(!_shopkey) {
 
@@ -1356,7 +1327,7 @@ function DT_FillBelt(npc) {
 	DT_MenuCancel(npc,1);
 	// Replace rvs in belt with rvl - by darkspirit
 	if(YAM_UseABM && YAM_UseBeltManager) {
-		var _potion = DC_getItem(null,100);
+		var _potion = DC_getMyItem(null,100);
 		if(_potion) {
 			do {
 				if(_potion.itemType==76 || _potion.itemType==77) {
@@ -1391,7 +1362,6 @@ function DT_FillBelt(npc) {
 function DT_CheckHeal() {
 	var _lifethreshold = parseInt((me.hpmax * DT_SkipHealLife) / 100,10);
 	var _manathreshold = parseInt((me.mpmax * DT_SkipHealMana) / 100,10);
-	//print("DT_CheckHeal() -> Max mana=(" + me.mpmax +") Max life=(" + me.hpmax +") Mana threshold=(" + _manathreshold +") Life threshold=(" + _lifethreshold +")");
     DC_DPrint("DT_CheckHeal() -> Max mana=(" + me.mpmax +") Max life=(" + me.hpmax +") Mana threshold=(" + _manathreshold +") Life threshold=(" + _lifethreshold +")");
 	// darkspirit: added checking for Merc status
 	var _mercheal = false;
@@ -1399,9 +1369,7 @@ function DT_CheckHeal() {
 	if(_merc && _merc.hp > 0){
 		// Merc is still alive!
 		DC_DPrint("DT_CheckHeal() -> Merc hp=" + _merc.hp);
-        var stupidNumber = parseInt((128 * DT_SkipHealLife) / 100,10);
-        //print("Stupid Number Health " + stupidNumber);
-		if(_merc.hp < stupidNumber){
+		if(_merc.hp < parseInt((128 * DT_SkipHealLife) / 100,10)){
 			_mercheal = true;
 		}
 	}
@@ -1451,7 +1419,7 @@ function DT_CheckSpace( itemX, itemY ){
 			inv[i][j]=0;
 		}
 	}
-	var item = getUnit(4,null,100);
+	var item = me.getItem(null,100);
 	delay(50);
 	if(item) {
 		do {
@@ -1486,7 +1454,7 @@ function DT_CheckSpace( itemX, itemY ){
 function DT_CountFreeSpaces() {
 	var _freespaces = 40;
 	// Calculate the free spaces
-	var _invitem = DC_getItem(null,100);
+	var _invitem = DC_getMyItem(null,100);
 	if(_invitem) {
 		do {
 			// We have something in inventory
@@ -1570,7 +1538,7 @@ function DT_CleanPotions() {
 	// If the belt is not full, put the potions in the belt - by darkspirit
 	_DT_FitPotsToBelt();
 	// Replace rvs in belt with rvl - by darkspirit
-	var _potion = DC_getItem(null,100);
+	var _potion = DC_getMyItem(null,100);
 	if(_potion) {
 		do {
 			if(_potion.itemType==76 || _potion.itemType==77 || _potion.itemType==78) {
@@ -1586,7 +1554,7 @@ function DT_CleanPotions() {
 	}
 	_DT_FitPotsToBelt();
 	var _drinkArray = new Array();
-	_potion = DC_getItem(null,100);
+	_potion = DC_getMyItem(null,100);
 	if(_potion) {
 		do {
 			if(_potion.itemType==76 || _potion.itemType==77) {
@@ -1595,7 +1563,7 @@ function DT_CleanPotions() {
 		} while(_potion.getNext(null, 100));
 	}
 	for(var i = 0; i < _drinkArray.length; i+=1) {
-		_potion = getUnit(4,null,100,_drinkArray[i]);
+		_potion = me.getItem(null,100,_drinkArray[i]);
 		if(_potion) {
 			DC_DPrint("DT_CleanPotions() : Found a potion in inventory, drinking it...");
 			//clickItem(1,_potion); // seems to work better with potion.interact()
@@ -1622,7 +1590,7 @@ function DT_CleanPotions() {
 // Function by DarkSpirit
 function _DT_FitPotsToBelt() {
 	// Try to fit potions into belt
-	var _potion = DC_getItem(null,100);
+	var _potion = DC_getMyItem(null,100);
 	if(_potion) { do {
 		if(_potion.itemType==76 || _potion.itemType==77 || _potion.itemType==78) {
 			DC_DPrint("_DT_FitPotsToBelt() : Found a potion in inventory, try putting in belt...");
@@ -1657,7 +1625,7 @@ function DT_ClearInv(npc) {
 	// Make a string with this array
 	var _ignorestring = DT_IgnoredItems.join();
 	// Get the first item in inventory
-	var _invitem = DC_getItem(null,100); // 100 == inventory
+	var _invitem = DC_getMyItem(null,100); // 100 == inventory
 	// If there is a item, loop until all is processed or ignored
 	if(_invitem) {
 		do {
@@ -1740,7 +1708,7 @@ function DT_DropItem(item) {
 
 // Function by DarkSpirit
 function DT_ClearBelt() {
-	var _locitem = DC_getItem(null,2);
+	var _locitem = DC_getMyItem(null,2);
 	if(_locitem) {
 		do {
 			// If the item is not equipped and is mine
@@ -1765,7 +1733,7 @@ function DT_TossItem(where,itemcode) {
 		return false;
 	}
 
-	var _locitem = DC_getItem(itemcode,where);
+	var _locitem = DC_getMyItem(itemcode,where);
 
 	if(_locitem) { 
 		do {
@@ -1801,7 +1769,7 @@ function DT_SellItem(where,itemcode,npc) {
 		return false;
 	}
 
-	var _locitem = DC_getItem(itemcode,where);
+	var _locitem = DC_getMyItem(itemcode,where);
 
 	if(_locitem) { do {
 
@@ -1841,7 +1809,7 @@ function DT_BuyItem(item,npc,mode) {
 		// Check if the item to buy is a scroll
 		if(item.code == "isc" || item.code == "tsc") {
 			// As it is a scroll, check if we have a book with space inside
-			var _book = (item.code == "isc") ? DC_getItem("ibk",100) : DC_getItem("tbk",100); //getItem instead of getMyItem darien
+			var _book = (item.code == "isc") ? DC_getMyItem("ibk",100) : DC_getMyItem("tbk",100);
 			// If there is a book, check for available space
 			if(_book && _book.getStat(70) < 20) { 
 				_havespace = true; 
@@ -1851,7 +1819,7 @@ function DT_BuyItem(item,npc,mode) {
 		else if(item.code == "gps" || item.code == "ops" || item.code == "gpm" ||
 			item.code == "opm" || item.code == "gpl" || item.code == "opl") {
 			// Check if we have a potion already that more can fit in (amount of potions)
-			var _throwing = DC_getItem(_item.code,100);                           //getItem instead of getMyItem darien
+			var _throwing = DC_getMyItem(_item.code,100);
 			// If there is a potion in inv, check for available space
 			if(_throwing && _throwing.getStat(70) < 25) { 
 				_havespace = true; 
@@ -1861,7 +1829,7 @@ function DT_BuyItem(item,npc,mode) {
 		else if(item.code == "key") {
 			var _key;
 			// As it is a scroll, check if we have a book with space inside
-			_key = DC_getItem("key",100);
+			_key = DC_getMyItem("key",100);
 			// If there is a book, check for available space
 			if(_key && _key.getStat(70) < 12) { _havespace = true; }
 		}
@@ -1976,7 +1944,7 @@ function DT_IdItem(scroll,uniditem) {
 function DT_CheckUnids() {
 	var _unidcount = 0;
 	// Get a item from inventory
-	var _uniditem = DC_getItem(null,100);
+	var _uniditem = DC_getMyItem(null,100);
 	var checkResults = false;
 	if(_uniditem) {
 		do {
@@ -2009,7 +1977,7 @@ function DT_CheckUnids() {
 // Add number support - darkspirit
 function DT_GetUnidItem() {
 	// Get a item from inventory
-	var _uniditem = DC_getItem(null,100);
+	var _uniditem = DC_getMyItem(null,100);
 	var checkResults = false;
 	if(_uniditem) {
 		do {
@@ -2081,7 +2049,7 @@ function DT_ShopIt(npc) {
 	DC_DPrint("DT_ShopIt() : Entering Function.");
 	var ShopArray = npc.getItems();
 	var itemnum = 0;
-	//DC_DPrint("DT_ShopIt() : "+ShopArray.length+"# items found in shop.");
+	DC_DPrint("DT_ShopIt() : "+ShopArray.length+"# items found in shop.");
 	if(ShopArray && ShopArray.length > 0) {
 		do {
 			var _shopitem = ShopArray[itemnum];
@@ -2176,8 +2144,7 @@ function DT_GambleIt(npc) {
 	// Loop into the gamble items array
 	for(var i=0; i < _gamblearray.length; i+=1) {
 		// Get the gamble item object from the gid array
-		//_gambleitem = npc.getItem(null,null,_gamblearray[i].gid);
-        _gambleitem = getUnit(4,null,null,_gamblearray[i].gid);
+		_gambleitem = npc.getItem(null,null,_gamblearray[i].gid);
 		DC_DoDel(DC_LagDelay);
 		// If a item fit a entry in the array, buy it
 		if(_gambleitem) {
@@ -2198,7 +2165,7 @@ function DT_GambleIt(npc) {
 						var _newitemgid = _DT_GetGambledItem(_gambleitemcode);
 						if(_newitemgid) {
 							DC_DPrint("DT_GambleIt() : in buy item check -> got _newitemgid");
-							_newitem = getUnit(4,null,null,_newitemgid);
+							_newitem = me.getItem(null,null,_newitemgid);
 							DC_DoDel(DC_LagDelay);
 							if(_newitem) {
 								DC_DPrint("DT_GambleIt() : Bought for gambling a " + _newitem.fname);
@@ -2298,7 +2265,7 @@ function _DT_GetPotionAtNPC(npc,type) {
 	if((type == "hp") || (type == "mp")) {
 		// Decrement from super down to minor to get the best available
 		for(var i=5; i>0; i-=1) {
-			_potion = DC_getItem(type+i,103); //npc.getItem changed to DC_getItem
+			_potion = npc.getItem(type+i,103);
 			if(_potion) { 
 				return _potion; 
 			}
@@ -2309,7 +2276,7 @@ function _DT_GetPotionAtNPC(npc,type) {
 		// If the type is a rejuvenation potion, return false because we cannot shop it
 		if(type=="rv") { return false; }
 		// It is another potion type, try to get it from the NPC and return the object or null
-		_potion = DC_getItem(type,103);  //npc.getItem changed to DC_getItem
+		_potion = npc.getItem(type,103);
 		return _potion;
 	}
 }
@@ -2442,10 +2409,10 @@ function _DT_GetNeededPotionsCol(type,column) {
 	do {
 		// Get the maximum total of potions needed in case the column is empty
 		_amountneeded = _DT_BeltSize;
-		var _pot = DC_getItem(null,2);
+		var _pot = DC_getMyItem(null,2);
 		if(_pot) { do {
 				// Mode = 2 means in belt. So we have here a potion that is in the belt.
-				if(/*DC_CheckOwner(_pot) == true && */_pot.mode==2) {
+				if(DC_CheckOwner(_pot) == true && _pot.mode==2) {
 					// Is it in the right column?
 					if(_DT_PotInRightCol(_pot.x,column,_DT_BeltSize)) {
 						// Get the code in a string
@@ -2492,12 +2459,12 @@ function DT_OutOfPots() {
 	var _rvamt=0;
 	var _hpamt=0;
 	var _mpamt=0;
-	var _pot = DC_getItem(null,2);
+	var _pot = DC_getMyItem(null,2);
 
 	if(_pot) {
 		do {
 			// Mode = 2 means in belt. So we have here a potion that is in the belt.
-			if(/*DC_CheckOwner(_pot) == true && */_pot.mode==2) {
+			if(DC_CheckOwner(_pot) == true && _pot.mode==2) {
 					// Get the code in a string
 					var _potcode = _pot.code;
 					if(_potcode.indexOf("rv") != -1) {
@@ -2531,7 +2498,7 @@ function _DT_PotInRightCol(potx,column,beltsize){
 // Find the gambled item in inventory by using a old item list mask
 function _DT_GetGambledItem(itemcode) {
 	//scanning for the new one
-	var _newitem = DC_getItem(itemcode,100);
+	var _newitem = DC_getMyItem(itemcode,100);
 	// If we have a item, check if it is in the old list
 	if(_newitem) { 
 		do {
@@ -2555,7 +2522,7 @@ function _DT_GetOldItems(itemcode) {
 	// Clean the array
 	_DT_OldItems=new Array();
 	// scanning for old items of the same type
-	var _olditem = DC_getItem(itemcode,100);
+	var _olditem = DC_getMyItem(itemcode,100);
 	if(_olditem) { 
 		do {
 			if(DC_CheckOwner(_olditem) == true) { 

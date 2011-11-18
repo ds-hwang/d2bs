@@ -540,7 +540,7 @@ function DM_MakeTP(from,dest) {
 	if(me.area == from) {
 		var _portal=null;
 		// Get the book or scroll object first
-		var _scroll= getUnit(4,"tbk",100);
+		var _scroll= me.getItem("tbk",100);
 		// If we don't have a book, check for a scroll
 		if(!_scroll || !_scroll.getStat(70)) {
 			_scroll= DC_getMyItem("tsc",100);
@@ -830,7 +830,7 @@ function _DM_UseScroll(scroll) {
 // Function from Muellsammler, modified by Xizeta
 function XP_OpenTP() {
 	// Get the book or scroll object first
-	var _scroll= getUnit(4,"tbk",100);
+	var _scroll= me.getItem("tbk",100);
 	// If we don't have a book, check for a scroll
 	if(!_scroll || !_scroll.getStat(70)) {
 		_scroll= DC_getMyItem("tsc",100);
@@ -900,8 +900,7 @@ function DM_TakeEntrance(entrance) {
 		delay(500);
 		i++;
 	}
-    if(me.area == fromarea) return false;
-    return true;
+    return (me.area == fromarea) ? false : true;
 }
 
 function DM_TouchObject(obj, wait4Mode2) {

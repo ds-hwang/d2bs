@@ -152,13 +152,10 @@ function Cow_GetLeg() {
 	DM_MoveTo(25047,5166);
 	DM_MoveTo(25049,5177);
 	// Kill monsters around to be safe
-    print("clear position");
 	XP_ClearPosition(20);
 	// Tele beside Wirt's body if I'm too far
 	if (Math.abs(25048 - me.x) > 5 || Math.abs(5181 - me.y) > 5)
 		DM_MoveTo(25048,5181);
-        
-    print("find body");
 	var wirtBody = null;
 	for (var x=0; x < 5; x++) {
 		wirtBody=getUnit(2,268);
@@ -169,13 +166,10 @@ function Cow_GetLeg() {
 	if (typeof wirtBody == "undefined")
 		DC_ThrowException("YAM_Cow()", "Could not find Wirt's body.");
 	// Interact with Wirt
-    print("loot body");
 	for (x=0; x < 3 && wirtBody.mode != 2; x++) {
 		DC_DoClick(0,0,wirtBody);
 		delay(500);
 	}
-    
-    print("find leg");
 	var wirtLeg = null;
 	for (x=0; x < 5; x++) {
 		wirtLeg=getUnit(4,"leg");
@@ -238,10 +232,10 @@ function Cow_OpenCowPortal() {
 	}
 	if (!wirtLeg)
 		return "no leg.";
-	var mychest = getUnit(2,"bank");
+	var mychest = getUnit(2,"bank"); //verify!
 	if (!mychest)
 		return "no stash!";
-	var mycube = getUnit(4, "box");
+	var mycube = getUnit(4, "box"); // verify!
 	if (!mycube)
 		return "no cube. Cow module requires a cube to run !";
 	// Clear the cube of any items
@@ -355,7 +349,7 @@ function DoCow() {
             //if(npc) print("DC_getNPC isn't the problem");
 			if (!npc || !DT_DoInteract(npc)) DC_ThrowException("Cow", "Unable to interact with Akara !");
 			DT_DoTrade(npc);
-            print("wasn't DoTrade either");
+            //print("wasn't DoTrade either");
 			if (_XP_GetNumUnId > 0) XP_DoCheckItems(npc);
 			var _tptome = DT_GetTome(1);
 			if (!_tptome) DT_BuyScrolls(npc,1,1);
