@@ -475,7 +475,7 @@ function NTM_ChangeAreaInt(how, dest, ownername, myportal)
 
 		for(i = 0 ; i < 5 ; i++)
 		{
-			NTC_Delay(NTC_DELAY_FRAME);
+			NTC_Delay(150);
 
 			if(getUIFlag(0x14))
 			{
