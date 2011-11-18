@@ -515,7 +515,7 @@ function DCU_MoveItemToCube(moveitem, xmod, ymod) {  //item, coordinates in cube
 	DCU_debugmessage("ÿc0DCU_MoveItemToCube -> trying to move item: " + moveitem.name + " currently in  " + ((moveitem.bodylocation == 0) ? "inventory" :  (moveitem.bodylocation == 4) ? "stash" : (moveitem.bodylocation == 3) ? "cube" : "INVALID LOCATION") + " to cube");
 	if(!DCU_GetItemtoCursor(moveitem))
 		DCU_quitmessage(DCU_msg(403));
-	if(!DCU_DropItemFromCursor2Location(xmod, ymod, 3))
+	if(!DCU_DropItemFromCursor2Location(xmod, ymod, ITEMLOC_CUBE))
 		DCU_quitmessage(DCU_msg(404));
 
 	DCU_debugmessage("ÿc0DCU_MoveItemToCube ->  Completed, Exiting function.");
@@ -558,7 +558,7 @@ function DCU_MoveItemToStash(moveitem) {
 	DCU_CloseCube();
 	DCU_ReEnterStash();
 	DCU_debugmessage("ÿc0DCU_MoveItemToStash -> Dropping item to stash at " + x + "/" + y + " x/y");
-	if(!DCU_DropItemFromCursor2Location(x, y, 4))
+	if(!DCU_DropItemFromCursor2Location(x, y, ITEMLOC_STASH))
 		DCU_quitmessage(DCU_msg(406));
 	for(var i=x; i<x+xs; i++) {
 		for(var j=y; j<y+ys; j++) {
@@ -605,7 +605,7 @@ function DCU_MoveItemToInv(moveitem) {
 	if(!DCU_GetItemtoCursor(moveitem))
 		DCU_quitmessage(DCU_msg(405));
 	DCU_debugmessage("ÿc0DCU_MoveItemToInv -> Dropping item to inventory at " + x + "/" + y + " x/y");
-	if(!DCU_DropItemFromCursor2Location(x, y, 0))
+	if(!DCU_DropItemFromCursor2Location(x, y, ITEMLOC_INVENTORY))
 		DCU_quitmessage(DCU_msg(409));
 	for(var i=x; i < x + xs; i++) {
 		for(var j=y; j < y + ys; j++) {
@@ -1038,7 +1038,7 @@ function DCU_DropItemFromCursor2Location(x, y, location) { //location: 7=stash, 
 	if(me.itemoncursor)
 		_itemname = getUnit(100).name;
 //	if(_itemname)
-//		DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location -> trying 5 times to drop item: " + _itemname + "ÿc0 to " + ((location == 3) ? "cube" : (location == 4) ? "stash" : (location == 0) ? "inventory" : "UNKNOWN LOCATION"));
+//		DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location -> trying 5 times to drop item: " + _itemname + "ÿc0 to " + ((location == ITEMLOC_CUBE) ? "cube" : (location == ITEMLOC_STASH) ? "stash" : (location == ITEMLOC_INVENTORY) ? "inventory" : "UNKNOWN LOCATION"));
 	for(var trys=1; trys<=5; trys++) {
 		clickItem(0,x,y,location);
 		for(var up = 0; up < 20; up++) {
