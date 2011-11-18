@@ -108,20 +108,20 @@ Unit.prototype.__defineGetter__('bodyLocationName',
 			print('ÿc1Error: Unit.getBodyLocationName() the Unit is not in a valid bodylocation');
 			return false;
 		});
-Unit.prototype.__defineGetter__('inAmuletPosition', function(){ return (this.location == 255 && this.bodylocation == 2); });
-Unit.prototype.__defineGetter__('inArmorPosition', function(){ return (this.location == 255 && this.bodylocation == 3); });
-Unit.prototype.__defineGetter__('inBelt', function(){ return (this.location == 255 && this.bodylocation == 0); });
-Unit.prototype.__defineGetter__('inBeltPosition', function(){ return (this.location == 255 && this.bodylocation == 8); });
-Unit.prototype.__defineGetter__('inBootsPosition', function(){ return (this.location == 255 && this.bodylocation == 9); });
-Unit.prototype.__defineGetter__('inGlovesPosition', function(){ return (this.location == 255 && this.bodylocation == 10); });
-Unit.prototype.__defineGetter__('inHandRightPositionOne', function(){ return (this.location == 255 && this.bodylocation == 4); });
-Unit.prototype.__defineGetter__('inHandRightPositionTwo', function(){ return (this.location == 255 && this.bodylocation == 11); });
-Unit.prototype.__defineGetter__('inHandLeftPositionOne', function(){ return (this.location == 255 && this.bodylocation == 5); });
-Unit.prototype.__defineGetter__('inHandLeftPositionTwo', function(){ return (this.location == 255 && this.bodylocation == 12); });
-Unit.prototype.__defineGetter__('inHelmetPosition', function(){ return (this.location == 255 && this.bodylocation == 1); });
-Unit.prototype.__defineGetter__('inInventory', function(){ return (this.location == 0 && this.bodylocation == 0); });
-Unit.prototype.__defineGetter__('inRingLeftPosition', function(){ return (this.location == 255 && this.bodylocation == 7); });
-Unit.prototype.__defineGetter__('inRingRightPosition', function(){ return (this.location == 255 && this.bodylocation == 6); });
+Unit.prototype.__defineGetter__('inAmuletPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 2); });
+Unit.prototype.__defineGetter__('inArmorPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 3); });
+Unit.prototype.__defineGetter__('inBelt', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 0); });
+Unit.prototype.__defineGetter__('inBeltPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 8); });
+Unit.prototype.__defineGetter__('inBootsPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 9); });
+Unit.prototype.__defineGetter__('inGlovesPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 10); });
+Unit.prototype.__defineGetter__('inHandRightPositionOne', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 4); });
+Unit.prototype.__defineGetter__('inHandRightPositionTwo', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 11); });
+Unit.prototype.__defineGetter__('inHandLeftPositionOne', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 5); });
+Unit.prototype.__defineGetter__('inHandLeftPositionTwo', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 12); });
+Unit.prototype.__defineGetter__('inHelmetPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 1); });
+Unit.prototype.__defineGetter__('inInventory', function(){ return (this.location == ITEMLOC_INVENTORY && this.bodylocation == 0); });
+Unit.prototype.__defineGetter__('inRingLeftPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 7); });
+Unit.prototype.__defineGetter__('inRingRightPosition', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation == 6); });
 Unit.prototype.__defineGetter__('inTown', function(){ return ( this.area == 0 || this.area == 1 || this.area == 40 || this.area == 75 || this.area == 103 || this.area == 109 ); });
 Unit.prototype.__defineGetter__('isAmazon', function(){ return this.classid == 0; });
 Unit.prototype.__defineGetter__('isAmazonValkyrie', function(){ return this.classid == 357; });
@@ -158,7 +158,7 @@ Unit.prototype.__defineGetter__('isEnchantable',
 		});
 
 Unit.prototype.__defineGetter__('isEnchanted', function(){ return this.getState(16); });
-Unit.prototype.__defineGetter__('isEquipped', function(){ return (this.location == 255 && this.bodylocation > 0 && this.bodylocation <= 12); });
+Unit.prototype.__defineGetter__('isEquipped', function(){ return (this.location == ITEMLOC_EQUIP && this.bodylocation > 0 && this.bodylocation <= 12); });
 Unit.prototype.__defineGetter__('isMerc', function(){ return (this.classid == 271 || this.classid == 338 || this.classid == 359 || this.classid == 560 || this.classid == 561); });
 Unit.prototype.__defineGetter__('isMercItem', 
 		function()

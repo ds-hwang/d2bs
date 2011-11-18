@@ -7,6 +7,16 @@ include('common/NTCommonExt.dbl');
 
 // Public D2BS varants
 
+// Item Location Consts
+const ITEMLOC_GROUND	= 0;
+const ITEMLOC_EQUIP		= 1;
+const ITEMLOC_BELT		= 2;
+const ITEMLOC_INVENTORY = 3;
+const ITEMLOC_STORE		= 4;
+const ITEMLOC_TRADE		= 5;
+const ITEMLOC_CUBE		= 6;
+const ITEMLOC_STASH		= 7;
+
 // Character Class
 var NTC_CHAR_CLASS_AMAZON = 0;
 var NTC_CHAR_CLASS_SORCERESS = 1;
@@ -607,7 +617,6 @@ for (var b = 1 ; b < 37 ; b++){
 	var _itemy = item.y;
 	var _itemx = item.x;
  	var _click = 0;
-	//if (_itemloc==255) _itemloc=5;
 	for(var i = 0 ; i < 30 ; i++)
 	{
 		if((i % 10) == 0){

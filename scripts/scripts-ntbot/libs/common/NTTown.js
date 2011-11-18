@@ -522,7 +522,7 @@ function NTT_CheckInventory(returnInventoryArray)
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY)
 		{
 			if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 				_itemlist.push(_items[i].code);
@@ -599,7 +599,7 @@ function NTT_CheckStash()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 4)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_STASH)
 		{
 			for(y = 0 ; y < _items[i].sizey ; y++)
 			{
@@ -672,7 +672,7 @@ function NTT_ManageStash(invitem)
 
 	for(i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 4)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORYSTASH)
 		{
 			for(y = 0 ; y < _items[i].sizey ; y++)
 			{
@@ -684,7 +684,7 @@ function NTT_ManageStash(invitem)
 
 	for( i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && (_stashall || (_items[i].x == invitem.x && _items[i].y == invitem.y)))
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && (_stashall || (_items[i].x == invitem.x && _items[i].y == invitem.y)))
 		{
 			if(_stashall)
 			{
@@ -799,7 +799,7 @@ function NTT_GetScroll(type)
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == _scrollcode)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && _items[i].code == _scrollcode)
 			return _items[i];
 	}
 
@@ -828,7 +828,7 @@ function NTT_GetTome(type)
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == _tomecode)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && _items[i].code == _tomecode)
 			return _items[i];
 	}
 
@@ -936,7 +936,7 @@ function NTT_GetKey()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == "key")
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && _items[i].code == "key")
 			return _items[i];
 	}
 
@@ -1067,7 +1067,7 @@ function NTT_CheckSpace(itemX, itemY)
 
 	for(i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY)
 		{
 			for(y = 0 ; y < _items[i].sizey ; y++)
 			{
@@ -1109,7 +1109,7 @@ function NTT_CleanPotions()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && (_items[i].itemType == 76 || _items[i].itemType == 77 || _items[i].itemType == 78))
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && (_items[i].itemType == 76 || _items[i].itemType == 77 || _items[i].itemType == 78))
 		{
 			if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 			{
@@ -1139,7 +1139,7 @@ function NTT_ClearInventory()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY)
 		{
 			if(NTConfig_Columns[_items[i].y][_items[i].x] > 0)
 			{
@@ -1411,7 +1411,7 @@ function NTT_CheckUnids()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && !_items[i].getFlag(0x10))
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && !_items[i].getFlag(0x10))
 			_unidcount++;
 	}
 
@@ -1429,7 +1429,7 @@ function NTT_GetUnidItems()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && !_items[i].getFlag(0x10))
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && !_items[i].getFlag(0x10))
 			_uniditems.push(copyUnit(_items[i]));
 	}
 
@@ -1745,7 +1745,7 @@ function NTT_GetGambledItemInt()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY)
 		{
 			_founditem = true;
 
@@ -1780,7 +1780,7 @@ function NTT_GetOldItemsInt()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY)
 			_NTT_OldItems.push(_items[i].gid);
 	}
 	
@@ -1939,7 +1939,7 @@ function MoveItemToCube(item,cube)
 	{
 		if(me.itemoncursor.code=="box")	// crap we picked up box
 		{
-			if(cloc==0)
+			if(cloc==ITEMLOC_INVENTORY)
 				MoveItemToInv(me.itemoncursor);
 			else
 				MoveItemToStash(me.itemoncursor);
@@ -2174,7 +2174,7 @@ function ClearCube()
 	
 	for (var j = 0 ; j < meItems.length; j++)
 	{
-		if (meItems[j].location == 3)
+		if (meItems[j].location == ITEMLOC_CUBE)
 		{
 			if(!MoveItemToStash(meItems[j]) && !MoveItemToInv(meItems[j])) 
 			{
@@ -2192,7 +2192,7 @@ function MoveItemToStash(it)
 {
 	var found = true;
 	var my = (me.gametype == 1) ? 8 : 4;
-	var buff = buildBuffer(4);
+	var buff = buildBuffer(ITEMLOC_STASH);
 	
 	for(var x=0; x<6; x++) 
 	{ 
@@ -2241,7 +2241,7 @@ function MoveItemToStash(it)
 function MoveItemToInv(it)
 {
 	var found = true;
-	var buff = buildBuffer(0);
+	var buff = buildBuffer(ITEMLOC_INVENTORY);
 	
 	for(var x=0; x<10; x++) 
 	{ 
@@ -2319,17 +2319,17 @@ function buildBuffer(loc)
 	
 	switch(loc) 
 	{
-		case 0: //inventory
+		case ITEMLOC_INVENTORY: //inventory
 			mx = 10; 
 			my = 4; 
 		break;
 		
-		case 2: // cube
+		case ITEMLOC_CUBE: // cube
 			mx = 3; 
 			my = 4; 
 		break;
 		
-		case 4: // Stash
+		case ITEMLOC_STASH: // Stash
 			mx = 6; 
 			my = (me.gametype == 1) ? 8 : 4; 
 		break;		

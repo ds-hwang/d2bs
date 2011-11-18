@@ -23,6 +23,17 @@ var DC_ErrorLogPath   = "output/" + me.name + "ErrorLog.html";
 var DC_DebugLogPath   = "output/" + me.name + "DebugLog.html";
 var DC_Console        = null; // Console object to be used for printing. Leave to null to use normal print calls
 
+//////////////////////////////////////////////////////////////////////
+// Item Location Constants
+//////////////////////////////////////////////////////////////////////
+const ITEMLOC_GROUND	= 0;
+const ITEMLOC_EQUIP		= 1;
+const ITEMLOC_BELT		= 2;
+const ITEMLOC_INVENTORY = 3;
+const ITEMLOC_STORE		= 4;
+const ITEMLOC_TRADE		= 5;
+const ITEMLOC_CUBE		= 6;
+const ITEMLOC_STASH		= 7;
 
 //////////////////////////////////////////////////////////////////////
 // Public D2JSP constants (Thanks to njaguar, TDW and Scavenger)

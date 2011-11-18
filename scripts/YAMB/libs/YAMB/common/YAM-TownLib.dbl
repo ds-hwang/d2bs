@@ -1627,7 +1627,6 @@ function _DT_FitPotsToBelt() {
 		if(_potion.itemType==76 || _potion.itemType==77 || _potion.itemType==78) {
 			DC_DPrint("_DT_FitPotsToBelt() : Found a potion in inventory, try putting in belt...");
 			var _itemloc = _potion.location;	
-			//if(_itemloc==255) _itemloc=5; // No longer necessary to assume belt, clickItem will convert automatically
 			clickItem(2, _potion.x, _potion.y, _itemloc);
 			//clickItem(2,_potion);  //bob fixed (core doesn't check click 2,item) // Put potion in belt if there is a suitable space
 			DC_PingDel(DT_NPCDelay);

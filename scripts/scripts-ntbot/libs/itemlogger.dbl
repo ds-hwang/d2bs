@@ -208,11 +208,11 @@ catch(error){
 
 }
 function getScreenXY(Item){
-if (Item.location ==0)
+if (Item.location ==ITEMLOC_INVENTORY)
 	return [420 + (Item.x * 29),320 + (Item.y * 29)]
-if (Item.location ==4)  //stash
+if (Item.location ==ITEMLOC_STASH)  //stash
 	return [152 + (Item.x * 29),142 + (Item.y * 29)]
-   if (Item.location ==255){ // 'body
+   if (Item.location ==ITEMLOC_EQUIP){ // 'body
         if(Item.bodylocation ==1 )// 'hat
             return [533,67];
 		if(Item.bodylocation ==2 )// amulet

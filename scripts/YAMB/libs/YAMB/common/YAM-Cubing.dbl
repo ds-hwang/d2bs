@@ -411,7 +411,7 @@ function DCU_CubeLooper() {
 				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][2]; y++) {
-						if(cubeitem.location != 3){
+						if(cubeitem.location != ITEMLOC_CUBE){
 							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
 							delay(1000);//TESTING
 							DCU_MoveItemToCube(cubeitem, 0, y); //item, x & y location in cube
@@ -419,7 +419,7 @@ function DCU_CubeLooper() {
 							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
 						cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
-						while(cubeitem && cubeitem.location == 3 && cubeitem.getNext(DCU_Jobs[done][0],0));
+						while(cubeitem && cubeitem.location == ITEMLOC_CUBE && cubeitem.getNext(DCU_Jobs[done][0],0));
 					}
 				}
 				break;
@@ -427,26 +427,26 @@ function DCU_CubeLooper() {
 				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][2]; y++) {
-						if(cubeitem.location != 3){
+						if(cubeitem.location != ITEMLOC_CUBE){
 							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
 							DCU_MoveItemToCube(cubeitem, 0, y); //item, coordinate in cube
 							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
 						cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
-						while(cubeitem != null && cubeitem.location == 3 && cubeitem.getNext(DCU_Jobs[done][0],0));
+						while(cubeitem != null && cubeitem.location == ITEMLOC_CUBE && cubeitem.getNext(DCU_Jobs[done][0],0));
 					}
 				}
 				cubeitem = DCU_getItem(DCU_Jobs[done][3],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][5]; y++) {
-						if(cubeitem.location != 3){
+						if(cubeitem.location != ITEMLOC_CUBE){
 							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
 							DCU_MoveItemToCube(cubeitem, 1, y); //item, coordinate in cube
 							if(y!=DCU_Jobs[done][5]-1)
 								cubeitem.getNext();
 						}
 						cubeitem = DCU_getItem(DCU_Jobs[done][3],0);
-						while(cubeitem && cubeitem.location == 3 && cubeitem.getNext(DCU_Jobs[done][3],0));
+						while(cubeitem && cubeitem.location == ITEMLOC_CUBE && cubeitem.getNext(DCU_Jobs[done][3],0));
 					}
 				}
 				break;
@@ -493,21 +493,21 @@ function DCU_MoveItemToCube(moveitem, xmod, ymod) {  //item, coordinates in cube
 	DCU_debugmessage("ÿc0DCU_MoveItemToCube ->  Entering function.");
 	// Clear the spaces they occupied
 	switch (moveitem.location) {
-		case 0: //inventory
+		case ITEMLOC_INVENTORY: //inventory
 			for(var m=moveitem.x; m < moveitem.x + moveitem.sizex; m++) {
 				for(var n=moveitem.y; n < moveitem.y + moveitem.sizey; n++) {
 					DCU_Inven[m][n] = DCU_EMPTY;
 				}
 			}
 			break;
-		case 4: //stash
+		case ITEMLOC_STASH: //stash
 			for(var m=moveitem.x; m < moveitem.x + moveitem.sizex; m++) {
 				for(var n=moveitem.y; n < moveitem.y + moveitem.sizey; n++) {
 					DCU_Stash[m][n] = DCU_EMPTY;
 				}
 			}
 			break;
-		case 3: //cube
+		case ITEMLOC_CUBE: //cube
 		default:
 			DCU_debugmessage(DCU_msg(407) + moveitem.bodylocation + DCU_msg(408));
 			break;
@@ -739,7 +739,7 @@ function DCU_CheckInvTempSpace(_checkitem) {
 	var _invItems = me.getItems();
 	if(_invItems.length){
 		for(var iLoop = 0; iLoop < _invItems.length-1; iLoop++){
-			if(_invItems[iLoop].location != 0) continue;
+			if(_invItems[iLoop].location != ITEMLOC_INVENTORY) continue;
 			_x_pos  = _invItems[iLoop].x;
 			_x_size = _invItems[iLoop].sizex;
 			_y_pos  = _invItems[iLoop].y;

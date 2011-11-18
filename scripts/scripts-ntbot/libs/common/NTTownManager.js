@@ -841,7 +841,7 @@ function NTTMGR_CheckScrolls(_scrollType)
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == _tomecode)
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && _items[i].code == _tomecode)
 			return _items[i].getStat(70);
 	}
 
@@ -861,7 +861,7 @@ function NTTMGR_CheckKeys()
 
 	for(var i = 0 ; i < _items.length ; i++)
 	{
-		if(_items[i].mode == 0 && _items[i].location == 0 && _items[i].code == "key")
+		if(_items[i].mode == 0 && _items[i].location == ITEMLOC_INVENTORY && _items[i].code == "key")
 			return _items[i].getStat(70);
 	}
 

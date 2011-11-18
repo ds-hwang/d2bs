@@ -165,7 +165,7 @@ function COW_MakePortal()
 		
 			if(_items) {
 				for(var i = 0; i < _items.length ; i++) {
-					if(_items[i].location == 3) {
+					if(_items[i].location == ITEMLOC_CUBE) {
 						COW_Print("ÿc1Please clean your cube before using this script!");
 						return false;
 					}
@@ -223,7 +223,7 @@ function COW_getFirstTBK()
 		for(var i = 0; i < _items.length; i++) 
 		{
 			// look for items in my pack //
-			if(_items[i].location == 0) 
+			if(_items[i].location == ITEMLOC_INVENTORY) 
 			{
 				// look only for town portal tomes //
 				if(_items[i].code == "tbk") 
