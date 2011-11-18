@@ -1042,7 +1042,7 @@ function DT_ManageStash() {
 										_numtries+=1;
 									}
 									// Put the item in the stash at the specified space
-									clickItem(0,x,y,7);
+									clickItem(0,x,y,ITEMLOC_STASH);
 									// Loop until the item is put in the stash
 									_numtries = 0;
 									while (_invitem.mode == 4) {
@@ -1371,7 +1371,7 @@ function DT_FillBelt(npc) {
 						DC_PingDel(DT_NPCDelay);
 						clickItem(0, _pot);		// Swap
 						DC_PingDel(DT_NPCDelay);
-						clickItem(0, x, y, 3);
+						clickItem(0, x, y, ITEMLOC_INVENTORY);
 						DC_PingDel(DT_NPCDelay);
 						DC_ClearCursor();
 						_DT_FitPotsToBelt();
@@ -1577,7 +1577,7 @@ function DT_CleanPotions() {
 				var x = _potion.x;
 				var y = _potion.y;
 				if(_DT_ReplacePot(_potion)) {
-					clickItem(0, x, y, 3);
+					clickItem(0, x, y, ITEMLOC_INVENTORY);
 					DC_PingDel(DT_NPCDelay);
 					DC_ClearCursor();
 				}

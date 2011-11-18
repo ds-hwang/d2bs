@@ -741,7 +741,7 @@ function NTT_ManageStash(invitem)
 										for(n = 0 ; n < 50 ; n++)
 										{
 											if((n % 10) == 0)
-												clickItem(0, x, y, 7);
+												clickItem(0, x, y, ITEMLOC_STASH);
 
 											NTC_Delay(100);
 
@@ -2219,7 +2219,7 @@ function MoveItemToStash(it)
 					for(var n = 0 ; n < 50 ; n++)
 					{
 						if((n % 10) == 0)				
-							clickItem(0, x, y, 7);
+							clickItem(0, x, y, ITEMLOC_STASH);
 							
 						NTC_Delay(100);
 						
@@ -2269,7 +2269,7 @@ function MoveItemToInv(it)
 					for(var n = 0 ; n < 50 ; n++)
 					{
 						if((n % 10) == 0)
-							clickItem(0, x, y, 3);
+							clickItem(0, x, y, ITEMLOC_INVENTORY);
 							
 						NTC_Delay(100);
 						
