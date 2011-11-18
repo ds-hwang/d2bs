@@ -230,9 +230,13 @@ path.prototype.x = function (){}
 path.prototype.y = function (){}
 
 function getCollision (area,x,y){}
-function clickItem (clickType, item_OR_x, y, location){
+function clickItem (clickType, item_OR_BodyLocation_OR_x, y, location){
 /// <summary>clicks item or inventory spot</summary>
-/// <param name="location" type="Number">0 - Inventory, 2 - Trade Window, 3 - Cube 4 - Stash 5 - Belt  OR 1 -merc Helmet, 3 -Merc Armor 4 -Merc Weapon</param>
+/// <param name="location" type="Number">3 - Inventory, 5 - Trade Window, 6 - Cube, 7 - Stash, 2 - Belt</param> 
+/// <param name="y" type="Number">The item y location</param>
+/// <param name="x" type="Number">The item x location</param>
+///	<param name="item" type="Unit">An item</param>
+///	<param name="BodyLocation" type="Number">1 - Head, 2 - Amulet, 3 - Body, 4 - Primary Right Weapon, 5 - Primary Left Weapon, 6 - Right Ring, 7 - Left Ring, 8 - Belt, 9 - Feet, 10 - Gloves, 11 - Secondary Right Weapon, 12 - Secondary Left Weapon, OR 1 -merc Helmet, 3 -Merc Armor 4 -Merc Weapon</param>
 /// <param name="clickType" type="Number">0 - Left, 1 - Right, 2 - Shift-left (put to belt), 3 - Mercenary Item</param>
 }
 function getLocaleString(id){}

@@ -1042,7 +1042,7 @@ function DT_ManageStash() {
 										_numtries+=1;
 									}
 									// Put the item in the stash at the specified space
-									clickItem(0,x,y,4);
+									clickItem(0,x,y,7);
 									// Loop until the item is put in the stash
 									_numtries = 0;
 									while (_invitem.mode == 4) {
@@ -1371,7 +1371,7 @@ function DT_FillBelt(npc) {
 						DC_PingDel(DT_NPCDelay);
 						clickItem(0, _pot);		// Swap
 						DC_PingDel(DT_NPCDelay);
-						clickItem(0, x, y, 0);
+						clickItem(0, x, y, 3);
 						DC_PingDel(DT_NPCDelay);
 						DC_ClearCursor();
 						_DT_FitPotsToBelt();
@@ -1577,7 +1577,7 @@ function DT_CleanPotions() {
 				var x = _potion.x;
 				var y = _potion.y;
 				if(_DT_ReplacePot(_potion)) {
-					clickItem(0, x, y, 0);
+					clickItem(0, x, y, 3);
 					DC_PingDel(DT_NPCDelay);
 					DC_ClearCursor();
 				}
@@ -1627,7 +1627,7 @@ function _DT_FitPotsToBelt() {
 		if(_potion.itemType==76 || _potion.itemType==77 || _potion.itemType==78) {
 			DC_DPrint("_DT_FitPotsToBelt() : Found a potion in inventory, try putting in belt...");
 			var _itemloc = _potion.location;	
-			if(_itemloc==255) _itemloc=5;
+			//if(_itemloc==255) _itemloc=5; // No longer necessary to assume belt, clickItem will convert automatically
 			clickItem(2, _potion.x, _potion.y, _itemloc);
 			//clickItem(2,_potion);  //bob fixed (core doesn't check click 2,item) // Put potion in belt if there is a suitable space
 			DC_PingDel(DT_NPCDelay);

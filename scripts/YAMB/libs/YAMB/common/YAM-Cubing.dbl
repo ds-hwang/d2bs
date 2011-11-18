@@ -1032,7 +1032,7 @@ function DCU_UseCube() {
 	return false;
 }
 
-function DCU_DropItemFromCursor2Location(x, y, location) { //location: 4=stash, 3=cube, 0=inventory
+function DCU_DropItemFromCursor2Location(x, y, location) { //location: 7=stash, 6=cube, 3=inventory
 //	DCU_debugmessage("ÿc0DCU_DropItemFromCursor2Location ->  Entering function.");
 	var _itemname = "";
 	if(me.itemoncursor)

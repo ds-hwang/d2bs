@@ -607,7 +607,7 @@ for (var b = 1 ; b < 37 ; b++){
 	var _itemy = item.y;
 	var _itemx = item.x;
  	var _click = 0;
-	if (_itemloc==255) _itemloc=5;
+	//if (_itemloc==255) _itemloc=5;
 	for(var i = 0 ; i < 30 ; i++)
 	{
 		if((i % 10) == 0){
