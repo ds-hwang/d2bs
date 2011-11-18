@@ -307,9 +307,9 @@ namespace D2BSLoader
 				   libnspr = Path.Combine(Application.StartupPath, "libnspr4.dll"),
 				   d2bs = Path.Combine(Application.StartupPath, D2BSDLL);
 			return  File.Exists(libnspr) && File.Exists(js32) && File.Exists(d2bs) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr, useNtCreateThreadEx) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, js32, useNtCreateThreadEx) &&
-					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs, useNtCreateThreadEx);
+					PInvoke.Kernel32.LoadRemoteLibrary(p, libnspr) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, js32) &&
+					PInvoke.Kernel32.LoadRemoteLibrary(p, d2bs);
 		}
 
 		private void Attach(ProcessWrapper pw)
@@ -350,10 +350,29 @@ namespace D2BSLoader
 			   !File.Exists(Path.Combine(Application.StartupPath, D2BSDLL)))
 				return -1;
 
-			ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(D2Path, D2Exe), D2Args);
+			ProcessStartInfo psi = new ProcessStartInfo(Path.Combine(D2Path, D2Exe), " " + D2Args);
 			psi.UseShellExecute = false;
 			psi.WorkingDirectory = D2Path;
-			Process p = Process.Start(psi);
+            
+            Process.EnterDebugMode();
+            Process p = new Process();
+            p.StartInfo = psi;
+            p= PInvoke.Kernel32.StartSuspended(p, psi);
+            
+             byte[] oldValue = new byte[2];
+             byte[] test = new byte[2];
+           
+             PInvoke.Kernel32.LoadRemoteLibrary(p, Path.Combine(D2Path, "D2Gfx.dll"));
+             PInvoke.Kernel32.WriteProcessMemory(p, (IntPtr)(0x6FA80000 + 0xB6B0), new byte[] { 0xEB, 0x45 });
+             IntPtr address = (IntPtr)(0x6FA80000 + 0xB6B0);
+
+             PInvoke.Kernel32.Resume(p);
+           
+             p.WaitForInputIdle();
+             PInvoke.Kernel32.Suspend(p);
+             PInvoke.Kernel32.WriteProcessMemory(p, address, oldValue);
+             PInvoke.Kernel32.Resume(p);
+            
 			System.Threading.Thread.Sleep(LoadDelay);
 			Process[] children = ProcessExtensions.GetChildProcesses(p);
 			if(children.Length > 0)
@@ -367,7 +386,10 @@ namespace D2BSLoader
 			}
 			return p.Id;
 		}
-
+        private void WriteMultiWindow(Process p)
+        {
+           
+        }
 		private void Load_Click(object sender, EventArgs e)
 		{
 			if(Processes.SelectedIndex == -1)

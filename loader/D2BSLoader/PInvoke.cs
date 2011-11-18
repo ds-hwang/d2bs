@@ -64,6 +64,40 @@
         // NOT SUPPORTED IN WINDOWS
         UseNtCreateThreadEx = 0x800000
 	}
+    [Flags]
+    public enum ProcessCreationFlags : uint
+    {
+        BreakawayFromJob = 0x01000000,
+        DefaultErrorMode = 0x04000000,
+        NewConsole = 0x00000010,
+        NewProcessGroup = 0x00000200,
+        NoWindow = 0x08000000,
+        ProtectedProcess = 0x00040000,
+        PreserveCodeAuthzLevel = 0x02000000,
+        SeparateWowVdm = 0x00000800,
+        SharedWowVdm = 0x00001000,
+        Suspended = 0x00000004,
+        UnicodeEnvironment = 0x00000400,
+        DebugOnlyThisProcess = 0x00000002,
+        DebugProcess = 0x00000001,
+        DetachedProcess = 0x00000008,
+        ExtendedStartupInfo = 0x00080000,
+        InheritParentAffinity = 0x00010000
+    }
+    public enum ThreadAccessFlags : uint
+    {
+        Terminate = 0x0001,
+        SuspendResume = 0x0002,
+        GetContext = 0x0008,
+        SetContext = 0x0010,
+        SetInformation = 0x0020,
+        QueryInformation = 0x0040,
+        SetThreadToken = 0x0080,
+        Impersonate = 0x0100,
+        DirectImpersonate = 0x0200,
+        SetLimitedInformation = 0x0400,
+        QueryLimitedInformation = 0x0800,
+    }
 	[Flags]
 	public enum LoadLibraryFlags : uint
 	{
@@ -162,6 +196,53 @@
 
 	public static class Kernel32
 	{
+
+        private struct ProcessInformation
+        {
+            public IntPtr Process;
+            public IntPtr Thread;
+            public uint ProcessId;
+            public uint ThreadId;
+        }
+
+        private struct StartupInfo
+        {
+            public uint CB;
+            public string Reserved;
+            public string Desktop;
+            public string Title;
+            public uint X;
+            public uint Y;
+            public uint XSize;
+            public uint YSize;
+            public uint XCountChars;
+            public uint YCountChars;
+            public uint FillAttribute;
+            public uint Flags;
+            public short ShowWindow;
+            public short Reserved2;
+            public IntPtr lpReserved2;
+            public IntPtr StdInput;
+            public IntPtr StdOutput;
+            public IntPtr StdError;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool CreateProcess(string Application, string CommandLine, IntPtr ProcessAttributes,
+                            IntPtr ThreadAttributes, bool InheritHandles, uint CreationFlags, IntPtr Environment,
+                            string CurrentDirectory, ref StartupInfo StartupInfo, out ProcessInformation ProcessInformation);
+
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern uint SuspendThread(IntPtr hThread);
+
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern uint ResumeThread(IntPtr hThread);
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, uint dwSize, PageAccessProtectionFlags flags, out PageAccessProtectionFlags oldFlags);
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr baseAddress, [Out] byte[] buffer, uint size, out uint numBytesRead);
+
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		private static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
@@ -189,54 +270,67 @@
 		[DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		private static extern bool FreeLibrary(IntPtr hHandle);
+        [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+        private static extern IntPtr OpenThread(ThreadAccessFlags flags, bool bInheritHandle, uint threadId);
 
-		public static bool LoadRemoteLibrary(Process p, string module, bool useNtCreateThreadEx)
-		{
-			IntPtr moduleName = WriteObject(p, module);
-			bool result = CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName, useNtCreateThreadEx);
-			FreeObject(p, moduleName);
-			return result;
-		}
+        public static bool LoadRemoteLibrary(Process p, string module) 
+        {
+            IntPtr moduleName = WriteObject(p, module);
+            bool result = CallRemoteFunction(p, "kernel32.dll", "LoadLibraryA", moduleName);
+            FreeObject(p, moduleName);
+            return result;
+        }
 		public static bool UnloadRemoteLibrary(Process p, string module)
 		{
 			IntPtr moduleHandle = FindModuleHandle(p, module);
 			IntPtr moduleName = WriteObject(p, moduleHandle);
-			bool result = CallRemoteFunction(p, "kernel32.dll", "FreeLibrary", moduleName, false);
+			bool result = CallRemoteFunction(p, "kernel32.dll", "FreeLibrary", moduleName);
 			FreeObject(p, moduleName);
 			return result;
 		}
 
-		public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param, bool useNtCreateThreadEx)
-		{
-			IntPtr moduleHandle = FindModuleHandle(p, module);
-			IntPtr offset = FindOffset(module, function);
+        public static bool CallRemoteFunction(Process p, string module, string function, IntPtr param)
+        {
+            return CallRemoteFunction(p.Id, module, function, param);
+        }
+        public static bool CallRemoteFunction(int pid, string module, string function, IntPtr param)
+        {
+            IntPtr moduleHandle = LoadLibraryEx(module, LoadLibraryFlags.LoadAsDataFile);
+            IntPtr address = GetProcAddress(moduleHandle, function);
+            if (moduleHandle == IntPtr.Zero || address == IntPtr.Zero)
+                return false;
 
-			if(moduleHandle == IntPtr.Zero || offset == IntPtr.Zero)
-				return false;
+            IntPtr result = CreateRemoteThread(pid, address, param, CreateThreadFlags.RunImmediately);
+            if (result != IntPtr.Zero)
+                WaitForSingleObject(result, UInt32.MaxValue);
 
-			IntPtr address = (IntPtr)(moduleHandle.ToInt32() + offset.ToInt32());
-			if(address != IntPtr.Zero)
-			{
-				CreateThreadFlags flags = CreateThreadFlags.RunImmediately;
-				if(useNtCreateThreadEx) flags |= CreateThreadFlags.UseNtCreateThreadEx;
-				IntPtr result = CreateRemoteThread(p, address, param, flags);
-				if (result != IntPtr.Zero)
-					WaitForSingleObject(result, UInt32.MaxValue);
-				return result != IntPtr.Zero;
-			}
-			return false;
-		}
-		public static IntPtr WriteObject(Process p, object data)
-		{
-			byte[] bytes = GetRawBytes(data);
-			IntPtr address = VirtualAlloc(p, IntPtr.Zero, (uint)bytes.Length, AllocationType.Commit | AllocationType.Reserve, PageAccessProtectionFlags.ReadWrite);
-			WriteProcessMemory(p, address, bytes);
-			return address;
-		}
-		public static void FreeObject(Process p, IntPtr address)
-		{
-			VirtualFree(p, address);
-		}
+            return result != IntPtr.Zero;
+        }
+        public static bool ReadProcessMemory(Process p, IntPtr address, ref byte[] buffer) 
+        {
+            IntPtr handle = PInvoke.Kernel32.GetProcessHandle(p, PInvoke.ProcessAccessFlags.VMRead);
+            uint length = 0;
+            PageAccessProtectionFlags flags, oldFlags;
+            if (!VirtualProtect(new IntPtr(p.Id), address, (uint)buffer.Length, PageAccessProtectionFlags.ExecuteReadWrite, out flags))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (!ReadProcessMemory(handle, address, buffer, (uint)buffer.Length, out length))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (!VirtualProtect(new IntPtr(p.Id), address, (uint)buffer.Length, flags, out oldFlags))
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            CloseProcessHandle(handle);
+            return (length == buffer.Length);
+        }
+        public static IntPtr WriteObject(Process p, object data) 
+        {
+            byte[] bytes = GetRawBytes(data);
+            IntPtr address = VirtualAlloc(p, IntPtr.Zero, (uint)bytes.Length, AllocationType.Commit | AllocationType.Reserve, PageAccessProtectionFlags.ReadWrite);
+            WriteProcessMemory(p, address, bytes);
+            return address;
+        }
+        public static void FreeObject(Process p, IntPtr address)
+        {
+            VirtualFree(p, address);
+        }
 		public static IntPtr FindModuleHandle(Process p, string module)
 		{
 			p.WaitForInputIdle();
@@ -259,8 +353,23 @@
 			}
 			return IntPtr.Zero;
 		}
-
-		[DebuggerHidden]
+        [DebuggerHidden]
+        public static bool VirtualProtect(IntPtr pid, IntPtr address, uint size, PageAccessProtectionFlags flags, out PageAccessProtectionFlags oldFlags)
+        {
+            IntPtr handle = GetProcessHandle(pid, ProcessAccessFlags.VMOperation);
+            bool result = VirtualProtectEx(handle, address, size, flags, out oldFlags);
+            CloseHandle(handle);
+            return result;
+        }
+        [DebuggerHidden]
+        public static IntPtr GetProcessHandle(IntPtr pid, ProcessAccessFlags flags)
+        {
+            IntPtr handle = OpenProcess(flags, false, (uint)pid);
+            if (handle == IntPtr.Zero)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            return handle;
+        }
+       [DebuggerHidden]
 		public static IntPtr LoadLibraryEx(string module, LoadLibraryFlags flags)
 		{
 			return LoadLibraryEx(module, IntPtr.Zero, flags);
@@ -308,30 +417,32 @@
 			CloseProcessHandle(handle);
 			return bytes;
 		}
-		[DebuggerHidden]
-		public static IntPtr CreateRemoteThread(Process p, IntPtr address, IntPtr param, CreateThreadFlags flags)
-		{
-			IntPtr handle = GetProcessHandle(p, ProcessAccessFlags.CreateThread | ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMOperation | ProcessAccessFlags.VMRead | ProcessAccessFlags.VMWrite);
-
-			try {
-				if(Environment.OSVersion.Version.Major >= 6 && (flags & CreateThreadFlags.UseNtCreateThreadEx) == CreateThreadFlags.UseNtCreateThreadEx) {
-					return NTDll.CreateRemoteThread(address, param, handle);
-				} else {
-					return CreateRemoteThread(address, param, flags, handle);
-				}
-			} finally { CloseProcessHandle(handle); }
-		}
-
-		private static IntPtr CreateRemoteThread(IntPtr address, IntPtr param, CreateThreadFlags flags, IntPtr handle)
-		{
-			IntPtr thread = CreateRemoteThread(handle, IntPtr.Zero, (uint)0, address, param, (uint)flags, IntPtr.Zero);
-
-			if(thread == IntPtr.Zero)
-				throw new Win32Exception(Marshal.GetLastWin32Error());
-			else
-				return thread;
-		}
-
+        [DebuggerHidden]
+        public static IntPtr CreateRemoteThread(Process p, IntPtr address, IntPtr param, CreateThreadFlags flags) { return CreateRemoteThread(p.Id, address, param, flags); }
+        [DebuggerHidden]
+        public static IntPtr CreateRemoteThread(int pid, IntPtr address, IntPtr param, CreateThreadFlags flags)
+        {
+            IntPtr handle = GetProcessHandle(new IntPtr(pid), ProcessAccessFlags.CreateThread | ProcessAccessFlags.QueryInformation | ProcessAccessFlags.VMOperation | ProcessAccessFlags.VMRead | ProcessAccessFlags.VMWrite);
+            IntPtr thread = CreateRemoteThread(handle, IntPtr.Zero, (uint)0, address, param, (uint)flags, IntPtr.Zero);
+            if (thread == IntPtr.Zero)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            CloseProcessHandle(handle);
+            return thread;
+        }
+        [DebuggerHidden]
+        public static void SuspendThread(int tid)
+        {
+            IntPtr handle = OpenThread(ThreadAccessFlags.SuspendResume, false, (uint)tid);
+            SuspendThread(handle);
+            CloseHandle(handle);
+        }
+        [DebuggerHidden]
+        public static void ResumeThread(int tid)
+        {
+            IntPtr handle = OpenThread(ThreadAccessFlags.SuspendResume, false, (uint)tid);
+            ResumeThread(handle);
+            CloseHandle(handle);
+        }
 		[DebuggerHidden]
 		public static byte[] GetRawBytes(object anything)
 		{
@@ -350,6 +461,42 @@
 				return streamdatas;
 			}
 		}
+
+        public static uint StartProcess(string directory, string application, ProcessCreationFlags flags, params string[] parameters)
+        {
+            StartupInfo si = new StartupInfo();
+            ProcessInformation pi = new ProcessInformation();
+            if (CreateProcess(application, String.Concat(application, String.Concat(parameters)), IntPtr.Zero, IntPtr.Zero, false, (uint)flags, IntPtr.Zero, directory, ref si, out pi))
+                return pi.ProcessId;
+            return uint.MaxValue;
+        }
+
+        public static Process StartSuspended( Process process, ProcessStartInfo startInfo)
+        {
+            uint id = Kernel32.StartProcess(startInfo.WorkingDirectory, startInfo.FileName, ProcessCreationFlags.Suspended, startInfo.Arguments);
+            return Process.GetProcessById((int)id);
+        }
+        public static void Suspend( Process process)
+        {
+            foreach (ProcessThread t in process.Threads)
+                PInvoke.Kernel32.SuspendThread(new IntPtr( t.Id));
+               
+        }
+
+        public static void Resume( Process process)
+        {
+            foreach (ProcessThread t in process.Threads)
+                PInvoke.Kernel32.ResumeThread(t.Id);
+        }
+
+        public static void Suspend(ProcessThread thread)
+        {
+            PInvoke.Kernel32.SuspendThread((new IntPtr(thread.Id)));
+        }
+        public static void Resume( ProcessThread thread)
+        {
+            PInvoke.Kernel32.ResumeThread((new IntPtr(thread.Id)));
+        }
 		/* currently not working because of compiler problems */
 		/*[DebuggerHidden]
 		public static T ConvertTo<T>(byte[] rawdatas)
