@@ -909,6 +909,9 @@ var success;
 		}
 	}
 	
+	
+	NTSI_FastSnag(); 
+	return true;
 		
 }
 function XP_CheckRevives(reviveSkill,reviveID) {
