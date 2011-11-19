@@ -10,18 +10,18 @@
 */
 
 
-// JavaScript related
+// JavaScript API related
 include('prototypes/javascript.js');
 
 
-// D2BS related
+// D2BS API related
 include('prototypes/d2bs.js');
 // include('prototypes/area.js');
 // include('prototypes/box.js');
 // include('prototypes/control.js');
 // include('prototypes/d2bsscript.js');
 // include('prototypes/dbstatement.js');
-// include('prototypes/exit.js');
+include('prototypes/exit.js');
 // include('prototypes/file.js');
 // include('prototypes/filetools.js');
 // include('prototypes/folder.js');
