@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1535;
+var ntbotRevision = 1536;
 
 js_strict(true);
 
@@ -100,7 +100,9 @@ function main()
 	);
 	
 	try{
-		NT_LoadConfig(); 
+		NT_LoadConfig();
+		NT_Leader.push(leader);
+		QuitWithLeaderList.push(leader);
 	}catch(error){
 		load("libs/config/NTConfig_"+NTC_CharClassToNameList[me.classid]+"_"+me.name+".dbl");
 	}

@@ -477,11 +477,5 @@ function NT_LoadConfig()
 	//NT_RecipieBox.push(["Name = Ber rune", true ,"Name = Ber rune", true ,"Name = Flawless sapphire"])
 	//NT_RecipieBox.push(["Name = Jah rune", true ,"Name = Jah rune", true ,"Name = Flawless Ruby"])
 	//NT_RecipieBox.push(["Name = Cham rune", true ,"Name = Cham rune", true ,"Name = Flawless Emerald"])
-	
-	
-	
-	//	Don't edit the lines below this point
-	NT_Leader.push(leader);									//	Do not edit this line
-	QuitWithLeaderList.push(leader)							//	Do not edit this line;
 
 }
