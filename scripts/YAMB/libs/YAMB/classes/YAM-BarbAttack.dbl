@@ -176,7 +176,7 @@ function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
 			var body = getBodyTarget(range);
 			while (body && me.mp > 7) {
 				XP_UseHork(body);
-				DSN_PickItems();
+				DSN_PickItems(YAM_SafeCheck);
 				body = getBodyTarget(range);
 			}
 		}

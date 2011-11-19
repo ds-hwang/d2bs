@@ -3,7 +3,7 @@ DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
 
 // Hammerdin config
 var RedemMana = 100;
-var RedemLife = 100;
+var RedemLife = 700;
 var UseVigor=true;
 var UseRedemption  = true;
 
@@ -67,17 +67,17 @@ function XP_BossAttack(target) {
 
 	_XP_AttackCompleted=0;
 
-    //print("attacking " + target.name + " classid " + target.classid);
-
 	// move to get close to the target
 	if (me.area != 74 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)){ //Darien, don't move closer in arcane, walk bots get stuck
 		//if a Hammerdin doesn't have tele, stay put... otherwise teleport onto the target
-        if(XP_PallyAttack == 112 && !DM_CheckTeleport()) {
-            delay(10);
-	    } else {
-            if(!DM_MoveTo(target.x, target.y)) clearPath(XP_PallyAttack,1);
-        }
-    }
+		if(XP_PallyAttack == 112 && !DM_CheckTeleport()) {
+			delay(10);
+		} 
+		else {
+			if(!DM_MoveTo(target.x, target.y))
+				clearPath(XP_PallyAttack,1);
+		}
+	}
 	_XP_EndPosition = new XP_Coord(me.x,me.y);
 	// Set aura on the right hand
 	DC_PutSkill(XP_PallyAura,0);
@@ -92,13 +92,13 @@ function XP_BossAttack(target) {
 		}
 		else {
             //improvement by Darien, don't hold Shift when attacking unless it's a spell
-			if(XP_PallyAttack == 101 || XP_PallyAttack == 112 || XP_PallyAttack == 121) DC_DoCast(XP_PallyAttack,2,target);
-            else DC_DoCast(XP_PallyAttack,1,target);
+			DC_DoCast(XP_PallyAttack,((XP_PallyAttack == 101 || XP_PallyAttack == 112 || XP_PallyAttack == 121) ? 2 : 1),target);
 		}
 		i +=1;
 		if (i >2 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)) {
 			if (target.hp > (prvHP-2000)){ // still missing target.
-				if(!DM_MoveTo(target.x, target.y)) clearPath(XP_PallyAttack,1); //if walk fails could be surronded try attacking
+				if(!DM_MoveTo(target.x, target.y)) //if walk fails could be surrounded try attacking
+					clearPath(XP_PallyAttack,1);
 				// Set the aura on the right hand
 				DC_PutSkill(XP_PallyAura,0);
 			}
@@ -297,16 +297,13 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 			}
 		}
 		else {
-        
-            if(monster.getStat(37) > 99) var PallyAttack = MeleeAttack;
-            else var PallyAttack = XP_PallyAttack;
-        
+			var PallyAttack = (monster.getStat(37) > 99) ? MeleeAttack : XP_PallyAttack;
 			if (DC_DoCast(PallyAttack,2,monster)){
 				if (monster.hp < hpprev){
 					hpprev = monster.hp;
 					attprev = _XP_AttackCompleted + 1;
 				}
-				XP_CheckAttacks ();
+				XP_CheckAttacks();
 			}
 			else {
 				return false;
@@ -344,7 +341,8 @@ function XP_HammerdinAuraIdle() {
 }
 
 function XP_PreAttack(times) {
-    if(!times) times = preAttackAmount;
+	if(typeof(times) != "number")
+		times = preAttackAmount;
 	if (!XP_HammerdinAuraIdle() && DC_CheckSkill(112)) {
 		DC_PutSkill(XP_PallyAura,0);
 		for(var i=0; i < times; i+=1){

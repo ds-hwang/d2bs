@@ -33,10 +33,6 @@ function EXP_AttackEldritch() {
 		XP_BossAttack(target);
         killRadius(20, "Enslaved");
         killRadius(20);
-        //print("correction move");
-        //DM_MoveTo(me.x-15,me.y+15);
-        
-        
         /*
 		if (XP_KillMinions)	{
 			// Wait a while until we kill some minions

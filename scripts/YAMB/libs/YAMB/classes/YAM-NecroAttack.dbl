@@ -2,8 +2,7 @@
 DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
 //if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
 
-
-var XP_BuildSkeleArmy = true;
+var XP_BuildSkeleArmy = false;
 var XP_BoneBehind     = true;
 var XP_BoneArmor      = true;  // Cast Bone Armor or not
 var XP_Golem          = 1;     // 0 = disable, 1 = Clay, 2 = Blood, 3= Fire
@@ -122,10 +121,9 @@ function CastDistract(target) {
 
 function XP_BossAttack(target,x,y) {
 	// So that revives would not clump together
-	if (XP_useRevive) { // && DM_CheckTeleport()) {
-        XP_NecroRevive();
-		//DC_DoClick(0,0,me.x,me.y-1);
-		//DC_DoClick(0,0,me.x,me.y+1);
+	if (XP_useRevive && DM_CheckTeleport()) {
+		DC_DoClick(0,0,me.x,me.y-1);
+		DC_DoClick(0,0,me.x,me.y+1);
 	}
 	//The two points define a line of valid move points which can be traversed
 	if (arguments.length < 2) {x = 0;}
@@ -522,7 +520,7 @@ function getBodyTarget(range) {
 		if (getBaseStat(1,BodyTarget.classid,23)) {
 			continue;
 		}
-		if(getDistance(me, BodyTarget) < 30 && !BodyTarget.getParent() &&
+		if(getDistance(me, BodyTarget) < (!range ? 25 : range) && !BodyTarget.getParent() &&
 			/*BodyTarget.classid != 271 && BodyTarget.classid != 289 &&
 			BodyTarget.classid != 290 && BodyTarget.classid != 291 &&
 			BodyTarget.classid != 292 && BodyTarget.classid != 338 &&
@@ -542,7 +540,6 @@ function getBodyTarget(range) {
 				}
 			}
 			if(!skipTarget) {
-                dprint("have body target",2);
 				ignoreKorpse.push(BodyTarget.gid);
 					return BodyTarget;
 			}
@@ -590,7 +587,7 @@ function BuildSkeleArmy() {
 		XP_Precasts();
 	}
 	//DM_MoveTo(10063,13281);
-	//XP_NecroRevive().GotoDest(10063,13281);
+	commPather.GotoDest(10063,13281);
 	// Revives will not work
 	tempRev = XP_useRevive;
 	XP_useRevive = false;

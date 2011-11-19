@@ -43,10 +43,10 @@ function YAM_AttackNihlathak() {
 	XP_Precasts();
 	XP_ClearPosition(20);
 	DSN_PickItems(YAM_SafeCheck);
-	//commPather.InitType = 1;
+	commPather.InitType = 1;
 	//Goto Halls of Vault
 	commPather.GotoWarp(DP_WARPPREVIOUS, false, false);
-	//if (YAM_SafeCheck()) XP_Precasts();
+	if (YAM_SafeCheck()) XP_Precasts();
 	DC_DoDel(DC_LagDelay);
 	DM_TakeStairs(77,77);
 	XP_ClearPosition(20);
@@ -141,9 +141,8 @@ function YAM_Nihlathak() {
 			DSN_PickItems(YAM_SafeCheck);
 			if (YAM_SafeCheck()) XP_Precasts();
 			//Goto Halls of Anguish
-			//commPather.InitType = 1;
+			commPather.InitType = 1;
 			commPather.GotoWarp(DP_WARPTEMPLETONIHL, false, false);
-            //pathToWarp(DP_WARPTEMPLETONIHL);
 			DC_DoDel(DC_LagDelay);
 			DM_TakeStairs(76,76);
 			fromtown = false;
@@ -151,7 +150,6 @@ function YAM_Nihlathak() {
 			DSN_PickItems(YAM_SafeCheck);
 			//Goto Halls of Pain
 			commPather.GotoWarp(DP_WARPPREVIOUS, false, false);
-            //pathToWarp(DP_WARPPREVIOUS);
 			DC_DoDel(DC_LagDelay);
 			DM_TakeStairs(77,77);
 			XP_ClearPosition(20);

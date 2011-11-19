@@ -194,7 +194,7 @@ function Cow_OpenCowPortal() {
 	var extraTome = getUnit(4,"tbk");
 	while(extraTome) {
 		if (extraTome.mode == 0) {
-			if (extraTome.bodylocation == 0) {
+			if (extraTome.location == ITEMLOC_INVENTORY) {
 				var _ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
 				if (_ignoreitem) {
 					if (extraTome.getNext("tbk"))
@@ -304,7 +304,7 @@ function DoCow() {
 		var extraTome=getUnit(4,"tbk");
 		var _ignoreitem;
 		do {	if (extraTome && extraTome.mode == 0) {
-				if (extraTome.bodylocation == 0) {
+				if (extraTome.location == ITEMLOC_INVENTORY) {
 					_ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
 					if (!_ignoreitem) {
 						needTBK=false;
@@ -371,7 +371,7 @@ function DoCow() {
 			// Drop any extra tbk
 			var extraTome = getUnit(4,"tbk", 0);
 			if (extraTome) { do {
-				if (extraTome.bodylocation == 0) {
+				if (extraTome.location == ITEMLOC_INVENTORY) {
 					var _ignoreitem = (DT_Columns[extraTome.y][extraTome.x]==0);
 					if (!_ignoreitem)
 						DT_DropItem(extraTome);
