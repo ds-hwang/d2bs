@@ -938,10 +938,10 @@ function pathMove(_info) {
 			this.ilastArea = me.area;
 			shouldTele = false;
 		}
-		if(!shouldTele){
+		//if(!shouldTele){
 			this.DoorOpener( pX, pY, pDoorHandler );
-		}
-		else{
+		//}
+		//else{
 			if(me.getSkill(2) != 54){
 				me.setSkill(54,0);
 			}
@@ -956,7 +956,7 @@ function pathMove(_info) {
 					me.setSkill(54,0);
 				}
 			}
-		}
+		//}
 		var hand = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
 		//DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
 		//DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
