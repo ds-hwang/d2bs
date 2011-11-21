@@ -462,8 +462,15 @@ function DoDuriel() {
         commPather.InteractTile = false;
         pathtoFarUnit(2,152);
         killRadius(25);
+        delay(2000);
+        pathtoFarUnit(2,152);
+        killRadius(25);
+        pathtoFarUnit(2,152);
         XP_OpenTP();
         say("Come open up Duriels Lair");
+        delay(2000);
+        killRadius(25);
+        pathtoFarUnit(2,152);
         waitForRushee();
         
 		var Lair = getUnit(2, 100);
@@ -651,12 +658,13 @@ function Diablo() {
     pathToDest(7795,5295,killSuperUniques);
     
     if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
-        if(!GrandVizer)      { pathtoFarUnit(2,306,108,killSuperUniques); ambushSpawn(306); }
-        if(!LordDeSeis)      { pathtoFarUnit(2,312,108,killSuperUniques); ambushSpawn(312); }
-        if(!InfectorOfSouls) { pathtoFarUnit(2,362,108,killSuperUniques); ambushSpawn(362); }
-        pathToDest(7795,5295,killSuperUniques);
+        if(!GrandVizer)      { if(!pathtoFarUnit(1,306,108,killSuperUniques)) pathtoFarUnit(2,396,108,killSuperUniques); if(!ambushSpawn(306)) { pathtoFarUnit(2,395,108,clearChaos); ambushSpawn(306);} }
+        if(!LordDeSeis)      { if(!pathtoFarUnit(1,312,108,killSuperUniques)) pathtoFarUnit(2,394,108,killSuperUniques); ambushSpawn(312); }
+        if(!InfectorOfSouls) { if(!pathtoFarUnit(1,362,108,killSuperUniques)) pathtoFarUnit(2,393,108,killSuperUniques); if(!ambushSpawn(362)) { pathtoFarUnit(2,392,108,clearChaos); ambushSpawn(362);} }
+        pathToDest(7795,5295,killZone);
         ambushSpawn(243);
     }
+    DSN_PickItems();
     updateHook();
     return true;
 }
