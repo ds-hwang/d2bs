@@ -34,7 +34,7 @@ function DA_BOSwitch(which) {
 	var _mainbo      = 0;
 	var _switchbo    = 0;
 	var _switchavail = false;
-	var _weapon      = DC_getMyItem(null, 1);
+	var _weapon      = DC_getItem(null, 1); //DC_getItem used instead of DC_getMyItem
 	if(_weapon) { 
 		do {
 			if(DC_CheckOwner(_weapon)) {
@@ -158,11 +158,8 @@ function isAlive(mon_id,spectype) {
 }
 
 function Dead(who) {
-        if (who.hp < 1) {
-                return 1;
-        } else {
-                return 0;
-        }
+    if (who.hp < 1) return 1;
+    return 0;
 }
 
 //return object
@@ -320,6 +317,8 @@ function killRadius(range, type, spectype) {
         else XP_BossAttack(threat);
         threat = returnClosestThreat(range, type, spectype, center);
     }
+    
+    pathToDest(krx, kry);
     return true;
 }
 
@@ -407,7 +406,7 @@ function Search_and_Destroy(range) {
 
 function waitForSpawn(cid, spectype, seconds) {
     if(!spectype) spectype = 5;
-    if(!seconds) seconds = 15;
+    if(!seconds) seconds = 8;
     var counter = seconds * 2;
     
     dprint("Waiting for Spawn: " + cid,1);
@@ -424,7 +423,14 @@ function waitForSpawn(cid, spectype, seconds) {
 function ambushSpawn(cid) {
     var spawn = waitForSpawn(cid);
     
-    if(!spawn) { dprint("Spawn NOT found!",1); return false; }
+    if(!spawn) { 
+        dprint("Spawn NOT found!",1); 
+        if(cid == "Lord De Seis") {
+            pathToDest(me.x, me.y+45);
+            var spawn = waitForSpawn(cid);
+        }
+        if(!spawn) return false; 
+    }
     
     dprint("Ambushing " + spawn.name, 2);
     while(!Dead(spawn)) { 
