@@ -17,13 +17,11 @@ gameMsgExtendHandler = Goauld_GameMsgHandler;
 
 var myLeader       = false;
 var CowPortalReady = false;
-var YAM_TPReady	 = false;
 
 function Goauld_GameMsgHandler(sender, cmd, params, c) {
-	if (YAM_isMyLeader(sender)) 
-	{
+	if (YAM_isMyLeader(sender)) {
 		if( cmd + " " + params == YAM_TPMsg ) { YAM_TPReady = sender; }
-		if (cmd+" "+params == Cow_PortalClearMsg) { CowPortalReady = sender; }
+		if( cmd + " " + params == Cow_PortalClearMsg) { CowPortalReady = sender; }
 	}
 }
 
