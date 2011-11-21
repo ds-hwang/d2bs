@@ -257,6 +257,14 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
     return false;
 }
 
+function isBetween(door,a,b) {
+    if(door.x > a.x && door.x > b.x) return false;
+    if(door.x < a.x && door.x < b.x) return false;
+    if(door.y > a.y && door.y > b.y) return false;
+    if(door.y < a.y && door.y < b.y) return false;
+    return true;
+}
+
 function openDoor() {
     if(me.getStat(12) < 4) killRadius(20);
     if(!me.classid || me.area == 8) killRadius(20);
