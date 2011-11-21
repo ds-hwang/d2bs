@@ -76,9 +76,10 @@ function SXP_GoToShenk() {
     } else {
         pathToDest(3859,5129); 
         pathToDest(3876,5118); 
-        killRadius(15, "Enslaved");
+        killRadius(15); //, "Enslaved");
         pathToDest(3892,5112);
-        killRadius(25, "Enslaved");
+        killRadius(25); //, "Enslaved");
+        pathToDest(3892,5112);
     }
     
     if(me.classid == 0) killRadius(40, "Enslaved");
@@ -116,6 +117,7 @@ function SXP_AttackShenk() {
 		// Move to final spot
 		//DM_MoveTo(3884 - SXP_OffsetX,5115 - SXP_OffsetY);
 		//DM_MoveTo(3885 - SXP_OffsetX,5090 - SXP_OffsetY,true);
+        /*
 		if (!SXP_Kamikaze) {
 			if (XP_KillMinions) {
 				delay(20);
@@ -142,7 +144,8 @@ function SXP_AttackShenk() {
 				DM_MoveTo(target.x,target.y,true);
 			}
 		}
-        commPather.GotoDest(target.x,target.y, false, false, openDoor);
+        */
+        pathToDest(target.x,target.y);
 		print("Killing Shenk the Overseer...");
 		XP_BossAttack(target);
 		// If we switched weapons on kill, switch back to the attack tab
