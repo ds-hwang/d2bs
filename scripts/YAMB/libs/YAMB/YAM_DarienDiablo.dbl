@@ -1,0 +1,68 @@
+// Diablo module by Darien
+// short and sweet
+
+entryFunc = Diablo;
+
+function clearChaos() {
+    killRadius(30);
+    Search_and_Destroy(60);
+    return DP_STEPAHEAD;
+}
+
+function Diablo() {
+
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to go to the durance 2 wp
+	DM_UsePortal("Waypoint",107);
+	// Do precasts before pathing
+	XP_Precasts();
+
+    //path to Chaos Sanctuary
+    pathToLevel(108);
+    dprint("Moving across border",1);
+    var times = 0;
+    while(me.area != 108 && times < 10) { DM_MoveTo(me.x, me.y-10); delay(100); times++; }
+    dprint("In Chaos Sanctuary",1);
+    
+    pathToDest(me.x, me.y-90);
+    killZone(20);
+    XP_OpenTP();
+    say("Be Careful.");
+    
+	pathToDest(7780,5308,clearChaos); // pentagram
+    killRadius(30);
+    XP_OpenTP();
+    say("Leech Portal is Open Master.  Be careful.");
+    killRadius(30);
+
+    var GrandVizer = false;
+    var LordDeSeis = false;
+    var InfectorOfSouls = false;
+    
+    for(var cid = 396; cid > 391; cid--) {
+        if(!pathtoFarUnit(2,cid,108,clearChaos)) pathtoFarUnit(2,cid,108,clearChaos)
+        openObjectID(cid);
+        killRadius(30);
+        if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
+        if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
+        if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
+        killRadius(30,null,5);
+    }
+    
+    pathToDest(7795,5265,killZone);
+    XP_OpenTP();
+    pathToDest(7795,5295,killZone);
+    
+    if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
+        if(!GrandVizer)      { if(!pathtoFarUnit(1,306,108,killZone)) pathtoFarUnit(2,396,108,clearChaos); if(!ambushSpawn(306)) { pathtoFarUnit(2,395,108,clearChaos); ambushSpawn(306);} }
+        if(!LordDeSeis)      { if(!pathtoFarUnit(1,312,108,killZone)) pathtoFarUnit(2,394,108,clearChaos); ambushSpawn(312); }
+        if(!InfectorOfSouls) { if(!pathtoFarUnit(1,362,108,killZone)) pathtoFarUnit(2,393,108,clearChaos); if(!ambushSpawn(362)) { pathtoFarUnit(2,392,108,clearChaos); ambushSpawn(362);} }
+        pathToDest(7795,5295,killZone);
+        ambushSpawn(243);
+    }
+    DSN_PickItems();
+}
+
