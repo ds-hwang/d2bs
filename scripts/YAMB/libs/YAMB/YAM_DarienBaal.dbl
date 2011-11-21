@@ -1,0 +1,148 @@
+// Baal script by Darien
+//  shrot and sweet
+
+entryFunc = Baal;
+
+function Baal() {
+    YAM_TownManager();
+    YAM_PathToWayPoint();
+    XP_Precasts();
+    
+    // Use the WP to go to Worldstone 2
+	DM_UsePortal("Waypoint",129); // 0x81);
+    XP_Precasts();
+    
+    // Path to last area
+    pathToWarp(DP_WARPNEXT); //Darien
+	DC_DoDel(DC_LagDelay);
+	if(me.area == 129) DM_TakeStairs(82,83);
+    
+    pathToWarp(DP_WARPNEXT); //Darien
+	XP_Precasts();
+    DA_UseCTASkills();
+	DC_DoDel(DC_LagDelay);
+	if(me.area == 130) DM_TakeStairs(82,83);
+    
+    // Go to throne
+	pathToDest(15091,5072); 
+    killRadius(30); DSN_PickItems();
+    
+    //clearing tp spot in main room
+    say("Clearing tp spot");
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    XP_OpenTP();
+    killRadius(30); 
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    killRadius(30);
+    DM_MoveTo(15115,5052); // Near midsection
+    killRadius(30);
+    DM_MoveTo(15115,5052); // Near midsection
+    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+    killRadius(30);
+    say("Portal is safe, come get Buffs!");
+    delay(2500);
+    DA_UseCTASkills();
+    
+    // Clearing main room
+    clearThrone();
+    
+    // Clear out 5 Minion Boss Groups
+    var count = 0;
+    while(!0) {
+        if(killRadius(30)) {
+            var count = 0;
+            DSN_PickItems();
+            pathToDest(15092,5026);
+            if(killRadius(30)) pathToDest(15092,5026);
+            delay(2500);
+            if(killRadius(30)) pathToDest(15092,5026);
+            
+        } else { // nothing to attack
+            if(count > 100) {
+                clearThrone();
+                count = 0;
+            }
+            XP_Precasts();
+            XP_PreAttack(5);
+            count++;
+        }
+        if(!DC_FindMonster(543)) break;	// check for baal in throne room, stop loop if he is not present
+    }
+    
+    //Minions Cleared, pick items check for merc
+    DSN_PickItems();
+
+    // If Merc Died, revive him b4 killing Baal
+	if(me.mercrevivecost && me.mercrevivecost < DC_MyGold()) {
+        say("Need to go revive the mercenary :-/");
+        YAM_TownManager()
+        /*
+        YAM_MakeTP();
+        if (DT_CheckMerc()) {
+            commPather.GotoNPC(515);
+            //commTown5.GotoQualKehk();
+            clearNPC(DC_getNPC(515));
+            YAM_NPCinteract(DC_getNPC(515));
+        }
+        */
+        commPather.GotoStart();
+        DM_UsePortal("BluePortal",131);
+        XP_OpenTP(); 
+	}
+    
+    //Go to Worldstone chamber
+    pathToDest(15091,5006);
+    say("Let's Get Baal!");
+    delay(1000);
+    say("Time for Buffs!");
+    delay(1000);
+    
+    // Do precasts before going into the portal
+    XP_Precasts();
+    DA_UseCTASkills();
+    DC_DPrint("Entering Worldstone Chamber...");
+    
+    // Enter world chamber.
+    for (var x=1; x < 3; x++) {
+        var ptol = getUnit(2,563);
+        if (ptol) {
+            DM_UsePortal("Portal", 132, null, ptol);
+            break;
+        }
+    }
+    
+    //Find and Kill Baal
+    Assassinate(544, 544, 4);
+    DSN_PickItems();
+    
+    // Just incase he spawns a twin
+    Assassinate(544, 544, 4);
+    DSN_PickItems();
+    
+    return true;
+}
+
+function clearThrone() {
+    DM_MoveTo(15115,5052); // back near corner
+    killRadius(30); 
+    DM_MoveTo(15115,5026); // Near midsection
+    killRadius(30); 
+    DM_MoveTo(15117,5004); // at corner for tp.
+    killRadius(30); 
+    DM_MoveTo(15091,5006); // red portal.
+    killRadius(30); 
+    DM_MoveTo(15071,5006); //far left corner
+    killRadius(30); 
+    DM_MoveTo(15071,5027); // far mid section
+    killRadius(30); 
+    DM_MoveTo(15071,5052); // back far corner
+    killRadius(30); 
+    DM_MoveTo(15092,5052); // back center
+    killRadius(30); 
+    DM_MoveTo(15115,5052); // back near corner
+    killRadius(30); DSN_PickItems();
+    DM_MoveTo(15115,5026); // Near midsection
+    killRadius(30); 
+    DM_MoveTo(15092,5026); // Middle
+    killRadius(30); DSN_PickItems();
+}
