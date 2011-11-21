@@ -257,12 +257,25 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
     return false;
 }
 
-function isBetween(door,a,b) {
-    if(door.x > a.x && door.x > b.x) return false;
-    if(door.x < a.x && door.x < b.x) return false;
-    if(door.y > a.y && door.y > b.y) return false;
-    if(door.y < a.y && door.y < b.y) return false;
-    return true;
+function isBetween(_testObject,pointA,pointB) {
+
+    //make sure the x,y co-ords are b/w the two other points
+    if(_testObject.x > pointA.x && _testObject.x > pointB.x) return false;
+    if(_testObject.x < pointA.x && _testObject.x < pointB.x) return false;
+    if(_testObject.y > pointA.y && _testObject.y > pointB.y) return false;
+    if(_testObject.y < pointA.y && _testObject.y < pointB.y) return false;
+    
+    //solve for the slope and y-Intercept
+    var m = (pointA.y - pointB.y)/(pointA.x - pointB.x);
+    var yInt = pointA.y/(m * pointA.x);
+    
+    //solve for the y-intercept of the door with the same slope
+    var _testObjectYint = _testObject.y/(m * _testObject.x);
+
+    //if the door is on the line + or - 3 then return true
+    if(Math.abs(yInt - _testObjectYint) < 4) return true;
+    
+    return false;
 }
 
 function openDoor() {
