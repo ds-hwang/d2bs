@@ -1,0 +1,43 @@
+/*
+	Script: eventHandlerTest.dbj
+	Author: TechnoHunter
+	Edited by: lord2800
+	var events = ["chatmsg", "gamemsg", "hostilemsg", "partymsg", "scriptmsg", "keydown", "keyup", "melife",
+				  "chatcmd", "mousemove", "mousedown", "mouseup", "copydata", "areachange", "inputline", "itemstat",
+				  "missilemove", "missilestate", "newitem", "newnpc", "npclife", "npcmove", "npcstat", "npcstate",
+				  "playermove", "playerstat", "playerstate", "quest", "unitmove"];
+
+
+*/
+
+function main() {
+	print("Event Tester Running!");
+//	var events = ["copydata","chatmsg","scriptmsg","gamemsg"];
+	var events = ["melife", "memana", "keyup", "keydown", "playerassign", "mouseclick", "mousemove", "scriptmsg", 
+					"golddrop", "chatmsg", "whispermsg", "copydata", "gamemsg", "itemaction"];
+
+	for each(var event in events)
+		addEventListener(event, handlerGenerator(event));
+
+	addEventListener("keyup", keyupHandler);
+
+	while(me.ingame) delay(100);
+}
+
+function handlerGenerator(name) {
+	return function () { print("function " + name + "() : args = " + Array.prototype.slice.call(arguments).toSource()); };
+}
+
+function keyupHandler(keypress){
+	switch(keypress){
+		case 88: // "X" was pressed
+			print("X was pressed, quiting game");
+			delay(300);
+			quit();
+			break;
+		default:
+			//print(keypress);
+			break;
+
+	}
+}
