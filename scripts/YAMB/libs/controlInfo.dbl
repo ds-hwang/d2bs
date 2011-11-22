@@ -735,7 +735,7 @@ function controlInfo() {
 
 	// returns the 0 based index of the currently selected realm
 	this.getCurrentRealmIndex = function( ) {
-		retVal = -1;
+		var retVal = -1;
 		control = this.get( controlData.controls.mainMenu.button.gateway );
 		if(control) {
 			realmString = control.text.substring(control.text.indexOf(":")+2, control.text.length);
@@ -745,12 +745,12 @@ function controlInfo() {
 	}
 
 	this.getLocation = function( ) {
-		for(_i=0; _i<this.locations.length; _i++) {
-			found = 0;
-			for(_j=0; _j<this.locations[_i].location.length; _j++) {
+		for(var _i=0; _i<this.locations.length; _i++) {
+			var found = 0;
+			for(var _j=0; _j<this.locations[_i].location.length; _j++) {
 				if( (control = this.get( this.locations[_i].location[_j] )) && (!this.locations[_i].checkNullText || control.text!=null) ) {
 					if(this.locations[_i].location[_j].key) {
-						for(_k=0; _k<this.locations[_i].location[_j].key.length; _k++) {
+						for(var _k=0; _k<this.locations[_i].location[_j].key.length; _k++) {
 							if((_s = control.getText()) && getLocaleString(this.locations[_i].location[_j].key[_k]) == String(_s.join(" ")) ) {
 								found++;
 								break;
@@ -770,9 +770,9 @@ function controlInfo() {
 	
 	// returns the current location, see locations array for listing
 	this.getLocationQuick = function( ) {	
-		for(_i=0; _i<this.locations.length; _i++) {
-			found = true;
-			for(_j=0; _j<this.locations[_i].location.length; _j++) {
+		for(var _i=0; _i<this.locations.length; _i++) {
+			var found = true;
+			for(var _j=0; _j<this.locations[_i].location.length; _j++) {
 				if( !(control = this.get( this.locations[_i].location[_j] )) ||
 					( this.locations[_i].checkNullText && control.text==null ) ) {
 					found = false;
