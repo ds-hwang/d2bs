@@ -119,7 +119,7 @@ function YAM_RunTitle(file) {	// Add the title screenhook -- Modded to accuratel
 	_tsh.text = _shstring;
 	_tsh.x = parseInt((_screenszX - _width[0])/2,10);
 	_tsh.y = 35;
-	sendCopyData(null, "OOG", 0,"yam run title returned safley");
+	sendCopyData(null, "OOG", 0,"yam run title returned safely");
 }
 
 function YAM_KeyUpManager(keyup) {
@@ -143,21 +143,21 @@ function YAM_KeyUpManager(keyup) {
 			break;
 		// Pause main script
 		case 19: // "Pause" was pressed
-			removeEventListener(YAM_KeyUpManager);
 			DC_Print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
-			scriptBroadcast( "starter:pause" );
+			scriptBroadcast( "starter:pause" ); // tell the starter script to pause (keeps it from killing the game due to timeout)
 			//var pscript = DC_FindScript(YAM_PausePath);
 			var pscript = getScript(YAM_PausePath); // TESTING - TECHNOHUNTER
 			if (!pscript) {
 				load(YAM_PausePath);
 				var lp=1;
+				pscript = getScript(YAM_PausePath); // TESTING - TECHNOHUNTER
 				do {
-					print("paused : in loop"); // spamming to see if still in loop TESTING
+					print("paused : in loop# " +lp ); // spamming to see if still in loop TESTING
 					delay (1000);// increasing delay from 500 for testing - TechnoHunter TESTING
 					if(!pscript){ // seeing if finding it once will still work. TESTING
 						//pscript = DC_FindScript(YAM_PausePath);
+						print("pscript not found : in loop# " +lp ); // spamming to see if still in loop TESTING
 						pscript = getScript(YAM_PausePath); // TESTING - TECHNOHUNTER
-						print("lp = " +lp );
 					}
 					lp++;
 				} while(pscript && pscript.running)
@@ -167,14 +167,6 @@ function YAM_KeyUpManager(keyup) {
 			}
 			scriptBroadcast( "starter:pause" );
 			DC_Print("ÿc2Resuming Bot...");
-			addEventListener("keyup", YAM_KeyUpManager);
-			YAM_Pause = !YAM_Pause;
-			if (YAM_Pause){
-				print("ÿc;Pausing Bot...(Press 'Pause' again to resume)");
-			} 
-			else{
-				print("ÿc2Resuming Bot...");
-			}		
 			break;
 		// Show Credits
 		case 187: // "=" was pressed

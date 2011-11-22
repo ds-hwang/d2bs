@@ -18,10 +18,17 @@ function keyUpManager(keyup) {
 }
 
 function main() {
+	// Pause YAMB, first thing
+	getScript("bots/YAMB.dbj").pause();
 	// Register the key events watch
 	addEventListener("keyup", keyUpManager);
+	// check every half a second if we still want to pause.
 	while (_Paused) { 
+		//print("pausescript : paused loop"); // TESTING - TECHNOHUNTER
 		delay (500); 
 	}
+	// we wanted to resume, unpause yamb and exit this script.
+	getScript("bots/YAMB.dbj").resume();
 	removeEventListener(keyUpManager);
+	stop(1);
 }
