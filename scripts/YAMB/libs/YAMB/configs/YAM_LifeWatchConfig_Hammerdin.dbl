@@ -68,7 +68,7 @@ LW_ChickenOnOutOfPots      = true;
 //										to revive him.  Otherwise the chicken request will be issued but ignored.
 //-------------------------------------------------------------------------
 
-LW_DisplayMercHP   = true;
+LW_DisplayMercHP   = false;//true;
 LW_MercLifeThresh  = 70;
 LW_MercRejuvThresh = 30;
 LW_DrinkTimer      = 3;

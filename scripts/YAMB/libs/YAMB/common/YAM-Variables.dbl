@@ -339,14 +339,4 @@ function XP_ResetVars() {
 	var _XP_CurrentUntimed  = 0;
 
 	if (ignoreKorpse.length > 0) { ignoreKorpse.splice(0,ignoreKorpse.length);}
-
-/*	// Reseting the Pather object
-	if (commPather) { 
-		delete commPather; 
-	}
-	delay(150);
-	runGC();
-	delay(500);
-	//commPather = new commonLib.Pathing({InitType:0,UseTeleport:true,UseTeleSorc:true,StepDelay:XP_StepDelay,TeleDist: XP_TeleDist});
-	commPather = new pathMove(pathMoveInit);*/
 }

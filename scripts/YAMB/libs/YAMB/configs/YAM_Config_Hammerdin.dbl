@@ -347,7 +347,7 @@ DT_GambleItem.push("ci1");	// Coronet
 // YAM_CubeConfig = "path"			File containing the recipies you want to use.
 //--------------------------------------------------------------------
 
-YAM_EnableCubing = false;
+YAM_EnableCubing = true;
 DIM_TempSnagFile = (YAM_UseNJIP) ? "temp.nip" : "tmitems.ini";
 YAM_CubeConfig   = "YAMB/common/YAM_CubeConfig.dbl"
 

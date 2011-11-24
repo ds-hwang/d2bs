@@ -107,7 +107,7 @@ function DSN_PickItems(fullHandler) {
 }
 
 // Function from Pwnage Pindle, modified by Xizeta
-// Return value : None, utility to check the ground for good items which are accidentially dropped
+// Return value : None, utility to check the ground for good items which are accidentally dropped
 function DSN_CheckGround() {
 	// Save the old value then set all to false
 	var _oldvalue        = DSN_PickPotions;

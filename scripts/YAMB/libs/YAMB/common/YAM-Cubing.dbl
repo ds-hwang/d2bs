@@ -287,10 +287,10 @@ function DCU_transform() {
 
 // updates the temp snagit at the start of a run
 function DCU_UpdateCubeIniAtStartup() {
-//	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Entering function.");
+	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Entering function.");
 	DCU_CheckJobs(); //fill jobs array if we have all items needed for a recipe and update .nip file
 	DCU_UpdateTransformerIni(); //update the ini for temporary snagitems
-//	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Exiting function.");
+	DCU_debugmessage("ÿc0DCU_UpdateCubeIniAtStartup ->  Exiting function.");
 }
 
 //only for items which are needed but not snagged by the .nip files
@@ -325,7 +325,7 @@ function DCU_UpdateTransformerIni() {
 		sfile.close();
 	}
 	else {
-		DC_ThrowException("d2jsp-cubing","Unable to create " + DCU_Snagfile + " file !");
+		DC_ThrowException("YAM-Cubing","Unable to create " + DCU_Snagfile + " file !");
 	}
 	// everything fine
 //	DCU_debugmessage("ÿc0DCU_UpdateTransformerIni ->  Exiting function.");
@@ -334,15 +334,15 @@ function DCU_UpdateTransformerIni() {
 //evaluation
 function DCU_DisplayJobs() {
 //	DCU_debugmessage("ÿc0DCU_DisplayJobs ->  Entering function.");
-	DC_Print("Jobs to do : " + DCU_Jobs.length);
-	DC_Print("Recipe : " + DCU_Codes.length);
-	DC_Print("Parser jobs : " + DCU_iniUpdateItems.length);
+	DCU_debugmessage("Jobs to do : " + DCU_Jobs.length);
+	DCU_debugmessage("Recipe : " + DCU_Codes.length);
+	DCU_debugmessage("Parser jobs : " + DCU_iniUpdateItems.length);
 	for(var j=0; j < DCU_Jobs.length; j+=1) {
 		if(DCU_Jobs[j].length > 3) {
-			DC_Print("Job " + (j+1) + " : " + DCU_Jobs[j][0] + " + " + DCU_Jobs[j][3]);
+			DCU_debugmessage("Job " + (j+1) + " : " + DCU_Jobs[j][0] + " + " + DCU_Jobs[j][3]);
 		}
 		else {
-			DC_Print("Job " + (j+1) + " : " + DCU_Jobs[j][0]);
+			DCU_debugmessage("Job " + (j+1) + " : " + DCU_Jobs[j][0]);
 		}
 	}
 //	DCU_debugmessage("ÿc0DCU_DisplayJobs ->  Exiting function.");
@@ -357,7 +357,7 @@ function DCU_CheckJobs() {
 		if(loopitem1 && DCU_MyItem(loopitem1)) {
 			do {
 				DCU_Codes[i][1]++;
-				DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem1.name + ", location=" + loopitem1.location + ", mode=" + loopitem1.mode);
+				DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem1.name + " with gid : " + loopitem1.gid + ", location=" + loopitem1.location + ", mode=" + loopitem1.mode);
 				if(DCU_Codes[i][1] == DCU_Codes[i][2]) {
 					if(DCU_Codes[i].length > 3) { //mix recipe
 						var needseconditem = true;
@@ -365,7 +365,7 @@ function DCU_CheckJobs() {
 						if(loopitem2 && DCU_MyItem(loopitem2))
 							do {
 								DCU_Codes[i][4]++;
-								DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem2.name + ", location=" + loopitem2.location + ", mode=" + loopitem2.mode);
+								DCU_debugmessage("ÿc0DCU_CheckJobs -> Found a " + loopitem2.name + "with gid : " + loopitem2.gid + ", location=" + loopitem2.location + ", mode=" + loopitem2.mode);
 								if(DCU_Codes[i][4] == DCU_Codes[i][5]) {
 									DCU_Jobs.push([DCU_Codes[i][0],DCU_Codes[i][1],DCU_Codes[i][2],DCU_Codes[i][3],DCU_Codes[i][4],DCU_Codes[i][5]]);
 									DCU_debugmessage("ÿc0DCU_CheckJobs -> Job added, " + loopitem1.name + " - count=" + DCU_Codes[i][1] + " + " + loopitem2.name + " - count=" + DCU_Codes[i][4]);
@@ -402,21 +402,15 @@ function DCU_CubeLooper() {
 	while (done<DCU_Jobs.length) {
 		switch (DCU_Jobs[done].length) {
 			case 3: // cubing 3 of the same type
-//				myItems = me.getItems();//TESTING
-//				if(myItems && myItems.length != 0){
-//					for(var n = 0; n < myItems.length-1 && itemsMatching != DCU_Jobs[done][2]; n++){
-//					if(myItems[n].
-//					}
-//				}
 				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][2]; y++) {
+						DCU_debugmessage("ÿc0DCU_CubeLooper ->  Found " + cubeitem.name + " with gid : " + cubeitem.gid + " to cube.");
 						if(cubeitem.location != ITEMLOC_CUBE){
-							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with gid : " + cubeitem.gid + " to cube.");
 							delay(1000);//TESTING
 							DCU_MoveItemToCube(cubeitem, 0, y); //item, x & y location in cube
 							delay(1000);//TESTING
-							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
 						cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 						while(cubeitem && cubeitem.location == ITEMLOC_CUBE && cubeitem.getNext(DCU_Jobs[done][0],0));
@@ -427,10 +421,10 @@ function DCU_CubeLooper() {
 				cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][2]; y++) {
+						DCU_debugmessage("ÿc0DCU_CubeLooper ->  Found " + cubeitem.name + " with gid : " + cubeitem.gid + " to cube.");
 						if(cubeitem.location != ITEMLOC_CUBE){
-							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with gid : " + cubeitem.gid + " to cube.");
 							DCU_MoveItemToCube(cubeitem, 0, y); //item, coordinate in cube
-							//if(y!=DCU_Jobs[done][2]-1) cubeitem.getNext();
 						}
 						cubeitem = DCU_getItem(DCU_Jobs[done][0],0);
 						while(cubeitem != null && cubeitem.location == ITEMLOC_CUBE && cubeitem.getNext(DCU_Jobs[done][0],0));
@@ -439,8 +433,9 @@ function DCU_CubeLooper() {
 				cubeitem = DCU_getItem(DCU_Jobs[done][3],0);
 				if(cubeitem && DCU_MyItem(cubeitem)) {
 					for(var y=0; y < DCU_Jobs[done][5]; y++) {
+						DCU_debugmessage("ÿc0DCU_CubeLooper ->  Found " + cubeitem.name + " with gid : " + cubeitem.gid + " to cube.");
 						if(cubeitem.location != ITEMLOC_CUBE){
-							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with Gid : " + cubeitem.gid + " to cube.");
+							DCU_debugmessage("ÿc0DCU_CubeLooper ->  Moving item with gid : " + cubeitem.gid + " to cube.");
 							DCU_MoveItemToCube(cubeitem, 1, y); //item, coordinate in cube
 							if(y!=DCU_Jobs[done][5]-1)
 								cubeitem.getNext();
@@ -512,7 +507,7 @@ function DCU_MoveItemToCube(moveitem, xmod, ymod) {  //item, coordinates in cube
 			DCU_debugmessage(DCU_msg(407) + moveitem.location + DCU_msg(408));
 			break;
 	}
-	DCU_debugmessage("ÿc0DCU_MoveItemToCube -> trying to move item: " + moveitem.name + " currently in  " + ((moveitem.bodylocation == 0) ? "inventory" :  (moveitem.bodylocation == 4) ? "stash" : (moveitem.bodylocation == 3) ? "cube" : "INVALID LOCATION") + " to cube");
+	DCU_debugmessage("ÿc0DCU_MoveItemToCube -> trying to move item: " + moveitem.name + " currently in  " + ((moveitem.location == ITEMLOC_INVENTORY) ? "inventory" :  (moveitem.location == ITEMLOC_STASH) ? "stash" : (moveitem.location == ITEMLOC_CUBE) ? "cube" : "INVALID LOCATION") + " to cube");
 	if(!DCU_GetItemtoCursor(moveitem))
 		DCU_quitmessage(DCU_msg(403));
 	if(!DCU_DropItemFromCursor2Location(xmod, ymod, ITEMLOC_CUBE))
@@ -535,7 +530,7 @@ function DCU_MoveItemToStash(moveitem) {
 	for(var x=0; x<DCU_StashX; x++) {
 		for(var y=0; y<DCU_StashY; y++) {
 			isGood = true;
-			DCU_debugmessage("ÿc0DCU_MoveItemToStash -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
+			//DCU_debugmessage("ÿc0DCU_MoveItemToStash -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
 			for(var i=x; i < x + xs; i++) {
 				for(var j=y; j < y + ys; j++) {
 					// out of stash size ?// stash spaces full ?
@@ -582,10 +577,10 @@ function DCU_MoveItemToInv(moveitem) {
 	for(var x=0; x < DCU_InvX; x++) {
 		for(var y=0; y<DCU_InvY; y++) {
 			isGood = true;
-			DCU_debugmessage("ÿc0DCU_MoveItemToInv -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
+			//DCU_debugmessage("ÿc0DCU_MoveItemToInv -> trying an item of size [" + xs + "," + ys + "] at [" + x + "," + y + "]");
 			for(var i=x; i < x + xs; i++) {
 				for(var j=y; j < y + ys; j++) {
-					// out of stash size ? // empty space ?
+					// out of inv size ? // empty space ?
 					if(i >= DCU_InvX || j >= DCU_InvY ||DCU_Inven[i][j] == DCU_FULL)
 						isGood = false;
 				}
@@ -641,7 +636,8 @@ function DCU_ReEnterStash() {
 		if(!_cursoritem)
 			DCU_quitmessage("DCU_ReEnterStash(): Can't find the item on cursor !");
 		if(DCU_CheckInvTempSpace(_cursoritem)) // drop item, we can grab it again
-			DCU_clearcursor();
+			if(!DCU_MoveItemToInv(_cursoritem))			//DCU_clearcursor();// orig, changing to drop to inv.. screw the ground :)
+				DCU_quitmessage("DCU_ReEnterStash(): Failed to drop an item to inv !");
 		else
 			DCU_quitmessage("DCU_ReEnterStash(): Can't drop an item, no room to pick it up again !");
 		if(me.itemoncursor) // unable to drop item
