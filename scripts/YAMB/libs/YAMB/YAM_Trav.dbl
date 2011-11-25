@@ -44,23 +44,28 @@ function DM_MoveToPick(x,y,nopick) {
 	}
 }
 
-function TrXP_GoToTrav() {
+//////////////////////////////////////////////////////////////////////////
+//Quickie function by Darien
+function councilCheck(num) {
+    var _toorc = getMonster(getLocaleString(num),0x01);
+    if(!_toorc) return false;  //monster not found
+    
+    if (_toorc && _toorc.hp > 0)  return true;
+    else {
+        print(_toorc.name + " is Dead!");
+        return false;
+    }
+}
 
-   DM_MoveToAttack(5720,1587,true,true);
-   DM_MoveToAttack(5720,1563,true,true);
-   DM_MoveToAttack(5739,1557,true,true);
-   DM_MoveToAttack(5760,1556,true,true);
-   DM_MoveToAttack(5780,1555,true,true);
-   DM_MoveToAttack(5800,1554,true,true); //start of path to Durance Stairs
-   DM_MoveToAttack(5799,1534,true,true);
-   DM_MoveToAttack(5799,1526,true,TrXP_Kamikaze);
-   DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze); //before entry arch
-
-
-   //////////////////////////////////////////////////////////////////////////
-   //Changes by Darien kill 3 bosses then the rest of council
-   //Clear porch first then clear inside
-   
+//////////////////////////////////////////////////////////////////////////
+//Changes by Darien kill 3 bosses then the rest of council
+//Clear porch first then clear inside
+//Toorc Icefist=345  Ismail Vilehand=345  Geleb Flamefinger=346
+//Council Member=345/346
+//Water Watcher=258/261
+//Zealot=237  Heirophant=240  Nightlord=132
+function TrXP_AttackTrav() {
+    
     print("Clear Porch First")
     killRadius(30, null, 5);         //Kill Council
     killRadius(30, "Council Member");   //Kill Minions
@@ -79,11 +84,9 @@ function TrXP_GoToTrav() {
         DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze);
         killRadius(30, null, 5);         //Kill Council
         killRadius(30, "Council Member");   //Kill Minions
-        
         DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze);
         print("Now go inside to finish them off!");
         DM_MoveToAttack(5797,1494,true,TrXP_Kamikaze);
-    
         killRadius(30, null, 5);         //Kill Council
         killRadius(30, "Council Member");   //Kill Minions
         killCouncil();
@@ -98,49 +101,20 @@ function TrXP_GoToTrav() {
     pathtoFarUnit(1,763);
     killRadius(30,345,0x01);
     PickupQuestItem(546); //Get Jade Figurine
+    return true;
 }
 
-//////////////////////////////////////////////////////////////////////////
-//depreciated function by Darien
-function killCouncil()  {
-   attackMonster(getLocaleString(2860),0x01); //Toorc
-   attackMonster(getLocaleString(2862),0x01); //Geleb
-   attackMonster(getLocaleString(2863),0x01); //Vile
+function TrXP_GoToTrav() {
+   DM_MoveToAttack(5720,1587,true,true);
+   DM_MoveToAttack(5720,1563,true,true);
+   DM_MoveToAttack(5739,1557,true,true);
+   DM_MoveToAttack(5760,1556,true,true);
+   DM_MoveToAttack(5780,1555,true,true);
+   DM_MoveToAttack(5800,1554,true,true); //start of path to Durance Stairs
+   DM_MoveToAttack(5799,1534,true,true);
+   DM_MoveToAttack(5799,1526,true,TrXP_Kamikaze);
+   DM_MoveToAttack(5797,1514,true,TrXP_Kamikaze); //before entry arch
 }
-
-//////////////////////////////////////////////////////////////////////////
-//Quickie function by Darien
-function councilCheck(num) {
-    var _toorc = getMonster(getLocaleString(num),0x01);
-    if(!_toorc) return false;  //monster not found
-    
-    if (_toorc && _toorc.hp > 0)  return true;
-    else {
-        print(_toorc.name + " is Dead!");
-        return false;
-    }
-}
-
-//Toorc Icefist=345  Ismail Vilehand=345  Geleb Flamefinger=346
-//Council Member=345/346
-//Water Watcher=258/261
-//Zealot=237  Heirophant=240  Nightlord=132
-
-function TrXP_AttackTrav() {
-	// Attack Council by the Stairs
-	DM_MoveToAttack(5795,1490,true,false); //Durance Stairs
-	DM_MoveToAttack(5787,1491,true,false); //left of stairs
-	// Pick Items by the Stairs... the walls get in the way so try different start points
-	DM_MoveToPick(5787,1491);
-	DM_MoveToPick(5795,1490);
-	// Check for Council straglers and Pick Items from prior kills
-	DM_MoveToAttack(5797,1514,true,false); //before entry arch (again)
-	DM_MoveToAttack(5781,1514,true,false); //left of entry arch
-	DM_MoveToPick(5781,1514);
-	DM_MoveToPick(5797,1514);
-	return true;
-}
-
 
 function TravXP() {
 	if (me.classid == 1) {
@@ -173,11 +147,19 @@ function TravXP() {
 	XP_Precasts();
 	// Goto the Travincal Lair
 	TrXP_GoToTrav();
-	// Clear the Travincal Lair - shut off by Darien, made improvements
-	//if (TrXP_AttackTrav()) {
-	//	DL_AddKill();
-	//}
+	// Clear the Travincal Lair - Darien made improvements
+	if (TrXP_AttackTrav()) {
+		DL_AddKill();
+	}
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog(); 
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+//depreciated function by Darien
+function killCouncil()  {
+   attackMonster(getLocaleString(2860),0x01); //Toorc
+   attackMonster(getLocaleString(2862),0x01); //Geleb
+   attackMonster(getLocaleString(2863),0x01); //Vile
 }
