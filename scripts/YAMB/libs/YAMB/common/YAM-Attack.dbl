@@ -296,6 +296,28 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
     return true;
 }
 
+// pathing argument function
+function killZone(x,y) {
+    killRadius(20);
+    if(me.classid == 2) XP_NecroRevive();
+    if(me.classid == 5) DA_DoPrecasts();
+    
+    //Door handling function for walking characters
+    if(!commPather.UseTele) {
+        var _Door = getPathDoor(x,y);
+        if(_Door) DM_TouchObject(_Door);
+    }
+    return DP_STEPAHEAD;
+}
+
+// pathing argument function
+function clearPath() {
+    if(me.getStat(12) < 4 || me.area == 8) killRadius(20);
+    else killRadius(2); //maybe 3
+    if(me.classid == 2) XP_NecroRevive();
+    if(me.classid == 5) DA_DoPrecasts();
+}
+
 //Darien -- Kill those in within a certain range
 function killRadius(range, type, spectype) {
 
@@ -458,21 +480,6 @@ function headCount(range) {  //returns number of monsters
     print("Monsters in group: " + count);
 	return (count);
 }
-
-function clearPath(attackskill, hand) {
-
-    var blocker = returnClosestThreat(3);
-    
-    while (blocker) {
-        print("attacking " + blocker.name + " to clear the path"); 
-        XP_Precasts();
-        //DC_DoCast(attackskill,hand, blocker);
-        if(me.classid == 0) XP_AttackMonster(blocker,3) ;
-        else XP_BossAttack(blocker);
-        blocker = returnClosestThreat(3);
-    }
-}
-
 
 // getRange(object) is distance from you
 // getRange(object1,object2) distance between 2 objects
