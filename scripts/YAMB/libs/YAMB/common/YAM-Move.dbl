@@ -304,7 +304,8 @@ function rnd(a,z) {
 //function mlwalkto(x, y, walkcall, _doorOpener) {
 
 function DM_WalkTo(x, y, walkcall, _doorOpener) {
-
+    if(arguments.length < 4) _doorOpener = openDoor
+    
 	var startX = me.x;
 	var startY = me.y;
 	var currDestX = x;
@@ -328,7 +329,8 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
 		mlmemove(currDestX, currDestY);
         
         //Darien's Door Check
-        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) doorOpener(currDestX, currDestY, _doorOpener);
+        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY, _doorOpener);
+        
 
 		//call optional function if true
 		if (walkcall  && typeof(walkcall)=="function" && !DC_InTown(me)) walkcall(x,y);
