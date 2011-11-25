@@ -1,81 +1,4 @@
-// my pathing lib
-
-
-// testing garbage
-function main(){
-	print("Test main for pathMove started.");
-	var pathMoveInit = new Object();
-		pathMoveInit.UseTeleport    = true;
-		pathMoveInit.UseTeleSorc    = false;
-		pathMoveInit.StepActionFreq = 1;
-		pathMoveInit.StepActionflag = (DP_INCUSERSTEP|DP_USEVIGOR|DP_THROWWHENSTUCK);
-		pathMoveInit.StepDelay      = 250;
-		pathMoveInit.InteractTile   = true;
-		pathMoveInit.TeleDist       = 20;
-		pathMoveInit.WalkDist       = 8;
-	var test = new pathMove(pathMoveInit);
-	
-	this.DP_KeyUpManager = function (keyup){
-		if(getUIFlag(0x05)==1 && keyup != 19){
-			print(getUIFlag());
-			return;
-		}
-		switch (keyup) {
-			// Stop main script, started tools (eg. YAM-LifeWatch) will continue
-			case 88: // "X" was pressed
-				print("ÿc;Key 'X' was pressed, stopping the main script.");
-				delay(500);
-				stop(1);
-				break;
-			case 119: // F8
-				print("Going to Akara");
-				test.GotoNPC(D2JSP_NPC_AKARA,1);
-				//test.GotoNPC(710);
-				break;
-			case 120: //F9
-				print("Going to Tower");
-				test.GotoWarp(DP_WARPTOWER, false, false);
-				delay(2000);
-				print("Going to Countess");
-				test.GotoWarp(DP_WARPNEXT, false, false);
-				delay(1000);
-				test.GotoWarp(DP_WARPNEXT, false, false);
-				delay(1000);
-				test.GotoWarp(DP_WARPNEXT, false, false);
-				delay(1000);
-				test.GotoWarp(DP_WARPNEXT, false, false);
-				delay(1000);
-				test.GotoWarp(DP_WARPNEXT, false, false);
-				delay(1000);
-				
-				//print("Going to Tome");
-				//test.GotoObject(2,357,357,me.area);
-				break;
-			case 121: //F10
-				//print("Going to BloodRaven");
-				//test.GotoNPC(775, 17);
-				print("Going to Gheed");
-				test.GotoNPC(D2JSP_NPC_GHEED,1);
-				//print("Exploring Level");
-				//test.ExploreLevel();
-				break;
-			case 122: //F11
-				print("Going to Waypoint");
-				test.GotoWaypoint();
-				print("Going to Stash");
-				test.GotoObject(2,D2JSP_UNIT_STASH,D2JSP_UNIT_STASH);
-				print("Going to Warriv");
-				test.GotoNPC(D2JSP_NPC_WARRIV_ACT_1,1);
-				break;
-		}
-	}
-
-	addEventListener("keyup", this.DP_KeyUpManager);
-	while(1) {
-		delay(250);
-	}
-}
-//end testing garbage
+// YAMB pathing lib
 
 var DP_version    = "1.1";
 //////////////////////////////////////////////////////////////////////
@@ -83,7 +6,7 @@ var DP_version    = "1.1";
 //////////////////////////////////////////////////////////////////////
 const DP_THROWWHENSTUCK    = 0x0001;	// Will throw an exception if it is stuck for more than 5 tries.(value 1)
 const DP_CLEARWHENSTUCK    = 0x0002;	// Will check for monsters to kill if it is stuck for more than 1 try.(value 2)
-const DP_PICKDROPS         = 0x0004;	// Will activate item grabbing along the way.(value 4)
+const DP_PICKDROPS         = 0x0004;	// Will activate item grabbing along the way.(value 4) NOTE: makes pathing SUPER SLOW
 const DP_USESHRINES        = 0x0008;	// Will use 1 shrine/step (YAM_UseShrines has to be set to true)(value 8)
 const DP_OPENCHESTS        = 0x0010;	// Will open 1 chest/step (YAM_OpenChests has to be set to true)(value 16)
 const DP_SAFECHECK         = 0x0020;	// Will call YAM_SafeCheck along the way.(value 32)
@@ -109,6 +32,11 @@ var DP_STOP            = 2;
 var DP_STEPAHEAD       = 100;
 var DP_STEPBACK        = 200;
 var DP_STEPFAILED      = -1;
+
+// variables
+var DP_RandomMove    = true;
+var DP_RandomMoveDel = true;
+var DP_WalkDel       = 40;
 
 // Warps
 var DP_WARPNONE                    = 99;
@@ -173,6 +101,7 @@ var D2JSP_UNIT_STASH        = 267;
 // glacial wp = 511
 
 // SuperUnique ID's (704 = hcIdx# from mpq file)
+//  NOTE: these are the old value's add 30 for correct number
 //Bishibosh                = 704	0
 //Bonebreak                = 705	1
 //Coldcrow                 = 706	2
@@ -684,16 +613,16 @@ function pathMove(_info) {
                             //Darien
                             print("Moving to Area Crossing Point " + this.CrossPointX + ", " + this.CrossPointY);
                             if(getRange(me,this.CrossPointX,this.CrossPointY) > 30) return false;
-                            DM_MoveTo(this.TargetX, this.TargetY);
-                            DM_MoveTo(this.CrossPointX, this.CrossPointY);
+                            this.MoveTo(this.TargetX, this.TargetY, pDoorHandler);
+                            this.MoveTo(this.CrossPointX, this.CrossPointY, pDoorHandler);
                             if(me.area != oldArea) return true;
                             
                             ///Darien - random move was my old fix, I have better one now
                             var fail=0;
 							while(oldArea == me.area && fail < 10){
                                 print("Border crossing");
-                                var bc = BorderCrossing(me.x,me.y,this.ilastX, this.ilastY)
-                                DM_MoveTo(bc.x,bc.y);
+                                var bc = BorderCrossing(me.x,me.y,this.ilastX, this.ilastY);
+                                this.MoveTo(bc.x, bc.y, pDoorHandler);
 								//this.GotoDest(exit[n].x,exit[n].y);
 								//clickMap(0, 0, me.x+rand(-3, 3), me.y+rand(-3, 3)); 
 								DC_DoDel(300);
@@ -718,7 +647,7 @@ function pathMove(_info) {
 			//Insure we have the unit
 			if(!tileUnit)
 				throw new Error("ÿc5mBot ÿc#::ÿc0 Pather.takeTile was given an invalid tile.")
-			//Keep trying to go thru the tile until area changes
+			//Keep trying to go thru the tile until area changes 
 			var _prearea = me.area;
 			for(var i = 0 ; i < 100 ; i++){
 				if((i % 25) == 0){
@@ -747,8 +676,11 @@ function pathMove(_info) {
 		//DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
 		this.TargetX            = pPath[pPath.length-1].x;
 		this.TargetY            = pPath[pPath.length-1].y;
-        this.beforeTargetX      = pPath[pPath.length-2].x;
-		this.beforeTargetY      = pPath[pPath.length-2].y;
+        
+        var crossNode = pPath.length - 2;
+        if(crossNode < 0) var crossNode = 0;
+        this.beforeTargetX      = pPath[crossNode].x;
+		this.beforeTargetY      = pPath[crossNode].y;
 		// Reset all internal vars (used in MoveToNode)
 		this.iFailedCount  = 0;
 		this.ilastX        = 0;
@@ -764,7 +696,7 @@ function pathMove(_info) {
         this.CrossPointX = crossPoint.x; 
 	    this.CrossPointY = crossPoint.y; 
         
-        if(pPath == null || !pPath || !pPath.length) { DC_DPrint("No path array object!"); return false; } // Darien
+        if(pPath == null || !pPath || !pPath.length) { DP_DPrint("No path array object!"); return false; } // Darien
         
 		while(_cNode < pPath.length-1) {
 			movedNodes[movedNodes.length] = _cNode;
@@ -933,77 +865,28 @@ function pathMove(_info) {
 	this.MoveToNode = function( pX, pY, pNode, pDataback, pDoorHandler) {
 		//DP_DPrint("MoveToNode() -> Entering function");
 		var shouldTele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
+        var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
+        
 		if(me.area != this.ilastArea){
 			delay(((typeof me.serverip != "undefined") ? me.ping*2 : 50));
 			this.ilastArea = me.area;
 			shouldTele = false;
 		}
-		//if(!shouldTele){
-			this.DoorOpener( pX, pY, pDoorHandler );
-		//}
-		//else{
-			if(me.getSkill(2) != 54){
-				me.setSkill(54,0);
-			}
-			var count=0;
-			while(me.getSkill(2) != 54 && count++ < 50) {
-				delay(20);
-				if(count==49) {
-					//DP_DPrint("MoveToNode() -> Could not set Teleport skill on right hand");
-					return (DP_STEPBACK+2);
-				}
-				if(count%10==0){
-					me.setSkill(54,0);
-				}
-			}
-		//}
-		var hand = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
-		//DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
-		//DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
-		if(shouldTele){
-			var _timer = 250;
-			var _destx=pX;
-			var _desty=pY;
-			do {
-				clickMap(hand.d,0,_destx,_desty);
-				delay(rand(10,20));
-				clickMap(hand.u,0,_destx,_desty);
-				// If we are within the destination coords, we are teleported correctly
-				if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
-					//DP_DPrint("Timer Used: "+(250-_timer));
-					break; 
-				}
-				//try clicking close to x/y taken from ntbot, bobode
-				_destx = pX + rand(-2, 2);
-				_desty = pY + rand(-2, 2);
-				_timer-=10;
-				delay(10);
-			} while (_timer > 0);
-			//DP_DPrint("full delay");
-		}
-		else{
-			clickMap(hand.d,0,pX,pY);
-			delay(rand(10,20));
-			clickMap(hand.u,0,pX,pY);
-			while(Math.abs(me.x-pX) > 1 || Math.abs(me.y-pY) > 1) {
-				delay(20);
-				if(me.mode!=2 && me.mode!=3) {
-					break;
-				}
-			}
-		}
+
+        if(this.MoveTo(pX, pY, pDoorHandler) == 2) return (DP_STEPBACK+2);
+        
 		// Increase the counter of failed moves if our position coming into the MoveToNode function is less than 6 from our
 		// last position AND the currentNodeIndex is the same as the last point, if not.. set failed moves back to 0
 		if((Math.abs(me.x - this.ilastX) < (shouldTele ? 6:2)) && (Math.abs(me.y - this.ilastY) < (shouldTele ? 6:2)) && (pNode == this.ilastPoint) && me.runwalk){
 			this.ifailedMoves++;
-			// Check for stuck situations - if set to throw error if stuck, do so (retry allows for up to 5 times before throwing error
-			if(this.ifailedMoves > 5 ) {
+			// Check for stuck situations - if set to throw error if stuck, do so (retry allows for up to 10 times before throwing error
+			if(this.ifailedMoves > 10 ) {
 				this.ifailedMoves = 0;
-				if(typeof(DC_ThrowException) == 'function'){
+				//if(typeof(DC_ThrowException) == 'function'){
+                if(ctrlFlag&~(DP_THROWWHENSTUCK) == 0){
 					DC_ThrowException("MoveToNode()","-> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
-				}
-				else{
-					DP_DPrint("MoveToNode() -> We got stuck! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
+				} else {
+					DP_DPrint("MoveToNode() -> We got stuck! NOT quitting! Current X/Y = " + me.x + "/" + me.y + " Target X/Y = " + pX + "/" + pY + " in Area " + me.area + ".");
 					return DP_STOP;
 				}
 			}
@@ -1011,32 +894,10 @@ function pathMove(_info) {
 			// ASSUMPTION :: if outa-town the thing causing stuck is a monster(or lag)
 			if(this.ifailedMoves > 1 ) {
 				//DP_DPrint("MoveToNode() -> Attempting to clear position...distance x:"+( Math.abs( me.x - pX )  ) +" y:"+ ( Math.abs( me.y - pY )));
-				if(this.ifailedMoves%4 == 0){
-					DP_DPrint("MoveToNode() -> Failed move 4 times, attempting re-click of destination points.");
-					var h = {d:(shouldTele ? 3: 0),u:(shouldTele ? 5 : 2)}
-					clickMap(h.d,0,pX,pY);
-					delay(rand(10,20));
-					clickMap(h.u,0,pX,pY);
-					if(shouldTele){
-						_timer = 250;
-						do {
-							// If we are within the destination coords, we are teleported correctly
-							if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
-								break; 
-							}
-							_timer-=10;
-							delay(10);
-						} while (_timer > 0);
-					}
-					else{
-						while(Math.abs(me.x-pX)>1 || Math.abs(me.y-pY)>1) {
-							delay(20);
-							if(me.mode!=2 && me.mode!=3) {
-								break;
-							}
-						}
-					}
-				}
+				//if(this.ifailedMoves%4 == 0){
+					DP_DPrint("MoveToNode() -> Failed move, attempting re-click of destination points.");
+					this.MoveTo(pX, pY, pDoorHandler);
+				//}
 				if(!InTown(me)){
 					DP_ClearInRange(20);
 				}
@@ -1127,8 +988,7 @@ function pathMove(_info) {
 				// Use Chests
 				if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
 					YC_MaxDistance = 19;
-					YC_CheckForChests();
-					DSN_PickItems(DP_CheckSafety);
+					if(YC_CheckForChests()) DSN_PickItems(DP_CheckSafety);
 				}
 				// Pickup drops
 				if(outaTown && ctrlFlag & DP_PICKDROPS){
@@ -1242,6 +1102,121 @@ function pathMove(_info) {
 		}
 		return {x:Bx, y:By};
 	}
+    
+    this.MoveTo = function(pX, pY, pDoorHandler) {
+        var pPoint = DP_FindClosestWalkable(pX, pY);
+    
+        var tele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
+        if(tele){
+            if(me.getSkill(2) != 54){
+                me.setSkill(54,0);
+            }
+            var count=0;
+            while(me.getSkill(2) != 54 && count++ < 50) {
+                delay(20);
+                if(count==49) {
+                    //DP_DPrint("MoveToNode() -> Could not set Teleport skill on right hand");
+                    return 2; 
+                }
+                if(count%10==0){
+                    me.setSkill(54,0);
+                }
+            }
+        } else if(arguments.length > 2) this.DoorOpener( pPoint.x, pPoint.y, pDoorHandler);
+        var hand = {d:(tele ? 3: 0),u:(tele ? 5 : 2)}
+        //DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
+        //DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
+        if(tele){
+            var _timer = 250;
+            var _destx=pPoint.x;
+            var _desty=pPoint.y;
+            do {
+                clickMap(hand.d,0,_destx,_desty);
+                delay(rand(10,20));
+                clickMap(hand.u,0,_destx,_desty);
+                // If we are within the destination coords, we are teleported correctly
+                if( ( Math.abs( me.x - pPoint.x ) < 4 ) && ( Math.abs( me.y - pPoint.y ) < 4 ) ) { 
+                    //DP_DPrint("Timer Used: "+(250-_timer));
+                    break; 
+                }
+                //try clicking close to x/y taken from ntbot, bobode
+                _destx = pPoint.x + rand(-2, 2);
+                _desty = pPoint.y + rand(-2, 2);
+                _timer-=10;
+                delay(10);
+            } while (_timer > 0);
+            //DP_DPrint("full delay");
+        }
+        else{
+            if(!this.WalkTo(pPoint.x,pPoint.y, pDoorHandler)) return 0;
+        }
+        return 1;
+    }
+    
+    this.WalkTo = function (pX, pY, pDoorHandler) {
+        var _startx = me.x;
+        var _starty = me.y;
+        var _currdestx = pX;
+        var _currdesty = pY;
+        var _retry = 0;
+        var _numtrys=parseInt(10000/DP_WalkDel,10);
+        var _thrash = 0;
+        var _nthrash=parseInt(3000/DP_WalkDel,10);
+        // If the char has running disabled, toggle to enable it
+        if(me.runwalk == 0) { me.runwalk=1; }
+        // If we are already in the correct coords, return true
+        if(Math.abs(me.x - pX) <= 1 && Math.abs(me.y - pY) <= 1) { return true; }
+        // Display a debug message
+        DP_DPrint("Walking to [" + pX + ", " + pY + "]");
+        // Loop until we got in the dest coords
+        while ((Math.abs(me.x - pX) > 2 || Math.abs(me.y - pY) > 2) && _retry <= _numtrys && (me.mode != 17)) {
+            // Randomize the coords if RandomMove is set to true
+            if(DP_RandomMove) {
+                _currdestx+=rand(-2,2);
+                _currdesty+=rand(-2,2);
+            }
+            // Click on the current coords set to go there
+            DC_DoClick(0,0,_currdestx,_currdesty);
+            // If the RandomMoveDel is set to true, randomize the movement delay
+            if(DP_RandomMoveDel) { delay(DP_WalkDel + rand(0,DP_WalkDel)); }
+            else { delay(DP_WalkDel); }
+            // Increase the retry counter
+            _retry+=1;
+            // If we don't arrive in the destination point, calculate the next set of coords
+            if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
+                this.DoorOpener( pX, pY, pDoorHandler);
+                if(_thrash >= 10) {
+                    print("Thrash");
+                    //updated by Pachelbel
+                    var dx = _currdestx - _startx;
+                    var dy = _currdesty - _starty;
+                    var a = Math.atan2(dx, dy);
+                    a = Math.floor(a * 100) + 157;  // + pi/2;
+                    var direction = rand(a, a+314)/100;  // + pi
+                    _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
+                    _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
+                    _thrash=0;
+                }
+                else { _thrash+=1; }
+            }
+            // Else, use my pos as coords
+            else {
+                _startx = me.x;
+                _starty = me.y;
+                _currdestx = pX;
+                _currdesty = pY;
+            }
+        }
+        // If we didn't succeed moving to the end coords, we got a problem so abort the game
+        if(Math.abs(me.x - pX) > 2 || Math.abs(me.y - pY) > 2) {
+            if(me.mode != 17) {
+                //DC_ThrowException("this.WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
+                print("Damn it! I'm stuck!");
+            }
+            return false;
+        }
+        return true;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
