@@ -115,7 +115,8 @@ function YC_CheckForChest(chest) {
 	if (!chest) { return false; }
 	if (chest.name.toLowerCase() == "dummy") return false;
    	// is chest in range -- if not, skip it
-	if (getDistance(me, chest) > YC_MaxDistance || checkCollision(me,chest,1)) { return false; }
+    var chestDist = getDistance(me, chest);
+	if (chestDist > YC_MaxDistance || checkCollision(me,chest,1)) { return false; }
 	// have we visited this chest before ?  if so, skip it
 	if (chest.mode) { return false; }
 	if (chest.islocked!=0 && me.classid!=6) {
@@ -126,6 +127,8 @@ function YC_CheckForChest(chest) {
 	}
 	var i = 0;
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+    // Clear monsters before walking
+    killRadius(chestDist+3); //Darien
 	// save start location
 	var _startx = me.x;
 	var _starty = me.y;

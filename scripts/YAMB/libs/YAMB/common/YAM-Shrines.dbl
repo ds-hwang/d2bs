@@ -200,7 +200,8 @@ function DS_CheckForShrine(shrine) {
 		return false; 
 	}
 	// is shrine in range -- if not, skip it
-	if (DS_GetRange(me, shrine) > DS_MaxDistance){
+    var shrineDist = DS_GetRange(me, shrine);
+	if (shrineDist > DS_MaxDistance){
 		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want, but it's out of range!");
 		return false; 
 	}
@@ -222,6 +223,8 @@ function DS_CheckForShrine(shrine) {
 		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
 		var i = 0;
 		while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
+        // Clear monsters before walking
+        killRadius(shrineDist+3); //Darien
 		// save start location
 		var _startx = me.x;
 		var _starty = me.y;
