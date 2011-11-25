@@ -257,6 +257,67 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
     return false;
 }
 
+// pathing argument function
+function openDoor(x,y) {
+    
+    //clear any monsters blocking
+    clearPath();
+    //Door handling function for walking characters
+    if(!commPather.UseTele) {
+        var _Door = getPathDoor(x,y);
+        if(_Door) DM_TouchObject(_Door);
+    }
+    return DP_STEPAHEAD;
+}
+
+// returns the closest door in your path
+function getPathDoor(x,y) { 
+	var closest_dist = 15;
+	var objs = getUnit(2,null,0);
+	var closestOBJ = false;
+
+	if (objs) do {
+		if (ValidDoorObject(objs,x,y)) {
+			//dprint("door valid",1);
+			var distance = getDistance(objs);
+			if (distance < closest_dist) {
+				closest_dist = distance;
+				var closestOBJ = copyUnit(objs);
+			}
+		}
+	} while(objs && objs.getNext());
+
+	if (closestOBJ) return (closestOBJ);
+	else return false;
+}
+
+function ValidDoorObject(thing,x,y) { 
+	
+    var pathPoint = new Object();
+        pathPoint.x = x;
+        pathPoint.y = y;
+        pathPoint.name = "Next Path Point";
+        
+    if(typeof(thing) != "object") return false;
+	if(thing.mode == 2) return false;
+	//if(getDistance(thing) > 8) return false;
+    if(isBetween(thing,me,pathPoint) || inMyWay(thing,x,y)) {
+    
+        if(thing.name == "Door") return true;
+        if(thing.name == "door") return true;
+        
+        //get a list of other door names or classid's not included above
+        switch(thing.classid) {	
+            case 25:
+            case 27:
+            case 16:
+                return true;
+        }
+    }
+	return false;
+}
+
+// is _testObject between 2 points; (pointA is usually me, pointB is destination Object)
 function isBetween(_testObject,pointA,pointB) {
 
     //make sure the x,y co-ords are b/w the two other points
@@ -272,26 +333,48 @@ function isBetween(_testObject,pointA,pointB) {
     //solve for the y-intercept of the door with the same slope
     var _testObjectYint = _testObject.y/(m * _testObject.x);
 
-    //if the door is on the line + or - 3 then return true
-    if(Math.abs(yInt - _testObjectYint) < 4) return true;
-    
+    //if the door is on the line + or - 6 then return true
+    if(Math.abs(yInt - _testObjectYint) < 7) {
+        dprint(_testObject.name + " is between " + pointA.name + " and " + pointB.name, 8);
+        return true;
+    }
     return false;
 }
 
-function openDoor() {
-    if(me.getStat(12) < 4) killRadius(20);
-    if(!me.classid || me.area == 8) killRadius(20);
-    else killRadius(2);
-    if(me.classid == 2) XP_NecroRevive();
-    if(me.classid == 5) DA_DoPrecasts();
-    return DP_STEPAHEAD;
-}
+// inMyWay(object,dest) object is between you and destination objects
+// inMyWay(object,x,y) object is between you and dest x,y co-ords
+// inMyWay(x1,y1,x2,y2) object's x,y coo-ords are between you and dest x,y co-ords
+function inMyWay(a,b,c,d) {
 
-function killZone() {
-    killRadius(20);
-    if(me.classid == 2) XP_NecroRevive();
-    if(me.classid == 5) DA_DoPrecasts();
-    return DP_STEPAHEAD;
+    // Define x,y co-ords based on argument length
+    if (arguments.length == 2) { var objx = a.x;  var objy = a.y;  var destx = b.x; var desty = b.y; }
+    if (arguments.length == 3) { var objx = a.x;  var objy = a.y;  var destx = b;   var desty = c;   }
+    if (arguments.length == 4) { var objx = a;    var objy = b;    var destx = c;   var desty = d;   }
+        
+    var phiPath = Math.round((desty - me.y/destx - me.x)*1000)/1000;
+    var phiObject = Math.round((objy - me.y/objx - me.x)*1000)/1000;
+    var dest_range  = getDistance(destx,desty);
+    var obj_range = getDistance(objx,objy);
+
+	//print("My distance to my Destination: " + my_range);
+	//print("Object distance to Destination: " + obj_range);
+	
+	var vect_diff = Math.abs(phiPath - phiObject);
+	var acceptable = Math.abs(phiPath/25); //was 10
+	
+	//print("phiPath " + phiPath);
+	//print("phiObject " + phiObject);
+	//print("vect diff " + vect_diff);
+	//print("acceptable " + acceptable);
+	
+	if(dest_range  >= obj_range && vect_diff <= acceptable) {
+		if(arguments.length < 4) {
+            dprint(a.name + " is in my way!!",9);
+            //if(a.name == "Barrel" || a.name == "barrel") DC_OpenChest(a);
+        }
+		return true;
+	} //else dprint("Don't need to open this door");
+	return false;
 }
 
 function dprint(crap, color) { 
