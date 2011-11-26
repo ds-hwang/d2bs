@@ -1973,20 +1973,26 @@ function DC_IsWalkable(_x, _y) {
 // Scripts interaction functions
 //////////////////////////////////////////////////////////////////////
 
-// Function by njaguar
+// Function modded by TechnoHunter
 // Parameter :
 // -scriptname	Name of the script to get
 // Return value : Script object if a script with the scriptname is found
 function DC_FindScript( scriptname ) {
-	var script = getScript();
+	var script = getScript(scriptname);
 	DC_DoDel(DC_LagDelay);
 	if(script) { 
-		do {
-			var _scriptpath = script.name.toLowerCase();
-			if(_scriptpath.indexOf( scriptname.toLowerCase()) != -1) {
-				return script;
-			}
-		} while(script.getNext());
+		return script;
+	}
+	else {
+		script = getScript();
+		if(script){
+			do {
+				var _scriptpath = script.name.toLowerCase();
+				if(_scriptpath.indexOf( scriptname.toLowerCase()) != -1) {
+					return script;
+				}
+			} while(script.getNext());
+		}
 	}
 	return false;
 }
