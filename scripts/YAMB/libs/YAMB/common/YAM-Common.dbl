@@ -263,10 +263,9 @@ function openDoor(x,y) {
     //clear any monsters blocking
     clearPath();
     //Door handling function for walking characters
-    if(!commPather.UseTele) {
-        var _Door = getPathDoor(x,y);
-        if(_Door) DM_TouchObject(_Door);
-    }
+    var _Door = getPathDoor(x,y);
+    if(_Door) DM_TouchObject(_Door);
+    
     return DP_STEPAHEAD;
 }
 
@@ -531,16 +530,20 @@ function pathToPSU(presetUnit) {
 }
 */
 
-function pathtoFarUnit(type, id, fuarea, stepHandler) {
+// stepHandler and doorHandler are Optional
+// stepHandler function is called by all characters AFTER moving to the Path Point
+// doorHandler is called ONLY by walking characters BEFORE moving to the Path Point,
+//      and during every walking move from this.WalkTo(x,y,doorHandler);
+function pathtoFarUnit(type, id, fuarea, stepHandler, doorHandler) {
     if(!fuarea) fuarea = me.area;
-    if(!stepHandler) stepHandler = openDoor;
+    if(!doorHandler) doorHandler = openDoor;
     
     if(arguments.length == 1) var farUnit = getFarUnitXY (type);
     else var farUnit = getFarUnitXY (type, id, fuarea); 
     
     if(farUnit) {
         dprint("Pathing to Far Unit " + id,2);
-        pathToDest(farUnit.x, farUnit.y, stepHandler);
+        pathToDest(farUnit.x, farUnit.y, stepHandler, doorHandler);
     } else { 
         dprint("Pathing Failed... Far Unit " + id + " not found!",1); return false; 
     }
@@ -548,13 +551,13 @@ function pathtoFarUnit(type, id, fuarea, stepHandler) {
     return true;
 }
 
-function pathToDest(x,y,stepHandler) {
+function pathToDest(x, y, stepHandler, doorHandler) {
     dprint("Pathing to Dest: " + x + ", " + y,2);
     var attempts=1;
     
-    if(arguments.length == 2) stepHandler = openDoor;
+    if(arguments.length < 4) doorHandler = openDoor;
     
-    while(!commPather.GotoDest(x, y, false, false, stepHandler) && attempts < 6) {
+    while(!commPather.GotoDest(x, y, false, stepHandler, doorHandler) && attempts < 6) {
         dprint("Pathing Attempt: " + attempts + " , to co-ordinates failed!", 1);
         attempts++;
         delay(500);
@@ -563,14 +566,14 @@ function pathToDest(x,y,stepHandler) {
     else return true;
 }
 
-function pathToLevel(x,stepHandler) {
+function pathToLevel(x, stepHandler, doorHandler) {
     var attempts=1;
     var oldarea = me.area;
     
-    if(arguments.length == 1) stepHandler = openDoor;
+    if(arguments.length < 3) doorHandler = openDoor;
     
     dprint("Pathing to Area: " + x, 2);
-    while(!commPather.GotoLevel(x, true, false, false, stepHandler) && attempts < 6) {
+    while(!commPather.GotoLevel(x, true, false, stepHandler, doorHandler) && attempts < 6) {
         attempts++;
         if(me.area == oldarea) dprint("Pathing Attempt: " + attempts + " , to area: " + x + " failed!", 1);
         delay(500);
@@ -579,30 +582,32 @@ function pathToLevel(x,stepHandler) {
         dprint("Pathing failed... miserably",1); 
         return false; 
     }
-    return true;
+    if(me.area == oldarea) return false;
+    else { DM_RevealMap(); return true; }
 }
 
-function pathToWarp(WARPID,stepHandler) {
+function pathToWarp(WARPID, stepHandler, doorHandler) {
     dprint("Pathing to Warp: " + WARPID, 2);
     var attempts=1;
     
-    if(arguments.length == 1) stepHandler = openDoor;
+    if(arguments.length < 3) doorHandler = openDoor;
     
-    while(!commPather.GotoWarp(WARPID, false, false, stepHandler) && attempts < 6) {
+    while(!commPather.GotoWarp(WARPID, false, stepHandler, doorHandler) && attempts < 6) {
         dprint("Pathing Attempt: " + attempts + " , to WARP ID: " + WARPID + " failed!", 1);
         attempts++;
         delay(500);
     }
     if(attempts == 6) { dprint("Pathing failed... miserably",1); return false; }
-    else return true;
+    else { DM_RevealMap(); return true; }
 }
 
-function pathToWP(area) {
+function pathToWP(area, stepHandler, doorHandler) {
     if(!area) area = me.area;
+    if(!doorHandler) doorHandler = openDoor
     
     dprint("Pathing to WP in area " + area, 2);
     var attempts=1;
-    while(!commPather.GotoWaypoint(area, false, false, openDoor) && attempts < 6) {
+    while(!commPather.GotoWaypoint(area, false, stepHandler, doorHandler) && attempts < 6) {
         dprint("Pathing Attempt: " + attempts + " , to area: " + area + " failed!", 1);
         attempts++;
         delay(500);
@@ -1994,8 +1999,9 @@ function DC_FindScript( scriptname ) {
 			} while(script.getNext());
 		}
 	}
-	return false;
+    return false;
 }
+
 
 // Function by njaguar
 // Parameter :
