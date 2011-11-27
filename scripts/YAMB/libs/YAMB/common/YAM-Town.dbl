@@ -182,7 +182,7 @@ function YAM_TownManager() {
 	_XP_GetNumUnId	= DT_CheckUnids();
 	var _tptome		= DT_GetTome(1);
 	if(!_tptome) {// Display a warning
-		DC_Print("WARNING : No TP book found... Please put one in inventory manually!");
+		DC_Print("WARNING : No TP book found... I'll put one in inventory next chance I get!");
 		_YAM_NeedTP = true;
 	}
 	else if( _tptome.getStat(70) < 9) { 

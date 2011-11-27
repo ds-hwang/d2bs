@@ -81,7 +81,9 @@ function YAM_NPCinteract2(npc) {
 						DC_StopMessage("Failed to fill TP Tome and you are out of scrolls!");
 					}
 				}
-				else { 
+				else {
+                    var tpTome = npc.getItem("tbk");
+                    DT_BuyItem(tpTome,npc,3);
 					if (!DT_BuyScrolls(npc,1,1)){
 						DC_StopMessage("Failed to buy TP Scroll!"); 
 					}
