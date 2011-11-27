@@ -38,6 +38,7 @@ var _DM_Waypoints = [
     0x67, 0x6a, 0x6b,                                      // 27..29 act4
     0x6d, 0x6f, 0x70, 0x71, 0x73, 0x7b, 0x75, 0x76, 0x81]; // 30..38 act5
 
+var revealedAreas = [];
 
 //////////////////////////////////////////////////////////////////////
 // Public functions
@@ -481,11 +482,27 @@ function DM_TakeStairs(lo, hi, area) {
 		delay(50);
 		_delLoop -= 50;
 	} while(_delLoop >= 0);
+    DM_RevealMap();
 	return true;
 }
 
-// Modified by darkspirit for performance
-function DM_Dist(x1, y1, x2, y2) { return Math.sqrt(Math.abs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))); }
+//Stolen and modded from NTbot by Darien
+function DM_RevealMap(area) {
+    if(area in revealedAreas) return;
+    revealedAreas.push(area);
+    var room = getRoom(area);
+    var roomsRevealed = [];
+    do {
+        if(room == undefined) return;
+        if([room.x, room.y] in roomsRevealed) {
+            roomsRevealed.push([room.x, room.y]);
+            room.getNext();
+        } else room.reveal(true);
+    } while(room.getNext());
+}
+
+// Modified by darkspirit for performance - modded should be deleted by Darien
+function DM_Dist(x1, y1, x2, y2) { return getDistance(x1, y1, x2, y2); }
 
 //////////////////////////////////////////////////////////////////////
 // Portal and waypoints functions
@@ -510,6 +527,7 @@ function DM_UsePortal(how, dest, ownername, portal) {
 			delay(50);
 			_delLoop -= 50;
 		} while(_delLoop >= 0);
+        DM_RevealMap();
 		return true;
 	}
     
@@ -520,7 +538,7 @@ function DM_UsePortal(how, dest, ownername, portal) {
 		// Random click
 		DC_DoClick(0, 0, me.x+rand(-2,2), me.y+rand(-2,2));
 		DC_DoDel(50);
-		if(me.area == dest) return true;
+		if(me.area == dest) { DM_RevealMap(); return true; }
 	}
 	// error messages
 	switch (_msg_select) {
