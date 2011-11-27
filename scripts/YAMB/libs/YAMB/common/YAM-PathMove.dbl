@@ -925,88 +925,85 @@ function pathMove(_info) {
 
 	this.StepActions = function(inX, inY, currentNodeIndex, Tele, infoIn) {
 		//DP_DPrint("StepActions() -> cNode: "+currentNodeIndex+"  lastNode: "+this.ilastPoint+"  My XY: "+me.x+","+me.y+" last x,y: "+this.ilastX+","+this.ilastY);
-		switch (typeof(infoIn)){
-			case "function" :
-				return infoIn();
-			default :
-				// Generate our controlFlag bit based on passed values
-				var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
-				// By default the StepActionflag ONLY has DP_INCUSERSTEP in it on creation, this allows
-				// full control to the USER.. if you have no user steps defined.. it just steps ahead
-				// -TechnoHunter
-				if((ctrlFlag&~(DP_INCUSERSTEP|DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK)) == 0){
-					return DP_STEPAHEAD;
-				}
-				var outaTown = !InTown(me);
-				// Clear current position of monsters - do NOT check for items here, instead ONLY check if told to via DP_PICKDROPS
-				if(outaTown && ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
-					// If we moved back, call SafeCheck and make sure we do not need to go to town
-					if(this.iMovedBack && (currentNodeIndex < this.ilastPoint|| this.ilastPoint < 2)) {
-						this.iMovedBack = false;
-						if(DP_CheckSafety()){
-							DP_Precasts();
-						}
-					}
-					//To obtain the needed specType is easy.
-					var specType = ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
-					specType >>= 8; // shift 1 byte
-					// Clear our location
-					DP_ClearInRange(20,null,ATTACKING_MODE,null,specType);
-					// Check if we have NOT moved back and we need to deal with any lifewatch set conditions
-					if(!this.iMovedBack && (DT_CheckHeal()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)) {
-						DP_DPrint("Temporarily retreating...");
-						this.iMovedBack = true;
-						// Remember current coords
-						this.ilastX     = me.x;
-						this.ilastY     = me.y;
-						this.ilastPoint = currentNodeIndex;
-						return (DP_STEPBACK+2);
-					}
-					// we have already moved back, and passed our checks till now, go ahead and move forward
-					else if(this.iMovedBack){
-						return DP_STEPAHEAD;
-					}
-					DP_ClearInRange(20,null,ALIVE_MODE,null,specType);
-					if(YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
-						if(DP_CheckSafety()) {
-							DP_Precasts();
-						}
-					}
-				}
-				// Call SafeCheck
-				if(outaTown && ctrlFlag & DP_SAFECHECK) {
-					if(DP_CheckSafety()){
-						DP_Precasts();
-					}
-				}
-				// Use Shrines - Check user config settings as well as control flag (for both chests and shrines) -TechnoHunter
-				if(outaTown && YAM_UseShrines && ctrlFlag & DP_USESHRINES ) {
-					// if we find a shrine, use it before proceeding for an added bonus
-					DS_MaxDistance = 20;
-					DS_CheckForShrines();
-				}
-				// Use Chests
-				if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
-					YC_MaxDistance = 19;
-					if(YC_CheckForChests()) DSN_PickItems(DP_CheckSafety);
-				}
-				// Pickup drops
-				if(outaTown && ctrlFlag & DP_PICKDROPS){
-					DSN_PickItems(DP_CheckSafety);
-				}
-				// Enable Vigor
-				if(me.classid==3 && ctrlFlag & DP_USEVIGOR) {
-					if(me.getSkill(2) != 115) {
-						DC_PutSkill(115,0);
-					}
-				}
-				//DP_DPrint("got here");
-				// Remember current coords
-				this.ilastX     = me.x;
-				this.ilastY     = me.y;
-				this.ilastPoint = currentNodeIndex;
-				return DP_STEPAHEAD;
-		}
+        if(infoIn && typeof(infoIn) == "function") return infoIn();
+
+        // Generate our controlFlag bit based on passed values
+        var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
+        // By default the StepActionflag ONLY has DP_INCUSERSTEP in it on creation, this allows
+        // full control to the USER.. if you have no user steps defined.. it just steps ahead
+        // -TechnoHunter
+        if((ctrlFlag&~(DP_INCUSERSTEP|DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK)) == 0){
+            return DP_STEPAHEAD;
+        }
+        var outaTown = !InTown(me);
+        // Clear current position of monsters - do NOT check for items here, instead ONLY check if told to via DP_PICKDROPS
+        if(outaTown && ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
+            // If we moved back, call SafeCheck and make sure we do not need to go to town
+            if(this.iMovedBack && (currentNodeIndex < this.ilastPoint|| this.ilastPoint < 2)) {
+                this.iMovedBack = false;
+                if(DP_CheckSafety()){
+                    DP_Precasts();
+                }
+            }
+            //To obtain the needed specType is easy.
+            var specType = ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS);
+            specType >>= 8; // shift 1 byte
+            // Clear our location
+            DP_ClearInRange(20,null,ATTACKING_MODE,null,specType);
+            // Check if we have NOT moved back and we need to deal with any lifewatch set conditions
+            if(!this.iMovedBack && (DT_CheckHeal()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)) {
+                DP_DPrint("Temporarily retreating...");
+                this.iMovedBack = true;
+                // Remember current coords
+                this.ilastX     = me.x;
+                this.ilastY     = me.y;
+                this.ilastPoint = currentNodeIndex;
+                return (DP_STEPBACK+2);
+            }
+            // we have already moved back, and passed our checks till now, go ahead and move forward
+            else if(this.iMovedBack){
+                return DP_STEPAHEAD;
+            }
+            DP_ClearInRange(20,null,ALIVE_MODE,null,specType);
+            if(YAM_CheckIfCursed()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) {
+                if(DP_CheckSafety()) {
+                    DP_Precasts();
+                }
+            }
+        }
+        // Call SafeCheck
+        if(outaTown && ctrlFlag & DP_SAFECHECK) {
+            if(DP_CheckSafety()){
+                DP_Precasts();
+            }
+        }
+        // Use Shrines - Check user config settings as well as control flag (for both chests and shrines) -TechnoHunter
+        if(outaTown && YAM_UseShrines && ctrlFlag & DP_USESHRINES ) {
+            // if we find a shrine, use it before proceeding for an added bonus
+            DS_MaxDistance = 20;
+            DS_CheckForShrines();
+        }
+        // Use Chests
+        if(outaTown && YAM_OpenChests && ctrlFlag & DP_OPENCHESTS) {
+            YC_MaxDistance = 19;
+            if(YC_CheckForChests()) DSN_PickItems(DP_CheckSafety);
+        }
+        // Pickup drops
+        if(outaTown && ctrlFlag & DP_PICKDROPS){
+            DSN_PickItems(DP_CheckSafety);
+        }
+        // Enable Vigor
+        if(me.classid==3 && ctrlFlag & DP_USEVIGOR) {
+            if(me.getSkill(2) != 115) {
+                DC_PutSkill(115,0);
+            }
+        }
+        //DP_DPrint("got here");
+        // Remember current coords
+        this.ilastX     = me.x;
+        this.ilastY     = me.y;
+        this.ilastPoint = currentNodeIndex;
+        return DP_STEPAHEAD;
 	}
 
 	this.DoorOpener = function( pX, pY, pDoorHandler ) {
@@ -1168,8 +1165,9 @@ function pathMove(_info) {
         if(Math.abs(me.x - pX) <= 1 && Math.abs(me.y - pY) <= 1) { return true; }
         // Display a debug message
         DP_DPrint("Walking to [" + pX + ", " + pY + "]");
+        print("this.WalkTo: ÿc2[" + pX + ", " + pY + "]");
         // Loop until we got in the dest coords
-        while ((Math.abs(me.x - pX) > 2 || Math.abs(me.y - pY) > 2) && _retry <= _numtrys && (me.mode != 17)) {
+        while ((Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) && _retry <= _numtrys && (me.mode != 17)) {
             // Randomize the coords if RandomMove is set to true
             if(DP_RandomMove) {
                 _currdestx+=rand(-2,2);
@@ -1208,7 +1206,7 @@ function pathMove(_info) {
             }
         }
         // If we didn't succeed moving to the end coords, we got a problem so abort the game
-        if(Math.abs(me.x - pX) > 2 || Math.abs(me.y - pY) > 2) {
+        if(Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) {
             if(me.mode != 17) {
                 //DC_ThrowException("this.WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
                 print("Damn it! I'm stuck!");
