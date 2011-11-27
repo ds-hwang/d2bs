@@ -408,18 +408,19 @@ function Search_and_Destroy(range) {
     if(arguments.length == 0) range = 999;
     
     var victim = returnClosestThreat(range);
+    commPather.StepActionFlag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP|DP_CLEARMONSTERS|DP_USEVIGOR;
     
     if(victim) {
     
         dprint("Search and Destroy Mode Engaged",1);
         while(victim) {
             var victim = returnClosestThreat(range);
-            pathToDest(victim.x,victim.y);
+            pathToDest(victim.x,victim.y, null, killZone);
             killRadius(25);
             var victim = returnClosestThreat(range);
         }
         dprint("Search and Destroy mode over... return to start point",2);
-        pathToDest(beginX,beginY);
+        pathToDest(beginX,beginY, null, killZone);
         
     } else {
         dprint("Search and Destroy: No Victims found",2);
@@ -1010,23 +1011,3 @@ function XP_SearchAndDestroy(range,skip) {
    DSN_PickItems(YAM_SafeCheck);
 }
 
-
-/*
-function XP_ClearLevel() {
-	// temp vars to hold the original values of the StepPath and shrine/chest use vars - TechnoHunter
-	_temp        = commPather.Walkcallflag;
-	_tempShrines = YAM_UseShrines;
-	_tempChests  = YAM_OpenChests;
-	// Set our shrine/chest vars to take advantage of the pather.
-	YAM_UseShrines          = true;
-	YAM_OpenChests          = true;
-	// Ability to control the types of the monster you want to kill
-	commPather.Walkcallflag = (DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_CLEARMONSTERS|DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS);
-	commPather.InitType = 1;
-	commPather.ExploreLevel(XP_TeleDist, false, false);
-	// Reset all changed variables to the original values.
-	commPather.Walkcallflag = _temp;
-	YAM_UseShrines          = _tempShrines;
-	YAM_OpenChests          = _tempChests;
-}
-*/
