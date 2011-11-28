@@ -230,7 +230,7 @@ function XP_BossAttack(target) {
 	var hand;
 	var staticed = false;
     
-	//XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); // added by Darien -why? TechnoHunter
+	if(!_XP_TimedSpells && !_XP_UntimedSpells) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); // added by Darien
     
 	_XP_CurrentTimed   = XP_SelectAttack(target, _XP_TimedSpells, 0);
 	_XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, 0);
@@ -701,6 +701,8 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 	var hpprev = 129;
    	var attprev = _XP_AttackCompleted;
 	var lLast;
+    
+    if(!_XP_MinionTimedSpells && !_XP_MinionUntimedSpells) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
 
 	_XP_CurrentTimed   = XP_SelectAttack(monster, _XP_MinionTimedSpells, 0);
 	_XP_CurrentUntimed = XP_SelectAttack(monster, _XP_MinionUntimedSpells, 0);

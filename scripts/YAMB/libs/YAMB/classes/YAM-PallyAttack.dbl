@@ -75,7 +75,7 @@ function XP_BossAttack(target) {
 		} 
 		else {
 			if(!DM_MoveTo(target.x, target.y))
-				clearPath(XP_PallyAttack,1);
+				clearPath();
 		}
 	}
 	_XP_EndPosition = new XP_Coord(me.x,me.y);
@@ -97,8 +97,7 @@ function XP_BossAttack(target) {
 		i +=1;
 		if (i >2 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)) {
 			if (target.hp > (prvHP-2000)){ // still missing target.
-				if(!DM_MoveTo(target.x, target.y)) //if walk fails could be surrounded try attacking
-					clearPath(XP_PallyAttack,1);
+				if(!DM_MoveTo(target.x, target.y)) clearPath(); //if walk fails could be surronded try attacking
 				// Set the aura on the right hand
 				DC_PutSkill(XP_PallyAura,0);
 			}

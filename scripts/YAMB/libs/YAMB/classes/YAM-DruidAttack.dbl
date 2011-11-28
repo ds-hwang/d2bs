@@ -455,7 +455,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 				delay(100);
 		}
 	}
-	//DSN_PickItems(YAM_SafeCheck);
+	DSN_PickItems(YAM_SafeCheck);
 	return true;
 }
 
