@@ -41,7 +41,8 @@ function NT_Eldritch()
         print("ÿc3Starting Shenk Extension");
 		
         print("ÿc8Going to Shenk the Overseer");
-        if (!NTM_MoveTo(3876, 5120))
+		NTM_TravelTO(110);
+       if (!NTM_MoveTo(3876, 5120))
 			throw new Error();
 			
         if (me.classid != NTC_CHAR_CLASS_PALADIN && me.classid != NTC_CHAR_CLASS_BARBARIAN)

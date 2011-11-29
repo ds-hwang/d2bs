@@ -65,7 +65,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 		//} catch(e) { x--; y--; }
 	//}
 	//print("getpath took " + (getTickCount()-start) +" Miliseconds, dist :"+ getDistance(me.x,me.y,x,y) +" result " +_path.toSource() )
-	if(!_path)
+	if(!_path || _path.length == 0)
 	{
 		print("getpath("+me.area+","+me.x+","+me.y+","+x+","+y+","+!_walk+") failed");
 		return false;
@@ -100,7 +100,7 @@ function NTM_MoveTo(x, y, retry, clearpath)
 			{
 				_path = getPath(me.area, me.x, me.y, x, y,!_walk);
 
-				if(!_path)
+				if(!_path || _path.length ==0)
 				{
 					print("getpath2("+me.area+","+me.x+","+me.y+","+x+","+y+","+!_walk+") failed");
 					return false;
