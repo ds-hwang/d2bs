@@ -45,15 +45,8 @@ function NT_Pit()
 
     NTP_DoPrecast();
 
-    for (i = 0; i < _attackpos.length; i += 2)
-	{
-        NTM_MoveTo(_attackpos[i], _attackpos[i + 1]);
-
-        NTA_ClearPosition(25, 0x04);
-        NTA_ClearPosition(25);
-        NTSI_PickItems();
-    }
-
+   NTA_ClearRange();
+   
     if (NTConfig_OpenChest) 
 	{
         var _chest;
