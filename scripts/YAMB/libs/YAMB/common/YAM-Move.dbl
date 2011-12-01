@@ -66,7 +66,7 @@ function DM_CheckTeleport() {
 // Parameters :
 // -x,y		Coordinates to check my position against
 function DM_CheckPosition(x, y) {
-	if((me.classid == 3 && (Math.abs(me.x - x) > 3) || (Math.abs(me.y - y) > 3)) || (me.classid != 3 && (Math.abs(me.x - x) > 7) || (Math.abs(me.y - y) > 7))) {
+	if((me.classid == 3 && (Math.abs(me.x - x) > 3) || (Math.abs(me.y - y) > 3)) || (me.classid != 3 && (Math.abs(me.x - x) > 7) || (Math.abs(me.y - y) > 7))) { //Darien <-- WTF??
 		DC_DPrint("DM_CheckPosition() : Correcting position");
 		DM_MoveTo(x, y);
 	}
@@ -325,17 +325,15 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
 
 	var directionalmove=0;
     
+    //call optional function if true
+		if (walkcall  && typeof(walkcall)=="function" && !DC_InTown(me)) walkcall(x,y);
+    
 	while ((Math.abs(me.x - x) > 3 || Math.abs(me.y - y) > 3) && trys <= ntrys) //old dist 2 - stuck on larger shrines/objects
 	{
-		mlmemove(currDestX, currDestY);
-        
         //Darien's Door Check
         if (typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY, _doorOpener);
         
-
-		//call optional function if true
-		if (walkcall  && typeof(walkcall)=="function" && !DC_InTown(me)) walkcall(x,y);
-		
+		mlmemove(currDestX, currDestY);
 		delay(DM_WalkDel);
 		trys++;
         
@@ -926,13 +924,11 @@ function DM_TakeEntrance(entrance) {
 function DM_TouchObject(obj, wait4Mode2) {
 	if(!obj)
 		return false;
-	if(me.classid == 1 && DC_CheckSkill(43) && (getDistance(me,obj) > 20)){
-		// If I'm a sorc, I have the TK skill, and the object is outside TK range, go closer.
-		DM_MoveTo(obj.x, obj.y);
-	}
-	else {
-		DM_MoveTo(obj.x, obj.y);
-	}
+	if(me.classid == 1 && DC_CheckSkill(43) && (getDistance(me,obj) < 20)){
+		// If I'm a sorc, I have the TK skill, and the object is inside TK range
+		delay(10);
+	} else if(getDistance(obj) > 4) DM_MoveTo(obj.x, obj.y);
+	
 	var retry = 0;
 	while ((obj.mode != 2 ) && ( retry < 5 ) ) {
 		if(!obj.mode) {
@@ -941,7 +937,7 @@ function DM_TouchObject(obj, wait4Mode2) {
 				DC_DoCast(43,0,obj);
 			}
 			else {
-				DM_MoveTo(obj.x,obj.y);
+				if(getDistance(obj) > 4) DM_MoveTo(obj.x,obj.y);
 				DC_DoClick(0,0,obj);
 			}
 		}
