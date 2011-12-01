@@ -104,7 +104,10 @@ function YC_CheckForChests() {
 			if (!YC_IsValidChest(chest.classid)) { 
 				continue; 
 			}
-			_chestfound = _chestfound || YC_CheckForChest(chest);
+			//_chestfound = _chestfound || YC_CheckForChest(chest);
+            //Darien
+            _chestfound = YC_CheckForChest(chest);
+            break;
 		} while (chest && chest.getNext(null,0));
 	}
 	return _chestfound;
@@ -115,7 +118,7 @@ function YC_CheckForChest(chest) {
 	if (!chest) { return false; }
 	if (chest.name.toLowerCase() == "dummy") return false;
    	// is chest in range -- if not, skip it
-    var chestDist = getDistance(me, chest);
+    var chestDist = getDistance(chest);
 	if (chestDist > YC_MaxDistance || checkCollision(me,chest,1)) { return false; }
 	// have we visited this chest before ?  if so, skip it
 	if (chest.mode) { return false; }
@@ -128,6 +131,7 @@ function YC_CheckForChest(chest) {
 	var i = 0;
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
     // Clear monsters before walking
+    dprint("Grabbing a Chest! hehehe", 7);
     killRadius(chestDist+3); //Darien
 	// save start location
 	var _startx = me.x;
