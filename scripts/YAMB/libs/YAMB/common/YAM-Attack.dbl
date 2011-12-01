@@ -313,7 +313,7 @@ function killZone(x,y) {
 // pathing argument function
 function clearPath() {
     if(me.getStat(12) < 4 || me.area == 8) killRadius(20);
-    else killRadius(2); //maybe 3
+    else killRadius(3); 
     if(me.classid == 2) XP_NecroRevive();
     if(me.classid == 5) DA_DoPrecasts();
 }
