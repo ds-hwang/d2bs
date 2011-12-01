@@ -259,82 +259,82 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
 
 // pathing argument function
 function openDoor(x,y) {
-    
     //clear any monsters blocking
     clearPath();
     //Door handling function for walking characters
-    var _Door = getPathDoor(x,y);
-    if(_Door) DM_TouchObject(_Door);
-    
+    openPathDoor(x,y);
     return DP_STEPAHEAD;
 }
 
 // returns the closest door in your path
-function getPathDoor(x,y) { 
-	var closest_dist = 15;
+function openPathDoor(x,y) { 
+	var range = commPather.WalkDist;
 	var objs = getUnit(2,null,0);
-	var closestOBJ = false;
 
 	if (objs) do {
 		if (ValidDoorObject(objs,x,y)) {
-			//dprint("door valid",1);
-			var distance = getDistance(objs);
-			if (distance < closest_dist) {
-				closest_dist = distance;
-				var closestOBJ = copyUnit(objs);
+            var validDoorDist = getDistance(objs);
+			if (validDoorDist <= range) {
+				if(inMyWay(objs,x,y)) {
+                    var retry = 0;
+	                while ((objs.mode != 2 ) && ( retry < 30 ) ) {
+                        if(validDoorDist > 3) mlmemove(obj.x, obj.y);
+                        while(me.mode == 3 || me.mode == 2) delay(DP_WalkDel);
+                        DC_DoClick(0,0,objs);
+                        delay(50);
+                        retry++;
+                    }
+                    if(objs.mode == 2) break;
+                }
 			}
 		}
 	} while(objs && objs.getNext());
-
-	if (closestOBJ) return (closestOBJ);
-	else return false;
+    _DM_WalkTo(x,y);
 }
 
 function ValidDoorObject(thing,x,y) { 
-	
-    var pathPoint = new Object();
-        pathPoint.x = x;
-        pathPoint.y = y;
-        pathPoint.name = "Next Path Point";
-        
     if(typeof(thing) != "object") return false;
 	if(thing.mode == 2) return false;
-	//if(getDistance(thing) > 8) return false;
-    if(isBetween(thing,me,pathPoint) || inMyWay(thing,x,y)) {
     
-        if(thing.name == "Door") return true;
-        if(thing.name == "door") return true;
-        
-        //get a list of other door names or classid's not included above
-        switch(thing.classid) {	
-            case 25:
-            case 27:
-            case 16:
-                return true;
-        }
+    if(thing.name == "Door") return true;
+    if(thing.name == "door") return true;
+    
+    //get a list of other door names or classid's not included above
+    switch(thing.classid) {	
+        case 25:
+        case 27:
+        case 16:
+            return true;
     }
 	return false;
 }
 
 // is _testObject between 2 points; (pointA is usually me, pointB is destination Object)
-function isBetween(_testObject,pointA,pointB) {
-
+function isBetween(_testObject,pointA,pointB,xy) {
+    
+    if(arguments.length > 3) {
+        var destPoint = new Object();
+            destPoint.x = pointB;
+            destPoint.y = xy;
+            destPoint.name = "Next Path Point";
+    } else destPoint = pointB;
+    
     //make sure the x,y co-ords are b/w the two other points
-    if(_testObject.x > pointA.x && _testObject.x > pointB.x) return false;
-    if(_testObject.x < pointA.x && _testObject.x < pointB.x) return false;
-    if(_testObject.y > pointA.y && _testObject.y > pointB.y) return false;
-    if(_testObject.y < pointA.y && _testObject.y < pointB.y) return false;
+    if(_testObject.x > pointA.x && _testObject.x > destPoint.x) return false;
+    if(_testObject.x < pointA.x && _testObject.x < destPoint.x) return false;
+    if(_testObject.y > pointA.y && _testObject.y > destPoint.y) return false;
+    if(_testObject.y < pointA.y && _testObject.y < destPoint.y) return false;
     
     //solve for the slope and y-Intercept
-    var m = (pointA.y - pointB.y)/(pointA.x - pointB.x);
+    var m = (pointA.y - destPoint.y)/(pointA.x - destPoint.x);
     var yInt = pointA.y/(m * pointA.x);
     
-    //solve for the y-intercept of the door with the same slope
+    //solve for the y-intercept of the _testObject with the same slope
     var _testObjectYint = _testObject.y/(m * _testObject.x);
 
-    //if the door is on the line + or - 6 then return true
-    if(Math.abs(yInt - _testObjectYint) < 7) {
-        dprint(_testObject.name + " is between " + pointA.name + " and " + pointB.name, 8);
+    //if the door is on the line + or - 2 then return true
+    if(Math.abs(yInt - _testObjectYint) < 3) {
+        dprint(_testObject.name + " is between " + pointA.name + " and " + destPoint.name, 8);
         return true;
     }
     return false;
@@ -359,7 +359,7 @@ function inMyWay(a,b,c,d) {
 	//print("Object distance to Destination: " + obj_range);
 	
 	var vect_diff = Math.abs(phiPath - phiObject);
-	var acceptable = Math.abs(phiPath/25); //was 10
+	var acceptable = Math.abs(phiPath/15); //was 10
 	
 	//print("phiPath " + phiPath);
 	//print("phiObject " + phiObject);
@@ -543,7 +543,7 @@ function pathtoFarUnit(type, id, fuarea, stepHandler, doorHandler) {
     
     if(farUnit) {
         dprint("Pathing to Far Unit " + id,2);
-        pathToDest(farUnit.x, farUnit.y, stepHandler, doorHandler);
+        if(me.area !=108) pathToDest(farUnit.x, farUnit.y, stepHandler, doorHandler);
     } else { 
         dprint("Pathing Failed... Far Unit " + id + " not found!",1); return false; 
     }
@@ -557,7 +557,7 @@ function pathToDest(x, y, stepHandler, doorHandler) {
     
     if(arguments.length < 4) doorHandler = openDoor;
     
-    while(!commPather.GotoDest(x, y, false, stepHandler, doorHandler) && attempts < 6) {
+    while((!commPather.GotoDest(x, y, false, stepHandler, doorHandler) || getDistance(x,y) > 6 ) && attempts < 6) {
         dprint("Pathing Attempt: " + attempts + " , to co-ordinates failed!", 1);
         attempts++;
         delay(500);
