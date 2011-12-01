@@ -153,13 +153,6 @@ var _DS_StateMap = new Array(	DS_ShrineState_Armor,			DS_ShrineType_Armor,			tru
 // Functions
 //////////////////////////////////////////////////////////////////////
 
-// returns distance between two objects
-function DS_GetRange(obj1, obj2) { 
-	//return (parseInt(Math.sqrt(Math.abs(Math.pow (obj1.x-obj2.x, 2) + Math.pow (obj1.y-obj2.y, 2))),10));
-	return getDistance(obj1, obj2);
-}
-
-
 function DS_IsShrine(classid) {
 	if ((classid < 0) || (classid > 564)) { 
 		return false;
@@ -185,7 +178,10 @@ function DS_CheckForShrines() {
 			if (!DS_IsShrine(shrine.classid)) { 
 				continue; 
 			}
-			_shrinefound = _shrinefound || DS_CheckForShrine(shrine); // how the hell does this work ???
+			//_shrinefound = _shrinefound || DS_CheckForShrine(shrine); // how the hell does this work ???
+            //Darien
+            _shrinefound = DS_CheckForShrine(shrine);
+            break;
 		} while (shrine && shrine.getNext(null,0));
 	}
 	return _shrinefound;
@@ -200,7 +196,7 @@ function DS_CheckForShrine(shrine) {
 		return false; 
 	}
 	// is shrine in range -- if not, skip it
-    var shrineDist = DS_GetRange(me, shrine);
+    var shrineDist = getDistance(shrine);
 	if (shrineDist > DS_MaxDistance){
 		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want, but it's out of range!");
 		return false; 
@@ -221,6 +217,7 @@ function DS_CheckForShrine(shrine) {
 	    (DS_ShrineType_Gem       == shrine.objtype)) { 
 		// take this shrine 
 		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
+        //dprint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!",7);
 		var i = 0;
 		while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
         // Clear monsters before walking
