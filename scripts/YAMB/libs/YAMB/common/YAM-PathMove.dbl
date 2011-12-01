@@ -34,7 +34,7 @@ var DP_STEPBACK        = 200;
 var DP_STEPFAILED      = -1;
 
 // variables
-var DP_RandomMove    = true;
+var DP_RandomMove    = false;
 var DP_RandomMoveDel = true;
 var DP_WalkDel       = 40;
 
@@ -312,9 +312,9 @@ function pathMove(_info) {
 		DP_DPrint("pathMove() -> TeleDist value too low! Increasing distance to 5.");
 		this.TeleDist = 5;
 	}
-	if(!this.WalkDist){ // set to 3 by default if not initialized on creation
+	if(!this.WalkDist){ // set to 6 by default if not initialized on creation
 		DP_DPrint("pathMove() -> WalkDist not set! Applying default distance of 3.");
-		this.WalkDist = 3;
+		this.WalkDist = 6;
 	}
 	if(this.WalkDist > 10){ // Too high makes you get stuck
 		DP_DPrint("pathMove() -> WalkDist value too high! Reducing distance to 10.");
@@ -364,6 +364,10 @@ function pathMove(_info) {
 			//DP_DPrint("GotoDest() -> Warning! Missing or Incorrect DataType for pMoveDist entered, setting to default!");
 			DP_DPrint("GotoDest() -> Warning! pMoveDist not entered, setting to " + pMoveDist + "!");
 		}
+        
+        pDestX = pDestX + rand(-5,5);
+        pDestY = pDestY + rand(-5,5);
+        
 		// Get the path to the destination coordinates
 		var myPath = getPath( me.area, me.x, me.y, pDestX, pDestY, (this.UseTele && !InTown(me)), pMoveDist);
 		// If a path is not found
@@ -712,12 +716,12 @@ function pathMove(_info) {
 			//all below this is testing based on the MoveToNode's return value
 			if(_retval == DP_STEPAHEAD){
 				//DP_DPrint("MovePath() -> _retval = DP_STEPAHEAD");
-				if(_cNode > pPath.length-1){
+				//if(_cNode > pPath.length-1){
 					continue;
-				}
+				//}
 			}
 			else if(_retval > DP_STEPAHEAD && _retval < DP_STEPBACK) {
-			//	DP_DPrint("MovePath() -> _retval = DP_STEPAHEAD+"+(_retval-DP_STEPAHEAD));
+				//DP_DPrint("MovePath() -> _retval = DP_STEPAHEAD+"+(_retval-DP_STEPAHEAD));
 				var TargetNode = (_retval - DP_STEPAHEAD);
 				while(_cNode < pPath.length-1 && TargetNode) {
 					TargetNode--;
@@ -726,22 +730,22 @@ function pathMove(_info) {
 				}
 			}
 			else if(_retval >= DP_STEPBACK) {
-			//	DP_DPrint("MovePath() -> _retval = DP_STEPBACK"+( (_retval > DP_STEPBACK) ? ("+" + (_retval - DP_STEPBACK)): " " ));
+				//DP_DPrint("MovePath() -> _retval = DP_STEPBACK"+( (_retval > DP_STEPBACK) ? ("+" + (_retval - DP_STEPBACK)): " " ));
 				var target = movedNodes[movedNodes.length-(_retval - DP_STEPBACK+1)];
 				for(var _backnode = _cNode; _backnode > target; _backnode = movedNodes[movedNodes.length-1] ) {
 					// Move to the previous node
-					_retval = this.MoveToNode( pPath[_backnode][0], pPath[_backnode][1], pDataback, pDoorHandler );
+					_retval = this.MoveToNode( pPath[_backnode].x, pPath[_backnode].y, pDataback, pDoorHandler );
 					// pop a node off the moved array
 					movedNodes.pop();
 				}
 				_cNode = target;
 			}
 			else if( _retval == DP_CONTINUE ) {
-			//	DP_DPrint("MovePath() -> _retval = DP_CONTINUE");
+			    //DP_DPrint("MovePath() -> _retval = DP_CONTINUE");
 				_cNode = movedNodes[movedNodes.length-1];
 			}
 			else if(_retval == DP_STOP) {
-			//	DP_DPrint("MovePath() -> _retval = DP_STOP");
+			    //DP_DPrint("MovePath() -> _retval = DP_STOP");
 				return true;
 			}
 			////////////////////////////////////////////////////////////////////////////
@@ -751,7 +755,7 @@ function pathMove(_info) {
 			var bounceOrWalk = (this.UseTele && !InTown(me) && DP_CheckTeleport());
 			//if(Math.abs(me.x-pPath[_cNode].x)>(bounceOrWalk ? 6 : 3) || Math.abs(me.y-pPath[_cNode].y)>(bounceOrWalk ? 6 : 3)){
 			if(pPath[_cNode] && getDistance(me, pPath[_cNode].x, pPath[_cNode].y) > (bounceOrWalk ? 6 : 3)){
-			//	DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
+				DP_DPrint("MovePath() -> Deviation check triggered. We are " + (bounceOrWalk ? "teleporting." : "walking."));
 				// If the char is off from the path by nDist, make a new path instead
 				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
 				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode].x, pPath[_cNode].y ) > (nDist * nDist) ) {
@@ -864,6 +868,10 @@ function pathMove(_info) {
 
 	this.MoveToNode = function( pX, pY, pNode, pDataback, pDoorHandler) {
 		//DP_DPrint("MoveToNode() -> Entering function");
+        
+        // If we are already in the correct coords, return true
+        if(Math.abs(me.x - pX) <= 3 && Math.abs(me.y - pY) <= 3) return DP_STEPAHEAD; 
+        
 		var shouldTele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
         var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
         
@@ -874,11 +882,12 @@ function pathMove(_info) {
 		}
 
         if(this.MoveTo(pX, pY, pDoorHandler) == 2) return (DP_STEPBACK+2);
-        
+
 		// Increase the counter of failed moves if our position coming into the MoveToNode function is less than 6 from our
 		// last position AND the currentNodeIndex is the same as the last point, if not.. set failed moves back to 0
 		if((Math.abs(me.x - this.ilastX) < (shouldTele ? 6:2)) && (Math.abs(me.y - this.ilastY) < (shouldTele ? 6:2)) && (pNode == this.ilastPoint) && me.runwalk){
 			this.ifailedMoves++;
+            //DP_DPrint("failed moves: " + this.ifailedMoves);
 			// Check for stuck situations - if set to throw error if stuck, do so (retry allows for up to 10 times before throwing error
 			if(this.ifailedMoves > 10 ) {
 				this.ifailedMoves = 0;
@@ -901,8 +910,9 @@ function pathMove(_info) {
 				if(!InTown(me)){
 					DP_ClearInRange(20);
 				}
-				return DP_CONTINUE;
+				//return DP_CONTINUE;
 			}
+            return DP_CONTINUE;
 		}
 		else{
 			this.ifailedMoves = 0;
@@ -924,8 +934,9 @@ function pathMove(_info) {
 	}
 
 	this.StepActions = function(inX, inY, currentNodeIndex, Tele, infoIn) {
+        var outaTown = !InTown(me);
 		//DP_DPrint("StepActions() -> cNode: "+currentNodeIndex+"  lastNode: "+this.ilastPoint+"  My XY: "+me.x+","+me.y+" last x,y: "+this.ilastX+","+this.ilastY);
-        if(infoIn && typeof(infoIn) == "function") return infoIn();
+        if(infoIn && outaTown && typeof(infoIn) == "function") return infoIn();
 
         // Generate our controlFlag bit based on passed values
         var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
@@ -935,7 +946,7 @@ function pathMove(_info) {
         if((ctrlFlag&~(DP_INCUSERSTEP|DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK)) == 0){
             return DP_STEPAHEAD;
         }
-        var outaTown = !InTown(me);
+        
         // Clear current position of monsters - do NOT check for items here, instead ONLY check if told to via DP_PICKDROPS
         if(outaTown && ctrlFlag & (DP_KILLSUPERUS|DP_KILLCHAMPS|DP_KILLBOSSES|DP_KILLMINIONS|DP_CLEARMONSTERS)) {
             // If we moved back, call SafeCheck and make sure we do not need to go to town
@@ -1011,20 +1022,27 @@ function pathMove(_info) {
 			case "function":
 				return pDoorHandler( pX, pY );
 			default:
+                print("default door opener");
 				var myDoor = getUnit(2,"Door");
 				if(myDoor){
 					do{
-						if(myDoor.name == "Door" && getDistance(me, myDoor) < 4){
+                        var _dDist = getDistance(myDoor);
+						if(myDoor.name == "Door" && _dDist < 4) {
 							break;
 						}
-					}
-					while(myDoor.getNext());
-					// if mode not open click on door else skip it
-					while(myDoor.mode == 0){
+					} while(myDoor.getNext());
+					
+                    // if door is too far skip it
+                    if(_dDist > 4) return false;
+                    
+                    // if mode not open click on door else skip it
+                    var times = 0;
+					while(myDoor.mode == 0 && times < 5){
 						clickMap( 0, 0, myDoor );
 						delay(rand(10,20));
 						clickMap( 2, 0, myDoor );
 						delay(200);
+                        times++;
 						//myDoor.interact();
 					}
 				}
@@ -1101,6 +1119,9 @@ function pathMove(_info) {
 	}
     
     this.MoveTo = function(pX, pY, pDoorHandler) {
+        // If we are already in the correct coords, return true
+        if(Math.abs(me.x - pX) <= 3 && Math.abs(me.y - pY) <= 3) { return 1; }
+        
         var pPoint = DP_FindClosestWalkable(pX, pY);
     
         var tele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
@@ -1119,7 +1140,9 @@ function pathMove(_info) {
                     me.setSkill(54,0);
                 }
             }
-        } else if(arguments.length > 2) this.DoorOpener( pPoint.x, pPoint.y, pDoorHandler);
+        }
+        if(!InTown(me) && !this.UseTele) this.DoorOpener( pPoint.x, pPoint.y, pDoorHandler);
+        
         var hand = {d:(tele ? 3: 0),u:(tele ? 5 : 2)}
         //DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
         //DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
@@ -1161,13 +1184,13 @@ function pathMove(_info) {
         var _nthrash=parseInt(3000/DP_WalkDel,10);
         // If the char has running disabled, toggle to enable it
         if(me.runwalk == 0) { me.runwalk=1; }
-        // If we are already in the correct coords, return true
-        if(Math.abs(me.x - pX) <= 1 && Math.abs(me.y - pY) <= 1) { return true; }
+        
         // Display a debug message
         DP_DPrint("Walking to [" + pX + ", " + pY + "]");
-        print("this.WalkTo: ÿc2[" + pX + ", " + pY + "]");
+        
         // Loop until we got in the dest coords
-        while ((Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) && _retry <= _numtrys && (me.mode != 17)) {
+        while ((Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) && _retry <= _numtrys && (me.mode != 17)) {
+            print("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
             // Randomize the coords if RandomMove is set to true
             if(DP_RandomMove) {
                 _currdestx+=rand(-2,2);
@@ -1175,6 +1198,7 @@ function pathMove(_info) {
             }
             // Click on the current coords set to go there
             DC_DoClick(0,0,_currdestx,_currdesty);
+            while(me.mode == 3 || me.mode == 2) delay(DP_WalkDel);
             // If the RandomMoveDel is set to true, randomize the movement delay
             if(DP_RandomMoveDel) { delay(DP_WalkDel + rand(0,DP_WalkDel)); }
             else { delay(DP_WalkDel); }
@@ -1182,8 +1206,8 @@ function pathMove(_info) {
             _retry+=1;
             // If we don't arrive in the destination point, calculate the next set of coords
             if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
-                this.DoorOpener( pX, pY, pDoorHandler);
-                if(_thrash >= 10) {
+                if(!InTown(me)) this.DoorOpener(pX, pY, pDoorHandler);
+                if(_thrash >= 3) {
                     print("Thrash");
                     //updated by Pachelbel
                     var dx = _currdestx - _startx;
@@ -1193,20 +1217,17 @@ function pathMove(_info) {
                     var direction = rand(a, a+314)/100;  // + pi
                     _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
                     _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
-                    _thrash=0;
-                }
-                else { _thrash+=1; }
-            }
-            // Else, use my pos as coords
-            else {
+                } else { _thrash+=1; }
+            } else {               // Else, use my pos as coords
                 _startx = me.x;
                 _starty = me.y;
                 _currdestx = pX;
                 _currdesty = pY;
             }
         }
+        _thrash=0;
         // If we didn't succeed moving to the end coords, we got a problem so abort the game
-        if(Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) {
+        if(Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) {
             if(me.mode != 17) {
                 //DC_ThrowException("this.WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
                 print("Damn it! I'm stuck!");
@@ -1227,10 +1248,10 @@ function DP_IsWalkable( pX, pY, pArea ) {
 }
 
 function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
-	DP_DPrint("DP_FindClosestWalkable() -> X = " + pX + ", Y = " + pY);
+	//DP_DPrint("DP_FindClosestWalkable() -> X = " + pX + ", Y = " + pY);
 	// If the original coords is walkable, return as is
 	if( DP_IsWalkable( pX, pY, pArea ) ) {
-		DP_DPrint("DP_FindClosestWalkable() -> Original points are walkable");
+		//DP_DPrint("DP_FindClosestWalkable() -> Original points are walkable");
 		return {x:pX, y:pY};
 	}
 	// If the range is not given, use infinite as range
