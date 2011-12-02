@@ -610,12 +610,12 @@ function pathMove(_info) {
                             
                             //Darien
                             if(getRange(me, this.TargetX, this.TargetY) > 10) {
-                                print("ÿc1Pathing failed!!");
+                                dprint("Pathing failed!!",1);
                                 return false;
                             }
                             
                             //Darien
-                            print("Moving to Area Crossing Point " + this.CrossPointX + ", " + this.CrossPointY);
+                            dprint("Moving to Area Crossing Point " + this.CrossPointX + ", " + this.CrossPointY);
                             if(getRange(me,this.CrossPointX,this.CrossPointY) > 30) return false;
                             this.MoveTo(this.TargetX, this.TargetY, pDoorHandler);
                             this.MoveTo(this.CrossPointX, this.CrossPointY, pDoorHandler);
@@ -624,7 +624,7 @@ function pathMove(_info) {
                             ///Darien - random move was my old fix, I have better one now
                             var fail=0;
 							while(oldArea == me.area && fail < 10){
-                                print("Border crossing");
+                                dprint("Border crossing");
                                 var bc = BorderCrossing(me.x,me.y,this.ilastX, this.ilastY);
                                 this.MoveTo(bc.x, bc.y, pDoorHandler);
 								//this.GotoDest(exit[n].x,exit[n].y);
@@ -677,7 +677,7 @@ function pathMove(_info) {
 ////////////////////////////////////////////////////////////////////////////////
 	this.MovePath = function( pPath, pMoveDist, pDataback, pDoorHandler ) {
 
-		//DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
+		DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
 		this.TargetX            = pPath[pPath.length-1].x;
 		this.TargetY            = pPath[pPath.length-1].y;
         
@@ -759,7 +759,7 @@ function pathMove(_info) {
 				// If the char is off from the path by nDist, make a new path instead
 				var nDist = this.validateDist(bounceOrWalk, pMoveDist);
 				if( DP_EuclidianNoSqrt( me.x, me.y, pPath[_cNode].x, pPath[_cNode].y ) > (nDist * nDist) ) {
-					//DP_DPrint("MovePath() -> Distance between me and target node farther than " + nDist + ", rebuilding a path");
+					DP_DPrint("MovePath() -> Distance between me and target node farther than " + nDist + ", rebuilding a path");
 					if(Math.abs(me.x-pPath[_cNode].x)>nDist){
 					//	DP_DPrint("MovePath() -> " + Math.abs(me.x-pPath[_cNode].x) + " larger than " + nDist + " me.x:" + me.x + " cNode: "+ pPath[_cNode].x );
 					}
@@ -786,7 +786,7 @@ function pathMove(_info) {
 					}
 				}
 				else {
-					//DP_DPrint("MovePath() -> Distance between me and target node too far, resetting to previous node");
+					DP_DPrint("MovePath() -> Distance between me and target node too far, resetting to previous node");
 					_cNode = movedNodes[movedNodes.length-1];
 					movedNodes.pop();
 				}
@@ -904,7 +904,7 @@ function pathMove(_info) {
 			if(this.ifailedMoves > 1 ) {
 				//DP_DPrint("MoveToNode() -> Attempting to clear position...distance x:"+( Math.abs( me.x - pX )  ) +" y:"+ ( Math.abs( me.y - pY )));
 				//if(this.ifailedMoves%4 == 0){
-					DP_DPrint("MoveToNode() -> Failed move, attempting re-click of destination points.");
+					//DP_DPrint("MoveToNode() -> Failed move, attempting re-click of destination points.");
 					this.MoveTo(pX, pY, pDoorHandler);
 				//}
 				if(!InTown(me)){
@@ -963,7 +963,7 @@ function pathMove(_info) {
             DP_ClearInRange(20,null,ATTACKING_MODE,null,specType);
             // Check if we have NOT moved back and we need to deal with any lifewatch set conditions
             if(!this.iMovedBack && (DT_CheckHeal()||_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)) {
-                DP_DPrint("Temporarily retreating...");
+                //DP_DPrint("Temporarily retreating...");
                 this.iMovedBack = true;
                 // Remember current coords
                 this.ilastX     = me.x;
@@ -1017,12 +1017,12 @@ function pathMove(_info) {
         return DP_STEPAHEAD;
 	}
 
-	this.DoorOpener = function( pX, pY, pDoorHandler ) {
+	this.DoorOpener = function( pX, pY, pDoorHandler, retrys ) {
 		switch(typeof( pDoorHandler )){
 			case "function":
-				return pDoorHandler( pX, pY );
+				return pDoorHandler( pX, pY, retrys );
 			default:
-                print("default door opener");
+                dprint("default door opener");
 				var myDoor = getUnit(2,"Door");
 				if(myDoor){
 					do{
@@ -1033,7 +1033,7 @@ function pathMove(_info) {
 					} while(myDoor.getNext());
 					
                     // if door is too far skip it
-                    if(_dDist > 4) return false;
+                    if(_dDist >= 4) return false;
                     
                     // if mode not open click on door else skip it
                     var times = 0;
@@ -1141,11 +1141,9 @@ function pathMove(_info) {
                 }
             }
         }
-        if(!InTown(me) && !this.UseTele) this.DoorOpener( pPoint.x, pPoint.y, pDoorHandler);
         
         var hand = {d:(tele ? 3: 0),u:(tele ? 5 : 2)}
-        //DP_DPrint("MoveToNode() -> Me X/Y: " + me.x + "/" + me.y + ", pNode:" + pNode + ", Target X/Y:" + pX + "/" + pY + ".");
-        //DP_DPrint("MoveToNode() -> getDistance reports " + getDistance(me,pX,pY) + " between me and target X/Y:" + pX + "/" + pY + ".");
+        //DP_DPrint("MoveToNode() -> getDistance reports " + Math.floor(getDistance(pX,pY)) + " between me and target X/Y:" + pX + "/" + pY + ".");
         if(tele){
             var _timer = 250;
             var _destx=pPoint.x;
@@ -1185,12 +1183,16 @@ function pathMove(_info) {
         // If the char has running disabled, toggle to enable it
         if(me.runwalk == 0) { me.runwalk=1; }
         
+        if(!InTown(me)) this.DoorOpener(pX, pY, pDoorHandler, _retry);
+        var _doorFlag = false;
+        var _doorFlag2 = 20;
+        
         // Display a debug message
-        DP_DPrint("Walking to [" + pX + ", " + pY + "]");
+        //DP_DPrint("Walking to [" + pX + ", " + pY + "]");
         
         // Loop until we got in the dest coords
         while ((Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) && _retry <= _numtrys && (me.mode != 17)) {
-            print("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
+            dprint("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
             // Randomize the coords if RandomMove is set to true
             if(DP_RandomMove) {
                 _currdestx+=rand(-2,2);
@@ -1200,23 +1202,67 @@ function pathMove(_info) {
             DC_DoClick(0,0,_currdestx,_currdesty);
             while(me.mode == 3 || me.mode == 2) delay(DP_WalkDel);
             // If the RandomMoveDel is set to true, randomize the movement delay
-            if(DP_RandomMoveDel) { delay(DP_WalkDel + rand(0,DP_WalkDel)); }
-            else { delay(DP_WalkDel); }
+            //if(DP_RandomMoveDel) { delay(DP_WalkDel + rand(0,DP_WalkDel)); }
+            //else { delay(DP_WalkDel); }
+            
+            if(!InTown(me) && _doorFlag) this.DoorOpener(pX, pY, pDoorHandler, _retry);
+            _doorFlag = true;
+            if(!InTown(me) && _retry > _doorFlag2) { 
+                this.DoorOpener(pX, pY, "default");
+                _doorFlag2 = _doorFlag2 + 5;
+            }
+            
             // Increase the retry counter
             _retry+=1;
             // If we don't arrive in the destination point, calculate the next set of coords
             if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
-                if(!InTown(me)) this.DoorOpener(pX, pY, pDoorHandler);
-                if(_thrash >= 3) {
-                    print("Thrash");
-                    //updated by Pachelbel
-                    var dx = _currdestx - _startx;
-                    var dy = _currdesty - _starty;
-                    var a = Math.atan2(dx, dy);
-                    a = Math.floor(a * 100) + 157;  // + pi/2;
-                    var direction = rand(a, a+314)/100;  // + pi
-                    _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
-                    _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
+                if(_thrash >= 5) {
+                    dprint("Thrash");
+                    var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
+                    if (direction > 0 && direction < 45){
+                        _currdestx = me.x+5;
+                        _currdesty = me.y+1;
+                    }
+                    else if(direction > 45 && direction < 90) {
+                        _currdestx = me.x-1;
+                        _currdesty = me.y-5;
+                    }
+                    else if (direction > 90 && direction < 135){
+                        _currdestx = me.x-1;
+                        _currdesty = me.y+5;
+                    }
+                    else if(direction > 135 && direction < 180) {
+                        _currdestx = me.x+5;
+                        _currdesty = me.y-1;
+                    }
+                    else if (direction > 180 && direction < 225){
+                        _currdestx = me.x-5;
+                        _currdesty = me.y-1;
+                    }
+                    else if(direction > 225 && direction < 270) {
+                        _currdestx = me.x+1;
+                        _currdesty = me.y+5;
+                    }
+                    else if (direction > 270 && direction < 315){
+                        _currdestx = me.x+1;
+                        _currdesty = me.y-5;
+                    }
+                    else if(direction > 315 && direction < 360) {
+                        _currdestx = me.x-5;
+                        _currdesty = me.y+1;
+                    }
+                    else
+                    {
+                        //make a randome move
+                        var dx = _currdestx - _startx;
+                        var dy = _currdesty - _starty;
+                        var a = Math.atan2(dx, dy);
+                        a = Math.floor(a * 100) + 157;  // + pi/2;
+                        var direction = rnd(a, a+314)/100;  // + pi
+                        _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
+                        _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
+                    }
+                    _thrash=0;
                 } else { _thrash+=1; }
             } else {               // Else, use my pos as coords
                 _startx = me.x;
@@ -1230,7 +1276,7 @@ function pathMove(_info) {
         if(Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) {
             if(me.mode != 17) {
                 //DC_ThrowException("this.WalkTo()","We got stuck someplace! Current XY = " + me.x + " " + me.y + " in area " + me.area + ".");
-                print("Damn it! I'm stuck!");
+                dprint("Damn it! I'm stuck!");
             }
             return false;
         }
@@ -1262,7 +1308,7 @@ function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
 		for( var vy = -1 - _distance; vy < 2 + _distance; vy += 1 ) {
 			for( var vx = -1 - _distance; vx < 2 + _distance; vx += 1 ) {
 				if( DP_IsWalkable( pX+vx, pY+vy, pArea ) ) {
-					DP_DPrint("DP_FindClosestWalkable() -> Closest Walkable: " + (pX+vx) + ", " + (pY+vy));
+					//DP_DPrint("DP_FindClosestWalkable() -> Closest Walkable: " + (pX+vx) + ", " + (pY+vy));
 					return {x:pX+vx, y:pY+vy};
 				}
 			}
@@ -1447,7 +1493,7 @@ function isRoomReachable(room){
 
 //Darien
 function BorderCrossing(targetX, targetY, lastX, lastY) {
-    //print("ÿc2Darien is crossing levels");
+    //dprint("Darien is crossing levels",2);
     var xDiff = targetX - lastX;
     var yDiff = targetY - lastY;
     
@@ -1459,9 +1505,9 @@ function BorderCrossing(targetX, targetY, lastX, lastY) {
     var xNext = targetX + xDiff ;
     var yNext = targetY + yDiff ;
 
-    //print("lastX = " + lastX + ", lastY = " + lastY);
-    //print("X = " + me.x + ", Y= " + me.y);
-    //print("nextX = " + xNext + ", nextY = " + yNext);
+    //dprint("lastX = " + lastX + ", lastY = " + lastY);
+    //dprint("X = " + me.x + ", Y= " + me.y);
+    //dprint("nextX = " + xNext + ", nextY = " + yNext);
 
     return { x: xNext, y: yNext } 
     

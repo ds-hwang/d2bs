@@ -202,8 +202,8 @@ function IsBlocked(target,type) {
 	//print("IsBlocked");
     
     var _type = type;
-    if(type == "walk")   var _type = 1;
-    if(type == "ranged") var _type = 2;
+    if(type == "walk")   var _type = 1<<1;
+    if(type == "ranged") var _type = 1<<2;
     
 	return checkCollision(me,target,_type);
 

@@ -90,6 +90,7 @@ function TrXP_AttackTrav() {
         killRadius(30, null, 5);         //Kill Council
         killRadius(30, "Council Member");   //Kill Minions
         killCouncil();
+        DSN_PickItems();
     }
     PickupQuestItem(546); //Get Jade Figurine
     
@@ -101,6 +102,7 @@ function TrXP_AttackTrav() {
     pathtoFarUnit(1,763);
     killRadius(30,345,0x01);
     PickupQuestItem(546); //Get Jade Figurine
+    DSN_PickItems();
     return true;
 }
 

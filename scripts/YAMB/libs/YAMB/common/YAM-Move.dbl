@@ -331,7 +331,7 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
 	while ((Math.abs(me.x - x) > 3 || Math.abs(me.y - y) > 3) && trys <= ntrys) //old dist 2 - stuck on larger shrines/objects
 	{
         //Darien's Door Check
-        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY, _doorOpener);
+        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY,trys);
         
 		mlmemove(currDestX, currDestY);
 		delay(DM_WalkDel);

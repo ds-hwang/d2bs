@@ -258,43 +258,80 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
 }
 
 // pathing argument function
-function openDoor(x,y) {
+function openDoor(x,y,retry) {
     //clear any monsters blocking
     clearPath();
     //Door handling function for walking characters
-    openPathDoor(x,y);
+    openPathDoor(x,y,retry);
     return DP_STEPAHEAD;
 }
 
 // returns the closest door in your path
-function openPathDoor(x,y) { 
-	var range = commPather.WalkDist;
-	var objs = getUnit(2,null,0);
-
-	if (objs) do {
-		if (ValidDoorObject(objs,x,y)) {
-            var validDoorDist = getDistance(objs);
-			if (validDoorDist <= range) {
-				if(inMyWay(objs,x,y)) {
-                    var retry = 0;
-	                while ((objs.mode != 2 ) && ( retry < 30 ) ) {
-                        if(validDoorDist > 3) mlmemove(obj.x, obj.y);
-                        while(me.mode == 3 || me.mode == 2) delay(DP_WalkDel);
-                        DC_DoClick(0,0,objs);
-                        delay(50);
-                        retry++;
-                    }
-                    if(objs.mode == 2) break;
-                }
-			}
-		}
-	} while(objs && objs.getNext());
-    _DM_WalkTo(x,y);
+function openPathDoor(x,y,retry) { 
+	//dprint("openPathDoor() " + retry);
+    var range = commPather.WalkDist;
+    var _theDoor = returnClosestDoor(range,retry);
+    var doorDist = getDistance(_theDoor);
+    
+	if (_theDoor) { 
+        //if the door isn't in your way and you haven't had 10 fails ignore it
+        if(!inMyWay(_theDoor,x,y) && retry < 10) return false;
+        
+        // Move to the door if you're not close
+        if(doorDist > 3) mlmemove(_theDoor.x, _theDoor.y);
+        while(me.mode == 3 || me.mode == 2) delay(DP_WalkDel);
+        
+        //click door until it's open, fail at 30
+        var clicks = 0;
+        while (_theDoor.mode != 2  && clicks < 30) {
+            //dprint("clicking Door");
+            DC_DoClick(0,0,_theDoor);
+            delay(50);
+            clicks++;
+        }
+        //dprint("done clicking door");
+	} 
+    //_DM_WalkTo(x,y);
+    return true;
 }
 
-function ValidDoorObject(thing,x,y) { 
+function returnClosestDoor(range,retry) {
+    
+    var closest_dist = range;
+    var closestDoor = false;
+    var theDoor = getUnit(2,null,0);
+    
+	if (theDoor) do {
+        var distance = getDistance(theDoor);
+        if (distance < closest_dist) {
+            //dprint("Door in Range",0);
+            if (ValidDoorObject(theDoor,retry)) {
+                //dprint("Door Valid",0);
+                var closest_dist = distance;
+                var closestDoor = copyUnit(theDoor);
+			}
+		}
+	} while(theDoor.getNext());
+    
+	return (closestDoor);
+}
+
+function ValidDoorObject(thing,retry, noCollision) { 
+    if(!retry) retry = 1;
     if(typeof(thing) != "object") return false;
 	if(thing.mode == 2) return false;
+    
+    //Unless it's set to 0, Check collision if it is less than 10
+    if(retry < 10 && arguments.length < 3) {
+        var blockedBy = new Array();
+        //if(checkCollision(me, thing, (1<<0 | 1<<4 | 1<<11 | 1<<12))) return false; 
+        if(checkCollision(me, thing, (1<<0)))   blockedBy.push(0);  
+        //if(checkCollision(me, thing, (1<<2)))  blockedBy.push(2);  
+        if(checkCollision(me, thing, (1<<3)))  blockedBy.push(3);  
+        if(checkCollision(me, thing, (1<<12))) blockedBy.push(12); 
+        
+        if(blockedBy.length) { dprint("Blocked by bitmasks: " + blockedBy, 1); return false; }
+    }
     
     if(thing.name == "Door") return true;
     if(thing.name == "door") return true;
@@ -379,6 +416,7 @@ function inMyWay(a,b,c,d) {
 function dprint(crap, color) { 
     if(arguments.length == 1) color = 0;
     print("ÿc" + color + crap); 
+    if(DC_DebugLevel == 1 || DC_DebugLevel == 3) DC_DPrint(crap);
 }
 
 function haveWP(num) {
@@ -450,14 +488,14 @@ function inParty(playerName) {
 
 //Function by Darien
 function returnClosestObject(parent, type, range, name, mode) { 
-
+    if(!ranged) ranged = 999;
 	var closest_dist = range;
 	var objs = getUnit(type,name,mode);
 	var closestOBJ = false;
 
 	if (objs) do {
 
-        var distance = getRange(parent,objs);
+        var distance = getDistance(parent,objs);
         if (distance < closest_dist) {
             closest_dist = distance;
             var closestOBJ = copyUnit(objs);
