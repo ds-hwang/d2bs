@@ -1215,7 +1215,7 @@ function pathMove(_info) {
             // Increase the retry counter
             _retry+=1;
             // If we don't arrive in the destination point, calculate the next set of coords
-            if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
+            if((Math.abs(me.x - _startx) < 3 && Math.abs(me.y - _starty) < 3)) {
                 if(_thrash >= 5) {
                     dprint("Thrash");
                     var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
