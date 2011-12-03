@@ -13,7 +13,7 @@ function NT_FastPindle()
     if (!NTM_UsePortal("Waypoint", 123))
 	{
         print("ÿc8Seems we do not have the waypoint, Traveling to the Red Portal via Harrogath");
-		if(!NTTM_CheckAct(5))
+		if(!NTM_UsePortal("Waypoint", NTC_AREA_ID_ACT_5))
 			throw new Error();
 			
         if (!NTTM_TownMove("portal"))
