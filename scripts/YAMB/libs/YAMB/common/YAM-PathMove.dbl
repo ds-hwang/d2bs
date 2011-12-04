@@ -609,7 +609,7 @@ function pathMove(_info) {
 							//this.useDoors();
                             
                             //Darien
-                            if(getRange(me, this.TargetX, this.TargetY) > 10) {
+                            if(getDistance(this.TargetX, this.TargetY) > 10) {
                                 dprint("Pathing failed!!",1);
                                 return false;
                             }
@@ -881,13 +881,15 @@ function pathMove(_info) {
 			shouldTele = false;
 		}
 
-        if(this.MoveTo(pX, pY, pDoorHandler) == 2) return (DP_STEPBACK+2);
+        var _moveValue = this.MoveTo(pX, pY, pDoorHandler);
+        if(_moveValue == 2) return (DP_STEPBACK+2);
 
 		// Increase the counter of failed moves if our position coming into the MoveToNode function is less than 6 from our
 		// last position AND the currentNodeIndex is the same as the last point, if not.. set failed moves back to 0
-		if((Math.abs(me.x - this.ilastX) < (shouldTele ? 6:2)) && (Math.abs(me.y - this.ilastY) < (shouldTele ? 6:2)) && (pNode == this.ilastPoint) && me.runwalk){
-			this.ifailedMoves++;
-            //DP_DPrint("failed moves: " + this.ifailedMoves);
+		//if((Math.abs(me.x - this.ilastX) < (shouldTele ? 6:2)) && (Math.abs(me.y - this.ilastY) < (shouldTele ? 6:2)) && (pNode == this.ilastPoint) && me.runwalk){
+        if(_moveValue == 0) {
+            this.ifailedMoves++;
+            DP_DPrint("failed moves: " + this.ifailedMoves);
 			// Check for stuck situations - if set to throw error if stuck, do so (retry allows for up to 10 times before throwing error
 			if(this.ifailedMoves > 10 ) {
 				this.ifailedMoves = 0;
@@ -899,7 +901,7 @@ function pathMove(_info) {
 					return DP_STOP;
 				}
 			}
-			// Attemp to clear position when we fail to move and retry the current move point
+			// Attempt to clear position when we fail to move and retry the current move point
 			// ASSUMPTION :: if outa-town the thing causing stuck is a monster(or lag)
 			if(this.ifailedMoves > 1 ) {
 				//DP_DPrint("MoveToNode() -> Attempting to clear position...distance x:"+( Math.abs( me.x - pX )  ) +" y:"+ ( Math.abs( me.y - pY )));
@@ -1177,9 +1179,9 @@ function pathMove(_info) {
         var _currdestx = pX;
         var _currdesty = pY;
         var _retry = 0;
-        var _numtrys=parseInt(10000/DP_WalkDel,10);
+        var _numtrys=30; //parseInt(10000/DP_WalkDel,10);
         var _thrash = 0;
-        var _nthrash=parseInt(3000/DP_WalkDel,10);
+        var _nthrash=5; //parseInt(3000/DP_WalkDel,10);
         // If the char has running disabled, toggle to enable it
         if(me.runwalk == 0) { me.runwalk=1; }
         
@@ -1216,7 +1218,7 @@ function pathMove(_info) {
             _retry+=1;
             // If we don't arrive in the destination point, calculate the next set of coords
             if((Math.abs(me.x - _startx) < 3 && Math.abs(me.y - _starty) < 3)) {
-                if(_thrash >= 5) {
+                if(_thrash >= _nthrash) {
                     dprint("Thrash");
                     var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
                     if (direction > 0 && direction < 45){
@@ -1271,7 +1273,7 @@ function pathMove(_info) {
                 _currdesty = pY;
             }
         }
-        _thrash=0;
+
         // If we didn't succeed moving to the end coords, we got a problem so abort the game
         if(Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) {
             if(me.mode != 17) {

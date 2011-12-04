@@ -69,7 +69,7 @@ function SXP_GoToShenk() {
 	}
 */
     dprint("Pathing to Shenk",3); //classid 479
-    //pathToLevel(110);
+    pathToLevel(110);
     
     if(commPather.UseTele) {
         if(!pathtoFarUnit(1,776,110)) { pathToDest(3870,5115); pathToDest(3859,5129); }

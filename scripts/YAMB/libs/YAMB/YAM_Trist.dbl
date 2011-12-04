@@ -24,7 +24,7 @@ function DoTrist() {
 
     commPather.InitType = 1;
     commPather.InteractTile = true;
-    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
     
     YAM_TownManager();
     
@@ -196,25 +196,6 @@ function DoTrist() {
     delay(1000);
 }
 
-
-function GetWP(inID){
-	var wp = getUnit(2,inID);
-	if(wp){
-		DT_MenuCancel();
-		var l=0;
-		while(!getUIFlag(0x14) && l++ < 40){
-			DC_DoClick(0,0,wp);
-			delay(10);
-			
-		}
-		l=0;
-		while(getUIFlag(0x14) && l++ < 40) {
-			wp.cancel(0);
-			delay(10);
-		}
-	}
-}
-
 function getClosestWP(wpnum) {
     for(var n=wpnum; n >= 0; n--) {
         for(var nn=0; nn < 3; nn++) {
@@ -247,7 +228,7 @@ function Path2WP(targetwp) {
     if(wp < 1) {
         DT_MenuCancel();
         dprint("goto cold plains",2);
-        commPather.GotoLevel(2, true);
+        pathToLevel(2);
         pathToLevel(3);
         pathToWP(3);
         GetWP(commPather.TargetID);
@@ -286,19 +267,9 @@ function Path2WP(targetwp) {
         }
         dprint("goto Darkwood",2);
         XP_Precasts();
-        var exits = getPresetUnits(10, 5, 4);
-        dprint("Number of exits found: " + exits.length);
-        //don't take the exit you just came through
-        for(var c=0; c < exits.length; c++) {
-            // get co-ords and check dist to exit
-            var dwExit = getFarUnitXY (exits[c]);
-            var exitDist = getRange(dwExit);
-            //if exit isn't right next to you, it's the correct one
-            if(exitDist > 30) { dprint("exit is " + exitDist + " yards away"); break; }
-        } 
-        // path to exit
-        if(!pathToDest(dwExit.x, dwExit.y)) dprint("Underground Pathing Failed!",1); 
-        if(me.area != 5) { print("Manually taking stairs"); DM_TakeStairs(4,4); }
+        
+        pathToFarExit(4);
+        
         //get DW wp
         XP_Precasts();
         pathToWP();

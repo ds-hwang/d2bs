@@ -131,7 +131,7 @@ function YC_CheckForChest(chest) {
 	var i = 0;
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
     // Clear monsters before walking
-    dprint("Grabbing a Chest! hehehe", 7);
+    dprint("Grabbing a Chest! hehehe", 9);
     killRadius(chestDist+3); //Darien
 	// save start location
 	var _startx = me.x;

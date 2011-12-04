@@ -174,7 +174,7 @@ function Rush() {
     
     commPather.InitType = 1;
     commPather.InteractTile = true;
-    commPather.StepActionflag = DP_THROWWHENSTUCK|DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
     
     if(!rushee) say("Darien's Rush Bot -- I'm waiting for My Master to say the Magic Words.");
     

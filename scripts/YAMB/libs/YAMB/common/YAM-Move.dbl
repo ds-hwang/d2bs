@@ -922,7 +922,7 @@ function DM_TakeEntrance(entrance) {
 }
 
 function DM_TouchObject(obj, wait4Mode2) {
-	if(!obj)
+	if(!obj || typeof(obj) != "object")
 		return false;
 	if(me.classid == 1 && DC_CheckSkill(43) && (getDistance(me,obj) < 20)){
 		// If I'm a sorc, I have the TK skill, and the object is inside TK range

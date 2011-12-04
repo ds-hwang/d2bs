@@ -3,70 +3,210 @@
 
 entryFunc = Baal;
 
+var myLeader = 0;
+
+function DK_GameMsgHandler(who, msg) {
+	var parsedMsg = new Array();
+       
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+     if(!Firstword) {
+        Firstword = params;
+        params = null
+    }
+    
+    //--code for 3 words -- sloppy
+    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
+    //var Secondword= rest.substring(0, rest.indexOf(" "));
+    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
+    //var Thirdword = darest.substring(0, rest.length);
+	
+	return GameMsgHandler(who,Firstword,params);
+}
+
+function GameMsgHandler(sender, cmd, params, c) {
+    //print("Sender " + sender + " cmd: " + cmd + " params: " + params);
+    
+    var command = cmd.toLowerCase();
+    if(params) params = params.toLowerCase();
+    
+    // The one who yells "tp up" becomes my true leader
+    if(command + " " + params == YAM_TPMsg) myLeader = sender;
+    
+    //the bot will invite when Party Up is said
+    if(command == "party" && params == "up") {
+        var senderParty = DC_PlayerPresent(sender); 
+        if(senderParty.partyid == 65535) clickParty(senderParty, 2);
+        else if(senderParty.partyflag & 2) clickParty(senderParty, 2);
+    }
+    
+    // "Darien banishes you" the bot will quit the game
+    if(command == "darien" && params == "banishes you") {
+        say("Goodbye Master");
+        quit();
+    }
+}
+    
 function Baal() {
+    addEventListener("chatmsg",   DK_GameMsgHandler);
+
     YAM_TownManager();
     YAM_PathToWayPoint();
     XP_Precasts();
     
-    // Use the WP to go to Worldstone 2
-	DM_UsePortal("Waypoint",129); // 0x81);
-    XP_Precasts();
+    //Path to throne room yourself
+    if (!WaitForPortal || YAM_IsLeader) {
+        // Use the WP to go to Worldstone 2
+        DM_UsePortal("Waypoint",129); // 0x81);
+        XP_Precasts();
+        
+        // Path to last area
+        pathToWarp(DP_WARPNEXT); //Darien
+        DC_DoDel(DC_LagDelay);
+        if(me.area == 129) DM_TakeStairs(82,83);
+        
+        pathToWarp(DP_WARPNEXT); //Darien
+        XP_Precasts();
+        DA_UseCTASkills();
+        DC_DoDel(DC_LagDelay);
+        if(me.area == 130) DM_TakeStairs(82,83);
+        
+        // Go to throne
+        pathToDest(15091,5072); 
+        killRadius(30); DSN_PickItems();
+        
+        //clearing tp spot in main room
+        say("Clearing tp spot");
+        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+        if(!BXP_ClearFirst) { XP_OpenTP(); say("tp up"); }
+        killRadius(30); 
+        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+        killRadius(30);
+        DM_MoveTo(15115,5052); // Near midsection
+        killRadius(30);
+        DM_MoveTo(15115,5052); // Near midsection
+        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+        killRadius(30);
+        say("tp up");
+        say("Come get Buffs!");
+        delay(2500);
     
-    // Path to last area
-    pathToWarp(DP_WARPNEXT); //Darien
-	DC_DoDel(DC_LagDelay);
-	if(me.area == 129) DM_TakeStairs(82,83);
+    //wait for portal to throne - team botting
+    } else {
     
-    pathToWarp(DP_WARPNEXT); //Darien
-	XP_Precasts();
-    DA_UseCTASkills();
-	DC_DoDel(DC_LagDelay);
-	if(me.area == 130) DM_TakeStairs(82,83);
-    
-    // Go to throne
-	pathToDest(15091,5072); 
-    killRadius(30); DSN_PickItems();
-    
-    //clearing tp spot in main room
-    say("Clearing tp spot");
-    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
-    XP_OpenTP();
-    killRadius(30); 
-    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
-    killRadius(30);
-    DM_MoveTo(15115,5052); // Near midsection
-    killRadius(30);
-    DM_MoveTo(15115,5052); // Near midsection
-    DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
-    killRadius(30);
-    say("Portal is safe, come get Buffs!");
-    delay(2500);
-    DA_UseCTASkills();
-    
-    // Clearing main room
-    clearThrone();
-    
-    // Clear out 5 Minion Boss Groups
-    var count = 0;
-    while(!0) {
-        if(killRadius(30)) {
-            var count = 0;
-            DSN_PickItems();
-            pathToDest(15092,5026);
-            if(killRadius(30)) pathToDest(15092,5026);
-            delay(2500);
-            if(killRadius(30)) pathToDest(15092,5026);
-            
-        } else { // nothing to attack
-            if(count > 100) {
-                clearThrone();
-                count = 0;
+        // Use the WP to Act 5 if need be
+		if (me.area != 109) {
+			YAM_PathToWayPoint(); 
+			DM_UsePortal("Waypoint",0x6d); 
+			YAM_InitCommTown(); 
+		}
+		commTown5.GotoStart();
+		DC_Print("Waiting for tp...");
+        if(PublicMode < 2) {
+            while (me.area != 131) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype >= 131) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    myLeader=portal.getParent();
+                                    // Do precasts before going into the portal
+                                    XP_Precasts();
+                                    DM_TakeEntrance(portal);
+                                    break;
+                                } else { 
+                                    var pOwnerParty = DC_PlayerPresent(pOwner);
+                                    if(pOwnerParty) {
+                                        if(pOwnerParty.partyflag & 2) clickParty(pOwnerParty, 2); 
+                                        else { 
+                                            say("Party Up"); 
+                                            delay(2000); 
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
             }
-            XP_Precasts();
-            XP_PreAttack(5);
-            count++;
+        } else { // if your leeching wait for leaders portal, only take when directed
+            while (me.area != 131) {
+                
+                // Wait for 4 mins
+                var i = 0;
+                while (!myLeader && i < 240 && me.area != 131) {
+                    delay(1000);
+                    i++;
+                }
+                
+                // Do precasts before going into the portal
+                XP_Precasts();
+                // Make sure to party the leader
+                if (!DC_PartyPlayer(myLeader)) {
+                    // If failed to party, choose another leader
+                    for (var i=0; i < Leaders.length; i++) {
+                        if (DC_PartyPlayer(Leaders[i])) { 
+                            myLeader=portal.getParent(); 
+                            break; 
+                        }
+                    }
+                }
+                try {
+                    // When we have chosen a leader, go into his tp
+                    DM_UsePortal ("BluePortal", 131, myLeader);
+                }
+                catch (e) { 
+                    DC_Print("e : name = " + e.name + ", message = " + e.message);
+                }
+            }
+            YAM_TPReady = false;
         }
-        if(!DC_FindMonster(543)) break;	// check for baal in throne room, stop loop if he is not present
+    }
+    
+    DA_UseCTASkills();
+    if (!YAM_IsLeader && me.getState(32) == 0) { 
+        say("/w "+myLeader+" bo "); 
+        delay(2000); 
+    }
+    
+    // if your leeching
+    if(PublicMode > 1) { 
+        pathToDest(15115,5026);
+        while(!DC_FindMonster(543)) delay(3000);
+        while(DC_FindMonster(543)) delay(3000);
+        if(SkipBaal) DC_QuitMessage("Run Done... waiting for next game");
+        pathToDest(15092,5026);
+    } else {
+
+        // Clearing main room
+        clearThrone();
+        
+        // Clear out 5 Minion Boss Groups
+        var count = 0;
+        while(!0) {
+            if(killRadius(30)) {
+                var count = 0;
+                DSN_PickItems();
+                pathToDest(15092,5026);
+                killRadius(30);
+                delay(2500);
+                killRadius(30);
+                
+            } else { // nothing to attack
+                if(count > 100) {
+                    clearThrone();
+                    count = 0;
+                }
+                XP_Precasts();
+                XP_PreAttack(5);
+                count++;
+            }
+            if(!DC_FindMonster(543)) break;	// check for baal in throne room, stop loop if he is not present
+        }
     }
     
     //Minions Cleared, pick items check for merc
@@ -75,7 +215,7 @@ function Baal() {
     // If Merc Died, revive him b4 killing Baal
 	if(me.mercrevivecost && me.mercrevivecost < DC_MyGold()) {
         say("Need to go revive the mercenary :-/");
-        YAM_TownManager()
+        YAM_TownManager();
         /*
         YAM_MakeTP();
         if (DT_CheckMerc()) {
@@ -92,9 +232,9 @@ function Baal() {
     
     //Go to Worldstone chamber
     pathToDest(15091,5006);
-    say("Let's Get Baal!");
+    //say("Let's Get Baal!");
     delay(1000);
-    say("Time for Buffs!");
+    //say("Time for Buffs!");
     delay(1000);
     
     // Do precasts before going into the portal
@@ -123,26 +263,30 @@ function Baal() {
 }
 
 function clearThrone() {
-    DM_MoveTo(15115,5052); // back near corner
+    if(commPather.UseTele) var moveFunc = DM_MoveTo
+    else var moveFunc = pathToDest
+    
+    moveFunc(15115,5052); // back near corner
     killRadius(30); 
-    DM_MoveTo(15115,5026); // Near midsection
+    moveFunc(15115,5026); // Near midsection
     killRadius(30); 
-    DM_MoveTo(15117,5004); // at corner for tp.
+    moveFunc(15117,5004); // at corner for tp.
     killRadius(30); 
-    DM_MoveTo(15091,5006); // red portal.
+    //moveFunc(15091,5006); // red portal.
+    moveFunc(15091,5020); // center
     killRadius(30); 
-    DM_MoveTo(15071,5006); //far left corner
+    moveFunc(15071,5006); //far left corner
     killRadius(30); 
-    DM_MoveTo(15071,5027); // far mid section
+    moveFunc(15071,5027); // far mid section
     killRadius(30); 
-    DM_MoveTo(15071,5052); // back far corner
+    moveFunc(15071,5052); // back far corner
     killRadius(30); 
-    DM_MoveTo(15092,5052); // back center
+    moveFunc(15092,5052); // back center
     killRadius(30); 
-    DM_MoveTo(15115,5052); // back near corner
+    moveFunc(15115,5052); // back near corner
     killRadius(30); DSN_PickItems();
-    DM_MoveTo(15115,5026); // Near midsection
+    moveFunc(15115,5026); // Near midsection
     killRadius(30); 
-    DM_MoveTo(15092,5026); // Middle
+    moveFunc(15092,5026); // Middle
     killRadius(30); DSN_PickItems();
 }

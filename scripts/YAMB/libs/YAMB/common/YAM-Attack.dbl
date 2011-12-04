@@ -297,16 +297,13 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
 }
 
 // pathing argument function
-function killZone(x,y) {
+function killZone(x,y,retry) {
     killRadius(20);
     if(me.classid == 2) XP_NecroRevive();
     if(me.classid == 5) DA_DoPrecasts();
     
     //Door handling function for walking characters
-    if(!commPather.UseTele) {
-        var _Door = getPathDoor(x,y);
-        if(_Door) DM_TouchObject(_Door);
-    }
+    if(!commPather.UseTele) openPathDoor(x,y,retry);
     return DP_STEPAHEAD;
 }
 

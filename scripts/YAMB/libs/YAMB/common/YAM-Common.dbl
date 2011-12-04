@@ -488,7 +488,7 @@ function inParty(playerName) {
 
 //Function by Darien
 function returnClosestObject(parent, type, range, name, mode) { 
-    if(!ranged) ranged = 999;
+    if(!range) range = 999;
 	var closest_dist = range;
 	var objs = getUnit(type,name,mode);
 	var closestOBJ = false;
@@ -511,7 +511,7 @@ function getFarUnit (type,IDnumb,area) {
 	if(!area) area = me.area;
 	var Darien_PresetUnits = getPresetUnits(area,type,IDnumb,null);
 	
-	if(!Darien_PresetUnits) {
+	if(!Darien_PresetUnits || !Darien_PresetUnits.length) {
 		dprint("Preset Unit does not exist!",1);
 		return false;
 	}
@@ -581,7 +581,7 @@ function pathtoFarUnit(type, id, fuarea, stepHandler, doorHandler) {
     
     if(farUnit) {
         dprint("Pathing to Far Unit " + id,2);
-        if(me.area !=108) pathToDest(farUnit.x, farUnit.y, stepHandler, doorHandler);
+        pathToDest(farUnit.x, farUnit.y, stepHandler, doorHandler);
     } else { 
         dprint("Pathing Failed... Far Unit " + id + " not found!",1); return false; 
     }
@@ -589,8 +589,30 @@ function pathtoFarUnit(type, id, fuarea, stepHandler, doorHandler) {
     return true;
 }
 
+function pathToFarExit(TileID) {
+    var startArea = me.area;
+    var exits = getPresetUnits(me.area, 5, TileID);
+    dprint("Number of exits found: " + exits.length);
+    //don't take the exit you just came through
+    for(var c=0; c < exits.length; c++) {
+        // get co-ords and check dist to exit
+        var farExit = getFarUnitXY (exits[c]);
+        var exitDist = getDistance(farExit);
+        //if exit isn't right next to you, it's the correct one
+        if(exitDist > 30) { dprint("exit is " + exitDist + " yards away"); break; }
+    } 
+    if(!farExit || !farExit.x) return false;
+    // path to exit
+    if(!pathToDest(farExit.x, farExit.y)) {
+        dprint("Pathing to Far Exit Failed!",1); 
+        return false;
+    }
+    if(me.area == startArea) { print("Manually taking stairs"); DM_TakeStairs(TileID,TileID); }
+    return true;
+}
+
 function pathToDest(x, y, stepHandler, doorHandler) {
-    dprint("Pathing to Dest: " + x + ", " + y,2);
+    dprint("Pathing to Dest: " + x + ", " + y, 9);
     var attempts=1;
     
     if(arguments.length < 4) doorHandler = openDoor;
@@ -652,6 +674,24 @@ function pathToWP(area, stepHandler, doorHandler) {
     }
     if(attempts == 6) { dprint("Pathing failed... miserably",1); return false; }
     else return true;
+}
+
+function GetWP(inID){
+	var wp = getUnit(2,inID);
+	if(wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,wp);
+			delay(10);
+			
+		}
+		l=0;
+		while(getUIFlag(0x14) && l++ < 40) {
+			wp.cancel(0);
+			delay(10);
+		}
+	}
 }
 
 function PickupQuestItem(itemcode) {

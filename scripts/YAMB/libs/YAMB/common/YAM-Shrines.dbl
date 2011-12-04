@@ -216,8 +216,8 @@ function DS_CheckForShrine(shrine) {
 	    (DS_ShrineType_Mana      == shrine.objtype && me.mp < me.mpmax) || 
 	    (DS_ShrineType_Gem       == shrine.objtype)) { 
 		// take this shrine 
-		DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
-        //dprint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!",7);
+		//DC_DPrint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!");
+        dprint("Found shrine of type " + DS_ShrineNames[shrine.objtype] + " that we want!",9);
 		var i = 0;
 		while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
         // Clear monsters before walking
