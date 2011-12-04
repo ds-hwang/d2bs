@@ -33,6 +33,8 @@ function NT_Pit()
 
     if (!NTM_MoveToObject(NTC_UNIT_TILE, 5, 5, 0, 0, NTConfig_ClearPitLevel1)) 
 		throw new Error();
+    if (NTConfig_ClearPitLevel1)
+		NTA_ClearRooms();
 
     print("ÿc8Going to Pit Level 2");
     NTM_TravelTO(16);
