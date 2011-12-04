@@ -1,0 +1,272 @@
+entryFunc = AndyXP;
+
+function AXP_GoToAndy() {
+	commPather.InitType = 1;
+    var startingArea = me.area;
+	// Move from Catacombs 2 waypoint to Andariel's lair
+    while(me.area != 37) {
+        var startarea = me.area;
+        if(startingArea == 34 && me.area == 35) { pathToWP(); GetWP(commPather.TargetID); }
+        if(!pathToWarp(DP_WARPNEXT)) pathtoFarUnit(5,18);
+        DC_DoDel(DC_LagDelay);
+        if(me.area == startarea) DM_TakeStairs(18,18);
+        // Check health/mana, belt and if cursed, go to healer if needed
+        if (AndySafeCheck) { 
+            if (YAM_SafeCheck()) 
+                XP_Precasts(); 
+        }
+    }
+    // Check health/mana, belt and if cursed, go to healer if needed
+    if (AndySafeCheck) { 
+        if (YAM_SafeCheck()) 
+            XP_Precasts(); 
+    }
+    // Move to the final spot
+    if(commPather.UseTele) {
+        DM_MoveTo(22582,9614);
+        DM_MoveTo(22570,9591);
+        if (!AXP_Kamikaze) {
+            XP_ClearPosition(30,null,ATTACKING_MODE);
+            XP_ClearPosition(30,null,ALIVE_MODE);
+            DSN_PickItems(YAM_SafeCheck);
+        }
+    } else {
+        //if(!pathtoFarUnit(1, 156)) {
+            //dprint("Can't detect Andy yet, pathing to a closer spot!",1);
+            pathToDest(22550,9636);
+            dprint("Spot 1",8);
+            killRadius(30);
+            pathToDest(22550,9621);
+            dprint("Spot 2",8);
+            if (AndySafeCheck) { 
+                if (YAM_SafeCheck()) 
+                XP_Precasts(); 
+            }
+    }
+}
+
+function AXP_AttackAndy() {
+	// Detecting Andariel with 3 retries to be sure to get the target
+	for (var i = 0; i < 3; i+=1) {
+		var target = DC_FindMonster(156);
+		if (target) { 
+			break; 
+		}
+	}
+    if(!target) { dprint("Moving Closer to Target",9); pathToDest(22550,9600); var target = DC_FindMonster(156); }
+	// If Andy is detected,
+	if (target) {
+		// If the target has a enchantment I want to chicken, log and skip
+		if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		if(PublicMode > 0 && YAM_IsLeader) {
+			XP_OpenTP();
+			say(YAM_TPMsg);
+            dprint("Waiting for Leechers",9);
+			delay(5000);
+		}
+        DA_UseCTASkills();
+        if(commPather.UseTele) {
+		    DM_MoveTo(22561,9574);
+		    DM_MoveTo(22560,9554);
+		} else pathToDest(22550,9564);
+        
+        DC_Print ("Killing Andariel...");
+		if (!AXP_Kamikaze) {
+			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
+				XP_BossAttack (target); 
+			}
+			DM_MoveTo(22560,9548);
+			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
+				XP_BossAttack (target); 
+			}
+		}
+		DM_MoveTo(22545 + AXP_OffsetX,9535 + AXP_OffsetY);
+		XP_BossAttack (target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill) { 
+			DC_SelectTab(1); 
+		}
+		DC_Print("Andariel killed !");
+		if (XP_KillMinions) {
+			XP_ClearPosition(20,null,ATTACKING_MODE);
+		}
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		delay (3000);
+		target=false;
+	} 
+	else {
+		DC_Print("Andariel not found! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function AndyXP() {
+	// Configure Andy specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(AXP_SorcSkill.length > 0) ? XP_SetSorcSkills(AXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = AXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP         = AXP_SwitchHP;
+	XP_StallHP          = AXP_StallHP;
+	XP_QuitImmune       = AXP_QuitImmune;
+	XP_StallKill        = AXP_StallKill;
+	XP_MinionStand      = true;
+	if (me.classid == 3) { 
+		XP_KillMinions = false; 
+	}
+	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+		BuildSkeleArmy();
+	}
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	
+    Path2WP(8);
+    
+    // Path to Andariel's lair
+	AXP_GoToAndy();
+    
+	// Go attack Andariel
+	if (AXP_AttackAndy()) {
+		DL_AddKill();
+	}
+	DSN_PickItems(YAM_SafeCheck);
+	if (DSN_LogRunes) { 
+		DL_SaveRuneLog(); 
+	}
+}
+
+function getClosestWP(wpnum) {
+    for(var n=wpnum; n >= 0; n--) {
+        for(var nn=0; nn < 3; nn++) {
+            if(getWaypoint(n)) return n;
+        }
+    }
+    dprint("I don't have any waypoints",1)
+    return 0;
+}
+
+function Path2WP(targetwp) {
+
+    print("shooting for wp: " + targetwp);
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+	}
+    
+    //Find the closest wp you have to Catacombs 2
+    var wp = getClosestWP(targetwp);
+    print("closest wp is " + wp);
+    
+    if(wp < 4) {
+        DT_MenuCancel();
+        dprint("starting at Dark Wood",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",5);
+        XP_Precasts();
+        
+        //Go to Black Marsh -6
+        pathToLevel(6);
+        pathToWP();
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 5) {
+        DT_MenuCancel();
+        dprint("starting at Black Marsh",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",6);
+        XP_Precasts();
+        
+        //Go to Tamoe Highlands -7
+        pathToLevel(7);
+        //Go to Monastary Gate -26
+        pathToLevel(26);
+        //Go to Outer Cloister -27
+        pathToLevel(27);
+        pathToWP();
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 6) {
+        DT_MenuCancel();
+        dprint("starting at Outer Cloister",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",27);
+        XP_Precasts();
+        
+        //Go to Barracks -28
+        pathToLevel(28);
+        
+        //Go to Jail Level 1 -29
+        pathToWarp(DP_WARPNEXT);
+        if(me.area == 28) DM_TakeStairs(14,14);
+        pathToWP();
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 7) {
+        DT_MenuCancel();
+        dprint("starting at Jail Level 1",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",29);
+        XP_Precasts();
+        
+        // Goto Jail Level 2 -30
+        pathToWarp(DP_WARPNEXT);
+        if(!pathToWarp(DP_WARPNEXT)) pathtoFarUnit(5,14);
+        DC_DoDel(DC_LagDelay);
+        if(me.area == 29) DM_TakeStairs(14,14);
+        
+        // Goto Jail Level 3 -31 
+        pathToWarp(DP_WARPNEXT);
+        if(!pathToWarp(DP_WARPNEXT)) pathtoFarUnit(5,14);
+        DC_DoDel(DC_LagDelay);
+        if(me.area == 30) DM_TakeStairs(14,14);
+        
+        //Goto Inner Cloister -32
+        pathToFarExit(13);
+        if(me.area == 31) DM_TakeStairs(13,13);
+        pathToWP();
+        GetWP(commPather.TargetID);
+    }
+    if(wp < 8) {
+        DT_MenuCancel();
+        dprint("starting at Inner Cloister",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",32);
+        XP_Precasts();
+        
+        //Go to Cathedral -33
+        pathToDest(20050, 5002);
+        dprint("Moving across border",1);
+        var times = 0;
+        while(me.area != 33 && times < 10) { DM_MoveTo(me.x, me.y-10); delay(100); times++; }
+        DM_RevealMap();
+        dprint("In Cathedral",2);
+        
+        //To Catacombs level 1 -34
+        pathToWarp(DP_WARPNEXT);
+        if(!pathToWarp(DP_WARPNEXT)) pathtoFarUnit(5,15);
+        DC_DoDel(DC_LagDelay);
+        if(me.area == 33) DM_TakeStairs(15,15);
+    }
+    if(wp == 8) {
+        DT_MenuCancel();
+        dprint("starting at Catacombs Level 2",2);
+        XP_Precasts();
+        DM_UsePortal("Waypoint",35);
+        XP_Precasts();
+    }
+}
+

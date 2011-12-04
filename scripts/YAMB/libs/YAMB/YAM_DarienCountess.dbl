@@ -1,0 +1,107 @@
+entryFunc = CountessXP;
+
+function CXP_GoToCountess() {
+
+	// Move from Black Marsh waypoint to Countess Temple level 5
+	pathToWarp(DP_WARPTOWER);
+	DC_DoDel(DC_LagDelay);
+	delay(2000);
+	if(me.area == 6) DM_TakeStairs(10,10);
+	DC_DoDel(DC_LagDelay);
+	DM_TakeStairs(12,12);
+
+	// Going down the tower levels
+    while(me.area != 25) {
+        var startarea = me.area;
+	    pathToWarp(DP_WARPNEXT);
+	    DC_DoDel(DC_LagDelay);
+    	if(me.area == startarea) DM_TakeStairs(9,9);
+    }
+    
+	// Check health/mana, belt and if cursed, go to healer if needed
+	if (CountessSafeCheck) { killRadius(5); delay(1500); killRadius(5); YAM_SafeCheck(); }
+	XP_Precasts();
+
+    if(!pathtoFarUnit(1, 740)) pathtoFarUnit(2,31);
+    killRadius(20);
+}
+
+
+function CXP_AttackCountess() {
+	var target = DC_FindMonster(45,0x04);
+	// If Countess is detected,
+	if (target) {
+        if (DA_CheckImmunities(target)) {
+			DL_AddChicken();
+			return false;
+		}
+		// If we want to attack the monsters around, do it now
+		DC_DoDel(20);
+		if (XP_KillMinions) {
+			XP_ClearPosition(30,target,ATTACKING_MODE,45);
+			XP_ClearPosition(30,target,ATTACKING_MODE);
+			XP_ClearPosition(30,target,ALIVE_MODE,45);
+			XP_ClearPosition(30,target);
+			DSN_PickItems(YAM_SafeCheck);
+		}
+		DC_Print("Killing Countess...");
+		XP_BossAttack(target);
+		// If we switched weapons on kill, switch back to the attack tab
+		if (XP_SwitchOnKill)
+			DC_SelectTab(1);
+		DC_Print("The Countess killed !");
+		if (XP_KillMinions) {
+			XP_ClearPosition(15);
+		}
+
+		// Move to where she died to check for items
+		DM_MoveTo(target.x,target.y);
+		target=false;
+	}
+	else {
+		DC_Print("Countess not found or we chickened! Skip to next boss...");
+		return false;
+	}
+	return true;
+}
+
+function CountessXP() {
+	// Configure Countess specific variables. Those are set in config file, don't change anything here!
+	if (me.classid == 1) {
+		(CXP_SorcSkill.length > 0) ? XP_SetSorcSkills(CXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = CXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
+	XP_SwitchHP         = CXP_SwitchHP;
+	XP_StallHP          = CXP_StallHP;
+	XP_QuitImmune       = CXP_QuitImmune;
+	XP_StallKill        = CXP_StallKill;
+	XP_MinionStand      = true;
+    
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_INCUSERSTEP;
+    
+	if (me.classid == 3)
+		XP_KillMinions  = false;
+   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy)
+		BuildSkeleArmy();
+	// Do town stuff in the act we are in
+	YAM_TownManager();
+	YAM_PathToWayPoint();
+	// Do precasts before going into the portal
+	XP_Precasts();
+	// Use the WP to BlackMarsh
+	DM_UsePortal("Waypoint",0x06);
+	//delay some to let the game stablize
+	delay(1000);
+	// Do precasts after going into the portal
+	XP_Precasts();
+	// Path to the Countess
+	CXP_GoToCountess();
+	// Go attack Countess
+	if (CXP_AttackCountess()) {
+		DL_AddKill();
+		DSN_PickItems(YAM_SafeCheck);
+	}
+	if (DSN_LogRunes)
+		DL_SaveRuneLog();
+}
