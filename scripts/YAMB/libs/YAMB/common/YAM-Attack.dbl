@@ -330,9 +330,9 @@ function killRadius(range, type, spectype) {
     
     XP_Precasts();
     while (threat) {
-        print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + getRange(me,threat)); 
+        print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + getDistance(threat)); 
         //XP_Precasts();
-        if(me.classid == 0 || me.classid == 5) XP_AttackMonster(threat,range) ;
+        if(me.classid == 0 || me.classid == 5 || me.classid == 1) XP_AttackMonster(threat,range) ;
         else XP_BossAttack(threat);
         threat = returnClosestThreat(range, type, spectype, center);
     }
@@ -396,8 +396,76 @@ function Assassinate(monid, farunit, spectype){
     }
 }
 
+// function used for clearing Area's like in Den Quest
+function clearArea() {
+    //create an array of all Room Center Point closest walkable x,y co-ords in an Area
+	var roomCenter = returnRoomPointArray();
+	var clearingPath = new Array();
+	
+	
+	/*parse through array to find the closest roomCenter to you, path point 1.
+	  Then parse through remainder or array for the roomCenter closest 
+	  to path point 1. which is path point 2.. and so on until all of the
+	  roomCenter positions are entered into the clearingPath array*/
+	  
+	dprint("Lets make a path to kill all the Monsters",8);
+	for(var bb=0; bb < roomCenter.length; bb++) {
+			
+		//Find the next monster closest to current path point
+		var closest_dist = 99999;
+		for(var b=0; b < roomCenter.length; b++) {
+			//skip any room points once they have been added to Pathing array
+			var skip=false;
+			for(var c=0; c < clearingPath.length; c++) {
+				if(roomCenter[b].x == clearingPath[c].x && roomCenter[b].y == clearingPath[c].y) var skip=true;
+			}
+			if(skip) continue;
+            
+			if(bb == 0) var distance = getDistance(roomCenter[b]);
+			else {
+			    var lastInArray = clearingPath.length -1;
+		    	var lastPoint = getFarUnitXY(clearingPath[lastInArray]);
+                var distance = getDistance(roomCenter[b],lastPoint);
+            }
+			if (distance < closest_dist) {
+				var closest_dist = distance;
+				var closestRoom = roomCenter[b];
+			}
+		}
+		
+		clearingPath.push(closestRoom);
+	}
+	
+	dprint("Area Clearing Path made from " + clearingPath.length + " Room center point locations",2);
+	
+	var pathPoint=0;
+	while(clearingPath[pathPoint]) {
+		dprint("Moving to Pathpoint " + pathPoint + " - Dist: " + getDistance(getFarUnitXY(clearingPath[pathPoint])),8);
+		pathtoDest(clearingPath[pathPoint].x,clearingPath[pathPoint].y);
+		pathPoint++;
+        killRadius(30);
+        Search_and_Destroy();
+	}
+}
 
-//Darien - for clearing level's like Den quest
+function returnRoomPointArray() {
+    var roomArray = new Array();
+    
+    var room = getRoom();
+    
+    if(room) do {
+        var centerX = room.x + (Math.floor(room.xsize/2));
+        var centerY = room.y + (Math.floor(room.ysize/2));
+        var roomPoint = new Object;
+            roomPoint.x = centerX;
+            roomPoint.y = centerY;
+        roomArray.push(roomPoint);
+    } while(room.getNext());
+    
+    return roomArray;
+}
+
+//Darien - Call function used in clearing level's in clearArea()
 function Search_and_Destroy(range) {
     
     var beginX = me.x;
@@ -670,22 +738,22 @@ function DA_IsImmuneTo(enemy, type) {
 	}
 	switch(type) {
 		case 1: // Physical
-			if(enemy.getStat(36) > 99) { return true; }
+			if(enemy.getStat(36) > 99) { dprint(enemy.name + " is Immune to Physical",1); return true; }
 			break;
 		case 2: // Magic
-			if(enemy.getStat(37) > 99) { return true; }
+			if(enemy.getStat(37) > 99) { dprint(enemy.name + " is Immune to Magic",1); return true; }
 			break;
 		case 3: // Fire
-			if(enemy.getStat(39) > 99) { return true; }
+			if(enemy.getStat(39) > 99) { dprint(enemy.name + " is Immune to Fire",1); return true; }
 			break;
 		case 4: // Lightning
-			if(enemy.getStat(41) > 99) { return true; }
+			if(enemy.getStat(41) > 99) { dprint(enemy.name + " is Immune to Lightning",1); return true; }
 			break;
 		case 5: // Cold
-			if(enemy.getStat(43) > 99) { return true; }
+			if(enemy.getStat(43) > 99) { dprint(enemy.name + " is Immune to Cold",1); return true; }
 			break;
 		case 6: // Poison
-			if(enemy.getStat(45) > 99) { return true; }
+			if(enemy.getStat(45) > 99) { dprint(enemy.name + " is Immune to Poison",1); return true; }
 			break;
 		case 0:
 			return true;

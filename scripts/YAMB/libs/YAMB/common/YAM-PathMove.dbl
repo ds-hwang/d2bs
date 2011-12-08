@@ -589,7 +589,6 @@ function pathMove(_info) {
 	}
 
 	//this.GotoLevel = function( destlevel, pMoveDist, databack, _door) {
-	//	DP_DPrint("GotoLevel() -> FUNCTION BROKEN - please use some other function till fixed! - TechnoHunter");
 	this.GotoLevel = function( exitAreaId, goThru, pMoveDist, pDataback, pDoorHandler) {  // added full parameters
 		var exit = getArea(me.area).exits;
 		for(var n in exit) {
@@ -1179,7 +1178,7 @@ function pathMove(_info) {
         var _currdestx = pX;
         var _currdesty = pY;
         var _retry = 0;
-        var _numtrys=30; //parseInt(10000/DP_WalkDel,10);
+        var _numtrys=15; //parseInt(10000/DP_WalkDel,10);
         var _thrash = 0;
         var _nthrash=5; //parseInt(3000/DP_WalkDel,10);
         // If the char has running disabled, toggle to enable it
@@ -1187,13 +1186,13 @@ function pathMove(_info) {
         
         if(!InTown(me)) this.DoorOpener(pX, pY, pDoorHandler, _retry);
         var _doorFlag = false;
-        var _doorFlag2 = 20;
+        var _doorFlag2 = 10;
         
         // Display a debug message
         //DP_DPrint("Walking to [" + pX + ", " + pY + "]");
         
         // Loop until we got in the dest coords
-        while ((Math.abs(me.x - _currdestx) > 3 || Math.abs(me.y - _currdesty) > 3) && _retry <= _numtrys && (me.mode != 17)) {
+        while ((Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) && _retry <= _numtrys && (me.mode != 17)) {
             dprint("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
             // Randomize the coords if RandomMove is set to true
             if(DP_RandomMove) {
@@ -1217,45 +1216,54 @@ function pathMove(_info) {
             // Increase the retry counter
             _retry+=1;
             // If we don't arrive in the destination point, calculate the next set of coords
-            if((Math.abs(me.x - _startx) < 3 && Math.abs(me.y - _starty) < 3)) {
+            if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
                 if(_thrash >= _nthrash) {
                     dprint("Thrash");
                     var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
                     if (direction > 0 && direction < 45){
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x+5;
                         _currdesty = me.y+1;
                     }
                     else if(direction > 45 && direction < 90) {
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x-1;
                         _currdesty = me.y-5;
                     }
                     else if (direction > 90 && direction < 135){
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x-1;
                         _currdesty = me.y+5;
                     }
                     else if(direction > 135 && direction < 180) {
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x+5;
                         _currdesty = me.y-1;
                     }
                     else if (direction > 180 && direction < 225){
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x-5;
                         _currdesty = me.y-1;
                     }
                     else if(direction > 225 && direction < 270) {
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x+1;
                         _currdesty = me.y+5;
                     }
                     else if (direction > 270 && direction < 315){
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x+1;
                         _currdesty = me.y-5;
                     }
                     else if(direction > 315 && direction < 360) {
+                        dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x-5;
                         _currdesty = me.y+1;
                     }
                     else
                     {
                         //make a randome move
+                        dprint("random move",1);
                         var dx = _currdestx - _startx;
                         var dy = _currdesty - _starty;
                         var a = Math.atan2(dx, dy);
@@ -1264,7 +1272,7 @@ function pathMove(_info) {
                         _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
                         _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
                     }
-                    _thrash=0;
+                    _thrash=2;
                 } else { _thrash+=1; }
             } else {               // Else, use my pos as coords
                 _startx = me.x;
@@ -1292,7 +1300,15 @@ function pathMove(_info) {
 function DP_IsWalkable( pX, pY, pArea ) {
 	// If no area is entered, use the current area
 	if( !pArea ) { pArea = me.area; }
-	return !(checkCollision( pArea, pX, pY, 1 ));
+    
+    var _room = getRoom(pX,pY);
+    var _x = pX - _room.x * 5;
+    var _y = pY - _room.y * 5;
+    
+    var _collData = _room.getCollision();
+    if(typeof(_collData[_y][_x]) == "undefined") { DC_DPrint("Room Data not defined"); return false; }
+    
+    return !(_collData[_y][_x] & 0x1);
 }
 
 function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
