@@ -443,7 +443,7 @@ function NTM_ChangeAreaInt(how, dest, ownername, myportal)
 	{
 		_portal = NTM_FindCorrectPortalInt(_playerportal, ownername);
 
-		if(_portal != -2)
+		if(typeof(_portal) === "object")
 			if(_portal.objtype != dest)
 				_portal = NTM_FindPortalAreaInt(dest);
 			
