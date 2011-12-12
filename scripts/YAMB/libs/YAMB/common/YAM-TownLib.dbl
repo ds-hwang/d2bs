@@ -134,6 +134,7 @@ var DT_IgnoredItems = new Array(
 // 6 = gamble
 // 7 = ammo
 // 8 = healing
+// 9 = next act
 // Return value : True if the npc fit a certain type, false otherwise
 function DT_CheckNPC(npc,type) {
 	var _npcclassid;
@@ -221,7 +222,16 @@ function DT_CheckNPC(npc,type) {
 			return false; 
 		}
 	}
-	// If we got there without matching any type, display a error
+    // Is the npc taking us to the next Act
+    if(type == 9) {
+        if(_npcclassid == 155 || _npcclassid == 210 || _npcclassid == 367) {
+            return true;
+		}
+		else { 
+			return false; 
+        }
+    }
+    // If we got there without matching any type, display a error
 	DC_DPrint("DT_CheckNPC() : No npc classid match for anything on the list!");
 	return false;
 }

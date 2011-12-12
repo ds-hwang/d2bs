@@ -615,9 +615,9 @@ function pathMove(_info) {
                             
                             //Darien
                             dprint("Moving to Area Crossing Point " + this.CrossPointX + ", " + this.CrossPointY);
-                            if(getRange(me,this.CrossPointX,this.CrossPointY) > 30) return false;
-                            this.MoveTo(this.TargetX, this.TargetY, pDoorHandler);
-                            this.MoveTo(this.CrossPointX, this.CrossPointY, pDoorHandler);
+                            if(getDistance(this.CrossPointX,this.CrossPointY) > 30) return false;
+                            this.MoveTo(this.TargetX, this.TargetY, pDoorHandler, true);
+                            this.MoveTo(this.CrossPointX, this.CrossPointY, pDoorHandler, true);
                             if(me.area != oldArea) return true;
                             
                             ///Darien - random move was my old fix, I have better one now
@@ -625,7 +625,7 @@ function pathMove(_info) {
 							while(oldArea == me.area && fail < 10){
                                 dprint("Border crossing");
                                 var bc = BorderCrossing(me.x,me.y,this.ilastX, this.ilastY);
-                                this.MoveTo(bc.x, bc.y, pDoorHandler);
+                                this.MoveTo(bc.x, bc.y, pDoorHandler,true);
 								//this.GotoDest(exit[n].x,exit[n].y);
 								//clickMap(0, 0, me.x+rand(-3, 3), me.y+rand(-3, 3)); 
 								DC_DoDel(300);
@@ -1119,12 +1119,18 @@ function pathMove(_info) {
 		return {x:Bx, y:By};
 	}
     
-    this.MoveTo = function(pX, pY, pDoorHandler) {
+    this.MoveTo = function(pX, pY, pDoorHandler, borderCrossing) {
         // If we are already in the correct coords, return true
         if(Math.abs(me.x - pX) <= 3 && Math.abs(me.y - pY) <= 3) { return 1; }
         
-        var pPoint = DP_FindClosestWalkable(pX, pY);
-    
+        if(arguments.length < 4) borderCrossing = false;
+        
+        if(!borderCrossing) {
+            var pPoint = DP_FindClosestWalkable(pX, pY);
+            pX = pPoint.x;
+            pY = pPoint.y;
+        }
+        
         var tele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
         if(tele){
             if(me.getSkill(2) != 54){
@@ -1147,27 +1153,27 @@ function pathMove(_info) {
         //DP_DPrint("MoveToNode() -> getDistance reports " + Math.floor(getDistance(pX,pY)) + " between me and target X/Y:" + pX + "/" + pY + ".");
         if(tele){
             var _timer = 250;
-            var _destx=pPoint.x;
-            var _desty=pPoint.y;
+            var _destx=pX;
+            var _desty=pY;
             do {
                 clickMap(hand.d,0,_destx,_desty);
                 delay(rand(10,20));
                 clickMap(hand.u,0,_destx,_desty);
                 // If we are within the destination coords, we are teleported correctly
-                if( ( Math.abs( me.x - pPoint.x ) < 4 ) && ( Math.abs( me.y - pPoint.y ) < 4 ) ) { 
+                if( ( Math.abs( me.x - pX ) < 4 ) && ( Math.abs( me.y - pY ) < 4 ) ) { 
                     //DP_DPrint("Timer Used: "+(250-_timer));
                     break; 
                 }
                 //try clicking close to x/y taken from ntbot, bobode
-                _destx = pPoint.x + rand(-2, 2);
-                _desty = pPoint.y + rand(-2, 2);
+                _destx = pX + rand(-2, 2);
+                _desty = pY + rand(-2, 2);
                 _timer-=10;
                 delay(10);
             } while (_timer > 0);
             //DP_DPrint("full delay");
         }
         else{
-            if(!this.WalkTo(pPoint.x,pPoint.y, pDoorHandler)) return 0;
+            if(!this.WalkTo(pX,pY, pDoorHandler)) return 0;
         }
         return 1;
     }
@@ -1180,7 +1186,7 @@ function pathMove(_info) {
         var _retry = 0;
         var _numtrys=15; //parseInt(10000/DP_WalkDel,10);
         var _thrash = 0;
-        var _nthrash=5; //parseInt(3000/DP_WalkDel,10);
+        var _nthrash=1; //parseInt(3000/DP_WalkDel,10);
         // If the char has running disabled, toggle to enable it
         if(me.runwalk == 0) { me.runwalk=1; }
         
@@ -1219,7 +1225,8 @@ function pathMove(_info) {
             if((Math.abs(me.x - _startx) < 2 && Math.abs(me.y - _starty) < 2)) {
                 if(_thrash >= _nthrash) {
                     dprint("Thrash");
-                    var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
+                    //var direction = Math.abs(Math.floor((Math.atan2(pX-me.x , pY-me.y)) * 180 / 3.1415) - 180);
+                    var direction = rnd(0, 360); 
                     if (direction > 0 && direction < 45){
                         dprint("Move " + direction + " degrees",1);
                         _currdestx = me.x+5;
@@ -1272,6 +1279,8 @@ function pathMove(_info) {
                         _currdestx = Math.floor(Math.sin(direction)*20) + me.x;
                         _currdesty = Math.floor(Math.cos(direction)*20) + me.y;
                     }
+                    DC_DoClick(0,0,_currdestx,_currdesty);
+                    delay(750);
                     _thrash=2;
                 } else { _thrash+=1; }
             } else {               // Else, use my pos as coords
@@ -1299,16 +1308,10 @@ function pathMove(_info) {
 ////////////////////////////////////////////////////////////////////////////////
 function DP_IsWalkable( pX, pY, pArea ) {
 	// If no area is entered, use the current area
-	if( !pArea ) { pArea = me.area; }
-    
-    var _room = getRoom(pX,pY);
-    var _x = pX - _room.x * 5;
-    var _y = pY - _room.y * 5;
-    
-    var _collData = _room.getCollision();
-    if(typeof(_collData[_y][_x]) == "undefined") { DC_DPrint("Room Data not defined"); return false; }
-    
-    return !(_collData[_y][_x] & 0x1);
+	if( !pArea ) pArea = me.area;
+    try { var retval = !(getCollision(pArea,pX,pY) & 0x1); }
+    catch (YAM_Exception) { var retval = true; }
+    return retval;
 }
 
 function DP_FindClosestWalkable(pX, pY, pArea, pRange) {

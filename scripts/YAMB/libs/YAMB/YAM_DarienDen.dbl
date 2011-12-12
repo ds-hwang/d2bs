@@ -12,7 +12,7 @@ entryFunc = DarienDen;
 
 
 function DarienDen() {
-    commPather.InteractTile = true;
+    //commPather.InteractTile = true;
     
     //class specific variables
 	if (me.classid == 1) {
@@ -38,13 +38,14 @@ function DarienDen() {
 	// Go to Den
     pathToLevel(2);
     pathToWarp(DP_WARPDEN);
+    DC_DoDel(DC_LagDelay);
 	if(me.area == 2) DM_TakeStairs(2,3);
     
 	// Clear Den
 	if (clearDen()) {
 		DL_AddKill();
 	}
-	DSN_PickItems(YAM_SafeCheck);
+	DSN_PickItems();
 	if (DSN_LogRunes) {
 		DL_SaveRuneLog();
 	}
@@ -54,30 +55,41 @@ function clearDen() {
 
 	//If Den Quest Complete, just do a corpsefire run
 	if(Sc_DoneQuest(1,1)) { 
-		dprint("looking for corpsefire!",4);
+		dprint("Pathing to Corpsefire!",4);
         pathtoFarUnit(1,774);
-        
+        dprint("looking for Corpsefire!",4);
+        delay(1000);
         var Corpsefire = DC_FindMonster(267,5);
         if(Corpsefire) XP_BossAttack(Corpsefire);
         killRadius(25);
         
 		DSN_PickItems();
 	    if (DSN_LogRunes) {
-		DL_SaveRuneLog();
-	}
-		return true;
+		    DL_SaveRuneLog();
+	    }
+		return;
 	}
 	
+    for(var _g=0; _g < 3; _g++) {
+        clearArea(_g);
+        delay(5000);
+        if(Sc_DoneQuest(1,1)) {
+            dprint("Den Cleared! See Akara",9);
+            break;
+        } else dprint("Missed some monsters. Retracing Path",9);
+    }
+    
+    /*
 	//create an array of all Preset Unit x,y co-ords in the Den
 	var Den_Monsters = getPresetUnits(me.area); 
 	var MonsterPath = new Array();
 	
 	
-	/*parse through array to find the closest monster to you, path point 1
-	  then parse through remainder or array for the monster closest 
-	  to path point 1. which is path point 2.. and so on until all of the
-	  Den_Monsters positions are entered into the MonsterPath array*/
-	  
+	//parse through array to find the closest monster to you, path point 1
+    //  then parse through remainder or array for the monster closest 
+	//  to path point 1. which is path point 2.. and so on until all of the
+	//  Den_Monsters positions are entered into the MonsterPath array
+    
 	dprint("Lets make a path to kill all the Den Monsters",8);
 	for(var bb=0; bb < Den_Monsters.length; bb++) {
 			
@@ -97,11 +109,11 @@ function clearDen() {
 			}
 			if(skip) continue;
             
-			if(bb == 0) var distance = getRange(DM,me);
+			if(bb == 0) var distance = getDistance(DM);
 			else {
 			    var lp = MonsterPath.length -1;
 		    	var MPlp = getFarUnitXY(MonsterPath[lp]);
-                var distance = getRange(DM,MPlp);
+                var distance = getDistance(DM,MPlp);
             }
 			if (distance < closest_dist) {
 				var closest_dist = distance;
@@ -155,5 +167,5 @@ function clearDen() {
 		THEENDsc();
 	}
     return true;
+    */
 }
-

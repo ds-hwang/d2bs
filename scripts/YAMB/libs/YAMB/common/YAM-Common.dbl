@@ -267,9 +267,9 @@ function openDoor(x,y,retry) {
 }
 
 // returns the closest door in your path
-function openPathDoor(x,y,retry) { 
+function openPathDoor(x,y,retry,range) { 
 	//dprint("openPathDoor() " + retry);
-    var range = commPather.WalkDist;
+    if(!range) range = commPather.WalkDist;
     var _theDoor = returnClosestDoor(range,retry);
     var doorDist = getDistance(_theDoor);
     
@@ -287,6 +287,7 @@ function openPathDoor(x,y,retry) {
             //dprint("clicking Door");
             DC_DoClick(0,0,_theDoor);
             delay(50);
+            while(_theDoor.mode == 1) delay(50);
             clicks++;
         }
         //dprint("done clicking door");
@@ -335,12 +336,14 @@ function ValidDoorObject(thing,retry, noCollision) {
     
     if(thing.name == "Door") return true;
     if(thing.name == "door") return true;
+    if(thing.name == "gate") return true;
     
     //get a list of other door names or classid's not included above
     switch(thing.classid) {	
         case 25:
         case 27:
         case 16:
+        case 449:
             return true;
     }
 	return false;
@@ -419,30 +422,6 @@ function dprint(crap, color) {
     if(DC_DebugLevel == 1 || DC_DebugLevel == 3) DC_DPrint(crap);
 }
 
-function haveWP(num) {
-    
-    var have=0;
-    
-    var _wp = getUnit(2,"Waypoint");
-	if(_wp){
-		DT_MenuCancel();
-		var l=0;
-		while(!getUIFlag(0x14) && l++ < 40){
-			DC_DoClick(0,0,_wp);
-			delay(10);
-			
-		}
-        
-        if(getWaypoint(num)) have=1;
-        var ll=0;
-		while(getUIFlag(0x14) && ll++ < 40){
-			DT_MenuCancel();
-			delay(10);
-			
-		}
-	} else dprint("Can't find wp?",1);
-    return have;
-}
 
 function clearNPC(npc) {
     dprint("Get rid of quest dialog",1);

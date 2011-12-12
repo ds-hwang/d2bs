@@ -156,6 +156,7 @@ function XP_Precasts() {
 }
 
 function XP_SelectAttack(monster, MonsterSkill, from) {
+    if(!MonsterSkill.length) { return 0; }
 	var ms = 0;
 	var start = from;
 	if (start >= MonsterSkill.length) { start = 0; }
@@ -394,11 +395,11 @@ function XP_SetSorcSkills(SorcSkill, MonsterSkill) {
 	}
     
 	for (var ss = 0; ss < _XP_TimedSpells.length; ss+=1) {
-		DC_DPrint("Timed Spell #" + ss + ": " + _XP_TimedSpells[ss]);
+		dprint("Timed Spell #" + ss + ": " + _XP_TimedSpells[ss]);
 	}
     
     for (var ss = 0; ss < _XP_UntimedSpells.length; ss+=1) {
-		DC_DPrint("Untimed Spell #" + ss + ": " + _XP_UntimedSpells[ss]);
+		dprint("Untimed Spell #" + ss + ": " + _XP_UntimedSpells[ss]);
 	}
     
 	// Reset the vars if they were previously configured - MinionSkills

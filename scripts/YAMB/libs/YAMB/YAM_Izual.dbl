@@ -142,6 +142,8 @@ function IzualXP() {
 	XP_Precasts();
 	// Exit Act 4 Town
 	commTown4.GotoExit();
+    dprint("leaving town",1);
+    while(me.area == 103) { DM_MoveTo(me.x+5, me.y+1); delay(500); }  //Darien
 	// Do precasts after leaving town
 	delay(1000); // allow merc/minions to catch up before casting
 	XP_Precasts();

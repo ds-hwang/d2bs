@@ -1,5 +1,6 @@
 // Diablo module by Darien
 // short and sweet
+var clearOutChaos = true; //true to hunt down and kill ALL monsters in Chaos, false to just kill those in range
 
 entryFunc = Diablo;
 
@@ -45,19 +46,27 @@ function GameMsgHandler(sender, cmd, params, c) {
         say("Goodbye Master");
         quit();
     }
-} 
-
+    
+    if(command == "next" && params == "game") {
+        delay(10000);
+        quit();
+    }
+}
 
 function Diablo() {
-    addEventListener("chatmsg",   DK_GameMsgHandler);
+    addEventListener("chatmsg", DK_GameMsgHandler);
+    if (me.classid == 1) {
+		XP_Static = 8;
+		(DXP_SorcSkill.length > 0) ? XP_SetSorcSkills(DXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = DXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
     
-    commPather.InitType = 1;
-    commPather.InteractTile = true;
     commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
     
-YAM_TownManager();
+    YAM_TownManager();
     
-    //Path to throne room yourself
+    //Path to Chaos Sanc yourself
     if (!WaitForPortal || YAM_IsLeader) {
     
         YAM_PathToWayPoint();
@@ -184,7 +193,7 @@ YAM_TownManager();
     pathToDest(7795,5265,null,killZone);
     XP_OpenTP();
     pathToDest(7795,5295,null,killZone);
-    
+    XP_Precasts(); DA_UseCTASkills();
     if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
         if(!GrandVizer)      { if(!pathtoFarUnit(1,306,108,clearChaos,killZone)) pathtoFarUnit(2,396,108,clearChaos,killZone); if(!ambushSpawn(306)) { pathtoFarUnit(2,395,108,clearChaos,killZone); ambushSpawn(306);} }
         if(!LordDeSeis)      { if(!pathtoFarUnit(1,312,108,clearChaos,killZone)) pathtoFarUnit(2,394,108,clearChaos,killZone); ambushSpawn(312); }
@@ -193,10 +202,11 @@ YAM_TownManager();
         ambushSpawn(243);
     }
     DSN_PickItems();
+    if(YAM_IsLeader) say("Next Game");
 }
 
 function clearChaos() {
     killRadius(30);
-    Search_and_Destroy(60);
+    if(clearOutChaos) Search_and_Destroy(60);
     return DP_STEPAHEAD;
 }

@@ -11,6 +11,7 @@ commonLib.PathAct5 = function() {
 	this.GotoQualKehk  = function(){ return commPather.GotoNPC(D2JSP_NPC_QUALKEHK,109);}
 	this.GotoAnya      = function(){ return commPather.GotoDest(5112,5112);}
 	this.GotoRedPortal = function(){ return commPather.GotoDest(5109,5115);}
+    this.GotoGate      = function(){ return commPather.GotoDest(5031,5094);}
 }
 
 function YAM_Act5TownManager() {

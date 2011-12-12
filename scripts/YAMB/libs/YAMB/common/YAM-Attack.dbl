@@ -330,7 +330,7 @@ function killRadius(range, type, spectype) {
     
     XP_Precasts();
     while (threat) {
-        print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + getDistance(threat)); 
+        print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + Math.floor(getDistance(threat))); 
         //XP_Precasts();
         if(me.classid == 0 || me.classid == 5 || me.classid == 1) XP_AttackMonster(threat,range) ;
         else XP_BossAttack(threat);
@@ -397,7 +397,10 @@ function Assassinate(monid, farunit, spectype){
 }
 
 // function used for clearing Area's like in Den Quest
-function clearArea() {
+function clearArea(Search_n_Destroy) {
+    dprint("Lets make a path to kill all the Monsters",8);
+    
+    if(!arguments.length) Search_n_Destroy = false;
     //create an array of all Room Center Point closest walkable x,y co-ords in an Area
 	var roomCenter = returnRoomPointArray();
 	var clearingPath = new Array();
@@ -408,7 +411,6 @@ function clearArea() {
 	  to path point 1. which is path point 2.. and so on until all of the
 	  roomCenter positions are entered into the clearingPath array*/
 	  
-	dprint("Lets make a path to kill all the Monsters",8);
 	for(var bb=0; bb < roomCenter.length; bb++) {
 			
 		//Find the next monster closest to current path point
@@ -423,8 +425,7 @@ function clearArea() {
             
 			if(bb == 0) var distance = getDistance(roomCenter[b]);
 			else {
-			    var lastInArray = clearingPath.length -1;
-		    	var lastPoint = getFarUnitXY(clearingPath[lastInArray]);
+		    	var lastPoint = clearingPath[clearingPath.length -1];
                 var distance = getDistance(roomCenter[b],lastPoint);
             }
 			if (distance < closest_dist) {
@@ -438,27 +439,29 @@ function clearArea() {
 	
 	dprint("Area Clearing Path made from " + clearingPath.length + " Room center point locations",2);
 	
-	var pathPoint=0;
+	var pathPoint=1;
 	while(clearingPath[pathPoint]) {
-		dprint("Moving to Pathpoint " + pathPoint + " - Dist: " + getDistance(getFarUnitXY(clearingPath[pathPoint])),8);
-		pathtoDest(clearingPath[pathPoint].x,clearingPath[pathPoint].y);
+		dprint("Moving to Pathpoint " + pathPoint + " Room " + clearingPath[pathPoint].number + " - Dist: " + Math.floor(getDistance(clearingPath[pathPoint])),3);
+		pathToDest(clearingPath[pathPoint].x,clearingPath[pathPoint].y);
 		pathPoint++;
-        killRadius(30);
-        Search_and_Destroy();
+        killRadius(60);
+        if(Search_n_Destroy) Search_and_Destroy();
 	}
 }
 
 function returnRoomPointArray() {
     var roomArray = new Array();
-    
+    dprint("This may take a while!",1);
     var room = getRoom();
     
     if(room) do {
-        var centerX = room.x + (Math.floor(room.xsize/2));
-        var centerY = room.y + (Math.floor(room.ysize/2));
+        var centerX = room.x * 5 + (Math.floor(room.xsize/2));
+        var centerY = room.y * 5 + (Math.floor(room.ysize/2));
+        var center = DP_FindClosestWalkable(centerX,centerY);
         var roomPoint = new Object;
-            roomPoint.x = centerX;
-            roomPoint.y = centerY;
+            roomPoint.x = center.x;
+            roomPoint.y = center.y;
+            roomPoint.number = room.number;
         roomArray.push(roomPoint);
     } while(room.getNext());
     

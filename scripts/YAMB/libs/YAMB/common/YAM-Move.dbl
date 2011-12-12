@@ -633,6 +633,72 @@ function DM_TownMessage(message) {
 	}
 }
 
+//Darien - test if you have a WP, return success or failure;
+function haveWP(num) {
+    
+    var have=0;
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+        
+        if(getWaypoint(num)) have=1;
+        var ll=0;
+		while(getUIFlag(0x14) && ll++ < 40){
+			DT_MenuCancel();
+			delay(10);
+			
+		}
+	} else dprint("Can't find wp?",1);
+    return have;
+}
+
+//Check to see if you have a wp, or if not find the closest wp to it from town
+// returns the menu number of the closest WP
+// waypoints are zero based (5,0) is act 5 town
+function getClosestWP(act, wpnum) {
+    if(arguments.length == 1) wpnum = act;
+    else {
+        var wpArray = [0,9,18,27,30];
+        wpnum = wpArray[act-1] + wpnum
+    }
+    print("shooting for wp: " + wpnum);
+    var closest = 0;
+    
+    var _wp = getUnit(2,"Waypoint");
+	if(_wp){
+		DT_MenuCancel();
+		var l=0;
+		while(!getUIFlag(0x14) && l++ < 40){
+			DC_DoClick(0,0,_wp);
+			delay(10);
+			
+		}
+	}
+
+    for(var n=wpnum; n >= 0; n--) {
+        for(var nn=0; nn < 3; nn++) {
+            if(getWaypoint(n)) { closest =  n; nn = 3; n = -1; }
+        }
+    }
+    
+    var ll=0;
+    while(getUIFlag(0x14) && ll++ < 40){
+        DT_MenuCancel();
+        delay(10);
+        
+    }
+    if(!closest) dprint("I don't have any waypoints",1);
+    else dprint("Closest WP is " + closest, 9);
+    return closest;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Private functions
 //////////////////////////////////////////////////////////////////////

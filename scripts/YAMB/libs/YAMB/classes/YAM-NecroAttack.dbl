@@ -159,18 +159,18 @@ function XP_BossAttack(target,x,y) {
 	}
 	
     XP_NecroRevive(); //Darien
-	while (target.hp > 0 && target.getStat(37) <= 99) {
+	while (target.hp > 0) { // && target.getStat(37) <= 99) {
         
         if (XP_CorpseExplosion) { XP_UseNecroCE(target); } // DArien
 		DC_DoCast(XP_NecroSkill,2,target);
 		XP_CheckAttacks();
-        if(XP_NecroSkill == 0 || XP_NecroSkillMinion == 0) DM_MoveTo(target.x,target.y);
+        if(XP_NecroSkill == 0 || XP_NecroSkillMinion == 0 || getDistance(target) > 18) DM_MoveTo(target.x,target.y);
 		if (XP_CheckUtil(target)) { return; }
 		else if (DA_AutoPrecasts && me.getState(14)==0) {
 			DC_DoCast(68,0);
 		}
         
-		if (XP_BossLOS && x != 0 && y != 0 && checkCollision(me,target,7)) {
+		if (XP_BossLOS && x != 0 && y != 0 && checkCollision(me,target,1<<2)) { // why 7? should be bitmask 2
 			//Move to alternate end point.  If this doesn't work reliably
 			//I'll write code that can move anywhere between the 2 end
 			//points.

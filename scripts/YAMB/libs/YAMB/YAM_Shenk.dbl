@@ -201,8 +201,26 @@ function ShenkXP() {
 		YAM_PathToWayPoint();
 		// Do precasts before going into the portal
 		XP_Precasts();
-		// Take WP to Frigid
-		DM_UsePortal("Waypoint",0x6f);
+        
+    //Find Closest WP to Frigid
+    var wp = getClosestWP(5,1);
+    
+	// Take WP to Frigid
+	if(wp == 31) DM_UsePortal("Waypoint",111);
+    else {
+        if(wp == 30) {
+            if(me.area != 109) DM_UsePortal("Waypoint",109);
+            YAM_InitCommTown();
+            commTown5.GotoGate();
+            openPathDoor(5015,5094,10,25);
+            pathToLevel(110);
+            XP_Precasts();
+            pathToLevel(111,killSuperUniques); // Doc Farren, Shenk
+            pathToWP();
+            GetWP(commPather.TargetID);
+        } else DC_ThrowException("You're NOT in Act 5 Yet!");
+    }
+    
 	//}
 	// Do precasts after going into the portal
 	XP_Precasts();

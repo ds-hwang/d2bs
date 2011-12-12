@@ -45,15 +45,26 @@ function GameMsgHandler(sender, cmd, params, c) {
         say("Goodbye Master");
         quit();
     }
+    
+    if(command == "next" && params == "game") {
+        delay(10000);
+        quit();
+    }
 }
-    
-function Baal() {
-    addEventListener("chatmsg",   DK_GameMsgHandler);
 
+function Baal() {
+    addEventListener("chatmsg", DK_GameMsgHandler);
+	if (me.classid == 1) {
+		XP_Static = 8;
+		(BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+		XP_Static = BXP_Static;
+		_XP_UseTeleOnImmune = false;
+	}
     YAM_TownManager();
-    YAM_PathToWayPoint();
-    XP_Precasts();
-    
+    if(me.act != 5 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
     //Path to throne room yourself
     if (!WaitForPortal || YAM_IsLeader) {
         // Use the WP to go to Worldstone 2
@@ -233,9 +244,8 @@ function Baal() {
     //Go to Worldstone chamber
     pathToDest(15091,5006);
     //say("Let's Get Baal!");
-    delay(1000);
+    delay(500);
     //say("Time for Buffs!");
-    delay(1000);
     
     // Do precasts before going into the portal
     XP_Precasts();
@@ -258,7 +268,7 @@ function Baal() {
     // Just incase he spawns a twin
     Assassinate(544, 544, 4);
     DSN_PickItems();
-    
+    if(YAM_IsLeader) say("Next Game");
     return true;
 }
 
@@ -273,20 +283,23 @@ function clearThrone() {
     moveFunc(15117,5004); // at corner for tp.
     killRadius(30); 
     //moveFunc(15091,5006); // red portal.
-    moveFunc(15091,5020); // center
+    moveFunc(15091,5025); // center
     killRadius(30); 
-    moveFunc(15071,5006); //far left corner
+    moveFunc(15071,5018); //far left corner
     killRadius(30); 
     moveFunc(15071,5027); // far mid section
     killRadius(30); 
     moveFunc(15071,5052); // back far corner
     killRadius(30); 
     moveFunc(15092,5052); // back center
-    killRadius(30); 
-    moveFunc(15115,5052); // back near corner
+    if(commPather.UseTele) {
+        killRadius(30); 
+        moveFunc(15115,5052); // back near corner
+        killRadius(30); 
+        moveFunc(15115,5026); // Near midsection
+        killRadius(30); 
+    }
+    moveFunc(15092,5028); // Middle
     killRadius(30); DSN_PickItems();
-    moveFunc(15115,5026); // Near midsection
-    killRadius(30); 
-    moveFunc(15092,5026); // Middle
-    killRadius(30); DSN_PickItems();
+    
 }

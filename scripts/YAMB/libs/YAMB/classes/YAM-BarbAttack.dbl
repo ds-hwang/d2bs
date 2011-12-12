@@ -310,24 +310,19 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 function XP_BossAttack(target) {
 
 	_XP_AttackCompleted=0; 
-
 	_XP_EndPosition = new XP_Coord(me.x,me.y);
 
 	while (target.hp > 0) {
-    
-    
         // Three choices to close the distance
         //  #1 Big Jump under 25 to avoid detection
         if ((DA_GetRange(target) > 15) && (DA_GetRange(target) < 25) && !checkCollision(me,target,14)) { 
              if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!");              
         }
-        
         // #2 Can't walk but have LOS - jump
         else if (checkCollision(me,target,1) && !checkCollision(me,target,14) && (DA_GetRange(target) < 25)) { 
             print("Target Blocked, but I can see him - Jumping!");
             if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!!");
         } 
-        
         // #3 too far to hit, nothing blocking, walk
 		else if ((DA_GetRange(target) > 5) && (!checkCollision(me,target,1))) { 
         
@@ -336,13 +331,11 @@ function XP_BossAttack(target) {
                 if(!DC_DoCast(143,1,target)) print("I don't have Jump Attack!!!");              
             }
         }
-                
         //if can't walk and can't jump, don't get stuck in endless loop - return false
         if (checkCollision(me,target,1) && checkCollision(me,target,14)) {
             print("Can't walk, can't jump, forget him");
             return false;
-        }            
-        
+        }
         // the distance is closed, if still alive - Attack
         if(target.hp > 0) DC_DoCast(XP_BarbAttack,1,target);
         XP_CheckAttacks();
