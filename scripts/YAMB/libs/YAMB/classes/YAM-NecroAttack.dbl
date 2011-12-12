@@ -589,7 +589,7 @@ function BuildSkeleArmy() {
 	//DM_MoveTo(10063,13281);
 	commPather.GotoDest(10063,13281);
 	// Revives will not work
-	tempRev = XP_useRevive;
+	var tempRev = XP_useRevive;
 	XP_useRevive = false;
 	if (XP_NecroRevive()) {
 		if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || !me.getState(32))) {
