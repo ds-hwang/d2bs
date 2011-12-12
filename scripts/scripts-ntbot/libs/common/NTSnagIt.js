@@ -204,7 +204,7 @@ function NTSI_ItemListInt(_items, _range)
 				{
 					_skipitem = false;
 
-					if(NTSI_IsItemIgnoredInt(_grounditem.classid))
+					if(NTSI_IsItemIgnoredInt(_grounditem.classid) || !NTSI_CanPick(_grounditem))
 						continue;
 
 					for(i = 0 ; i < this._list.length ; i++)
@@ -234,7 +234,7 @@ function NTSI_ItemListInt(_items, _range)
 			} while(_grounditem.getNext());
 		}
 	}
-
+	
 	function NTSI_ItemListInt_getclosest(range, x, y)
 	{
 		if(!x)
@@ -444,6 +444,23 @@ debugPrint("NtSI IsItemIgnored");
 
 	return false;
 }
+
+function NTSI_CanPick(unit) {
+	if (unit.quality === 7 && unit.classid >= 603 && unit.classid <= 605) { // gheed, torch, anni
+		var item = me.getItem(unit.classid, 0);
+		
+		if (item) {
+			do {
+				if (item.quality === 7) {
+					return false; // skip if we already have
+				}
+			} while (item.getNext());
+		}
+	}
+	
+	return true;
+}
+
 function Dprint(message){
 sendCopyData(null, "OOG", 0,"Dprint"+message );
 }
