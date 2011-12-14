@@ -1,8 +1,5 @@
 /// <reference path="/../../d2bsAPI.js" /> 
 
-
-//include() getBaseStat() item table object for NTC_GetBaseStat()
-include('objects/itemTable.json');
 include('common/NTCommonExt.dbl');
 
 // Public D2BS varants
@@ -1032,71 +1029,6 @@ function NTC_CheckDoCastInt()
 	debugPrint("ntc CheckDoCast returning false mode:"+me.mode );
 	return false;
 }
-
-/**
-*	@name	NTC_GetBaseStat()
-*
-*	@args	tableid
-*			classid
-*			statid
-*
-*	@desc	Wrapper for getBaseStat() to handle a potential crash condition in D2BS v1.4
-*	@see	http://docs.d2bs.org/group__globalFunctions.html#gb4ebba6bce777cb9705e199af1d08bc8
-*/
-function NTC_GetBaseStat(tableid, classid, statid)
-{
-	//	handle arguments
-	//	TODO:	make a tableArgsInRange() closure?
-	if(arguments.length != 3)
-	{
-		print('NTC_GetBaseStat() failed, incorrect argument number');
-		return undefined;
-	}
-	
-	var output;
-
-	// if crash condition getBaseStat() called on item table**	(no longer 1.4 specific.. crashes in item table can happen often in 1.3.3 as well)
-	if(tableid == 0)
-	{
-		//check for itemTable object
-		if(!isIncluded('objects/itemTable.json'))
-			NTC_Include('objects/itemTable.json');
-		if(typeof(itemTable) != 'object')
-		{
-			print('ÿc1Error: NTC_GetBaseStat() couldn\'t find itemTable object to reference..');
-			return undefined;
-		}
-			
-		//collect array of itemTable object keys
-		var tablekeys = Object.keys(itemTable);
-
-		//check type of statid and do requested lookup
-		if(typeof(statid) == 'string')
-		{
-			if((tablekeys.indexOf(statid) != -1) && (classid < itemTable[statid].length))
-			{
-				return itemTable[statid][classid];
-			}
-		}
-		else if(typeof(statid) == 'number')
-		{
-			if((statid < tablekeys.length) && (classid < itemTable[tablekeys[statid]].length))
-			{
-				return itemTable[tablekeys[statid]][classid];
-			}
-		}
-
-		//if here, object statid didn't exist, or classid array would have been out of bounds;
-		return undefined;
-	}
-	else	//not an item table lookup, so call getBaseStat() with given args then return output;
-	{
-		output = getBaseStat.apply(this, arguments);
-	}
-
-	return output;
-}
-
 
 function NTC_OpenAreaChests()
 {

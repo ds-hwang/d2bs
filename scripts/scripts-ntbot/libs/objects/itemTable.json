@@ -1,3 +1,73 @@
+/**
+*	@name	NTC_GetBaseStat()
+*
+*	@args	tableid
+*			classid
+*			statid
+*
+*	@desc	Wrapper for getBaseStat() to handle a potential crash condition in D2BS v1.4
+*	@see	http://docs.d2bs.org/group__globalFunctions.html#gb4ebba6bce777cb9705e199af1d08bc8
+*
+*	@note	No longer needed after MPQ stat offsets fixed in D2BS v1.4.1616+
+*	@see	http://www.assembla.com/code/d2bs/subversion/changesets/1616
+*/
+
+function NTC_GetBaseStat(tableid, classid, statid)
+{
+	//	handle arguments
+	//	TODO:	make a tableArgsInRange() closure?
+	if(arguments.length != 3)
+	{
+		print('NTC_GetBaseStat() failed, incorrect argument number');
+		return undefined;
+	}
+	
+	var output;
+
+	// if crash condition getBaseStat() called on item table**	(no longer 1.4 specific.. crashes in item table can happen often in 1.3.3 as well)
+	if(tableid == 0)
+	{
+		//check for itemTable object
+		if(!isIncluded('objects/itemTable.json'))
+			NTC_Include('objects/itemTable.json');
+		if(typeof(itemTable) != 'object')
+		{
+			print('ÿc1Error: NTC_GetBaseStat() couldn\'t find itemTable object to reference..');
+			return undefined;
+		}
+			
+		//collect array of itemTable object keys
+		var tablekeys = Object.keys(itemTable);
+
+		//check type of statid and do requested lookup
+		if(typeof(statid) == 'string')
+		{
+			if((tablekeys.indexOf(statid) != -1) && (classid < itemTable[statid].length))
+			{
+				return itemTable[statid][classid];
+			}
+		}
+		else if(typeof(statid) == 'number')
+		{
+			if((statid < tablekeys.length) && (classid < itemTable[tablekeys[statid]].length))
+			{
+				return itemTable[tablekeys[statid]][classid];
+			}
+		}
+
+		//if here, object statid didn't exist, or classid array would have been out of bounds;
+		return undefined;
+	}
+	else	//not an item table lookup, so call getBaseStat() with given args then return output;
+	{
+		output = getBaseStat.apply(this, arguments);
+	}
+
+	return output;
+}
+
+
+
 //All arrays are 508 in length, data that wasn't in the table is an empty String
 var itemTable = {
 	"flippyfile"		: ["flphax", "flpaxe", "flp2ax", "flpmpi", "flpwax", "flplax", "flpbrx", "flpbtx", "flpgax", "flpgix", "flpwnd", "flpywn", "flpbwn", "flpgwn", "flpclb", "flpscp", "flpgsc", "flpwsp", "flpspc", "flpmac", "flpmst", "flpfla", "flpwhm", "flpmau", "flpgma", "flpssd", "flpscm", "flpsbr", "flpflc", "flpcrs", "flpbsd", "flplsd", "flpwsd", "flp2hs", "flpclm", "flpgis", "flpbsw", "flpflb", "flpgsd", "flpdgr", "flpdir", "flpkrs", "flpbld", "flptkn", "flptax", "flpbkf", "flpbal", "flpjav", "flppil", "flpssp", "flpglv", "flptsp", "flpspr", "flptri", "flpbrn", "flpspt", "flppik", "flpbar", "flpvou", "flpscy", "flppax", "flphal", "flpwsc", "flpsst", "flplst", "flpcst", "flpbst", "flpwst", "flpsbw", "flphbw", "flplbw", "flpcbw", "flpsbb", "flplbb", "flpswb", "flplwb", "flplxb", "flpmxb", "flphxb", "flprxb", "flpgpl", "flpopl", "flpgps", "flpops", "flpgps", "flpops", "flpd33", "flpg33", "flpleg", "flphmr", "flphmr", "flphst", "flpmsf", "flphax", "flpaxe", "flp2ax", "flpmpi", "flpwax", "flplax", "flpbrx", "flpbtx", "flpgax", "flpgix", "flpwnd", "flpywn", "flpbwn", "flpgwn", "flpclb", "flpscp", "flpgsc", "flpwsp", "flpspc", "flpmac", "flpmst", "flpfla", "flpwhm", "flpmau", "flpgma", "flpssd", "flpscm", "flpsbr", "flpflc", "flpcrs", "flpbsd", "flplsd", "flpwsd", "flp2hs", "flpclm", "flpgis", "flpbsw", "flpflb", "flpgsd", "flpdgr", "flpdir", "flpkrs", "flpbld", "flptkn", "flptax", "flpbkf", "flpbal", "flpjav", "flppil", "flpssp", "flpglv", "flptsp", "flpspr", "flptri", "flpbrn", "flpspt", "flppik", "flpbar", "flpvou", "flpscy", "flppax", "flphal", "flpwsc", "flpsst", "flplst", "flpcst", "flpbst", "flpwst", "flpsbw", "flphbw", "flplbw", "flpcbw", "flpsbb", "flplbb", "flpswb", "flplwb", "flplxb", "flpmxb", "flphxb", "flprxb", "flpfla", "flpfla", "flpktr", "flpktr", "flpaxf", "flpaxf", "flpclw", "flpclw", "flpskr", "flpktr", "flpktr", "flpaxf", "flpaxf", "flpclw", "flpclw", "flpskr", "flpktr", "flpktr", "flpaxf", "flpaxf", "flpclw", "flpclw", "flpskr", "flphax", "flpaxe", "flp2ax", "flpmpi", "flpwax", "flplax", "flpbrx", "flpbtx", "flpgax", "flpgix", "flpwnd", "flpywn", "flpbwn", "flpgwn", "flpclb", "flpscp", "flpgsc", "flpwsp", "flpspc", "flpmac", "flpmst", "flpfla", "flpwhm", "flpmau", "flpgma", "flpssd", "flpscm", "flpsbr", "flpflc", "flpcrs", "flpbsd", "flplsd", "flpwsd", "flp2hs", "flpclm", "flpgis", "flpbsw", "flpflb", "flpgsd", "flpdgr", "flpdir", "flpkrs", "flpbld", "flptkn", "flptax", "flpbkf", "flpbal", "flpjav", "flppil", "flpssp", "flpglv", "flptsp", "flpspr", "flptri", "flpbrn", "flpspt", "flppik", "flpbar", "flpvou", "flpscy", "flppax", "flphal", "flpwsc", "flpsst", "flplst", "flpcst", "flpbst", "flpwst", "flpsbw", "flphbw", "flplbw", "flpcbw", "flpsbb", "flplbb", "flpswb", "flplwb", "flplxb", "flpmxb", "flphxb", "flprxb", "flpob1", "flpob1", "flpob3", "flpob4", "flpob5", "flpam1", "flpam2", "flpam3", "flppik", "flpam5", "flpob1", "flpob1", "flpob3", "flpob4", "flpob5", "flpam1", "flpam2", "flpam3", "flppik", "flpam5", "flpob1", "flpob1", "flpob3", "flpob4", "flpob5", "flpam1", "flpam2", "flpam3", "flppik", "flpam5", "flpcap", "flpskp", "flphlm", "flpfhl", "flpghm", "flpcrn", "flpmsk", "flpqlt", "flplea", "flphla", "flpstu", "flprng", "flpscl", "flpchn", "flpbrs", "flpspl", "flpplt", "flpfld", "flpgth", "flpful", "flpaar", "flpltp", "flpbuc", "flpsml", "flplrg", "flpkit", "flptow", "flpgts", "flplgl", "flpvgl", "flpmgl", "flptgl", "flphgl", "flplbt", "flpvbt", "flpmbt", "flptbt", "flphbt", "flplbl", "flpvbl", "flpmbl", "flptbl", "flphbl", "flpbhm", "flpbsh", "flpspk", "flpcap", "flpskp", "flphlm", "flpfhl", "flpghm", "flpcrn", "flpmsk", "flpqlt", "flplea", "flphla", "flpstu", "flprng", "flpscl", "flpchn", "flpbrs", "flpspl", "flpplt", "flpfld", "flpgth", "flpful", "flpaar", "flpltp", "flpbuc", "flpsml", "flplrg", "flpkit", "flptow", "flpgts", "flplgl", "flpvgl", "flpmgl", "flptgl", "flphgl", "flplbt", "flpvbt", "flpmbt", "flptbt", "flphbt", "flplbl", "flpvbl", "flpmbl", "flptbl", "flphbl", "flpbhm", "flpbsh", "flpspk", "flpdr1", "flpdr4", "flpdr3", "flpdr4", "flpdr1", "flpba1", "flpba1", "flpba3", "flpba5", "flpba5", "flppa1", "flppa1", "flppa3", "flppa3", "flppa5", "flpne1", "flpne2", "flpne3", "flpne3", "flpne2", "flpci0", "flpci1", "flpci1", "flpci2", "flpcap", "flpskp", "flphlm", "flpfhl", "flpghm", "flpcrn", "flpmsk", "flpqlt", "flplea", "flphla", "flpstu", "flprng", "flpscl", "flpchn", "flpbrs", "flpspl", "flpplt", "flpfld", "flpgth", "flpful", "flpaar", "flpltp", "flpbuc", "flpsml", "flplrg", "flpkit", "flptow", "flpgts", "flplgl", "flpvgl", "flpmgl", "flptgl", "flphgl", "flplbt", "flpvbt", "flpmbt", "flptbt", "flphbt", "flplbl", "flpvbl", "flpmbl", "flptbl", "flphbl", "flpbhm", "flpbsh", "flpspk", "flpdr1", "flpdr4", "flpdr3", "flpdr4", "flpdr1", "flpba1", "flpba1", "flpba3", "flpba5", "flpba5", "flppa1", "flppa1", "flppa3", "flppa3", "flppa5", "flpne1", "flpne2", "flpne3", "flpne3", "flpne2", "flpdr1", "flpdr4", "flpdr3", "flpdr4", "flpdr1", "flpba1", "flpba1", "flpba3", "flpba5", "flpba5", "flppa1", "flppa1", "flppa3", "flppa3", "flppa5", "flpne1", "flpne2", "flpne3", "flpne3", "flpne2"]

@@ -430,7 +430,7 @@ function NTA_IsValidTarget(monster, simple)
 	if(monster.getState(53) || monster.getState(96)) // Conversion, Revive
 		return false;
 
-	//if(NTC_GetBaseStat(1, monster.classid, 23))
+	//if(getBaseStat(1, monster.classid, 23))
 	//	return false;
 	if(checkCollision(monster, monster, 3)){
 		attackPrint("mob off wall");
@@ -479,7 +479,7 @@ function NTA_GetDamageType(skillid)
 		return NTA_DAMAGE_PHYSICAL;
 	if(skillid == 101)
 		return NTA_DAMAGE_NONE;
-	_etype = NTC_GetBaseStat(3, parseInt(skillid, 10), 211);
+	_etype = getBaseStat(3, parseInt(skillid, 10), 211);
 
 	switch(_etype)
 	{
@@ -951,7 +951,7 @@ function XP_CheckRevives(reviveSkill,reviveID) {
 			if (korpse && ((korpse.spectype & 0x07) == 0)	&& korpse.classid != 571
 				&& korpse.classid != 572 && korpse.classid != 573
 				&& korpse.classid != 312 && korpse.classid != 702
-				&& NTC_GetBaseStat(6, korpse.classid, 8) && NTC_GetBaseStat(6, korpse.classid, 9)) {
+				&& getBaseStat(6, korpse.classid, 8) && getBaseStat(6, korpse.classid, 9)) {
 				//DC_DPrint("Reviving " + korpse.name + " from range " + DA_GetRange(korpse));
 				//	print("Reviving " + korpse.name + " from range " + DA_GetRange(korpse));
 				getIntoLOS(korpse);
@@ -1026,7 +1026,7 @@ function getBodyTarget(range,tagX,tagY,dist) {
 			continue;
 		}
 		// Use NeverCount base monstat for traps, hydra, etc.
-		if (NTC_GetBaseStat(1,BodyTarget.classid,23)) {
+		if (getBaseStat(1,BodyTarget.classid,23)) {
 			continue;
 		}
 		if(getDistance(me, BodyTarget) < (!range ? 25 : range) && !BodyTarget.getParent() &&
@@ -1038,7 +1038,7 @@ function getBodyTarget(range,tagX,tagY,dist) {
 			BodyTarget.classid != 363 && BodyTarget.classid != 364 &&
 			BodyTarget.classid != 371 && BodyTarget.classid != 543 &&
 			BodyTarget.classid != 561 && */
-			NTC_GetBaseStat(6, BodyTarget.classid, 8) &&
+			getBaseStat(6, BodyTarget.classid, 8) &&
 			(((me.area == 132 || me.area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
 			!checkCollision(me.area,me.x,me.y,3,BodyTarget.x,BodyTarget.y,3,7))) {
 			var skipTarget=false;
@@ -1726,7 +1726,7 @@ function NTA_Initialize()
 	{
 		if(NTConfig_AttackSkill[i] > -1)
 		{
-			_NTA_SkillHand[i] = NTC_GetBaseStat(3, NTConfig_AttackSkill[i], 31) ? 2 : NTC_HAND_RIGHT;
+			_NTA_SkillHand[i] = getBaseStat(3, NTConfig_AttackSkill[i], 31) ? 2 : NTC_HAND_RIGHT;
 			_NTA_SkillDamage[i] = NTA_GetDamageType(NTConfig_AttackSkill[i]);
 			_NTA_SkillDelay[i] = NTC_GetCastDelay(NTConfig_AttackSkill[i]);
 		}

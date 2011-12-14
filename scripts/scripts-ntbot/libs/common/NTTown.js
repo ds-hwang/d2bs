@@ -448,7 +448,7 @@ function NTT_CheckRepair(repairpercent)
 
 	for(var i = 0 ; i < items.length ; i++)
 	{
-		if(items[i].mode == 1 && !items[i].getFlag(0x400000) && !items[i].getStat(152) && !NTC_GetBaseStat(0, items[i].classid, 59))
+		if(items[i].mode == 1 && !items[i].getFlag(0x400000) && !items[i].getStat(152) && !getBaseStat(0, items[i].classid, 59))
 		{
 			max_durability = items[i].getStat(73);
 			if(max_durability == 0)
