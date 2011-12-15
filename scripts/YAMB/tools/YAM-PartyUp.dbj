@@ -1,167 +1,53 @@
-//////////////////////////////////////////////////////////////////////
-//
 // Party Up Script
-// by Darien - Christmas 2011
-//
-// This should be the final word on Inviting to and Joining a Party.  Really! 
-//
-// 0.5 -- Uses events now... thx to Cognac and TechnoHunter
-// 0.4 -- Darkspirit modified and added a few functions for YAMB.
-// 0.3 -- Darien changed something
-// 0.2 -- Turns out this wasn't the final word.. Thx to TDW for showing me how to improve it
-// 0.1 -- initial release
-//
+// by Darien and Cognac - Christmas 2011
 //////////////////////////////////////////////////////////////////////
+var Leaders = new Array(); var Helpers = new Array();
+include("YAMB/configs/YAM_TeamBotting.dbl");
 
 function main() {
-	print('loading ÿc3Party Up!');
-    addEventListener('gameevent',partymsgHandler);
-    addEventListener("chatmsg",DK_GameMsgHandler);
-    
-    // if for some reason you're not in a Party after 10 seconds
-    //  and you're not the only one in the game
-    if(!onlyPlayer()) {
-        delay(10000);
-        var _me = party(me.name);
-        if(!_me.inParty) say("Invite Please");
-        delay(1500);
-        
-        //If still not partied, then execute Plan B, if fails then leave
-        var attempts = 0;
-        while(!_me.inParty) {
-            print(" ÿc1Something went wrong! initiate Plan B!");
-            var list = getParty();
-            if(list) do {
-                if(list.partyflag & 2) clickParty(list, 2);
-                delay(100);
-            } while(list.getNext());
-            if(attempts > 5) { print("ÿc1Party Failed! Will rejoin game and get it right =/"); delay(2000); quit(); }
-            delay(2000);
-            attempts++;
-        }
-    } else print("I'm the only Player");
-    
-    
-    // keep events active for the rest of the game
-	while(me.ingame) delay(10000);
+	print('ÿc2D2BS ÿc0:: ÿc3PartyUp! ÿc0Loaded.');
+	party();
+	addEventListener('gameevent',partyHandler);
+    delay(10000);
+    var noone = onlyPlayer();
+    delay(5000);
+    if(!inParty(me) && !onlyPlayer() && !noone) { print("ÿc1 Failed to Party! will leave and come back"); delay(1500); quit(); }
+	while(me.ingame) { delay(10000); }
 }
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//
-//  Event Handler Functions
-//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+function partyHandler(mode,player,param2,name1) {
+	if(mode==2||mode==7&&(param2==5||param2==9))party();
+    if(mode==3) { for(var r=0; r < Leaders.length; r++) {
+            if(name1 == Leaders[r]) { print("ÿc1 Leader left the Game! Quit game!"); delay(rand(1000,7000)); quit(); }
+}   }   }
 
-//Party Handler by Cognac -mods by Darien
-function partymsgHandler(mode,player,param2,name1,name2) {
-	var _party=getParty(),invite,InParty;
-	if(mode == 2) {
-		if(_party) {
-			delay(rand(200,350));
-			do {
-                if(_party.name == me.name) InParty = (_party.partyid!=65535);
-                //if(me.name == name1) continue;
-                //if(_party.name == name1 && _party.partyid == 65535 && (InParty||!aPartyExists()) && _party.partyflag != 4) {
-                if(_party.partyid == 65535 && _party.partyflag != 4 && _party.name != me.name) {
-                    delay(rand(1000,3500) + 2000); // give time for new players PartyUp script to load
-                    
-                    if(_party.partyid == 65535) {
-                        print('ÿc3Partying ÿc4'+name1);
-                        clickParty(_party,2);
-                        //break;
-                    }
-                }
-                delay(250);
-			}while(_party.getNext());
-		}
-	}
-	if(mode == 7 && param2 == 5) {
-		invite = getParty();
-		if(_party) {
-			do {
-                
-				if(_party.gid == player && (!aPartyExists()|| aPartyExists() && _party.partyid != 65535)) {
-                    if(me.name == _party.name) continue;
-					print('ÿc3Accepting invite from ÿc4'+ _party.name);
-					clickParty(_party,2);
-					break;
-				}
-                delay(250);
-			} while(_party.getNext());
-		} 
-        delay(100);
-		if(invite) {
-			do {
-                if(invite.name == me.name) InParty = (invite.partyid != 65535);
-                if(invite.partyid == 65535 && invite.name != me.name && (InParty || !aPartyExists()) && invite.partyflag != 4) {
-                    print("ÿc3Partying ÿc4" + invite.name);
-                    clickParty(invite,2);
-                }
-                delay(250);
-			}while(invite.getNext());
-		}
-	}
-}
-
-// message parser + handler
-function DK_GameMsgHandler(who, msg) {
-	var parsedMsg = new Array();
-    var Firstword = msg.substring(0, msg.indexOf(" "));
-    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
-    if(!Firstword) {
-        Firstword = params;
-        params = null
-    }
-    var command = Firstword.toLowerCase();
-    if(params) params = params.toLowerCase();
-    //the bot will invite when "Invite Please" is said
-    if(who != me.name && command == "invite" && params == "please") {
-        var sender = party(who); 
-        if(!sender.inParty && sender.pUnit) clickParty(sender.pUnit, 2);
-    }
-}
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//
-//  Utility Functions
-//
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-function party(playerName) {
-	var player = getParty();
-    var party = new Object();
-        party.inParty = false;
-        party.pUnit = null;
-
-	if(player) { 
+function party() {
+	var party=getParty();
+    delay(1000);
+    if(party) {
         do {
-            if(player.name == playerName) {
-                party.inParty = player.partyid != 65535;
-                party.pUnit = player;
-                break;
-            }
-        } while (player.getNext()); 
+            if(party.name!=me.name&&(party.partyflag==2&&(party.partyid<9||noParty())||party.partyid==0xFFFF&&(inParty(me)||noParty())&&party.partyflag!=4)) {
+                if(party.partyflag==2) print('ÿc3Accepting invite from ÿc4'+party.name);
+                else print('ÿc3Partying ÿc4'+party.name);
+                if(party)clickParty(party,2);
+                delay(250);
+            } delay(100);
+        }while(party&&party.getNext());
     }
-    return party;
 }
 
-function aPartyExists() {
-	var player = getParty();
-	if(player) {
-		do {
-			if (player.partyid != 65535) return true;
-		} while (player.getNext());
-	}
-	return false;
+function inParty(who) { return getParty(who).partyid != 65535; } //-getParty(id); id= "playerName" | player.gid | Unit(getUnit)
+
+function noParty() {
+	var party=getParty();
+	if(party)do if(party.partyid!=65535)return false;
+	while(party.getNext());
+	return true;
 }
 
 function onlyPlayer() {
 	var player = getParty();
     var numPlayers = 0;
-	if(player) {
-		do {
-            if(player.name != me.name) numPlayers++;
-		} while (player.getNext());
-	}
+	if(player) { do { if(player.name != me.name) numPlayers++; } while (player.getNext()); }
 	return (numPlayers ? false : true);
 }
