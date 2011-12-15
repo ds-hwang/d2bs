@@ -314,8 +314,9 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 		DC_DoCast(XP_Curse,0,monster);
 	}
     
-	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && (monster.getStat(37) <= 99) && DA_GetRange(monster) < range){
+	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted)/* && (monster.getStat(37) <= 99)*/ && getDistance(monster) < range){
         if (XP_CorpseExplosion) XP_UseNecroCE(monster);
+        if(XP_NecroSkillMinion == 92 && getDistance(monster) > 17) DM_MoveTo(monster.x,monster.y); // Darien
 		DC_DoCast(XP_NecroSkillMinion,(XP_NecroSkillMinion>0?2:1),monster);
 		if (monster.hp < hpprev) {
 			hpprev = monster.hp;

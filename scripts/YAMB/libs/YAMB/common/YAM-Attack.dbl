@@ -202,18 +202,19 @@ function IsBlocked(target,type) {
 	//print("IsBlocked");
     
     var _type = type;
-    if(type == "walk")   var _type = 1<<1;
-    if(type == "ranged") var _type = 1<<2;
+    if(type == "walk")   var _type = 0;
+    if(type == "ranged") var _type = 2;
     
-	return checkCollision(me,target,_type);
+	return checkCollision(me,target,1<<_type);
 
 }
 
 
 function canAttack(monsta, ranged) {
     
-   	if (ranged && IsBlocked(monsta,2)) return false;   // ignore if using ranged attack and range is blocked
-    if(!ranged && IsBlocked(monsta,1)) return false;   // ignore if not using ranged attack and walking is blocked
+   	if (ranged && IsBlocked(monsta,1<<2)) return false;   // ignore if using ranged attack and range is bloc
+    if (ranged && IsBlocked(monsta,1<<1) && me.area == 108) return false;   // ignore in Chaos if behind wall
+    if(!ranged && IsBlocked(monsta,1<<0)) return false;   // ignore if not using ranged attack and walking is blocked
     
    	if(IsBlocked(monsta,11)) {
    	//ingnore if Monster on the other side of a Door
@@ -281,6 +282,8 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
       case 327: //Act3 Tiki Trap
          return false;
    }
+   //ignore Faith Bow's "Returned"
+   if(monsta.classid == 1 && monsta.name == "Returned") return false;
    
    //sorc usually shouldn't attack lightning spire. only physical attacks to well on them
    if(monsta.classid == 371 && !XP_AttackSpire) return false; //Arcane Lightning Spire -- optional, comment this line out to attack them
@@ -332,8 +335,15 @@ function killRadius(range, type, spectype) {
     while (threat) {
         print("attacking " + threat.name + " id: " + threat.classid + " -- dist: " + Math.floor(getDistance(threat))); 
         //XP_Precasts();
-        if(me.classid == 0 || me.classid == 5 || me.classid == 1) XP_AttackMonster(threat,range) ;
-        else XP_BossAttack(threat);
+        switch(me.classid) {
+            case 0: 
+            case 1: 
+            case 2: XP_AttackMonster(threat,range); break;
+            case 3: 
+            case 4: XP_BossAttack(threat); break;
+            case 5: XP_AttackMonster(threat,range); break;
+            case 6: XP_BossAttack(threat); break;
+        }
         threat = returnClosestThreat(range, type, spectype, center);
     }
     

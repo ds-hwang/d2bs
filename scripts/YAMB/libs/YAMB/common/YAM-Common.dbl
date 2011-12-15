@@ -2181,7 +2181,9 @@ function DC_PartyPlayer(playerName) {
 
 // function by darkspirit
 function DC_PlayerPresent(playerName) {
-	var player = getParty();
+	var player = getParty(playerName);
+    return player;
+    /*
 	if(player) { 
         do {
             if(player.name == playerName) {
@@ -2189,7 +2191,7 @@ function DC_PlayerPresent(playerName) {
             }
         } while (player.getNext()); 
     }
-    return false;
+    return false; */
 }
 
 // function by darkspirit

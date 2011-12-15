@@ -2,64 +2,37 @@
 //  shrot and sweet
 
 entryFunc = Baal;
-
+include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
 
 function DK_GameMsgHandler(who, msg) {
 	var parsedMsg = new Array();
-       
     var Firstword = msg.substring(0, msg.indexOf(" "));
     var params = msg.substring(msg.indexOf(" ")+1, msg.length);
-     if(!Firstword) {
-        Firstword = params;
-        params = null
-    }
-    
-    //--code for 3 words -- sloppy
-    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
-    //var Secondword= rest.substring(0, rest.indexOf(" "));
-    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
-    //var Thirdword = darest.substring(0, rest.length);
-	
-	return GameMsgHandler(who,Firstword,params);
-}
-
-function GameMsgHandler(sender, cmd, params, c) {
-    //print("Sender " + sender + " cmd: " + cmd + " params: " + params);
-    
-    var command = cmd.toLowerCase();
-    if(params) params = params.toLowerCase();
-    
+     if(!Firstword) { Firstword = params; params = null; }
+    //var command = Firstword.toLowerCase();
+    //if(params) params = params.toLowerCase();
     // The one who yells "tp up" becomes my true leader
-    if(command + " " + params == YAM_TPMsg) myLeader = sender;
-    
-    //the bot will invite when Party Up is said
-    if(command == "party" && params == "up") {
-        var senderParty = DC_PlayerPresent(sender); 
-        if(senderParty.partyid == 65535) clickParty(senderParty, 2);
-        else if(senderParty.partyflag & 2) clickParty(senderParty, 2);
-    }
-    
-    // "Darien banishes you" the bot will quit the game
-    if(command == "darien" && params == "banishes you") {
-        say("Goodbye Master");
-        quit();
-    }
-    
-    if(command == "next" && params == "game") {
-        delay(10000);
-        quit();
-    }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
 }
 
 function Baal() {
-    addEventListener("chatmsg", DK_GameMsgHandler);
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
 	if (me.classid == 1) {
 		XP_Static = 8;
 		(BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
 		XP_Static = BXP_Static;
 		_XP_UseTeleOnImmune = false;
 	}
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; var leaderHere=false;
+        while(r < Leaders.length) {
+            if(getParty(Leaders[r])) { leaderHere = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderHere) DC_QuitMessage("Leader is not in game!");
+    }
     YAM_TownManager();
     if(me.act != 5 || YAM_IsLeader) {
         YAM_PathToWayPoint();
@@ -112,8 +85,9 @@ function Baal() {
 			YAM_InitCommTown(); 
 		}
 		commTown5.GotoStart();
+        XP_Precasts();
 		DC_Print("Waiting for tp...");
-        if(PublicMode < 2) {
+        if(PublicMode <= 2) {
             while (me.area != 131) {
                 var portal = getUnit(2,"Portal");
                 if(portal) { 
@@ -122,68 +96,23 @@ function Baal() {
                             var pOwner = portal.getParent();
                             if(pOwner) {
                                 if(DC_InMyParty(portal.getParent())) {
-                                    myLeader=portal.getParent();
-                                    // Do precasts before going into the portal
-                                    XP_Precasts();
-                                    DM_TakeEntrance(portal);
-                                    break;
-                                } else { 
-                                    var pOwnerParty = DC_PlayerPresent(pOwner);
-                                    if(pOwnerParty) {
-                                        if(pOwnerParty.partyflag & 2) clickParty(pOwnerParty, 2); 
-                                        else { 
-                                            say("Party Up"); 
-                                            delay(2000); 
-                                        }
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
                                     }
-                                    
                                 }
                             }
                         }
                     } while (portal.getNext());
                 }
                 delay(1500);
+                if(me.area == 132) break;
             }
-        } else { // if your leeching wait for leaders portal, only take when directed
-            while (me.area != 131) {
-                
-                // Wait for 4 mins
-                var i = 0;
-                while (!myLeader && i < 240 && me.area != 131) {
-                    delay(1000);
-                    i++;
-                }
-                
-                // Do precasts before going into the portal
-                XP_Precasts();
-                // Make sure to party the leader
-                if (!DC_PartyPlayer(myLeader)) {
-                    // If failed to party, choose another leader
-                    for (var i=0; i < Leaders.length; i++) {
-                        if (DC_PartyPlayer(Leaders[i])) { 
-                            myLeader=portal.getParent(); 
-                            break; 
-                        }
-                    }
-                }
-                try {
-                    // When we have chosen a leader, go into his tp
-                    DM_UsePortal ("BluePortal", 131, myLeader);
-                }
-                catch (e) { 
-                    DC_Print("e : name = " + e.name + ", message = " + e.message);
-                }
-            }
-            YAM_TPReady = false;
         }
     }
-    
-    DA_UseCTASkills();
-    if (!YAM_IsLeader && me.getState(32) == 0) { 
-        say("/w "+myLeader+" bo "); 
-        delay(2000); 
-    }
-    
+    if(me.area == 132) { endGame(); return; }
     // if your leeching
     if(PublicMode > 1) { 
         pathToDest(15115,5026);
@@ -260,7 +189,10 @@ function Baal() {
             break;
         }
     }
-    
+    endGame();
+}
+
+function endGame() {
     //Find and Kill Baal
     Assassinate(544, 544, 4);
     DSN_PickItems();
@@ -269,7 +201,6 @@ function Baal() {
     Assassinate(544, 544, 4);
     DSN_PickItems();
     if(YAM_IsLeader) say("Next Game");
-    return true;
 }
 
 function clearThrone() {

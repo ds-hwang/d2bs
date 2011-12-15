@@ -1,74 +1,46 @@
 // Diablo module by Darien
 // short and sweet
-var clearOutChaos = true; //true to hunt down and kill ALL monsters in Chaos, false to just kill those in range
+var clearOutChaos = false; //true to hunt down and kill ALL monsters in Chaos, false to just kill those in range
 
 entryFunc = Diablo;
-
+include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
 
 function DK_GameMsgHandler(who, msg) {
 	var parsedMsg = new Array();
-       
     var Firstword = msg.substring(0, msg.indexOf(" "));
     var params = msg.substring(msg.indexOf(" ")+1, msg.length);
-     if(!Firstword) {
-        Firstword = params;
-        params = null
-    }
-    
-    //--code for 3 words -- sloppy
-    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
-    //var Secondword= rest.substring(0, rest.indexOf(" "));
-    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
-    //var Thirdword = darest.substring(0, rest.length);
-	
-	return GameMsgHandler(who,Firstword,params);
-}
-
-function GameMsgHandler(sender, cmd, params, c) {
-    //print("Sender " + sender + " cmd: " + cmd + " params: " + params);
-    
-    var command = cmd.toLowerCase();
-    if(params) params = params.toLowerCase();
-    
-    // The one who yells "tp up" becomes my true leader
-    if(command + " " + params == YAM_TPMsg) myLeader = sender;
-    
-    //the bot will invite when Party Up is said
-    if(command == "party" && params == "up") {
-        var senderParty = DC_PlayerPresent(sender); 
-        if(senderParty.partyid == 65535) clickParty(senderParty, 2);
-        else if(senderParty.partyflag & 2) clickParty(senderParty, 2);
-    }
-    
-    // "Darien banishes you" the bot will quit the game
-    if(command == "darien" && params == "banishes you") {
-        say("Goodbye Master");
-        quit();
-    }
-    
-    if(command == "next" && params == "game") {
-        delay(10000);
-        quit();
-    }
+     if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
 }
 
 function Diablo() {
-    addEventListener("chatmsg", DK_GameMsgHandler);
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
     if (me.classid == 1) {
-		XP_Static = 8;
-		(DXP_SorcSkill.length > 0) ? XP_SetSorcSkills(DXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
-		XP_Static = DXP_Static;
+		XP_Static = 5;
+		XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
 		_XP_UseTeleOnImmune = false;
 	}
-    
-    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_OPENCHESTS|DP_INCUSERSTEP;
-    
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; var leaderName=false; var LeaderPartyUnit = false;
+        while(r < Leaders.length) {
+            var LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+    if(!commPather.UseTele) YAM_OpenChests = false;
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_INCUSERSTEP;
     YAM_TownManager();
-    
+    if(me.act != 5 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
     //Path to Chaos Sanc yourself
     if (!WaitForPortal || YAM_IsLeader) {
-    
         YAM_PathToWayPoint();
         // Do precasts before going into the portal
         XP_Precasts();
@@ -76,52 +48,49 @@ function Diablo() {
         DM_UsePortal("Waypoint",107);
         // Do precasts before pathing
         XP_Precasts();
-
         //path to Chaos Sanctuary
         pathToLevel(108);
         dprint("Moving across border",1);
         var times = 0;
         while(me.area != 108 && times < 10) { DM_MoveTo(me.x, me.y-10); delay(100); times++; }
         dprint("In Chaos Sanctuary",2);
-        
         pathToDest(me.x, me.y-90);
         killZone(20);
         XP_OpenTP();
         say("Chaos Portal is Open Master.  Be careful.");
     } else {
         // Use the WP to Act 4 if need be
-		if (me.area != 103) {
-			YAM_PathToWayPoint(); 
-			DM_UsePortal("Waypoint",103); 
-			YAM_InitCommTown(); 
-		}
-		commTown4.GotoStart();
-		DC_Print("Waiting for tp...");
-        if(PublicMode < 2) {
+        if (me.area != 103) {
+            YAM_PathToWayPoint(); 
+            DM_UsePortal("Waypoint",103); 
+            YAM_InitCommTown(); 
+        }
+        commTown4.GotoStart();
+        XP_Precasts();
+        if(LeaderPartyUnit && LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
+            DC_Print("Waiting to see if Leader is on this run...");
+            delay(10000);
+            if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
+                while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) delay(3000); //allow leader a quick pindle run at the start
+                if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
+            }
+        }
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
             while (me.area != 108) {
                 var portal = getUnit(2,"Portal");
                 if(portal) { 
                     do {
-                        print("portal owner: " + portal.getParent());
                         if(portal.objtype == 108) {
                             var pOwner = portal.getParent();
                             if(pOwner) {
                                 if(DC_InMyParty(portal.getParent())) {
-                                    myLeader=portal.getParent();
-                                    // Do precasts before going into the portal
-                                    XP_Precasts();
-                                    DM_TakeEntrance(portal);
-                                    break;
-                                } else { 
-                                    var pOwnerParty = DC_PlayerPresent(pOwner);
-                                    if(pOwnerParty) {
-                                        if(pOwnerParty.partyflag & 2) clickParty(pOwnerParty, 2); 
-                                        else { 
-                                            say("Party Up"); 
-                                            delay(2000); 
-                                        }
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
                                     }
-                                    
                                 }
                             }
                         }
@@ -129,40 +98,9 @@ function Diablo() {
                 }
                 delay(1500);
             }
-        } else { // if your leeching wait for leaders portal, only take when directed
-            while (me.area != 108) {
-                
-                // Wait for 4 mins
-                var i = 0;
-                while (!myLeader && i < 240 && me.area != 108) {
-                    delay(1000);
-                    i++;
-                }
-                
-                // Do precasts before going into the portal
-                XP_Precasts();
-                // Make sure to party the leader
-                if (!DC_PartyPlayer(myLeader)) {
-                    // If failed to party, choose another leader
-                    for (var i=0; i < Leaders.length; i++) {
-                        if (DC_PartyPlayer(Leaders[i])) { 
-                            myLeader=portal.getParent(); 
-                            break; 
-                        }
-                    }
-                }
-                try {
-                    // When we have chosen a leader, go into his tp
-                    DM_UsePortal ("BluePortal", 108, myLeader);
-                }
-                catch (e) { 
-                    DC_Print("e : name = " + e.name + ", message = " + e.message);
-                }
-            }
-            YAM_TPReady = false;
         }
     }
-    
+    if(!YAM_IsLeader && LeaderPartyUnit && LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
     if(YAM_IsLeader || PublicMode < 2) {
         pathToDest(7780,5308,clearChaos,killZone);
         killRadius(30);
@@ -173,9 +111,41 @@ function Diablo() {
             DA_UseCTASkills();
         }
     }
-    
     killRadius(30);
-    
+    if(YAM_IsLeader) LeaderPath();
+    else FollowerPath(leaderName);
+    DSN_PickItems();
+}
+
+function FollowerPath(leaderName) {
+    dprint("Following the Leader",2);
+    var LeaderPartyUnit = getParty(leaderName);
+    if(LeaderPartyUnit) {
+        if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 103) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
+        var bigD = followTheLeader(leaderName);
+        if(bigD && (bigD.mode != 12 || bigD.hp > 0)) XP_BossAttack(bigD);
+        else ambushSpawn(243);
+    } else DC_QuitMessage("Leader is NOT in game!");
+}
+
+function followTheLeader(leaderName) {
+    var Dcorpse = DC_FindMonster(243);
+    var LeaderPartyUnit = getParty(leaderName);
+    while(!Dcorpse) {
+        while(LeaderPartyUnit.area == 103) { killRadius(30); delay(1000); }
+        if(LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
+        while(getDistance(LeaderPartyUnit) > 30) {
+            pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos,killZone);
+        }
+        if(commPather.UseTele) killRadius(30);
+        else killRadius(20);
+        var Dcorpse = DC_FindMonster(243);
+    }
+    return Dcorpse;
+}
+
+function LeaderPath() {
+    dprint("Follow Me.",2);
     var GrandVizer = false;
     var LordDeSeis = false;
     var InfectorOfSouls = false;
@@ -185,13 +155,13 @@ function Diablo() {
         openObjectID(cid);
         killRadius(30);
         if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
-        if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
+        if(cid == 394) pathToDest(me.x,me.y+30); { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
         if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
         killRadius(30,null,5);
     }
     
     pathToDest(7795,5265,null,killZone);
-    XP_OpenTP();
+    if(YAM_IsLeader) XP_OpenTP();
     pathToDest(7795,5295,null,killZone);
     XP_Precasts(); DA_UseCTASkills();
     if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
@@ -201,12 +171,11 @@ function Diablo() {
         pathToDest(7795,5295,killZone);
         ambushSpawn(243);
     }
-    DSN_PickItems();
-    if(YAM_IsLeader) say("Next Game");
 }
 
 function clearChaos() {
-    killRadius(30);
+    if(commPather.UseTele) killRadius(30);
+    else killRadius(20);
     if(clearOutChaos) Search_and_Destroy(60);
     return DP_STEPAHEAD;
 }
