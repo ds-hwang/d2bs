@@ -500,10 +500,9 @@ function XP_NecroRevive() {
 
 //Darien
 function XP_NecroRevive() {
-    XP_CheckRevives(95);
+    if(XP_useRevive)   XP_CheckRevives(95);
 	if(XP_useSkelMage) XP_CheckRevives(80,364);
-	if(XP_useSkel) XP_CheckRevives(70,363);
-
+	if(XP_useSkel)     XP_CheckRevives(70,363);
 }
 
 // Function from Darien

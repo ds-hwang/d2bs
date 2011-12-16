@@ -76,17 +76,19 @@ function DM_CheckPosition(x, y) {
 // Parameters :
 // -x,y		Coordinates of the destination
 // The function will select the right movement method depending on criterias
-function DM_MoveTo(x,y,dontwalk,truetele) {
+// arg3 is dontwalk for DM_TeleportTo(), and walkcall for DM_WalkTo()
+// arg4 is truetele for DM_TeleportTo(), and _openDoor for DM_WalkTo()
+function DM_MoveTo(x,y,arg3,arg4) {
 	// Stall while you are doing something
 	while (me.mode==7 || me.mode==8 || (me.mode>9 && me.mode<19)) {DC_DoDel(10);}
 	// If you are in town, use walk only
 	if(DC_InTown(me)) { return DM_WalkTo(x, y);}
 	// If you have teleport and is set to use it, teleport to the end position
 	if(DM_CheckTeleport()){
-		return DM_TeleportTo(x, y, dontwalk,truetele);
+		return DM_TeleportTo(x, y,arg3,arg4);
 	}
 	//If nothing fit, use walk by default
-	return DM_WalkTo(x, y);
+	return DM_WalkTo(x, y,arg3,arg4);
 }
 
 // Coded by Xizeta, part of code from Darien used
@@ -331,7 +333,7 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
 	while ((Math.abs(me.x - x) > 3 || Math.abs(me.y - y) > 3) && trys <= ntrys) //old dist 2 - stuck on larger shrines/objects
 	{
         //Darien's Door Check
-        if (typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY,trys);
+        if(DP_AreaDoors[me.area] && typeof(_doorOpener) == "function" && !DC_InTown(me)) _doorOpener(currDestX, currDestY,trys);
         
 		mlmemove(currDestX, currDestY);
 		delay(DM_WalkDel);
@@ -339,6 +341,7 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
         
 		if ((Math.abs(me.x - startX) < 3 && Math.abs(me.y - startY) < 3))
 		{
+            
 			if (thrash >= nthrash)
 			{
 				var direction = Math.abs(Math.floor((Math.atan2(x-me.x , y-me.y)) * 180 / 3.1415) - 180);
@@ -392,7 +395,7 @@ function DM_WalkTo(x, y, walkcall, _doorOpener) {
 				directionalmove++;
 				while (me.mode !=1)
 					delay(50);
-			} else thrash++;
+			} else { clearPath(); thrash++; }
 		}
 		else
 		{
@@ -984,6 +987,7 @@ function DM_TakeEntrance(entrance) {
 		delay(500);
 		i++;
 	}
+    DM_RevealMap();
     return (me.area == fromarea) ? false : true;
 }
 

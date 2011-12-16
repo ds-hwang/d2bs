@@ -216,7 +216,14 @@ var D2JSP_NPC_QUALKEHK                  = 515;
 var D2JSP_NPC_NIHLATHAK_TOWN            = 514;
 var D2JSP_NPC_NIHLATHAK_HALLS_OF_VAUGHT = 526;
 
-
+//thx sydasti
+var DP_AreaDoors =    [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true,
+                        true, true, true, true, true, false, true, true, true, true, true, true, true, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+                        false, false, false, false, false, false, false, false, false, false, false, false, false ];
 //////////////////////////////////////////////////////////////////////
 // Inherited functions from other libs 
 // Wrappers here to allow for easier re-definitions (YAMB v XP for example)
@@ -871,7 +878,7 @@ function pathMove(_info) {
         // If we are already in the correct coords, return true
         if(Math.abs(me.x - pX) <= 3 && Math.abs(me.y - pY) <= 3) return DP_STEPAHEAD; 
         
-		var shouldTele = (this.UseTele && !InTown(me) && DP_CheckTeleport() );
+		var shouldTele = (this.UseTele && !InTown(me) && DP_CheckTeleport() && me.mp >= 30);
         var ctrlFlag = (this.StepActionflag & DP_INCUSERSTEP)  ? (this.StepActionflag|DP_StepPath) :  this.StepActionflag;
         
 		if(me.area != this.ilastArea){
@@ -1019,6 +1026,7 @@ function pathMove(_info) {
 	}
 
 	this.DoorOpener = function( pX, pY, pDoorHandler, retrys ) {
+        if(!DP_AreaDoors[me.area]) return false;
 		switch(typeof( pDoorHandler )){
 			case "function":
 				return pDoorHandler( pX, pY, retrys );

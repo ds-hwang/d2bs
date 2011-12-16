@@ -1,10 +1,13 @@
-// Diablo module by Darien
+// Diablo Multibot module by Darien
 // short and sweet
 var clearOutChaos = false; //true to hunt down and kill ALL monsters in Chaos, false to just kill those in range
 
 entryFunc = Diablo;
 include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
+var leash = 15;
 
 function DK_GameMsgHandler(who, msg) {
 	var parsedMsg = new Array();
@@ -23,9 +26,9 @@ function Diablo() {
 	}
     //quit if you're not in the Leaders game and you're a follower
     if(!YAM_IsLeader) {
-        var r=0; var leaderName=false; var LeaderPartyUnit = false;
+        var r=0; 
         while(r < Leaders.length) {
-            var LeaderPartyUnit = getParty(Leaders[r]);
+            LeaderPartyUnit = getParty(Leaders[r]);
             if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
             r++;
         }
@@ -119,7 +122,7 @@ function Diablo() {
 
 function FollowerPath(leaderName) {
     dprint("Following the Leader",2);
-    var LeaderPartyUnit = getParty(leaderName);
+    //var LeaderPartyUnit = getParty(leaderName);
     if(LeaderPartyUnit) {
         if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 103) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
         var bigD = followTheLeader(leaderName);
@@ -130,15 +133,17 @@ function FollowerPath(leaderName) {
 
 function followTheLeader(leaderName) {
     var Dcorpse = DC_FindMonster(243);
-    var LeaderPartyUnit = getParty(leaderName);
+    //var LeaderPartyUnit = getParty(leaderName);
     while(!Dcorpse) {
         while(LeaderPartyUnit.area == 103) { killRadius(30); delay(1000); }
         if(LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
-        while(getDistance(LeaderPartyUnit) > 30) {
+        while(getDistance(LeaderPartyUnit) > leash && LeaderPartyUnit.area == 108 && LeaderPartyUnit.x > 7660 && LeaderPartyUnit.x < 7920 && LeaderPartyUnit.y > 5168) {
             pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos,killZone);
+            dprint("Leader within range",9);
         }
         if(commPather.UseTele) killRadius(30);
         else killRadius(20);
+        delay(100);
         var Dcorpse = DC_FindMonster(243);
     }
     return Dcorpse;
@@ -155,7 +160,7 @@ function LeaderPath() {
         openObjectID(cid);
         killRadius(30);
         if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
-        if(cid == 394) pathToDest(me.x,me.y+30); { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
+        if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
         if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
         killRadius(30,null,5);
     }
@@ -174,8 +179,13 @@ function LeaderPath() {
 }
 
 function clearChaos() {
-    if(commPather.UseTele) killRadius(30);
-    else killRadius(20);
+    //if(!arguments.length) LeaderPartyUnit = getParty(leadername);
+    var retVal = DP_STEPAHEAD; var radius = 30;
+    if(!YAM_IsLeader) {
+        if(getDistance(LeaderPartyUnit) <= leash) { dprint("Leader Close. Stop Path",1); retVal = DP_STOP; }
+        if(!commPather.UseTele) var radius = 20;
+    }
+    if(!killRadius(radius) && !YAM_IsLeader) delay(10); //DM_MoveTo(LeaderPartyUnit.x,LeaderPartyUnit.y);
     if(clearOutChaos) Search_and_Destroy(60);
-    return DP_STEPAHEAD;
+    return retVal;
 }

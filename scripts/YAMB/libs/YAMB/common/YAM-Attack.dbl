@@ -211,24 +211,22 @@ function IsBlocked(target,type) {
 
 
 function canAttack(monsta, ranged) {
-    
-   	if (ranged && IsBlocked(monsta,1<<2)) return false;   // ignore if using ranged attack and range is bloc
-    if (ranged && IsBlocked(monsta,1<<1) && me.area == 108) return false;   // ignore in Chaos if behind wall
-    if(!ranged && IsBlocked(monsta,1<<0)) return false;   // ignore if not using ranged attack and walking is blocked
-    
-   	if(IsBlocked(monsta,11)) {
-   	//ingnore if Monster on the other side of a Door
-   		//print("Don't Attack Monsters on the other Side of a closed Door!");
-   		return false; 
-   	}
+    if (ranged && IsBlocked(monsta,2)) return false;   // ignore if using ranged attack and range is bloc
+    if (checkCollision(me, monsta, 1<<6) && me.area == 108 && monsta.classid == 306) return false;   // ignore Storm Chasers in Chaos if behind wall (1<<1 | 1<<3 | 1<<4 | 1<<5 | 1<<6 | 1<<14)
+    if(!ranged && IsBlocked(monsta,0)) return false;   // ignore if not using ranged attack and walking is blocked
+
+    if(IsBlocked(monsta,11)) {
+        //ingnore if Monster on the other side of a Door
+        //print("Don't Attack Monsters on the other Side of a closed Door!");
+        return false; 
+    }
     if((me.area > 28 && me.area < 32) || (me.area > 50 && me.area < 55)) {
         if(!DM_UseTeleport && IsBlocked(monsta,4) && IsBlocked(monsta,10)) {
             //print("Don't Attack Monsters on the other Side of a special Door!");
             return false; 
         }
     }
-    
-   
+
    if(monsta.classid == 111 && monsta.mode == 8) return false;    //ignore flying Scavengers
    if(monsta.classid == 68 && monsta.mode == 14) return false;    //ignore burrowing Maggots
    if((monsta.classid == 258 || monsta.classid == 261) && monsta.mode == 14) return false;     //ignore submerged WaterWatchers
@@ -240,47 +238,47 @@ function canAttack(monsta, ranged) {
 function ValidMonster(monsta) { 	//some code from mattlant and TDW
 
     if(monsta.type == 1 && monsta.getStat(172) == 2) return false;  	//exclude whatever is not aligned against you
-   
-   if(monsta.mode == 0) return false;		//exclude if dying
-   if(monsta.mode == 12) return false;		//exclude if dead
-   if(monsta.hp < 1) return false;
-   if(me.mode == 0) return false;		//exclude if you're dying
-   if(me.mode == 17) return false;		//exclude if you're dead   
-      
-   switch(monsta.name) {	//exclude monster based on name
-      case "Dark Wanderer":
-      case "Barbarian Captive":
-      case "Combatant":   // a5 bloodyhills barb
-      case "an evil force":
-      case "Dummy":
-      case "Hadriel":      // a4 near river of flame
-      case "Flavie":      // a1 near cold plainxxs
-      case "Hydra":
-      case "a trap":
-      case "a Trap":
-      case "Trap":
-      case "Tyrael":
-      case "Blade Sentinel":
-      case "Trapped Soul":
-         return false;
-   }   
-  
-   switch(monsta.classid) {   //exclude monster based on classid
-      case 297:
-      case 366: //The compelling orb / "Mind Maw the Slasher" A3Q5 - opens Durance of Hate
-      case 271: //act1 merc
-      case 338: //act2 merc
-      case 359: //act3 merc
-      case 561: //act5 merc
-      case 534: //act5 POW
-      case 543: //baal throne
-      case 545: //baal taunt
-      case 559: //baal stairs
-      case 597: //ws effect
-      case 403: //Trapped Soul Act 4
-      case 404: //Trapped Soul Act 4
-      case 327: //Act3 Tiki Trap
-         return false;
+
+    if(monsta.mode == 0) return false;		//exclude if dying
+    if(monsta.mode == 12) return false;		//exclude if dead
+    if(monsta.hp < 1) return false;
+    if(me.mode == 0) return false;		//exclude if you're dying
+    if(me.mode == 17) return false;		//exclude if you're dead   
+
+    switch(monsta.name) {	//exclude monster based on name
+        case "Dark Wanderer":
+        case "Barbarian Captive":
+        case "Combatant":   // a5 bloodyhills barb
+        case "an evil force":
+        case "Dummy":
+        case "Hadriel":      // a4 near river of flame
+        case "Flavie":      // a1 near cold plainxxs
+        case "Hydra":
+        case "a trap":
+        case "a Trap":
+        case "Trap":
+        case "Tyrael":
+        case "Blade Sentinel":
+        case "Trapped Soul":
+            return false;
+    }
+
+    switch(monsta.classid) {   //exclude monster based on classid
+        case 297:
+        case 366: //The compelling orb / "Mind Maw the Slasher" A3Q5 - opens Durance of Hate
+        case 271: //act1 merc
+        case 338: //act2 merc
+        case 359: //act3 merc
+        case 561: //act5 merc
+        case 534: //act5 POW
+        case 543: //baal throne
+        case 545: //baal taunt
+        case 559: //baal stairs
+        case 597: //ws effect
+        case 403: //Trapped Soul Act 4
+        case 404: //Trapped Soul Act 4
+        case 327: //Act3 Tiki Trap
+            return false;
    }
    //ignore Faith Bow's "Returned"
    if(monsta.classid == 1 && monsta.name == "Returned") return false;
@@ -294,8 +292,7 @@ function ValidMonster(monsta) { 	//some code from mattlant and TDW
    if(monsta.name == "Izual" && monsta.classid == 406) return false;   		//Don't attack Izual's Ghost
    if(monsta.name == "Catapult" && monsta.getStat(12) == 0) return false;    	//invisible catapults
    
-   //if(!useTele && monsta.classid == 435) return false;	//skip barricade towers if you cant teleport 
-   							                                //- otherwise bot gets stuck alot
+   //if(!useTele && monsta.classid == 435) return false;	//skip barricade towers if you cant teleport otherwise bot gets stuck alot
     return true;
 }
 
@@ -313,7 +310,7 @@ function killZone(x,y,retry) {
 // pathing argument function
 function clearPath() {
     if(me.getStat(12) < 4 || me.area == 8) killRadius(20);
-    else killRadius(3); 
+    else killRadius(2); //3
     if(me.classid == 2) XP_NecroRevive();
     if(me.classid == 5) DA_DoPrecasts();
 }
@@ -522,14 +519,12 @@ function waitForSpawn(cid, spectype, seconds) {
 }
 
 function ambushSpawn(cid) {
+    if(cid == "Lord De Seis") pathToDest(me.x, me.y+45);
+    
     var spawn = waitForSpawn(cid);
     
     if(!spawn) { 
         dprint("Spawn NOT found!",1); 
-        if(cid == "Lord De Seis") {
-            pathToDest(me.x, me.y+45);
-            var spawn = waitForSpawn(cid);
-        }
         if(!spawn) return false; 
     }
     
