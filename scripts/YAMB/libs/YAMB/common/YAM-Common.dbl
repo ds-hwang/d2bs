@@ -259,6 +259,7 @@ function DarienHook(name,X,Y,Color,Font,string, align, click, hover) {
 
 // pathing argument function
 function openDoor(x,y,retry) {
+    if(!DP_AreaDoors[me.area]) return DP_STEPAHEAD;
     //clear any monsters blocking
     clearPath();
     //Door handling function for walking characters

@@ -7,7 +7,7 @@ include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
 var leaderName=false; 
 var LeaderPartyUnit = false;
-var leash = 15;
+var leash = 5;
 
 function DK_GameMsgHandler(who, msg) {
 	var parsedMsg = new Array();
@@ -62,6 +62,14 @@ function Diablo() {
         XP_OpenTP();
         say("Chaos Portal is Open Master.  Be careful.");
     } else {
+        if(LeaderPartyUnit && LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
+            DC_Print("Waiting to see if Leader is on this run...");
+            if(LeaderPartyUnit.area < 129) delay(10000);
+            if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
+                while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) delay(3000); //allow leader a quick pindle run at the start
+                if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
+            }
+        }
         // Use the WP to Act 4 if need be
         if (me.area != 103) {
             YAM_PathToWayPoint(); 
@@ -70,14 +78,6 @@ function Diablo() {
         }
         commTown4.GotoStart();
         XP_Precasts();
-        if(LeaderPartyUnit && LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
-            DC_Print("Waiting to see if Leader is on this run...");
-            delay(10000);
-            if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107 && LeaderPartyUnit.area != 103) {
-                while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) delay(3000); //allow leader a quick pindle run at the start
-                if(LeaderPartyUnit.area != 108 && LeaderPartyUnit.area != 107) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
-            }
-        }
         DC_Print("Waiting for tp...");
         if(PublicMode <= 2) {
             while (me.area != 108) {
@@ -105,7 +105,7 @@ function Diablo() {
     }
     if(!YAM_IsLeader && LeaderPartyUnit && LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
     if(YAM_IsLeader || PublicMode < 2) {
-        pathToDest(7780,5308,clearChaos,killZone);
+        pathToDest(7780,5308,clearChaos);
         killRadius(30);
         if(YAM_IsLeader) {
             XP_OpenTP();
@@ -137,8 +137,8 @@ function followTheLeader(leaderName) {
     while(!Dcorpse) {
         while(LeaderPartyUnit.area == 103) { killRadius(30); delay(1000); }
         if(LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
-        while(getDistance(LeaderPartyUnit) > leash && LeaderPartyUnit.area == 108 && LeaderPartyUnit.x > 7660 && LeaderPartyUnit.x < 7920 && LeaderPartyUnit.y > 5168) {
-            pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos,killZone);
+        while(getDistance(LeaderPartyUnit) > leash && LeaderPartyUnit.area == 108) { // && LeaderPartyUnit.x > 7660 && LeaderPartyUnit.x < 7920 && LeaderPartyUnit.y > 5168
+            pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos);
             dprint("Leader within range",9);
         }
         if(commPather.UseTele) killRadius(30);
@@ -156,7 +156,7 @@ function LeaderPath() {
     var InfectorOfSouls = false;
     
     for(var cid = 396; cid > 391; cid--) {
-        if(!pathtoFarUnit(2,cid,108,clearChaos,killZone)) pathtoFarUnit(2,cid,108,clearChaos,killZone);
+        if(!pathtoFarUnit(2,cid,108,clearChaos)) pathtoFarUnit(2,cid,108,clearChaos);
         openObjectID(cid);
         killRadius(30);
         if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
@@ -165,15 +165,15 @@ function LeaderPath() {
         killRadius(30,null,5);
     }
     
-    pathToDest(7795,5265,null,killZone);
+    pathToDest(7795,5265,clearChaos);
     if(YAM_IsLeader) XP_OpenTP();
-    pathToDest(7795,5295,null,killZone);
+    pathToDest(7795,5295,clearChaos);
     XP_Precasts(); DA_UseCTASkills();
     if(!ambushSpawn(243)) { // In case Diablo Doesn't appear do a second run on any missed bosses
-        if(!GrandVizer)      { if(!pathtoFarUnit(1,306,108,clearChaos,killZone)) pathtoFarUnit(2,396,108,clearChaos,killZone); if(!ambushSpawn(306)) { pathtoFarUnit(2,395,108,clearChaos,killZone); ambushSpawn(306);} }
-        if(!LordDeSeis)      { if(!pathtoFarUnit(1,312,108,clearChaos,killZone)) pathtoFarUnit(2,394,108,clearChaos,killZone); ambushSpawn(312); }
-        if(!InfectorOfSouls) { if(!pathtoFarUnit(1,362,108,clearChaos,killZone)) pathtoFarUnit(2,393,108,clearChaos,killZone); if(!ambushSpawn(362)) { pathtoFarUnit(2,392,108,clearChaos,killZone); ambushSpawn(362);} }
-        pathToDest(7795,5295,killZone);
+        if(!GrandVizer)      { if(!pathtoFarUnit(1,306,108,clearChaos)) pathtoFarUnit(2,396,108,clearChaos); if(!ambushSpawn(306)) { pathtoFarUnit(2,395,108,clearChaos); ambushSpawn(306);} }
+        if(!LordDeSeis)      { if(!pathtoFarUnit(1,312,108,clearChaos)) pathtoFarUnit(2,394,108,clearChaos); ambushSpawn(312); }
+        if(!InfectorOfSouls) { if(!pathtoFarUnit(1,362,108,clearChaos)) pathtoFarUnit(2,393,108,clearChaos); if(!ambushSpawn(362)) { pathtoFarUnit(2,392,108,clearChaos); ambushSpawn(362);} }
+        pathToDest(7795,5295,clearChaos);
         ambushSpawn(243);
     }
 }
@@ -181,6 +181,8 @@ function LeaderPath() {
 function clearChaos() {
     //if(!arguments.length) LeaderPartyUnit = getParty(leadername);
     var retVal = DP_STEPAHEAD; var radius = 30;
+    if(me.classid == 2) XP_NecroRevive();
+    if(me.classid == 5) DA_DoPrecasts();
     if(!YAM_IsLeader) {
         if(getDistance(LeaderPartyUnit) <= leash) { dprint("Leader Close. Stop Path",1); retVal = DP_STOP; }
         if(!commPather.UseTele) var radius = 20;

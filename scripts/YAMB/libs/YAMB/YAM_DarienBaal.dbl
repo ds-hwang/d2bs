@@ -56,21 +56,21 @@ function Baal() {
         if(me.area == 130) DM_TakeStairs(82,83);
         
         // Go to throne
-        pathToDest(15091,5072); 
-        killRadius(30); DSN_PickItems();
+        pathToDest(15091,5072);
+        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+        XP_OpenTP();
+        killRadius(30);
+        DSN_PickItems();
         
         //clearing tp spot in main room
         say("Clearing tp spot");
-        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
-        if(!BXP_ClearFirst) { XP_OpenTP(); say("tp up"); }
+        
         killRadius(30); 
-        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
+        DM_MoveTo(15091,5072); // entrance
         killRadius(30);
-        DM_MoveTo(15115,5052); // Near midsection
+        DM_MoveTo(15110,5066);
         killRadius(30);
-        DM_MoveTo(15115,5052); // Near midsection
-        DM_MoveTo(15110,5066); // below first pillar inside of entrance on righthand side.
-        killRadius(30);
+        XP_OpenTP();
         say("tp up");
         say("Come get Buffs!");
         delay(2500);
@@ -123,6 +123,9 @@ function Baal() {
     } else {
 
         // Clearing main room
+        killRadius(30); 
+        DM_MoveTo(15091,5072); // entrance
+        killRadius(30);
         clearThrone();
         
         // Clear out 5 Minion Boss Groups
@@ -135,7 +138,6 @@ function Baal() {
                 killRadius(30);
                 delay(2500);
                 killRadius(30);
-                
             } else { // nothing to attack
                 if(count > 100) {
                     clearThrone();
@@ -165,7 +167,7 @@ function Baal() {
             YAM_NPCinteract(DC_getNPC(515));
         }
         */
-        commPather.GotoStart();
+        commTown5.GotoStart();
         DM_UsePortal("BluePortal",131);
         XP_OpenTP(); 
 	}
