@@ -51,34 +51,41 @@ function writeLog(item, me, isEthereal, _mode) {
 	itemdesc=itemdesc + " from :"+NTAR_Areas[me.area];
 	
     WriteSqlItemLog(item,_mode,"file "+obj.file+" line "+obj.lineno)
-   //itemdesc = ""; 
-   // Adds the <item></item> tag into XML 
-   content ='<item id="'+itemid+'" char="'+me.name+'" time="'+timestring+'" quality="'+item.quality+'" ethereal="'+isEthereal+'" mode="'+_mode+'" name="'+itemname+'" from="'+NTAR_Areas[me.area]+'" ilvl="'+item.ilvl+'">"'+itemdesc+'</item>';
+	try{
+		//itemdesc = ""; 
+		// Adds the <item></item> tag into XML 
+		content ='<item id="'+itemid+'" char="'+me.name+'" time="'+timestring+'" quality="'+item.quality+'" ethereal="'+isEthereal+'" mode="'+_mode+'" name="'+itemname+'" from="'+NTAR_Areas[me.area]+'" ilvl="'+item.ilvl+'">"'+itemdesc+'</item>';
    
-   // <item id="1262070968341" char="bobode" time="Tue 12/29/09 01:16" quality="4" ethereal="0" mode="1" name="Angel's Amulet ">+1 to Sorceress Skill Levels|</item>
- //itemlog.item +=<item id={itemid} char={me.charname} time={timestring} quality={item.quality} ethereal={isEthereal} mode={_mode} name={itemname}>{itemdesc}</item>; 
-		var filehandle = File.open(pathtobe, 2);
-	// Skips XML header lines because they cause errors when creating the E4X object
-	var linecount = 0;
-	while(!filehandle.eof) {
-		templine = filehandle.readLine(); 
-		if(!(templine == "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>" || templine == "<?xml-stylesheet href=\"itemlog.xsl\" type=\"text/xsl\"?>" || templine == "<itemlog>" || templine == "</itemlog>")) {
-			linecount++
-			if (linecount == NT_LoggingMaxLines)
-				break;
-			content += templine;
-		}
-		
-	}
-	filehandle.close();
-	content='<itemlog>'+content+'</itemlog>';
-	var itemlog = new XML(content); 
-    // Creates a Time String 
-   // Format: http://www.opengroup.org/onlinepubs/007908799/xsh/strftime.html 
+		// <item id="1262070968341" char="bobode" time="Tue 12/29/09 01:16" quality="4" ethereal="0" mode="1" name="Angel's Amulet ">+1 to Sorceress Skill Levels|</item>
+		//itemlog.item +=<item id={itemid} char={me.charname} time={timestring} quality={item.quality} ethereal={isEthereal} mode={_mode} name={itemname}>{itemdesc}</item>; 
 	
-     // Creation of the file output, headers first and then the itemlog content 
+	
+		var filehandle = File.open(pathtobe, 2);
+		// Skips XML header lines because they cause errors when creating the E4X object
+		var linecount = 0;
+		while(!filehandle.eof) {
+			templine = filehandle.readLine(); 
+			if(!(templine == "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>" || templine == "<?xml-stylesheet href=\"itemlog.xsl\" type=\"text/xsl\"?>" || templine == "<itemlog>" || templine == "</itemlog>")) {
+				linecount++
+				if (linecount == NT_LoggingMaxLines)
+					break;
+				content += templine;
+			}
+		}
+		filehandle.close();
+		content='<itemlog>'+content+'</itemlog>';
+		var itemlog = new XML(content); 
+		// Creates a Time String 
+		// Format: http://www.opengroup.org/onlinepubs/007908799/xsh/strftime.html 
+	
+		// Creation of the file output, headers first and then the itemlog content 
 
-   FileTools.writeText(pathtobe, '<?xml version="1.0" encoding="iso-8859-1"?>\n<?xml-stylesheet href="itemlog.xsl" type="text/xsl"?>\n' + itemlog.toXMLString()); 
+		FileTools.writeText(pathtobe, '<?xml version="1.0" encoding="iso-8859-1"?>\n<?xml-stylesheet href="itemlog.xsl" type="text/xsl"?>\n' + itemlog.toXMLString()); 
+	}
+	catch (e)
+	{
+		print (e)
+	}
    return true;
 } 
 function WriteSqlItemLog(item,mode,nipline){
