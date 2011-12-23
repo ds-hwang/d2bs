@@ -303,7 +303,7 @@ function killZone(x,y,retry) {
     if(me.classid == 5) DA_DoPrecasts();
     
     //Door handling function for walking characters
-    if(!commPather.UseTele) openPathDoor(x,y,retry);
+    //if(!commPather.UseTele) openPathDoor(x,y,retry);
     return DP_STEPAHEAD;
 }
 

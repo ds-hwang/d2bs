@@ -293,9 +293,8 @@ function openTrist() {
     
     delay(2000);
     PickupQuestItem(524); // bks is 524 "Scroll of Inifuss", after Akara id's it, it becomes bkd - 525 - "Key to the Carin Stones"
-        
     // go see akara
-    YAM_MakeTP()
+    YAM_MakeTP();
     commPather.GotoNPC(148);
     clearNPC(DC_getNPC(148));
     

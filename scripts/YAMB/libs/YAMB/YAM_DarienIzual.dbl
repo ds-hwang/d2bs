@@ -1,0 +1,164 @@
+// Izual Multibot module by Darien
+//
+
+entryFunc = Izual;
+include("YAMB/configs/YAM_TeamBotting.dbl");
+var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
+
+function DK_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
+}
+
+function Izual() {
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
+    if (me.classid == 1) {
+        XP_Static = 5;
+        XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+        _XP_UseTeleOnImmune = false;
+    }
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; 
+        while(r < Leaders.length) {
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+    if(!commPather.UseTele) YAM_OpenChests = false;
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_INCUSERSTEP;
+    YAM_TownManager();
+    if(me.act != 4 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
+    // Use the WP to Act 4 if need be
+    if (me.area != 103) {
+        DM_UsePortal("Waypoint",103); 
+        YAM_InitCommTown(); 
+    }
+    //Path to Izual yourself
+    if (!WaitForPortal || YAM_IsLeader) {
+        var damnedCityWP = pathToIzual();
+    } else {
+        if(!isLeaderOnThisRun(LeaderPartyUnit,104,106)) DC_ThrowException("Leader Check:","Leader is done with Izual already!");
+        commTown4.GotoStart();
+        XP_Precasts();
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
+            while (me.area != 105) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype == 105) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
+                if(!isLeaderOnThisRun(LeaderPartyUnit,104,106,106,true)) DC_ThrowException("Leader Check:","Leader is done with Izual already!");
+            }
+        }
+    }
+    if(!YAM_IsLeader && LeaderPartyUnit && LeaderPartyUnit.area != 105) DC_ThrowException("Leader Check:","Leader is done with Izual already!");
+    XP_Precasts();
+    DA_UseCTASkills();
+    // Go attack Izual
+    if(AttackIzual()) {
+        DL_AddKill();
+        DSN_PickItems();
+    }
+    if(!YAM_IsLeader) {
+        //followers wait patiently in town while leader finshes business
+        YAM_MakeTP();
+        while(LeaderPartyUnit.area == 105 || LeaderPartyUnit.area == 106) delay(1000);
+    } else {
+        //if leader doesn't have city of damned wp, go get it.
+        if(!damnedCityWP) {
+            pathToLevel(106);
+            pathToWP();
+            GetWP(commPather.TargetID);
+        }
+    }
+}
+
+function pathToIzual() {
+    var damnedWP = haveWP(28);
+    if(!damnedWP) {
+        // Do precasts before leaving town
+        XP_Precasts();
+        // Exit Act 4 Town
+        dprint("leaving town",1);
+        commTown4.GotoExit();
+        dprint("walking out of fortress.",1);
+        while(me.area == 103) { DM_MoveTo(me.x+5, me.y+1); delay(500); }  //Darien
+        delay(1000); // allow merc/minions to catch up before casting
+    } else DM_UsePortal("Waypoint",106);
+    
+    // Do precasts after leaving town
+    XP_Precasts();
+    //path to Izual
+    pathToLevel(105);
+    pathtoFarUnit(1,256,105);
+    if(PublicMode > 0 && YAM_IsLeader) {
+        pathtoFarUnit(2,31);
+        XP_OpenTP();
+        say(YAM_TPMsg);
+        dprint("Waiting for Leechers",9);
+        delay(2000);
+    }
+    DA_UseCTASkills();
+    return damnedWP;
+}
+
+function AttackIzual() {
+    // Detecting Izual with 3 retries to be sure to get the target
+    for (var i = 0; i < 3; i+=1) {
+        var target = DC_FindMonster(256); //406=Izual's Ghost
+        if (target) { break; }
+    }
+    if (target) {
+        if (DA_CheckImmunities(target)) {
+            DL_AddChicken();
+            return false;
+        }
+        DC_DPrint("Killing Izual...");
+        XP_BossAttack(target);
+        // If we switched weapons on kill, switch back to the attack tab
+        if (XP_SwitchOnKill) { 
+            DC_SelectTab(1); 
+        }
+        DC_DPrint("Izual killed !");
+        // If we want to attack the monsters around, do it now
+        if (XP_KillMinions) {
+            killRadius(25);
+        }
+        // Move to where he died to check for items
+        DM_MoveTo(target.x,target.y);
+        //delay(2000); // pause, Izual's death kills everyone around him
+        target=false;
+    } 
+    else {
+        DC_DPrint("Izual not found!! Skip to next boss...");
+        return false;
+    }
+    return true;
+}

@@ -1,9 +1,125 @@
-entryFunc = AndyXP;
+//Darien Andy
 
-function AXP_GoToAndy() {
-	commPather.InitType = 1;
+entryFunc = DarienAndy;
+include("YAMB/configs/YAM_TeamBotting.dbl");
+var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
+
+
+function DK_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
+}
+
+
+function DarienAndy() {
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
+    // Configure Andy specific variables. Those are set in config file, don't change anything here!
+    if (me.classid == 1) {
+        (AXP_SorcSkill.length > 0) ? XP_SetSorcSkills(AXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+        XP_Static = AXP_Static;
+        _XP_UseTeleOnImmune = false;
+    }
+    XP_SwitchHP         = AXP_SwitchHP;
+    XP_StallHP          = AXP_StallHP;
+    XP_QuitImmune       = AXP_QuitImmune;
+    XP_StallKill        = AXP_StallKill;
+    XP_MinionStand      = true;
+
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; 
+        while(r < Leaders.length) {
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+
+    if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+        BuildSkeleArmy();
+    }
+
+    // Do town stuff in the act we are in
+    YAM_TownManager();
+
+    if(me.act != 1 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
+    if(YAM_IsLeader) {
+        // Path to Andariel's lair
+        Path2WP(8);
+        pathToAndy();
+    } else {
+        if(!isLeaderOnThisRun(LeaderPartyUnit,35,37)) DC_ThrowException("Leader Check:","Leader is done with Andariel already!");
+        // Use the WP to Act 1 if need be
+        if (me.area != 1) DM_UsePortal("Waypoint",1);
+        delay(1000);
+        YAM_InitCommTown();
+        commTown.GotoTP();
+        XP_Precasts();
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
+            while (me.area != 37) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype == 37) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
+                if(!isLeaderOnThisRun(LeaderPartyUnit,35,37,37,true)) DC_ThrowException("Leader Check:","Leader is done with Andariel already!");
+            }
+        }
+    }
+
+    // Go attack Andariel
+    if (AttackAndy()) {
+        DL_AddKill();
+    }
+    DSN_PickItems();
+    if(!YAM_IsLeader) {
+        while(me.area == LeaderPartyUnit.area) delay(1000);
+    }
+    
+    if(!Sc_DoneQuest(1,6)) {
+        dprint("Quest done! Talk with Warriv and on to Act 2!",2);
+        YAM_InitCommTown();
+        commTown.GotoWarriv();
+        var Warriv = getUnit(1,155);
+        if(Warriv) {
+            DT_DoInteract(Warriv)
+            Warriv.useMenu(0x0D36);
+            delay(1000);
+            Warriv.useMenu(0x0D36);
+            while(me.area != 40) delay(1000);
+        }
+    }
+}
+
+function pathToAndy() {
+    commPather.InitType = 1;
     var startingArea = me.area;
-	// Move from Catacombs 2 waypoint to Andariel's lair
+    // Move from Catacombs 2 waypoint to Andariel's lair
     while(me.area != 37) {
         var startarea = me.area;
         if(startingArea == 34 && me.area == 35) { pathToWP(); GetWP(commPather.TargetID); }
@@ -32,130 +148,68 @@ function AXP_GoToAndy() {
         }
     } else {
         //if(!pathtoFarUnit(1, 156)) {
-            //dprint("Can't detect Andy yet, pathing to a closer spot!",1);
-            pathToDest(22550,9636);
-            dprint("Spot 1",8);
-            killRadius(30);
-            pathToDest(22550,9621);
-            dprint("Spot 2",8);
-            if (AndySafeCheck) { 
-                if (YAM_SafeCheck()) 
-                XP_Precasts(); 
-            }
-    }
-}
-
-function AXP_AttackAndy() {
-	// Detecting Andariel with 3 retries to be sure to get the target
-	for (var i = 0; i < 3; i+=1) {
-		var target = DC_FindMonster(156);
-		if (target) { 
-			break; 
-		}
-	}
-    if(!target) { dprint("Moving Closer to Target",9); pathToDest(22550,9600); var target = DC_FindMonster(156); }
-	// If Andy is detected,
-	if (target) {
-		// If the target has a enchantment I want to chicken, log and skip
-		if (DA_CheckImmunities(target)) {
-			DL_AddChicken();
-			return false;
-		}
-		if(PublicMode > 0 && YAM_IsLeader) {
-			XP_OpenTP();
-			say(YAM_TPMsg);
-            dprint("Waiting for Leechers",9);
-			delay(5000);
-		}
-        DA_UseCTASkills();
-        if(commPather.UseTele) {
-		    DM_MoveTo(22561,9574);
-		    DM_MoveTo(22560,9554);
-		} else pathToDest(22550,9564);
-        
-        DC_Print ("Killing Andariel...");
-		if (!AXP_Kamikaze) {
-			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
-				XP_BossAttack (target); 
-			}
-			DM_MoveTo(22560,9548);
-			if (!checkCollision(me.area,me.x,me.y,3,target.x,target.y,3,3)) { 
-				XP_BossAttack (target); 
-			}
-		}
-		DM_MoveTo(22545 + AXP_OffsetX,9535 + AXP_OffsetY);
-		XP_BossAttack (target);
-		// If we switched weapons on kill, switch back to the attack tab
-		if (XP_SwitchOnKill) { 
-			DC_SelectTab(1); 
-		}
-		DC_Print("Andariel killed !");
-		if (XP_KillMinions) {
-			XP_ClearPosition(20,null,ATTACKING_MODE);
-		}
-		// Move to where she died to check for items
-		DM_MoveTo(target.x,target.y);
-		delay (3000);
-		target=false;
-	} 
-	else {
-		DC_Print("Andariel not found! Skip to next boss...");
-		return false;
-	}
-	return true;
-}
-
-function AndyXP() {
-	// Configure Andy specific variables. Those are set in config file, don't change anything here!
-	if (me.classid == 1) {
-		(AXP_SorcSkill.length > 0) ? XP_SetSorcSkills(AXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
-		XP_Static = AXP_Static;
-		_XP_UseTeleOnImmune = false;
-	}
-	XP_SwitchHP         = AXP_SwitchHP;
-	XP_StallHP          = AXP_StallHP;
-	XP_QuitImmune       = AXP_QuitImmune;
-	XP_StallKill        = AXP_StallKill;
-	XP_MinionStand      = true;
-	if (me.classid == 3) { 
-		XP_KillMinions = false; 
-	}
-	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
-		BuildSkeleArmy();
-	}
-
-	// Do town stuff in the act we are in
-	YAM_TownManager();
-	YAM_PathToWayPoint();
-	
-    Path2WP(8);
-    
-    // Path to Andariel's lair
-	AXP_GoToAndy();
-    
-	// Go attack Andariel
-	if (AXP_AttackAndy()) {
-		DL_AddKill();
-	}
-	DSN_PickItems(YAM_SafeCheck);
-    
-    if(!Sc_DoneQuest(1,6)) {
-        dprint("Quest done! Talk with Warriv and on to Act 2!",2);
-        YAM_InitCommTown();
-        commTown.GotoWarriv();
-        var Warriv = getUnit(1,155);
-        if(Warriv) {
-            DT_DoInteract(Warriv)
-            Warriv.useMenu(0x0D36);
-            delay(1000);
-            Warriv.useMenu(0x0D36);
-            while(me.area != 40) delay(1000);
+        //dprint("Can't detect Andy yet, pathing to a closer spot!",1);
+        pathToDest(22550,9636);
+        dprint("Spot 1",8);
+        killRadius(30);
+        pathToDest(22550,9621);
+        dprint("Spot 2",8);
+        if (AndySafeCheck) { 
+            if (YAM_SafeCheck()) 
+            XP_Precasts(); 
         }
     }
-    
-	if (DSN_LogRunes) { 
-		DL_SaveRuneLog(); 
-	}
+    if(PublicMode > 0 && YAM_IsLeader) {
+        XP_OpenTP();
+        say(YAM_TPMsg);
+        dprint("Waiting for Leechers",9);
+        delay(3000);
+    }
+    DA_UseCTASkills();
+}
+
+function AttackAndy() {
+    // Detecting Andariel with 3 retries to be sure to get the target
+    for (var i = 0; i < 3; i+=1) {
+        var target = DC_FindMonster(156);
+        if (target) { 
+            break; 
+        }
+    }
+    if(!target) { dprint("Moving Closer to Target",9); pathToDest(22550,9600); var target = DC_FindMonster(156); }
+    // If Andy is detected,
+    if (target) {
+        // If the target has a enchantment I want to chicken, log and skip
+        if (DA_CheckImmunities(target)) {
+            DL_AddChicken();
+            return false;
+        }
+        if(commPather.UseTele) {
+            DM_MoveTo(22561,9574);
+            DM_MoveTo(22560,9554);
+        } else pathToDest(22550,9564);
+        
+        DC_Print ("Killing Andariel...");
+        DM_MoveTo(22545 + AXP_OffsetX,9535 + AXP_OffsetY);
+        XP_BossAttack (target);
+        // If we switched weapons on kill, switch back to the attack tab
+        if (XP_SwitchOnKill) { 
+            DC_SelectTab(1); 
+        }
+        DC_Print("Andariel killed !");
+        if (XP_KillMinions) {
+            XP_ClearPosition(20,null,ATTACKING_MODE);
+        }
+        // Move to where she died to check for items
+        DM_MoveTo(target.x,target.y);
+        delay (3000);
+        target=false;
+    } 
+    else {
+        DC_Print("Andariel not found! Skip to next boss...");
+        return false;
+    }
+    return true;
 }
 
 function Path2WP(targetwp) {
@@ -254,4 +308,3 @@ function Path2WP(targetwp) {
         XP_Precasts();
     }
 }
-

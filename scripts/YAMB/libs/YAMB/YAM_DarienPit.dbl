@@ -1,0 +1,164 @@
+// Darien Pit
+
+entryFunc = DarienPit;
+include("YAMB/configs/YAM_TeamBotting.dbl");
+var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
+
+function DK_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
+}
+
+
+function pathToPit() {
+    DM_UsePortal("Waypoint",6);
+    // Do precasts after going into the portal
+    XP_Precasts();
+    
+    //Path to Tamoe then Pit
+    pathToLevel(7);
+    pathToWarp(DP_WARPPIT);
+    DC_DoDel(DC_LagDelay);
+    if(me.area == 7) DM_TakeStairs(2,3);
+
+    //path to Pit level 2
+    pathToWarp(DP_WARPNEXT);
+    DC_DoDel(DC_LagDelay);
+    if(me.area == 12) DM_TakeStairs(5,5);
+    if(PublicMode > 0 && YAM_IsLeader) {
+        XP_OpenTP();
+        say(YAM_TPMsg);
+        dprint("Waiting for Leechers",9);
+        delay(3000);
+    }
+    DA_UseCTASkills();
+}
+
+function clearPit(LeaderPartyUnit) {
+    if(me.area != 16) DM_TakeStairs(5,5);
+    XP_Precasts();
+    // Clear Pit Level 2
+    clearArea(false);
+    DSN_PickItems();
+
+    // Open Chest
+    pathToDest(7605,14421);
+    PXP_OpenChest();
+    DSN_PickItems();
+    if(!YAM_IsLeader) {
+        while(me.area == LeaderPartyUnit.area) delay(1000);
+    }
+    return true;
+}
+
+function PXP_OpenChest() {
+    // Move close enough to detect and open chest with TK
+    // Detect nearby objects, then loop until we get the uber chest
+    var chest = DC_getObject("chest");
+    if (chest) {
+        do {
+            if (chest.islocked!=0 && me.classid!=6) {
+                var _key = DC_GetKeys();
+                if ( !_key || (_key.getStat(70) < 1)) {
+                    print("This chest is locked but I don't have keys! Skipping it.");
+                    return false;
+                }
+            }
+            if (DC_CheckSkill(43)) {
+                DC_DoCast(43,0,chest );
+            }
+            else {
+                DM_MoveTo(chest.x + 2, chest.y, true);
+                DC_DoClick(0,0,chest);
+            }
+            DC_DoDel(400);
+            return true;
+        } while (chest.getNext());
+    }
+    return false; // default value to keep the engine happy -TechnoHunter
+}
+
+
+function DarienPit() {
+    if (me.classid == 1) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+
+    XP_SwitchHP = 0;
+    XP_StallHP = 0;
+    XP_MinionStand = true;
+    XP_QuitImmune = false;
+    
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; 
+        while(r < Leaders.length) {
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+    
+    if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+        BuildSkeleArmy();
+    }
+    // Do town stuff in the act we are in
+    YAM_TownManager();
+    
+    if(me.act != 1 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
+    if(YAM_IsLeader) {
+        // Go to The Pit
+        pathToPit();
+    } else {
+        if(!isLeaderOnThisRun(LeaderPartyUnit,6,12,16)) DC_ThrowException("Leader Check:","Leader is done with Pit already!");
+        // Use the WP to Act 1 if need be
+        if (me.area != 1) DM_UsePortal("Waypoint",1);
+        delay(1000);
+        YAM_InitCommTown();
+        commTown.GotoTP();
+        XP_Precasts();
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
+            while (me.area != 16) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype == 16) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
+                if(!isLeaderOnThisRun(LeaderPartyUnit,6,12,16,true)) DC_ThrowException("Leader Check:","Leader is done with Pit already!");
+            }
+        }
+    }
+    // Do precasts after going into the portal
+    XP_Precasts();
+    // Clear The Pit
+    if (clearPit(LeaderPartyUnit)) {
+        DL_AddKill();
+        DSN_PickItems();
+    }
+    if (DSN_LogRunes) {
+        DL_SaveRuneLog();
+    }
+}

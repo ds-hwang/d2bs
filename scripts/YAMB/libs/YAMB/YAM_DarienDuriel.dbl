@@ -1,0 +1,178 @@
+//Darien Duriel
+
+entryFunc = DarienDuriel;
+include("YAMB/configs/YAM_TeamBotting.dbl");
+var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
+
+
+function DK_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
+}
+
+
+function DarienDuriel() {
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
+    if (me.classid == 1) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; 
+        while(r < Leaders.length) {
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+    
+    if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
+        BuildSkeleArmy();
+    }
+
+    // Do town stuff in the act we are in
+    YAM_TownManager();
+    
+    if(me.act != 2 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
+    if(YAM_IsLeader) {
+        // Path to Duriel's lair
+        GoToDuriel();
+    } else {
+        if(!isLeaderOnThisRun(LeaderPartyUnit,66,73,46)) DC_ThrowException("Leader Check:","Leader is done with Duriel already!");
+        // Use the WP to Act 2 if need be
+        if (me.area != 40) DM_UsePortal("Waypoint",40);
+        delay(1000);
+        YAM_InitCommTown();
+        commTown2.GotoTP();
+        XP_Precasts();
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
+            while (DC_InTown(me)) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype == 73) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
+                if(!isLeaderOnThisRun(LeaderPartyUnit,66,73,46,true)) DC_ThrowException("Leader Check:","Leader is done with Duriel already!");
+            }
+        }
+    }
+    
+    // Go attack Duriel
+    if (AttackDuriel()) DL_AddKill();
+    DSN_PickItems();
+    if(!YAM_IsLeader) {
+        while(me.area == LeaderPartyUnit.area) delay(1000);
+    }
+}
+
+function GoToDuriel() {
+    DM_UsePortal("Waypoint",46);
+    // Do precasts after going into the portal
+    XP_Precasts();
+    var _TalTomb = getRoom();
+    var correctTalTomb = _TalTomb.correcttomb;
+    commPather.InitType = 0;
+    if(correctTalTomb) {
+        switch(correctTalTomb) {
+            case 66:    pathToWarp(DP_WARPTALTOMB1);  break;
+            case 67:    pathToWarp(DP_WARPTALTOMB2);  break;
+            case 68:    pathToWarp(DP_WARPTALTOMB3);  break;
+            case 69:    pathToWarp(DP_WARPTALTOMB4);  break;
+            case 70:    pathToWarp(DP_WARPTALTOMB5);  break;
+            case 71:    pathToWarp(DP_WARPTALTOMB6);  break;
+            case 72:    pathToWarp(DP_WARPTALTOMB7);  break;
+        }
+        delay(1500);
+        if(me.area == 46) {
+            var tile = correctTalTomb-66+38;
+            print("Manually Taking Stairs");
+            DM_TakeStairs(tile, tile);
+        }
+        killRadius(20);
+        DSN_PickItems();
+        
+        // Move to Duriel Lair entrance
+        commPather.InteractTile = true;
+        if(!pathtoFarUnit(2,100)) pathtoFarUnit(2,152);
+        if (me.area != 73) {
+            killRadius(10);
+            for (var i = 0; i < 3; i+=1) {
+                var Lair = getUnit(2, 100);
+                if(Lair) break;
+            }
+            if(!Lair) DC_ThrowException("Could not enter Duriel's Lair!");
+            var count = 0;
+            while(me.area != 73 && count < 5) {
+                DM_TakeEntrance(Lair);
+                if(me.area != 73) {
+                    if(Lair) {
+                        DM_MoveTo(Lair.x,Lair.y);
+                        killRadius(10);
+                    }
+                    DSN_PickItems();
+                    count++;
+                }
+            }
+        }
+        if (me.area != 73) DC_ThrowException("Could not enter Duriel's Lair!");
+        if(PublicMode > 0 && YAM_IsLeader) {
+            XP_OpenTP();
+            say(YAM_TPMsg);
+            delay(1000);
+        }
+        DA_UseCTASkills();
+    } else DC_ThrowException("Can not find Correct Tomb!");
+}
+
+function AttackDuriel() {
+    for (var i = 0; i < 3; i+=1) {
+        var target = DC_FindMonster(211);
+        if (target) break; 
+    }
+    // If Duriel is detected,
+    if (target) {
+        // If the target has a enchantment I want to chicken, log and skip
+        if (DA_CheckImmunities(target)) {
+            DL_AddChicken();
+            return false;
+        }
+        DC_Print ("Killing Duriel...");
+        XP_BossAttack (target);
+        // If we switched weapons on kill, switch back to the attack tab
+        if (XP_SwitchOnKill) { 
+            DC_SelectTab(1); 
+        }
+        DC_Print("Duriel killed !");
+        // Move to where he died to check for items
+        DM_MoveTo(target.x,target.y);
+        DSN_PickItems();
+    } else {
+        DC_Print("Duriel not found!..");
+        return false;
+    }
+    return true;
+}

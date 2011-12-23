@@ -1,107 +1,174 @@
-entryFunc = CountessXP;
+// Darien Countess
+entryFunc = DarienCountess;
 
-function CXP_GoToCountess() {
+include("YAMB/configs/YAM_TeamBotting.dbl");
+var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
 
-	// Move from Black Marsh waypoint to Countess Temple level 5
-	pathToWarp(DP_WARPTOWER);
-	DC_DoDel(DC_LagDelay);
-	delay(2000);
-	if(me.area == 6) DM_TakeStairs(10,10);
-	DC_DoDel(DC_LagDelay);
-	DM_TakeStairs(12,12);
 
-	// Going down the tower levels
+function DK_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
+    var Firstword = msg.substring(0, msg.indexOf(" "));
+    var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    if(!Firstword) { Firstword = params; params = null; }
+    if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
+}
+
+function DarienCountess() {
+    if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
+    // Configure Countess specific variables. Those are set in config file, don't change anything here!
+    if (me.classid == 1) {
+        (CXP_SorcSkill.length > 0) ? XP_SetSorcSkills(CXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+        XP_Static = CXP_Static;
+        _XP_UseTeleOnImmune = false;
+    }
+    XP_SwitchHP         = CXP_SwitchHP;
+    XP_StallHP          = CXP_StallHP;
+    XP_QuitImmune       = CXP_QuitImmune;
+    XP_StallKill        = CXP_StallKill;
+    XP_MinionStand      = true;
+
+    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_INCUSERSTEP;
+
+    //quit if you're not in the Leaders game and you're a follower
+    if(!YAM_IsLeader) {
+        var r=0; 
+        while(r < Leaders.length) {
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
+            r++;
+        }
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
+    }
+
+    // Do town stuff in the act we are in
+    YAM_TownManager();
+
+    if(me.act != 1 || YAM_IsLeader) {
+        YAM_PathToWayPoint();
+        XP_Precasts();
+    }
+    if(YAM_IsLeader) {
+        // Path to Countess
+        pathToCountess();
+    } else {
+        if(!isLeaderOnThisRun(LeaderPartyUnit,20,25,6)) DC_ThrowException("Leader Check:","Leader is done with Countess already!");
+        // Use the WP to Act 1 if need be
+        if (me.area != 1) DM_UsePortal("Waypoint",1);
+        delay(1000);
+        YAM_InitCommTown();
+        commTown.GotoTP();
+        XP_Precasts();
+        DC_Print("Waiting for tp...");
+        if(PublicMode <= 2) {
+            while (me.area != 25) {
+                var portal = getUnit(2,"Portal");
+                if(portal) { 
+                    do {
+                        if(portal.objtype == 25) {
+                            var pOwner = portal.getParent();
+                            if(pOwner) {
+                                if(DC_InMyParty(portal.getParent())) {
+                                    if(PublicMode == 1 || (PublicMode == 2 && pOwner == myLeader)) {
+                                        // Do precasts before going into the portal
+                                        XP_Precasts();
+                                        DM_TakeEntrance(portal);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } while (portal.getNext());
+                }
+                delay(1500);
+                if(!isLeaderOnThisRun(LeaderPartyUnit,20,25,6,true)) DC_ThrowException("Leader Check:","Leader is done with Countess already!");
+            }
+        }
+    }
+
+    XP_Precasts();
+    DA_UseCTASkills();
+
+    // Go attack Countess
+    if (AttackCountess()) {
+        DL_AddKill();
+        DSN_PickItems();
+    }
+    if(!YAM_IsLeader) {
+        while(me.area == LeaderPartyUnit.area) delay(1000);
+    }
+    if (DSN_LogRunes) DL_SaveRuneLog();
+}
+
+
+function pathToCountess() {
+    // Use the WP to BlackMarsh
+    DM_UsePortal("Waypoint",0x06);
+    //delay some to let the game stablize
+    delay(1000);
+    // Do precasts after going into the portal
+    XP_Precasts();
+    // Move from Black Marsh waypoint to Countess Temple level 5
+    pathToWarp(DP_WARPTOWER);
+    DC_DoDel(DC_LagDelay);
+    delay(2000);
+    if(me.area == 6) DM_TakeStairs(10,10);
+    DC_DoDel(DC_LagDelay);
+    DM_TakeStairs(12,12);
+
+    // Going down the tower levels
     while(me.area != 25) {
         var startarea = me.area;
-	    pathToWarp(DP_WARPNEXT);
-	    DC_DoDel(DC_LagDelay);
-    	if(me.area == startarea) DM_TakeStairs(9,9);
+        pathToWarp(DP_WARPNEXT);
+        DC_DoDel(DC_LagDelay);
+        if(me.area == startarea) DM_TakeStairs(9,9);
     }
-    
-	// Check health/mana, belt and if cursed, go to healer if needed
-	if (CountessSafeCheck) { killRadius(5); delay(1500); killRadius(5); YAM_SafeCheck(); }
-	XP_Precasts();
 
-    if(!pathtoFarUnit(1, 740)) pathtoFarUnit(2,31);
-    killRadius(20);
+    // Check health/mana, belt and if cursed, go to healer if needed
+    if (CountessSafeCheck) { killRadius(5); delay(1500); killRadius(5); YAM_SafeCheck(); }
+    if(PublicMode > 0 && YAM_IsLeader) {
+        if(!pathtoFarUnit(1, 740)) pathtoFarUnit(2,31);
+        XP_OpenTP();
+        say(YAM_TPMsg);
+        dprint("Waiting for Leechers",9);
+        delay(2000);
+    }
+    DA_UseCTASkills();
 }
 
 
-function CXP_AttackCountess() {
-	var target = DC_FindMonster(45,0x04);
-	// If Countess is detected,
-	if (target) {
+function AttackCountess() {
+    var target = DC_FindMonster(45,0x04);
+    if(!target) {
+        pathtoFarUnit(1, 740);
+        var target = DC_FindMonster(45,0x04);
+    }
+    // If Countess is detected,
+    if (target) {
+        if(getDistance(target) > 12) pathToDest(target.x,target.y,killZone);
         if (DA_CheckImmunities(target)) {
-			DL_AddChicken();
-			return false;
-		}
-		// If we want to attack the monsters around, do it now
-		DC_DoDel(20);
-		if (XP_KillMinions) {
-			XP_ClearPosition(30,target,ATTACKING_MODE,45);
-			XP_ClearPosition(30,target,ATTACKING_MODE);
-			XP_ClearPosition(30,target,ALIVE_MODE,45);
-			XP_ClearPosition(30,target);
-			DSN_PickItems(YAM_SafeCheck);
-		}
-		DC_Print("Killing Countess...");
-		XP_BossAttack(target);
-		// If we switched weapons on kill, switch back to the attack tab
-		if (XP_SwitchOnKill)
-			DC_SelectTab(1);
-		DC_Print("The Countess killed !");
-		if (XP_KillMinions) {
-			XP_ClearPosition(15);
-		}
+            DL_AddChicken();
+            return false;
+        }
+        DC_Print("Killing Countess...");
+        XP_BossAttack(target);
+        // If we switched weapons on kill, switch back to the attack tab
+        if (XP_SwitchOnKill)
+            DC_SelectTab(1);
+        DC_Print("The Countess killed !");
+        if (XP_KillMinions) {
+            killRadius(25);
+        }
 
-		// Move to where she died to check for items
-		DM_MoveTo(target.x,target.y);
-		target=false;
-	}
-	else {
-		DC_Print("Countess not found or we chickened! Skip to next boss...");
-		return false;
-	}
-	return true;
-}
-
-function CountessXP() {
-	// Configure Countess specific variables. Those are set in config file, don't change anything here!
-	if (me.classid == 1) {
-		(CXP_SorcSkill.length > 0) ? XP_SetSorcSkills(CXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
-		XP_Static = CXP_Static;
-		_XP_UseTeleOnImmune = false;
-	}
-	XP_SwitchHP         = CXP_SwitchHP;
-	XP_StallHP          = CXP_StallHP;
-	XP_QuitImmune       = CXP_QuitImmune;
-	XP_StallKill        = CXP_StallKill;
-	XP_MinionStand      = true;
-    
-    commPather.StepActionflag = DP_CLEARWHENSTUCK|DP_USESHRINES|DP_INCUSERSTEP;
-    
-	if (me.classid == 3)
-		XP_KillMinions  = false;
-   	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy)
-		BuildSkeleArmy();
-	// Do town stuff in the act we are in
-	YAM_TownManager();
-	YAM_PathToWayPoint();
-	// Do precasts before going into the portal
-	XP_Precasts();
-	// Use the WP to BlackMarsh
-	DM_UsePortal("Waypoint",0x06);
-	//delay some to let the game stablize
-	delay(1000);
-	// Do precasts after going into the portal
-	XP_Precasts();
-	// Path to the Countess
-	CXP_GoToCountess();
-	// Go attack Countess
-	if (CXP_AttackCountess()) {
-		DL_AddKill();
-		DSN_PickItems(YAM_SafeCheck);
-	}
-	if (DSN_LogRunes)
-		DL_SaveRuneLog();
+        // Move to where she died to check for items
+        DM_MoveTo(target.x,target.y);
+        target=false;
+    }
+    else {
+        DC_Print("Countess not found or we chickened! Skip to next boss...");
+        return false;
+    }
+    return true;
 }

@@ -4,34 +4,35 @@
 entryFunc = Baal;
 include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
+var leaderName=false; 
+var LeaderPartyUnit = false;
 
 function DK_GameMsgHandler(who, msg) {
-	var parsedMsg = new Array();
+    var parsedMsg = new Array();
     var Firstword = msg.substring(0, msg.indexOf(" "));
     var params = msg.substring(msg.indexOf(" ")+1, msg.length);
-     if(!Firstword) { Firstword = params; params = null; }
-    //var command = Firstword.toLowerCase();
-    //if(params) params = params.toLowerCase();
-    // The one who yells "tp up" becomes my true leader
+    if(!Firstword) { Firstword = params; params = null; }
     if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
 }
 
 function Baal() {
     if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
-	if (me.classid == 1) {
-		XP_Static = 8;
-		(BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
-		XP_Static = BXP_Static;
-		_XP_UseTeleOnImmune = false;
-	}
-    //quit if you're not in the Leaders game and you're a follower
+    if (me.classid == 1) {
+        XP_Static = 8;
+        (BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
+        XP_Static = BXP_Static;
+        _XP_UseTeleOnImmune = false;
+    }
+//quit if you're not in the Leaders game and you're a follower
     if(!YAM_IsLeader) {
-        var r=0; var leaderHere=false;
+        var r=0; 
         while(r < Leaders.length) {
-            if(getParty(Leaders[r])) { leaderHere = Leaders[r]; break; }
+            LeaderPartyUnit = getParty(Leaders[r]);
+            if(LeaderPartyUnit) { leaderName = Leaders[r]; break; }
             r++;
         }
-        if(!leaderHere) DC_QuitMessage("Leader is not in game!");
+        if(!leaderName) DC_QuitMessage("Leader is not in game!");
+        if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
     }
     YAM_TownManager();
     if(me.act != 5 || YAM_IsLeader) {
@@ -77,18 +78,18 @@ function Baal() {
     
     //wait for portal to throne - team botting
     } else {
-    
+        if(!isLeaderOnThisRun(LeaderPartyUnit,129,132)) DC_ThrowException("Leader Check:","Leader is NOT on this Run!");
         // Use the WP to Act 5 if need be
-		if (me.area != 109) {
-			YAM_PathToWayPoint(); 
-			DM_UsePortal("Waypoint",0x6d); 
-			YAM_InitCommTown(); 
-		}
-		commTown5.GotoStart();
+        if (me.area != 109) {
+            YAM_PathToWayPoint(); 
+            DM_UsePortal("Waypoint",0x6d); 
+            YAM_InitCommTown(); 
+        }
+        commTown5.GotoStart();
         XP_Precasts();
-		DC_Print("Waiting for tp...");
+        DC_Print("Waiting for tp...");
         if(PublicMode <= 2) {
-            while (me.area != 131) {
+            while (me.area < 131) {
                 var portal = getUnit(2,"Portal");
                 if(portal) { 
                     do {
@@ -108,7 +109,7 @@ function Baal() {
                     } while (portal.getNext());
                 }
                 delay(1500);
-                if(me.area == 132) break;
+                if(!isLeaderOnThisRun(LeaderPartyUnit,129,132,132,true)) DC_ThrowException("Leader Check:","Leader is NOT on this Run!");
             }
         }
     }
@@ -121,7 +122,8 @@ function Baal() {
         if(SkipBaal) DC_QuitMessage("Run Done... waiting for next game");
         pathToDest(15092,5026);
     } else {
-
+        XP_Precasts();
+        DA_UseCTASkills();
         // Clearing main room
         killRadius(30); 
         DM_MoveTo(15091,5072); // entrance
@@ -155,7 +157,7 @@ function Baal() {
     DSN_PickItems();
 
     // If Merc Died, revive him b4 killing Baal
-	if(me.mercrevivecost && me.mercrevivecost < DC_MyGold()) {
+    if(me.mercrevivecost && me.mercrevivecost < DC_MyGold()) {
         say("Need to go revive the mercenary :-/");
         YAM_TownManager();
         /*
@@ -170,7 +172,7 @@ function Baal() {
         commTown5.GotoStart();
         DM_UsePortal("BluePortal",131);
         XP_OpenTP(); 
-	}
+    }
     
     //Go to Worldstone chamber
     pathToDest(15091,5006);
@@ -202,7 +204,9 @@ function endGame() {
     // Just incase he spawns a twin
     Assassinate(544, 544, 4);
     DSN_PickItems();
-    if(YAM_IsLeader) say("Next Game");
+    if(!YAM_IsLeader) {
+        while(me.area == LeaderPartyUnit.area) delay(1000);
+    }
 }
 
 function clearThrone() {

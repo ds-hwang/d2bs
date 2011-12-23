@@ -703,6 +703,19 @@ function openObjectID(classid) {
     return DM_TouchObject(obj);
 }
 
+//waits while leaders is in town or doing a pindle run
+//when leader leaves town if leader is in or between area1 and area2, or in area3 return true;
+// ex. countess run would use (20,25,8)
+function isLeaderOnThisRun(LeaderPartyUnit,area1,area2,area3,quiet) {
+    if(!quiet) quiet = false;
+    if(!quiet) DC_Print("Waiting to see if Leader is on this run...");
+    while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) delay(3000); //allow leader a quick pindle run at the start
+    if((LeaderPartyUnit.area >= area1 && LeaderPartyUnit.area <= area2) || LeaderPartyUnit.area == area3) {
+        if(!quiet) dprint("Leader is on this Run!",2);
+        return true;
+    }
+    return false;
+}
 
 ////////////////////  End Darien Section ///////////////////////////////////
 

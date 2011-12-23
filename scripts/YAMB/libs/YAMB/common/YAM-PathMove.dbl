@@ -346,6 +346,7 @@ function pathMove(_info) {
 
 	// The following are used in re-calculating a path if we get stuck
 	//(no need to immediately fail pathing unless thepoint we are aiming for can NOT be reached from where we are)
+    this.Target      = 0; 
 	this.TargetX     = 0; 
 	this.TargetY     = 0; 
 	this.CrossPointX = 0; 
@@ -684,6 +685,7 @@ function pathMove(_info) {
 	this.MovePath = function( pPath, pMoveDist, pDataback, pDoorHandler ) {
 
 		DP_DPrint("MovePath() -> Entering function, path length: " + pPath.length);
+        this.Target             = pPath[pPath.length-1];
 		this.TargetX            = pPath[pPath.length-1].x;
 		this.TargetY            = pPath[pPath.length-1].y;
         
@@ -1026,7 +1028,7 @@ function pathMove(_info) {
 	}
 
 	this.DoorOpener = function( pX, pY, pDoorHandler, retrys ) {
-        if(!DP_AreaDoors[me.area]) return false;
+        //if(!DP_AreaDoors[me.area]) return false;
 		switch(typeof( pDoorHandler )){
 			case "function":
 				return pDoorHandler( pX, pY, retrys );
@@ -1194,11 +1196,12 @@ function pathMove(_info) {
         var _retry = 0;
         var _numtrys=15; //parseInt(10000/DP_WalkDel,10);
         var _thrash = 0;
-        var _nthrash=1; //parseInt(3000/DP_WalkDel,10);
+        var _nthrash=4; //parseInt(3000/DP_WalkDel,10);
+        var doorArea = DP_AreaDoors[me.area];
         // If the char has running disabled, toggle to enable it
         if(me.runwalk == 0) { me.runwalk=1; }
         
-        if(!InTown(me)) this.DoorOpener(pX, pY, pDoorHandler, _retry);
+        if(doorArea) this.DoorOpener(pX, pY, pDoorHandler, _retry);
         var _doorFlag = false;
         var _doorFlag2 = 10;
         
@@ -1207,7 +1210,7 @@ function pathMove(_info) {
         
         // Loop until we got in the dest coords
         while ((Math.abs(me.x - pX) > 3 || Math.abs(me.y - pY) > 3) && _retry <= _numtrys && (me.mode != 17)) {
-            dprint("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
+            //dprint("this.WalkTo: ÿc2 attempt: " + _retry + " [" + _currdestx + ", " + _currdesty + "]");
             // Randomize the coords if RandomMove is set to true
             if(DP_RandomMove) {
                 _currdestx+=rand(-2,2);
@@ -1220,12 +1223,17 @@ function pathMove(_info) {
             //if(DP_RandomMoveDel) { delay(DP_WalkDel + rand(0,DP_WalkDel)); }
             //else { delay(DP_WalkDel); }
             
-            if(!InTown(me) && _doorFlag) this.DoorOpener(pX, pY, pDoorHandler, _retry);
-            _doorFlag = true;
-            if(!InTown(me) && _retry > _doorFlag2) { 
-                this.DoorOpener(pX, pY, "default");
-                _doorFlag2 = _doorFlag2 + 5;
+            if(doorArea) {
+                if(_doorFlag) this.DoorOpener(pX, pY, pDoorHandler, _retry);
+                _doorFlag = true;
+                if(_retry > _doorFlag2) { 
+                    this.DoorOpener(pX, pY, "default");
+                    _doorFlag2 = _doorFlag2 + 5;
+                }
+            } else {
+                if(_retry > 8) killRadius(2);
             }
+            
             
             // Increase the retry counter
             _retry+=1;

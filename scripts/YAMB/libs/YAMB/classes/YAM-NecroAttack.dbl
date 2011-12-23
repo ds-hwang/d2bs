@@ -351,20 +351,23 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 	return true;
 }
 
-function fullArmy() {
-
+function fullArmy(percent) {
+    if(me.area == 132 || me.area == 73) return false;
+    if(!arguments.length) percent = 100;
+    if(!XP_useSkel && !XP_useSkelMage && !XP_useRevive) return true;
+    
     var maxRevives = 0;
     var haveRevive = 0;
     
     for(var t=4; t < 7; t++) {
         
         haveRevive = me.getMinionCount(t);
-        if(t == 4) maxRevives = XP_MaxRevives(70); 
-        else if(t ==5) maxRevives = XP_MaxRevives(80);
-        else if(t ==6) maxRevives = XP_MaxRevives(95);
+        if(t == 4 && XP_useSkel) maxRevives = XP_MaxRevives(70); 
+        else if(t ==5 && XP_useSkelMage) maxRevives = XP_MaxRevives(80);
+        else if(t ==6 && XP_useRevive) maxRevives = XP_MaxRevives(95);
         
-        if(maxRevives && haveRevive < maxRevives) {
-            //dprint("Army not complete!",1); 
+        if(maxRevives && haveRevive < maxRevives * percent/100) {
+            dprint("Army not complete!",1); 
             return false;
         }
     }
@@ -373,15 +376,15 @@ function fullArmy() {
 
 function XP_UseNecroCE(target) {
 
-    if(!fullArmy()) return false;
+    if(!fullArmy(50)) return false;
 
 	if (!target || target.hp < 1 || (target.getStat(36) > 99 && target.getStat(39) > 99)) return false;
 	var CE_level = DC_CheckSkill(74);
 	var CEa = (CE_level - 1) / 3;
 	var CE_rad = 2.6 + CEa;
-	bomb = getBodyTarget(25);
-	//if (bomb && target && target.hp > 0 && me.mp > 20 && DA_GetRangeXY(target,bomb.x,bomb.y) <= CE_rad) {
-	if (bomb && target && target.hp > 0 && me.mp > 20 && DA_GetRange(target,bomb) <= CE_rad) {
+	var bomb = getBodyTarget(25);
+
+	if (bomb && target && target.hp > 0 && me.mp > 20 && getDistance(target,bomb) <= CE_rad) {
 		dprint("Bombs Away!", 2);
         DC_DoCast(74,0,bomb);
 		delay(100);
@@ -441,7 +444,7 @@ function XP_CheckRevives(reviveSkill,reviveID) {
 	success = (haveRevive >= maxRevives || me.mp <= needMana);
 	//XP_ToRevive controls how many corpses to proccess per function call
 	while (haveRevive < maxRevives && me.mp > needMana && i++ < XP_ToRevive) {
-		korpse = getBodyTarget(25);
+		korpse = getBodyTarget(20);
 		if (reviveSkill == 95) {
 			if (korpse && ((korpse.spectype & 0x07) == 0)	&& korpse.classid != 571
 				&& korpse.classid != 572 && korpse.classid != 573
@@ -529,9 +532,9 @@ function getBodyTarget(range) {
 			BodyTarget.classid != 363 && BodyTarget.classid != 364 &&
 			BodyTarget.classid != 371 && BodyTarget.classid != 543 &&
 			BodyTarget.classid != 561 && */
-			getBaseStat(6, BodyTarget.classid, 8) &&
-			(((me.area == 132 || me.area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
-			!checkCollision(me.area,me.x,me.y,3,BodyTarget.x,BodyTarget.y,3,7))) {
+			getBaseStat(6, BodyTarget.classid, 8)) {
+            //&& (((me.area == 132 || me.area == 131) && ((me.x < 15099) && (me.x > 15088)) && ((me.y < 5022) && (me.y > 5006))) ||
+			//!checkCollision(me.area,me.x,me.y,3,BodyTarget.x,BodyTarget.y,3,7))) {
 			var skipTarget=false;
 			for(var tk = 0; tk<ignoreKorpse.length; tk++) {
 				if(ignoreKorpse[tk] == BodyTarget.gid) {
@@ -601,7 +604,6 @@ function BuildSkeleArmy() {
 }
 
 function XP_PreAttack(x,y) {
-	//if (DC_DoCast(78,0,x,y)) { return true; }
-	return false;
+	XP_NecroRevive();
 }
 
