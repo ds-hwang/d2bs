@@ -709,7 +709,11 @@ function openObjectID(classid) {
 function isLeaderOnThisRun(LeaderPartyUnit,area1,area2,area3,quiet) {
     if(!quiet) quiet = false;
     if(!quiet) DC_Print("Waiting to see if Leader is on this run...");
-    while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) delay(3000); //allow leader a quick pindle run at the start
+    //allow leader a quick pindle run
+    while(DC_InTown(LeaderPartyUnit) || LeaderPartyUnit.area == 121) { 
+        delay(3000); 
+        if(!getParty(LeaderPartyUnit.name)) DC_QuitMessage("Leader not in Game!"); 
+    }
     if((LeaderPartyUnit.area >= area1 && LeaderPartyUnit.area <= area2) || LeaderPartyUnit.area == area3) {
         if(!quiet) dprint("Leader is on this Run!",2);
         return true;

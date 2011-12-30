@@ -61,11 +61,12 @@ function YAM_CheckIfCursed() {
 }
 
 function YAM_SafeCheck() {
-	if(YAM_CheckIfCursed()||DT_CheckBelt()||DT_CheckHeal()||_YAM_OutOfPots||(DT_CheckUnids() > 0)||	DT_CheckMerc()||_YAM_Town) { 
-		_YAM_GoToHealer = true; 
-	}
 	if(DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { 
 		_YAM_GoToRepair = true; 
+	}
+    if(!IamA_Pussy) return false;
+    if(YAM_CheckIfCursed()||DT_CheckBelt()||DT_CheckHeal()||_YAM_OutOfPots||(DT_CheckUnids() > 0)||	DT_CheckMerc()||_YAM_Town) { 
+		_YAM_GoToHealer = true; 
 	}
 	if(_YAM_GoToHealer || _YAM_GoToRepair) {
 		if(YAM_Debug) {

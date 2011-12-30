@@ -7,7 +7,7 @@ include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
 var leaderName=false; 
 var LeaderPartyUnit = false;
-var leash = 10;
+var leash = 5;
 
 function DK_GameMsgHandler(who, msg) {
     var parsedMsg = new Array();
@@ -137,6 +137,7 @@ function followTheLeader(leaderName) {
         while(getDistance(LeaderPartyUnit) > leash && LeaderPartyUnit.area == 108) { // && LeaderPartyUnit.x > 7660 && LeaderPartyUnit.x < 7920 && LeaderPartyUnit.y > 5168) {
             dprint("Leader out of range. Pathing to Leader",9);
             pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos);
+            killRadius(25);
         }
         if(commPather.UseTele) killRadius(30);
         else killRadius(20);

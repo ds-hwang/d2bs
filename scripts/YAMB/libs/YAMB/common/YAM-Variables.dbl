@@ -258,6 +258,9 @@ var YAM_ShowInnerExceptions = true;
 ////////////////////////////////
 // Attack variables
 ////////////////////////////////
+// YAM_SafeCheck() - false will still check repair and ammo
+// set true to be a little pussy and ruin every run by going to town 50 fucking times.
+var IamA_Pussy = false;
 
 // Immunities / aura / enchantments
 var DA_Immunities         = new Array(null,false,false,false,false,false,false);
