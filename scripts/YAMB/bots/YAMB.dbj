@@ -543,6 +543,7 @@ function YAM() {
 			delay(YAM_MinGameLength*1000 - YAM_RunTime);
 		}
 	}
+    if(!YAM_IsLeader) delay(5000);
 	sendCopyData(null, "OOG", 0,"Quit:Full Run" );
 	quit();
 }
