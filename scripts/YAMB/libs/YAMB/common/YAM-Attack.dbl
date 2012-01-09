@@ -886,7 +886,7 @@ function XP_CheckUtil(target) {
 //	if(target.hp < 1 || !getUnit(1,null,null,target.gid))
 //		return true;
 	if(!target) // got into here without actually having a target! bail out -TechnoHunter
-		return true;
+		return false;
 
 	if((target.hp <= 0) || (target.mode == 12) || (target.mode == 0)) {
 		DC_DPrint("XP_CheckUtil() : checking " + target.name + " but target is dead!");
@@ -894,7 +894,7 @@ function XP_CheckUtil(target) {
 	}
 	if(!getUnit(1,null,null,target.gid)){
 		DC_DPrint("XP_CheckUtil() : checking " + target.name + " getUnit failed to find the target!");
-		return true;
+		return false;
 	}
 
 	if(_YAM_MercDead||_YAM_OutOfPots||_YAM_Town)

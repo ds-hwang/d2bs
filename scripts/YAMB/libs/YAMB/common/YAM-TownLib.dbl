@@ -718,6 +718,7 @@ function DT_CheckAmmo() {
 // -npc		NPC object to shop for ammo
 // Return value : Success of the function
 function DT_BuyAmmo(npc) {
+    
     DC_DPrint("DT_BuyAmmo");
 	// Check if we need to refill the ammunition
 	if(!DT_CheckAmmo()) {
@@ -746,6 +747,19 @@ function DT_BuyAmmo(npc) {
 		}
 	}
     
+    // Get original equiped Weapon GID
+    var _weapon = DC_getMyItem(null,1);
+    var _wepGID = 0;
+    var _wepLoc = 0;
+	if(_weapon) { do {
+		if(_DT_ItemLoc(_weapon) == 1) {
+            if(_weapon.code != "aqv" && _weapon.code != "cqv") {
+			    _wepGID = _weapon.gid;
+                _wepLoc = _weapon.bodylocation;
+                break;
+            }
+		}
+	} while(_weapon.getNext(null,1)); }
     
 	// Loop until all the needed ammo is refilled
 	for(var zx = 0; zx < _DT_AmmoArray.length; zx += 1) {
@@ -754,9 +768,9 @@ function DT_BuyAmmo(npc) {
 		// If the tab need ammo, refill them
 		if(!_DT_AmmoArray[zx].FoundAmmo || _DT_AmmoArray[zx].FillAmmo) {
 			// If it is in the hidden weapon tab, switch
-			if(_DT_AmmoArray[zx].Location-1!=weaponSwitch(1)) {
+            if(_DT_AmmoArray[zx].Location == 2) { 
 				SwitchedWeapons=true;
-				//DC_DoWeaponSwitch();
+				DC_DoWeaponSwitch();
 			}
             
 			// Check if we have ammo in the tab
@@ -771,21 +785,31 @@ function DT_BuyAmmo(npc) {
 			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,1)); }
             
 			// Get the ammo object from the npc window
-			//_ammo = npc.getItem(_DT_AmmoArray[zx].CheckCode);
-            _ammo = getUnit(4,_DT_AmmoArray[zx].CheckCode,0);  //Darien
+			_ammo = npc.getItem(_DT_AmmoArray[zx].CheckCode);
+
 			// If we found ammo on the trade window,
 			if(_ammo) { do {
-					//if(DC_CheckOwner(_ammo) == false) { //Darien
+					if(DC_CheckOwner(_ammo) == false) {
 						DC_Print("Buying ammo!");
 						DT_BuyItem(_ammo,npc,2);
 						break;
-					//}
+					}
 			} while(_ammo.getNext(_DT_AmmoArray[zx].CheckCode,0));}
             
 			// If it is switched, switch back to the original tab
-			//if(SwitchedWeapons) { DC_DoWeaponSwitch(); }
+			if(SwitchedWeapons) { DC_DoWeaponSwitch(); }
 		}
 	}
+    
+    // return to original weapon tab
+    var _weapon = DC_getMyItem(null,1);
+	if(_weapon) { do {
+		if(_weapon.bodylocation == _wepLoc && _weapon.gid != _wepGID) {
+            DC_DoWeaponSwitch();
+            return true;
+            
+		}
+	} while(_weapon.getNext(null,1)); }
 	return true;
 }
 

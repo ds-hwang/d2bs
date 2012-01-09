@@ -555,69 +555,79 @@ function DM_UsePortal(how, dest, ownername, portal) {
 	return false;
 }
 
-// Fixed by darkspirit
-// Function from Muellsammler, modified by Xizeta
-function DM_MakeTP(from,dest) {
-	if(me.area == from) {
-		var _portal=null;
-		// Get the book or scroll object first
-		var _scroll= me.getItem("tbk",100);
-		// If we don't have a book, check for a scroll
-		if(!_scroll || !_scroll.getStat(70)) {
-			_scroll= DC_getMyItem("tsc",100);
-			if(!_scroll) {
-				DC_ThrowException("DM_MakeTP()","Cannot cast TP. No scrolls found !");
-				return false;
-			}
-		}
-		// If we have a scroll, make the portal
-		tploop:
-		if(_scroll) {
-			// Cycle until we find my portal in case someone else made one
-			var _foundportal = false;
-			var _cycles=0;
-			while (!_foundportal && _cycles<3 && _scroll) {
-				_cycles+=1;
-				if(_DM_UseScroll(_scroll)) {
-					// darkspirit - used to be 250, trying 50
-					DC_DoDel(50);
-					for(var tries=0; tries<  25; tries+=1) {
-						_portal = getUnit(2,59,2);
-						// Look for my portal
-						if(_portal) { 
-							do {
-								// Added range checking - darkspirit
-								if(_portal.getParent() && _portal.getParent() == me.name && DA_GetRange(_portal) < 25) {
-										_foundportal=true;
-										break tploop;
-								}
-							} while (_portal.getNext(59,2)); 
-						}
-						delay(50);
-					}
-				}
-				else {
-					DC_ThrowException("DM_MakeTP()","Unable to use TP book/scroll !");
-					return false;
-				}
-			}
-			if(!_foundportal && !_scroll) { 
-				DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); 
-				return false; 
-			}
-			if(!_foundportal) {
-				DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); 
-				return false; 
-			}
-		}
-		else { 
-			DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); 
-			return false; 
-		}
-		DM_UsePortal("BluePortal",dest,me.name,_portal);
-		return true;
-	}
-	return true;
+function XP_OpenTP() {
+    return DM_OpenTP();
+}
+
+// Function from Muellsammler, modified by Xizeta, darkspirit, then Darien
+function DM_OpenTP() {
+    var _portal=null;
+    // Get the book or scroll object first
+    var _scroll= me.getItem("tbk",100);
+    // If we don't have a book, check for a scroll
+    if(!_scroll || !_scroll.getStat(70)) {
+        _scroll= DC_getMyItem("tsc",100);
+        if(!_scroll) {
+            DC_ThrowException("DM_MakeTP()","Cannot cast TP. No scrolls found !");
+            return false;
+        }
+    }
+    // If we have a scroll, make the portal
+    tploop:
+    if(_scroll) {
+        // Cycle until we find my portal in case someone else made one
+        var _foundportal = false;
+        var _cycles=0;
+        while (!_foundportal && _cycles<3 && _scroll) {
+            _cycles+=1;
+            if(_DM_UseScroll(_scroll)) {
+                // darkspirit - used to be 250, trying 50
+                DC_DoDel(50);
+                for(var tries=0; tries<  25; tries+=1) {
+                    _portal = getUnit(2,59,2);
+                    // Look for my portal
+                    if(_portal) { 
+                        do {
+                            // Added range checking - darkspirit
+                            if(_portal.getParent() && _portal.getParent() == me.name && getDistance(_portal) < 25) {
+                                return _portal; //Darien
+                                _foundportal=true;
+                                break tploop;
+                            }
+                        } while (_portal.getNext(59,2)); 
+                    }
+                    delay(50);
+                }
+            }
+            else {
+                DC_ThrowException("DM_MakeTP()","Unable to use TP book/scroll !");
+                return false;
+            }
+        }
+        if(!_foundportal && !_scroll) { 
+            DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); 
+            return false; 
+        }
+        if(!_foundportal) {
+            DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); 
+            return false; 
+        }
+    }
+    else { 
+        DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); 
+        return false; 
+    }
+    return _portal;
+}
+
+
+function DM_MakeTP() {
+    if(DC_InTown(me)) { DC_DPrint("I can't make a portal in Town!"); return false; }
+	var portal = DM_OpenTP();
+    if(!portal) { dprint("Failed to open portal",1); return false; }
+    //DM_UsePortal("BluePortal",_townArea(me.act),me.name,portal);
+    if(DM_TakeEntrance(portal)) return true;
+    else { dprint("Failed to take portal",1); return false; }
 }
 
 // Function by xizeta
@@ -913,65 +923,7 @@ function _DM_UseScroll(scroll) {
 	return true;
 }
 
-// Fixed by darkspirit
-// Function from Muellsammler, modified by Xizeta
-function XP_OpenTP() {
-	// Get the book or scroll object first
-	var _scroll= me.getItem("tbk",100);
-	// If we don't have a book, check for a scroll
-	if(!_scroll || !_scroll.getStat(70)) {
-		_scroll= DC_getMyItem("tsc",100);
-		if(!_scroll) {
-			DC_ThrowException("MakeTP()","Cannot cast TP. No scrolls found !");
-			return false;
-		}
-	}
-	// If we have a scroll, make the portal
-	tploop:
-	if(_scroll) {
-		// Cycle until we find my portal in case someone else made one
-		var _foundportal = false;
-		var _cycles=0;
-		while (!_foundportal && _cycles<3 && _scroll) {
-			_cycles+=1;
-			if(_DM_UseScroll(_scroll)) {
-				// darkspirit - used to be 250, trying 50
-				DC_DoDel(50);
-				// darkspirit - used to be 20 times, trying 10
-				for(var tries=0; tries<  10; tries+=1) {
-					var _portal = getUnit(2,"Portal");
-					// Look for my portal
-					if(_portal) { do {
-						// Added range checking - darkspirit
-						if(_portal.getParent() && _portal.getParent() == me.name &&
-							DA_GetRange(_portal) < 20) {
-							_foundportal=true;
-							break tploop;
-						}
-					} while (_portal.getNext()); }
-						delay(50);
-				}
-			}
-			else {
-				DC_ThrowException("DM_MakeTP()","Unable to use TP book/scroll !");
-				return false;
-			}
-		}
-		if(!_foundportal && !_scroll) { 
-			DC_ThrowException("DM_MakeTP()","Scroll has gone, but no portal !"); 
-			return false; 
-		}
-		if(!_foundportal) { 
-			DC_ThrowException("DM_MakeTP()","Failed 3 times to create a portal !"); 
-			return false; 
-		}
-	}
-	else { 
-		DC_ThrowException("DM_MakeTP()","No TP scroll, time to go ..."); 
-		return false; 
-	}
-	return true;
-}
+
 
 // Fixed by darkspirit -- Changed by Darien to turn success or failure true or false;
 function DM_TakeEntrance(entrance) {
@@ -1018,4 +970,96 @@ function DM_TouchObject(obj, wait4Mode2) {
 		retry+=1;
 	}
 	return (retry < 5);
+}
+
+function _townArea(act) {
+    if(act < 1 || act > 5) { dprint("There is no Act " + act, 1); return false; }
+    switch(act) {
+        case 1: return 1;
+        case 2: return 40;
+        case 3: return 75;
+        case 4: return 103;
+        case 5: return 109;
+    }
+    dprint("Something went wrong!",1);
+    return false;
+}
+
+function _returnTownObj(act) {
+    switch(act) {
+        case 1: return commTown;
+        case 2: return commTown2;
+        case 3: return commTown3;
+        case 4: return commTown4;
+        case 5: return commTown5;
+    }
+    return false;
+}
+
+
+function DM_TownMove(_act, _spot) {
+    if(arguments.length == 1) {
+        _spot = _act;
+        _act  = me.act;
+    }
+
+    DM_MakeTP();
+    YAM_InitCommTown();
+    
+    if(me.act != _act) {
+        switch(me.act) {
+            case 1: commTown.GotoWP();  break;
+            case 2: commTown2.GotoWP(); break;
+            case 3: commTown3.GotoWP(); break;
+            case 4: commTown4.GotoWP(); break;
+            case 5: commTown5.GotoWP(); break;
+        }
+        DM_UsePortal("Waypoint", _townArea(_act));
+        YAM_InitCommTown();
+    }
+
+    var act; var spot;
+    var spot = _spot.toLowerCase();
+    
+    var townObj =  _returnTownObj(_act);
+    
+    switch(spot) {
+        case "start":           townObj.GotoStart();	break;
+        case "stash":           townObj.GotoStash();	break;
+        case "portal":          townObj.GotoTP();	    break;
+        case "portalspot":      townObj.GotoTP();	    break;
+        case "tp":              townObj.GotoTP();	    break;
+        case "waypoint":        townObj.GotoWP();	    break;
+        case "wp":              townObj.GotoWP();	    break;
+        case "charsi":          townObj.GotoCharsi();	break;
+        case "gheed":           townObj.GotoGheed();	break;
+        case "kashya":          townObj.GotoKashya();	break;
+        case "akara":           townObj.GotoAkara();	break;
+        case "warriv":          townObj.GotoWarriv();	break;
+        case "fara":            townObj.GotoFara();	break;
+        case "elzix":           townObj.GotoElzix();	break;
+        case "drognan":         townObj.GotoDrognan();	break;
+        case "lysander":        townObj.GotoLysander();break;
+        case "greiz":           townObj.GotoGreiz();	break;
+        case "atma":            townObj.GotoAtma();	break;
+        case "jerhyn":          townObj.GotoJerhyn();	break;
+        case "cain":            townObj.GotoCain();	break;
+        case "meshif":          townObj.GotoMeshif();	break;
+        case "ormus":           townObj.GotoOrmus();	break;
+        case "asheara":         townObj.GotoAsheara();	break;
+        case "alkor":           townObj.GotoAlkor();	break;
+        case "hratli":          townObj.GotoHratli();	break;
+        case "tyrael":          townObj.GotoTyrael();	break;
+        case "jamella":         townObj.GotoJamella();	break;
+        case "halbu":           townObj.GotoHalbu();	break;
+        case "exit":            townObj.GotoExit();	break;
+        case "malah":           townObj.GotoMalah();	break;
+        case "larzuk":          townObj.GotoLarzuk();	break;
+        case "qualkehk":        townObj.GotoQualKehk();break;
+        case "anya":            townObj.GotoAnya();	break;
+        case "redportal":       townObj.GotoRedPortal();break;
+        case "red portal":      townObj.GotoRedPortal();break;
+        case "gate":            townObj.GotoGate();	break;
+        default: dprint("Not a generic spot.",9); 
+    }
 }

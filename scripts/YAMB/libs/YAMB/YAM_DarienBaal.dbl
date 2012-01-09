@@ -136,12 +136,13 @@ function Baal() {
             if(killRadius(30)) {
                 var count = 0;
                 DSN_PickItems();
-                pathToDest(15092,5026);
+                if(me.classid) pathToDest(15092,5026);
+                else pathToDest(15092,5045);
                 killRadius(30);
                 delay(2500);
                 killRadius(30);
             } else { // nothing to attack
-                if(count > 100) {
+                if(count > 150) {
                     clearThrone();
                     count = 0;
                 }
@@ -236,7 +237,8 @@ function clearThrone() {
         moveFunc(15115,5026); // Near midsection
         killRadius(30); 
     }
-    moveFunc(15092,5028); // Middle
+    if(me.classid) moveFunc(15092,5028); // Middle
+    else moveFunc(15092,5040);
     killRadius(30); DSN_PickItems();
     
 }

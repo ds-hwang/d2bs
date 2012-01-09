@@ -1,0 +1,146 @@
+// Darien's Burn Bot
+
+entryFunc = BurnBot;
+
+function BurnBot() {
+    while(1) {
+        ScreenSaver();
+        delay(100);
+    }
+}
+
+
+function ScreenSaver() {
+
+    DM_TownMove(1, "portalspot");
+    print("ÿc8 Well.. I guess i was destined to be a mule!.");
+    print("ÿc8 so i'll just kinda Putz around Town for a little while");
+    print("ÿc8 See if I can get some Action!");
+    print("ÿc8 I should probably be kickin Pindle's Ass about now.");
+    DC_DoDel(2000);
+    print("ÿc1 Hey!! ÿc3Use 'Dk_Rush'script to RUSH MY ASS there!!");
+
+    var loops = 0;
+    while(loops < 5) {
+                
+        var notsame = RandScene;
+        var RandScene = rand(1,3);
+        if(RandScene == 1  && notsame != RandScene) {
+        DM_TownMove(1, "TP");
+        print("ÿc3 Damn!! I wish Darien's Follow Bot was RUSHIN MY ASS to Act 5!!");
+        for(tt=0; tt < 6; tt++) {
+            var randx = rnd(-10,10);
+            var randy = rnd(-10,10);
+            var ax = me.x;
+            var ay = me.y;
+            _DM_WalkTo(me.x + randx, me.y + randy);
+            DC_DoDel(100);
+            _DM_WalkTo(ax,ay);
+            DC_DoDel(100);
+            print("ÿc:: Lookin for Poon");
+            me.overhead("Where's a HOTTIE!");
+        }
+        print("ÿc1 Found Poon!");
+        me.overhead("ÿc1WHOA!");
+        DC_DoDel(2000);		
+        print("ÿc1 YO! Charsi!! I got something you can Bang besides that Hammer!!");
+        print("ÿc1 it's HARDER TOO!!");
+        DM_TownMove("Charsi");
+        print("ÿc1 Repaired??? Serviced is mo like it!!");
+        DC_DoDel(2000);
+        print("ÿc:: Thanks it was great, gotta go!");
+        me.overhead("had the hoe, gotta go");
+        }
+        if(RandScene == 2 && notsame != RandScene) {
+        DM_TownMove(1, "TP");
+        print("ÿc3 I hear Darien's Follow Bot is really cool... get me to Act 5!!");
+        DC_DoDel(5000);
+        for(var tt=0; tt < 6; tt++) {
+            var randx = rnd(-10,10);
+            var randy = rnd(-10,10);
+            var ax = me.x;
+            var ay = me.y;
+            _DM_WalkTo(me.x + randx, me.y + randy);
+            DC_DoDel(100);
+            _DM_WalkTo(ax,ay);
+            DC_DoDel(100);
+            print("ÿc:: Lookin for Poon");
+            me.overhead("Where's a HOTTIE!");
+        }
+        print("ÿc1 Found Poon!");
+        me.overhead("ÿc1HELL YA!");
+        DM_TownMove(1, "Akara");
+        DC_DoDel(300);
+        me.overhead("Kinda Old... but i'll do her!");
+        DC_DoDel(1200);
+        print("ÿc:: Hey Baby.. I got that feelin...");
+        delay(700);
+        print("ÿc:: I want");
+        DC_DoDel(300);
+        me.overhead("She's Buyin it");
+        delay(2000);
+        print("ÿc:: Sexual Healin'!");
+        var myho = getUnit(1, "Akara");
+        if(myho) myho.move();
+        delay(2000);
+        print("ÿc:: Sexual");
+        if(myho) myho.move();
+        DC_DoDel(300);
+        if(myho) myho.move();
+        me.overhead("She's Mine!");
+        delay(2000);
+        print("ÿc:: Heaaaalin'  Baby!");
+        if(myho) myho.move();
+        DC_DoDel(5000);
+        DT_MenuCancel();
+        print("ÿc:: Yeah that was great... hey wait.. I left my oven on! gotta go!");
+        me.overhead("had fun, gotta run");
+        DC_DoDel(100);
+        }
+        if(RandScene == 3 && notsame != RandScene) {
+        DM_TownMove(1, "TP");
+        print("ÿc3 Clearly i don't belong here.. Darien's Follow Bot could RUSH me somewhere else!!");
+        for(var tt=0; tt < 6; tt++) {
+            var randx = rnd(-10,10);
+            var randy = rnd(-10,10);
+            var ax = me.x;
+            var ay = me.y;
+            _DM_WalkTo(me.x + randx, me.y + randy);
+            DC_DoDel(100);
+            _DM_WalkTo(ax,ay);
+            DC_DoDel(100);
+            print("ÿc:: Lookin for Poon");
+            me.overhead("Where's a HOTTIE!");
+        }
+        print("ÿc1 Found Poon!");
+        me.overhead("ÿc1she FINE!");
+        DC_DoDel(2000);
+        DM_TownMove(1, "kashya");
+        print("ÿc1 Hey Whassup Sweet thang!!");
+        DC_DoDel(300);
+        me.overhead("Man I Wanna Bang this chick!");
+        DC_DoDel(300);			
+        print("ÿc1 Whats that?");
+        DC_DoDel(1000);
+        print("ÿc1 You got a whole TEAM of bitches!!");
+        DC_DoDel(300);
+        me.overhead("OMG!");
+        DC_DoDel(1000);
+        print("ÿc1 and you say yall fo' hire?");
+        DC_DoDel(300);
+        me.overhead("TY GOD!!");
+        DC_DoDel(500);
+        print("ÿc1 I'm down! Bring it!!!");
+        var myhoe = getUnit(1, "kashya");
+        if(myhoe) myhoe.move();
+        DC_DoDel(5000);
+        DT_MenuCancel();
+        print("ÿc1 Whats that.. time to pay the bill!! Hold on my wallet is in my other pants!");
+        DC_DoDel(300);
+        me.overhead("Time to skip on Da Bill!");
+        DC_DoDel(1500);
+        me.overhead("C YAA Suckers!");
+        }
+        loops++;
+    }
+}

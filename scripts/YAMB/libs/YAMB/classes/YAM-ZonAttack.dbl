@@ -10,6 +10,7 @@ var XP_CastOnBoss=false;
 var XP_CastDecoy=true;
 var XP_DecoyPosition=0;
 var XP_SwitchPhys=false;
+var XP_PhysAttPercent=90;
 var XP_SwitchLit=false;
 var XP_SwitchAdapt=false;
 var XP_LitAttPercent=50;
@@ -31,11 +32,7 @@ function DA_DoPrecasts() {
 	if (!DA_AutoPrecasts) {
 		DC_DPrint("DA_DoPrecasts() : Ignoring precasts because DA_AutoPrecasts is set to false");
 		return true;
-	}
-
-	//XP_PickupShield = true;
-	//XP_AmazonShield();
-
+    }
 	if (DC_CheckSkill(32) >= 1) {
 		var Valk = DC_getNPC(357);
 		// Valkyrie
@@ -57,10 +54,6 @@ function XP_Precasts() {
 	else {
 		// Cast only if we want to refresh or if we are in town
 		if (DA_Refresh || DC_InTown(me) || BOed) {
-
-			//XP_PickupShield = true;
-			//XP_AmazonShield();
-
 			// Cast Valkyrie if it is set to true
 			if (XP_Valkyrie && !XP_CastOnBoss) { DC_DoCast(32,0); } // "Valkyrie"
 		}
@@ -152,122 +145,106 @@ function CastDistract(target) {
 }
 
 function XP_BossAttack(target) {
-	var hand;
-	var attempted=false;
+    var hand;
+    var attempted=false;
 
-	_XP_AttackCompleted=0; 
+    _XP_AttackCompleted=0; 
 
-	_XP_EndPosition = new XP_Coord(me.x,me.y);
+    _XP_EndPosition = new XP_Coord(me.x,me.y);
 
-	//DC_Print("Zon script as completed by Swedish Power!");
+    //DC_Print("Zon script as completed by Swedish Power!");
 
-	if (target.hp > 0) {
-		if ((XP_SwitchPhys && target.getStat(36) > XP_PhysAttPercent) || (XP_SwitchLit && target.getStat(41) > XP_LitAttPercent)) {
+    if (target.hp > 0) {
+        if ((XP_SwitchPhys && target.getStat(36) > XP_PhysAttPercent) || (XP_SwitchLit && target.getStat(41) > XP_LitAttPercent)) {
 
-			DC_DoWeaponSwitch();
-			XP_AttacksCount=0;
-		}
+            DC_DoWeaponSwitch();
+            XP_AttacksCount=0;
+        }
 
-		CastDistract(target);
-	}
+        CastDistract(target);
+    }
 
-	while (target.hp > 0) {
+    while (target.hp > 0) {
 
-		attempted = false;
+        attempted = false;
 
-		var _weapon = DC_getMyItem();
+        var _weapon = DC_getMyItem();
 
-		if (_weapon) { do {
+        if (_weapon) { do {
 
-			// If the weapon is in the first tab
-			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+            // If the weapon is in the first tab
+            if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode == 1) {
+                //Jav attacks
+                if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
+                    for (var x = 0; x < XP_JavAttack.length; x+=1) {
+                        hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
+                        if (me.mp > ManaCost(XP_JavAttack[x]) &&
+                           !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_JavAttack[x])) &&
+                           (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
+                           (DA_GetRange(target) < 5 || !isMelee(XP_JavAttack[x]))) {
+                            for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
+                                attempted = true;
+                                DC_DoCast(XP_JavAttack[x],hand,target);
+                                XP_CheckAttacks();
+                                if (XP_CheckUtil(target)) { equipItem(2); return; }
+                            }
+                        }
+                    }
+                }
 
-				//Jav attacks
-				if (_weapon.itemType == 87 || _weapon.itemType == 44 || _weapon.itemType == 43 || _weapon.itemType == 42) {
-
-					for (var x = 0; x < XP_JavAttack.length; x+=1) {
-						hand = (DC_IsLeftSkill(XP_JavAttack[x]) ? 2 : 0);
-
-						if (me.mp > ManaCost(XP_JavAttack[x]) &&
-						   !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_JavAttack[x])) &&
-						   (!me.getState(55) || !isPhysical(XP_JavAttack[x]) || !isMelee(XP_JavAttack[x])) &&
-						   (DA_GetRange(target) < 5 || !isMelee(XP_JavAttack[x]))) {
-							for (var r = 1; r <= XP_JavNumber[x]; r+=1) {
-								attempted = true;
-								DC_DoCast(XP_JavAttack[x],hand,target);
-								XP_CheckAttacks();
-								if (XP_CheckUtil(target)) { XP_AmazonShield(); return; }
-							}
-						}
-					}
-				}
-
-				//Bow attacks
-				if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
-
-					for (var y = 0; y < XP_BowAttack.length; y+=1) {
-						hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
-
-						if (me.mp > ManaCost(XP_BowAttack[y]) &&
-						   !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_BowAttack[y]))) {
-							for (var x = 1; x <= XP_BowNumber[y]; x+=1) {
-								attempted = true;
+                //Bow attacks
+                if (_weapon.itemType == 85 || _weapon.itemType == 27 || _weapon.itemType == 35) {
+                    for (var y = 0; y < XP_BowAttack.length; y+=1) {
+                        hand = (DC_IsLeftSkill(XP_BowAttack[y]) ? 2 : 0);
+                        if (me.mp > ManaCost(XP_BowAttack[y]) &&
+                           !DA_IsImmuneTo(target,DA_GetSkillDamageType(XP_BowAttack[y]))) {
+                            for (var x = 1; x <= XP_BowNumber[y]; x+=1) {
+                                attempted = true;
                                 var targit = commPather.GetSafeOffScreenXY(me.x,me.y,target.x,target.y); // darien
-								if(targit) {
+                                if(targit) {
                                     DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
                                     print("Shooting target: " + target.name);
                                 }
                                 XP_CheckAttacks();
-								if (XP_CheckUtil(target)) { XP_AmazonShield(); return; }
-							}
-						}
-					}
-				}
-			}
-		} while (_weapon.getNext()); }
+                                if (XP_CheckUtil(target)) { equipItem(2); return; }
+                            }
+                        }
+                    }
+                }
+            }
+        } while (_weapon.getNext()); }
 
-		if (!attempted && XP_SwitchAdapt) {
-			DC_DoWeaponSwitch();
-			XP_AttacksCount=0;
-		}
+        if (!attempted && XP_SwitchAdapt) {
+            DC_DoWeaponSwitch();
+            XP_AttacksCount=0;
+        }
 
-		if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
-
-			DC_Print("Switch attacks!");
-			DC_DoWeaponSwitch();
-		}
-	}
-    //XP_AmazonShield();
-	DSN_PickItems();
+        if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
+            DC_Print("Switch attacks!");
+            DC_DoWeaponSwitch();
+        }
+    }
+    if(XP_PickupShield) equipItem(2);
+    DSN_PickItems();
 }
 
-function XP_AmazonShield() {
-
-	// If we want to switch to a shield for protection, check if we have a shield
-	if (XP_PickupShield) {
-
-		_weapon = DC_getMyItem();
-
-		if (_weapon) { do {
-
-			if ((_weapon.bodylocation == 4 || _weapon.bodylocation == 5) && _weapon.mode==1) {
-
-				if (_weapon.itemType == 2) {
-
-					XP_PickupShield=false;
-					break;
-				}
-			}
-
-		} while (_weapon.getNext()); }
-	}
-
-	// If we have a shield, switch
-	if (XP_PickupShield) {
-
-		print("Switching to your shield!");
-		DC_DoWeaponSwitch();
-	}
+function equipItem(_type1,_type2,_type3) {
+    // If we want to switch to a specific Item
+    _weapon = DC_getMyItem();
+    if (_weapon) {
+        do {
+            if (_weapon.mode==1 && (_weapon.itemType == _type1 || _weapon.itemType == _type2 || _weapon.itemType == _type3)) {
+                if(_weapon.bodylocation == 4 || _weapon.bodylocation == 5) return true;
+                if(_weapon.bodylocation == 11 || _weapon.bodylocation == 12) {
+                    // If we have a item on other tab then switch
+                    print("Switching to itemtype: " +  _weapon.itemType);
+                    DC_DoWeaponSwitch();
+                    return true;
+                }
+            }
+        } while (_weapon.getNext());
+    } else dprint("WTF! Item not found",1);
+    return false;
 }
 
 function XP_ClearPosition(range,skip,mode,classid,spectypeMask) {
@@ -373,44 +350,71 @@ function simpleAttack(monster,range,x,y,attackSkills) {
 
 	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range) {
         //Bow attacks
-
-        
-        for (y = 0; y < XP_BowAttack.length; y+=1) {
-        
-            if(y == 0) {
-            
-                var safeCount=0;
-                while(headCount(range) > 2 && safeCount < 10) {  //do first in array (multi for crowd controll
-                    safeCount++;
-                    //var targit = false;
-                    var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
-                    if(targit) {
-                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
-                        else DC_DoCast(0,hand,targit.x,targit.y);
-                        print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
-                    } else {
-                        print("Can't get SafeShot on Target");
-                        DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+        if(XP_BowAttack.length) {
+            equipItem(27,35,85);
+            for (y = 0; y < XP_BowAttack.length; y+=1) {
+                //first attack is crowd control
+                if(y == 0) {
+                    var safeCount=0;
+                    while(headCount(range) > 2 && safeCount < 10) {  //do first in array (multi for crowd controll
+                        safeCount++;
+                        //var targit = false;
+                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                        if(targit) {
+                            if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                            else DC_DoCast(0,hand,targit.x,targit.y);
+                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                        } else {
+                            print("Can't get SafeShot on Target");
+                            DC_DoCast(XP_BowAttack[y],hand,monster.x,monster.y);
+                        }
+                        XP_CheckAttacks();
+                        if (monster.hp < hpprev) {
+                            hpprev = monster.hp;
+                            attprev = _XP_AttackCompleted + 1;
+                            if (_YAM_MercDead||_YAM_OutOfPots||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                        }
+                        if(IsBlocked(monster,2)) { print("LOS blocked, return false"); return false; }
                     }
-                    XP_CheckAttacks();
-                    if (monster.hp < hpprev) {
-                        hpprev = monster.hp;
-                        attprev = _XP_AttackCompleted + 1;
-                        if (_YAM_MercDead||_YAM_OutOfPots||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                // 2nd, 3rd, 4th (etc.) attacks
+                } else {
+                    if(XP_BowAttack.length == 1) y = 0;
+                    for (x = 1; x <= XP_BowNumber[y]; x+=1) {
+                        var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
+                        if(targit) {
+                            if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                            else DC_DoCast(0,hand,targit.x,targit.y);
+                            print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
+                        } else {
+                            print("Can't get SafeShot on Target");
+                            if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                            else DC_DoCast(0,hand,targit.x,targit.y);
+                        }
+                        XP_CheckAttacks();
+                        if (monster.hp < hpprev) {
+                            hpprev = monster.hp;
+                            attprev = _XP_AttackCompleted + 1;
+                            if (_YAM_MercDead||_YAM_OutOfPots||DT_CheckRepair(DT_RepairPercent)||DT_CheckAmmo()) { YAM_SafeCheck(); }
+                        }
+                        if(IsBlocked(monster,2)) { print("LOS blocked, return false"); return false; }
                     }
-                    if(IsBlocked(monster,2)) { print("LOS blocked, return false"); return false; }
                 }
-            } else {
-                if(XP_BowAttack.length == 1) y = 0;
-                for (x = 1; x <= XP_BowNumber[y]; x+=1) {
+            }
+        }
+        // Javalin Attacks
+        if(XP_JavAttack.length) {
+            if(!equipItem(44,87,43)) equipItem(42);
+            for (y = 0; y < XP_JavAttack.length; y+=1) {
+                if(XP_JavAttack.length == 1) y = 0;
+                for (x = 1; x <= XP_JavNumber[y]; x+=1) {
                     var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
                     if(targit) {
-                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                        if (me.mp > ManaCost(XP_JavAttack[y])) DC_DoCast(XP_JavAttack[y],hand,targit.x,targit.y);
                         else DC_DoCast(0,hand,targit.x,targit.y);
                         print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
                     } else {
                         print("Can't get SafeShot on Target");
-                        if (me.mp > ManaCost(XP_BowAttack[y])) DC_DoCast(XP_BowAttack[y],hand,targit.x,targit.y);
+                        if (me.mp > ManaCost(XP_JavAttack[y])) DC_DoCast(XP_JavAttack[y],hand,targit.x,targit.y);
                         else DC_DoCast(0,hand,targit.x,targit.y);
                     }
                     XP_CheckAttacks();
@@ -423,18 +427,17 @@ function simpleAttack(monster,range,x,y,attackSkills) {
                 }
             }
         }
-    }    
-	//XP_AmazonShield();
-	//DSN_PickItems();
-
-	return true;
+    }
+    if(XP_PickupShield) equipItem(2);
+    DSN_PickItems();
+    return true;
 }
 
 
 
 function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
-    /*if(me.getStat(12) < 17)*/ return simpleAttack(monster,range,x,y,attackSkills);
+    return simpleAttack(monster,range,x,y,attackSkills);
     
 	var hand;
 	var attempted = false;
@@ -651,25 +654,25 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
         //print("GID = " + _weapon.gid);
         
 /*
-		if (!attempted && XP_SwitchAdapt) {
-			DC_DoWeaponSwitch();
-			XP_AttacksCount=0;
-		}
-		else if (!attempted) return false;
+        if (!attempted && XP_SwitchAdapt) {
+            DC_DoWeaponSwitch();
+            XP_AttacksCount=0;
+        }
+        else if (!attempted) return false;
 
-		if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
+        if (_XP_AttackCompleted == XP_AttacksCount && XP_AttacksCount > 0) {
 
-			DC_Print("Switch attacks!");
-			DC_DoWeaponSwitch();
-		}
-*/
-		//XP_CheckAttacks ();
-	}
+            DC_Print("Switch attacks!");
+            DC_DoWeaponSwitch();
+        }
+    */
+        //XP_CheckAttacks ();
+    }
 
-	//XP_AmazonShield();
-	DSN_PickItems();
+    if(XP_PickupShield) equipItem(2);
+    DSN_PickItems();
 
-	return true;
+    return true;
 }
 
 
@@ -678,7 +681,7 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
 function XP_PreAttack(x,y) {
 	// Cast Decoy on the boss if XP_DecoyPosition is at 0
-	//if (XP_CastDecoy && XP_DecoyPosition == 0 && me.mp > (19 - (DC_CheckSkill(28)*0.75))) { DC_DoCast(28,0,x,y); return true; } // "Dopplezon"
+	if (XP_CastDecoy && XP_DecoyPosition == 0 && me.mp > (19 - (DC_CheckSkill(28)*0.75))) { DC_DoCast(28,0,x,y); return true; } // "Dopplezon"
 	return false;
 }
 
