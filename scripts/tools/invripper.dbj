@@ -1,0 +1,935 @@
+/*
+
+-----------------------------------
+InvRipper    by     tRaiz
+-----------------------------------
+updated and maintained by Darien
+
+
+Hi !! this is my first serious script, it is a very similar Diablo2 inventory
+you can see the same images that in the real game
+
+                      ----------------------------------------------------
+Some code ripped from ||  Mule Inventory Script  (muleinv.d2j)          ||
+                      ----------------------------------------------------
+             and      ||  ParseIt!                (BMpwnIt.d2l)         ||
+                      ----------------------------------------------------
+
+
+thanks to Ixoth, Arsi Rantala, Darien, blue mind and lots of more ppl
+i have learned a lot from your scripts ;) 
+
+
+IMPORTANT you will need the picture files for thie html viewer to work!
+and must be decompressed into the jpg directory shown below,
+if not you will not see any items
+
+Only works on IE 6.0 or above: Needs Active X
+
+
+INSTALLATION:
+
+create one directory for each reaml you have any player:
+output/invripper/europe
+output/invripper/USeast
+output/invripper/USwest
+output/invripper/Asia
+
+unzip all the scripts in your script directory, it must have this structure:
+
++-libs/
+|   |
+|   +-invripper/
+|         invripper.d2l
+|         invripper_stats.dbl  (not used currently)
+|         EleIniLib_Dar.d2l
++-output/
+|   |
+|   +-invripper/
+|        |     index.html
+|        |
+|        +-USWest/
+|        |       index.html
+|        |       scripts.html
+|        |       tempData.ini  (blank file must be there)
+|        |
+|        +-Europe/
+|        |       index.html
+|        |       scripts.html
+|        |       tempData.ini  (blank file must be there)
+|        | 
+|        +-jpg/
+|        |  | background.jpg
+|        |  | background2.jpg
+|        |  | invmanager-9.jpg
+|        |  | void.jpg
+|        |  | (All of the pics from the download);
+|        |  |
+|        |  +-skills/
+|        |
+|        +-USeast/ 
+|           | see above
+|        |
+|        +-Asia/ 
+|          | see above
+|        
++-settings/
+|         invripper.ini
+|         DIO.ini   (only needed if using the OOG)
+|
++-tools/
+       invripper.d2j
+ 
+
+ 
+Please report any bug at the forums:
+http://www.blizzhackers.cc/viewforum.php?f=204
+
+
+HISTORY:
+version 1.3
+- Migration to D2BS 1.4.1
+- removed char stat dumps for now
+
+version 1.2
+- Added the dump of character stats
+- Added selective searchs, to search over any quality of item
+
+version 1.1
+- Migration to 1.10 and d2jsp 0.39
+- Use of internal stats for items
+
+version 1.0a 
+- This new released has some internal code changes, fix some bugs and add images to the text mode 
+- More accurate layers position
+
+version 1.0 
+- changed the file data structure 
+- coloured Names to know the quality of items in text mode 
+- fix the search speed 
+- now you must open invripper/index.html to see all accounts and realms 
+- some bug fixed 
+
+version 0.6
+ - improved the appearance
+ - improved the search engine
+ - some bug fix
+
+version 0.5
+ - Added a viewer in html, now you can select which player to view from a list
+ - Added an item list mode, now you can see the text against the graphic mode :P
+ - Added a mini search engine, now you will be able to find whatever you search, where are and quantity are reported
+ - Best fit layer with info positioning
+ - I dont know why the poison damage has bad values :(
+
+version 0.2
+ - Added a very cool info of items (i think ;) 
+ - Added language support
+ 
+ 
+version 0.12 
+ - Modified to be compatible with "Darien's HTML Mule Mode Inventory Logger" the folders has changed. 
+ - Added an ini file to configure it easy 
+ - Added an alternative mode to view all items in one page 
+ - No more key support 
+
+version 0.11
+ - Added Key support, now you can make the dump when you want using the space key
+ - Added <title> tag with the name in the html
+ 
+
+version 0.1
+
+ - First release :D
+   Fixed some image file errors (invfile not always give a correct file name)
+   Done the basic (scripts and data for correct items positions)
+   Now you can log the items you are wearing, the items in inventory and in the Chest, including the Cube
+   
+----------------------------------------------------
+
+
+*/
+
+include("invripper/invripper.dbl");
+include("invripper/EleIniLib_Dar.d2l");
+
+var myfile = "settings\\Darien\\invripper.ini";
+var DIOini = "settings\\Darien\\DIO.ini";
+
+var minGameTime = Ele_ReadIniLine(myfile, "InvRipper", "gameTime");
+var standAlone = Ele_ReadIniLine(myfile, "InvRipper", "standAlone");
+var visible = true;
+var strItemStats="";
+var iItemStatsLength=0;
+var imagespath="";
+var filename="";
+var outputpath="";
+var mercname="";
+var FontFace="";
+var giModeLog=0;
+var gisDelete=0;
+var strFin;
+
+var positions=new Array();
+
+var colorWhite="#c4c4c4";
+var colorRed="#b04434";
+var colorGreen1="#18f200";
+var colorBlue="#5050ac";
+var colorGold1="#948064";
+var colorGrey="#505050";
+var colorBlack="#000000";
+var colorGold2="#ac9c64";
+var colorOrange="#d08420";
+var colorYellow="#d8b864";
+var colorGreen2="#186408";
+var colorPurple="#a420fc";
+var colorGreen3="#287c14";
+
+// 1=Low Quality/2=Normal/3=Superior/4=Magic/5=Set/6=Rare/7=Unique/8=Crafted
+var strColorTable=new Array(colorWhite, colorWhite, colorWhite, colorBlue, colorGreen1, colorYellow, colorGold2, colorOrange);
+
+
+function main(){
+	
+	//Source at end of file :D
+	ReadIni("settings/Darien/invripper.ini");
+    addEventListener("keyup", KeyUpManager);
+	filename=outputpath+"invripper_default.html";
+	/*
+	if(me.realm == "europe.battle.net") {
+		filename = outputpath+"europe\\invripper_europe_" + me.account + "_" + me.name + ".html";
+		filePath = outputpath+"europe\\";
+	}else if(me.realm == "useast.battle.net") { 
+		filename = outputpath+"USeast\\invripper_useast_" + me.account + "_" + me.name + ".html";
+		filePath = outputpath+"USeast\\";
+	}else if(me.realm == "uswest.battle.net") {
+		filename = outputpath+"USwest\\invripper_uswest_" + me.account + "_" + me.name + ".html";
+		filePath = outputpath+"USwest\\";
+	}else if(me.realm == "asia.battle.net") {
+		filename = outputpath+"Asia\\invripper_asia_" + me.account + "_" + me.name + ".html";
+		filePath = outputpath+"Asia\\";
+	}
+	*/
+	var strReaml = me.realm.split(".")[0];
+	var filePath = outputpath+strReaml+"\\";
+	filename = filePath+"invripper_"+strReaml+"_" + me.account + "_" + me.name + ".html";
+	var strName = "invripper_"+strReaml+"_" + me.account + "_" + me.name + "_stats.html";
+
+
+
+/*
+    if(gisDelete==1){
+        DeleteSearch(filePath+"tempData.ini", filePath+"Data.js", filename);
+        return;
+    }else{
+    */
+        sendCopyData(null, "OOG", 0,"ping");
+        
+        UpdateSearch(filePath+"tempData.ini", filePath+"Data.js");
+        GetMercName();
+        GeneratePositions(1);
+        makeLog(1);
+        //getPlayerInfo(filePath, imagespath, strName);
+        
+        //logAcct();
+        
+        var signoff = pickNiceString();
+        var strFin= new Text (signoff, 400, 300, null, 3, 2);
+        
+        if(standAlone) {
+            Ele_WriteIniLine(DIOini, "general", "gameFlag", "true");
+            print("ÿc1Waiting for "+minGameTime+" seconds.");
+            minGameTime = minGameTime*1;
+            for(minGameTime/2; minGameTime > 0; minGameTime--) {
+                delay(2000);
+                strFin.visible = visible;
+                sendCopyData(null, "OOG", 0,"ping");
+            }
+            quit();
+        }
+        delay(3000);
+        strFin.visible = false;
+
+//	}
+
+}
+
+function KeyUpManager(keyup) {
+	sendCopyData(null, "OOG", 0,"ping");
+	switch (keyup) {
+        default:
+            visible = false;
+			break;
+    }
+}
+
+
+function logAcct() {
+	var _log = File.open("output\\invripper\\chars_logged.txt",2);
+	_log.eof;
+	_log.write(me.realmshort + "/" + me.account + "/" + me.name + "\n");
+	_log.close;	
+}
+
+function pickNiceString() {
+	var strRet = "ÿc5YAMB's New TeamBotting is Fun! :P";
+	switch(rand(0, 5)) {
+		case 0:
+			strRet = " ÿc1That's all Folks!!! ;)";
+		break;
+		case 1:
+			strRet = " ÿc2Uuuhmm!! I really have nice things";
+		break;
+		case 2:
+			strRet = " ÿc9Thank you for logging with InvRipper!";
+		break;
+		case 3:
+			strRet = "I like my  ÿc1Red  ÿc0and  ÿc3Blue  ÿc0balls.";
+		break;
+		case 4:
+			strRet = " ÿc1Darien has just stolen all your items!";
+		break;
+		default:
+			strRet = " ÿc2InvRipper is really cool 8)";
+		break;
+	}
+	return strRet;
+}
+
+
+function GetMercName(){
+	//Look for the name of the merc
+	var merc = getUnit(1);
+	var found=false;
+	if (merc) do {
+		if(merc.getParent() && merc.getParent().name == me.name){
+			if(merc.classid==271 || merc.classid==338 || merc.classid==359 || merc.classid==561){
+				found=true;
+				mercname=merc.name;
+				break;
+			}
+		}
+	} while (merc.getNext() && !found);
+}
+
+
+function CreatePos(iPosX, iPosY, iVisible){
+	this.x=iPosX;
+	this.y=iPosY;
+	this.visible=iVisible;
+}
+
+/*
+This function initializes the position data for layers
+iMode=0 <--- Like diablo stash&inventory
+iMode=1 <--- All view, all items view in one page
+*/
+function GeneratePositions(iMode){
+	if(iMode<0 || iMode>1)
+		iMode=0;
+		
+	if(iMode==0){
+		//stash
+		positions[0] = new CreatePos(156, 146, "visible");
+		
+		//inventory
+		positions[1] = new CreatePos(421, 319, "visible");
+		
+		//cube
+		positions[2] = new CreatePos(202, 200, "hidden");
+		
+		//body (char) (item.bodylocation+2)
+		//helm
+		positions[3] = new CreatePos(536, 64, "visible");
+		//amulet
+		positions[4] = new CreatePos(606, 91, "visible");
+		//armor
+		positions[5] = new CreatePos(536, 134, "visible");
+		//weapon left
+		positions[6] = new CreatePos(420, 108, "visible");
+		//weapon right
+		positions[7] = new CreatePos(651, 108, "visible");
+		//ring left
+		positions[8] = new CreatePos(492, 236, "visible");
+		//ring right
+		positions[9] = new CreatePos(606, 236, "visible");
+		//belt
+		positions[10] = new CreatePos(536, 236, "visible");
+		//boots
+		positions[11] = new CreatePos(651, 236, "visible");
+		//gloves
+		positions[12] = new CreatePos(420, 236, "visible");
+		//weapon 2 left
+		positions[13] = new CreatePos(425, 105, "hidden");
+		//weapon 2 right
+		positions[14] = new CreatePos(656, 105, "hidden");
+
+		//body (merc)
+		//helm
+		positions[15] = new CreatePos(0, 0, "hidden");
+		//armor
+		positions[17] = new CreatePos(0, 0, "hidden");
+		//weapon left
+		positions[18] = new CreatePos(0, 0, "hidden");
+		//weapon right
+		positions[19] = new CreatePos(0, 0, "hidden");
+		
+		//Cursor
+		positions[20] = new CreatePos(0, 0, "hidden");
+		
+		//Gold
+		positions[21] = new CreatePos(505, 452, "visible");
+		positions[22] = new CreatePos(180, 82, "visible");
+		
+	}else if(iMode==1){
+		//stash
+		positions[0] = new CreatePos(24, 12, "visible");
+		
+		//inventory
+		positions[1] = new CreatePos(244, 299, "visible");
+		
+		//cube
+		positions[2] = new CreatePos(562, 173, "visible");
+		
+		//body (char) (item.bodylocation+2)
+		//helm
+		positions[3] = new CreatePos(359, 8, "visible");
+		//amulet
+		positions[4] = new CreatePos(373, 180, "visible");
+		//armor
+		positions[5] = new CreatePos(359, 78, "visible");
+		//weapon left
+		positions[6] = new CreatePos(261, 39, "visible");
+		//weapon right
+		positions[7] = new CreatePos(453, 39, "visible");
+		//ring left
+		positions[8] = new CreatePos(334, 180, "visible");
+		//ring right
+		positions[9] = new CreatePos(413, 180, "visible");
+		//belt
+		positions[10] = new CreatePos(359, 221, "visible");
+		//boots
+		positions[11] = new CreatePos(453, 180, "visible");
+		//gloves
+		positions[12] = new CreatePos(261, 180, "visible");
+		//weapon 2 left
+		positions[13] = new CreatePos(562, 39, "visible");
+		//weapon 2 right
+		positions[14] = new CreatePos(671, 39, "visible");
+
+		//body (merc)
+		//helm
+		positions[15] = new CreatePos(86, 256, "visible");
+		//armor
+		positions[17] = new CreatePos(86, 327, "visible");
+		//weapon left
+		positions[18] = new CreatePos(14, 299, "visible");
+		//weapon right
+		positions[19] = new CreatePos(158, 299, "visible");
+		
+		//Cursor
+		positions[20] = new CreatePos(666, 173, "visible");
+
+		//Gold
+		positions[21] = new CreatePos(337, 268, "visible");
+		positions[22] = new CreatePos(446, 268, "visible");
+	}
+}
+
+
+
+/*
+
+The main script that generates the html
+
+*/
+function makeLog(iModeLog){
+	if(iModeLog<0 || iModeLog>1)
+		iModeLog=0;
+
+
+	var file = File.open(filename,1);
+	if(!file) {
+		print("ÿc1Failed to open file: " + filename + " for writing");
+		print(" - make sure the directory structure is ok!! ");
+	} else {
+		print("- Writting File -");
+		writeHTML(file, "<html>");
+		writeHTML(file, "<head>");
+		writeHTML(file, "<title>"+me.name.toUpperCase() + " from " + me.account.toUpperCase() + " at " +me.realm.replace(".battle.net",'').toUpperCase() +" || "+STime()+"</title>");
+		
+		writeHTML(file, "<style type=\"text/css\">");
+		writeHTML(file, "div {");
+		writeHTML(file, "	font-family : "+FontFace+";");
+		writeHTML(file, "	font-weight : bold;");
+		writeHTML(file, "	font-style : normal;");
+		writeHTML(file, "	text-indent : 0;");
+		writeHTML(file, "	text-decoration : none;");
+		writeHTML(file, "	font-size : 12;");
+		writeHTML(file, "}");
+		writeHTML(file, ".color0 { color: #c4c4c4 }\n.color1 { color: #b04434 }\n.color2 { color: #18f200 }\n.color3 { color: #5050ac }\n.color4 { color: #948064 }\n.color5 { color: #505050 }\n.color6 { color: #000000 }\n.color7 { color: #ac9c64 }\n.color8 { color: #d08420 }\n.color9 { color: #d8b864 }\n.colora { color: #186408 }\n.colorb { color: #a420fc }\n.colorc { color: #287c14 }");
+		writeHTML(file, "</style>");
+		
+		//Javascript for show and hide layers
+		writeHTML(file, "<script>");
+		//Show the layer with the info about the item
+		writeHTML(file, "function showInfo(NumInfo, Parent){");
+		writeHTML(file, "	document.getElementById(NumInfo).style.visibility = \"visible\";");
+		writeHTML(file, "	if(iVar = document.getElementById(NumInfo+\"grey\"))");
+		writeHTML(file, "		iVar.style.visibility = \"visible\";");
+		writeHTML(file, "	document.getElementById(Parent).style.cursor='hand';");
+		writeHTML(file, "}");
+		//Hide the layer with the info about the item
+		writeHTML(file, "function hideInfo(NumInfo){");
+		writeHTML(file, "	document.getElementById(NumInfo).style.visibility = \"hidden\";");
+		writeHTML(file, "	if(iVar = document.getElementById(NumInfo+\"grey\"))");
+		writeHTML(file, "		iVar.style.visibility = \"hidden\";");
+		writeHTML(file, "}");
+
+		//Show the layer with cube and hide the chest inv.
+		writeHTML(file, "function showCube(){");
+		writeHTML(file, "	if(document.getElementById(\"Chest\").style.visibility == \"hidden\"){");
+		writeHTML(file, "		for(i=0; i<idNumChest; i++){");
+		writeHTML(file, "			nameItem=\"itemChest\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "			nameItem=\"infoChest\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "		}");
+		writeHTML(file, "		for(i=0; i<idNumCube; i++){");
+		writeHTML(file, "			nameItem=\"itemCube\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"visible\";");
+		writeHTML(file, "			nameItem=\"infoCube\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "		}");
+		writeHTML(file, "		document.getElementById(\"goldstash\").style.visibility = \"hidden\";");
+		writeHTML(file, "		document.getElementById(\"Chest\").style.visibility = \"visible\";");
+		writeHTML(file, "		document.getElementById(\"cancelButton\").style.visibility = \"visible\";");
+		writeHTML(file, "	}");
+		writeHTML(file, "}");
+
+		//Hide the layer with cube and show the chest inv.
+		writeHTML(file, "function hideCube(){");
+		writeHTML(file, "	if(document.getElementById(\"Chest\").style.visibility == \"visible\"){");
+		writeHTML(file, "		for(i=0; i<idNumChest; i++){");
+		writeHTML(file, "			nameItem=\"itemChest\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"visible\";");
+		writeHTML(file, "			nameItem=\"infoChest\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "		}");
+		writeHTML(file, "		for(i=0; i<idNumCube; i++){");
+		writeHTML(file, "			nameItem=\"itemCube\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "			nameItem=\"infoCube\"+i;");
+		writeHTML(file, "			document.getElementById(nameItem).style.visibility = \"hidden\";");
+		writeHTML(file, "		}");
+		writeHTML(file, "		document.getElementById(\"goldstash\").style.visibility = \"visible\";");
+		writeHTML(file, "		document.getElementById(\"Chest\").style.visibility = \"hidden\";");
+		writeHTML(file, "		document.getElementById(\"cancelButton\").style.visibility = \"hidden\";");
+		writeHTML(file, "	}");
+		writeHTML(file, "}");
+		
+		writeHTML(file, "var showWeapon=1");
+		writeHTML(file, "function switchWeapon(){");
+		writeHTML(file, "	switch(showWeapon){");
+		writeHTML(file, "		case 1:");
+		writeHTML(file, "			showWeapon=2;");
+		writeHTML(file, "			for(i=0; i<weapon1.length; i++){");
+		writeHTML(file, "				document.getElementById(weapon1[i]).style.visibility = \"visible\";");
+		writeHTML(file, "			}");
+		writeHTML(file, "			for(i=0; i<weapon2.length; i++){");
+		writeHTML(file, "				document.getElementById(weapon2[i]).style.visibility = \"hidden\";");
+		writeHTML(file, "			}");
+		writeHTML(file, "		break;");
+		writeHTML(file, "		case 2:");
+		writeHTML(file, "			showWeapon=1;");
+		writeHTML(file, "			for(i=0; i<weapon2.length; i++){");
+		writeHTML(file, "				document.getElementById(weapon2[i]).style.visibility = \"visible\";");
+		writeHTML(file, "			}");
+		writeHTML(file, "			for(i=0; i<weapon1.length; i++){");
+		writeHTML(file, "				document.getElementById(weapon1[i]).style.visibility = \"hidden\";");
+		writeHTML(file, "			}");
+		writeHTML(file, "		break;");
+		writeHTML(file, "	}");
+		writeHTML(file, "}");
+
+
+		writeHTML(file, "var weapon1=new Array();");
+		writeHTML(file, "var weapon2=new Array();");
+		writeHTML(file, "</script>");
+
+		writeHTML(file, "</head>");
+		
+		writeHTML(file, "<body bgcolor=\"#000000\">");
+
+		//The layer with the background of chest and inventory
+		writeHTML(file, "<div id=\"fondo\" style=\"position:absolute;z-index:0;top:0;left:0;height:100%; width:100%;visibility:visible\">");
+		if(iModeLog==0){
+			writeHTML(file, "	<img src=\""+imagespath+"background.jpg\"><br/>");
+		}else{
+			writeHTML(file, "	<img src=\""+imagespath+"invmanager-9.jpg\"><br/>");
+		}
+		writeHTML(file, "</div>");
+		
+		//The layer with the cube
+		writeHTML(file, "<div id=\"Chest\" style=\"position:absolute;z-index:0;top:0;left:0;height:100%; width:100%;visibility:hidden\">");
+		writeHTML(file, "	<img src=\""+imagespath+"background2.jpg\"><br/>");
+		writeHTML(file, "</div>");
+		//The layer with the button to return to chest inv.
+		writeHTML(file, "<div id=\"cancelButton\" style=\"position:absolute;z-index:0;top:446;left:355;height:31;width:31;visibility:hidden;background:blue\">");
+		writeHTML(file, "	<img src=\"\" onclick=\"hideCube()\"><br/>");
+		writeHTML(file, "</div>");
+
+		//The layers with the gold
+		writeHTML(file, "<div id=\"goldinv\" style=\"position:absolute;z-index:0;top:"+positions[21].y+";left:"+positions[21].x+";visibility:"+positions[21].visible+";\">");
+		writeHTML(file, "	<font color=\"#FFFFFF\"><b>"+me.getStat(14)+"</b></font>");
+		writeHTML(file, "</div>");
+		writeHTML(file, "<div id=\"goldstash\" style=\"position:absolute;z-index:0;top:"+positions[22].y+";left:"+positions[22].x+";visibility:"+positions[22].visible+";\">");
+		writeHTML(file, "	<font color=\"#FFFFFF\"><b>"+me.getStat(15)+"</b></font>");
+		writeHTML(file, "</div>");
+
+		//Layers to switch the weapon
+		if(iModeLog==0){
+			writeHTML(file, "<div id=\"switch1left\" style=\"position:absolute;z-index:0;top:87;left:419;width:60;height:16;visibility:visible;background:blue\">");
+			writeHTML(file, "<img src=\"\" width=\"100%\" height=\"100%\" onclick=\"switchWeapon()\"><br/>");
+			writeHTML(file, "</div>");
+			writeHTML(file, "<div id=\"switch1right\" style=\"position:absolute;z-index:0;top:87;left:650;width:60;height:16;visibility:visible;background:blue\">");
+			writeHTML(file, "<img src=\"\" width=\"100%\" height=\"100%\" onclick=\"switchWeapon()\"><br/>");
+			writeHTML(file, "</div>");
+		}
+
+		
+		//Counters of items in chest, inventory, cube or body (not belt, i think is not important how many potions do u have :D )
+		var idNumCube=0;
+		var idNumInv=0;
+		var idNumChest=0;
+		var idNumBody=0;
+		var isUsingWeapon=0;
+		var iLogThiOne=false;
+		
+		var item=getUnit(4);
+		if (item) {
+			do{
+
+				iLogThiOne=true;
+				if (item.mode >= 2 && item.mode != 4){
+					iLogThiOne=false;
+				}
+				if(item.mode == 4 && iModeLog==0){
+					iLogThiOne=false;
+				}
+				
+				if(item.getParent() && item.getParent().name != mercname && item.getParent().name != me.name)
+					iLogThiOne=false;
+				
+				if(iLogThiOne){
+					// Don't log items which are on the ground - only items which are in inventory,
+					// stash,cube, equipped, in cursor or in merc
+
+
+					//By the moment only the items in inventory, not in the cursor or in belt
+					
+					//Variables for the positions of the item
+					var iGridSize=28;
+					var iPosX=0;
+					var iPosY=0;
+					var iW=0;
+					var iH=0;
+					var iXOffset=0;
+					var iYOffset=0;
+					var iVisible="visible";	//"hidden";
+					var isUsingWeapon=0;
+					var iInclude=true;
+
+					//If we arent wearing it
+					if(item.mode==0){
+						switch(item.location){	//Can be in
+							case 3:				//Inventory
+								idNum=idNumInv;
+								idNumInv++;
+								iWhere="Inv";
+								iXOffset=positions[1].x;
+								iYOffset=positions[1].y;
+								iVisible=positions[1].visible;
+							break;
+							case 6:				//Cube
+								idNum=idNumCube;
+								idNumCube++;
+								iWhere="Cube";
+								iXOffset=positions[2].x;
+								iYOffset=positions[2].y;
+								iVisible=positions[2].visible;
+
+							break;
+							case 7:				//Stash
+								idNum=idNumChest;
+								idNumChest++;
+								iWhere="Chest";
+								iXOffset=positions[0].x;
+								iYOffset=positions[0].y;
+								iVisible=positions[0].visible;
+
+							break;
+						}
+						iPosX=item.x*iGridSize+iXOffset+item.x;
+						iPosY=item.y*iGridSize+iYOffset+item.y;
+					}else if(item.mode==1){
+						if(item.getParent() && item.getParent().name != mercname && item.getParent().name != me.name)
+							continue;
+						
+						//If we are wearing
+						var iInc=2;
+						if(item.getParent() && item.getParent().name == mercname){
+							iInc=14;
+							iInclude=false;
+						}
+
+						var iWhere="Body";
+						var idNum=idNumBody;
+						idNumBody++;
+						iPosX=positions[(item.bodylocation+iInc)].x;
+						iPosY=positions[(item.bodylocation+iInc)].y;
+						iVisible=positions[(item.bodylocation+iInc)].visible;
+
+						switch(item.bodylocation){	//In next version we will put these values into an array
+							case 4:		//weapon left
+							case 5:		//weapon right
+								isUsingWeapon=1;
+							break;
+							case 11:		//weapon 2 left
+							case 12:		//weapon 2 right
+								isUsingWeapon=2;
+							break;
+						}
+					}else if(item.mode==4){
+						if(iModeLog==1){
+							iWhere="Body";
+							idNum=idNumBody;
+							idNumBody++;
+							iPosX=positions[20].x;
+							iPosY=positions[20].y;
+							iVisible=positions[20].visible;
+						}
+					}
+					
+					iW=item.sizex*iGridSize;
+					iH=item.sizey*iGridSize;
+
+					//If its a weapon we store it
+					if(iInclude==true){
+						writeHTML(file, "<script>");
+						if(isUsingWeapon==1){
+							writeHTML(file, "weapon1.push(\"item"+iWhere+""+idNum+"\");");
+						}else if(isUsingWeapon==2){
+							writeHTML(file, "weapon2.push(\"item"+iWhere+""+idNum+"\");");
+						}
+						writeHTML(file, "</script>");
+					}					
+					//place the item to view it
+					writeHTML(file, "<div id=\"item"+iWhere+""+idNum+"\" style=\"position:absolute;z-index:5;top:"+iPosY+";left:"+iPosX+";height:"+iH+"; width:"+iW+";visibility:"+iVisible+"\">");
+					
+					var gfxFile=getImageFile(item);
+					var strClickEvent="";
+					if(item.code=="box" && iModeLog==0){	//If it is the cube we want to open it
+						strClickEvent="onclick=\"showCube()\"";
+					}
+					writeHTML(file, "	<img src=\""+imagespath+""+gfxFile+"\" onmouseover=\"showInfo('info"+iWhere+""+idNum+"', 'item"+iWhere+""+idNum+"')\" onmouseout=\"hideInfo('info"+iWhere+""+idNum+"')\" "+strClickEvent+"><br/>");
+					writeHTML(file, "</div>");
+					
+					
+					//Place the layer with the info about the item
+					
+					//Replace ugly chars
+					var strItemName=item.fname.replace(/\r|\n|\r\n/g, ", ").replace(/<|>/g, "1");
+					while(strItemName.substring(0,2)=="ÿc"){
+						strItemName=strItemName.substring(3); // see function IterateItems()
+					}
+                    
+					//Calculate the size of the layer and retrieve the info
+					var iNumLinesStats=0;
+					var iLongLine=0;
+					
+					strItemStats=getCompleteStats(item, false);
+					var strStatsPerLine=strItemStats.split("\n");
+					var iC = -1;
+					for(var i=0; i<strStatsPerLine.length; i++){
+						if(iLongLine<strStatsPerLine[i].length) {
+							iLongLine=strStatsPerLine[i].length;
+							iC = i;
+						}
+					}
+					iNumLinesStats=strStatsPerLine.length;
+					strItemStats=getCompleteStats(item, true);
+					strStatsPerLine=strItemStats.split("\n");
+
+					var iWidth=(iLongLine*10);
+					var iHeight=(iNumLinesStats*13)+20;    // Darien Fix + 20
+ 					//writeHTML(file, "<!-- strLongLine:"+strStatsPerLine[iC]+" -->");
+					//writeHTML(file, "<!-- iLongLine: "+iLongLine+",  iNumLinesStats: "+iNumLinesStats+" || iWidth: "+iWidth+",  iHeight: "+iHeight+" -->");
+					//writeHTML(file, "<!-- iPosX: "+iPosX+",  iPosY: "+iPosY+" || iW: "+iW+",  iH: "+iH+" -->");
+					
+					//Calculate best fit for the layer
+					//iW : Ancho imagen
+					//iPosX: Posicion de la imagen
+					//iWidth: Ancho de la capa
+					var iPosLayerX=0;
+					var iPosLayerY=0;
+					var iTrouble = 0;
+					
+					var isRight = (((iPosX+iW)+iWidth) <= 800);
+					var isDown = (((iPosY+iH)+iHeight) <= 500);
+					var isLeft = ((iPosX - iWidth) > 0);
+					var isUp = ((iPosY - iHeight) > 0);
+
+					var isRightNormal = isRight && ((iPosY+iHeight) <= 500);
+					var isLeftNormal = isLeft && ((iPosY+iHeight) <= 500);
+					
+					var isRightMiddle = isRight && !(isUp || isDown);
+					var isLeftMiddle =  isLeft && !(isUp || isDown);
+					var isDownCenter = isDown && !(isRight || isLeft);
+					var isUpCenter = isUp && !(isRight || isLeft);
+					writeHTML(file, "<!-- isRight: "+isRight+" (isRightNormal: "+isRightNormal+"),  isLeft: "+isLeft+" (isLeftNormal: "+isLeftNormal+"), isDown: "+isDown+",  isUp: "+isUp+" -->");
+					writeHTML(file, "<!-- isRightMiddle: "+isRightMiddle+",  isLeftMiddle: "+isLeftMiddle+", isDownCenter: "+isDownCenter+",  isUpCenter: "+isUpCenter+" -->");
+
+					if(!isRight) {
+						if(!isLeft) {
+							iPosLayerX= (iPosX-(iWidth/2));
+							if(!isUpCenter) {
+								if(!isDownCenter) {
+									//writeHTML(file, "<!-- ERROR CRITICO Center-->");
+								} else {
+									//writeHTML(file, "<!-- Up-Center -->");
+									iPosLayerY= (iPosY+iH);
+								}
+							} else {
+								writeHTML(file, "<!-- Down-Center -->");
+								iPosLayerY= (iPosY-iHeight);
+							}
+						} else {
+							iPosLayerX= (iPosX - iWidth);
+							if(!isLeftNormal) {
+								if(!isDown) {
+									if(!isUp) {
+										//writeHTML(file, "<!-- ERROR CRITICO -->");
+									} else {
+										//writeHTML(file, "<!-- Up-Left -->");
+										iPosLayerY= (iPosY-iHeight);
+									}
+								} else {
+									//writeHTML(file, "<!-- Down-Left -->");
+									iPosLayerY= (iPosY+iH);
+								}
+							} else {
+								//writeHTML(file, "<!-- Left -->");
+								iPosLayerY= (iPosY);
+							}
+						}
+					} else {
+						iPosLayerX= ((iPosX+iW));
+						if(!isRightNormal) {
+							if(!isDown) {
+								if(!isUp) {
+									//writeHTML(file, "<!-- ERROR CRITICO -->");
+								} else {
+									//writeHTML(file, "<!-- Up-Right -->");
+									iPosLayerY= (iPosY-iHeight);
+								}
+							} else {
+								//writeHTML(file, "<!-- Down-Right -->");
+								iPosLayerY= (iPosY+iH);
+							}
+						} else {
+							//writeHTML(file, "<!-- Right -->");
+							iPosLayerY= (iPosY);
+						}
+					}
+					
+					if(iPosLayerX<0)
+						iPosLayerX = 0;
+					if(iPosLayerY<0)
+						iPosLayerY = 0;
+					if((iPosLayerX+iWidth)>800)
+						iPosLayerX -= ((iPosLayerX+iWidth)-800);
+					if((iPosLayerY+iHeight)>500)
+						iPosLayerY -= ((iPosLayerY+iHeight)-500);
+
+					
+					//writeHTML(file, "<!-- //capa  top:"+iPosLayerY+";left:"+iPosLayerX+";width:"+iWidth+"; height:"+iHeight+" -->");
+					//writeHTML(file, "<!-- //image top:"+iPosY+";left:"+iPosX+";width:"+iW+"; height:"+iH+" -->");
+					
+					writeHTML(file, "<div id=\"info"+iWhere+""+idNum+"grey\" align=\"center\" style=\"position:absolute;z-index:50;top:"+iPosLayerY+";left:"+iPosLayerX+";width:"+iWidth+"; height:"+iHeight+";visibility:hidden;background:black;Filter: Alpha(Opacity=75);\">&nbsp;</div>");
+					writeHTML(file, "<div id=\"info"+iWhere+""+idNum+"\" align=\"center\" style=\"position:absolute;z-index:50;top:"+iPosLayerY+";left:"+iPosLayerX+";width:"+iWidth+"; height:"+iHeight+";visibility:hidden;\">");
+
+                    var itemIsBroken = item.getFlag(0x100);
+                    var itemIsSocketed = item.getFlag(0x800);
+                    var itemIsRuneword = item.getFlag(0x4000000);
+                    
+					var iColor=strColorTable[item.quality-1];
+					if(item.code=="box"){	//If it is the cube
+						iColor=strColorTable[7];
+					}
+					if(itemIsBroken) iColor = colorRed;
+                    if(item.classid > 602 && item.classid < 606) iColor = colorPurple; //Charm Color
+                    if(item.itemType == 74) iColor = colorOrange; //Rune Color
+                    if(itemIsSocketed && item.quality < 4) iColor = colorGrey;  
+                    
+					writeHTML(file, "<font color=\""+iColor+"\">");
+					var strSplited=strItemName.split(", ");
+					if(strSplited.length>1){
+                        if(itemIsRuneword) strSplited[1] = strSplited[1].substring(3);stop
+                        
+						writeHTML(file, strSplited[1]+"<br>"+strSplited[0]+"<br/>");
+					}else{
+						writeHTML(file, strItemName+"<br/>");
+					}
+					writeHTML(file, "</font>");
+					
+					//writeHTML(file, "<spam color=\"#ffffff\">");
+					writeHTML(file, strItemStats);
+					if(item.code=="box" && iModeLog==0){	//If it is the cube we want to open it
+						writeHTML(file, "click to show Cube<br/>");
+					}
+					//writeHTML(file, "</spam>");
+                    writeHTML(file, "</div>");
+				}
+			}while(item.getNext());
+		}
+		writeHTML(file, "<script>");
+		if(iModeLog==0)
+			writeHTML(file, "switchWeapon();");
+		//Store the number of items
+		writeHTML(file, "var idNumCube="+idNumCube+";");
+		writeHTML(file, "var idNumInv="+idNumInv+";");
+		writeHTML(file, "var idNumChest="+idNumChest+";");
+		writeHTML(file, "var idNumBody="+idNumBody+";");
+		writeHTML(file, "</script>");
+		writeHTML(file, "</body>");
+		writeHTML(file, "</html>");
+		file.close();
+		print("Done... for: "+filename);
+	}
+}
+
+
+function ReadIni(fileconfig){
+	var iData=ReadAllIniData(fileconfig);
+	if(iData["[InvRipper]"]){
+		if(iData["[InvRipper]"]["imagespath"])
+			imagespath=iData["[InvRipper]"]["imagespath"];
+		if(iData["[InvRipper]"]["outputpath"])
+			outputpath=iData["[InvRipper]"]["outputpath"];
+		if(iData["[InvRipper]"]["modelog"])
+			giModeLog=1;//iData["[InvRipper]"]["modelog"];
+		if(iData["[InvRipper]"]["fontface"])
+			FontFace=iData["[InvRipper]"]["fontface"];
+		//if(iData["[InvRipper]"]["delete"])
+		//	gisDelete=iData["[InvRipper]"]["delete"];
+
+		print("[InvRipper] imagespath: "+iData["[InvRipper]"]["imagespath"]);
+		print("[InvRipper] outputpath: "+iData["[InvRipper]"]["outputpath"]);
+		print("[InvRipper] modelog: "+iData["[InvRipper]"]["modelog"]);
+		print("[InvRipper] fontface: "+iData["[InvRipper]"]["fontface"]);
+		//print("[InvRipper] delete: "+iData["[InvRipper]"]["delete"]);
+	}
+}
+
