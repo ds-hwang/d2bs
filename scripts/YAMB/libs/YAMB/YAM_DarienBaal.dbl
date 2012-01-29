@@ -11,12 +11,14 @@ function DK_GameMsgHandler(who, msg) {
     var parsedMsg = new Array();
     var Firstword = msg.substring(0, msg.indexOf(" "));
     var params = msg.substring(msg.indexOf(" ")+1, msg.length);
+    print(who + " " + msg);
     if(!Firstword) { Firstword = params; params = null; }
     if(Firstword + " " + params == YAM_TPMsg) myLeader = who;
 }
 
 function Baal() {
     if(PublicMode == 2) addEventListener("chatmsg", DK_GameMsgHandler);
+
     if (me.classid == 1) {
         XP_Static = 8;
         (BXP_SorcSkill.length > 0) ? XP_SetSorcSkills(BXP_SorcSkill,Monster_SorcSkill) : XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);

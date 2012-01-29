@@ -73,7 +73,7 @@ function clearDen() {
     for(var _g=0; _g < 3; _g++) {
         clearArea(_g);
         delay(5000);
-        if(Sc_DoneQuest(1,1)) {
+        if(me.getQuest(1,1)) {
             dprint("Den Cleared! See Akara",9);
             break;
         } else dprint("Missed some monsters. Retracing Path",9);

@@ -101,42 +101,21 @@ function YAM_KeyUpManager(keyup) {
     }
 }
 
-function FB_parseGameMsg (who, msg) {
-	var parsedMsg = new Array();
 
-       
+
+function FB_GameMsgHandler(who, msg) {
+    var parsedMsg = new Array();
     var Firstword = msg.substring(0, msg.indexOf(" "));
     var params = msg.substring(msg.indexOf(" ")+1, msg.length);
-     if(!Firstword) {
-        Firstword = params;
-        params = null
-    }
+    if(!Firstword) { Firstword = params; params = null; }
     
-    //--code for 3 words -- sloppy
-    //var rest = msg.substring(msg.indexOf(" ")+1, msg.length);
-    //var Secondword= rest.substring(0, rest.indexOf(" "));
-    //var darest = rest.substring(rest.indexOf(" ")+1, rest.length);
-    //var Thirdword = darest.substring(0, rest.length);
+//}
 
-    Firstword = Firstword.toLowerCase();
-    if(params) params = params.toLowerCase();
-    
-		parsedMsg[0] = who;
-		parsedMsg[1] = Firstword;
-		parsedMsg[2] = params;
-		//parsedMsg[3] = Thirdword;
-	
-	return parsedMsg;
-}
-
-function FB_GameMsgHandler(who, msg) { 
-    var parsed = FB_parseGameMsg (who, msg);
-    
-    return GameMsgHandler(parsed[0],parsed[1],parsed[2]);
-}
-
-function GameMsgHandler(sender, cmd, params, c) {
-    
+//function GameMsgHandler(sender, cmd, params, c) {
+    var sender = who;
+    var cmd = Firstword;
+    print(who + " " + msg);
+    print(sender + " " + cmd + " " + Firstword + " " + params);
     if(sender != me.name) print("Sender " + sender + " cmd: " + cmd + " params: " + params);
     
     if(cmd == "darien" && params == "commands you") {
@@ -291,10 +270,11 @@ function GameMsgHandler(sender, cmd, params, c) {
 
 
 function FollowBot() {
-    addEventListener("chatmsg",   FB_GameMsgHandler);
-    addEventListener("keyup",     YAM_KeyUpManager );
+    addEventListener("chatmsg", FB_GameMsgHandler);
+    addEventListener("keyup", YAM_KeyUpManager );
     buildTileList();
     
+    //say("this is stupid");
     // Set Max Game length to infinite so we dont time out
 	me.maxgametime = 0;
 	//MonsterSearch=1;
