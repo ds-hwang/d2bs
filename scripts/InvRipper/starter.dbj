@@ -1,0 +1,505 @@
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+            DIO  (Darien's Inventory OOG)
+                version 0.1
+
+    Huge Thanks to Alogwe, Bobode and Lord2800
+    thx to nJaguar for old template and basic functions
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+js_strict(true); 
+/*@@@@@@@@@  config  @@@@@@@@*/
+
+var gamename = "InvRipper"
+var gamepass = "321"
+
+//Basic Delay Unit that's random from half it's value to double it.
+// 2000-2500 is good to start at
+var humanDelay=2000;
+
+// set true to print to output/Darien/starter.log
+var debug_mode = false;
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*@@@@@@@  end config  @@@@@@@*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+// ignore these settings, you probably don't need to go below this line.
+
+include("invripper/EleIniLib_Dar.d2l");
+var filename = "settings\\Darien\\DIO.ini";
+
+var SINGLE_PLAYER=0, CLOSED_BNET=1, REALM_BUTTON=2, OPEN_BNET=3;
+var NORMAL = 0, NIGHTMARE = 1, HELL = 2;
+var TRUE = true, FALSE = false, True = true, False = false;
+var control = "";
+var count = 1;
+var accountname = "";
+var accountpass = "";
+var realmSelect = ""
+var sections = Ele_GetIniSections(filename);
+var chars = new Array();
+var enabled=0;
+var charnum=0;
+var emptySlot=false;
+var gameFlag=false;
+var bypass=false;
+var RD_Delay = 5; //minute to wait on RD
+var LoginWaitTimeout = 10000;			// wait 10 seconds for login to finish (connect->password dialog)
+
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*@@@@@@@  Buttons @@@@@@@*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+var editboxes = [ [1,432,162,158,20],[1,432,217,158,20]	];
+var radiobuttons = [ [6,430,381,16,16], [6,555,381,16,16], [6,698,381,16,16] ];
+// CREATE and CREATE GAME
+var buttons = [ [6,533,469,120,20], [6,594,433,172,32]];
+var chatbox = [4,28,410,354,298];
+
+// Join Game Selection Button
+var JoinGameSelectButton   =  [6, 652, 469, 120, 20];
+var JoinGame_ConfirmButton =  [6, 594, 433, 172, 32];
+var JoinGame_NamePassList  = [[1, 432, 148, 155, 20], [1, 606, 148, 155, 20]];
+
+// main menu --  single player, bnet, realm select, other multi, quit
+var mainbuttons = [ [6,264,324,272,35], [6,264,366,272,35], [6,264,391,272,25], [6,264,433,272,35], [6,264,568,272,35] ];
+// account, pass, login, change password, create new, exit
+var bnetlogin = [ [1,322,342,162,19], [1,322,396,162,19], [6,264,484,272,35], [6,264,572,272,35], [6,264,528,272,35], [6,33,572,128,35] ];
+//CANCEL [6,330,416,128,35] true	false	undefined
+var loginDialogCancel = [6,330,416,128,35];
+
+// char screen
+var charselectrealm = [6,609,113,182,30]; // select realm button
+
+//realms	
+var realmList = [4,257,500,292,160]; // realm list
+//var realms = [[0x14D, 0x15F],[0x153, 0x179],[0x116, 0x191],[0x11F, 0x1AB]];
+var realms = [[350, 350],[350,375],[350,400],[350,425],[350,450]];
+var realmOK = [6,281,538,96,32];
+
+// OK, EXIT, CREATE NEW, CONVERT TO, DELETE
+var charbuttons = [ [6,627,572,128,35],[6,33,572,128,35],[6,33,528,168,60],[6,233,528,168,60],[6,433,528,168,60] ];
+var CharPositions = [[4,237,178,72,93],[4,509,178,72,93],[4,237,271,72,93],[4,509,271,72,93],[4,237,364,72,93],[4,509,364,72,93],[4,237,457,72,93],[4,509,457,72,93]];
+
+var SP_Diffs = [[6,264,297,272,35],[6,264,340,272,35],[6,264,383,272,35]];
+
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+/*@@@@@@@  functions @@@@@@@*/
+/*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@*/
+
+
+function skipToBNET(_realm) {
+    if(!findControl(mainbuttons[CLOSED_BNET]) || !findControl(mainbuttons[REALM_BUTTON])) return false;
+    dprint("We're on the main menu");
+    if(_realm > 0) {
+        dprint("Selecting Realm");
+        if(!find_and_click_control(mainbuttons[REALM_BUTTON])) return false; 
+        else selectRealm(_realm);
+        delay(1000);
+    }
+    if(!find_and_click_control(mainbuttons[CLOSED_BNET])) return false;
+    return true;
+}
+
+function selectRealm(_realm) { 
+	dprint("We're at the realm select screen. Choosing Realm");
+	var gateway = find_control_by_properties(realmList);
+    dprint("Realms: "+gateway.text);
+	if(!gateway) {
+		dprint("gateway doesn't exist",1);
+		return false; 
+	} else {
+        gateway.click(realms[_realm-1][0],realms[_realm-1][1]);
+        delay(1000);
+	}
+	find_and_click_control(realmOK);
+    return true;
+}
+
+function logOn(_accountname,_accountpass) {
+    var ctr=0;
+    while(findControl(loginDialogCancel)) {
+        if(ctr>LoginWaitTimeout/10) {
+            find_and_click_control(loginDialogCancel);
+            return false;
+        }
+        ctr++;
+        hDelay(2);
+    }
+    dprint("We're at the bnet login page. Logging in.",2);
+    if(!find_control_and_set_text(bnetlogin[0], _accountname)) return false;
+    if(!find_control_and_set_text(bnetlogin[1], _accountpass)) return false;
+    hDelay(4);
+    if(!find_and_click_control(bnetlogin[2])) return false;
+    return true;
+}
+
+function chooseCharacter(_spot) {
+    var _times=40;
+    while(!findControl(charbuttons[2])) {
+        delay(500);
+        if(_times > 40) return false;
+    }
+    dprint("We're at the char select screen. Choosing character.",2);
+    var _attempts = 0; // try 3 times to select by double clicking
+    while(find_control_by_properties(charbuttons[0]) && _attempts < 4) {
+        //Double Click
+        dprint("DOUBLE CLICK",9);
+        if(!find_and_click_control(CharPositions[_spot])) return false;
+        delay(50);
+        if(!find_and_click_control(CharPositions[_spot])) return false;
+        //wait
+        hDelay();
+        _attempts++;
+    }
+    delay(1000);
+    // check if still in Character select screen
+    var OK_Button = find_control_by_properties(charbuttons[0]);
+    var Create_Button = find_control_by_properties(charbuttons[2]);
+    var Delete_Button = find_control_by_properties(charbuttons[4]);
+    if(OK_Button) {
+        //check if still here because of Realm Down. 
+        
+        // if OK Button is disabled normally .state == 3 and .disabled == 5
+        if((OK_Button.state == 2 || OK_Button.disabled == 4) &&
+            //and if Create New Character is Disabled
+            (Create_Button.state == 2 || Create_Button.disabled == 4) &&
+            //and if Delete Char Button is Disabled
+            (Delete_Button.state == 2 || Delete_Button.disabled == 4)) restart(30,"Realm Down Detected!!");
+        //otherwise just return false;
+        return false; 
+    }
+    //otherwise return true;
+    return true;
+}
+
+function main() {
+    //load("tools/dumpcontrols.d2j");
+    //showConsole();
+    dprint("-----STARTING INVRIPPER-----");
+    
+    delay(1000);
+    while(getLocation() == 18) delay(1000);
+    // loop until we get confirmation on new value of enabled
+    enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+    while(!enabled) {
+        dprint("couldn't read ini... trying again in 5 seconds",8);
+        delay(2000);
+        enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+        if(enabled && enabled == 0) break;
+    }
+    
+    do {
+        accountname = Ele_ReadIniLine(filename, sections[count], "Name");
+        accountpass = Ele_ReadIniLine(filename, sections[count], "Password");
+        realmSelect = Ele_ReadIniLine(filename, sections[count], "Realm");
+        chars = Ele_ReadIniLine(filename, sections[count], "Slots").split(",");
+        enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+        count++;
+    } while((enabled == 0) && sections[count]);
+    dprint("Enabled is defined for [Account"+(count-1)+"]",8);
+    
+    while(!chars) {
+        chars = Ele_ReadIniLine(filename, sections[count], "Slots").split(",");
+        delay(10);
+        if(chars == 0) break;
+    }
+    
+    if(enabled == 0) restart(0.25,"No Accounts are enabled for logging.  Go Edit settings/Darien/DIO.ini");
+    var charnum = Ele_ReadIniLine(filename, sections[0], "charMarker");
+    charnum = Math.round(charnum*1);
+    delay(750);
+
+    while(true) {
+        sendCopyData(null, "OOG", 0,"ping");
+        var now = new Date();
+        dprint(now.toLocaleString());
+        while(!me.ingame) {
+            sendCopyData(null, "OOG", 0,"ping");
+            switch(getLocation()) {
+
+                case 8: // main menu
+                case 18: // splash screen
+                    skipToBNET(realmSelect);
+                    delay(1000);
+                    break;
+                case 16: // "please wait" on char select screen
+                case 21: // "Connecting" screen
+                case 25: // "please wait" screen
+                case 42: // "log on to bnet waiting screen"
+                    while(getLocation() == 42 || getLocation() == 25 || getLocation() == 21 || getLocation() == 16)
+                        delay(350);
+                    break;
+                case 19: // cd key in use by another player
+                case 22: // invalid cd key
+                    dprint('Your CD Key appears to be invalid, restarting in 5 minutes',1);
+                    restart(5);
+                    break;
+                case 9:  // login screen
+                case 10: // bailed out during login()
+                    //dprint("Acct Name: " + accountname);
+                    //dprint("Acct Pass: " + accountpass);
+                    logOn(accountname,accountpass);
+                    while(getLocation == 42) delay(500);
+                case 12: // Character Selection screen
+                    if(charnum > 7) charnum = 7;
+                    delay(1000);
+                    if(getLocation() == 13) {
+                        dprint('Got restricted, waiting 5 minutes',1);
+                        restart(10);
+                        break;
+                    }
+                    if(!chooseCharacter(chars[charnum])) {
+                        dprint("This slot does NOT have a Valid Character",1);
+                        emptySlot = true;
+                    }
+                    break;
+                case 13: // realm down
+                    dprint('Got restricted, waiting 5 minutes',1);
+                    restart(RD_Delay);
+                    break;
+
+                case 1: // lobby
+                case 3: // chat
+                    delay(2000);
+                    var _gamename = gamename + rand(100,300);
+                    dprint("Making game for character: "+charnum+" on [Account"+(count-1)+"]");
+                    createGame(_gamename, gamepass, 0);
+                    delay(10000);
+                    break;
+                case 24: case 26: case 28: // failed to join of some form or another
+                    dprint('Failed to join the game, waiting 5 minutes',1);
+                    delay(5000);
+                    break;
+
+                default: // anywhere else
+                    // are we really lost, or just think we're out of game?
+                    if(me.ingame) { dprint("default switch: me.ingame"); break; }
+                    var control = getControl();
+                    var msg = 'The bot got lost? Location is ' + getLocation() + ', first control is ' +
+                            (control == undefined || control == null ? 'undefined' : control.toSource()) +
+                            '. Please report this as an error (copy/paste this entire line with your report).';
+                    dprint(msg,9);
+                    //restart(1, "Restarting...");
+                    break;
+            }
+            delay(1000);
+            Ele_WriteIniLine(filename, sections[0], "gameFlag", "false");
+            //if ini cofig says to log a character that isn't there or is "expired" or "Not Found"
+            if(emptySlot) {
+                // break loop and give it settings to pass through and switch to the next account
+                charnum = 7;
+                bypass = true;
+                break;
+            }
+        }
+
+        //  -- In Game
+
+
+
+        // wake up and check every 1 second for out of game
+        while(me.ingame)  delay(1000);
+        sendCopyData(null, "OOG", 0,"ping");
+        
+        gameFlag = Ele_ReadIniLine(filename, sections[0], "gameFlag");
+        //  -- Left Game, OOG
+        if(!gameFlag && !bypass) { 
+            dprint("Failed to Create Game and/or log successfully",1);
+            delay(2000);
+            continue;
+        }
+        
+        dprint("Just Loggeed Character "+chars[charnum]+" on [Account"+(count-1)+"]",2);
+        Ele_WriteIniLine(filename, sections[0], "gameFlag", "false");
+        
+        delay(1000);
+        charnum++;
+        dprint("charnum = " +charnum);
+        if(charnum < 8) {
+            dprint("Writing character marker: "+ charnum +" to file.");
+            Ele_WriteIniLine(filename, sections[0], "charMarker", charnum);
+        }
+        
+        delay(2000); // let the game catch up
+        //hDelay(); // wait slightly before outputting text (100);
+        
+        dprint("Waiting a few seconds before starting next game.",1);
+        hDelay();
+        
+        //Go Back to Character Selection screen and get Next Character
+        if(charnum < chars.length) {
+            dprint("Going back to character selection screen");
+            click__("QUIT"); 
+            //while(!find_control_by_name("EXIT") || findControl(mainbuttons[0]) || findControl(bnetlogin[0])) hDelay(); 
+            while(!find_control_by_name("EXIT") && !findControl(mainbuttons[0])) hDelay(); 
+        }
+        
+        //If no more characters on this account, init next section and go to D2 Main screen
+        else {
+            dprint("This is the Last Character to be logged on this account!",8);
+            // disable the acct when done
+            dprint("Disabling Account in the ini.",8);
+            Ele_WriteIniLine(filename, sections[count-1], "Enabled", "0");
+            dprint("Resetting charnum = 0 and logging in the ini",8);
+            charnum = 0;
+            delay(250);
+            Ele_WriteIniLine(filename, sections[0], "charMarker", "0");
+            
+            if(!sections[count]) restart(0.25,"All Done!!!");
+            
+            dprint("Waiting before reading INI",1);
+            delay(3000);
+            // loop until we get confirmation on new value of enabled
+            enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+            /*
+            while(!enabled) {
+                dprint("couldn't read ini... trying again in 5 seconds",8);
+                delay(2000);
+                enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+                if(enabled && enabled == 0) break;
+            }
+            dprint("Enabled Is Defined for [Account"+count+"]",8);
+            */
+            // Check for next enabled section:
+            while((enabled == 0) && sections[count]) {
+                dprint("while loop for enabled & sections[count]",8);
+                count++;
+                if(sections[count]) enabled = Ele_ReadIniLine(filename, sections[count], "Enabled");
+                //if NO sections enabled quit and stop
+                else restart(0.25);
+            }
+            dprint("Next section: either defined or done?",8);
+            if(enabled == 0) restart(0.25,"All Done!!!");
+            
+            // In not done define the next account section and return to Main Screen
+            //realm = realmSelect;
+            accountname = Ele_ReadIniLine(filename, sections[count], "Name");
+            accountpass = Ele_ReadIniLine(filename, sections[count], "Password");
+            realmSelect = Ele_ReadIniLine(filename, sections[count], "Realm");
+            chars = Ele_ReadIniLine(filename, sections[count], "Slots").split(",");
+            count++;
+            D2_Main(); //Back to D2 Main Screen
+            emptySlot = false;
+            bypass = false;
+        }
+        dprint("Switch loop done.");
+        delay(1000);
+    }
+}
+
+function wait_for_chat_control() {
+	while(!getControl(chatbox[0],chatbox[1],chatbox[2],chatbox[3],chatbox[4])) delay(50);
+}
+
+function wait_for_controls(timeout) {
+	if(isNaN(timeout)) timeout=30000;	// default to 30 seconds timeout
+	i=0;
+	while(!getControl() && i++<100) delay(50);
+}
+
+
+function find_and_click_control(arr, x, y) {
+ 	if((control = find_control_by_properties(arr)) != null) {
+        var _text = control.toString();
+        if(control.text != " ") dprint("Control Text: " +control.text,9);
+        else if(getLocation() != 12) dprint("No control.text!!!",1);
+ 		if(x && y) 
+			control.click(x, y);
+		else
+			control.click();
+ 		return true;
+ 	}
+ 	return false;
+}
+
+function find_control_and_set_text(arr, str) {
+	if((control = find_control_by_properties(arr)) != null) {
+		control.setText(str);
+		return true;
+	}
+	return false;
+}
+
+function find_control_by_properties(arr) {
+    control = getControl(arr[0],arr[1],arr[2],arr[3],arr[4]);
+//	if(control) do {
+//		if(control.type==arr[0] && control.x==arr[1] && control.y==arr[2] && control.xsize==arr[3] && control.ysize==arr[4]) return control;
+//	} while(control.getNext());
+	return control; //0;
+}
+
+function find_control_by_name(str) {
+	control = getControl();
+	if(control) do {
+		if(control.text == str) return control;
+	} while(control.getNext());
+	return 0;
+}
+
+function findControl(arr) {
+	return getControl(arr[0],arr[1],arr[2],arr[3],arr[4]);
+}
+
+function restart(duration, _msg) {
+    if(!_msg) D2_Main("ALL DONE Logging Accounts!! Turning off Diablo II",9);
+    else D2_Main(_msg,1);
+    delay(duration*60*1000);
+    quitGame();
+}
+
+// FUNCTIONS BY Darien
+///////////////////////////////////////////////////////////////////////////////
+
+function click__(dstring) { 
+	var q = find_control_by_name(dstring);
+	if(q) {
+		q.click();
+		delay(100);
+	} else {
+		dprint("Could not find " + dstring + " button.");
+	}
+}
+
+function hDelay(g) {
+	var ranDel=Math.round(rand(humanDelay/2, humanDelay*1.5));
+	if(arguments.length == 1) ranDel=Math.round(ranDel/g);
+    //dprint("random delay = " +ranDel);
+	delay(ranDel);
+}
+
+function D2_Main(string,color) {
+    if(!string) dprint("Defined! Lets go to the Next Account now.",2);
+    else dprint(string,color);
+	delay(2000);
+    
+    var _tick = 0;
+    while(!find_control_by_name("EXIT DIABLO II") && _tick < 3) {
+        if(find_control_by_name("QUIT"))  click__("QUIT");
+        if(find_control_by_name("EXIT")) click__("EXIT");
+        hDelay(2);
+    }
+}
+
+
+function dprint(txt, color) { //color mod by darien
+    if(arguments.length != 2) color = 0;
+    //var now = new Date();
+    //var ptxt = "ÿc4" + now.toLocaleString() + " : ";
+        color = " ÿc"+color;
+    var f;
+    if(debug_mode) {
+        f=File.open("output\\Darien\\starter.log",2);
+        if(!f) {
+            createDirectory("output\\Darien");
+            f=File.open("output\\Darien\\starter.log",2);
+        }
+        if(f) {
+            //f.write(ptxt + "\n");
+            f.write(txt + " \n");
+            f.close();
+        }
+    }
+    //print(ptxt);
+    print(color+txt);
+}

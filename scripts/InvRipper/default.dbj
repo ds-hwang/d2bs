@@ -1,0 +1,33 @@
+/**
+ * @filename	default.dbj 
+ * @author		TechnoHunter
+ * @modified	2-16-2009
+ * @purpose		gets executed upon gamejoin
+ */
+
+js_strict(true); 
+me.debug = true;
+
+function main() {
+
+	switch(String(me.name).toLowerCase()) {
+		default:
+            load("tools/invripper.dbj");
+			//load("bots/YAMB.dbj");
+            //load("tools/Restart.dbj");
+            //load("tools/YAM-Pause.dbj");
+			//load("libs/YAMB/common/YAM-PathMove.dbl");
+			//load("libs/njip.dbl");
+			//load("tools/DevTools.dbj");
+            //load("tools/BodyCount.dbj");
+			//load("tools/YAM-PartyUp3.dbj");
+            //load("tools/debugControls.dbj");
+			//load("tools/dumpControl-Test.dbj");
+			//load("tools/dbs.dbj");
+			//load("tools/nipTest.dbj");
+			//load("tools/localeDump.dbj");
+			//load("examples/cube.dbj");
+			break;
+	}
+}
+
