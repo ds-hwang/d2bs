@@ -110,8 +110,8 @@ function XP_BossAttack(target) {
 
 	if (XP_CastCloak && target.getState(153)==0) DC_DoCast(264, 0, target);
 
-	// Use the Martial Artist method
-	// Cast 3 charge skills then cast a finish skill and repeat until target dead
+	// Use the Whirlwind method
+	// Cast dragon flight then WW till dead.
 	if (XP_AssassinBuild == 0 && DC_IsWalkable(target.x, target.y) && !me.getState(55)) {
 		DC_DoCast(275, 2, target);	// Dragon Flight
 		XP_WWAttack(target);
