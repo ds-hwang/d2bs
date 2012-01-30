@@ -1,0 +1,52 @@
+======================================
+InvRipper readme 
+=================
+
+
+=====================================
+Stand Alone use with svn checkout;
+
+start oog.exe edit character config and change scripts from YAMB or ntbot-scripts to InvRipper
+save and start.  This is will automatically start DIO (Darien's Inventory OOG) 
+and cycle through all of the accounts configured in settings/Darien/DIO.ini
+you can config minor stuff in invripper.ini as well.
+
+=====================================
+
+For use with YAMB
+
+1. change the name of your starter.dbj to starterNORM.dbj
+2. edit your default.dbj to load("tools/invripper.dbj"); OR rename it to defaultNORM.dbj and use the default.dbj included
+3. dump the rest of these files in your D2BS/YAMB install folder. (take special note to dump all the pics into the output/invripper/jpg folder)
+4. edit the list of accounts to log with DIO.ini and you can config minor stuff in invripper.ini as well.
+5. Use OGG to load, doesn't matter which character as DIO's stater.dbj will take over and start logging all of your characters
+
+
+
+===============================================
+viewing inventorys after characters are logged
+
+1. after you characters are logged go to output/invripper/USWest (or other Realm Folder) and open index.html with IE 6 or above.
+2.You will get a pop up asking to "allow blocked content", allow content to run, invripper needs the active x controls.
+3. You will have to configure IE to allow Active X content. 
+4.In IE 8 you click Tools drop down menu, click Internet Options.
+5.select Advanced Tab, Scroll down to Security and check box for "Allow active content to run in files on My Computer."
+
+
+
+
+Any time you're ready to use invripper, just use IE to open index.html for whatever realm you're using.
+
+you can click on the list of characters in the side bar to see their inventory, 
+click the mode: in the upper right corner to switch between inventory view (my favorite) and list view. 
+list view has both high and low detail subviews.
+
+You can also use the search function to search your database of mules for a particular item based on name or attributes.
+search for "stone of jordan" or +30 to strength or whatever you want.
+after searching for an item you'll see a list of what it found on which character. 
+Click the characters name and it will show you a list view of that characters inventory, 
+click mode and you'll be viewing the inventory view for that character.
+
+
+enjoy,
+-Darien
