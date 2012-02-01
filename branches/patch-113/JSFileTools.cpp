@@ -18,7 +18,9 @@
 #include <io.h>
 #include <errno.h>
 #include <windows.h>
+#include <Shlwapi.h>
 
+#include "Helpers.h"
 #include "JSFileTools.h"
 #include "D2BS.h"
 #include "File.h"
@@ -190,18 +192,28 @@ JSAPI_FUNC(filetools_writeText)
 {
 	if(argc < 1 || !JSVAL_IS_STRING(argv[0]))
 		THROW_ERROR(cx, "You must supply an original file name");
+
 	char* orig = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
 	if(!isValidPath(orig))
 		THROW_ERROR(cx, "Invalid file name");
+
 	char porig[_MAX_PATH+_MAX_FNAME];
+	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
+
+	StringReplace(porig, '/', '\\', strlen(porig));
+
+	PathRemoveFileSpec(porig); 
+	if(!PathFileExists(porig))
+		THROW_ERROR(cx, "File path directory invalid");
+
 	sprintf_s(porig, sizeof(porig), "%s\\%s", Vars.szScriptPath, orig);
 
 	bool result = true;
 	FILE* fptr = NULL;
 	fopen_s(&fptr, porig, "w");
+	
 	for(uintN i = 1; i < argc; i++)
 		if(!writeValue(fptr, cx, argv[i], false, true))
-			result = false;
 	fflush(fptr);
 	fclose(fptr);
 	*rval = BOOLEAN_TO_JSVAL(result);
