@@ -4,7 +4,7 @@ include('prototypes/prototypes.js');
 var sh = null; 
 var ConfigVar = false;
 var configHook = false;
-var ntbotRevision = 1632;
+var ntbotRevision = 1671;
 
 js_strict(true);
 
@@ -307,9 +307,6 @@ function rnd(min,max){ //keeping up with d2bs 1.5
 
 function RevealArea(area)
 {
-	if(area in revealedAreas)
-		return;
-	revealedAreas.push(area);
 	var room = getRoom(area);
 	var roomsRevealed = [];
 	do {
