@@ -163,7 +163,7 @@ njipStats["plusdefense"]=[31,0];
 
 njipStats["armorclassvsmissile"]=32;
 njipStats["armorclassvshth"]=33;
-njipStats["normaldamagereduction"]=34;
+njipStats["normaldamagereduction"]=34;  njipStats["damagereduction"]=34;   njipStats["physicalresistance"]=34;
 njipStats["magicdamagereduction"]=35;
 njipStats["damageresist"]=36;
 njipStats["magicresist"]=37;
@@ -238,6 +238,8 @@ njipStats["itemfastermovevelocity"]=96;	njipStats["frw"]=96;
 
 njipStats["itemnonclassskill"]=97;
 njipStats["plusskillguidedarrow"]=[97,22];
+njipStats["meditationaurawhenequipped"]=[97,120];
+njipStats["convictionaurawhenequipped"]=[97,123];
 njipStats["plusskillwerewolf"]=[97,223];
 njipStats["plusskillshapeshifting"]=[97,224];	njipStats["plusskilllycanthropy"]=[97,224];
 njipStats["plusskillsummonspiritwolf"]=[97,227];
@@ -515,7 +517,31 @@ njipStats["itemabsorbmagic"]=147;
 njipStats["itemabsorbcoldpercent"]=148;
 njipStats["itemabsorbcold"]=149;
 njipStats["itemslow"]=150;
-njipStats["itemaura"]=151;
+
+
+njipStats["itemaura"]=151;  njipStats["aurawhenequipped"]=151;
+njipStats["skillmight"]=[151,98];
+njipStats["skillprayer"]=[151,99];
+njipStats["skillresistfire"]=[151,100];
+njipStats["skillholyfire"]=[151,102];
+njipStats["skillthorns"]=[151,103];
+njipStats["skilldefiance"]=[151,104];
+njipStats["skillresistcold"]=[151,105];
+njipStats["skillblessedaim"]=[151,108];
+njipStats["skillcleansing"]=[151,109];
+njipStats["skillresistlightning"]=[151,110];
+njipStats["skillconcentration"]=[151,113];
+njipStats["skillholyfreeze"]=[151,114];
+njipStats["skillvigor"]=[151,115];
+njipStats["skillholyshock"]=[151,118];
+njipStats["skillsanctuary"]=[151,119];
+njipStats["skillmeditation"]=[151,120];
+njipStats["skillfanaticism"]=[151,122];
+njipStats["skillconviction"]=[151,123];
+njipStats["skillredemption"]=[151,124];
+njipStats["skillsalvation"]=[151,125];
+
+
 njipStats["itemindestructible"]=152;
 njipStats["itemcannotbefrozen"]=153;
 njipStats["itemstaminadrainpct"]=154;
@@ -582,23 +608,33 @@ njipStats["unused191"]=191;
 njipStats["unused192"]=192;
 njipStats["unused193"]=193;
 njipStats["itemnumsockets"]=194;	njipStats["sockets"]=194;
+
+
+// the following are arrays like 83,107,151 and 188
+// the formula is number = (skill number x 64) + skill level
+// so for example Skystrike gives 2% chance of level 5 Amplify Damage on striking
+// (66 * 64) + 5 = 4229
+// so check for item.getStat(198,4229);
 njipStats["itemskillonattack"]=195;
 njipStats["itemskillonkill"]=196;
 njipStats["itemskillondeath"]=197;
 njipStats["itemskillonhit"]=198;
-njipStats["onhitamplifydamage"]=[198,4225];
+njipStats["onhitamplifydamage"]=[198,4225]; // (66 * 64) + 1
 njipStats["itemskillonlevelup"]=199;
 njipStats["unused200"]=200;
 njipStats["itemskillongethit"]=201;
 njipStats["unused202"]=202;
 njipStats["unused203"]=203;
 njipStats["itemchargedskill"]=204;
-njipStats["telecharges"]=[204,3457];		//	level 1 teleport charges
-njipStats["telecharges1"]=[204,3458];		//	level 2 teleport charges
-njipStats["telecharges2"]=[204,3459];		//	level 3 teleport charges
-njipStats["lifetapcharges"]=[204,5254];		//	level 3 lifetap charges
+njipStats["telecharges"]=[204,3457];		//	level 1 teleport charges (54 * 64) +1 = 3457
+njipStats["telecharges1"]=[204,3458];		//	level 2 teleport charges (54 * 64) +2 = 3458
+njipStats["telecharges2"]=[204,3459];		//	level 3 teleport charges (54 * 64) +3 = 3459
+njipStats["lifetapcharges"]=[204,5248];	//	level 3 lifetap charges (82 * 64) +3 = 5248
 njipStats["lowerrescharges"]=[204,5827];	//	level 3 lower resist charges
 njipStats["enchantcharges"]=[204,3351];		//	level 3 enchant charges
+
+
+
 njipStats["unused204"]=205;
 njipStats["unused205"]=206;
 njipStats["unused206"]=207;
