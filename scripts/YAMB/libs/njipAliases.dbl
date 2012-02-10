@@ -238,8 +238,6 @@ njipStats["itemfastermovevelocity"]=96;	njipStats["frw"]=96;
 
 njipStats["itemnonclassskill"]=97;
 njipStats["plusskillguidedarrow"]=[97,22];
-njipStats["meditationaurawhenequipped"]=[97,120];
-njipStats["convictionaurawhenequipped"]=[97,123];
 njipStats["plusskillwerewolf"]=[97,223];
 njipStats["plusskillshapeshifting"]=[97,224];	njipStats["plusskilllycanthropy"]=[97,224];
 njipStats["plusskillsummonspiritwolf"]=[97,227];
@@ -518,28 +516,27 @@ njipStats["itemabsorbcoldpercent"]=148;
 njipStats["itemabsorbcold"]=149;
 njipStats["itemslow"]=150;
 
-
 njipStats["itemaura"]=151;  njipStats["aurawhenequipped"]=151;
-njipStats["skillmight"]=[151,98];
-njipStats["skillprayer"]=[151,99];
-njipStats["skillresistfire"]=[151,100];
-njipStats["skillholyfire"]=[151,102];
-njipStats["skillthorns"]=[151,103];
-njipStats["skilldefiance"]=[151,104];
-njipStats["skillresistcold"]=[151,105];
-njipStats["skillblessedaim"]=[151,108];
-njipStats["skillcleansing"]=[151,109];
-njipStats["skillresistlightning"]=[151,110];
-njipStats["skillconcentration"]=[151,113];
-njipStats["skillholyfreeze"]=[151,114];
-njipStats["skillvigor"]=[151,115];
-njipStats["skillholyshock"]=[151,118];
-njipStats["skillsanctuary"]=[151,119];
-njipStats["skillmeditation"]=[151,120];
-njipStats["skillfanaticism"]=[151,122];
-njipStats["skillconviction"]=[151,123];
-njipStats["skillredemption"]=[151,124];
-njipStats["skillsalvation"]=[151,125];
+njipStats["mightaurawhenequipped"]=[151,98];
+njipStats["prayeraurawhenequipped"]=[151,99];
+njipStats["resistfireaurawhenequipped"]=[151,100];
+njipStats["holyfireaurawhenequipped"]=[151,102];
+njipStats["thornsaurawhenequipped"]=[151,103];
+njipStats["defianceaurawhenequipped"]=[151,104];
+njipStats["resistcoldaurawhenequipped"]=[151,105];
+njipStats["blessedaimaurawhenequipped"]=[151,108];
+njipStats["cleansingaurawhenequipped"]=[151,109];
+njipStats["resistlightningaurawhenequipped"]=[151,110];
+njipStats["concentrationaurawhenequipped"]=[151,113];
+njipStats["holyfreezeaurawhenequipped"]=[151,114];
+njipStats["vigoraurawhenequipped"]=[151,115];
+njipStats["holyshockaurawhenequipped"]=[151,118];
+njipStats["sanctuaryaurawhenequipped"]=[151,119];
+njipStats["meditationaurawhenequipped"]=[151,120];
+njipStats["fanaticismaurawhenequipped"]=[151,122];
+njipStats["convictionaurawhenequipped"]=[151,123];
+njipStats["redemptionaurawhenequipped"]=[151,124];
+njipStats["salvationaurawhenequipped"]=[151,125];
 
 
 njipStats["itemindestructible"]=152;
