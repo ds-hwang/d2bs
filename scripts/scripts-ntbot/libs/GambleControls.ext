@@ -1,0 +1,1260 @@
+// Gambling Controls
+//
+// @Author:		ImprisonedPride
+// @Date:		02/10/12
+// @Version:		2.0
+// 
+// To use, simply add NTC_Include("GambleControls.ext"); to your script. Click the new box in the upper right and fill out
+// the item, required ilvl, quality, and number amount of the item you want, and start gambling. Stop gambling at any time
+// by pressing "stop" and close the window by clicking the "Gambling Options" button again. 
+//
+// Happy gambling!
+
+GambleWindow = new Object();
+BuildTables();
+ShowHooks();
+
+function ShowHooks() {
+
+	var tShowGambleOptions = new TextBox(445,10,190,10,"          Gamble Options",0,1);
+	tShowGambleOptions.clickFunction = ToggleGambleOptionsWindow;
+	
+	GambleWindow.Open = false;
+	GambleWindow.Gambling = false;
+	GambleWindow.Codes = new Object();
+	GambleWindow.Codes.Normal = "";
+	GambleWindow.Codes.Code = "";
+	GambleWindow.Values = new Object();
+	GambleWindow.Values.Item = "";
+	GambleWindow.Values.Quality = "";
+	GambleWindow.body = new Box(445,20,190,125,0,1);
+	GambleWindow.Item = new DropDownBox(450, 40, GambleWindow.Items[0], 0, 1, GambleWindow.Items, "Item");
+	GambleWindow.Item.hookedVal = GambleWindow.Values.Item;
+	GambleWindow.Item.valueChanged = ChangeCodes;
+	GambleWindow.RequiredItemLevel = new SliderWText (450, 75,"Item Level",99, 1,0, 1);
+	GambleWindow.ItemQuality = new DropDownBox(575, 80, "Magic", 0, 1, ["Magic", "Rare", "Set"], "Quality");
+	GambleWindow.ItemQuality.hookedVal = GambleWindow.Values.Quality;
+	GambleWindow.ItemQuality.valueChanged = function(val) { GambleWindow.Values.Quality = val; }
+	GambleWindow.ItemCount = new SliderWText(450, 102, "Count", 10, 1, 0, 1);
+	GambleWindow.bGamble = new TextBox(490, 127, 100, 10, "      Gamble", 0, 1);
+	GambleWindow.bGamble.clickFunction = Gamble;
+	GambleWindow.bStop = new TextBox(490, 127, 100, 10,   "       Stop ", 0, 1);
+	GambleWindow.bStop.clickFunction = StopGambling;
+	GambleWindow.bStop.visible = false;
+	GambleWindow.Count = 0;
+	HideGambleWindow();
+}
+
+function ChangeCodes(val) {
+	GambleWindow.Values.Item = val
+	GambleWindow.Codes.Code = GambleWindow.ItemId[GambleWindow.Values.Item];
+	if (GambleWindow.Codes.Code != "amu" && GambleWindow.Codes.Code != "rin") {
+		GambleWindow.Codes.Normal = getBaseStat(0, njipClassId[GambleWindow.Codes.Code], "normcode").substring(0, 3);
+	} else {
+		GambleWindow.Codes.Normal = GambleWindow.Codes.Code;
+	}
+}
+
+function StopGambling() {
+	GambleWindow.Gambling = false;
+	GambleWindow.Count = 0;
+	GambleWindow.bStop.visible = false;
+	GambleWindow.bGamble.visible = true;
+}
+function ToggleGambleOptionsWindow() {
+	if (!GambleWindow.Open) {
+		ShowGambleWindow();
+	} else {
+		HideGambleWindow();
+	}
+	GambleWindow.Open = !GambleWindow.Open;
+}
+function ShowGambleWindow() {
+	GambleWindow.body.visible = true;
+	GambleWindow.Item.visible = true;
+	GambleWindow.RequiredItemLevel.visible = true;
+	GambleWindow.ItemQuality.visible = true;
+	GambleWindow.ItemCount.visible = true;
+	GambleWindow.bGamble.visible = true;
+}
+function HideGambleWindow() {
+	GambleWindow.body.visible = false;
+	GambleWindow.Item.visible = false;
+	GambleWindow.RequiredItemLevel.visible = false;
+	GambleWindow.ItemQuality.visible = false;
+	GambleWindow.ItemCount.visible = false;
+	GambleWindow.bGamble.visible = false;
+}
+function Gamble() {
+
+	GambleWindow.Gambling = true;
+	GambleWindow.bStop.visible = true;
+	GambleWindow.bGamble.visible = false;
+	GambleWindow.Count = GambleWindow.ItemCount.value;
+	var NPC_NAME;
+	var NPC_ID;
+	var _npc;
+	
+	switch(me.act)
+	{
+	case 1:
+		NPC_NAME = "gheed";
+		NPC_ID = NTC_NPC_ID_GHEED;
+		break;
+
+	case 2:
+		NPC_NAME = "elzix";
+		NPC_ID = NTC_NPC_ID_ELZIX;
+		break;
+
+	case 3:
+		NPC_NAME = "alkor";
+		NPC_ID = NTC_NPC_ID_ALKOR;
+		break;
+
+	case 4:
+		NPC_NAME = "jamella";
+		NPC_ID = NTC_NPC_ID_JAMELLA;
+		break;
+
+	case 5:
+		NPC_NAME = "anya";
+		NPC_ID = NTC_NPC_ID_ANYA_TOWN;
+		break;
+	}
+	NTTM_TownMove(NPC_NAME);
+
+	for(var i = 0 ; i < 10 ; i++)
+	{
+	  _npc = NTC_GetUnit(NTC_UNIT_NPC, NPC_ID);  
+	  if (_npc) 
+		break;
+	}
+	if (_npc) {
+		while (GambleWindow.Count > 0) {
+			NTT_DoInteract(_npc);
+			NTT_DoTrade(_npc, 1);
+			var gambled = GambleIt(_npc);
+			if (gambled == 1) {
+					GambleWindow.Count--;
+			}
+			NTT_MenuCancel();
+			if(NTC_MyGold() < NTConfig_GambleStopGold)
+				break;
+		}
+	}
+	
+    NTT_MenuCancel();
+	
+	if(NTC_MyGold() > NTConfig_GambleStopGold) {
+		me.overhead("Gambling complete.");
+	} else {
+		me.overhead("Out of gold. Gambling stopped.");
+	}
+	
+	return true;
+}
+
+function GambleIt(npc) {
+	var _gambleitem, _newitem;
+
+	if(!npc)
+		return 0;
+
+	if(!getUIFlag(0x08) || !getUIFlag(0x0C))
+		return 0;
+
+	_gambleitem = NTC_GetItems(npc);
+
+	if(!_gambleitem)
+		return 0;
+
+	for(var i = 0 ; i < _gambleitem.length ; i++)
+	{		
+		if(GambleWindow.Codes.Code == _gambleitem[i].code.substring(0, 3) || GambleWindow.Codes.Normal == _gambleitem[i].code.substring(0, 3))
+		{
+			if(NTT_CheckSpace(_gambleitem[i].sizex, _gambleitem[i].sizey))
+			{
+				NTT_GetOldItemsInt();
+
+				if(NTT_ShopItem(_gambleitem[i], npc, 2))
+					_newitem = NTT_GetGambledItemInt();
+				else
+					return 0;
+				if(_newitem)
+				{
+					while(!_newitem.getFlag(0x10))
+						NTC_Delay(100);
+
+					NTC_PingDelay(250);
+					
+					var GoodItem = true;
+					var quality = "";
+					switch(_newitem.quality) {
+						case 4:
+							quality = "Magic";
+							break;
+						case 5:
+							quality = "Set";
+							break;
+						case 6:
+							quality = "Rare";
+							break;
+					}
+					var ncode = _newitem.code.substring(0, 3);
+					
+					GoodItem = (GambleWindow.Codes.Code == _newitem.code);	// Check if exact item
+					if (!GoodItem) {
+						print("Item is not right class. (Needed: " + GambleWindow.Codes.Code + " | Got: " + _newitem.code);
+					}
+					if (quality != GambleWindow.Values.Quality) { 
+						GoodItem = false;  // Not the right quality.
+						print("Item is not " + GambleWindow.Values.Quality + ".");
+					}
+					if (_newitem.ilvl < GambleWindow.RequiredItemLevel.value) { 
+						GoodItem = false; // Not the right ilvl
+						print("Item doesn't satisfy ilvl requirement. (Needed: " + GambleWindow.RequiredItemLevel.value + " | Got: " + _newitem.ilvl + ")");
+					} 
+					
+					if(!GoodItem)
+					{
+						_newitem.shop(1);
+						NTC_PingDelay(300);
+					} else {
+						return 1;
+					}
+				} else {
+					print("didn't buy item");
+				}
+			} 
+		}
+	}
+
+	return 0;
+}
+
+function BuildTables() {
+	GambleWindow.ItemId = new Array();
+	GambleWindow.ItemId["Hand Axe"] = "hax";
+	GambleWindow.ItemId["Axe"] = "axe";
+	GambleWindow.ItemId["Double Axe"] = "2ax";
+	GambleWindow.ItemId["Military Pick"] = "mpi";
+	GambleWindow.ItemId["War Axe"] = "wax";
+	GambleWindow.ItemId["Large Axe"] = "lax";
+	GambleWindow.ItemId["Broad Axe"] = "bax";
+	GambleWindow.ItemId["Battle Axe"] = "btx";
+	GambleWindow.ItemId["Great Axe"] = "gax";
+	GambleWindow.ItemId["Giant Axe"] = "gix";
+	GambleWindow.ItemId["Wand"] = "wnd";
+	GambleWindow.ItemId["Yew Wand"] = "ywn";
+	GambleWindow.ItemId["Bone Wand"] = "bwn";
+	GambleWindow.ItemId["Grim Wand"] = "gwn";
+	GambleWindow.ItemId["Club"] = "clb";
+	GambleWindow.ItemId["Scepter"] = "scp";
+	GambleWindow.ItemId["Grand Scepter"] = "gsc";
+	GambleWindow.ItemId["War Scepter"] = "wsp";
+	GambleWindow.ItemId["Spiked Club"] = "spc";
+	GambleWindow.ItemId["Mace"] = "mac";
+	GambleWindow.ItemId["Morning Star"] = "mst";
+	GambleWindow.ItemId["Flail"] = "fla";
+	GambleWindow.ItemId["War Hammer"] = "whm";
+	GambleWindow.ItemId["Maul"] = "mau";
+	GambleWindow.ItemId["Great Maul"] = "gma";
+	GambleWindow.ItemId["Short Sword"] = "ssd";
+	GambleWindow.ItemId["Scimitar"] = "scm";
+	GambleWindow.ItemId["Sabre"] = "sbr";
+	GambleWindow.ItemId["Falchion"] = "flc";
+	GambleWindow.ItemId["Crystal Sword"] = "crs";
+	GambleWindow.ItemId["Broad Sword"] = "bsd";
+	GambleWindow.ItemId["Long Sword"] = "lsd";
+	GambleWindow.ItemId["War Sword"] = "wsd";
+	GambleWindow.ItemId["Two-Handed Sword"] = "2hs";
+	GambleWindow.ItemId["Claymore"] = "clm";
+	GambleWindow.ItemId["Giant Sword"] = "gis";
+	GambleWindow.ItemId["Bastard Sword"] = "bsw";
+	GambleWindow.ItemId["Flamberge"] = "flb";
+	GambleWindow.ItemId["Great Sword"] = "gsd";
+	GambleWindow.ItemId["Dagger"] = "dgr";
+	GambleWindow.ItemId["Dirk"] = "dir";
+	GambleWindow.ItemId["Kris"] = "kri";
+	GambleWindow.ItemId["Blade"] = "bld";
+	GambleWindow.ItemId["Throwing Knife"] = "tkf";
+	GambleWindow.ItemId["Throwing Axe"] = "tax";
+	GambleWindow.ItemId["Balanced Knife"] = "bkf";
+	GambleWindow.ItemId["Balanced Axe"] = "bal";
+	GambleWindow.ItemId["Javelin"] = "jav";
+	GambleWindow.ItemId["Pilum"] = "pil";
+	GambleWindow.ItemId["Short Spear"] = "ssp";
+	GambleWindow.ItemId["Glaive"] = "glv";
+	GambleWindow.ItemId["Throwing Spear"] = "tsp";
+	GambleWindow.ItemId["Spear"] = "spr";
+	GambleWindow.ItemId["Trident"] = "tri";
+	GambleWindow.ItemId["Brandistock"] = "brn";
+	GambleWindow.ItemId["Spetum"] = "spt";
+	GambleWindow.ItemId["Pike"] = "pik";
+	GambleWindow.ItemId["Bardiche"] = "bar";
+	GambleWindow.ItemId["Voulge"] = "vou";
+	GambleWindow.ItemId["Scythe"] = "scy";
+	GambleWindow.ItemId["Poleaxe"] = "pax";
+	GambleWindow.ItemId["Halberd"] = "hal";
+	GambleWindow.ItemId["War Scythe"] = "wsc";
+	GambleWindow.ItemId["Short Staff"] = "sst";
+	GambleWindow.ItemId["Long Staff"] = "lst";
+	GambleWindow.ItemId["Gnarled Staff"] = "cst";
+	GambleWindow.ItemId["Battle Staff"] = "bst";
+	GambleWindow.ItemId["War Staff"] = "wst";
+	GambleWindow.ItemId["Short Bow"] = "sbw";
+	GambleWindow.ItemId["Hunter's Bow"] = "hbw";
+	GambleWindow.ItemId["Long Bow"] = "lbw";
+	GambleWindow.ItemId["Composite Bow"] = "cbw";
+	GambleWindow.ItemId["Short Battle Bow"] = "sbb";
+	GambleWindow.ItemId["Long Battle Bow"] = "lbb";
+	GambleWindow.ItemId["Short War Bow"] = "swb";
+	GambleWindow.ItemId["Long War Bow"] = "lwb";
+	GambleWindow.ItemId["Light Crossbow"] = "lxb";
+	GambleWindow.ItemId["Crossbow"] = "mxb";
+	GambleWindow.ItemId["Heavy Crossbow"] = "hxb";
+	GambleWindow.ItemId["Repeating Crossbow"] = "rxb";
+	GambleWindow.ItemId["Rancid Gas Potion"] = "gps";
+	GambleWindow.ItemId["Oil Potion"] = "ops";
+	GambleWindow.ItemId["Choking Gas Potion"] = "gpm";
+	GambleWindow.ItemId["Exploding Potion"] = "opm";
+	GambleWindow.ItemId["Strangling Gas Potion"] = "gpl";
+	GambleWindow.ItemId["Fulminating Potion"] = "opl";
+	GambleWindow.ItemId["Decoy Gidbinn"] = "d33";
+	GambleWindow.ItemId["The Gidbinn"] = "g33";
+	GambleWindow.ItemId["Wirt's Leg"] = "leg";
+	GambleWindow.ItemId["Horadric Malus"] = "hdm";
+	GambleWindow.ItemId["Hell Forge Hammer"] = "hfh";
+	GambleWindow.ItemId["Horadric Staff"] = "hst";
+	GambleWindow.ItemId["Shaft of the Horadric Staff"] = "msf";
+	GambleWindow.ItemId["Hatchet"] = "9ha";
+	GambleWindow.ItemId["Cleaver"] = "9ax";
+	GambleWindow.ItemId["Twin Axe"] = "92a";
+	GambleWindow.ItemId["Crowbill"] = "9mp";
+	GambleWindow.ItemId["Naga"] = "9wa";
+	GambleWindow.ItemId["Military Axe"] = "9la";
+	GambleWindow.ItemId["Bearded Axe"] = "9ba";
+	GambleWindow.ItemId["Tabar"] = "9bt";
+	GambleWindow.ItemId["Gothic Axe"] = "9ga";
+	GambleWindow.ItemId["Ancient Axe"] = "9gi";
+	GambleWindow.ItemId["Burnt Wand"] = "9wn";
+	GambleWindow.ItemId["Petrified Wand"] = "9yw";
+	GambleWindow.ItemId["Tomb Wand"] = "9bw";
+	GambleWindow.ItemId["Grave Wand"] = "9gw";
+	GambleWindow.ItemId["Cudgel"] = "9cl";
+	GambleWindow.ItemId["Rune Scepter"] = "9sc";
+	GambleWindow.ItemId["Holy Water Sprinkler"] = "9qs";
+	GambleWindow.ItemId["Divine Scepter"] = "9ws";
+	GambleWindow.ItemId["Barbed Club"] = "9sp";
+	GambleWindow.ItemId["Flanged Mace"] = "9ma";
+	GambleWindow.ItemId["Jagged Star"] = "9mt";
+	GambleWindow.ItemId["Knout"] = "9fl";
+	GambleWindow.ItemId["Battle Hammer"] = "9wh";
+	GambleWindow.ItemId["War Club"] = "9m9";
+	GambleWindow.ItemId["Martel de Fer"] = "9gm";
+	GambleWindow.ItemId["Gladius"] = "9ss";
+	GambleWindow.ItemId["Cutlass"] = "9sm";
+	GambleWindow.ItemId["Shamshir"] = "9sb";
+	GambleWindow.ItemId["Tulwar"] = "9fc";
+	GambleWindow.ItemId["Dimensional Blade"] = "9cr";
+	GambleWindow.ItemId["Battle Sword"] = "9bs";
+	GambleWindow.ItemId["Rune Sword"] = "9ls";
+	GambleWindow.ItemId["Ancient Sword"] = "9wd";
+	GambleWindow.ItemId["Espandon"] = "92h";
+	GambleWindow.ItemId["Dacian Falx"] = "9cm";
+	GambleWindow.ItemId["Tusk Sword"] = "9gs";
+	GambleWindow.ItemId["Gothic Sword"] = "9b9";
+	GambleWindow.ItemId["Zweihander"] = "9fb";
+	GambleWindow.ItemId["Executioner Sword"] = "9gd";
+	GambleWindow.ItemId["Poignard"] = "9dg";
+	GambleWindow.ItemId["Rondel"] = "9di";
+	GambleWindow.ItemId["Cinquedeas"] = "9kr";
+	GambleWindow.ItemId["Stiletto"] = "9bl";
+	GambleWindow.ItemId["Battle Dart"] = "9tk";
+	GambleWindow.ItemId["Francisca"] = "9ta";
+	GambleWindow.ItemId["War Dart"] = "9bk";
+	GambleWindow.ItemId["Hurlbat"] = "9b8";
+	GambleWindow.ItemId["War Javelin"] = "9ja";
+	GambleWindow.ItemId["Great Pilum"] = "9pi";
+	GambleWindow.ItemId["Simbilan"] = "9s9";
+	GambleWindow.ItemId["Spiculum"] = "9gl";
+	GambleWindow.ItemId["Harpoon"] = "9ts";
+	GambleWindow.ItemId["War Spear"] = "9sr";
+	GambleWindow.ItemId["Fuscina"] = "9tr";
+	GambleWindow.ItemId["War Fork"] = "9br";
+	GambleWindow.ItemId["Yari"] = "9st";
+	GambleWindow.ItemId["Lance"] = "9p9";
+	GambleWindow.ItemId["Lochaber Axe"] = "9b7";
+	GambleWindow.ItemId["Bill"] = "9vo";
+	GambleWindow.ItemId["Battle Scythe"] = "9s8";
+	GambleWindow.ItemId["Partizan"] = "9pa";
+	GambleWindow.ItemId["Bec-de-Corbin"] = "9h9";
+	GambleWindow.ItemId["Grim Scythe"] = "9wc";
+	GambleWindow.ItemId["Jo Staff"] = "8ss";
+	GambleWindow.ItemId["Quarterstaff"] = "8ls";
+	GambleWindow.ItemId["Cedar Staff"] = "8cs";
+	GambleWindow.ItemId["Gothic Staff"] = "8bs";
+	GambleWindow.ItemId["Rune Staff"] = "8ws";
+	GambleWindow.ItemId["Edge Bow"] = "8sb";
+	GambleWindow.ItemId["Razor Bow"] = "8hb";
+	GambleWindow.ItemId["Cedar Bow"] = "8lb";
+	GambleWindow.ItemId["Double Bow"] = "8cb";
+	GambleWindow.ItemId["Short Siege Bow"] = "8s8";
+	GambleWindow.ItemId["Large Siege Bow"] = "8l8";
+	GambleWindow.ItemId["Rune Bow"] = "8sw";
+	GambleWindow.ItemId["Gothic Bow"] = "8lw";
+	GambleWindow.ItemId["Arbalest"] = "8lx";
+	GambleWindow.ItemId["Siege Crossbow"] = "8mx";
+	GambleWindow.ItemId["Ballista"] = "8hx";
+	GambleWindow.ItemId["Chu-Ko-Nu"] = "8rx";
+	GambleWindow.ItemId["Khalim's Flail"] = "qf1";
+	GambleWindow.ItemId["Khalim's Will"] = "qf2";
+	GambleWindow.ItemId["Katar"] = "ktr";
+	GambleWindow.ItemId["Wrist Blade"] = "wrb";
+	GambleWindow.ItemId["Hatchet Hands"] = "axf";
+	GambleWindow.ItemId["Cestus"] = "ces";
+	GambleWindow.ItemId["Claws"] = "clw";
+	GambleWindow.ItemId["Blade Talons"] = "btl";
+	GambleWindow.ItemId["Scissors Katar"] = "skr";
+	GambleWindow.ItemId["Quhab"] = "9ar";
+	GambleWindow.ItemId["Wrist Spike"] = "9wb";
+	GambleWindow.ItemId["Fascia"] = "9xf";
+	GambleWindow.ItemId["Hand Scythe"] = "9cs";
+	GambleWindow.ItemId["Greater Claws"] = "9lw";
+	GambleWindow.ItemId["Greater Talons"] = "9tw";
+	GambleWindow.ItemId["Scissors Quhab"] = "9qr";
+	GambleWindow.ItemId["Suwayyah"] = "7ar";
+	GambleWindow.ItemId["Wrist Sword"] = "7wb";
+	GambleWindow.ItemId["War Fist"] = "7xf";
+	GambleWindow.ItemId["Battle Cestus"] = "7cs";
+	GambleWindow.ItemId["Feral Claws"] = "7lw";
+	GambleWindow.ItemId["Runic Talons"] = "7tw";
+	GambleWindow.ItemId["Scissors Suwayyah"] = "7qr";
+	GambleWindow.ItemId["Tomahawk"] = "7ha";
+	GambleWindow.ItemId["Small Crescent"] = "7ax";
+	GambleWindow.ItemId["Ettin Axe"] = "72a";
+	GambleWindow.ItemId["War Spike"] = "7mp";
+	GambleWindow.ItemId["Berserker Axe"] = "7wa";
+	GambleWindow.ItemId["Feral Axe"] = "7la";
+	GambleWindow.ItemId["Silver-edged Axe"] = "7ba";
+	GambleWindow.ItemId["Decapitator"] = "7bt";
+	GambleWindow.ItemId["Champion Axe"] = "7ga";
+	GambleWindow.ItemId["Glorious Axe"] = "7gi";
+	GambleWindow.ItemId["Polished Wand"] = "7wn";
+	GambleWindow.ItemId["Ghost Wand"] = "7yw";
+	GambleWindow.ItemId["Lich Wand"] = "7bw";
+	GambleWindow.ItemId["Unearthed Wand"] = "7gw";
+	GambleWindow.ItemId["Truncheon"] = "7cl";
+	GambleWindow.ItemId["Mighty Scepter"] = "7sc";
+	GambleWindow.ItemId["Seraph Rod"] = "7qs";
+	GambleWindow.ItemId["Caduceus"] = "7ws";
+	GambleWindow.ItemId["Tyrant Club"] = "7sp";
+	GambleWindow.ItemId["Reinforced Mace"] = "7ma";
+	GambleWindow.ItemId["Devil Star"] = "7mt";
+	GambleWindow.ItemId["Scourge"] = "7fl";
+	GambleWindow.ItemId["Legendary Mallet"] = "7wh";
+	GambleWindow.ItemId["Ogre Maul"] = "7m7";
+	GambleWindow.ItemId["Thunder Maul"] = "7gm";
+	GambleWindow.ItemId["Falcata"] = "7ss";
+	GambleWindow.ItemId["Ataghan"] = "7sm";
+	GambleWindow.ItemId["Elegant Blade"] = "7sb";
+	GambleWindow.ItemId["Hydra Edge"] = "7fc";
+	GambleWindow.ItemId["Phase Blade"] = "7cr";
+	GambleWindow.ItemId["Conquest Sword"] = "7bs";
+	GambleWindow.ItemId["Cryptic Sword"] = "7ls";
+	GambleWindow.ItemId["Mythical Sword"] = "7wd";
+	GambleWindow.ItemId["Legend Sword"] = "72h";
+	GambleWindow.ItemId["Highland Blade"] = "7cm";
+	GambleWindow.ItemId["Balrog Blade"] = "7gs";
+	GambleWindow.ItemId["Champion Sword"] = "7b7";
+	GambleWindow.ItemId["Colossus Sword"] = "7fb";
+	GambleWindow.ItemId["Colossus Blade"] = "7gd";
+	GambleWindow.ItemId["Bone Knife"] = "7dg";
+	GambleWindow.ItemId["Mithril Point"] = "7di";
+	GambleWindow.ItemId["Fanged Knife"] = "7kr";
+	GambleWindow.ItemId["Legend Spike"] = "7bl";
+	GambleWindow.ItemId["Flying Knife"] = "7tk";
+	GambleWindow.ItemId["Flying Axe"] = "7ta";
+	GambleWindow.ItemId["Winged Knife"] = "7bk";
+	GambleWindow.ItemId["Winged Axe"] = "7b8";
+	GambleWindow.ItemId["Hyperion Javelin"] = "7ja";
+	GambleWindow.ItemId["Stygian Pilum"] = "7pi";
+	GambleWindow.ItemId["Balrog Spear"] = "7s7";
+	GambleWindow.ItemId["Ghost Glaive"] = "7gl";
+	GambleWindow.ItemId["Winged Harpoon"] = "7ts";
+	GambleWindow.ItemId["Hyperion Spear"] = "7sr";
+	GambleWindow.ItemId["Stygian Pike"] = "7tr";
+	GambleWindow.ItemId["Mancatcher"] = "7br";
+	GambleWindow.ItemId["Ghost Spear"] = "7st";
+	GambleWindow.ItemId["War Pike"] = "7p7";
+	GambleWindow.ItemId["Ogre Axe"] = "7o7";
+	GambleWindow.ItemId["Colossus Voulge"] = "7vo";
+	GambleWindow.ItemId["Thresher"] = "7s8";
+	GambleWindow.ItemId["Cryptic Axe"] = "7pa";
+	GambleWindow.ItemId["Great Poleaxe"] = "7h7";
+	GambleWindow.ItemId["Giant Thresher"] = "7wc";
+	GambleWindow.ItemId["Walking Stick"] = "6ss";
+	GambleWindow.ItemId["Stalagmite"] = "6ls";
+	GambleWindow.ItemId["Elder Staff"] = "6cs";
+	GambleWindow.ItemId["Shillelagh"] = "6bs";
+	GambleWindow.ItemId["Archon Staff"] = "6ws";
+	GambleWindow.ItemId["Spider Bow"] = "6sb";
+	GambleWindow.ItemId["Blade Bow"] = "6hb";
+	GambleWindow.ItemId["Shadow Bow"] = "6lb";
+	GambleWindow.ItemId["Great Bow"] = "6cb";
+	GambleWindow.ItemId["Diamond Bow"] = "6s7";
+	GambleWindow.ItemId["Crusader Bow"] = "6l7";
+	GambleWindow.ItemId["Ward Bow"] = "6sw";
+	GambleWindow.ItemId["Hydra Bow"] = "6lw";
+	GambleWindow.ItemId["Pellet Bow"] = "6lx";
+	GambleWindow.ItemId["Gorgon Crossbow"] = "6mx";
+	GambleWindow.ItemId["Colossus Crossbow"] = "6hx";
+	GambleWindow.ItemId["Demon Crossbow"] = "6rx";
+	GambleWindow.ItemId["Eagle Orb"] = "ob1";
+	GambleWindow.ItemId["Sacred Globe"] = "ob2";
+	GambleWindow.ItemId["Smoked Sphere"] = "ob3";
+	GambleWindow.ItemId["Clasped Orb"] = "ob4";
+	GambleWindow.ItemId["Jared's Stone"] = "ob5";
+	GambleWindow.ItemId["Stag Bow"] = "am1";
+	GambleWindow.ItemId["Reflex Bow"] = "am2";
+	GambleWindow.ItemId["Maiden Spear"] = "am3";
+	GambleWindow.ItemId["Maiden Pike"] = "am4";
+	GambleWindow.ItemId["Maiden Javelin"] = "am5";
+	GambleWindow.ItemId["Glowing Orb"] = "ob6";
+	GambleWindow.ItemId["Crystalline Globe"] = "ob7";
+	GambleWindow.ItemId["Cloudy Sphere"] = "ob8";
+	GambleWindow.ItemId["Sparkling Ball"] = "ob9";
+	GambleWindow.ItemId["Swirling Crystal"] = "oba";
+	GambleWindow.ItemId["Ashwood Bow"] = "am6";
+	GambleWindow.ItemId["Ceremonial Bow"] = "am7";
+	GambleWindow.ItemId["Ceremonial Spear"] = "am8";
+	GambleWindow.ItemId["Ceremonial Pike"] = "am9";
+	GambleWindow.ItemId["Ceremonial Javelin"] = "ama";
+	GambleWindow.ItemId["Heavenly Stone"] = "obb";
+	GambleWindow.ItemId["Eldritch Orb"] = "obc";
+	GambleWindow.ItemId["Demon Heart"] = "obd";
+	GambleWindow.ItemId["Vortex Orb"] = "obe";
+	GambleWindow.ItemId["Dimensional Shard"] = "obf";
+	GambleWindow.ItemId["Matriarchal Bow"] = "amb";
+	GambleWindow.ItemId["Grand Matron Bow"] = "amc";
+	GambleWindow.ItemId["Matriarchal Spear"] = "amd";
+	GambleWindow.ItemId["Matriarchal Pike"] = "ame";
+	GambleWindow.ItemId["Matriarchal Javelin"] = "amf";
+	GambleWindow.ItemId["Cap"] = "cap";
+	GambleWindow.ItemId["Skull Cap"] = "skp";
+	GambleWindow.ItemId["Helm"] = "hlm";
+	GambleWindow.ItemId["Full Helm"] = "fhl";
+	GambleWindow.ItemId["Great Helm"] = "ghm";
+	GambleWindow.ItemId["Crown"] = "crn";
+	GambleWindow.ItemId["Mask"] = "msk";
+	GambleWindow.ItemId["Quilted Armor"] = "qui";
+	GambleWindow.ItemId["Leather Armor"] = "lea";
+	GambleWindow.ItemId["Hard Leather Armor"] = "hla";
+	GambleWindow.ItemId["Studded Leather"] = "stu";
+	GambleWindow.ItemId["Ring Mail"] = "rng";
+	GambleWindow.ItemId["Scale Mail"] = "scl";
+	GambleWindow.ItemId["Chain Mail"] = "chn";
+	GambleWindow.ItemId["Breast Plate"] = "brs";
+	GambleWindow.ItemId["Splint Mail"] = "spl";
+	GambleWindow.ItemId["Plate Mail"] = "plt";
+	GambleWindow.ItemId["Field Plate"] = "fld";
+	GambleWindow.ItemId["Gothic Plate"] = "gth";
+	GambleWindow.ItemId["Full Plate Mail"] = "ful";
+	GambleWindow.ItemId["Ancient Armor"] = "aar";
+	GambleWindow.ItemId["Light Plate"] = "ltp";
+	GambleWindow.ItemId["Buckler"] = "buc";
+	GambleWindow.ItemId["Small Shield"] = "sml";
+	GambleWindow.ItemId["Large Shield"] = "lrg";
+	GambleWindow.ItemId["Kite Shield"] = "kit";
+	GambleWindow.ItemId["Tower Shield"] = "tow";
+	GambleWindow.ItemId["Gothic Shield"] = "gts";
+	GambleWindow.ItemId["Leather Gloves"] = "lgl";
+	GambleWindow.ItemId["Heavy Gloves"] = "vgl";
+	GambleWindow.ItemId["Chain Gloves"] = "mgl";
+	GambleWindow.ItemId["Light Gauntlets"] = "tgl";
+	GambleWindow.ItemId["Gauntlets"] = "hgl";
+	GambleWindow.ItemId["Boots"] = "lbt";
+	GambleWindow.ItemId["Heavy Boots"] = "vbt";
+	GambleWindow.ItemId["Chain Boots"] = "mbt";
+	GambleWindow.ItemId["Light Plated Boots"] = "tbt";
+	GambleWindow.ItemId["Greaves"] = "hbt";
+	GambleWindow.ItemId["Sash"] = "lbl";
+	GambleWindow.ItemId["Light Belt"] = "vbl";
+	GambleWindow.ItemId["Belt"] = "mbl";
+	GambleWindow.ItemId["Heavy Belt"] = "tbl";
+	GambleWindow.ItemId["Plated Belt"] = "hbl";
+	GambleWindow.ItemId["Bone Helm"] = "bhm";
+	GambleWindow.ItemId["Bone Shield"] = "bsh";
+	GambleWindow.ItemId["Spiked Shield"] = "spk";
+	GambleWindow.ItemId["War Hat"] = "xap";
+	GambleWindow.ItemId["Sallet"] = "xkp";
+	GambleWindow.ItemId["Casque"] = "xlm";
+	GambleWindow.ItemId["Basinet"] = "xhl";
+	GambleWindow.ItemId["Winged Helm"] = "xhm";
+	GambleWindow.ItemId["Grand Crown"] = "xrn";
+	GambleWindow.ItemId["Death Mask"] = "xsk";
+	GambleWindow.ItemId["Ghost Armor"] = "xui";
+	GambleWindow.ItemId["Serpentskin Armor"] = "xea";
+	GambleWindow.ItemId["Demonhide Armor"] = "xla";
+	GambleWindow.ItemId["Trellised Armor"] = "xtu";
+	GambleWindow.ItemId["Linked Mail"] = "xng";
+	GambleWindow.ItemId["Tigulated Mail"] = "xcl";
+	GambleWindow.ItemId["Mesh Armor"] = "xhn";
+	GambleWindow.ItemId["Cuirass"] = "xrs";
+	GambleWindow.ItemId["Russet Armor"] = "xpl";
+	GambleWindow.ItemId["Templar Coat"] = "xlt";
+	GambleWindow.ItemId["Sharktooth Armor"] = "xld";
+	GambleWindow.ItemId["Embossed Plate"] = "xth";
+	GambleWindow.ItemId["Chaos Armor"] = "xul";
+	GambleWindow.ItemId["Ornate Plate"] = "xar";
+	GambleWindow.ItemId["Mage Plate"] = "xtp";
+	GambleWindow.ItemId["Defender"] = "xuc";
+	GambleWindow.ItemId["Round Shield"] = "xml";
+	GambleWindow.ItemId["Scutum"] = "xrg";
+	GambleWindow.ItemId["Dragon Shield"] = "xit";
+	GambleWindow.ItemId["Pavise"] = "xow";
+	GambleWindow.ItemId["Ancient Shield"] = "xts";
+	GambleWindow.ItemId["Demonhide Gloves"] = "xlg";
+	GambleWindow.ItemId["Sharkskin Gloves"] = "xvg";
+	GambleWindow.ItemId["Heavy Bracers"] = "xmg";
+	GambleWindow.ItemId["Battle Gauntlets"] = "xtg";
+	GambleWindow.ItemId["War Gauntlets"] = "xhg";
+	GambleWindow.ItemId["Demonhide Boots"] = "xlb";
+	GambleWindow.ItemId["Sharkskin Boots"] = "xvb";
+	GambleWindow.ItemId["Mesh Boots"] = "xmb";
+	GambleWindow.ItemId["Battle Boots"] = "xtb";
+	GambleWindow.ItemId["War Boots"] = "xhb";
+	GambleWindow.ItemId["Demonhide Sash"] = "zlb";
+	GambleWindow.ItemId["Sharkskin Belt"] = "zvb";
+	GambleWindow.ItemId["Mesh Belt"] = "zmb";
+	GambleWindow.ItemId["Battle Belt"] = "ztb";
+	GambleWindow.ItemId["War Belt"] = "zhb";
+	GambleWindow.ItemId["Grim Helm"] = "xh9";
+	GambleWindow.ItemId["Grim Shield"] = "xsh";
+	GambleWindow.ItemId["Barbed Shield"] = "xpk";
+	GambleWindow.ItemId["Wolf Head"] = "dr1";
+	GambleWindow.ItemId["Hawk Helm"] = "dr2";
+	GambleWindow.ItemId["Antlers"] = "dr3";
+	GambleWindow.ItemId["Falcon Mask"] = "dr4";
+	GambleWindow.ItemId["Spirit Mask"] = "dr5";
+	GambleWindow.ItemId["Jawbone Cap"] = "ba1";
+	GambleWindow.ItemId["Fanged Helm"] = "ba2";
+	GambleWindow.ItemId["Horned Helm"] = "ba3";
+	GambleWindow.ItemId["Assault Helmet"] = "ba4";
+	GambleWindow.ItemId["Avenger Guard"] = "ba5";
+	GambleWindow.ItemId["Targe"] = "pa1";
+	GambleWindow.ItemId["Rondache"] = "pa2";
+	GambleWindow.ItemId["Heraldic Shield"] = "pa3";
+	GambleWindow.ItemId["Aerin Shield"] = "pa4";
+	GambleWindow.ItemId["Crown Shield"] = "pa5";
+	GambleWindow.ItemId["Preserved Head"] = "ne1";
+	GambleWindow.ItemId["Zombie Head"] = "ne2";
+	GambleWindow.ItemId["Unraveller Head"] = "ne3";
+	GambleWindow.ItemId["Gargoyle Head"] = "ne4";
+	GambleWindow.ItemId["Demon Head"] = "ne5";
+	GambleWindow.ItemId["Circlet"] = "ci0";
+	GambleWindow.ItemId["Coronet"] = "ci1";
+	GambleWindow.ItemId["Tiara"] = "ci2";
+	GambleWindow.ItemId["Diadem"] = "ci3";
+	GambleWindow.ItemId["Shako"] = "uap";
+	GambleWindow.ItemId["Hydraskull"] = "ukp";
+	GambleWindow.ItemId["Armet"] = "ulm";
+	GambleWindow.ItemId["Giant Conch"] = "uhl";
+	GambleWindow.ItemId["Spired Helm"] = "uhm";
+	GambleWindow.ItemId["Corona"] = "urn";
+	GambleWindow.ItemId["Demonhead"] = "usk";
+	GambleWindow.ItemId["Dusk Shroud"] = "uui";
+	GambleWindow.ItemId["Wyrmhide"] = "uea";
+	GambleWindow.ItemId["Scarab Husk"] = "ula";
+	GambleWindow.ItemId["Wire Fleece"] = "utu";
+	GambleWindow.ItemId["Diamond Mail"] = "ung";
+	GambleWindow.ItemId["Loricated Mail"] = "ucl";
+	GambleWindow.ItemId["Boneweave"] = "uhn";
+	GambleWindow.ItemId["Great Hauberk"] = "urs";
+	GambleWindow.ItemId["Balrog Skin"] = "upl";
+	GambleWindow.ItemId["Hellforge Plate"] = "ult";
+	GambleWindow.ItemId["Kraken Shell"] = "uld";
+	GambleWindow.ItemId["Lacquered Plate"] = "uth";
+	GambleWindow.ItemId["Shadow Plate"] = "uul";
+	GambleWindow.ItemId["Sacred Armor"] = "uar";
+	GambleWindow.ItemId["Archon Plate"] = "utp";
+	GambleWindow.ItemId["Heater"] = "uuc";
+	GambleWindow.ItemId["Luna"] = "uml";
+	GambleWindow.ItemId["Hyperion"] = "urg";
+	GambleWindow.ItemId["Monarch"] = "uit";
+	GambleWindow.ItemId["Aegis"] = "uow";
+	GambleWindow.ItemId["Ward"] = "uts";
+	GambleWindow.ItemId["Bramble Mitts"] = "ulg";
+	GambleWindow.ItemId["Vampirebone Gloves"] = "uvg";
+	GambleWindow.ItemId["Vambraces"] = "umg";
+	GambleWindow.ItemId["Crusader Gauntlets"] = "utg";
+	GambleWindow.ItemId["Ogre Gauntlets"] = "uhg";
+	GambleWindow.ItemId["Wyrmhide Boots"] = "ulb";
+	GambleWindow.ItemId["Scarabshell Boots"] = "uvb";
+	GambleWindow.ItemId["Boneweave Boots"] = "umb";
+	GambleWindow.ItemId["Mirrored Boots"] = "utb";
+	GambleWindow.ItemId["Myrmidon Greaves"] = "uhb";
+	GambleWindow.ItemId["Spiderweb Sash"] = "ulc";
+	GambleWindow.ItemId["Vampirefang Belt"] = "uvc";
+	GambleWindow.ItemId["Mithril Coil"] = "umc";
+	GambleWindow.ItemId["Troll Belt"] = "utc";
+	GambleWindow.ItemId["Colossus Girdle"] = "uhc";
+	GambleWindow.ItemId["Bone Visage"] = "uh9";
+	GambleWindow.ItemId["Troll Nest"] = "ush";
+	GambleWindow.ItemId["Blade Barrier"] = "upk";
+	GambleWindow.ItemId["Alpha Helm"] = "dr6";
+	GambleWindow.ItemId["Griffon Headdress"] = "dr7";
+	GambleWindow.ItemId["Hunter's Guise"] = "dr8";
+	GambleWindow.ItemId["Sacred Feathers"] = "dr9";
+	GambleWindow.ItemId["Totemic Mask"] = "dra";
+	GambleWindow.ItemId["Jawbone Visor"] = "ba6";
+	GambleWindow.ItemId["Lion Helm"] = "ba7";
+	GambleWindow.ItemId["Rage Mask"] = "ba8";
+	GambleWindow.ItemId["Savage Helmet"] = "ba9";
+	GambleWindow.ItemId["Slayer Guard"] = "baa";
+	GambleWindow.ItemId["Akaran Targe"] = "pa6";
+	GambleWindow.ItemId["Akaran Rondache"] = "pa7";
+	GambleWindow.ItemId["Protector Shield"] = "pa8";
+	GambleWindow.ItemId["Gilded Shield"] = "pa9";
+	GambleWindow.ItemId["Royal Shield"] = "paa";
+	GambleWindow.ItemId["Mummified Trophy"] = "ne6";
+	GambleWindow.ItemId["Fetish Trophy"] = "ne7";
+	GambleWindow.ItemId["Sexton Trophy"] = "ne8";
+	GambleWindow.ItemId["Cantor Trophy"] = "ne9";
+	GambleWindow.ItemId["Hierophant Trophy"] = "nea";
+	GambleWindow.ItemId["Blood Spirit"] = "drb";
+	GambleWindow.ItemId["Sun Spirit"] = "drc";
+	GambleWindow.ItemId["Earth Spirit"] = "drd";
+	GambleWindow.ItemId["Sky Spirit"] = "dre";
+	GambleWindow.ItemId["Dream Spirit"] = "drf";
+	GambleWindow.ItemId["Carnage Helm"] = "bab";
+	GambleWindow.ItemId["Fury Visor"] = "bac";
+	GambleWindow.ItemId["Destroyer Helm"] = "bad";
+	GambleWindow.ItemId["Conqueror Crown"] = "bae";
+	GambleWindow.ItemId["Guardian Crown"] = "baf";
+	GambleWindow.ItemId["Sacred Targe"] = "pab";
+	GambleWindow.ItemId["Sacred Rondache"] = "pac";
+	GambleWindow.ItemId["Kurast Shield"] = "pad";
+	GambleWindow.ItemId["Zakarum Shield"] = "pae";
+	GambleWindow.ItemId["Vortex Shield"] = "paf";
+	GambleWindow.ItemId["Minion Skull"] = "neb";
+	GambleWindow.ItemId["Hellspawn Skull"] = "neg";
+	GambleWindow.ItemId["Overseer Skull"] = "ned";
+	GambleWindow.ItemId["Succubus Skull"] = "nee";
+	GambleWindow.ItemId["Bloodlord Skull"] = "nef";
+	GambleWindow.ItemId["Amulet"] = "amu";
+	GambleWindow.ItemId["Ring"] = "rin";
+
+	GambleWindow.Items = new Array();
+	GambleWindow.Items[0] = "Aegis";
+	GambleWindow.Items[1] = "Aerin Shield";
+	GambleWindow.Items[2] = "Akaran Rondache";
+	GambleWindow.Items[3] = "Akaran Targe";
+	GambleWindow.Items[4] = "Alpha Helm";
+	GambleWindow.Items[5] = "Amulet";
+	GambleWindow.Items[6] = "Ancient Armor";
+	GambleWindow.Items[7] = "Ancient Axe";
+	GambleWindow.Items[8] = "Ancient Shield";
+	GambleWindow.Items[9] = "Ancient Sword";
+	GambleWindow.Items[10] = "Antlers";
+	GambleWindow.Items[11] = "Arbalest";
+	GambleWindow.Items[12] = "Archon Plate";
+	GambleWindow.Items[13] = "Archon Staff";
+	GambleWindow.Items[14] = "Armet";
+	GambleWindow.Items[15] = "Ashwood Bow";
+	GambleWindow.Items[16] = "Assault Helmet";
+	GambleWindow.Items[17] = "Ataghan";
+	GambleWindow.Items[18] = "Avenger Guard";
+	GambleWindow.Items[19] = "Axe";
+	GambleWindow.Items[20] = "Balanced Axe";
+	GambleWindow.Items[21] = "Balanced Knife";
+	GambleWindow.Items[22] = "Ballista";
+	GambleWindow.Items[23] = "Balrog Blade";
+	GambleWindow.Items[24] = "Balrog Skin";
+	GambleWindow.Items[25] = "Balrog Spear";
+	GambleWindow.Items[26] = "Barbed Club";
+	GambleWindow.Items[27] = "Barbed Shield";
+	GambleWindow.Items[28] = "Bardiche";
+	GambleWindow.Items[29] = "Basinet";
+	GambleWindow.Items[30] = "Bastard Sword";
+	GambleWindow.Items[31] = "Battle Axe";
+	GambleWindow.Items[32] = "Battle Belt";
+	GambleWindow.Items[33] = "Battle Boots";
+	GambleWindow.Items[34] = "Battle Cestus";
+	GambleWindow.Items[35] = "Battle Dart";
+	GambleWindow.Items[36] = "Battle Gauntlets";
+	GambleWindow.Items[37] = "Battle Hammer";
+	GambleWindow.Items[38] = "Battle Scythe";
+	GambleWindow.Items[39] = "Battle Staff";
+	GambleWindow.Items[40] = "Battle Sword";
+	GambleWindow.Items[41] = "Bearded Axe";
+	GambleWindow.Items[42] = "Bec-de-Corbin";
+	GambleWindow.Items[43] = "Belt";
+	GambleWindow.Items[44] = "Berserker Axe";
+	GambleWindow.Items[45] = "Bill";
+	GambleWindow.Items[46] = "Blade";
+	GambleWindow.Items[47] = "Blade Barrier";
+	GambleWindow.Items[48] = "Blade Bow";
+	GambleWindow.Items[49] = "Blade Talons";
+	GambleWindow.Items[50] = "Blood Spirit";
+	GambleWindow.Items[51] = "Bloodlord Skull";
+	GambleWindow.Items[52] = "Bone Helm";
+	GambleWindow.Items[53] = "Bone Knife";
+	GambleWindow.Items[54] = "Bone Shield";
+	GambleWindow.Items[55] = "Bone Visage";
+	GambleWindow.Items[56] = "Bone Wand";
+	GambleWindow.Items[57] = "Boneweave";
+	GambleWindow.Items[58] = "Boneweave Boots";
+	GambleWindow.Items[59] = "Boots";
+	GambleWindow.Items[60] = "Bramble Mitts";
+	GambleWindow.Items[61] = "Brandistock";
+	GambleWindow.Items[62] = "Breast Plate";
+	GambleWindow.Items[63] = "Broad Axe";
+	GambleWindow.Items[64] = "Broad Sword";
+	GambleWindow.Items[65] = "Buckler";
+	GambleWindow.Items[66] = "Burnt Wand";
+	GambleWindow.Items[67] = "Caduceus";
+	GambleWindow.Items[68] = "Cantor Trophy";
+	GambleWindow.Items[69] = "Cap";
+	GambleWindow.Items[70] = "Carnage Helm";
+	GambleWindow.Items[71] = "Casque";
+	GambleWindow.Items[72] = "Cedar Bow";
+	GambleWindow.Items[73] = "Cedar Staff";
+	GambleWindow.Items[74] = "Ceremonial Bow";
+	GambleWindow.Items[75] = "Ceremonial Javelin";
+	GambleWindow.Items[76] = "Ceremonial Pike";
+	GambleWindow.Items[77] = "Ceremonial Spear";
+	GambleWindow.Items[78] = "Cestus";
+	GambleWindow.Items[79] = "Chain Boots";
+	GambleWindow.Items[80] = "Chain Gloves";
+	GambleWindow.Items[81] = "Chain Mail";
+	GambleWindow.Items[82] = "Champion Axe";
+	GambleWindow.Items[83] = "Champion Sword";
+	GambleWindow.Items[84] = "Chaos Armor";
+	GambleWindow.Items[85] = "Choking Gas Potion";
+	GambleWindow.Items[86] = "Chu-Ko-Nu";
+	GambleWindow.Items[87] = "Cinquedeas";
+	GambleWindow.Items[88] = "Circlet";
+	GambleWindow.Items[89] = "Clasped Orb";
+	GambleWindow.Items[90] = "Claws";
+	GambleWindow.Items[91] = "Claymore";
+	GambleWindow.Items[92] = "Cleaver";
+	GambleWindow.Items[93] = "Cloudy Sphere";
+	GambleWindow.Items[94] = "Club";
+	GambleWindow.Items[95] = "Colossus Blade";
+	GambleWindow.Items[96] = "Colossus Crossbow";
+	GambleWindow.Items[97] = "Colossus Girdle";
+	GambleWindow.Items[98] = "Colossus Sword";
+	GambleWindow.Items[99] = "Colossus Voulge";
+	GambleWindow.Items[100] = "Composite Bow";
+	GambleWindow.Items[101] = "Conqueror Crown";
+	GambleWindow.Items[102] = "Conquest Sword";
+	GambleWindow.Items[103] = "Corona";
+	GambleWindow.Items[104] = "Coronet";
+	GambleWindow.Items[105] = "Crossbow";
+	GambleWindow.Items[106] = "Crowbill";
+	GambleWindow.Items[107] = "Crown";
+	GambleWindow.Items[108] = "Crown Shield";
+	GambleWindow.Items[109] = "Crusader Bow";
+	GambleWindow.Items[110] = "Crusader Gauntlets";
+	GambleWindow.Items[111] = "Cryptic Axe";
+	GambleWindow.Items[112] = "Cryptic Sword";
+	GambleWindow.Items[113] = "Crystal Sword";
+	GambleWindow.Items[114] = "Crystalline Globe";
+	GambleWindow.Items[115] = "Cudgel";
+	GambleWindow.Items[116] = "Cuirass";
+	GambleWindow.Items[117] = "Cutlass";
+	GambleWindow.Items[118] = "Dacian Falx";
+	GambleWindow.Items[119] = "Dagger";
+	GambleWindow.Items[120] = "Death Mask";
+	GambleWindow.Items[121] = "Decapitator";
+	GambleWindow.Items[122] = "Decoy Gidbinn";
+	GambleWindow.Items[123] = "Defender";
+	GambleWindow.Items[124] = "Demon Crossbow";
+	GambleWindow.Items[125] = "Demon Head";
+	GambleWindow.Items[126] = "Demon Heart";
+	GambleWindow.Items[127] = "Demonhead";
+	GambleWindow.Items[128] = "Demonhide Armor";
+	GambleWindow.Items[129] = "Demonhide Boots";
+	GambleWindow.Items[130] = "Demonhide Gloves";
+	GambleWindow.Items[131] = "Demonhide Sash";
+	GambleWindow.Items[132] = "Destroyer Helm";
+	GambleWindow.Items[133] = "Devil Star";
+	GambleWindow.Items[134] = "Diadem";
+	GambleWindow.Items[135] = "Diamond Bow";
+	GambleWindow.Items[136] = "Diamond Mail";
+	GambleWindow.Items[137] = "Dimensional Blade";
+	GambleWindow.Items[138] = "Dimensional Shard";
+	GambleWindow.Items[139] = "Dirk";
+	GambleWindow.Items[140] = "Divine Scepter";
+	GambleWindow.Items[141] = "Double Axe";
+	GambleWindow.Items[142] = "Double Bow";
+	GambleWindow.Items[143] = "Dragon Shield";
+	GambleWindow.Items[144] = "Dream Spirit";
+	GambleWindow.Items[145] = "Dusk Shroud";
+	GambleWindow.Items[146] = "Eagle Orb";
+	GambleWindow.Items[147] = "Earth Spirit";
+	GambleWindow.Items[148] = "Edge Bow";
+	GambleWindow.Items[149] = "Elder Staff";
+	GambleWindow.Items[150] = "Eldritch Orb";
+	GambleWindow.Items[151] = "Elegant Blade";
+	GambleWindow.Items[152] = "Embossed Plate";
+	GambleWindow.Items[153] = "Espandon";
+	GambleWindow.Items[154] = "Ettin Axe";
+	GambleWindow.Items[155] = "Executioner Sword";
+	GambleWindow.Items[156] = "Exploding Potion";
+	GambleWindow.Items[157] = "Falcata";
+	GambleWindow.Items[158] = "Falchion";
+	GambleWindow.Items[159] = "Falcon Mask";
+	GambleWindow.Items[160] = "Fanged Helm";
+	GambleWindow.Items[161] = "Fanged Knife";
+	GambleWindow.Items[162] = "Fascia";
+	GambleWindow.Items[163] = "Feral Axe";
+	GambleWindow.Items[164] = "Feral Claws";
+	GambleWindow.Items[165] = "Fetish Trophy";
+	GambleWindow.Items[166] = "Field Plate";
+	GambleWindow.Items[167] = "Flail";
+	GambleWindow.Items[168] = "Flamberge";
+	GambleWindow.Items[169] = "Flanged Mace";
+	GambleWindow.Items[170] = "Flying Axe";
+	GambleWindow.Items[171] = "Flying Knife";
+	GambleWindow.Items[172] = "Francisca";
+	GambleWindow.Items[173] = "Full Helm";
+	GambleWindow.Items[174] = "Full Plate Mail";
+	GambleWindow.Items[175] = "Fulminating Potion";
+	GambleWindow.Items[176] = "Fury Visor";
+	GambleWindow.Items[177] = "Fuscina";
+	GambleWindow.Items[178] = "Gargoyle Head";
+	GambleWindow.Items[179] = "Gauntlets";
+	GambleWindow.Items[180] = "Ghost Armor";
+	GambleWindow.Items[181] = "Ghost Glaive";
+	GambleWindow.Items[182] = "Ghost Spear";
+	GambleWindow.Items[183] = "Ghost Wand";
+	GambleWindow.Items[184] = "Giant Axe";
+	GambleWindow.Items[185] = "Giant Conch";
+	GambleWindow.Items[186] = "Giant Sword";
+	GambleWindow.Items[187] = "Giant Thresher";
+	GambleWindow.Items[188] = "Gilded Shield";
+	GambleWindow.Items[189] = "Gladius";
+	GambleWindow.Items[190] = "Glaive";
+	GambleWindow.Items[191] = "Glorious Axe";
+	GambleWindow.Items[192] = "Glowing Orb";
+	GambleWindow.Items[193] = "Gnarled Staff";
+	GambleWindow.Items[194] = "Gorgon Crossbow";
+	GambleWindow.Items[195] = "Gothic Axe";
+	GambleWindow.Items[196] = "Gothic Bow";
+	GambleWindow.Items[197] = "Gothic Plate";
+	GambleWindow.Items[198] = "Gothic Shield";
+	GambleWindow.Items[199] = "Gothic Staff";
+	GambleWindow.Items[200] = "Gothic Sword";
+	GambleWindow.Items[201] = "Grand Crown";
+	GambleWindow.Items[202] = "Grand Matron Bow";
+	GambleWindow.Items[203] = "Grand Scepter";
+	GambleWindow.Items[204] = "Grave Wand";
+	GambleWindow.Items[205] = "Great Axe";
+	GambleWindow.Items[206] = "Great Bow";
+	GambleWindow.Items[207] = "Great Hauberk";
+	GambleWindow.Items[208] = "Great Helm";
+	GambleWindow.Items[209] = "Great Maul";
+	GambleWindow.Items[210] = "Great Pilum";
+	GambleWindow.Items[211] = "Great Poleaxe";
+	GambleWindow.Items[212] = "Great Sword";
+	GambleWindow.Items[213] = "Greater Claws";
+	GambleWindow.Items[214] = "Greater Talons";
+	GambleWindow.Items[215] = "Greaves";
+	GambleWindow.Items[216] = "Griffon Headdress";
+	GambleWindow.Items[217] = "Grim Helm";
+	GambleWindow.Items[218] = "Grim Scythe";
+	GambleWindow.Items[219] = "Grim Shield";
+	GambleWindow.Items[220] = "Grim Wand";
+	GambleWindow.Items[221] = "Guardian Crown";
+	GambleWindow.Items[222] = "Halberd";
+	GambleWindow.Items[223] = "Hand Axe";
+	GambleWindow.Items[224] = "Hand Scythe";
+	GambleWindow.Items[225] = "Hard Leather Armor";
+	GambleWindow.Items[226] = "Harpoon";
+	GambleWindow.Items[227] = "Hatchet";
+	GambleWindow.Items[228] = "Hatchet Hands";
+	GambleWindow.Items[229] = "Hawk Helm";
+	GambleWindow.Items[230] = "Heater";
+	GambleWindow.Items[231] = "Heavenly Stone";
+	GambleWindow.Items[232] = "Heavy Belt";
+	GambleWindow.Items[233] = "Heavy Boots";
+	GambleWindow.Items[234] = "Heavy Bracers";
+	GambleWindow.Items[235] = "Heavy Crossbow";
+	GambleWindow.Items[236] = "Heavy Gloves";
+	GambleWindow.Items[237] = "Hell Forge Hammer";
+	GambleWindow.Items[238] = "Hellforge Plate";
+	GambleWindow.Items[239] = "Hellspawn Skull";
+	GambleWindow.Items[240] = "Helm";
+	GambleWindow.Items[241] = "Heraldic Shield";
+	GambleWindow.Items[242] = "Hierophant Trophy";
+	GambleWindow.Items[243] = "Highland Blade";
+	GambleWindow.Items[244] = "Holy Water Sprinkler";
+	GambleWindow.Items[245] = "Horadric Malus";
+	GambleWindow.Items[246] = "Horadric Staff";
+	GambleWindow.Items[247] = "Horned Helm";
+	GambleWindow.Items[248] = "Hunter's Bow";
+	GambleWindow.Items[249] = "Hunter's Guise";
+	GambleWindow.Items[250] = "Hurlbat";
+	GambleWindow.Items[251] = "Hydra Bow";
+	GambleWindow.Items[252] = "Hydra Edge";
+	GambleWindow.Items[253] = "Hydraskull";
+	GambleWindow.Items[254] = "Hyperion";
+	GambleWindow.Items[255] = "Hyperion Javelin";
+	GambleWindow.Items[256] = "Hyperion Spear";
+	GambleWindow.Items[257] = "Jagged Star";
+	GambleWindow.Items[258] = "Jared's Stone";
+	GambleWindow.Items[259] = "Javelin";
+	GambleWindow.Items[260] = "Jawbone Cap";
+	GambleWindow.Items[261] = "Jawbone Visor";
+	GambleWindow.Items[262] = "Jo Staff";
+	GambleWindow.Items[263] = "Katar";
+	GambleWindow.Items[264] = "Khalim's Flail";
+	GambleWindow.Items[265] = "Khalim's Will";
+	GambleWindow.Items[266] = "Kite Shield";
+	GambleWindow.Items[267] = "Knout";
+	GambleWindow.Items[268] = "Kraken Shell";
+	GambleWindow.Items[269] = "Kris";
+	GambleWindow.Items[270] = "Kurast Shield";
+	GambleWindow.Items[271] = "Lacquered Plate";
+	GambleWindow.Items[272] = "Lance";
+	GambleWindow.Items[273] = "Large Axe";
+	GambleWindow.Items[274] = "Large Shield";
+	GambleWindow.Items[275] = "Large Siege Bow";
+	GambleWindow.Items[276] = "Leather Armor";
+	GambleWindow.Items[277] = "Leather Gloves";
+	GambleWindow.Items[278] = "Legend Spike";
+	GambleWindow.Items[279] = "Legend Sword";
+	GambleWindow.Items[280] = "Legendary Mallet";
+	GambleWindow.Items[281] = "Lich Wand";
+	GambleWindow.Items[282] = "Light Belt";
+	GambleWindow.Items[283] = "Light Crossbow";
+	GambleWindow.Items[284] = "Light Gauntlets";
+	GambleWindow.Items[285] = "Light Plate";
+	GambleWindow.Items[286] = "Light Plated Boots";
+	GambleWindow.Items[287] = "Linked Mail";
+	GambleWindow.Items[288] = "Lion Helm";
+	GambleWindow.Items[289] = "Lochaber Axe";
+	GambleWindow.Items[290] = "Long Battle Bow";
+	GambleWindow.Items[291] = "Long Bow";
+	GambleWindow.Items[292] = "Long Staff";
+	GambleWindow.Items[293] = "Long Sword";
+	GambleWindow.Items[294] = "Long War Bow";
+	GambleWindow.Items[295] = "Loricated Mail";
+	GambleWindow.Items[296] = "Luna";
+	GambleWindow.Items[297] = "Mace";
+	GambleWindow.Items[298] = "Mage Plate";
+	GambleWindow.Items[299] = "Maiden Javelin";
+	GambleWindow.Items[300] = "Maiden Pike";
+	GambleWindow.Items[301] = "Maiden Spear";
+	GambleWindow.Items[302] = "Mancatcher";
+	GambleWindow.Items[303] = "Martel de Fer";
+	GambleWindow.Items[304] = "Mask";
+	GambleWindow.Items[305] = "Matriarchal Bow";
+	GambleWindow.Items[306] = "Matriarchal Javelin";
+	GambleWindow.Items[307] = "Matriarchal Pike";
+	GambleWindow.Items[308] = "Matriarchal Spear";
+	GambleWindow.Items[309] = "Maul";
+	GambleWindow.Items[310] = "Mesh Armor";
+	GambleWindow.Items[311] = "Mesh Belt";
+	GambleWindow.Items[312] = "Mesh Boots";
+	GambleWindow.Items[313] = "Mighty Scepter";
+	GambleWindow.Items[314] = "Military Axe";
+	GambleWindow.Items[315] = "Military Pick";
+	GambleWindow.Items[316] = "Minion Skull";
+	GambleWindow.Items[317] = "Mirrored Boots";
+	GambleWindow.Items[318] = "Mithril Coil";
+	GambleWindow.Items[319] = "Mithril Point";
+	GambleWindow.Items[320] = "Monarch";
+	GambleWindow.Items[321] = "Morning Star";
+	GambleWindow.Items[322] = "Mummified Trophy";
+	GambleWindow.Items[323] = "Myrmidon Greaves";
+	GambleWindow.Items[324] = "Mythical Sword";
+	GambleWindow.Items[325] = "Naga";
+	GambleWindow.Items[326] = "Ogre Axe";
+	GambleWindow.Items[327] = "Ogre Gauntlets";
+	GambleWindow.Items[328] = "Ogre Maul";
+	GambleWindow.Items[329] = "Oil Potion";
+	GambleWindow.Items[330] = "Ornate Plate";
+	GambleWindow.Items[331] = "Overseer Skull";
+	GambleWindow.Items[332] = "Partizan";
+	GambleWindow.Items[333] = "Pavise";
+	GambleWindow.Items[334] = "Pellet Bow";
+	GambleWindow.Items[335] = "Petrified Wand";
+	GambleWindow.Items[336] = "Phase Blade";
+	GambleWindow.Items[337] = "Pike";
+	GambleWindow.Items[338] = "Pilum";
+	GambleWindow.Items[339] = "Plate Mail";
+	GambleWindow.Items[340] = "Plated Belt";
+	GambleWindow.Items[341] = "Poignard";
+	GambleWindow.Items[342] = "Poleaxe";
+	GambleWindow.Items[343] = "Polished Wand";
+	GambleWindow.Items[344] = "Preserved Head";
+	GambleWindow.Items[345] = "Protector Shield";
+	GambleWindow.Items[346] = "Quarterstaff";
+	GambleWindow.Items[347] = "Quhab";
+	GambleWindow.Items[348] = "Quilted Armor";
+	GambleWindow.Items[349] = "Rage Mask";
+	GambleWindow.Items[350] = "Rancid Gas Potion";
+	GambleWindow.Items[351] = "Razor Bow";
+	GambleWindow.Items[352] = "Reflex Bow";
+	GambleWindow.Items[353] = "Reinforced Mace";
+	GambleWindow.Items[354] = "Repeating Crossbow";
+	GambleWindow.Items[355] = "Ring";
+	GambleWindow.Items[356] = "Ring Mail";
+	GambleWindow.Items[357] = "Rondache";
+	GambleWindow.Items[358] = "Rondel";
+	GambleWindow.Items[359] = "Round Shield";
+	GambleWindow.Items[360] = "Royal Shield";
+	GambleWindow.Items[361] = "Rune Bow";
+	GambleWindow.Items[362] = "Rune Scepter";
+	GambleWindow.Items[363] = "Rune Staff";
+	GambleWindow.Items[364] = "Rune Sword";
+	GambleWindow.Items[365] = "Runic Talons";
+	GambleWindow.Items[366] = "Russet Armor";
+	GambleWindow.Items[367] = "Sabre";
+	GambleWindow.Items[368] = "Sacred Armor";
+	GambleWindow.Items[369] = "Sacred Feathers";
+	GambleWindow.Items[370] = "Sacred Globe";
+	GambleWindow.Items[371] = "Sacred Rondache";
+	GambleWindow.Items[372] = "Sacred Targe";
+	GambleWindow.Items[373] = "Sallet";
+	GambleWindow.Items[374] = "Sash";
+	GambleWindow.Items[375] = "Savage Helmet";
+	GambleWindow.Items[376] = "Scale Mail";
+	GambleWindow.Items[377] = "Scarab Husk";
+	GambleWindow.Items[378] = "Scarabshell Boots";
+	GambleWindow.Items[379] = "Scepter";
+	GambleWindow.Items[380] = "Scimitar";
+	GambleWindow.Items[381] = "Scissors Katar";
+	GambleWindow.Items[382] = "Scissors Quhab";
+	GambleWindow.Items[383] = "Scissors Suwayyah";
+	GambleWindow.Items[384] = "Scourge";
+	GambleWindow.Items[385] = "Scutum";
+	GambleWindow.Items[386] = "Scythe";
+	GambleWindow.Items[387] = "Seraph Rod";
+	GambleWindow.Items[388] = "Serpentskin Armor";
+	GambleWindow.Items[389] = "Sexton Trophy";
+	GambleWindow.Items[390] = "Shadow Bow";
+	GambleWindow.Items[391] = "Shadow Plate";
+	GambleWindow.Items[392] = "Shaft of the Horadric Staff";
+	GambleWindow.Items[393] = "Shako";
+	GambleWindow.Items[394] = "Shamshir";
+	GambleWindow.Items[395] = "Sharkskin Belt";
+	GambleWindow.Items[396] = "Sharkskin Boots";
+	GambleWindow.Items[397] = "Sharkskin Gloves";
+	GambleWindow.Items[398] = "Sharktooth Armor";
+	GambleWindow.Items[399] = "Shillelagh";
+	GambleWindow.Items[400] = "Short Battle Bow";
+	GambleWindow.Items[401] = "Short Bow";
+	GambleWindow.Items[402] = "Short Siege Bow";
+	GambleWindow.Items[403] = "Short Spear";
+	GambleWindow.Items[404] = "Short Staff";
+	GambleWindow.Items[405] = "Short Sword";
+	GambleWindow.Items[406] = "Short War Bow";
+	GambleWindow.Items[407] = "Siege Crossbow";
+	GambleWindow.Items[408] = "Silver-edged Axe";
+	GambleWindow.Items[409] = "Simbilan";
+	GambleWindow.Items[410] = "Skull Cap";
+	GambleWindow.Items[411] = "Sky Spirit";
+	GambleWindow.Items[412] = "Slayer Guard";
+	GambleWindow.Items[413] = "Small Crescent";
+	GambleWindow.Items[414] = "Small Shield";
+	GambleWindow.Items[415] = "Smoked Sphere";
+	GambleWindow.Items[416] = "Sparkling Ball";
+	GambleWindow.Items[417] = "Spear";
+	GambleWindow.Items[418] = "Spetum";
+	GambleWindow.Items[419] = "Spiculum";
+	GambleWindow.Items[420] = "Spider Bow";
+	GambleWindow.Items[421] = "Spiderweb Sash";
+	GambleWindow.Items[422] = "Spiked Club";
+	GambleWindow.Items[423] = "Spiked Shield";
+	GambleWindow.Items[424] = "Spired Helm";
+	GambleWindow.Items[425] = "Spirit Mask";
+	GambleWindow.Items[426] = "Splint Mail";
+	GambleWindow.Items[427] = "Stag Bow";
+	GambleWindow.Items[428] = "Stalagmite";
+	GambleWindow.Items[429] = "Stiletto";
+	GambleWindow.Items[430] = "Strangling Gas Potion";
+	GambleWindow.Items[431] = "Studded Leather";
+	GambleWindow.Items[432] = "Stygian Pike";
+	GambleWindow.Items[433] = "Stygian Pilum";
+	GambleWindow.Items[434] = "Succubus Skull";
+	GambleWindow.Items[435] = "Sun Spirit";
+	GambleWindow.Items[436] = "Suwayyah";
+	GambleWindow.Items[437] = "Swirling Crystal";
+	GambleWindow.Items[438] = "Tabar";
+	GambleWindow.Items[439] = "Targe";
+	GambleWindow.Items[440] = "Templar Coat";
+	GambleWindow.Items[441] = "The Gidbinn";
+	GambleWindow.Items[442] = "Thresher";
+	GambleWindow.Items[443] = "Throwing Axe";
+	GambleWindow.Items[444] = "Throwing Knife";
+	GambleWindow.Items[445] = "Throwing Spear";
+	GambleWindow.Items[446] = "Thunder Maul";
+	GambleWindow.Items[447] = "Tiara";
+	GambleWindow.Items[448] = "Tigulated Mail";
+	GambleWindow.Items[449] = "Tomahawk";
+	GambleWindow.Items[450] = "Tomb Wand";
+	GambleWindow.Items[451] = "Totemic Mask";
+	GambleWindow.Items[452] = "Tower Shield";
+	GambleWindow.Items[453] = "Trellised Armor";
+	GambleWindow.Items[454] = "Trident";
+	GambleWindow.Items[455] = "Troll Belt";
+	GambleWindow.Items[456] = "Troll Nest";
+	GambleWindow.Items[457] = "Truncheon";
+	GambleWindow.Items[458] = "Tulwar";
+	GambleWindow.Items[459] = "Tusk Sword";
+	GambleWindow.Items[460] = "Twin Axe";
+	GambleWindow.Items[461] = "Two-Handed Sword";
+	GambleWindow.Items[462] = "Tyrant Club";
+	GambleWindow.Items[463] = "Unearthed Wand";
+	GambleWindow.Items[464] = "Unraveller Head";
+	GambleWindow.Items[465] = "Vambraces";
+	GambleWindow.Items[466] = "Vampirebone Gloves";
+	GambleWindow.Items[467] = "Vampirefang Belt";
+	GambleWindow.Items[468] = "Vortex Orb";
+	GambleWindow.Items[469] = "Vortex Shield";
+	GambleWindow.Items[470] = "Voulge";
+	GambleWindow.Items[471] = "Walking Stick";
+	GambleWindow.Items[472] = "Wand";
+	GambleWindow.Items[473] = "War Axe";
+	GambleWindow.Items[474] = "War Belt";
+	GambleWindow.Items[475] = "War Boots";
+	GambleWindow.Items[476] = "War Club";
+	GambleWindow.Items[477] = "War Dart";
+	GambleWindow.Items[478] = "War Fist";
+	GambleWindow.Items[479] = "War Fork";
+	GambleWindow.Items[480] = "War Gauntlets";
+	GambleWindow.Items[481] = "War Hammer";
+	GambleWindow.Items[482] = "War Hat";
+	GambleWindow.Items[483] = "War Javelin";
+	GambleWindow.Items[484] = "War Pike";
+	GambleWindow.Items[485] = "War Scepter";
+	GambleWindow.Items[486] = "War Scythe";
+	GambleWindow.Items[487] = "War Spear";
+	GambleWindow.Items[488] = "War Spike";
+	GambleWindow.Items[489] = "War Staff";
+	GambleWindow.Items[490] = "War Sword";
+	GambleWindow.Items[491] = "Ward";
+	GambleWindow.Items[492] = "Ward Bow";
+	GambleWindow.Items[493] = "Winged Axe";
+	GambleWindow.Items[494] = "Winged Harpoon";
+	GambleWindow.Items[495] = "Winged Helm";
+	GambleWindow.Items[496] = "Winged Knife";
+	GambleWindow.Items[497] = "Wire Fleece";
+	GambleWindow.Items[498] = "Wirt's Leg";
+	GambleWindow.Items[499] = "Wolf Head";
+	GambleWindow.Items[500] = "Wrist Blade";
+	GambleWindow.Items[501] = "Wrist Spike";
+	GambleWindow.Items[502] = "Wrist Sword";
+	GambleWindow.Items[503] = "Wyrmhide";
+	GambleWindow.Items[504] = "Wyrmhide Boots";
+	GambleWindow.Items[505] = "Yari";
+	GambleWindow.Items[506] = "Yew Wand";
+	GambleWindow.Items[507] = "Zakarum Shield";
+	GambleWindow.Items[508] = "Zombie Head";
+	GambleWindow.Items[509] = "Zweihander";
+}

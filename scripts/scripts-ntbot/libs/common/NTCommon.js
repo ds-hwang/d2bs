@@ -87,12 +87,7 @@ var NTC_AREA_ID_ACT_3 = 75;
 var NTC_AREA_ID_ACT_4 = 103;
 var NTC_AREA_ID_ACT_5 = 109;
 
-var NTC_ActNumberToTownID = new Array(5);
-NTC_ActNumberToTownID[0] = 1;
-NTC_ActNumberToTownID[1] = 40;
-NTC_ActNumberToTownID[2] = 75;
-NTC_ActNumberToTownID[3] = 103;
-NTC_ActNumberToTownID[4] = 109;
+var NTC_ActNumberToTownID = [1, 40, 75, 103, 109];
 
 // COLOR types
 var NTC_COLOR_BASE_WHITE = 0;
@@ -121,33 +116,26 @@ var NTC_SHIFT_HOLD = 1;
 
 var NTC_DELAY_FRAME = 40;
 
-var NTC_CharClassToNameList = new Array(7);
-NTC_CharClassToNameList[0] = "Amazon";
-NTC_CharClassToNameList[1] = "Sorceress";
-NTC_CharClassToNameList[2] = "Necromancer";
-NTC_CharClassToNameList[3] = "Paladin";
-NTC_CharClassToNameList[4] = "Barbarian";
-NTC_CharClassToNameList[5] = "Druid";
-NTC_CharClassToNameList[6] = "Assassin";
+var NTC_CharClassToNameList = ["Amazon", "Sorceress", "Necromancer", "Paladin", "Barbarian", "Druid", "Assassin"];
 
-var NTConfig_AttackSkill =[];
-	NTConfig_AttackSkill[0] = 0;		// Cast your first spell once. Set to 0 if you won't
-	NTConfig_AttackSkill[1] = 0;		// The primary skill used to attack the boss.
-	NTConfig_AttackSkill[2] = 0;		// Cast your primary spell to others.
-	NTConfig_AttackSkill[3] = 0;		// Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't
-	NTConfig_AttackSkill[4] = 0;		// Secondary untimed skill if boss is immune to primary untimed skill!
-	NTConfig_AttackSkill[5] = 0;		// Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
+var NTConfig_AttackSkill =
+	[	0,		// [0] Cast your first spell once. Set to 0 if you won't
+		0,		// [1] The primary skill used to attack the boss.
+		0,		// [2] Cast your primary spell to others.
+		0,		// [3] Cast your primary untimed spell if primary spell is timed spell. Set to 0 if you won't
+		0,		// [4] Secondary untimed skill if boss is immune to primary untimed skill!
+		0	];	// [5] Cast your secondary untimed spell if secondary spell is timed spell. Set to 0 if you won't
 
-var NTC_ItemQualityToNameList = new Array(9);
-NTC_ItemQualityToNameList[0] = "None";
-NTC_ItemQualityToNameList[1] = "Low Quality";
-NTC_ItemQualityToNameList[2] = "Normal";
-NTC_ItemQualityToNameList[3] = "Superior";
-NTC_ItemQualityToNameList[4] = "Magic";
-NTC_ItemQualityToNameList[5] = "Set";
-NTC_ItemQualityToNameList[6] = "Rare";
-NTC_ItemQualityToNameList[7] = "Unique";
-NTC_ItemQualityToNameList[8] = "Crafted";
+var NTC_ItemQualityToNameList = 
+	[	"None",			//[0]
+		"Low Quality",	//[1]
+		"Normal",		//[2]
+		"Superior",		//[3]
+		"Magic",		//[4]
+		"Set",			//[5]
+		"Rare",			//[6]
+		"Unique",		//[7]
+		"Crafted",	];	//[8]
 
 function attackPrint(nString)
 {
@@ -165,7 +153,7 @@ function NTC_Include(filepath)
 {
 	if(isIncluded(filepath))
 		return true;
-	//load("libs/" + filepath);
+		
 	return include(filepath);
 }
 
