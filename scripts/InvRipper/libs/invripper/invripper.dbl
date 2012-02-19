@@ -102,6 +102,17 @@ function getCompleteStats(item, isHtml) {
             if(empty) aStates[i] = -1;
             else aStates[i] = iTemp;
         }
+        if(i == 151) {
+            var iTemp = new Array();
+            var empty = true;
+            for(var p=98; p < 126; p++) {
+                var _AuraEquipped = item.getStat(151,p);
+                if(_AuraEquipped) { var empty = false; iTemp[p] = _AuraEquipped; }
+                else iTemp[p] = -1;
+            }
+            if(empty) aStates[i] = -1;
+            else aStates[i] = iTemp;
+        }
         if(i == 188) {
             var iTemp = new Array();
             var empty = true;
@@ -113,7 +124,7 @@ function getCompleteStats(item, isHtml) {
             if(empty) aStates[i] = -1;
             else aStates[i] = iTemp;
         }
-        if(i != 83 && i != 107 && i != 188) {
+        if(i != 83 && i != 107 && i != 151 && i != 188) {
             var iTemp = item.getStat(i);
             if (iTemp) {
                 
@@ -166,10 +177,17 @@ function getCompleteStats(item, isHtml) {
 	strReturn+=_getBaseStats;
 
     var sockets = false;
-	//Get All Magics Stats
 	if(isHtml)
 		strReturn+="<font color=\"#2020CC\">\n";	//set blue to the magic stats of the item
-	for (i=0;i<324;i++) {
+
+    // Aura when Equipped
+    if(aStates[151] != -1) {
+        for(var skl=98; skl < 126; skl++) {
+            if(aStates[151][skl] && aStates[151][skl] > 0) 	strReturn+="Level "+aStates[151][skl] + " " +strSkillNumberToName(skl) + " Aura When Equipped" + strEndLine;
+        }
+    }
+    //Get All Magics Stats
+    for (i=0;i<324;i++) {
 		if (aStates[i]!=-1) {
 			
 			var strStatDesc=strStatNumberToDesc(i);
@@ -299,7 +317,7 @@ function GetSkillsChars(aStats, isHtml, item){
 	if(isHtml){
 		strEndLine="<br/>\n";
 	}
-
+    
     // + Character Class Skills
     if(aStats[83] != -1) {
         if(aStats[83][0] > 0)	strResult+="+"+aStats[83][0]+strDescriptor(49)+strEndLine;	// to Amazon Skill 
@@ -344,10 +362,9 @@ function GetSkillsChars(aStats, isHtml, item){
 
     // + plus single skill
     if(aStats[107] != -1) {
-    
         for(var skl=6; skl < 281; skl++) {
             if(skl < 156 || skl > 220) {
-                if(aStats[107][skl] && aStats[107][skl] >  0) 	strResult+="+"+aStats[107][skl] + " to " +strSkillNumberToName(skl) + strEndLine;
+                if(aStats[107][skl] && aStats[107][skl] > 0) 	strResult+="+"+aStats[107][skl] + " to " +strSkillNumberToName(skl) + strEndLine;
             }
         }
     }
@@ -604,13 +621,6 @@ function GetBaseStats(item, aStats, isHtml){
 		strText=strText.split("$");
 		strBlock=strText[0]+iBlock+strText[1]+strEndLine;
 	}
-    
-    var D2JSP_BASE_ITEMS_MINDAM = 43;
-    var D2JSP_BASE_ITEMS_MAXDAM = 44;
-    var D2JSP_BASE_ITEMS_2HANDMINDAM = 47;
-    var D2JSP_BASE_ITEMS_2HANDMAXDAM = 48;
-    var D2JSP_BASE_ITEMS_MINMISDAM = 45;
-    var D2JSP_BASE_ITEMS_MAXMISDAM = 46;
     
 	var iChecker=0;
 	if(aStats[21]!=-1)  	iChecker+=1;
@@ -1980,7 +1990,7 @@ function strStatNumberToDesc(stat) {
 	"$% Cold Absorb",								//148
 	"$ Cold Absorb",								//149
 	"Slows target by $%",							//150
-	"Blessed Aim ($)",								//151
+	"$$$$",								//151
 	"Defiance ($)",									//152
 	"Cannot Be Frozen",								//153
 	"$% Decreased Stamina Drain",					//154
