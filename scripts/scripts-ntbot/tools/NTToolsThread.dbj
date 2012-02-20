@@ -1,7 +1,7 @@
 /**
 *	@filename	NTToolsThread.dbj
 *	
-*	@author		kolton
+*	@author		kolton (Party Up Script by Darien and Cognac - Christmas 2011, stolen from YAMB)
 *
 *	@desc		Handles party events, potion drinking, and chickening (via script)
 *	@TODO		Add option to allow certain members to loot corpse if in hardcore mode
@@ -9,11 +9,7 @@
 */
 
 var _NTLW_timerLastDrink = new Array(5);
-var _player;
-var _checkPlayers = true;
-var _otherParty = false;
-var _playerCount = 0;
-var _partyTick = getTickCount();
+
 
 function main()
 {
@@ -37,7 +33,7 @@ function main()
 		if(parseInt((me.hpmax*NTConfig_LifeChicken)/100) > 5)
 		{
 			me.chickenhp = parseInt(((me.hpmax*NTConfig_LifeChicken - 5)/100));
-		}
+		} 
 		else
 			me.chickenhp = parseInt((me.hpmax*NTConfig_LifeChicken)/100);
 	}
@@ -51,14 +47,29 @@ function main()
 		else
 			me.chickenmp = parseInt((me.mpmax*NTConfig_ManaChicken)/100);
 	}
-		
-	
 	
 	for(var i = 0 ; i < 5 ; i++)
 		_NTLW_timerLastDrink[i] = 0;
 	
 	addEventListener("melife", NT_LifeWatch);
 	addEventListener("memana", NT_ManaWatch);
+	
+	if(NTConfig_PublicMode)
+	{
+		party();
+		addEventListener("gameevent",partyHandler);
+		delay(10000);
+		var noone = onlyPlayer();
+		delay(5000);
+		if(!inParty(me) && !onlyPlayer() && !noone)
+		{ 
+			print("ÿc1 Failed to Party! will leave and come back"); 
+			delay(1500); 
+			quit(); 
+		}
+	}
+	
+	addEventListener("scriptmsg", scriptMessageHandler);
 	
 	while(me.ingame)
 	{
@@ -84,54 +95,6 @@ function main()
 					NTLW_DrinkPotInt(3);
 			}
 		}
-
-		if(NTConfig_PublicMode)
-		{
-			if(_checkPlayers)
-			{
-				_player = getParty();
-				
-				while(_player && _player.getNext())
-					_playerCount++;
-					
-				if(_playerCount == 0)
-					print("ÿc3Send Invites.");
-				else
-					print("ÿc3Wait for invites.");
-					
-				_checkPlayers = false;
-			}
-			
-			_player = getParty();
-			
-			_mypartyid = _player.partyid;
-			
-			while(_player && _player.getNext())
-			{
-				if(_playerCount == 0)
-				{
-					if(_player.partyid == 65535 && _player.partyflag != 4)
-					{
-						clickParty(_player, 2);
-						delay(40);
-					}
-				}
-				else
-				{
-					if(_player.partyid != 65535 && _player.partyid != _mypartyid)
-						_otherParty = _player.partyid;
-						
-					if(_player.partyflag != 4 && (getTickCount() - _partyTick >= (_playerCount + 1)*1000 && !_otherParty || _mypartyid == _otherParty)
-						|| (!_otherParty || _player.partyid == _otherParty) && _player.partyflag == 2
-					)
-					{
-						clickParty(_player, 2);
-						delay(40);
-					}
-				}
-			}
-		}
-
 		delay(200);
 	}
 }
@@ -172,7 +135,7 @@ function NT_ManaWatch(mana)
 	}
 }
 
-// Internal function
+// Internal functions
 function NTLW_DrinkPotInt(type)
 {
 	var _pottype;
@@ -195,16 +158,16 @@ function NTLW_DrinkPotInt(type)
 	
 	switch(type)
 	{
-	case 0:
-	case 3:
-		_pottype = 76;		
-		break;
-	case 1:
-		_pottype = 77;
-		break;
-	default:
-		_pottype = 78;
-		break;
+		case 0:
+		case 3:
+			_pottype = 76;		
+			break;
+		case 1:
+			_pottype = 77;
+			break;
+		default:
+			_pottype = 78;
+			break;
 	}
 	
 	_potion = NTLW_GetPotionInt(_pottype);
@@ -241,4 +204,89 @@ function NTLW_GetPotionInt(pottype)
 	}
 
 	return false;
+}
+
+function inParty(who) //-getParty(id); id= "playerName" | player.gid | Unit(getUnit)
+{
+	return getParty(who).partyid != 65535; 
+}
+
+function noParty()
+{
+	var party=getParty();
+	if(party)
+	{
+		do
+		{
+			if(party.partyid!=65535)
+				return false;
+		} while(party.getNext());
+	}
+	return true;
+}
+
+function onlyPlayer()
+{
+	var player = getParty();
+	var numPlayers = 0;
+	if(player)
+	{ 
+		do
+		{ 
+			if(player.name != me.name) 
+				numPlayers++; 
+		} while (player.getNext()); 
+	}
+	return (numPlayers ? false : true);
+}
+
+function partyHandler(mode,player,param2,name1)
+{
+	if(NTConfig_PublicMode)
+	{
+		if(mode==2||(mode==7&&(param2==5||param2==9)))
+			party();
+	}
+}
+
+function scriptMessageHandler(msg)
+{
+	if (msg.toLowerCase() == "unparty")
+	{
+		NTConfig_PublicMode = false;
+		print("Unpartying")
+		if(inParty(me))
+		{
+			clickParty(getParty(me.name), 3)
+		}
+	}
+	if (msg.toLowerCase() == "party")
+	{
+		NTConfig_PublicMode = true;
+		print("Partying")
+		party()
+	}
+}
+
+function party()
+{
+	var party=getParty();
+	delay(1000);
+	if(party)
+	{
+		do
+		{
+			if(NTConfig_PublicMode && party.name!=me.name && (party.partyflag==2 && (party.partyid<9||noParty()) || party.partyid==0xFFFF && (inParty(me) || noParty()) && party.partyflag!=4))
+			{
+				if(party.partyflag==2) 
+					print('ÿc3Accepting invite from ÿc4'+party.name);
+				else 
+					print('ÿc3Inviting ÿc4'+party.name);
+				if(party)
+					clickParty(party,2);
+				delay(250);
+			}
+			delay(100);
+		}while(party&&party.getNext());
+	}
 }
