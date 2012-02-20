@@ -58,15 +58,6 @@ function main()
 	{
 		party();
 		addEventListener("gameevent",partyHandler);
-		delay(10000);
-		var noone = onlyPlayer();
-		delay(5000);
-		if(!inParty(me) && !onlyPlayer() && !noone)
-		{ 
-			print("ÿc1 Failed to Party! will leave and come back"); 
-			delay(1500); 
-			quit(); 
-		}
 	}
 	
 	addEventListener("scriptmsg", scriptMessageHandler);
@@ -223,21 +214,6 @@ function noParty()
 		} while(party.getNext());
 	}
 	return true;
-}
-
-function onlyPlayer()
-{
-	var player = getParty();
-	var numPlayers = 0;
-	if(player)
-	{ 
-		do
-		{ 
-			if(player.name != me.name) 
-				numPlayers++; 
-		} while (player.getNext()); 
-	}
-	return (numPlayers ? false : true);
 }
 
 function partyHandler(mode,player,param2,name1)
