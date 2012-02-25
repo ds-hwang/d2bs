@@ -6,6 +6,8 @@ Learn more about it at http://forums.d2jsp.org/index.php?showtopic=62749&st=10
 
 download it at http://scripts.d2jsp.org/index.php?pid=3&a=vp&did=476
 
+I use the dark powers of knowledge, and the magic fingers of wisdom...
+so... do no try to do it by yourself
 
 -->
 <html>
@@ -13,7 +15,7 @@ download it at http://scripts.d2jsp.org/index.php?pid=3&a=vp&did=476
 <script src="Data.js"></script>
 <script>
 
-	var scriptsfile_version=1.8;
+	var scriptsfile_version=1.9;
 
 	//There is two ways to see the character's items (detailed shows images and the info more visible)
 	var isDetailedShow=true;
@@ -32,6 +34,7 @@ var strItemFoundCol="#20C020";
 var strSrchCharCol="#0000FF";
 var strSrchDataCol="#FFFFFF";
 var strSrchFoundCol=strItemFoundCol;
+var strSrchFoundCol2="#404060";
 
 var strTableCol1="#373D24";
 var strTableCol2="#24353D";
@@ -93,787 +96,1009 @@ function SortItemsFunc(a, b){
 function SortData(aArray){
 	aArray.sort(SortNamesFunc);
 	for(var iCz=0; iCz<aArray.length; iCz++){
-		aArray[iCz].inventory.sort(SortItemsFunc);
+		if(aArray[iCz]){
+			//window.alert(aArray[iCz].toString()+" "+iCz);
+			aArray[iCz].inventory.sort(SortItemsFunc);
+		}
 	}
 }
 
-SortData(SearchData);
+
+
+	//Function used by buttons, to sellect all, none or invert
+	function setSearch(iType){
+		//1=all 2=none 3=invert
+
+		var strLastAccount="";
+		var iC=0;
+		var iCount=0;
+		for(iC=0; iC<SearchData.length; iC++){
+			if(SearchData[iC]){
+				var strAccount=SearchData[iC].account;
+				if(strLastAccount!=strAccount){
+					strLastAccount=strAccount;
+					iCount=0;
+				}
+
+				var strCheck="selectChar"+strLastAccount+(iCount);
+				var iCheck=parent.control.document.getElementById(strCheck);
+				if(iCheck){
+					switch(iType){
+						case 1:
+							iCheck.checked=true;
+						break;
+						case 2:
+							iCheck.checked=false;
+						break;
+						case 3:
+							iCheck.checked=!iCheck.checked;
+						break;
+						//iCheck.indeterminate=true;
+					}
+				}
+				iCount++;
+			}
+			UpdateGroupCheckBox(strAccount);
+		}
+	}
+
+	//Update the checkbox of the account (usefull when in the same account are selected and not)
+	function UpdateGroupCheckBox(strAccount){
+		var strGroupCheck = "CharGroup_" + strAccount;
+		var iGroupCheck	= parent.control.document.getElementById(strGroupCheck);
+
+		if(!iGroupCheck){
+			//window.alert("Error Grave!!!! no hay boton: "+strGroupCheck+" \n"+iGroupCheck);
+			return;
+		}
+
+		var isAll=true;
+		var isNone=true;
+		for(var i=0; i<8; i++ ) {
+			var strCheck = "selectChar"+strAccount+(i);
+			var iCheck = parent.control.document.getElementById(strCheck);
+			if(iCheck){
+				isAll=(isAll && iCheck.checked==true);
+				isNone=(isNone && iCheck.checked==false);
+			}
+		}
+		
+		iGroupCheck.indeterminate = false;
+		
+		if(isAll && isNone) {
+			window.alert("Error Grave!!!!");
+		} else if(!isAll && isNone) {
+			//window.alert("Ninguno");
+			iGroupCheck.checked=false;
+		} else if(isAll && !isNone) {
+			//window.alert("Todos");
+			iGroupCheck.checked=true;
+		} else {
+			//window.alert("Algunos");
+			iGroupCheck.checked=false;
+			iGroupCheck.indeterminate = true;
+		}
+	}
+	
+	//Set all chars in a account the same that the account, to select in block
+	function switchGroup(strAccount) {
+		var strGroupCheck = "CharGroup_" + strAccount;
+		var iGroupCheck	= parent.control.document.getElementById(strGroupCheck);
+		if(!iGroupCheck){
+			window.alert("Error Grave!!!! no hay boton: "+strGroupCheck);
+			return;
+		}
+		var iValue = iGroupCheck.checked;
+
+		for(var i=0; i<8; i++ ) {
+			var strCheck = "selectChar"+strAccount+(i);
+			var iCheck = parent.control.document.getElementById(strCheck);
+			if(iCheck){
+				iCheck.checked=iValue;
+			}
+		}
+		return setDisplayAccount(strAccount, true);
+	}
+	//Show/hide all chars from the same account (explicit)
+	function setDisplayAccount(strAccount, isSet){
+		var strID=strAccount+"_block";
+		iPlayer=parent.control.document.getElementById(strID);
+		if(iPlayer){
+			if( isSet ){
+				iPlayer.style.display = "";
+			} else {
+				iPlayer.style.display = "none";
+			}
+		}
+	}
+	
+	//Show/hide all chars from the same account (switcher)
+	function switchPlayers(strAccount){
+		var strID=strAccount+"_block";
+		iPlayer=parent.control.document.getElementById(strID);
+		if(iPlayer){
+			strStatus = iPlayer.style.display;
+			if( strStatus == "none" ){
+				iPlayer.style.display = "";
+			} else {
+				iPlayer.style.display = "none";
+			}
+		}
+	}
+	
+
+
 
 //Max str size to show when found in a search
 var iStrMax=200;
 
 
-//Return a string with info about char with the format: (TIME) ACCOUNT NAME [HC/SC]
-function GetStringWithData(iCharIndex){
-	if(iCharIndex<0 || iCharIndex>=SearchData.length)
-		return "";
-
-	var strData="";
-	strData+="<font size=\"+1\">";
-	
-	if(SearchData[iCharIndex].time!="")
-		strData+="<font size=\"-1\" color=\"#B08080\">("+SearchData[iCharIndex].time+")</font> ";
-
-	strData+=SearchData[iCharIndex].account;
-	
-
-	var strNameCol="#8FFF6F";
-	var strType="[SC]";
-	if(SearchData[iCharIndex].type==1){
-		strNameCol="#FF6060";
-		strType="[HC]";
-	}
-
-	strData+=" <font color=\""+strNameCol+"\">"+SearchData[iCharIndex].name+"</font> ";
-	
-	strData+="<font color=\""+strNameCol+"\">"+strType+"</font>";
-	
-	
-	strData+="</font>";
-	return strData;
-}
+	//Return a string with info about char with the format: (TIME) ACCOUNT NAME [HC/SC]
+	function GetStringWithData(iCharIndex){
+		if(iCharIndex<0 || iCharIndex>=SearchData.length)
+			return "";
+		
+		if(!SearchData[iCharIndex])
+			return "";
 
 
-function showDetailLink(isSet){
-	var strText="";
-	if(isSet==true) {
-		if(isDetailedShow!=true) {
-			strText="[LOW]";
-		} else {
-			strText="[HIGH]";
+		var strData="";
+		strData+="<font size=\"+1\">";
+
+		if(SearchData[iCharIndex].time!="")
+			strData+="<font size=\"-1\" color=\"#B08080\">("+SearchData[iCharIndex].time+")</font> ";
+		strData+=SearchData[iCharIndex].account;
+
+		var strNameCol="#8FFF6F";
+		var strType="[SC]";
+		if(SearchData[iCharIndex].type==1){
+			strNameCol="#FF6060";
+			strType="[HC]";
 		}
-	} else {
-		strText="";
-	}
-	parent.frames.control.document.getElementById("switch_detail").innerHTML=strText;
-}
 
-function showModeLink(isSet){
-	var strText="";
-	if(isSet==true) {
-		if(iShowGraphics!=true) {
-			strText="[TEXT]";
-			showDetailLink(true);
+		strData+=" <font color=\""+strNameCol+"\">"+SearchData[iCharIndex].name+"</font> ";
+
+		strData+="<font color=\""+strNameCol+"\">"+strType+"</font>";
+
+		strData+="</font>";
+		return strData;
+	}
+
+
+	function showDetailLink(isSet){
+		var strText="";
+		if(isSet==true) {
+			if(isDetailedShow!=true) {
+				strText="[LOW]";
+			} else {
+				strText="[HIGH]";
+			}
 		} else {
-			strText="[GRAPHIC]";
+			strText="";
+		}
+		parent.frames.control.document.getElementById("switch_detail").innerHTML=strText;
+	}
+
+	function showModeLink(isSet){
+		var strText="";
+		if(isSet==true) {
+			if(iShowGraphics!=true) {
+				strText="[TEXT]";
+				showDetailLink(true);
+			} else {
+				strText="[GRAPHIC]";
+				showDetailLink(false);
+			}
+		} else {
+			strText="";
 			showDetailLink(false);
 		}
-	} else {
-		strText="";
-		showDetailLink(false);
-	}
-	parent.frames.control.document.getElementById("switch_mode").innerHTML=strText;
-}
-
-function setDetailLevel(isSet){
-	isDetailedShow=isSet;
-}
-
-function setShowMode(isSet){
-	iShowGraphics=isSet;
-}
-
-
-function showDetailed(){
-	setDetailLevel(!isDetailedShow);
-	if(iIndexShowed!=-1)
-		ChangeChar(iIndexShowed);
-}
-
-//Switch modes Graphics/Text
-function showItems(){
-	setShowMode(!iShowGraphics);
-	if(iIndexShowed!=-1)
-		ChangeChar(iIndexShowed);
-}
-
-//Switch acroos characters
-function ChangeChar(iSelectedChar){
-	showModeLink(true);
-	iIndexShowed=iSelectedChar;
-	var strCharData=SearchDataRealm+"_"+SearchData[iSelectedChar].account+"_"+SearchData[iSelectedChar].name;
-	WriteNameData(GetStringWithData(iSelectedChar));
-	if(iShowGraphics){
-		strURL="invripper_"+strCharData+".html";
-		parent.frames.inventory.location=strURL;
-	}else{
-		//window.alert("texto de "+strSection);
-		WriteTextOf(iSelectedChar); //, strSearch);
-	}
-	parent.control.document.searchs.TextSeach.focus();
-}
-
-//Shows all Names of characters avaliable
-function WriteInitStuff(){
-	WriteControlPage();
-	//WriteNames();
-	WriteNameData("<h2>Select a character</h2>");
-	parent.control.searchs.TextSeach.focus();
-	
-	var iElem2=parent.inventory.document;
-	iElem2.open();
-	iElem2.write(parent.code.WriteHeader());
-	iElem2.write("<table width=\"100%\" height=\"100%\"><tr><td align=\"center\" valign=\"middle\">");
-	iElem2.write("<h1>Select a character</h1>");
-	iElem2.write("</td></tr></table>");
-	iElem2.write("</BODY></HTML>");
-	iElem2.close();
-	
-	showDetailLink(false);
-	showModeLink(false);
-
-}
-
-
-
-//Common Header
-function WriteHeader(){
-	var strResult="";
-	strResult+="<HTML><HEAD>\n";
-	strResult+="<style type=\"text/css\">\n";
-	strResult+="body, a, table, td {\n";
-	strResult+="	font-family : verdana, helvetica;\n";
-	strResult+="	font-weight : bold;\n";
-	strResult+="	font-style : normal;\n";
-	strResult+="	text-indent : 0;\n";
-	strResult+="	text-decoration : none;\n";
-	strResult+="	font-size : 12;\n";
-	strResult+="	color : #FFFFFF;\n";
-	strResult+="}\n";
-	strResult+="</style>\n";
-	strResult+="</HEAD><BODY bgcolor=\"#000000\">\n";
-	return strResult;
-}
-
-//Shows the name of the character in the bottom frame
-function WriteNameData(strSection){
-	
-	var iWriter=parent.frames.names.document;
-	iWriter.open();
-	iWriter.write(WriteHeader());
-	if(strSection){
-		iWriter.write("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"1\">\n");
-	
-		iWriter.writeln("<tr><td bgcolor=\"#000000\" align=\"center\">\n");
-		iWriter.writeln(strSection);
-		iWriter.writeln("</td></tr>");
-		iWriter.writeln("</table>\n");
-
-	}
-	iWriter.writeln("</BODY></HTML>\n");
-	iWriter.close();
-}
-
-//a .replace like function
-function ReplaceString(iName, strSearched){
-	var strNew=iName.split(strSearched);
-	var iC=0;
-	var strResult="";
-	//window.alert(strNew.length);
-	
-	while(iC<strNew.length){
-		strResult+=strNew[iC];
-		if(iC!=(strNew.length-1))
-			strResult+="<font color=\""+strItemFoundCol+"\">"+strSearched+"</font>";
-		iC++;
-	}
-	return strResult;
-}
-
-function cleanSearch(){
-	strSearchLine1="";
-	strSearchLine2="";
-	parent.control.document.searchs.TextSeach.value="";
-	if(iIndexShowed!=-1)
-		WriteTextOf(iIndexShowed);
-}
-
-//Shows the items of the character  "iShowedName"  in text mode and can HighLigth a "strSearched" string
-function WriteTextOf(iShowedName){ //, strSearched, strSearched2){
-	
-	if(iShowedName<0 || iShowedName>=SearchData.length){
-		window.alert("Error: "+iShowedName+" top: "+SearchData.length);
-		return;
-	}
-	
-	var strSearched="";
-	var strSearched2="";
-
-	strSearched=strSearchLine1;
-	strSearched2=strSearchLine2;
-
-	//window.alert(strSearched+" = "+strSearchLine1+"\n"+strSearched2+" = "+strSearchLine2);
-
-	if(strSearched){
-		strSearched=strSearched.toLowerCase();
+		parent.frames.control.document.getElementById("switch_mode").innerHTML=strText;
 	}
 
-	if(strSearched2){
-		strSearched2=strSearched2.toLowerCase();
+	function setDetailLevel(isSet){
+		isDetailedShow=isSet;
 	}
 
-	if(strSearched && strSearched2){
-		if(strSearched2.length < strSearched.length){
-			strAux=strSearched;
-			strSearched=strSearched2;
-			strSearched2=strAux;
+	function setShowMode(isSet){
+		iShowGraphics=isSet;
+	}
+
+	//Changes the detail and Show items
+	function showDetailed(){
+		setDetailLevel(!isDetailedShow);
+		if(iIndexShowed!=-1)
+			ChangeChar(iIndexShowed);
+	}
+
+	//Changes modes Graphics/Text and Show items
+	function showItems(){
+		setShowMode(!iShowGraphics);
+		if(iIndexShowed!=-1)
+			ChangeChar(iIndexShowed);
+	}
+
+	//set highlighed name to standar
+	function hideSelectedChar(){
+		var strOldIDCell="";
+		if(iIndexShowed>=0 && iIndexShowed<SearchData.length)
+			strOldIDCell=SearchData[iIndexShowed].name+"_cell";
+			
+		var iOldCell=parent.control.document.getElementById(strOldIDCell);
+		if(iOldCell){
+			iOldCell.style.backgroundColor = strTableCol1;
 		}
 	}
-
-
-	//var iLong=SearchData[iShowedName].length/2;
-	var iWriter=parent.frames.inventory.document;
-	var iName, iStat;
 	
-	iWriter.open();
-	iWriter.write(WriteHeader());
-	
-	
-	iWriter.write("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"0\"><tr><td bgcolor=\"#808080\">\n");
-	iWriter.write("\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"1\">\n");
+	//Highligth the name of char selected
+	function showSelectedChar(iSelectedChar){
+		if(iSelectedChar==iIndexShowed)
+			return;
+		var strNewIDCell="";
+		var strOldIDCell="";
+		if(iSelectedChar>=0 && iSelectedChar<SearchData.length)
+			strNewIDCell=SearchData[iSelectedChar].name+"_cell";
+		if(iIndexShowed>=0 && iIndexShowed<SearchData.length)
+			strOldIDCell=SearchData[iIndexShowed].name+"_cell";
+		var iNewCell=parent.control.document.getElementById(strNewIDCell);
+		var iOldCell=parent.control.document.getElementById(strOldIDCell);
 
-	iWriter.write("\t<tr><td bgcolor=\""+strTableCol1+"\" align=\"center\" colspan=\"2\">");
-	iWriter.write("<font color=\""+strItemTitleCol+"\">");
-	iWriter.write("["+SearchData[iShowedName].name+"]");
-	iWriter.write("</font>");
-	iWriter.write("</td></tr>\n");
+		if(iOldCell){
+			iOldCell.style.backgroundColor = strTableCol1;
+		}
 
-	
-	for(iC=0; iC<SearchData[iShowedName].inventory.length; iC++){
-		var strName=SearchData[iShowedName].inventory[iC].name;
-		var strStats=SearchData[iShowedName].inventory[iC].stats;
-		var strNewTableCol2=strTableCol2;
-		//var strNewTableCol2="#000000";
-		var strNewTableCol1=strTableCol1;
+		if(iNewCell){
+			iNewCell.style.backgroundColor = strSrchFoundCol2;
+		}
 		
+	}
+
+	//Switch acroos characters
+	function ChangeChar(iSelectedChar){
+
+		//HighLigth char name on menu!!
+		showSelectedChar(iSelectedChar);
+
+		//Set links on mode and detail
+		showModeLink(true);
+		iIndexShowed=iSelectedChar;
+		
+		//Get html file name
+		var strCharData=SearchDataRealm+"_"+SearchData[iSelectedChar].account+"_"+SearchData[iSelectedChar].name;
+		
+		//Show name and info about char in bottom
+		WriteNameData(GetStringWithData(iSelectedChar));
+		
+		//Show char items
+		if(iShowGraphics){
+			strURL="invripper_"+strCharData+".html";
+			parent.frames.inventory.location=strURL;
+		}else{
+			//window.alert("texto de "+strSection);
+			WriteTextOf(iSelectedChar); //, strSearch);
+		}
+		parent.control.document.searchs.TextSeach.focus();
+		
+	
+	}
+
+
+
+	//Shows the name of the character in the bottom frame
+	function WriteNameData(strSection){
+		var iWriter=parent.frames.names.document;
+		iWriter.open();
+		iWriter.write(WriteHeader());
+		if(strSection){
+			iWriter.write("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"1\">\n");
+			iWriter.writeln("<tr><td bgcolor=\"#000000\" align=\"center\">\n");
+			iWriter.writeln(strSection);
+			iWriter.writeln("</td></tr>");
+			iWriter.writeln("</table>\n");
+		}
+		iWriter.writeln("</BODY></HTML>\n");
+		iWriter.close();
+	}
+
+	//a .replace like function
+	function ReplaceString(iName, strSearched){
+		var strNew=iName.split(strSearched);
+		var iC=0;
+		var strResult="";
+		//window.alert(strNew.length);
+		while(iC<strNew.length){
+			strResult+=strNew[iC];
+			if(iC!=(strNew.length-1))
+				strResult+="<font color=\""+strItemFoundCol+"\">"+strSearched+"</font>";
+			iC++;
+		}
+		return strResult;
+	}
+
+	function cleanSearch(){
+		strSearchLine1="";
+		strSearchLine2="";
+		parent.control.document.searchs.TextSeach.value="";
+		if(iIndexShowed!=-1)
+			WriteTextOf(iIndexShowed);
+	}
+
+	//Shows the items of the character  "iShowedName"  in text mode and can HighLigth a "strSearched" string
+	function WriteTextOf(iShowedName){ //, strSearched, strSearched2){
+		if(iShowedName<0 || iShowedName>=SearchData.length){
+			window.alert("Error: "+iShowedName+" top: "+SearchData.length);
+			return;
+		}
+		var strSearched="";
+		var strSearched2="";
+
+		strSearched=strSearchLine1;
+		strSearched2=strSearchLine2;
+
+		if(strSearched)
+			strSearched=strSearched.toLowerCase();
+
+		if(strSearched2)
+			strSearched2=strSearched2.toLowerCase();
+
 		if(strSearched && strSearched2){
-			var strName2=SearchData[iShowedName].inventory[iC].name.toLowerCase();
-			var strStats2=SearchData[iShowedName].inventory[iC].stats.toLowerCase();
-			var isNamed=false;
-			var isStated=false;
-			if(strSearched2.indexOf(strSearched)!=-1){
-				//Buscamos por el nombre
-				if(strName2.indexOf(strSearched2)!=-1){
-					strName2=ReplaceString(strName2, strSearched2);
-					strNewTableCol2="#606040";
-					strNewTableCol1="#606040";
-					isNamed=true;
-				}else if(strName2.indexOf(strSearched)!=-1){	//y si no esta buscamos por la cadena
-					strName2=ReplaceString(strName2, strSearched);
-					strNewTableCol2="#404060";
-					isNamed=true;
+			if(strSearched2.length < strSearched.length){
+				strAux=strSearched;
+				strSearched=strSearched2;
+				strSearched2=strAux;
+			}
+		}
+
+		var iWriter=parent.frames.inventory.document;
+		var iName, iStat;
+
+		iWriter.open();
+		iWriter.write(WriteHeader());
+
+		iWriter.write("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"0\"><tr><td bgcolor=\"#808080\">\n");
+		iWriter.write("\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"1\">\n");
+
+		iWriter.write("\t<tr><td bgcolor=\""+strTableCol1+"\" align=\"center\" colspan=\"2\">");
+		iWriter.write("<font color=\""+strItemTitleCol+"\">");
+		iWriter.write("["+SearchData[iShowedName].name+"]");
+		iWriter.write("</font>");
+		iWriter.write("</td></tr>\n");
+
+		var iCFound=0;
+		for(iC=0; iC<SearchData[iShowedName].inventory.length; iC++){
+			var strName=SearchData[iShowedName].inventory[iC].name;
+			var strStats=SearchData[iShowedName].inventory[iC].stats;
+			var strNewTableCol2=strTableCol2;
+			var strNewTableCol1=strTableCol1;
+			
+			if(strSearched && strSearched2){
+				var strName2=SearchData[iShowedName].inventory[iC].name.toLowerCase();
+				var strStats2=SearchData[iShowedName].inventory[iC].stats.toLowerCase();
+				var isNamed=false;
+				var isStated=false;
+				if(strSearched2.indexOf(strSearched)!=-1){
+					//Buscamos por el nombre
+					if(strName2.indexOf(strSearched2)!=-1){
+						strName2=ReplaceString(strName2, strSearched2);
+						strNewTableCol2="#606040";
+						strNewTableCol1="#606040";
+						isNamed=true;
+					}else if(strName2.indexOf(strSearched)!=-1){	//y si no esta buscamos por la cadena
+						strName2=ReplaceString(strName2, strSearched);
+						strNewTableCol2=strSrchFoundCol2;
+						isNamed=true;
+					}
+					//Buscamos por el nombre
+					if(strStats2.indexOf(strSearched2)!=-1){
+						strStats2=ReplaceString(strStats2, strSearched2);
+						strNewTableCol1="#606040";
+						isStated=true;
+					} else if(strStats2.indexOf(strSearched)!=-1){	//y si no esta buscamos por la cadena
+						strStats2=ReplaceString(strStats2, strSearched);
+						strNewTableCol1=strSrchFoundCol2;
+						isStated=true;
+					}
+				} else {
+					//Buscamos por la cadena introducida
+					if(strName2.indexOf(strSearched)!=-1){
+						strName2=ReplaceString(strName2, strSearched);
+						strNewTableCol2=strSrchFoundCol2;
+						isNamed=true;
+					}
+					if(strStats2.indexOf(strSearched)!=-1){
+						strStats2=ReplaceString(strStats2, strSearched);
+						strNewTableCol1=strSrchFoundCol2;
+						isStated=true;
+					}
+					//Buscamos por el nombre
+					if(strName2.indexOf(strSearched2)!=-1){
+						strName2=ReplaceString(strName2, strSearched2);
+						strNewTableCol2="#606040";
+						strNewTableCol1="#606040";
+						isNamed=true;
+					} else if(strStats2.indexOf(strSearched2)!=-1){
+						strStats2=ReplaceString(strStats2, strSearched2);
+						strNewTableCol1="#606040";
+						isStated=true;
+					}
 				}
-				//Buscamos por el nombre
-				if(strStats2.indexOf(strSearched2)!=-1){
-					strStats2=ReplaceString(strStats2, strSearched2);
-					strNewTableCol1="#606040";
-					isStated=true;
-				} else if(strStats2.indexOf(strSearched)!=-1){	//y si no esta buscamos por la cadena
-					strStats2=ReplaceString(strStats2, strSearched);
-					strNewTableCol1="#404060";
-					isStated=true;
-				}
-			} else {
-				//Buscamos por la cadena introducida
+				if(isNamed)
+					strName=strName2;
+				if(isStated)
+					strStats=strStats2;
+				if(isNamed || isStated)
+					iCFound++;
+				
+			}else if(strSearched){
+				var strName2=SearchData[iShowedName].inventory[iC].name.toLowerCase();
+				var strStats2=SearchData[iShowedName].inventory[iC].stats.toLowerCase();
+				var isNamed=false;
+				var isStated=false;
+
 				if(strName2.indexOf(strSearched)!=-1){
 					strName2=ReplaceString(strName2, strSearched);
-					strNewTableCol2="#404060";
+					strNewTableCol2=strSrchFoundCol2;
 					isNamed=true;
 				}
-				if(strStats2.indexOf(strSearched)!=-1){
+				if(strStats2.indexOf(strSearched)!=-1){	//y si no esta buscamos por la cadena
 					strStats2=ReplaceString(strStats2, strSearched);
-					strNewTableCol1="#404060";
+					strNewTableCol1=strSrchFoundCol2;
 					isStated=true;
 				}
-				
-				//Buscamos por el nombre
-				if(strName2.indexOf(strSearched2)!=-1){
-					strName2=ReplaceString(strName2, strSearched2);
-					strNewTableCol2="#606040";
-					strNewTableCol1="#606040";
-					isNamed=true;
-				} else if(strStats2.indexOf(strSearched2)!=-1){
-					strStats2=ReplaceString(strStats2, strSearched2);
-					strNewTableCol1="#606040";
-					isStated=true;
-				}
-			}
-			if(isNamed)
-				strName=strName2;
-			if(isStated)
-				strStats=strStats2;
+				if(isNamed)
+					strName=strName2;
+				if(isStated)
+					strStats=strStats2;
+				if(isNamed || isStated)
+					iCFound++;
 
-		}
-
-		var strNewItemTitleCol=strItemTitleCol;
-		if(SearchData[iShowedName].inventory[iC].type!=-1)
-			var strNewItemTitleCol=strColorTable[SearchData[iShowedName].inventory[iC].type-1];
-
-
-		strStats=strStats.replace(/\\/g, "");
-		strName=strName.replace(/\\/g, "");
-		if(isDetailedShow){
-			//window.alert(strItemName+" = "+strSearchLine1+"\n"+strItemName2+" = "+strSearchLine2);
-			var strImgBGcolor="#000000";	
-			/*
-			if(isStated==true && isNamed==true){
-				strImgBGcolor="#404060";
-				//window.alert("Found");
-			}
-			*/
-		
-			if(iC%2==0){
-				iWriter.write("\t<tr>");
-			}
-			iWriter.write("\t<td width=\"50%\">\n");
-	
-			iWriter.write("\t\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-			iWriter.write("\t\t<tr><td bgcolor=\""+strImgBGcolor+"\" width=\"1px\" height=\"1px\" align=\"center\" valign=\"middle\" rowspan=\"2\">\n");
-			iWriter.write("\t\t\t<img src=\""+SearchData[iShowedName].inventory[iC].file+"\" align=\"center\" valign=\"middle\"/>\n");
-			iWriter.write("\t\t</td>\n");
-	
-			iWriter.write("\t\t<td bgcolor=\""+strNewTableCol2+"\" height=\"1px\" align=\"center\" valign=\"middle\" >\n");
-			iWriter.write("\t\t\t<font color=\""+strNewItemTitleCol+"\">\n");
-			iWriter.write(strName);
-			iWriter.write("\t\t\t</font>\n");
-			iWriter.write("\t\t</td></tr>\n");
-	
-			iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol1+"\" height=\"100%\" align=\"center\" valign=\"middle\" >\n");
-			iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
-			var pAllStats=strStats.split(",");
-			for(i=0; i<pAllStats.length; i++)
-				iWriter.write(pAllStats[i]+"<br/>\n");
-			iWriter.write("\t\t\t</font>\n");
-			iWriter.write("\t\t</td></tr>\n");
-			iWriter.write("\t\t</table>\n");
-	
-	
-			iWriter.write("\t</td>\n");
-			if(iC%2!=0){
-				iWriter.write("\t</tr>\n");
-			}
-		}else{
-	
-			iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol2+"\" height=\"1px\" align=\"left\" valign=\"middle\" >\n");
-			iWriter.write("\t\t\t<font color=\""+strNewItemTitleCol+"\">\n");
-			iWriter.write(strName);
-			iWriter.write("\t\t\t</font>\n");
-			iWriter.write("\t\t</td></tr>\n");
-	
-			iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol1+"\" height=\"1px\" align=\"left\" valign=\"middle\" >\n");
-			iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
-			iWriter.write(strStats);
-			iWriter.write("\t\t\t</font>\n");
-			iWriter.write("\t\t</td></tr>\n");
-		}		
-		
-	}
-
-	if(isDetailedShow) {
-		if(iC%2!=0){
-			iWriter.write("<td bgcolor=\"#000000\"></td></tr>\n");
-		}
-	}
-
-
-	iWriter.write("<tr><td bgcolor=\""+strTableCol2+"\" align=\"right\" colspan=\"2\">\n");
-	iWriter.write("<font color=\""+strItemTitleCol+"\">");
-	iWriter.write("Total Items: "+(SearchData[iShowedName].inventory.length));
-	iWriter.write("</font>");
-	iWriter.writeln("</td></tr>");
-
-
-	iWriter.writeln("</table>\n");
-	iWriter.writeln("</td></tr></table>\n");
-	iWriter.writeln("</BODY></HTML>");
-	iWriter.close();
-	parent.control.document.searchs.TextSeach.focus();
-	
-}
-
-
-//Calls to the Character Text mode after a search
-function ShowSearchResult(iCharIndex, strItemName, strItemName2){
-	iIndexShowed=iCharIndex;
-	var strName=GetStringWithData(iCharIndex);
-	WriteNameData(strName);
-	strSearchLine1=strItemName;
-	strSearchLine2=strItemName2;
-	WriteTextOf(iIndexShowed);//, strItemName, strItemName2);
-	setShowMode(false);
-	showModeLink(true);
-
-}
-
-
-function AddResult(aInventory, oItem){
-	var iC=0;
-	var isFound=false;
-	for(iC=0; iC<aInventory.length; iC++){
-		if(aInventory[iC].name==oItem.name && aInventory[iC].stats==oItem.stats){
-			isFound=true;
-			iPos=iC;
-			break;
-		}
-	}
-	
-	if(!isFound){
-		//aInventory[iC]= new CreateItem(oItem.name, oItem.stats, oItem.file, oItem.type);
-		aInventory[iC]=oItem;
-		aInventory[iC].found=1;
-		iPos=-1;
-	}else{
-		aInventory[iPos].found++;
-	}
-	return iPos;
-}
-
-//Generate a html with the searchs
-function searchText(){
-	var searchString=parent.control.document.getElementById("TextSeach").value;
-	var isByName=parent.control.document.getElementById("SeachByName").checked;
-	var isByStat=parent.control.document.getElementById("SeachByStat").checked;
-	var Results=new Array();
-	
-	
-	if(!isByName && !isByStat)
-		return;
-	
-	if(searchString=="" || searchString.length<3){
-		return;
-	}
-
-	showModeLink(false);
-	searchString=searchString.replace(/\\/g, "");
-	searchString=searchString.replace(/\'/g, "\\\'");
-	searchString=searchString.replace(/\"/g, "\\\"");
-	
-	searchString=searchString.toLowerCase();
-	
-	var iTimeStart=new Date();
-	
-	var iC=0;
-	var iC2=0;
-	var iC3=0;
-	var iFound;
-	//var iArrayNames=SortArrayByIndex(SearchData);
-	var iCharPos=0;
-	for(iC=0; iC<SearchData.length; iC++){
-		var iItemPos=0;
-		var iLastCharPos=-1;
-		var isFoundStats=false;
-		var isFoundName=false;
-
-		for(iC2=0; iC2<SearchData[iC].inventory.length; iC2++){
-
-			SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\\/g, "");
-			SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\'/g, "\\\'");
-			SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\"/g, "\\\"");
-			SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\\/g, "");
-			SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\'/g, "\\\'");
-			SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\"/g, "\\\"");
-			
-			isFoundStats=false;
-			isFoundName=false;
-			strNameText=SearchData[iC].inventory[iC2].name.toLowerCase();
-			strStatText=SearchData[iC].inventory[iC2].stats.toLowerCase();
-			
-			if(isByStat==true){
-				if((iPos=strStatText.indexOf(searchString))!=-1){
-					isFoundStats=true;
-				}
-			}
-			if(isByName==true){
-				if((iPos=strNameText.indexOf(searchString))!=-1){
-					isFoundName=true;
-				}
 			}
 
-			if(isFoundStats || isFoundName){
-				if(iLastCharPos==-1){
-					iLastCharPos=iCharPos;
-					iCharPos++;
-				}
-				
-				if(!Results[iLastCharPos]){
-					Results[iLastCharPos]=new CreatePlayer(SearchData[iC].name, SearchData[iC].account, SearchData[iC].type, SearchData[iC].time);
-					Results[iLastCharPos].realindex=iC;
-				}
-				
-				if(iLastCharPos!=-1){
-					AddResult(Results[iLastCharPos].inventory, SearchData[iC].inventory[iC2]);
-				}
-			}
-			//SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\\/g, "");
-		}
-	}
-	
-
-	var iTimeMiddle=new Date();	
-	WriteResultsPage(Results, searchString);
-	var iTimeEnd=new Date();
-	
-	
-	iTimeSearch=iTimeMiddle.getTime()-iTimeStart.getTime();
-	iTimeSearch/=1000;
-	iTimeFormat=iTimeEnd.getTime()-iTimeMiddle.getTime();
-	iTimeFormat/=1000;
-	
-	var strStatSearch="[Select a character] <font color=\"#FF0000\">Search:</font><font color=\"#C0C0FF\"> "+iTimeSearch+"s.</font><font color=\"#FF0000\"> Format:</font><font color=\"#C0C0FF\"> "+iTimeFormat+"s.</font><font color=\"#FF0000\"> Total: </font><font color=\"#C0C0FF\">"+(iTimeSearch+iTimeFormat)+"s.</font>";
-	WriteNameData(strStatSearch);
-	
-	searchString=searchString.replace(/\\/g, "");
-	parent.control.document.getElementById("TextSeach").value=searchString;
-	parent.control.document.getElementById("TextSeach").focus();
-	WriteNames();
-	
-	return false;
-}
-
-function OpenItemWindow(ItemDataName, ItemDataFile, ItemDataStats){
-	iWin=window.open("", "", "");
-	iWriter=iWin.document;
-	
-	iWriter.open();
-	iWriter.write(WriteHeader());
-	iWriter.write("\t\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
-	iWriter.write("\t\t<tr><td bgcolor=\"#000000\" width=\"1px\" height=\"1px\" align=\"center\" valign=\"middle\" rowspan=\"2\">\n");
-	iWriter.write("\t\t\t<img src=\""+ItemDataFile+"\" align=\"center\" valign=\"middle\"/>\n");
-	iWriter.write("\t\t</td>\n");
-	
-	iWriter.write("\t\t<td bgcolor=\""+strTableCol2+"\" height=\"1px\" align=\"center\" valign=\"middle\" >\n");
-	iWriter.write("\t\t\t<font color=\""+strItemTitleCol+"\">\n");
-	iWriter.write(ItemDataName);
-	iWriter.write("\t\t\t</font>\n");
-	iWriter.write("\t\t</td></tr>\n");
-	
-	iWriter.write("\t\t<tr><td bgcolor=\""+strTableCol1+"\" height=\"100%\" align=\"center\" valign=\"middle\" >\n");
-	iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
-	var pAllStats=ItemDataStats.split(",");
-	for(i=0; i<pAllStats.length; i++)
-		iWriter.write(pAllStats[i]+"<br/>\n");
-	iWriter.write("\t\t\t</font>\n");
-	iWriter.write("\t\t</td></tr>\n");
-	iWriter.write("\t\t</table>\n");
-
-	iWriter.writeln("</BODY></HTML>\n");
-	iWriter.close();
-
-}
-
-
-
-function WriteResultsPage(Results, searchString){
-	
-	SortData(Results);
-	
-	var iWriter=parent.frames.inventory.document;
-	iWriter.open();
-	iWriter.write(WriteHeader());
-	strScript="script";
-	strResult="";
-	strResult+="<"+strScript+">\n";
-	strResult+="function doOver(obj) {\n";
-	strResult+="	for(i=1; i<=3; i++){\n";
-	strResult+="		document.getElementById(\"c\"+i+obj).style.backgroundColor=\""+strTableCol1+"\";\n";
-	strResult+="	}\n";
-	strResult+="}\n";
-	strResult+="function doOut(obj) {\n";
-	strResult+="	for(i=1; i<=3; i++){\n";
-	strResult+="		document.getElementById(\"c\"+i+obj).style.backgroundColor=\""+strTableCol2+"\";\n";
-	strResult+="	}\n";
-	strResult+="}\n";
-	strResult+="</"+strScript+">\n";
-	//window.alert(strResult);
-	iWriter.write(strResult);
-
-	iWriter.writeln("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"1\"><tr><td bgcolor=\"#808080\">\n");
-	
-	iWriter.write("<table border=\"0\" width=\"100%\" cellpadding=\"0\" cellspacing=\"1\">\n");
-	iWriter.write("<tr><td bgcolor=\""+strTableCol2+"\">\n");
-	iWriter.write("Image\n");
-	iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
-	iWriter.write("Character\n");
-	iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
-	iWriter.write("Stats\n");
-	iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
-	iWriter.write("Quantity\n");
-	iWriter.write("</td></tr>\n");
-
-	var iC=0;
-	var iC2=0;
-	var iC3=0;
-	var iFontAdd=29;
-	for(iC=0; iC<Results.length; iC++){
-		
-		var strSrchCharCol="8FFF6F";
-		if(Results[iC].type==1){
-			strSrchCharCol="FF6060";
-		}
-	
-		for(iC2=0; iC2<Results[iC].inventory.length; iC2++){
-
-			var strResult="";
-			Results[iC].inventory[iC2].file=Results[iC].inventory[iC2].file.replace(/\\/g, "/");
-			var strItemName=Results[iC].inventory[iC2].name.toLowerCase();
-			var strItemDesc=Results[iC].inventory[iC2].stats.toLowerCase();
-			var iStringSize=searchString.length;
-			var iNameSize=strItemName.length;
-			
-
-			if((iStringPos=strItemDesc.indexOf(searchString))!=-1){
-				if((iNameSize+iStringSize+iFontAdd) > iStrMax){
-					strItemDesc=strItemDesc.substring(iStringPos, iStringPos+iStringSize);
-				}else{
-					iThresold=(iStrMax-(iNameSize+iStringSize+iFontAdd))/2;
-					strItemDesc=strItemDesc.substring(iStringPos-iThresold, iStringPos+iStringSize+iThresold);
-				}
-				strItemDesc="...<font color=\""+strItemStatsCol+"\">"+strItemDesc.replace(searchString, "<font color=\""+strSrchFoundCol+"\">"+searchString+"</font>")+"</font>...";
-			}else{
-				strItemDesc=strItemDesc.substring(0, iStrMax);
-				strItemDesc="...<font color=\""+strItemStatsCol+"\">"+strItemDesc+"</font>...";
-			}
-	
-			if((strItemName.indexOf(searchString))!=-1){
-				strItemName=strItemName.replace(searchString, "<font color=\""+strSrchFoundCol+"\">"+searchString+"</font/>");
-			}
-
-			
-			
-			//var strItemTitleCol=strColorTable[];
 			var strNewItemTitleCol=strItemTitleCol;
-			if(Results[iC].inventory[iC2].type!=-1)
-				var strNewItemTitleCol=strColorTable[Results[iC].inventory[iC2].type-1];
+			if(SearchData[iShowedName].inventory[iC].type!=-1)
+				var strNewItemTitleCol=strColorTable[SearchData[iShowedName].inventory[iC].type-1];
 
+			strStats=strStats.replace(/\\/g, "");
+			strName=strName.replace(/\\/g, "");
+			if(isDetailedShow){
+				var strImgBGcolor="#000000";	
 
-			//var strItemTitleCol=strColorTable[SearchData[iShowedName].inventory[iC].type];
-			strResult="<font color=\""+strNewItemTitleCol+"\">"+strItemName+":</font><br/>"+strItemDesc;
+				if(iC%2==0){
+					iWriter.write("\t<tr>");
+				}
+				iWriter.write("\t<td width=\"50%\">\n");
 
-			
-			iWriter.write("<tr>\n");
-			
-			var iCharIndex=(Results[iC].realindex);
-			iWriter.write("<td bgcolor=\"#000000\" align=\"center\" valign=\"middle\">\n");
-			iWriter.write("<a href=\"#\" onclick=\"javascript:parent.code. OpenItemWindow('"+Results[iC].inventory[iC2].name+"', '"+Results[iC].inventory[iC2].file+"', '"+Results[iC].inventory[iC2].stats+"');\">");
-			iWriter.write("<img border=\"0\" src=\""+Results[iC].inventory[iC2].file+"\"/>\n");
-			iWriter.write("</a>\n");
-			iWriter.write("</td>\n");
+				iWriter.write("\t\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+				iWriter.write("\t\t<tr><td bgcolor=\""+strImgBGcolor+"\" width=\"1px\" height=\"1px\" align=\"center\" valign=\"middle\" rowspan=\"2\">\n");
+				iWriter.write("\t\t\t<img src=\""+SearchData[iShowedName].inventory[iC].file+"\" align=\"center\" valign=\"middle\"/>\n");
+				iWriter.write("\t\t</td>\n");
 
-			
-			iWriter.write("<td id=\"c1"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
-			strResult=strResult.replace(/\\/g, "");
-			iWriter.write("<a href=\"#\" onclick=\"javascript:parent.code.ShowSearchResult("+iCharIndex+", '"+searchString+"', '"+Results[iC].inventory[iC2].name+"');\"><font color=\""+strSrchCharCol+"\">"+Results[iC].name+"</font></a>\n");
-			iWriter.write("</td><td id=\"c2"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
-			iWriter.write("<font color=\""+strSrchDataCol+"\">"+strResult+"</font>\n");
-			iWriter.write("</td><td id=\"c3"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
-			iWriter.write("<font color=\""+strSrchCharCol+"\">x"+Results[iC].inventory[iC2].found+"</font>\n");
-			iWriter.write("</td>\n");
-			
-			iWriter.write("</tr>\n");
+				iWriter.write("\t\t<td bgcolor=\""+strNewTableCol2+"\" height=\"1px\" align=\"center\" valign=\"middle\" >\n");
+				iWriter.write("\t\t\t<font color=\""+strNewItemTitleCol+"\">\n");
+				iWriter.write(strName);
+				iWriter.write("\t\t\t</font>\n");
+				iWriter.write("\t\t</td></tr>\n");
 
-			iC3++;
+				iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol1+"\" height=\"100%\" align=\"center\" valign=\"middle\" >\n");
+				iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
+				var pAllStats=strStats.split(",");
+				for(i=0; i<pAllStats.length; i++)
+					iWriter.write(pAllStats[i]+"<br/>\n");
+				iWriter.write("\t\t\t</font>\n");
+				iWriter.write("\t\t</td></tr>\n");
+				iWriter.write("\t\t</table>\n");
+
+				iWriter.write("\t</td>\n");
+				if(iC%2!=0){
+					iWriter.write("\t</tr>\n");
+				}
+			}else{
+
+				iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol2+"\" height=\"1px\" align=\"left\" valign=\"middle\" >\n");
+				iWriter.write("\t\t\t<font color=\""+strNewItemTitleCol+"\">\n");
+				iWriter.write(strName);
+				iWriter.write("\t\t\t</font>\n");
+				iWriter.write("\t\t</td></tr>\n");
+
+				iWriter.write("\t\t<tr><td bgcolor=\""+strNewTableCol1+"\" height=\"1px\" align=\"left\" valign=\"middle\" >\n");
+				iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
+				iWriter.write(strStats);
+				iWriter.write("\t\t\t</font>\n");
+				iWriter.write("\t\t</td></tr>\n");
+			}
 		}
 
-	}
-	
-	iWriter.write("</table>\n");
-	iWriter.write("</td></tr></table>\n");
-
-	//window.alert(strTemp+"\n\n"+iC3+" Total Matches");
-	iWriter.write("<br/>"+iC3+" Total Matches");
-	iWriter.writeln("</BODY></HTML>\n");
-	iWriter.close();
-	
-}
-
-
-//Shows all Names of characters avaliable
-function WriteNames(){
-	var strReturn="";
-	var strLastAccount="";
-
-	var iC=0;
-	strReturn="<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"1\">";
-	for(iC=0; iC<SearchData.length; iC++){
-		if(SearchData[iC]){
-			var strName=SearchData[iC].name;
-			var strAccount=SearchData[iC].account;
-			var strSection=SearchDataRealm+"_"+strAccount+"_"+strName;
-			
-			if(strLastAccount!=strAccount){
-				strLastAccount=strAccount;
-				strReturn+="<tr><td align=\"right\" bgcolor=\""+strTableCol2+"\">"+strLastAccount+"</td></tr>\n";
+		if(isDetailedShow) {
+			if(iC%2!=0){
+				iWriter.write("<td bgcolor=\"#000000\"></td></tr>\n");
 			}
-			var strNameCol="#8FFF6F";
-			if(SearchData[iC].type==1){
-				strNameCol="#FF6060";
-			}
-			strReturn+="<tr><td bgcolor=\""+strTableCol1+"\"><a href=\"#\" onclick=\"javascript:parent.code.ChangeChar('"+(iC)+"')\" > + <font color=\""+strNameCol+"\">"+strName+"</font></a></td></tr>\n";
 		}
+
+		iWriter.write("<tr><td bgcolor=\""+strTableCol2+"\" align=\"right\" colspan=\"2\">\n");
+		iWriter.write("<font color=\""+strItemTitleCol+"\">");
+		iWriter.write("Total Items: "+(SearchData[iShowedName].inventory.length));
+		if(iCFound>0)
+			iWriter.write(" || Total Matches: "+(iCFound));
+		
+		iWriter.write("</font>");
+		iWriter.writeln("</td></tr>");
+
+		iWriter.writeln("</table>\n");
+		iWriter.writeln("</td></tr></table>\n");
+		iWriter.writeln("</BODY></HTML>");
+		iWriter.close();
+		parent.control.document.searchs.TextSeach.focus();
 	}
-	strReturn+="</table>";
-
-	var Nam=parent.control.document.getElementById("PlayersNames");
-	if(Nam!=null)
-		Nam.innerHTML=strReturn;
-}
 
 
+	//Calls to the Character Text mode after a search
+	function ShowSearchResult(iCharIndex, strItemName, strItemName2){
+		//Set links on mode and detail
+		setShowMode(false);
+		showModeLink(true);
 
-function WriteControlPage(){
-	var iWriter=parent.frames.control.document;
-	iWriter.open();
-	iWriter.writeln("");
-	iWriter.writeln("<HTML><HEAD>");
-	iWriter.writeln("<style type=\"text/css\">");
-	iWriter.writeln("body, table {");
-	iWriter.writeln("	font-family :verdana, helvetica;");
-	iWriter.writeln("	font-weight : bold;");
-	iWriter.writeln("	font-style : normal;");
-	iWriter.writeln("	text-indent : 0;");
-	iWriter.writeln("	text-decoration : none;");
-	iWriter.writeln("	font-size : 12;");
-	iWriter.writeln("	color : #FFFFFF;");
-	iWriter.writeln("}");
-	iWriter.writeln("a {");
-	iWriter.writeln("	font-family : helvetica;");
-	iWriter.writeln("	font-style : normal;");
-	//iWriter.writeln("	font-weight : bold;");
-	iWriter.writeln("	text-indent : 0;");
-	iWriter.writeln("	text-decoration : none;");
-	iWriter.writeln("	font-size : 13;");
-	iWriter.writeln("	color : #FFFFFF;");
-	iWriter.writeln("}");
-	iWriter.writeln("</style>");
-	iWriter.writeln("");
-	iWriter.writeln("</HEAD><BODY bgcolor=\"#000000\">");
-	iWriter.writeln("<table border=\"0\" width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"0\">");
-	iWriter.writeln("<tr><td height=\"0px\">");
-	iWriter.writeln("mode: <a name=\"switch_mode\" href=\"#\" onclick=\"javascript:parent.code.showItems()\"></a>");
-	iWriter.writeln("</td></tr><tr><td height=\"0px\">");
-	iWriter.writeln("detail: <a name=\"switch_detail\" href=\"#\" onclick=\"javascript:parent.code.showDetailed()\"></a>");
-	iWriter.writeln("</td></tr><tr><td height=\"0px\">");
-	iWriter.writeln("<hr/>");
-	iWriter.writeln("</td></tr><tr><td>");
-	iWriter.writeln("Search for:");
-	iWriter.writeln("</td></tr><tr><td height=\"0px\">");
-	iWriter.writeln("<form name=\"searchs\" onsubmit=\"return parent.code.searchText();\">");
-	iWriter.writeln("	<input type=\"text\" name=\"TextSeach\"/><br>");
-	iWriter.writeln("	<INPUT type=\"checkbox\" name=\"SeachByName\" checked=\"checked\"/> By Name<br/>");
-	iWriter.writeln("	<INPUT type=\"checkbox\" name=\"SeachByStat\" checked=\"checked\"/> By Stat<br/>");
-	iWriter.writeln("	<input type=\"button\" name=\"Go\" value=\"Search\" onclick=\"parent.code.searchText(); document.searchs.TextSeach.focus();\"/><input type=\"button\" name=\"clean\" value=\"Clean\" onclick=\"parent.code.cleanSearch(); document.searchs.TextSeach.focus();\"/>");
-	iWriter.writeln("</form>");
-	iWriter.writeln("</td></tr><tr><td height=\"0px\">");
-	iWriter.writeln("<hr/>");
-	iWriter.writeln("</td></tr><tr><td>");
-	iWriter.writeln("<span id=\"PlayersNames\">");
-	iWriter.writeln("Please Wait");
-	iWriter.writeln("</span>");
-	iWriter.writeln("</td></tr></table>");
-	iWriter.writeln("</BODY></HTML>");
-	iWriter.close();
-	WriteNames();
-}
+		//Show all items of this char
+		strSearchLine1=strItemName;
+		strSearchLine2=strItemName2;
+		ChangeChar(iCharIndex);
+
+		//Show name info in bottom		
+		var strName=GetStringWithData(iCharIndex);
+		WriteNameData(strName);
+		
+	
+		//Ensure the menu where this char is in is open
+		strAccount=SearchData[iCharIndex].account;
+		setDisplayAccount(strAccount, true);
+		
+	}
+
+
+	function AddResult(aInventory, oItem){
+		var iC=0;
+		var isFound=false;
+		for(iC=0; iC<aInventory.length; iC++){
+			if(aInventory[iC].name==oItem.name && aInventory[iC].stats==oItem.stats){
+				isFound=true;
+				iPos=iC;
+				break;
+			}
+		}
+
+		if(!isFound){
+			//aInventory[iC]= new CreateItem(oItem.name, oItem.stats, oItem.file, oItem.type);
+			aInventory[iC]=oItem;
+			aInventory[iC].found=1;
+			iPos=-1;
+		}else{
+			aInventory[iPos].found++;
+		}
+		return iPos;
+	}
+
+	//Generate a html with the searchs
+	function searchText(){
+		var searchString=parent.control.document.getElementById("TextSeach").value;
+		var isByName=parent.control.document.getElementById("SeachByName").checked;
+		var isByStat=parent.control.document.getElementById("SeachByStat").checked;
+		var isSearchAll=(parent.control.document.getElementById("WhereSearch").checked==1);
+		var Results=new Array();
+
+		if(!isByName && !isByStat)
+			return;
+
+		if(searchString=="" || searchString.length<3)
+			return;
+
+		showModeLink(false);
+		hideSelectedChar();
+		searchString=searchString.replace(/\\/g, "");
+		searchString=searchString.replace(/\'/g, "\\\'");
+		searchString=searchString.replace(/\"/g, "\\\"");
+		searchString=searchString.toLowerCase();
+
+		strSearchLine1=searchString;
+		strSearchLine2="";
+
+		var iTimeStart=new Date();
+
+		var iC=0;
+		var iC2=0;
+		var iC3=0;
+		var iFound;
+		var iCharPos=0;
+		for(iC=0; iC<SearchData.length; iC++){
+			var iItemPos=0;
+			var iLastCharPos=-1;
+			var isFoundStats=false;
+			var isFoundName=false;
+			
+			
+			if(SearchData[iC]){
+				
+				var strChecked=SearchData[iC].name+"_check_box";
+				var isSelected=parent.control.document.getElementById(strChecked).checked;
+				//window.alert(strChecked+" es "+isSelected+"\nisSearchAll: "+isSearchAll)
+				if(isSearchAll || isSelected){
+					
+					for(iC2=0; iC2<SearchData[iC].inventory.length; iC2++){
+						if(SearchData[iC].inventory[iC2]){
+							SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\\/g, "");
+							SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\'/g, "\\\'");
+							SearchData[iC].inventory[iC2].name=SearchData[iC].inventory[iC2].name.replace(/\"/g, "\\\"");
+							SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\\/g, "");
+							SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\'/g, "\\\'");
+							SearchData[iC].inventory[iC2].stats=SearchData[iC].inventory[iC2].stats.replace(/\"/g, "\\\"");
+			
+							isFoundStats=false;
+							isFoundName=false;
+							strNameText=SearchData[iC].inventory[iC2].name.toLowerCase();
+							strStatText=SearchData[iC].inventory[iC2].stats.toLowerCase();
+			
+							if(isByStat==true){
+								if((iPos=strStatText.indexOf(searchString))!=-1){
+									isFoundStats=true;
+								}
+							}
+							if(isByName==true){
+								if((iPos=strNameText.indexOf(searchString))!=-1){
+									isFoundName=true;
+								}
+							}
+			
+							if(isFoundStats || isFoundName){
+								if(iLastCharPos==-1){
+									iLastCharPos=iCharPos;
+									iCharPos++;
+								}
+								if(!Results[iLastCharPos]){
+									Results[iLastCharPos]=new CreatePlayer(SearchData[iC].name, SearchData[iC].account, SearchData[iC].type, SearchData[iC].time);
+									Results[iLastCharPos].realindex=iC;
+								}
+								if(iLastCharPos!=-1){
+									AddResult(Results[iLastCharPos].inventory, SearchData[iC].inventory[iC2]);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		var iTimeMiddle=new Date();	
+		WriteResultsPage(Results, searchString);
+		var iTimeEnd=new Date();
+
+		iTimeSearch=iTimeMiddle.getTime()-iTimeStart.getTime();
+		iTimeSearch/=1000;
+		iTimeFormat=iTimeEnd.getTime()-iTimeMiddle.getTime();
+		iTimeFormat/=1000;
+
+		var strStatSearch="[Select a character] <font color=\"#FF0000\">Search:</font><font color=\"#C0C0FF\"> "+iTimeSearch+"s.</font><font color=\"#FF0000\"> Format:</font><font color=\"#C0C0FF\"> "+iTimeFormat+"s.</font><font color=\"#FF0000\"> Total: </font><font color=\"#C0C0FF\">"+(iTimeSearch+iTimeFormat)+"s.</font>";
+		WriteNameData(strStatSearch);
+
+		searchString=searchString.replace(/\\/g, "");
+		parent.control.document.getElementById("TextSeach").value=searchString;
+		parent.control.document.getElementById("TextSeach").focus();
+		//WriteNames();
+		//WriteControlPage();
+
+		return false;
+	}
+
+	function OpenItemWindow(ItemDataName, ItemDataFile, ItemDataStats, ItemDataType){
+		var strNewItemTitleCol=0;
+		strNewItemTitleCol=strColorTable[ItemDataType];
+		var strWinProp="toolbar=no,location=no,directories=no,menubar=no,scrollbars=no,status=no,resizable=yes,width=400,height=300";
+		iWin=window.open("", "", strWinProp);
+		iWriter=iWin.document;
+		
+
+		iWriter.open();
+		iWriter.write(WriteHeader());
+		iWriter.write("\t\t<table width=\"100%\" height=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n");
+		iWriter.write("\t\t<tr><td bgcolor=\"#000000\" width=\"1px\" height=\"1px\" align=\"center\" valign=\"middle\" rowspan=\"2\">\n");
+		iWriter.write("\t\t\t<img src=\""+ItemDataFile+"\" align=\"center\" valign=\"middle\"/>\n");
+		iWriter.write("\t\t</td>\n");
+
+		iWriter.write("\t\t<td bgcolor=\""+strTableCol2+"\" height=\"1px\" align=\"center\" valign=\"middle\" >\n");
+		iWriter.write("\t\t\t<font color=\""+strNewItemTitleCol+"\">\n");
+		iWriter.write(ItemDataName);
+		iWriter.write("\t\t\t</font>\n");
+		iWriter.write("\t\t</td></tr>\n");
+
+		iWriter.write("\t\t<tr><td bgcolor=\""+strTableCol1+"\" height=\"100%\" align=\"center\" valign=\"middle\" >\n");
+		iWriter.write("\t\t\t<font color=\""+strItemStatsCol+"\">\n");
+		var pAllStats=ItemDataStats.split(",");
+		for(i=0; i<pAllStats.length; i++)
+			iWriter.write(pAllStats[i]+"<br/>\n");
+		iWriter.write("\t\t\t</font>\n");
+		iWriter.write("\t\t</td></tr>\n");
+		iWriter.write("\t\t</table>\n");
+
+		iWriter.writeln("</BODY></HTML>\n");
+		iWriter.close();
+	}
+
+	function WriteResultsPage(Results, searchString){
+		SortData(Results);
+
+		var iWriter=parent.frames.inventory.document;
+		iWriter.open();
+		iWriter.write(WriteHeader());
+		strScript="script";
+		strResult="";
+		strResult+="<"+strScript+">\n";
+		strResult+="function doOver(obj) {\n";
+		strResult+="	for(i=1; i<=3; i++){\n";
+		strResult+="		document.getElementById(\"c\"+i+obj).style.backgroundColor=\""+strTableCol1+"\";\n";
+		strResult+="	}\n";
+		strResult+="}\n";
+		strResult+="function doOut(obj) {\n";
+		strResult+="	for(i=1; i<=3; i++){\n";
+		strResult+="		document.getElementById(\"c\"+i+obj).style.backgroundColor=\""+strTableCol2+"\";\n";
+		strResult+="	}\n";
+		strResult+="}\n";
+		strResult+="</"+strScript+">\n";
+		iWriter.write(strResult);
+
+		iWriter.writeln("<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"1\"><tr><td bgcolor=\"#808080\">\n");
+
+		iWriter.write("<table border=\"0\" width=\"100%\" cellpadding=\"0\" cellspacing=\"1\">\n");
+		iWriter.write("<tr><td bgcolor=\""+strTableCol2+"\">\n");
+		iWriter.write("Image\n");
+		iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
+		iWriter.write("Character\n");
+		iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
+		iWriter.write("Stats\n");
+		iWriter.write("</td><td bgcolor=\""+strTableCol2+"\">\n");
+		iWriter.write("Quantity\n");
+		iWriter.write("</td></tr>\n");
+
+		var iC=0;
+		var iC2=0;
+		var iC3=0;
+		var iFontAdd=29;
+		for(iC=0; iC<Results.length; iC++){
+			var strSrchCharCol="8FFF6F";
+			if(Results[iC].type==1){
+				strSrchCharCol="FF6060";
+			}
+
+			for(iC2=0; iC2<Results[iC].inventory.length; iC2++){
+				var strResult="";
+				Results[iC].inventory[iC2].file=Results[iC].inventory[iC2].file.replace(/\\/g, "/");
+				var strItemName=Results[iC].inventory[iC2].name.toLowerCase();
+				var strItemDesc=Results[iC].inventory[iC2].stats.toLowerCase();
+				var iStringSize=searchString.length;
+				var iNameSize=strItemName.length;
+
+				if((iStringPos=strItemDesc.indexOf(searchString))!=-1){
+					if((iNameSize+iStringSize+iFontAdd) > iStrMax){
+						strItemDesc=strItemDesc.substring(iStringPos, iStringPos+iStringSize);
+					}else{
+						iThresold=(iStrMax-(iNameSize+iStringSize+iFontAdd))/2;
+						strItemDesc=strItemDesc.substring(iStringPos-iThresold, iStringPos+iStringSize+iThresold);
+					}
+					strItemDesc="...<font color=\""+strItemStatsCol+"\">"+strItemDesc.replace(searchString, "<font color=\""+strSrchFoundCol+"\">"+searchString+"</font>")+"</font>...";
+				}else{
+					strItemDesc=strItemDesc.substring(0, iStrMax);
+					strItemDesc="...<font color=\""+strItemStatsCol+"\">"+strItemDesc+"</font>...";
+				}
+
+				if((strItemName.indexOf(searchString))!=-1){
+					strItemName=strItemName.replace(searchString, "<font color=\""+strSrchFoundCol+"\">"+searchString+"</font/>");
+				}
+
+				var strNewItemTitleCol=strItemTitleCol;
+				if(Results[iC].inventory[iC2].type!=-1)
+					var strNewItemTitleCol=strColorTable[Results[iC].inventory[iC2].type-1];
+				strResult="<font color=\""+strNewItemTitleCol+"\">"+strItemName+":</font><br/>"+strItemDesc;
+
+				iWriter.write("<tr>\n");
+				
+				var iCharIndex=(Results[iC].realindex);
+				iWriter.write("<td bgcolor=\"#000000\" align=\"center\" valign=\"middle\">\n");
+				iWriter.write("<a href=\"#\" onclick=\"javascript:parent.code.OpenItemWindow('"+Results[iC].inventory[iC2].name+"', '"+Results[iC].inventory[iC2].file+"', '"+Results[iC].inventory[iC2].stats+"', "+(Results[iC].inventory[iC2].type-1)+");\">");
+				iWriter.write("<img border=\"0\" src=\""+Results[iC].inventory[iC2].file+"\"/></a>\n");
+				iWriter.write("</td>\n");
+
+				iWriter.write("<td id=\"c1"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
+				strResult=strResult.replace(/\\/g, "");
+				iWriter.write("<a href=\"#\" onclick=\"javascript:parent.code.ShowSearchResult("+iCharIndex+", '"+searchString+"', '"+Results[iC].inventory[iC2].name+"');\"><font color=\""+strSrchCharCol+"\">"+Results[iC].name+"</font></a>\n");
+				iWriter.write("</td><td id=\"c2"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
+				iWriter.write("<font color=\""+strSrchDataCol+"\">"+strResult+"</font>\n");
+				iWriter.write("</td><td id=\"c3"+iC3+"Count\" onMouseOver=\"doOver('"+iC3+"Count');\" onMouseOut=\"doOut('"+iC3+"Count');\" bgcolor=\""+strTableCol2+"\">\n");
+				iWriter.write("<font color=\""+strSrchCharCol+"\">x"+Results[iC].inventory[iC2].found+"</font>\n");
+				iWriter.write("</td>\n");
+
+				iWriter.write("</tr>\n");
+				iC3++;
+			}
+		}
+		
+		iWriter.write("</table>\n");
+		iWriter.write("</td></tr></table>\n");
+
+		iWriter.write("<br/>"+iC3+" Total Matches");
+		iWriter.writeln("</BODY></HTML>\n");
+		iWriter.close();
+	}
+	
+	//Shows all Names of characters avaliable
+	function WriteNames(){
+		var strReturn="";
+		var strLastAccount="";
+		var iC=0;
+		var iCount=0;
+		var isOpen=false;
+		strReturn="<table width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"0\">";
+		for(iC=0; iC<SearchData.length; iC++){
+			if(SearchData[iC]){
+				var strName=SearchData[iC].name;
+				var strAccount=SearchData[iC].account;
+				var strSection=SearchDataRealm+"_"+strAccount+"_"+strName;
+
+				if(strLastAccount!=strAccount){
+					strLastAccount=strAccount;
+					if(isOpen){
+						strReturn+="\t</table>\n";
+					}
+					
+					strReturn+="<tr><td align=\"right\" bgcolor=\""+strTableCol2+"\" style=\"cursor: hand;\">\n";
+					
+					strReturn+="\t\t<table border=\"0\" width=\"100%\" height=\"100%\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n";
+					strReturn+="\t<td width=\"100%\" height=\"100%\" align=\"right\" onclick=\"javascript:parent.code.switchPlayers(\'"+strLastAccount+"\')\">"+strLastAccount+"</td>\n";
+					strReturn+="\t<td width=\"0px\"><input type=\"checkbox\" name=\"CharGroup_"+strLastAccount+"\" value=\"false\" onclick=\"javascript:parent.code.switchGroup(\'"+strLastAccount+"\')\"></td>\n";
+					strReturn+="\t\t</tr></table>\n";
+					
+					strReturn+="</td></tr>\n";
+					strReturn+="<tr><td id=\""+strLastAccount+"_block\" style=\"display: none;\">\n";
+					strReturn+="\t<table border=\"0\" width=\"100%\" height=\"100%\" cellspacing=\"1\" cellpadding=\"0\">\n";
+					isOpen=true;
+					iCount=0;
+				}
+				var strNameCol="#8FFF6F";
+				if(SearchData[iC].type==1){
+					strNameCol="#FF6060";
+				}
+				
+				strReturn+="\t<tr><td id=\""+strName+"_cell\" bgcolor=\""+strTableCol1+"\" style=\"cursor: hand;\">\n";
+
+				strReturn+="\t\t<table border=\"0\" width=\"100%\" height=\"100%\" cellspacing=\"0\" cellpadding=\"0\"><tr>\n";
+				strReturn+="\t\t<td width=\"0px\"><input type=\"checkbox\" name=\"selectChar"+strLastAccount+(iCount)+"\" id=\""+strName+"_check_box\" onclick=\"javascript:parent.code.UpdateGroupCheckBox(\'"+strLastAccount+"\')\"></td>\n";
+				strReturn+="\t\t<td width=\"100%\" onclick=\"javascript:parent.code.ChangeChar('"+(iC)+"')\"><font color=\""+strNameCol+"\">"+strName+"</font></td>\n";
+				strReturn+="\t\t</tr></table>\n";
+
+				strReturn+="\t</td></tr>\n";
+				
+				
+				
+				iCount++;
+			}
+		}
+		if(isOpen){
+			strReturn+="\t</table>\n";
+		}
+
+		strReturn+="</table>\n";
+
+		
+		//window.alert(strReturn);
+		//var Nam=parent.control.document.getElementById("PlayersNames");
+		//if(Nam!=null)
+		//	Nam.innerHTML=strReturn;
+		return strReturn;
+	}
+
+	function WriteControlPage(){
+		var iWriter=parent.frames.control.document;
+		iWriter.open();
+		iWriter.writeln("");
+		iWriter.writeln("<HTML><HEAD>");
+		iWriter.writeln("<style type=\"text/css\">");
+		iWriter.writeln("body, table {");
+		iWriter.writeln("	font-family :verdana, helvetica;");
+		iWriter.writeln("	font-weight : bold;");
+		iWriter.writeln("	font-style : normal;");
+		iWriter.writeln("	text-indent : 0;");
+		iWriter.writeln("	text-decoration : none;");
+		iWriter.writeln("	font-size : 12;");
+		iWriter.writeln("	color : #FFFFFF;");
+		iWriter.writeln("}");
+		iWriter.writeln("a {");
+		iWriter.writeln("	font-family : helvetica;");
+		iWriter.writeln("	font-style : normal;");
+		//iWriter.writeln("	font-weight : bold;");
+		iWriter.writeln("	text-indent : 0;");
+		iWriter.writeln("	text-decoration : none;");
+		iWriter.writeln("	font-size : 13;");
+		iWriter.writeln("	color : #FFFFFF;");
+		iWriter.writeln("}");
+		iWriter.writeln("</style>");
+		iWriter.writeln("");
+		iWriter.writeln("</HEAD><BODY bgcolor=\"#000000\">");
+		iWriter.writeln("<table border=\"0\" width=\"100%\" height=\"0px\" cellpadding=\"0\" cellspacing=\"0\">");
+		iWriter.writeln("<tr><td height=\"0px\">");
+		iWriter.writeln("mode: <a name=\"switch_mode\" href=\"#\" onclick=\"javascript:parent.code.showItems()\"></a>");
+		iWriter.writeln("</td></tr><tr><td height=\"0px\">");
+		iWriter.writeln("detail: <a name=\"switch_detail\" href=\"#\" onclick=\"javascript:parent.code.showDetailed()\"></a>");
+		iWriter.writeln("</td></tr><tr><td height=\"0px\">");
+		iWriter.writeln("<hr/>");
+		iWriter.writeln("</td></tr><tr><td>");
+		iWriter.writeln("Search for:");
+		iWriter.writeln("</td></tr><tr><td height=\"0px\" align=\"center\">");
+
+		iWriter.writeln("<form name=\"searchs\" onsubmit=\"return parent.code.searchText();\">");
+		iWriter.writeln("	<input type=\"text\" name=\"TextSeach\"/><br>");
+		iWriter.writeln("	<INPUT type=\"checkbox\" name=\"SeachByName\" checked=\"checked\"/> By Name<br/>");
+		iWriter.writeln("	<INPUT type=\"checkbox\" name=\"SeachByStat\" checked=\"checked\"/> By Stat<br/>");
+		iWriter.writeln("	<input type=\"button\" name=\"Go\" value=\"Search\" onclick=\"parent.code.searchText(); document.searchs.TextSeach.focus();\"/><input type=\"button\" name=\"clean\" value=\"Clean\" onclick=\"parent.code.cleanSearch(); document.searchs.TextSeach.focus();\"/>");
+		iWriter.writeln("<hr/>");
+		
+		strNames=WriteNames();
+		iWriter.writeln(strNames);
+
+		iWriter.writeln("<hr/>");
+
+		iWriter.writeln("	<input type=\"button\" name=\"SelectAll\" value=\"All\" onclick=\"parent.code.setSearch(1); document.searchs.TextSeach.focus();\"/>");
+		iWriter.writeln("	<input type=\"button\" name=\"SelectNone\" value=\"None\" onclick=\"parent.code.setSearch(2); document.searchs.TextSeach.focus();\"/>");
+		iWriter.writeln("	<input type=\"button\" name=\"SelectInvert\" value=\"Invert\" onclick=\"parent.code.setSearch(3); document.searchs.TextSeach.focus();\"/><br/>");
+		
+		iWriter.writeln("	Search in:<br/>");
+		iWriter.writeln("	<input type=\"radio\" name=\"WhereSearch\" value=\"1\" checked />All");
+		iWriter.writeln("	<input type=\"radio\" name=\"WhereSearch\" value=\"2\"/>Selected");
+
+
+
+		iWriter.writeln("</form>");
+	
+		
+
+		iWriter.writeln("</td></tr></table>");
+		iWriter.writeln("</BODY></HTML>");
+		iWriter.close();
+	}
+	
+
+	//Common Header
+	function WriteHeader(){
+		var strResult="";
+		strResult+="<HTML><HEAD>\n";
+		strResult+="<style type=\"text/css\">\n";
+		strResult+="body, a, table, td {\n";
+		strResult+="	font-family : verdana, helvetica;\n";
+		strResult+="	font-weight : bold;\n";
+		strResult+="	font-style : normal;\n";
+		strResult+="	text-indent : 0;\n";
+		strResult+="	text-decoration : none;\n";
+		strResult+="	font-size : 12;\n";
+		strResult+="	color : #FFFFFF;\n";
+		strResult+="}\n";
+		strResult+="</style>\n";
+		strResult+="</HEAD><BODY bgcolor=\"#000000\">\n";
+		return strResult;
+	}
+
+	//Shows all Names of characters avaliable
+	function WriteInitStuff(){
+		SortData(SearchData);
+		WriteControlPage();
+		parent.control.searchs.TextSeach.focus();
+		WriteNameData("<h2>Select a character</h2>");
+
+		var iElem2=parent.inventory.document;
+		iElem2.open();
+		iElem2.write(parent.code.WriteHeader());
+		iElem2.write("<table width=\"100%\" height=\"100%\"><tr><td align=\"center\" valign=\"middle\">");
+		iElem2.write("<h1>Select a character</h1>");
+		iElem2.write("</td></tr></table>");
+		iElem2.write("</BODY></HTML>");
+		iElem2.close();
+
+		showDetailLink(false);
+		showModeLink(false);
+	}
 
 //--------------------------------------------------------------------------
 
