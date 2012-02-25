@@ -26,6 +26,7 @@ var debug_mode = false;
 
 include("invripper/EleIniLib_Dar.d2l");
 var filename = "settings\\Darien\\DIO.ini";
+var invripper = "settings\\Darien\\invripper.ini";
 
 var SINGLE_PLAYER=0, CLOSED_BNET=1, REALM_BUTTON=2, OPEN_BNET=3;
 var NORMAL = 0, NIGHTMARE = 1, HELL = 2;
@@ -177,6 +178,7 @@ function main() {
     //load("tools/dumpcontrols.d2j");
     //showConsole();
     dprint("-----STARTING INVRIPPER-----");
+    Ele_WriteIniLine(invripper, "InvRipper", "standAlone", "true");
     
     delay(1000);
     while(getLocation() == 18) delay(1000);
@@ -330,9 +332,8 @@ function main() {
         //Go Back to Character Selection screen and get Next Character
         if(charnum < chars.length) {
             dprint("Going back to character selection screen");
-            click__("QUIT"); 
-            //while(!find_control_by_name("EXIT") || findControl(mainbuttons[0]) || findControl(bnetlogin[0])) hDelay(); 
-            while(!find_control_by_name("EXIT") && !findControl(mainbuttons[0])) hDelay(); 
+            //click__("QUIT");
+            while(!find_control_by_name("EXIT") && !findControl(mainbuttons[0])) { click__("QUIT"); hDelay(); }
         }
         
         //If no more characters on this account, init next section and go to D2 Main screen
@@ -444,6 +445,7 @@ function findControl(arr) {
 function restart(duration, _msg) {
     if(!_msg) D2_Main("ALL DONE Logging Accounts!! Turning off Diablo II",9);
     else D2_Main(_msg,1);
+    Ele_WriteIniLine(invripper, "InvRipper", "standAlone", "false");
     delay(duration*60*1000);
     quitGame();
 }

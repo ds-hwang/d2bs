@@ -4,37 +4,9 @@
 StatsLib    by     tRaiz
 -----------------------------------
 updated and maintained by Darien
-
-In order to improve the InvRipper proyect ( http://forums.d2jsp.org/index.php?showtopic=62749 )
-i decide to develop a function that gets the data from a item an returns to you
-a string with the same format like diablo2
-
-there is a language folder, with only 2 languages (english and spanish)
-if someone translate i will put here !!! :D
-(just respect the format)
-
-to change the language modify the file "language//statslib_lang.d2l"
-
-
-
-try it yourself ;)
-
-
-
-Here an example:
-	
-	item=getUnit(4);
-	if (item) {
-		strItemStats=getCompleteStats(item);
-		print(item.fname+"\n"+strItemStats);
-	}
-
-
 */
 
-//include("invripper//language//statslib_lang.d2l");
-
-var statslib_version=1.02;
+var statslib_version=1.03;
 
 /*
 Main Function (the only one you must call)
@@ -54,499 +26,64 @@ All stats are writing in the same way Diablo2 does (as far as i tested)
 
 */
 
-/* no longer needed since the core update fixed item.getStat();
-function parseArray(_array,id) {
-    if(_array.hasOwnProperty('length')) {
-        for(var y=0; y < _array.length; y++) {
-            if(_array[y].length) {
-                if(_array[y][0] == id && _array[y][1] == 0) return _array[y][2];
-            }
-        }
-    }
-    return false;
-}
-
-if(i == 18 || i == 75) var iTemp = parseArray(item.getStat(-1),i);
-else var iTemp = item.getStat(i);
-*/
 
 function getCompleteStats(item, isHtml) {
-	var aStates=new Array(324);
-	
+
 	var strEndLine="\n";
 	if(isHtml){
 		strEndLine="<br/>\n";
 	}
-	
-	//print("Vamos a coger todos los estados");
-	for (var i=0;i<324;i++) {
-        if(i == 83) {
-            var iTemp = new Array();
-            var empty = true;
-            for(var p=0; p < 7; p++) {
-                var _plusCharSkills = item.getStat(83,p);
-                if(_plusCharSkills) { var empty = false; iTemp[p] = _plusCharSkills; }
-                else iTemp[p] = -1;
-            }
-            if(empty) aStates[i] = -1;
-            else aStates[i] = iTemp;
-        }
-        if(i == 107) {
-            var iTemp = new Array();
-            var empty = true;
-            for(var p=0; p < 281; p++) {
-                var _plusSkill = item.getStat(107,p);
-                if(_plusSkill) { var empty = false; iTemp[p] = _plusSkill; }
-                else iTemp[p] = -1;
-            }
-            if(empty) aStates[i] = -1;
-            else aStates[i] = iTemp;
-        }
-        if(i == 151) {
-            var iTemp = new Array();
-            var empty = true;
-            for(var p=98; p < 126; p++) {
-                var _AuraEquipped = item.getStat(151,p);
-                if(_AuraEquipped) { var empty = false; iTemp[p] = _AuraEquipped; }
-                else iTemp[p] = -1;
-            }
-            if(empty) aStates[i] = -1;
-            else aStates[i] = iTemp;
-        }
-        if(i == 188) {
-            var iTemp = new Array();
-            var empty = true;
-            for(var p=0; p < 51; p++) {
-                var _plusSkillType = item.getStat(188,p);
-                if(_plusSkillType) { var empty = false; iTemp[p] = _plusSkillType; }
-                else iTemp[p] = -1;
-            }
-            if(empty) aStates[i] = -1;
-            else aStates[i] = iTemp;
-        }
-        if(i != 83 && i != 107 && i != 151 && i != 188) {
-            var iTemp = item.getStat(i);
-            if (iTemp) {
-                
-                if(i==57 || i==58){
-                    //print("ÿc6POISON("+i+"): "+iTemp);
-                    iTemp=Math.round(iTemp*item.getStat(59)/256);
-                }
-                if(i==59){
-                    iTemp=Math.floor(iTemp/25);
-                }
-                
-                //print("ÿc6Sta("+i+"): "+iTemp);
-                
-                //if(i== 23 && !getBaseStat(0, item.classid, 47)) iTemp=-1;
-                //if(i== 24 && !getBaseStat(0, item.classid, 48)) iTemp=-1;
-                if(i==159 && !getBaseStat(0, item.classid, 45)) iTemp=-1;
-                if(i==160 && !getBaseStat(0, item.classid, 46)) iTemp=-1;
-                
-                //if(i==252)	iTemp=iTemp/100;
-                if(i==216 || i==217){
-                    iTemp=(iTemp/(256*8));
-                }
-                // increase max life, mana or stamina
-                //if(i==7 || i==9 || i==11){
-                    //iTemp=(iTemp/256);
-                //}
-                if(i==214 || (i>=218 && i<=223) || (i>=234 && i<=236) || (i>=238 && i<=240) || i==243 || i==244 || i==250){
-                    iTemp=(iTemp/8);
-                }
-                if(i==20)  {
-                    iTemp = item.getStat(20) - getBaseStat(0,item.classid,57);
-                    if(iTemp == 0) iTemp = -1;
-                }
-                if(i==224 || i==245 || i==246){
-                    iTemp=(iTemp/2);
-                }
-                aStates[i]=iTemp;
-            }else{
-                aStates[i]=-1;
-            }
-        }
-	}
-	
+
 	var strReturn="";
     if(isHtml) // Darien Fix
     strReturn+="<font color=\"#c4c4c4\">\n";
     
 	//Get Base Stats
-    var _getBaseStats = GetBaseStats(item, aStates, isHtml)[0];
+    var _getBaseStats = GetBaseStats(item, isHtml)
 	strReturn+=_getBaseStats;
 
-    var sockets = false;
+    var sockets = item.getStat(194);
 	if(isHtml)
 		strReturn+="<font color=\"#2020CC\">\n";	//set blue to the magic stats of the item
 
-    // Aura when Equipped
-    if(aStates[151] != -1) {
-        for(var skl=98; skl < 126; skl++) {
-            if(aStates[151][skl] && aStates[151][skl] > 0) 	strReturn+="Level "+aStates[151][skl] + " " +strSkillNumberToName(skl) + " Aura When Equipped" + strEndLine;
-        }
-    }
-    //Get All Magics Stats
-    for (i=0;i<324;i++) {
-		if (aStates[i]!=-1) {
-			
-			var strStatDesc=strStatNumberToDesc(i);
-            if(strStatDesc == "") continue;
-			var iCase=countValues(strStatDesc);
-			switch(iCase){
-				case 0:
-					strReturn+=strStatDesc+strEndLine;
-				break;
-				case 1:
-					var strTemp=strStatDesc.split("$");
-                    if(i == 194) var sockets = strTemp[0]+aStates[i]+strTemp[1]+strEndLine;
-					else strReturn+=strTemp[0]+aStates[i]+strTemp[1]+strEndLine;
-				break;
-				default:
-					//Do nothing
-				break;
-			}
-		}
-	}
-    
-    var addMinDam = GetBaseStats(item, aStates, isHtml)[1];
-    var addMaxDam = GetBaseStats(item, aStates, isHtml)[2];
-
-    if(addMinDam > 1) {
-        var strText=strDescriptor(25);
-        strText=strText.split("$");
-        var strMinDamage=strText[0]+addMinDam+strText[1]+strEndLine;
-        if(isHtml)strMinDamage="<font color=\"#2020CC\">"+strMinDamage+"</font>";
-    }
-
-    if(addMaxDam > 1) {
-        var strText=strDescriptor(26);
-        strText=strText.split("$");
-        var strMaxDamage=strText[0]+addMaxDam+strText[1]+strEndLine;
-        if(isHtml)strMaxDamage="<font color=\"#2020CC\">"+strMaxDamage+"</font>";
-    }
-    
-    var ED = aStates[18];
-    if(ED < 0) ED = 0;
-
-	if(aStates[17]!=-1 && aStates[18]!=-1 ){
-		if(aStates[17]!=aStates[18]){
-			var str_Text=strDescriptor(13);
-			str_Text=str_Text.split("$");
-			var str_Enhanced=str_Text[0]+aStates[17]+str_Text[1]+aStates[18]+str_Text[2]+strEndLine;
-            var ED = 0
-		}
-	}
-
-    if(sockets && !item.getFlag(0x4000000)) { //Gemmed Items, NOT for runewords
-        var socketedItems = item.getItems();
-        if(socketedItems) {
-            var socketedED = 0;
-            for(var _y=0; _y < socketedItems.length; _y++) {
-                socketedED = socketedED + socketedItems[_y].getStat(18);
-            }
-            ED = ED + socketedED;
-        }
-    }
-    
-    if(ED) strReturn+= "+"+ED+strDescriptor(14)+strEndLine;
-    if(addMinDam > 1) strReturn+=strMinDamage;
-    if(addMaxDam > 1) strReturn+=strMaxDamage;
-	strReturn+=GetElementalDamage(aStates, isHtml);
-//	strReturn+=GetSkills(aStates, isHtml);
-	strReturn+=GetResistances(aStates, isHtml);
-	strReturn+=GetSkillsChars(aStates, isHtml, item);
-	//GetAsorbRes
+    // item.description
+	var lines = item.description.split( "\n" );
+	strSeparator = "";
+    lines = lines.reverse();
+	if(isHtml) strSeparator = "<br />\n";
+	else strSeparator = "\n";
+	strReturn+=lines.join(strSeparator);
+    strReturn+="<br />\n";
 
 	/* Darien Get Item Flags
-    0x800		isSocketed
-    0x100		isBroken
-    
-    //Is broken
-	item.getFlag(0x100)
-	//Is Socketed
-	item.getFlag(0x800)
-	//Is a runeword
-	item.getFlag(0x4000000)
+    item.getFlag(0x10)      //Is Unidentified
+	item.getFlag(0x100)     //Is broken
+	item.getFlag(0x800)     //Is Socketed
+	item.getFlag(0x4000000) //Is a runeword
+	item.getFlag(0x40000000) // Ethereal
 	*/
 
 	//Is ethereal
 	if(item.getFlag(0x400000)){
-		strReturn+=strDescriptor(46)+strEndLine;
+		strReturn+="Ethereal (Cannot be Repaired)"+strEndLine;
 	}
 
-    if(sockets) strReturn+=sockets;
+    if(sockets) strReturn+="Socketed ("+sockets+")";
     
 	if(isHtml)
 		strReturn+="</font>\n";	
-	
+
+    // Unidentified
 	if(!item.getFlag(0x10)){
 		if(isHtml)
 			strReturn+="<font color=\"#FF2020\">\n";	//set red to the unid label
-		strReturn+=strDescriptor(34)+strEndLine;	
+		strReturn+="Unidentified"+strEndLine;	
 		if(isHtml)
 			strReturn+="</font>\n";	
 	}
-    
 
 	return strReturn;
 }
-
-
-/*
-Counts the times we found '$' simbol
-*/
-function countValues(strInput){
-	var iCount=0;
-	var iPos=0;
-	while((iPos=strInput.indexOf("$"))!=-1){
-		strInput=strInput.substring(iPos+1, strInput.length);
-		iCount++;
-	}
-	return iCount;
-}
-
-//---------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------
-
-function GetSkillsChars(aStats, isHtml, item){
-	var iCheck=0;
-	var strResult="";
-	var strEndLine="\n";
-	if(isHtml){
-		strEndLine="<br/>\n";
-	}
-    
-    // + Character Class Skills
-    if(aStats[83] != -1) {
-        if(aStats[83][0] > 0)	strResult+="+"+aStats[83][0]+strDescriptor(49)+strEndLine;	// to Amazon Skill 
-        if(aStats[83][1] > 0)	strResult+="+"+aStats[83][1]+strDescriptor(50)+strEndLine;	// to Sorceress Skill 
-        if(aStats[83][2] > 0)	strResult+="+"+aStats[83][2]+strDescriptor(51)+strEndLine;	// to Necromancer Skill 
-        if(aStats[83][3] > 0)	strResult+="+"+aStats[83][3]+strDescriptor(52)+strEndLine;	// to Paladin Skill 
-        if(aStats[83][4] > 0)	strResult+="+"+aStats[83][4]+strDescriptor(53)+strEndLine;	// to Barbarian Skill 
-        if(aStats[83][5] > 0)	strResult+="+"+aStats[83][5]+strDescriptor(54)+strEndLine;	// to Druid Skills
-        if(aStats[83][6] > 0)	strResult+="+"+aStats[83][6]+strDescriptor(55)+strEndLine;	// to Assasin Skills
-    }
-    
-    // + Skill Tree
-    if(aStats[188] != -1) {
-        if(aStats[188][0]  > 0)	strResult+="+"+aStats[188][0] + " " +strSkillTreeNumberToName(0)+strEndLine;	// to Bow and Crossbow
-        if(aStats[188][1]  > 0)	strResult+="+"+aStats[188][1] + " " +strSkillTreeNumberToName(1)+strEndLine;	// to passive and magic
-        if(aStats[188][2]  > 0)	strResult+="+"+aStats[188][2] + " " +strSkillTreeNumberToName(2)+strEndLine;	// to Jav and spear
-        
-        if(aStats[188][8]  > 0)	strResult+="+"+aStats[188][8] + " " +strSkillTreeNumberToName(3)+strEndLine;	// to Fire Skill 
-        if(aStats[188][9]  > 0)	strResult+="+"+aStats[188][9] + " " +strSkillTreeNumberToName(4)+strEndLine;	// to Lightning Skill 
-        if(aStats[188][10] > 0)	strResult+="+"+aStats[188][10]+ " " +strSkillTreeNumberToName(5)+strEndLine;	// to Cold Skills
-        
-        if(aStats[188][16] > 0)	strResult+="+"+aStats[188][16]+ " " +strSkillTreeNumberToName(6)+strEndLine;	// to Curses
-        if(aStats[188][17] > 0)	strResult+="+"+aStats[188][17]+ " " +strSkillTreeNumberToName(7)+strEndLine;	// to Poison and Bone Skills
-        if(aStats[188][18] > 0)	strResult+="+"+aStats[188][18]+ " " +strSkillTreeNumberToName(8)+strEndLine;	// to Summoning Skills
-        
-        if(aStats[188][24] > 0)	strResult+="+"+aStats[188][24]+ " " +strSkillTreeNumberToName(9)+strEndLine;	// to Paladin Combat Skills
-        if(aStats[188][25] > 0)	strResult+="+"+aStats[188][25]+ " " +strSkillTreeNumberToName(10)+strEndLine;	// to Offensive Auras
-        if(aStats[188][26] > 0)	strResult+="+"+aStats[188][26]+ " " +strSkillTreeNumberToName(11)+strEndLine;	// to Defensive Auras
-        
-        if(aStats[188][32] > 0)	strResult+="+"+aStats[188][32]+ " " +strSkillTreeNumberToName(12)+strEndLine;	// to Barbarian Combat
-        if(aStats[188][33] > 0)	strResult+="+"+aStats[188][33]+ " " +strSkillTreeNumberToName(13)+strEndLine;	// to Masteries
-        if(aStats[188][34] > 0)	strResult+="+"+aStats[188][34]+ " " +strSkillTreeNumberToName(14)+strEndLine;	// to War Cries
-        
-        if(aStats[188][40] > 0)	strResult+="+"+aStats[188][40]+ " " +strSkillTreeNumberToName(15)+strEndLine;	// to Druid Summoning
-        if(aStats[188][41] > 0)	strResult+="+"+aStats[188][41]+ " " +strSkillTreeNumberToName(16)+strEndLine;	// to Shapeshifting Skills
-        if(aStats[188][42] > 0)	strResult+="+"+aStats[188][42]+ " " +strSkillTreeNumberToName(17)+strEndLine;	// to Elemental Skills
-        
-        if(aStats[188][48] > 0)	strResult+="+"+aStats[188][48]+ " " +strSkillTreeNumberToName(18)+strEndLine;	// to Trap Skills
-        if(aStats[188][49] > 0)	strResult+="+"+aStats[188][49]+ " " +strSkillTreeNumberToName(19)+strEndLine;	// to Shadow Disciplines
-        if(aStats[188][50] > 0)	strResult+="+"+aStats[188][50]+ " " +strSkillTreeNumberToName(20)+strEndLine;	// to Martial Arts Skills
-    }
-
-    // + plus single skill
-    if(aStats[107] != -1) {
-        for(var skl=6; skl < 281; skl++) {
-            if(skl < 156 || skl > 220) {
-                if(aStats[107][skl] && aStats[107][skl] > 0) 	strResult+="+"+aStats[107][skl] + " to " +strSkillNumberToName(skl) + strEndLine;
-            }
-        }
-    }
-
-return strResult;
-}
-
-function GetResistances(aStats, isHtml){
-	var iCheck=0;
-	var strResult="";
-	var strEndLine="\n";
-	if(isHtml){
-		strEndLine="<br/>\n";
-	}
-	
-	//Resist
-	if(aStats[39]!=-1)	iCheck+=1;	//fire
-	if(aStats[41]!=-1)	iCheck+=2;	//cold
-	if(aStats[43]!=-1)	iCheck+=4;	//light
-	if(aStats[45]!=-1)	iCheck+=8;
-
-	var isEqual=true;
-	var iTemp=aStats[39];
-	if(	aStats[41]!=iTemp )
-		isEqual=false;
-	if(	aStats[43]!=iTemp )
-		isEqual=false;
-	if(	aStats[45]!=iTemp )
-		isEqual=false;
-	
-	if(iCheck==15 && isEqual){
-			var strText=strDescriptor(0);
-			strResult+=strText+aStats[39]+strEndLine;
-	}else{
-		if(aStats[39]!=-1){
-			var strText=strDescriptor(36);
-			strResult+=strText+aStats[39]+"%"+strEndLine;
-		}
-		if(aStats[41]!=-1){
-			var strText=strDescriptor(38);
-			strResult+=strText+aStats[41]+"%"+strEndLine;
-		}
-		if(aStats[43]!=-1){
-			var strText=strDescriptor(40);
-			strResult+=strText+aStats[43]+"%"+strEndLine;
-		}	
-		if(aStats[45]!=-1){
-			var strText=strDescriptor(42);
-			strResult+=strText+aStats[45]+"%"+strEndLine;
-		}
-	}
-
-	iCheck=0;
-	//Max Resist
-	if(aStats[40]!=-1)	iCheck+=1;	//cold
-	if(aStats[42]!=-1)	iCheck+=2;
-	if(aStats[44]!=-1)	iCheck+=4;	//Poison
-	if(aStats[46]!=-1)	iCheck+=8;
-
-	var isEqual=true;
-	var iTemp=aStats[40];
-	if(	aStats[42]!=iTemp )
-		isEqual=false;
-	if(	aStats[44]!=iTemp )
-		isEqual=false;
-	if(	aStats[46]!=iTemp )
-		isEqual=false;
-	
-	if(iCheck==15 && isEqual){
-		strText=strDescriptor(45);
-		strResult+=aStats[40]+strText+strEndLine;
-	}else{
-		if(aStats[40]!=-1){
-			strText=strDescriptor(37);
-			strResult+=aStats[40]+strText+strEndLine;
-		}
-		if(aStats[42]!=-1){
-			strText=strDescriptor(39);
-			strResult+=aStats[42]+strText+strEndLine;
-		}
-		if(aStats[44]!=-1){
-			strText=strDescriptor(41);
-			strResult+=aStats[44]+strText+strEndLine;
-		}	
-		if(aStats[46]!=-1){
-			strText=strDescriptor(43);
-			strResult+=aStats[46]+strText+strEndLine;
-		}
-	}
-	return strResult;
-}
-
-
-
-/*
-Returns the elemental damage of an item
-Cold, Fire, Lighting and poison Damage
-*/
-
-function GetElementalDamage(aStats, isHtml){
-
-	var strMagic="";
-	var iCheck=0;
-	var strReturn="";
-    var strText;
-	var strEndLine="\n";
-	if(isHtml){
-		strEndLine="<br/>\n";
-	}
-
-	if(aStats[48]!=-1)	iCheck+=1;	//fire
-	if(aStats[49]!=-1)	iCheck+=2;
-	if(aStats[50]!=-1)	iCheck+=4;	//light
-	if(aStats[51]!=-1)	iCheck+=8;
-	if(aStats[54]!=-1)	iCheck+=16;	//cold
-	if(aStats[55]!=-1)	iCheck+=32;
-	if(aStats[57]!=-1)	iCheck+=64;	//Poison
-	if(aStats[58]!=-1)	iCheck+=128;
-	if(iCheck==255){
-		if(aStats[48]==aStats[49] && aStats[50]==aStats[51] && aStats[54]==aStats[55] && aStats[57]==aStats[58] &&
-			(aStats[48]==aStats[50])==(aStats[54]==aStats[57]) && (aStats[49]==aStats[51])==(aStats[55]==aStats[58])
-		){
-			strText=strDescriptor(8);
-			strMagic+="+"+aStats[57]+strText+strEndLine;
-		}else if( (aStats[48]==aStats[50])==(aStats[54]==aStats[57]) && (aStats[49]==aStats[51])==(aStats[55]==aStats[58]) ){
-			strText=strDescriptor(9);
-			strText=strText.split("$");
-			strMagic+=strText[0]+aStats[57]+strText[1]+aStats[58]+strText[2]+strEndLine;
-		}
-	}else{
-		if((iCheck&3)==3){
-			if(aStats[48]==aStats[49]){
-				strText=strDescriptor(2);
-				strMagic+="+"+aStats[48]+strText+strEndLine;
-			}else{
-				strText=strDescriptor(3);
-				strText=strText.split("$");
-				strMagic+=strText[0]+aStats[48]+strText[1]+aStats[49]+strText[2]+strEndLine;
-			}
-		}
-		if((iCheck&12)==12){
-			if(aStats[50]==aStats[51]){
-				strText=strDescriptor(6);
-				strMagic+="+"+aStats[50]+strText+strEndLine;
-			}else{
-				strText=strDescriptor(7);
-				strText=strText.split("$");
-				strMagic+=strText[0]+aStats[50]+strText[1]+aStats[51]+strText[2]+strEndLine;
-			}
-		}
-		if((iCheck&48)==48){
-			if(aStats[54]==aStats[55]){
-				strText=strDescriptor(4);
-				strMagic+="+"+aStats[54]+strText+strEndLine;
-			}else{
-				strText=strDescriptor(5);
-				strText=strText.split("$");
-				strMagic+=strText[0]+aStats[54]+strText[1]+aStats[55]+strText[2]+"("+Math.floor(aStats[56]/25)+" s.)"+strEndLine;
-			}
-		}
-		if((iCheck&192)==192){
-			if(aStats[57]==aStats[58]){
-				strText=strDescriptor(10);
-				strText=strText.split("$");
-				strMagic+="+"+aStats[57]+strText[0]+aStats[59]+strText[1]+strEndLine;
-			}else{
-				strText=strDescriptor(11);
-				strText=strText.split("$");
-				strMagic+=strText[0]+aStats[57]+strText[1]+aStats[58]+strText[2]+aStats[59]+strText[3]+strEndLine;
-			}
-		}
-	}
-	
-
-	if(strMagic)
-		strReturn+=strMagic;
-
-	return strReturn;
-
-}
-
-
 
 /*
 
@@ -557,16 +94,29 @@ Returns the basics statics of a item:
 	Str Required
 	Dex Required
 	Quantity
-	
 	Item Level
 	Clvl Req
 */
-function GetBaseStats(item, aStats, isHtml){
-	var strDefen, strDurab, strReqStr, strReqDex, strBlock, strLvl;
-	var iReqStr, iReqDex, iBlock, iLevel;
-	//var isMagic=false;
-    var addMinDam=0;
-    var addMaxDam=0;
+function GetBaseStats(item, isHtml){
+    var strDefen, strDurab, strReqStr, strReqDex, strBlock, strLvl;
+
+    var iDef    = item.getStat(31);
+    var iQuant  = item.getStat(70);
+    var iDurab  = item.getStat(72);
+    var iMaxDur = item.getStat(73);
+    var iLevel  = item.getStat(92);
+    
+    // Darien Fixed the Stat Numbers for D2BS
+    var iReqStr=getBaseStat(0,item.classid,52);		//Str Req: 38
+    var iReqDex=getBaseStat(0,item.classid,53);		//Dex Req: 39
+    var iBlock=item.getStat(20); // pal3 30, barb4-zon0-ass6 25, necro2-sorc1-druid5 20
+    if(item.itemType == 2 || item.itemType == 51 || item.itemType == 69 || item.itemType == 70) {
+        var shieldBonus = 20;
+        if(me.classid == 0 || me.classid == 4 || me.classid == 6) shieldBonus = shieldBonus + 5;
+        if(me.classid == 3) shieldBonus = shieldBonus +10;
+        iBlock = iBlock + shieldBonus;
+    }
+
 	var strRet="";
 	
 	var strEndLine="\n";
@@ -574,61 +124,39 @@ function GetBaseStats(item, aStats, isHtml){
 		strEndLine="<br/>\n";
 	}
 	
-	if(aStats[31]!=-1){ // armour class
-		var strText=strDescriptor(18); //defense
-		strDefen=strText+aStats[31]+strEndLine;
+	if(iDef){ // armour class
+		var strText="Defense: "; //defense
+        
+        if(isHtml && (item.getStat(31) > getBaseStat(0, item.classid, 28) || item.getStat(16))) {
+            strDefen=strText+"<font color=\"#2020CC\">"+iDef+"</font>"+strEndLine;
+		} else strDefen=strText+iDef+strEndLine;
 	}
 
-	if(aStats[72]!=-1 && aStats[73]!=-1){ 
-		strText=strDescriptor(33);  // Durability
+	if(iDurab && iMaxDur){ 
+		strText="Durability: $ of $";  // Durability
 		strText=strText.split("$");
-		strDurab=strText[0]+aStats[72]+strText[1]+aStats[73]+strEndLine;
+		strDurab=strText[0]+iDurab+strText[1]+iMaxDur+strEndLine;
 	}
 
-    // Darien Fixed the Stat Numbers for D2BS
-    iReqStr=getBaseStat(0,item.classid,52);		//Str Req: 38
-    iReqDex=getBaseStat(0,item.classid,53);		//Dex Req: 39
-    iBlock=item.getStat(20); // pal3 30, barb4-zon0-ass6 25, necro2-sorc1-druid5 20
-    if(item.itemType == 2 || item.itemType == 51 || item.itemType == 69 || item.itemType == 70) {
-        var shieldBonus = 20;
-        if(me.classid == 0 || me.classid == 4 || me.classid == 6) shieldBonus = shieldBonus + 5;
-        if(me.classid == 3) shieldBonus = shieldBonus +10;
-        iBlock = iBlock + shieldBonus;
-    }
-    //iLevel=getBaseStat(0,item.classid,97);		//LevelReq: 80  
-    iLevel=item.getStat(92);
-	
+    if(iQuant) var strQuant="Quantity: "+iQuant+strEndLine;
+
+
 	//Darien Fixes to Add red color is req's not met
 	if(iReqStr){
-		strText=strDescriptor(16);
+		strText="Required Strength: ";
         if(isHtml && me.getStat(0) < iReqStr) strReqStr="<font color=\"#b04434\">"+strText+iReqStr+"</font>"+strEndLine;
 		else strReqStr=strText+iReqStr+strEndLine;
 	}
 	if(iReqDex){
-		strText=strDescriptor(17);
-		
+		strText="Required Dexterity: ";
         if(isHtml && me.getStat(2) < iReqDex) strReqDex="<font color=\"#b04434\">"+strText+iReqDex+"</font>"+strEndLine;
 		else strReqDex=strText+iReqDex+strEndLine;
 	}
 	if(iLevel){
-		strText=strDescriptor(19);
-		
+		strText="Required Level: ";
         if(isHtml && me.getStat(12) < iLevel) strLvl="<font color=\"#b04434\">"+strText+iLevel+"</font>"+strEndLine;
 		else strLvl=strText+iLevel+strEndLine;
 	}
-	if(iBlock){
-		strText=strDescriptor(35);
-		strText=strText.split("$");
-		strBlock=strText[0]+iBlock+strText[1]+strEndLine;
-	}
-    
-	var iChecker=0;
-	if(aStats[21]!=-1)  	iChecker+=1;
-	if(aStats[22]!=-1)  	iChecker+=2;
-	if(aStats[23]!=-1)  	iChecker+=4;
-	if(aStats[24]!=-1)  	iChecker+=8;
-	if(aStats[159]!=-1)	iChecker+=16;
-	if(aStats[160]!=-1)	iChecker+=32;
 
     var baseMinDam1h = getBaseStat(0, item.classid, 43)
     var baseMaxDam1h = getBaseStat(0, item.classid, 44)
@@ -637,103 +165,103 @@ function GetBaseStats(item, aStats, isHtml){
     var baseMinDamMi = getBaseStat(0, item.classid, 45)
     var baseMaxDamMi = getBaseStat(0, item.classid, 46)
 
-	var strDamage="";
-	switch(iChecker){
+	if(iBlock){
+		strText="Chance to Block: $%";
+		strText=strText.split("$");
+		strBlock=strText[0]+iBlock+strText[1]+strEndLine;
+        strBlock+="Smite Damage: " + baseMinDam1h + " to " + baseMaxDam1h +strEndLine;
+	}
+
+    var MinDam1h = item.getStat(21);
+    var MaxDam1h = item.getStat(22);
+    var MinDam2h = item.getStat(23);
+    var MaxDam2h = item.getStat(24);
+    var MinDamMi = item.getStat(159);
+    var MaxDamMi = item.getStat(160);
+
+    var wepType;
+    if(baseMaxDam1h)                    wepType = 1;
+    if(baseMaxDam2h)                    wepType = 2;
+    if(baseMaxDam1h && baseMaxDam2h)    wepType = 3;
+    if(baseMaxDamMi)                    wepType = 4;
+    if(baseMaxDam1h && baseMaxDamMi)    wepType = 5;
+    if(iBlock)                          wepType = 0;
     
-        // One-Hand Section
-		case 3:			//one hand
-        case 7:  // one hand with + min damage
-        case 11: // one hand with + max damage
-			strText=strDescriptor(20);
-			strText=strText.split("$");
-			strDamage=strText[0]+aStats[21]+strText[1]+aStats[22]+strEndLine;
-            //var addMinDam = Math.round(item.getStat(21) - Math.round(getBaseStat(0, item.classid, 43) * item.getStat(17)));
-            //var addMaxDam = Math.round(item.getStat(22) - Math.round(getBaseStat(0, item.classid, 44) * item.getStat(18)));
-            var addMinDam = item.getStat(23);
-            var addMaxDam = item.getStat(24);
-            
-		break;
+    var strDamage="";
+    var _blue="";
+    var _blueEnd="";
         
-        // Two-Hand Section
-		case 12:		//two hand only
-        case 13:        // 2 hand + min dam
-        case 14:        // 2 hand + max dam
-			strText=strDescriptor(21);
+	switch(wepType){
+        // Shield
+        case 0:
+            break;
+
+        // One-Hand Section
+        case 1:  //one hand
+            if((MinDam1h != baseMinDam1h || MaxDam1h != baseMaxDam1h) && isHtml) {
+                _blue = "<font color=\"#2020CC\">";
+                _blueEnd = "</font>";
+            }
+			strText="One-Hand Damage: $ to $";
 			strText=strText.split("$");
-			strDamage=strText[0]+aStats[23]+strText[1]+aStats[24]+strEndLine;
-            var addMinDam = Math.round(item.getStat(23) - (Math.round(baseMinDam2h * (item.getStat(17)/100)) + baseMaxDam2h));
-            var addMaxDam = Math.round(item.getStat(24) - (Math.round(baseMaxDam2h * (item.getStat(18)/100)) + baseMaxDam2h));
+			strDamage=strText[0]+_blue+MinDam1h+strText[1]+MaxDam1h+_blueEnd+strEndLine;
 		break;
 
-        // 1or2 hand Section- needs no calcuation always return total
-		case 15:		//one or two hand
-			strText=strDescriptor(20);
-			strText=strText.split("$");
-			strDamage=strText[0]+aStats[21]+strText[1]+aStats[22]+strEndLine;
-            if(baseMaxDam2h) { // if it's a true two handed weapon, not a 1h with +min and +max damaage
-    			strText=strDescriptor(21);
-    			strText=strText.split("$");
-    			strDamage+=strText[0]+aStats[23]+strText[1]+aStats[24]+strEndLine;
+        // Two-Hand Section
+        case 2:		//two hand only
+            if((MinDam2h != baseMinDam2h || MaxDam2h != baseMaxDam2h) && isHtml) {
+                _blue = "<font color=\"#2020CC\">";
+                _blueEnd = "</font>";
             }
-            //var addMinDam = Math.round(item.getStat(21) - (Math.round(baseMinDam1h * (item.getStat(17)/100)) + baseMaxDam1h));
-            var addMaxDam = Math.round(item.getStat(22) - (Math.round(baseMaxDam1h * (item.getStat(18)/100)) + baseMaxDam1h));
-            var addMinDam = Math.round(item.getStat(23) - (Math.round(baseMinDam2h * (item.getStat(17)/100)) + baseMaxDam2h));
-            //var addMaxDam = Math.round(item.getStat(24) - (Math.round(baseMaxDam2h * (item.getStat(18)/100)) + baseMaxDam2h));
-		break;
-        
-        
-		case 48:		//throwing
-			strText=strDescriptor(22);
+			strText="Two-Hand Damage: $ to $";
 			strText=strText.split("$");
-			strDamage+=strText[0]+aStats[159]+strText[1]+aStats[160]+strEndLine;
-            var addMinDam = Math.round(item.getStat(159) - Math.round(getBaseStat(0, item.classid, 45) * (item.getStat(17)/100)));
-            var addMaxDam = Math.round(item.getStat(160) - Math.round(getBaseStat(0, item.classid, 46) * (item.getStat(18)/100)));
-            var addMinDam = Math.round(item.getStat(159) - (Math.round(baseMinDamMi * (item.getStat(17)/100)) + baseMaxDamMi));
-            var addMaxDam = Math.round(item.getStat(160) - (Math.round(baseMaxDamMi * (item.getStat(18)/100)) + baseMaxDamMi));
+			strDamage=strText[0]+_blue+MinDam2h+strText[1]+MaxDam2h+_blueEnd+strEndLine;
 		break;
-        
-        
-		case 51:		//throwing and one hand
-			strText=strDescriptor(22);
+
+        // 1or2 hand Section
+		case 3:
+            if((MinDam1h != baseMinDam1h || MaxDam1h != baseMaxDam1h) && isHtml) {
+                _blue = "<font color=\"#2020CC\">";
+                _blueEnd = "</font>";
+            }
+			strText="One-Hand Damage: $ to $";
 			strText=strText.split("$");
-			strDamage+=strText[0]+aStats[159]+strText[1]+aStats[160]+strEndLine;
-			strText=strDescriptor(20);
+			strDamage=strText[0]+_blue+MinDam1h+strText[1]+MaxDam1h+_blueEnd+strEndLine;
+            if(baseMaxDam2h) { // if it's a true two handed weapon, not a 1h with +min and +max damaage
+    			strText="Two-Hand Damage: $ to $";
+    			strText=strText.split("$");
+    			strDamage+=strText[0]+_blue+MinDam2h+strText[1]+MaxDam2h+_blueEnd+strEndLine;
+            }
+		break;
+
+        //throwing only - never called?
+		case 4:
+            if((MinDamMi != baseMinDamMi || MaxDamMi != baseMaxDamMi) && isHtml) {
+                _blue = "<font color=\"#2020CC\">";
+                _blueEnd = "</font>";
+            }
+			strText="Throw Damage: $ to $";
 			strText=strText.split("$");
-			strDamage+=strText[0]+aStats[21]+strText[1]+aStats[22]+strEndLine;
-            var addMinDam = Math.round(item.getStat(21) - Math.round(getBaseStat(0, item.classid, 43) * (item.getStat(17)/100)));
-            var addMaxDam = Math.round(item.getStat(22) - Math.round(getBaseStat(0, item.classid, 44) * (item.getStat(18)/100)));
+			strDamage=strText[0]+_blue+MinDamMi+strText[1]+MaxDamMi+_blueEnd+strEndLine;
 		break;
-		/*
-		//These should be magic stats
-		case 21:	//to minimun
-			isMagic=true;
-			strText=strDescriptor(25);
+
+		//throwing and one hand
+		case 5:
+            if((MinDam1h != baseMinDam1h || MaxDam1h != baseMaxDam1h) && isHtml) {
+                _blue = "<font color=\"#2020CC\">";
+                _blueEnd = "</font>";
+            }
+			strText="Throw Damage: $ to $";
 			strText=strText.split("$");
-			strDamage=strText[0]+aStats[21]+strText[1]+strEndLine;
-		break;
-		case 22:	//to Maximum
-			isMagic=true;
-			strText=strDescriptor(26);
+			strDamage=strText[0]+_blue+MinDamMi+strText[1]+MaxDamMi+_blueEnd+strEndLine;
+			strText="One-Hand Damage: $ to $";
 			strText=strText.split("$");
-			strDamage=strText[0]+aStats[22]+strText[1]+strEndLine;
+			strDamage+=strText[0]+_blue+MinDam1h+strText[1]+MaxDam1h+_blueEnd+strEndLine;
 		break;
-		case 63:	//adds damage
-			isMagic=true;
-			if(aStats[21]!=aStats[22]){
-				strText=strDescriptor(23);
-				strText=strText.split("$");
-				strDamage=strText[0]+aStats[22]+strText[1]+strEndLine;
-			} else {
-				strText=strDescriptor(24);
-				strText=strText.split("$");
-				strDamage=strText[0]+aStats[21]+strText[1]+aStats[22]+strText[2]+strEndLine;
-			}
-		break;
-        */
 	}
 
     strRet+=strDamage;
-    
+
     var Class = false;
     if(item.itemType == 60 || item.itemType == 85 || item.itemType == 86 || item.itemType == 87) {
         Class = "[Amazon Only]";
@@ -770,8 +298,10 @@ function GetBaseStats(item, aStats, isHtml){
 		strRet+=strDefen;
 	if(strBlock)
 		strRet+=strBlock;
-	if(strDurab)
+	if(strDurab && !iQuant)
 		strRet+=strDurab;
+    if(iQuant)
+        strRet+=strQuant;
 	if(Class)
 		strRet+=strClass;
 	if(strReqDex)
@@ -780,113 +310,12 @@ function GetBaseStats(item, aStats, isHtml){
 		strRet+=strReqStr;
 	if(strLvl)
 		strRet+=strLvl;
-/*
-	if(isMagic){
-		if(strDamage){
-			if(isHtml){
-				strDamage="<font color=\"#2020CC\">"+strDamage+"</font>";
-			}
-			strRet+=strDamage;
-		}
-	}
-*/
-	return [strRet,addMinDam,addMaxDam];
-	
-}
 
-function GetSkills(aStats, isHtml){
-	var strResult="";
-	var strEndLine="\n";
-	if(isHtml){
-		strEndLine="<br/>\n";
-	}
-	
-
-	for(var i=0; i<3; i++){	
-		if(aStats[(i+107)]!=-1)
-			strResult+=GetCode1(aStats[(i+107)])+strEndLine;
-	}
-	if(aStats[181]!=-1)
-		strResult+=GetCode1(aStats[181])+strEndLine;
-
-	for(i=0; i<6; i++){	
-		if(aStats[(i+188)]!=-1)
-			strResult+=GetCode2(aStats[(i+188)])+strEndLine;
-	}
-
-	for(i=0; i<3*3; i++){	
-		if(aStats[(i+195)]!=-1)
-			strResult+=GetCode3(Math.floor(i/3), aStats[(i+195)])+strEndLine;
-	}
-	for(i=0; i<10; i++){	
-		if(aStats[(i+204)]!=-1)
-			strResult+=GetCode4(aStats[(i+204)])+strEndLine;
-	}
-	return strResult;
-}
-
-//----------------------------------------------------------------------------------
-
-//Plus x to some skill
-//code1 = skill + level x512
-//called for 107 to 109
-function GetCode1(iValue){
-	iLevel=Math.floor(iValue/512);
-	iSkill=(iValue%512);
-	if(iSkill>220)
-		iSkill-=65;
-	//var strRet="+"+iLevel+" "+strDescriptor(28)+" "+strSkillNumberToName(iSkill);
-	var strRet="+"+iLevel+" "+strDescriptor(28)+" "+strSkillNumberToName(iSkill);//+" iVal:"+iValue+" Spell:"+iSkill;
 	return strRet;
 }
 
 
-//Plus x to skill Tree 
-//code1 = tab + level x32
-//called for 188 to 193
-function GetCode2(iValue){
-	var iLevel=Math.floor(iValue/32);
-	var iTab=(iValue%32);
-	var strRet="+"+iLevel+" "+strSkillTreeNumberToName(iTab);
-	return strRet;
-}
-
-
-//Chance to cast some skill at some level on event
-//code2 = spell + % x16384 + level x512
-//called for 195 to 203
-function GetCode3(iNumStat, iValue){
-	if(iNumStat<0 || iNumStat>2){
-		return "Bad NumStat: "+iNumStat;
-	}
-	var iVal=iValue;
-	iPcentVal=Math.floor(iValue/16384);
-	iValue-=iPcentVal*16384;
-	iLvlVal=Math.floor(iValue/512);
-	iValue-=iLvlVal*512;
-	iSpell=(iValue);
-	
-	if(iSpell>220)
-		iSpell-=65;
-	var strRet=iPcentVal+"% "+strDescriptor(29)+" "+iLvlVal+" "+strSkillNumberToName(iSpell)+" "+strDescriptor((30+iNumStat));//+" iVal:"+iVal+" Spell:"+iSpell;
-	return strRet;
-}
-
-
-//code3 = skill + level x512 + actual charge x16384 +  max charges x4194304
-//called for 204 to 213
-function GetCode4(iValue){
-	iMaxCharge=Math.floor(iValue/4194304);
-	iValue-=iMaxCharge*4194304;
-	iActCharge=Math.floor(iValue/16384);
-	iValue-=iActCharge*16384;
-	iLvlVal=Math.floor(iValue/512);
-	iValue-=iLvlVal*512;
-	iSkill=(iValue);
-
-	var strRet=strDescriptor(47)+" "+iLvlVal+" "+strSkillNumberToName(iSkill)+" ("+iActCharge+"/"+iMaxCharge+" "+strDescriptor(15)+")";
-	return strRet;
-}
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
 
@@ -1456,741 +885,4 @@ function ConvertINI2JS(strINIinput, strJSoutput){
 		writeHTML(jsfile, "var SearchDataRealm=\""+strRealm+"\";");
 		jsfile.close();
 	}
-}
-
-
-
-
-
-
-
-
-
-
-//------------------------------------------------------------------------------------------
-//	
-//	StatsLib.d2l  translation for ENGLISH
-//
-//		by tRaiz
-//          updated and maintained by Darien
-//------------------------------------------------------------------------------------------
-
-function strDescriptor(descNum){
-	return [
-		"All Resistances +",						//0
-		"+$ to All Skill Levels",					//1
-		" fire damage",								//2
-		"Adds $-$ fire damage",						//3
-		" cold damage",								//4
-		"Adds $-$ cold damage",						//5
-		" lightning damage",						//6
-		"Adds $-$ lightning damage",				//7
-		" magic damage",							//8
-		"Adds $-$ magic damage",					//9
-		" poison damage over $ seconds",			//10
-		"Adds $-$ poison damage over $ seconds",	//11
-		"+$ damage",								//12
-		"Adds $-$ damage",							//13
-		"% Enhanced Damage",						//14
-		"Charges",									//15
-		"Required Strength: ",						//16
-		"Required Dexterity: ",						//17
-		"Defense: ",								//18
-		"Required Level: ",							//19
-		"One-Hand Damage: $ to $",					//20
-		"Two-Hand Damage: $ to $",					//21
-		"Throw Damage: $ to $",						//22
-		"+$ damage",								//23	//never used !! :P use 13 & 14
-		"Adds $-$ damage",							//24
-		"+$ to Minimum Damage",						//25
-		"+$ to Maximum Damage",						//26
-		"of",										//27
-		"to",										//28
-		"Chance of casting level",					//29
-		"on attack",								//30
-		"on striking",								//31
-		"on getting hit",							//32
-		"Durability: $ of $",						//33
-		"Unidentified",								//34
-		"Chance to Block: $%",						//35
-		"Fire Resist ",								//36
-		"% to Maximum Fire Resist",					//37
-		"Lightning Resist ",						//38
-		"% to Maximum Lightning Resist",			//39
-		"Cold Resist ",								//40
-		"% to Maximum Cold Resist",					//41
-		"Poison Resist ",							//42
-		"% to Maximum Poison Resist",				//43
-		"Magic Resist ",							//44
-		"% to Maximum Magic Resist",				//45
-		"Ethereal (Cannot be Repaired)",			//46
-		"Level",									//47
-		" to All Skills",							//48
-		" to Amazon Skill Levels",					//49
-		" to Sorceress Skills",						//50
-		" to Necromancer Skills",					//51
-		" to Paladin Skills",						//52
-		" to Barbarian Skills",						//53
-		" to Druid Skills",							//54
-		" to Assasin Skills"						//55
-
-	][descNum];
-}
-
-
-
-function strSkillNumberToName(skillNum) {
-  var _sa = new Array();
-  _sa = [
-  	"attack", 	//0
-  	"kick", 	//1
-  	"throw", 	//2
-  	"unsummon", 	//3
-  	"left hand throw", 	//4
-  	"left hand swing", 	//5
-	"Magic Arrow",		//	6	ama
-	"Fire Arrow",		//	7	ama
-	"Inner Sight",		//	8	ama
-	"Critical Strike",	//	9	ama
-	"Jab",				//	10	ama
-	"Cold Arrow",		//	11	ama
-	"Multiple Shot",	//	12	ama
-	"Dodge",			//	13	ama
-	"Power Strike",		//	14	ama
-	"Poison Javelin",	//	15	ama
-	"Exploding Arrow",	//	16	ama
-	"Slow Missiles",	//	17	ama
-	"Avoid",			//	18	ama
-	"Impale",			//	19	ama
-	"Lightning Bolt",	//	20	ama
-	"Ice Arrow",		//	21	ama
-	"Guided Arrow",		//	22	ama
-	"Penetrate",		//	23	ama
-	"Charged Strike",	//	24	ama
-	"Plague Javelin",	//	25	ama
-	"Strafe",			//	26	ama
-	"Immolation Arrow",	//	27	ama
-	"Dopplezon",		//	28	ama
-	"Evade",			//	29	ama
-	"Fend",				//	30	ama
-	"Freezing Arrow",	//	31	ama
-	"Valkyrie",			//	32	ama
-	"Pierce",			//	33	ama
-	"Lightning Strike",	//	34	ama
-	"Lightning Fury",	//	35	ama
-	"Fire Bolt",		//	36	sor
-	"Warmth",			//	37	sor
-	"Charged Bolt",		//	38	sor
-	"Ice Bolt",			//	39	sor
-	"Frozen Armor",		//	40	sor
-	"Inferno",			//	41	sor
-	"Static Field",		//	42	sor
-	"Telekinesis",		//	43	sor
-	"Frost Nova",		//	44	sor
-	"Ice Blast",		//	45	sor
-	"Blaze",			//	46	sor
-	"Fire Ball",		//	47	sor
-	"Nova",				//	48	sor
-	"Lightning",		//	49	sor
-	"Shiver Armor",		//	50	sor
-	"Fire Wall",		//	51	sor
-	"Enchant",			//	52	sor
-	"Chain Lightning",	//	53	sor
-	"Teleport",			//	54	sor
-	"Glacial Spike",	//	55	sor
-	"Meteor",			//	56	sor
-	"Thunder Storm",	//	57	sor
-	"Energy Shield",	//	58	sor
-	"Blizzard",			//	59	sor
-	"Chilling Armor",	//	60	sor
-	"Fire Mastery",		//	61	sor
-	"Hydra",			//	62	sor
-	"Lightning Mastery",//	63	sor
-	"Frozen Orb",		//	64	sor
-	"Cold Mastery",		//	65	sor
-	"Amplify Damage",	//	66	nec
-	"Teeth",			//	67	nec
-	"Bone Armor",		//	68	nec
-	"Skeleton Mastery",	//	69	nec
-	"Raise Skeleton",	//	70	nec
-	"Dim Vision",		//	71	nec
-	"Weaken",			//	72	nec
-	"Poison Dagger",	//	73	nec
-	"Corpse Explosion",	//	74	nec
-	"Clay Golem",		//	75	nec
-	"Iron Maiden",		//	76	nec
-	"Terror",			//	77	nec
-	"Bone Wall",		//	78	nec
-	"Golem Mastery",		//	79	nec
-	"Raise Skeletal Mage",		//	80	nec
-	"Confuse",			//	81	nec
-	"Life Tap",			//	82	nec
-	"Poison Explosion",	//	83	nec
-	"Bone Spear",		//	84	nec
-	"BloodGolem",		//	85	nec
-	"Attract",			//	86	nec
-	"Decrepify",		//	87	nec
-	"Bone Prison",		//	88	nec
-	"Summon Resist",	//	89	nec
-	"IronGolem",		//	90	nec
-	"Lower Resist",		//	91	nec
-	"Poison Nova",		//	92	nec
-	"Bone Spirit",		//	93	nec
-	"FireGolem",		//	94	nec
-	"Revive",			//	95	nec
-	"Sacrifice",		//	96	pal
-	"Smite",			//	97	pal
-	"Might",			//	98	pal
-	"Prayer",			//	99	pal
-	"Resist Fire",		//	100	pal
-	"Holy Bolt",		//	101	pal
-	"Holy Fire",		//	102	pal
-	"Thorns",			//	103	pal
-	"Defiance",			//	104	pal
-	"Resist Cold",		//	105	pal
-	"Zeal",				//	106	pal
-	"Charge",			//	107	pal
-	"Blessed Aim",		//	108	pal
-	"Cleansing",		//	109	pal
-	"Resist Lightning",	//	110	pal
-	"Vengeance",		//	111	pal
-	"Blessed Hammer",	//	112	pal
-	"Concentration",	//	113	pal
-	"Holy Freeze",		//	114	pal
-	"Vigor",			//	115	pal
-	"Conversion",		//	116	pal
-	"Holy Shield",		//	117	pal
-	"Holy Shock",		//	118	pal
-	"Sanctuary",		//	119	pal
-	"Meditation",		//	120	pal
-	"Fist of the Heavens",		//	121	pal
-	"Fanaticism",		//	122	pal
-	"Conviction",		//	123	pal
-	"Redemption",		//	124	pal
-	"Salvation",		//	125	pal
-	"Bash",				//	126	bar
-	"Sword Mastery",	//	127	bar
-	"Axe Mastery",		//	128	bar
-	"Mace Mastery",		//	129	bar
-	"Howl",				//	130	bar
-	"Find Potion",		//	131	bar
-	"Leap",				//	132	bar
-	"Double Swing",		//	133	bar
-	"Pole Arm Mastery",	//	134	bar
-	"Throwing Mastery",	//	135	bar
-	"Spear Mastery",	//	136	bar
-	"Taunt",			//	137	bar
-	"Shout",			//	138	bar
-	"Stun",				//	139	bar
-	"Double Throw",		//	140	bar
-	"Increased Stamina",//	141	bar
-	"Find Item",		//	142	bar
-	"Leap Attack",		//	143	bar
-	"Concentrate",		//	144	bar
-	"Iron Skin",		//	145	bar
-	"Battle Cry",		//	146	bar
-	"Frenzy",			//	147	bar
-	"Increased Speed",	//	148	bar
-	"Battle Orders",	//	149	bar
-	"Grim Ward",		//	150	bar
-	"Whirlwind",		//	151	bar
-	"Berserk",			//	152	bar
-	"Natural Resistance",		//	153	bar
-	"War Cry",			//	154	bar
-	"Battle Command",	//	155	bar
-
-    , //156
-    , //157
-    ,// 158
-    , //159
-
-    , //160
-    , //161
-    , //162
-    , //163
-    , //164
-    , //165
-    , //166
-    , //167
-    ,// 168
-    , //169
-
-    , //170
-    , //171
-    , //172
-    , //173
-    , //174
-    , //175
-    , //176
-    , //177
-    ,// 178
-    , //179
-
-    , //180
-    , //181
-    , //182
-    , //183
-    , //184
-    , //185
-    , //186
-    , //187
-    ,// 188
-    , //189
-
-    , //190
-    , //191
-    , //192
-    , //193
-    , //194
-    , //195
-    , //196
-    , //197
-    ,// 198
-    , //199
-
-    , //200
-    , //201
-    , //202
-    , //203
-    , //204
-    , //205
-    , //206
-    , //207
-    ,// 208
-    , //209
-
-    , //210
-    , //211
-    , //212
-    , //213
-    , //214
-    , //215
-    , //216
-    , //217
-    ,// 218
-    , //219
-    , //220
-
-	"Raven",			//	221	dru
-	"Plague Poppy",		//	222	dru
-	"Wearwolf",			//	223	dru
-	"Shape Shifting",	//	224	dru
-	"Firestorm",		//	225	dru
-	"Oak Sage",			//	226	dru
-	"Summon Spirit Wolf",		//	227	dru
-	"Wearbear",			//	228	dru
-	"Molten Boulder",	//	229	dru
-	"Arctic Blast",		//	230	dru
-	"Cycle of Life",	//	231	dru
-	"Feral Rage",		//	232	dru
-	"Maul",				//	233	dru
-	"Eruption",			//	234	dru
-	"Cyclone Armor",	//	235	dru
-	"Heart of Wolverine",		//	236	dru
-	"Summon Fenris",	//	237	dru
-	"Rabies",			//	238	dru
-	"Fire Claws",		//	239	dru
-	"Twister",			//	240	dru
-	"Vines",			//	241	dru
-	"Hunger",			//	242	dru
-	"Shock Wave",		//	243	dru
-	"Volcano",			//	244	dru
-	"Tornado",			//	245	dru
-	"Spirit of Barbs",	//	246	dru
-	"Summon Grizzly",	//	247	dru
-	"Fury",				//	248	dru
-	"Armageddon",		//	249	dru
-	"Hurricane",		//	250	dru
-	"Fire Trauma",		//	251	ass
-	"Claw Mastery",		//	252	ass
-	"Psychic Hammer",	//	253	ass
-	"Tiger Strike",		//	254	ass
-	"Dragon Talon",		//	255	ass
-	"Shock Field",		//	256	ass
-	"Blade Sentinel",	//	257	ass
-	"Quickness",		//	258	ass
-	"Fists of Fire",	//	259	ass
-	"Dragon Claw",		//	260	ass
-	"Charged Bolt Sentry",		//	261	ass
-	"Wake of Fire Sentry",		//	262	ass
-	"Weapon Block",		//	263	ass
-	"Cloak of Shadows",	//	264	ass
-	"Cobra Strike",		//	265	ass
-	"Blade Fury",		//	266	ass
-	"Fade",				//	267	ass
-	"Shadow Warrior",	//	268	ass
-	"Claws of Thunder",	//	269	ass
-	"Dragon Tail",		//	270	ass
-	"Lightning Sentry",	//	271	ass
-	"Inferno Sentry",	//	272	ass
-	"Mind Blast",		//	273	ass
-	"Blades of Ice",	//	274	ass
-	"Dragon Flight",	//	275	ass
-	"Death Sentry",		//	276	ass
-	"Blade Shield",		//	277	ass
-	"Venom",			//	278	ass
-	"Shadow Master",	//	279	ass
-	"Pheonix Strike"];		//	280	ass
-  
-  return _sa[skillNum];
-}
-
-function strStatNumberToDesc(stat) {
-  return [
-	"+$ to Strength",								//0
-	"+$ to Energy",									//1
-	"+$ to Dexterity",								//2
-	"+$ to Vitality",								//3
-	"",							//4
-	"",							//5
-	"",							//6
-	"+$ to Life",									//7
-	"",							//8
-	"+$ to Mana",									//9
-	"",							//10
-	"+$ Maximum Stamina",									//11
-	"",							//12
-	"",							//13
-	"",							//14
-	"",							//15
-	"+$% Enhanced Defense",							//16
-	"",							//17	//enhanced damage
-	"",		    				//18	//enhanced damage
-	"+$ to Attack Rating",							//19
-	"$% Increased Chance of Blocking",				//20
-	"",											//21	//min physical damage
-	"",											//22    //max physical damage
-	"$$$$",											//23
-	"$$$$",											//24
-	"+$ Damage Percent",							//25
-	"",							//26
-	"Regenerate Mana $%",							//27
-	"Heal Stamina Plus $%",							//28
-	"",							//29
-	"",							//30
-	"$$$$",											//31
-	"+$% Defense vs. Missile",						//32
-	"+$% Defense vs. Melee",							//33
-	"Damage Reduced by $",							//34
-	"Magic Damage Reduced by $",					//35
-	"Damage Reduced by $%",							//36
-	"Magic Damage Reduced by $%",					//37
-	"+$ to Maximum Magic Resist",					//38
-	"$$$$",											//39
-	"$$$$",											//40
-	"$$$$",											//41
-	"$$$$",											//42
-	"$$$$",											//43
-	"$$$$",											//44
-	"$$$$",											//45
-	"$$$$",											//46
-	"DAMAGEAURA ($)",					//47
-	"$$$$",											//48	//Calculate	element damage
-	"$$$$",											//49
-	"$$$$",											//50
-	"$$$$",											//51
-	"$$$$",											//52
-	"$$$$",											//53
-	"$$$$",											//54
-	"$$$$",											//55
-	"$$$$",											//56
-	"$$$$",											//57
-	"$$$$",											//58
-	"$$$$",											//59
-	"$% Life stolen per hit",						//60
-	"$% Life stolen per hit",						//61
-	"$% Mana stolen per hit",						//62
-	"$% Mana stolen per hit",						//63
-	"$% Stamina stolen per hit",					//64
-	"$% Stamina stolen per hit",					//65
-	"STUNLENGTH",					                //66
-	"$% Speed Reduction",							//67
-	"Base Attack Rate $",							//68
-	"",								                //69
-	"Quantity: $",									//70
-	"Value: $",										//71
-	"$$$$",											//72	//min	//Calculate durability
-	"$$$$",											//73	//max
-	"Replenish Life +$",							//74
-	"Increase Maximum Durability $%",				//75
-	"+$% Maximum Life",								//76
-	"+$% Maximum Mana",								//77
-	"Attacker Takes Damage of $",					//78
-	"$% extra gold from monsters",					//79
-	"$% better chance of getting magic item",		//80
-	"KnockBack",									//81
-	"Time of Duration $",							//82
-	"$$$$",						//83
-	"$$$$",							//84
-	"$$$$",						//85
-	"$$$$",						//86
-	"$$$$",						//87
-	"",				//88
-	"+$ to Light Radius",							//89
-	"",							//90
-	"Requirements $%",								//91
-	"",												//92
-	"+$% Increased Attack Speed",				//93
-	"-$% Requirements",					            //94
-	"",	                                			//95
-	"$% Faster Run/Walk",							//96
-	"Fastest Run/Walk",								//97
-	"Fast Hit Recovery",							//98
-	"$% Faster Hit Recovery",						//99
-	"Fastest Hit Recovery",							//100
-	"Fast Block Rate",								//101
-	"$% Faster Block Rate",							//102
-	"Fastest Block Rate",							//103
-	"Fast Cast Rate",								//104
-	"$% Faster Cast Rate",							//105
-	"Fastest Cast Rate",							//106
-	
-	"$$$$",											//107		//Calculate
-	"$$$$",											//108
-	"$$$$",											//109
-	
-	"Poison Length Reduced by $%",					//110
-	"ITEM_NORMALDAMAGE",							//111
-	"Hit Causes Monster To Flee $%",				//112
-	"Hit blinds target $%",							//113
-	"$% Damage Taken Goes To Mana",					//114
-	"Ignore Target's Defense",						//115
-	"$% Target Defense",							//116
-	"Prevent Monster Heal",							//117
-	"Half Freeze Duration",							//118
-	"$% Bonus to Attack Rating",					//119
-	"ITEM_DAMAGETARGETAC ($)",				//120
-	"$% Enhanced Damage against Demons",			//121
-	"$% Enhanced Damage against Undead",			//122
-	"$% to Attack Rating against Demons",			//123
-	"$% to Attack Rating against Undead",			//124
-	"ITEM_THROWABLE ($)",					//125
-	"+$ to Fire Skills",								//126
-	"+$ to All Skills",								//127
-	"Attacker Takes Lightning Damage of $",			//128
-	"IRONMAIDEN_LEVEL ($)",					//129
-	"LIFETAP_LEVEL ($)",					//130
-	"THORNS_LEVEL ($)",						//131
-	"BONEARMOR ($)",						//132
-	"BONEARMORMAX ($)",						//133
-	"Freezes target",								//134
-	"$% Chance of Open Wounds",						//135
-	"$% Chance of Crushing Blow",					//136
-	"Kick Damage of $",								//137
-	"+$ to Mana after each Kill",					//138
-	"+$ to Life after each Demon Kill",				//139
-	"+$% Chance of Extra Bloody",					//140
-	"$% Chance of Deadly Strike",					//141
-	"$% Fire Absorb",								//142
-	"$ Fire Absorb",								//143
-	"$% Lightning Absorb",							//144
-	"$ Lightning Absorb",							//145
-	"$% Magic Absorb",								//146
-	"$ Magic Absorb",								//147
-	"$% Cold Absorb",								//148
-	"$ Cold Absorb",								//149
-	"Slows target by $%",							//150
-	"$$$$",								//151
-	"Defiance ($)",									//152
-	"Cannot Be Frozen",								//153
-	"$% Decreased Stamina Drain",					//154
-	"$% chance to reanimate target",				//155
-	"Piercing Attack",								//156
-	"Fires Magic Arrows",							//157
-	"Fires Explosive Arrows or Bolts",				//158
-	"$$$$",											//159
-	"$$$$",											//160
-	"SKILL_HANDOFATHENA ($)",				//161
-	"SKILL_STAMINAPERCENT ($)",				//162
-	"SKILL_PASSIVE_STAMINAPERCENT ($)",		//163
-	"SKILL_CONCENTRATION ($)",				//164
-	"SKILL_ENCHANT ($)",					//165
-	"SKILL_PIERCE ($)",						//166
-	"SKILL_CONVICTION ($)",					//167
-	"SKILL_CHILLINGARMOR ($)",				//168
-	"SKILL_FRENZY ($)",						//169
-	"SKILL_DECREPIFY ($)",					//170
-	"SKILL_ARMOR_PERCENT ($)",				//171
-	"ALIGNMENT ($)",						//172
-	"TARGET0 ($)",							//173
-	"TARGET1 ($)",							//174
-	"GOLDLOST ($)",							//175
-	"CONVERSION_LEVEL ($)",					//176
-	"CONVERSION_MAXHP ($)",					//177
-	"UNIT_DOOVERLAY ($)",					//178
-	"$$$$",											//179
-	"$$$$",											//180
-	"$$$$",											//181
-	"ITEM_ADDSKILL_SINGLE5 ($)",			//182
-	"ITEM_ADDSKILL_SINGLE6 ($)",			//183
-	"ITEM_ADDSKILL_SINGLE7 ($)",			//184
-	"ITEM_ADDSKILL_SINGLE8 ($)",			//185
-	"ITEM_ADDSKILL_SINGLE9 ($)",			//186
-	"ITEM_ADDSKILL_SINGLE10 ($)",			//187
-	"$$$$",											//188
-	"$$$$",											//189
-	"$$$$",											//190
-	"$$$$",											//191
-	"$$$$",											//192
-	"$$$$",											//193
-	"Socketed ($)",									//194
-	"$$$$",											//195
-	"$$$$",											//196
-	"$$$$",											//197
-	"$$$$",											//198
-	"$$$$",											//199
-	"$$$$",											//200
-	"$$$$",											//201
-	"$$$$",											//202
-	"$$$$",											//203
-	"$$$$",											//204
-	"$$$$",											//205
-	"$$$$",											//206
-	"$$$$",											//207
-	"$$$$",											//208
-	"$$$$",											//209
-	"$$$$",											//210
-	"$$$$",											//211
-	"$$$$",											//212
-	"$$$$",											//213
-	"+$ Increased Armor Class Per Level",
-	"+$% Increased Armor Class Per Level",
-	"+$ Increased Life Per Level",
-	"+$ Increased Mana Per Level",
-	"+$ Increased Max Damage Per Level",
-	"+$% Increased Max Damage Per Level",
-	"+$ Increased Strength Per Level",
-	"+$ Increased Dexterity Per Level",
-	"+$ Increased Energy Per Level",
-	"+$ Increased Vitality Per Level",
-	"+$ Increased Attack Rating Per Level",
-	"+$% Increased Attack Rating Per Level",
-	"+$ Increased Cold Max Damage Per Level",
-	"+$ Increased Fire Max Damage Per Level",
-	"+$ Increased Lightning Max Damage Per Level",
-	"+$ Increased Poison Max Damage Per Level",
-	"+$ Increased Cold Resistances Per Level",
-	"+$ Increased Fire Resistances Per Level",
-	"+$ Increased Lightning Resistances Per Level",
-	"+$ Increased Poison Resistances Per Level",
-	"+$ Cold Absorb Per Level",
-	"+$ Fire Absorb Per Level",
-	"+$ Lightning Absorb Per Level",
-	"+$ Poison Absorb Per Level",
-	"+$ Increase Attacker Takes Damage Per Level",
-	"+$ Increase Gold Find Per Level",
-	"+$ Increase Magic Find Per Level",
-	"+$ Increase Stamina Recovery Per Level",
-	"+$ Increase Stamina Per Level",
-	"+$ Damage to Demons Per Level",
-	"+$ Damage to Undead Per Level",
-	"$% Attack Rating vs. Demons Per Level",
-	"$% Attack Rating vs. Undead Per Level",
-	"$% Increased Crushing Blow Per Level",
-	"$% Increased Open Wounds Per Level",
-	"$% Increased Kick Damage Per Level",
-	"$% Increased Deadly Strike Per Level",
-	"$% Chance to Find Gems Per Level",
-	"+$ Replenish Durability",
-	"Replenish Quantity",
-	"Increased Stack Size",
-	"ITEM_FIND_ITEM ($)",
-	"ITEM_SLASH_DAMAGE ($)",
-	"ITEM_SLASH_DAMAGE_PERCENT ($)",
-	"ITEM_CRUSH_DAMAGE ($)",
-	"ITEM_CRUSH_DAMAGE_PERCENT ($)",
-	"ITEM_THRUST_DAMAGE ($)",
-	"ITEM_THRUST_DAMAGE_PERCENT ($)",
-	"ITEM_ABSORB_SLASH ($)",
-	"ITEM_ABSORB_CRUSH ($)",
-	"ITEM_ABSORB_THRUST ($)",
-	"ITEM_ABSORB_SLASH_PERCENT ($)",
-	"ITEM_ABSORB_CRUSH_PERCENT ($)",
-	"ITEM_ABSORB_THRUST_PERCENT ($)",
-	"ITEM_ARMOR_BYTIME ($)",
-	"ITEM_ARMORPERCENT_BYTIME ($)",
-	"ITEM_HP_BYTIME ($)",
-	"ITEM_MANA_BYTIME ($)",
-	"ITEM_MAXDAMAGE_BYTIME ($)",
-	"ITEM_MAXDAMAGE_PERCENT_BYTIME ($)",
-	"ITEM_STRENGTH_BYTIME ($)",
-	"ITEM_DEXTERITY_BYTIME ($)",
-	"ITEM_ENERGY_BYTIME ($)",
-	"ITEM_VITALITY_BYTIME ($)",
-	"ITEM_TOHIT_BYTIME ($)",
-	"ITEM_TOHITPERCENT_BYTIME ($)",
-	"ITEM_COLD_DAMAGEMAX_BYTIME ($)",
-	"ITEM_FIRE_DAMAGEMAX_BYTIME ($)",
-	"ITEM_LTNG_DAMAGEMAX_BYTIME ($)",
-	"ITEM_POIS_DAMAGEMAX_BYTIME ($)",
-	"ITEM_RESIST_COLD_BYTIME ($)",
-	"ITEM_RESIST_FIRE_BYTIME ($)",
-	"ITEM_RESIST_LTNG_BYTIME ($)",
-	"ITEM_RESIST_POIS_BYTIME ($)",
-	"ITEM_ABSORB_COLD_BYTIME ($)",
-	"ITEM_ABSORB_FIRE_BYTIME ($)",
-	"ITEM_ABSORB_LTNG_BYTIME ($)",
-	"ITEM_ABSORB_POIS_BYTIME ($)",
-	"ITEM_FIND_GOLD_BYTIME ($)",
-	"ITEM_FIND_MAGIC_BYTIME ($)",
-	"ITEM_REGENSTAMINA_BYTIME ($)",
-	"ITEM_STAMINA_BYTIME ($)",
-	"ITEM_DAMAGE_DEMON_BYTIME ($)",
-	"ITEM_DAMAGE_UNDEAD_BYTIME ($)",
-	"ITEM_TOHIT_DEMON_BYTIME ($)",
-	"ITEM_TOHIT_UNDEAD_BYTIME ($)",
-	"ITEM_CRUSHINGBLOW_BYTIME ($)",
-	"ITEM_OPENWOUNDS_BYTIME ($)",
-	"ITEM_KICK_DAMAGE_BYTIME ($)",
-	"ITEM_DEADLYSTRIKE_BYTIME ($)",
-	"ITEM_FIND_GEMS_BYTIME ($)",
-	"ITEM_PIERCE_COLD ($)",
-	"ITEM_PIERCE_FIRE ($)",
-	"ITEM_PIERCE_LTNG ($)",
-	"ITEM_PIERCE_POIS ($)",
-	"ITEM_DAMAGE_VS_MONSTER ($)",
-	"ITEM_DAMAGE_PERCENT_VS_MONSTER ($)",
-	"ITEM_TOHIT_VS_MONSTER ($)",
-	"ITEM_TOHIT_PERCENT_VS_MONSTER ($)",
-	"ITEM_AC_VS_MONSTER ($)",
-	"ITEM_AC_PERCENT_VS_MONSTER ($)",
-	"FIRELENGTH ($)",
-	"BURNINGMIN ($)",
-	"BURNINGMAX ($)",
-	"PROGRESSIVE_DAMAGE ($)",
-	"PROGRESSIVE_STEAL ($)",
-	"PROGRESSIVE_OTHER ($)",
-	"PROGRESSIVE_FIRE ($)",
-	"PROGRESSIVE_COLD ($)",
-	"PROGRESSIVE_LIGHTNING ($)",
-	"ITEM_EXTRA_CHARGES ($)",
-	"PROGRESSIVE_TOHIT ($)"
-  ][stat];
-}
-
-//Check string orders, must be the same that in game tabs
-function strSkillTreeNumberToName(skillNum) {
-	return [
-		"to Bow and Crossbow Skills",   // 0
-		"to Passive Skills",            // 1
-		"to Javalin and Spear Skills",  // 2
-		"to Fire Skills",               // 8
-		"to Lightning Skills",          // 9
-		"to Cold Skills",               // 10
-		"to Curses Skills",             // 16
-		"to Poison and Bone Skills",    // 17
-		"to Summoning Skills",          // 18
-		"to Combat Skills",             // 24
-		"to Offensive auras",           // 25
-		"to Defensive auras",           // 26
-		"to Warcries",                  // 32
-		"to Combat Skills",             // 33
-		"to Masteries",                 // 34
-		"to Summoning Skills",          // 40
-		"to Shape Shifting Skills",     // 41
-		"to Elemental Skills",          // 42
-		"to Traps",                     // 48
-		"to Shadow Disciplines",        // 49
-		"to Martial Arts"               // 50
-	][skillNum];
 }

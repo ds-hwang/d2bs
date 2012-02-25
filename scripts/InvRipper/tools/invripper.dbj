@@ -237,7 +237,8 @@ function main(){
         var signoff = pickNiceString();
         var strFin= new Text (signoff, 400, 300, null, 3, 2);
         
-        if(standAlone) {
+        if(standAlone == "true" || standAlone != "false" || standAlone == "True") {
+            print("standAlone");
             Ele_WriteIniLine(DIOini, "general", "gameFlag", "true");
             print("ÿc1Waiting for "+minGameTime+" seconds.");
             minGameTime = minGameTime*1;
@@ -759,6 +760,7 @@ function makeLog(iModeLog){
 						}
 					}
 					iNumLinesStats=strStatsPerLine.length;
+                    if(item.getStat(194)) iNumLinesStats++;
 					strItemStats=getCompleteStats(item, true);
 					strStatsPerLine=strItemStats.split("\n");
 
