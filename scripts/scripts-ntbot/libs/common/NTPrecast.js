@@ -272,9 +272,6 @@ function NTP_DoEnchant(target, force)
 	if(arguments.length < 2)
 		force = false;
 	
-	if(me.inTown)
-		return false;
-	
 	if(target.isEnchanted && !force)
 		return true;
 		
