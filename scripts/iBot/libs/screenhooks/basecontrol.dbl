@@ -1,0 +1,32 @@
+js_strict(true);
+
+var BaseControl = function() {
+	this.x = 0;
+	this.y = 0;
+	this.visible = true;
+	this.controls = [];
+	
+	this.remove = function() {
+		//var c;
+		//while(c = this.controls.pop()) c.remove;
+		for each(let c in this.controls)
+			c.remove();
+		this.controls = [];
+	};
+	
+	this.watch('x',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.x = c.x+newval-oldval;
+		return newval;
+	});
+	this.watch('y',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.y = c.y+newval-oldval;
+		return newval;
+	});
+	this.watch('visible',function(prop,oldval,newval){
+		for each(let c in controls)
+			c.visible = newval;
+		return newval;
+	});
+};

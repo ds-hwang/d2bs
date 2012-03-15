@@ -1,0 +1,80 @@
+js_strict(true);
+
+const fastRequirements = false;
+
+function require(reqs, args) {
+	var fname = arguments.callee.caller.name;
+	fname = fname.length > 0 ? fname : '[anonymous]';
+	//Debug.Write(INFO, 'Checking requirements for function', fname);
+	if(fastRequirements)
+	{
+		//Debug.Write(INFO, 'Requirements assumed passed!');
+		return;
+	}
+	
+	for(var i = 0; i < reqs.length; i++) {
+		let (req = reqs[i], arg = i >= args.length ? undefined : args[i]) {
+			if(req.hasOwnProperty('valid') && isFunction(req.valid)) {
+				if(req.hasOwnProperty('optional') && req.optional && arg === undefined)
+					continue;
+				//Debug.Write(INFO, 'Checking requirement', req.valid.name);
+				if(!req.valid(arg)) {
+			//		Debug.Write(ERROR, 'Failed requirement', req.valid.name);
+					throw new Error('Argument ' + (i+1) + (req.optional ? ' (optional)' : '') +
+						' of function ' + fname + ' violates the requirement ' +
+						req.valid.name + '!');
+				}
+				//Debug.Write(INFO, 'Requirement', req.valid.name, 'passed!');
+			}
+		}
+	}
+}
+
+function bind(f,x){return (function(){return f.apply(x,arguments);});};
+
+function isNumber(obj) { return (typeof(obj) == 'number'); }
+function isString(obj) { return (typeof(obj) == 'string'); }
+function isBoolean(obj) { return (typeof(obj) == 'boolean'); }
+function isError(obj) { return obj instanceof Error; }
+function isArray(obj) {
+	// arrays have a push and pop method, as well as a length and are a
+	// typeof object
+	// (undefined is also a typeof object... stupid ECMA spec!)
+	return typeof(obj) == 'object' && obj != undefined &&
+			obj.hasOwnProperty('length') && isFunction(obj.push) &&
+			isFunction(obj.pop);
+}
+function isFunction(obj) {
+	return	typeof(obj) == 'function' &&
+			typeof(obj.call) == 'function' &&
+			typeof(obj.apply) == 'function';
+}
+
+function inRect(rect, arg) {
+	require([{valid: isRect}, {valid: function isValid(x){return isRect(x) || isPoint(x);}}], arguments);
+	
+	if (isRect(arg))
+		return inRect({x:arg.x, y:arg.y}, rect) && inRect({x:arg.x+arg.width, y:arg.y+arg.height}, rect);
+	return arg.x >= rect.x && arg.y >= rect.y && arg.x <= rect.x + rect.width && arg.y <= rect.y + rect.height;
+}
+
+function hasBit(num, bit) { return !!hasFlag((num >> bit), 0x1); }
+function hasFlag(num, flag) { return !!((num & flag) == flag); }
+
+function setBit(num, bit) { return setFlag(num, (1 << bit)); }
+function setFlag(num, flag) { return (num | flag); }
+
+function clearBit(num, bit) { return clearFlag(num, (1 << bit)); }
+function clearFlag(num, flag) { return (num & flag); }
+
+function parseBoolean(nStr) {
+	switch (String(nStr).toLowerCase()) {
+		case "y":
+		case "yes":
+		case "1":
+		case "true":
+			return true;
+		break;
+	}
+	return false;
+}

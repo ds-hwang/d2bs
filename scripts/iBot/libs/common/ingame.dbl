@@ -1,0 +1,145 @@
+js_strict(true);
+
+include('constants.dbl');
+include('common/js.dbl');
+include('ibot/interface.dbl');
+include('ibot/ibot.dbl');
+
+function moveDelay(){ return modeDelay([Mode.Player.Walk, Mode.Player.Run, Mode.Player.TownWalk]); }
+function castDelay(){ return modeDelay([Mode.Player.Cast, Mode.Player.Sequence]); }
+function areaDelay(area){ return doDelay(function(){return me.area!=area;},200,5000) && sleep(200); }
+function neutralDelay(){ return doDelay(function(){return me.mode!=Mode.Player.Neutral&&me.mode!=Mode.Player.TownNeutral;}); }
+function portalDelay(target, maxlen){
+	maxlen = maxlen || 4000;
+	if (typeof(target) == 'object')
+		return target.classid==UniqueId['Town Portal'] ? true : modeDelay([Mode.Object.Operating], target);
+	return doDelay(function(){
+		var u = Unit.findObject({objtype:target,classid:[UniqueId['Town Portal'],UniqueId['Permanent Town Portal'],
+			UniqueId['Waypoint Portal'],UniqueId['Arcane Portal']]});
+		if (!u) return true;
+		return !portalDelay(u);
+	},5,maxlen);
+}
+function shopDelay(){
+	var npc = getInteractedNPC();
+	if (!npc) throw new Error('Need to be interacted with npc');
+	sleep(500);
+	return doDelay(function(){ return npc.itemcount < 5; },100);
+}
+function dropDelay(item) {
+	require([{valid: isItem}], arguments);
+	return doDelay(function(){ return item.mode != Mode.Item.OnGround; },5,500);
+}
+function toCursorDelay(item) {
+	require([{valid: isItem}], arguments);
+	return doDelay(function(){ var unit=getUnit(100);return !unit || !unit.gid==item.gid; },50,1500);
+}
+function fromCursorDelay(item) {
+	require([{valid: isItem}], arguments);
+	return doDelay(function(){ return getUnit(100); },50,1500);
+}
+function cursorDelay(type) {
+	return doDelay(function(){ return getCursorType()!=type; }) && sleep(100);
+}
+function normCursorDelay() {
+	return doDelay(function(){ return getCursorType() in oc([CursorType.Norm1,CursorType.Norm2,CursorType.Norm3,CursorType.Norm4]); });
+}
+function UIDelay(type, mode, maxlen) {
+	mode = isBoolean(mode) ? mode : true;
+	maxlen = maxlen || 3000;
+	return doDelay(function(){ return mode ? !getUIFlag(type) : getUIFlag(type); },5,maxlen) && sleep(200);
+}
+function modeDelay(modes, unit, mode, maxlen) {
+	require([{valid: isArray}], arguments);
+	unit = unit || me;
+	mode = isBoolean(mode) ? mode : true;
+	return doDelay(function() {
+		if (mode) return modes.some(function(e){return unit.mode==e;});
+		return modes.every(function(e){return unit.mode!=e;});
+	},5,maxlen);
+}
+function doDelay(predicate, wait, maxlen) {
+	wait = wait || 5;
+	maxlen = maxlen || -1;
+	require([{valid: isFunction}, {valid: isNumber, optional: true},
+			{valid: isNumber, optional: true}], arguments);
+	Interface.Display(Message.DDebug, 'Delaying for '+wait+'ms apice '+(maxlen>0?' until at most '+maxlen+'ms':'forever')+' ('+arguments.callee.caller.name+')');
+	var i = 0;
+	do {
+		if(maxlen > 0 && i*wait >= maxlen) {
+			Interface.Display(Message.Warning, maxlen+'ms reached, exiting ('+arguments.callee.caller.name+')');
+			return false;
+		}
+		sleep(wait);
+	} while(predicate(++i) === true);
+	return true;
+}
+
+function isUnit(obj) {
+	return (obj instanceof Unit);
+}
+function isNPC(obj) {
+	return isUnit(obj) && obj.type == Type.Unit &&
+			obj.isInTown && obj.hasOwnProperty('name');
+}
+function isMonster(obj) {
+	return isUnit(obj) && obj.type == Type.Unit &&
+			!obj.isInTown && obj.hasOwnProperty('name');
+}
+function isObject(obj) {
+	return isUnit(obj) && obj.type == Type.Object &&
+			obj.hasOwnProperty('x') && obj.hasOwnProperty('y');
+}
+function isItem(obj) {
+	return isUnit(obj) && obj.type == Type.Item &&
+			obj.hasOwnProperty('location') &&
+			obj.hasOwnProperty('name');
+}
+function isMissile(obj) {
+	return isUnit(obj) && obj.type == Type.Missile;
+}
+function isPreset(obj) {
+	return (obj instanceof PresetUnit);
+}
+function isArea(obj) {
+	return typeof(obj) == 'object' &&
+			obj.hasOwnProperty('id') &&
+			obj.hasOwnProperty('name') &&
+			obj.hasOwnProperty('exits');
+}
+function isRoom(obj) {
+	return typeof(obj) == 'object' && obj.hasOwnProperty('correcttomb');
+}
+function isParty(obj) {
+	return typeof(obj) == 'object' && obj.hasOwnProperty('partyid') && obj.hasOwnProperty('partyflag');
+}
+
+function getWpPreset(area) {
+	area = area || me.area;
+	const classids = [119,145,156,157,237,238,288,323,324,398,402,429,494,496,511,539];
+	return PresetUnit.findObject({level:area, id:classids});
+}
+function getWpUnit() {
+	return Unit.findObject({name:'Waypoint'});
+}
+
+function getRooms(/*area*/) {
+	var room = getRoom.apply(this, arguments);
+	if (isRoom(room))
+		do { yield room;
+		} while(room.getNext());
+}
+
+function getUnits(/*type, classId, mode, unitId*/) {
+	var unit = getUnit.apply(this, arguments);
+	if (isUnit(unit))
+		do { yield unit;
+		} while(unit.getNext());
+}
+
+function getParties(/*name/id/unit*/) {
+	var party = getParty.apply(this, arguments);
+	if (isParty(party))
+		do { yield party;
+		} while(party.getNext());
+}

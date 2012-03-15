@@ -1,0 +1,24 @@
+js_strict(true);
+
+include('prototypes.dbl');
+include('screenhooks.dbl');
+
+var UI = new function() {
+return;
+	var tb = new TextBox(200,200,400,70);
+	tb.text = '1aaaaaaaaa1\n1bbbbbbbb1\n1ccc1 1dddddddd1 1eeeeeeeeeeeeeeeeeeeee1 1fffffffff1 1ggg1 1hhhhhhhhhhhh1 1iiiiiiiiiiiiiiiiiiiiiiiiii1 1jjjjjjjjjjjj1 1kkkkkkkkkkkkk1 1llllllllllll1 1mmmmmmmmmmmmmm1 1nnnnnnnnn1 1oooo1 1pppppppppppppppppppppppp1 1qqqqqqqqq1';
+	tb.visible = true;
+	
+	var tp = new TabControl('Settings', 200, 300, 300, 200);
+	
+	var t1 = tp.NewTab('NOO'),
+		t2 = tp.NewTab('YesOMGLOL'),
+		t3 = tp.NewTab('A tab!');
+	
+	t1.AddControl(new Text('Test',10,10));
+	t2.AddControl(new CheckBox(10,10,false,function(b){print('b: '+b);return true;}));
+	
+	t2.AddControl(new DropDownBox(10,30,100,['val1','val2','val3'],'val2'));
+	
+	//tp.remove();
+};

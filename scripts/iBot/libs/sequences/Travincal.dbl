@@ -1,0 +1,15 @@
+js_strict(true);
+
+function Travincal() {
+	Pather.MoveToArea(Area.Act3.Travincal);
+	Precast.Precast();
+	var p = PresetUnit.findObject({id:UniqueId['Stairsr']});
+	var councils = [UniqueMonster['Toorc Icefist'],UniqueMonster['Geleb Flamefinger'],UniqueMonster['Ismail Vilehand']];
+	for each(let council in councils) {
+		var u = p.GetUnit({type:Type.Monster,uniqueid:council});
+		if (u)
+			Attack.Kill(u);
+	}
+	Pickit.Pick();
+	return true;
+}

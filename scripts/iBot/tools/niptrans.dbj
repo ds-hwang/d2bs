@@ -1,0 +1,87 @@
+js_strict(true);
+
+include('tools/niptrans/njipAliases.dbl');
+include('constants.dbl');
+include('ibot/interface.dbl');
+include('common/nip.dbl');
+
+function main(/*inFile, outFile*/) {
+//var inFile = 'pickit/elite.nip';
+//var outFile = 'pickit/test.cip';
+	for each(let file in dopen('pickit').getFiles()) {
+		var [fName,fEnding] = file.split('.');
+		if (fEnding != 'nip') continue;
+		if (FileTools.exists('pickit/'+fName+'.nipx')) continue;
+		
+		var data = NipParser.ReadFile('pickit/'+file, nipTranslator);
+		for each(let line in data) {
+			var tmp = '';
+			for(var i=0;i<line.stats.length;i++) {
+				var trans = translate(line.stats[i].stat,line.stats[i].value);
+				tmp += trans.stat+' '+line.stats[i].op+' '+trans.value+' : ';
+			}
+			FileTools.appendText('pickit/'+fName+'.nipx', tmp.substring(0,tmp.length-3)+'\n');
+		}
+	}
+}
+
+function nipTranslator(stat, value) {
+	stat = stat.toLowerCase().replace(/\s/g,'');
+	value = value.toLowerCase().replace(/\s/g,'');
+	switch(stat) {
+		case 'code':
+		case 'quality': break;
+		case 'type':
+			if (!isNaN(Number(value))) break;
+			if (!njipType.hasOwnProperty(value)) throw new Error('Failed to get type for '+value);
+			value = njipType[value]; break;
+		case 'flag': value = njipItemFlag[value]; break;
+		case 'name':
+			stat = 'classid';
+			if (!njipClassId.hasOwnProperty(value)) throw new Error('Failed to get classid for '+value);
+			value = njipClassId[value]; break;
+		default:
+			if (!isNaN(Number(stat))) {}
+			else if (njipStats.hasOwnProperty(stat)) stat = njipStats[stat];
+			else throw new Error('Failed to translate nip-pickit stat, '+stat);
+			break;
+	}
+	return {stat:stat, value:value};
+}
+function translate(stat, value) {
+	try {
+		if (!isArray(stat)) stat = [(''+stat).toLowerCase(),undefined];
+		switch(stat[0]) {
+			case 'count':
+			case 'quality': stat = stat[0]; break;
+			case 'code': stat[0] = 'name'; value = PickitCodes.find(value); break;
+			case 'type':
+				stat = stat[0];
+				value = getBaseStat(BaseStatTable.itemtypes,value,'code');
+				break;
+			case 'flag':
+				stat = stat[0];
+				value = PickitFlag.find(value)
+				break;
+			case 'classid':
+				var code = getBaseStat(BaseStatTable.items,value,'code').trim();
+				if (!PickitCodes.IsValid(code)) throw new Error('Found invalid code, '+code);
+				stat = 'name';
+				value = PickitCodes.find(code);
+				break;
+			default:
+				switch(stat[0]) {
+					case Stats.SingleSkill:
+					case Stats.AddSkillTab:
+					case Stats.AddClassSkills:
+					case Stats.ElemSkills: stat = PickitStats.find(stat[0],stat[1]); break;
+					default:
+						var tmp = PickitStats.find(stat[0]);
+						if (tmp) stat = tmp;
+						else throw new Error('Failed to translate pickit stat, '+stat);
+				}
+				break;
+		}
+	} catch(e) { throw new Error(e.message+' - Stat: '+stat.toSource()+' Value: '+value); }
+	return {stat:stat, value:value};
+}

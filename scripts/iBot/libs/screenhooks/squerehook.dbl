@@ -1,0 +1,73 @@
+js_strict(true);
+
+var Squere = function(/*x, y, width, height, color, automap*/) {
+	var rect = new Rectangle(new Point(arguments[0], arguments[1]), new Size(arguments[2], arguments[3]));
+	var color = arguments[4] || 5;
+	var automap = arguments[5] || true;
+	var visible = true;
+	var lines = [];
+	
+	this.__defineGetter__('Rect', function(){
+		return rect;
+	});
+	this.__defineSetter__('x', function(val){
+		rect.x = val;
+		update();
+	});
+	this.__defineSetter__('y', function(val){
+		rect.y = val;
+		update();
+	});
+	this.__defineSetter__('width', function(val){
+		rect.width = val;
+		update();
+	});
+	this.__defineSetter__('height', function(val){
+		rect.height = val;
+		update();
+	});
+	this.__defineSetter__('color', function(val){
+		color = val;
+		update();
+	});
+	this.__defineSetter__('visible', function(val){
+		visible = val;
+		update();
+	});
+	
+	var init = function() {
+		lines.push(new Line(rect.x,            rect.y,             rect.x,            rect.y+rect.height, color, automap));
+		lines.push(new Line(rect.x+rect.width, rect.y,             rect.x+rect.width, rect.y+rect.height, color, automap));
+		lines.push(new Line(rect.x,            rect.y,             rect.x+rect.width, rect.y,             color, automap));
+		lines.push(new Line(rect.x,            rect.y+rect.height, rect.x+rect.width, rect.y+rect.height, color, automap));
+	};
+	var update = function() {
+		lines[0].x = rect.x;
+		lines[0].y = rect.y;
+		lines[0].x2 = rect.x;
+		lines[0].y2 = rect.y+rect.height;
+		
+		lines[1].x = rect.x+rect.width;
+		lines[1].y = rect.y;
+		lines[1].x2 = rect.x+rect.width;
+		lines[1].y2 = rect.y+rect.height;
+		
+		lines[2].x = rect.x;
+		lines[2].y = rect.y;
+		lines[2].x2 = rect.x+rect.width;
+		lines[2].y2 = rect.y;
+		
+		lines[3].x = rect.x;
+		lines[3].y = rect.y+rect.height;
+		lines[3].x2 = rect.x+rect.width;
+		lines[3].y2 = rect.y+rect.height;
+		
+		for(let i=0;i<lines.length;i++) {
+			lines[i].color = color;
+			lines[i].visible = visible;
+			lines[i].automap = automap;
+		}
+	};
+	
+	init();
+}

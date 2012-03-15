@@ -1,0 +1,8 @@
+js_strict(true);
+
+Room.prototype.__defineGetter__('realx', function() {
+	return this.x * 5;
+});
+Room.prototype.__defineGetter__('realy', function() {
+	return this.y * 5;
+});

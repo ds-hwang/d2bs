@@ -1,0 +1,14 @@
+js_strict(true);
+
+function Countess() {
+	Pather.MoveToArea(Area.Act1.BlackMarsh);
+	Precast.Precast();
+	Pather.MoveToArea(Area.Act1.TowerCellarLevel5);
+	var fountain = PresetUnit.findObject({id:UniqueId.Fountain});
+	var countess = fountain.GetUnit({type:Type.Monster,uniqueid:UniqueMonster['The Countess']});
+	//.MoveTo(Unit.findMonster({uniqueid:UniqueMonster['The Countess']}));
+	Attack.Kill(countess);
+	//Attack.Kill(Unit.findMonster({uniqueid:UniqueMonster['The Countess']}));
+	Pickit.Pick();
+	return true;
+}

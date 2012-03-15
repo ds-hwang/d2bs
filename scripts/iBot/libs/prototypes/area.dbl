@@ -1,0 +1,29 @@
+js_strict(true);
+
+include('constants.dbl');
+include('common.dbl');
+
+Area.prototype.__defineGetter__('realx', function(){
+	return this.x * 5;
+});
+Area.prototype.__defineGetter__('realy', function(){
+	return this.y * 5;
+});
+
+Area.prototype.__defineGetter__('act', function(){
+	return getBaseStat(BaseStatTable.levels, this.id, 2) + 1;
+});
+Area.prototype.__defineGetter__('hasWaypoint', function(){
+	return getBaseStat(BaseStatTable.levels, this.id, 'Waypoint') != 255;
+});
+Area.prototype.__defineGetter__('isTown', function(){
+	return this.id in oc(Area.Town);
+});
+
+Area.prototype.getWpPreset = function() {
+	return getWpPreset(this.id);
+};
+
+Area.prototype.MoveTo = function() {
+	Pather.MoveToArea(this.id);
+};

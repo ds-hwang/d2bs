@@ -1,0 +1,77 @@
+js_strict(true);
+
+include('ibot/interface.dbl');
+include('common.dbl');
+
+function main() {
+	var Threshold = {Me:{Hp:Interface.Config('Respirator','HpPotThreshold',70),
+							Mp:Interface.Config('Respirator','MpPotThreshold',20),
+							RvHp:Interface.Config('Respirator','HpRvThreshold',30),
+							RvMp:Interface.Config('Respirator','MpRvThreshold',0),
+							HpChicken:Interface.Config('Respirator','HpChickenThreshold',20),
+							MpChicken:Interface.Config('Respirator','MpChickenThreshold',0)},
+					Merc:{Hp:Interface.Config('Respirator','MercHpPotThreshold',60),
+							Rv:Interface.Config('Respirator','MercHpRvThreshold',20),
+							HpChicken:Interface.Config('Respirator','MercHpChickenThreshold',0)}};
+	
+	var PotTime = {Me:{Hp:(new Date().getTime()),Mp:(new Date().getTime()),Rv:(new Date().getTime())},
+					Merc:{Hp:(new Date().getTime()),Rv:(new Date().getTime())}};
+	
+	addEventListener('melife', function(life){
+		if (me.isInTown) return;
+		var plife = me.percentlife;
+		if (plife < Threshold.Me.HpChicken) quit();
+		var pots = [];
+		if (plife < Threshold.Me.RvHp && (new Date().getTime()) - PotTime.Me.Rv > 500) {
+			var rv = me.findItem({code:['rvs','rvl']});
+			if (rv) pots.push(rv);
+			PotTime.Me.Rv = PotTime.Me.Hp = (new Date().getTime());
+		}
+		if (plife < Threshold.Me.Hp && (new Date().getTime()) - PotTime.Me.Hp > 3000) {
+			var hp = me.findItem({code:['hp1','hp2','hp3','hp4','hp5',]});
+			if (hp) pots.push(hp);
+			PotTime.Me.Hp = (new Date().getTime());
+		}
+		if (pots.length > 0) pots.pop().interact();
+	});
+	
+	addEventListener('memana', function(mana){
+		if (me.isInTown) return;
+		var pmana = me.percentmana;
+		if (plife < Threshold.Me.MpChicken) quit();
+		var pots = [];
+		if (pmana < Threshold.Me.RvMp && (new Date().getTime()) - PotTime.Me.Rv > 500) {
+			var rv = me.findItem({code:['rvs','rvl']});
+			if (rv) pots.push(rv);
+			PotTime.Me.Rv = PotTime.Me.Mp = (new Date().getTime());
+		}
+		if (pmana < Threshold.Me.Mp && (new Date().getTime()) - PotTime.Me.Mp > 3000) {
+			var mp = me.findItem({code:['mp1','mp2','mp3','mp4','mp5',]});
+			if (mp) pots.push(mp);
+			PotTime.Me.Mp = (new Date().getTime());
+		}
+		if (pots.length > 0) pots.pop().interact();
+	});
+
+	while(true) {
+		doDelay(function(){return me.isInTown;},100);
+		var merc = me.getMerc();
+		if (merc) {
+			var plife = (merc.hp / 128) * 100; // merc.percentlife;
+			if (plife < Threshold.Merc.HpChicken) quit();
+			var pots = [];
+			if (plife < Threshold.Merc.Rv && (new Date().getTime()) - PotTime.Merc.Rv > 1000) {
+				var rv = me.findItem({code:['rvs','rvl']});
+				if (rv) pots.push(rv);
+				PotTime.Merc.Rv = PotTime.Merc.Hp = (new Date().getTime());
+			}
+			if (plife < Threshold.Merc.Hp && (new Date().getTime()) - PotTime.Merc.Hp > 4000) {
+				var hp = me.findItem({code:['hp1','hp2','hp3','hp4','hp5',]});
+				if (hp) pots.push(hp);
+				PotTime.Merc.Hp = (new Date().getTime());
+			}
+			if (pots.length > 0) clickItem(2, pots.pop());
+		}
+		delay(300);
+	}
+}

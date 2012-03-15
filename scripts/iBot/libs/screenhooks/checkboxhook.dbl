@@ -1,0 +1,30 @@
+js_strict(true);
+
+var CheckBox = function(x,y,checked,click,hover) {
+	var hookClick = function(){
+		this.value = !this.value;
+		return click ? click(this.value) : true;
+	};
+	var hookOver = function(){
+		if (hover) hover(this.value);
+	};
+	
+	this.x = x;
+	this.y = y;
+	this.value = checked;
+	this.visible = checked;
+	this.Button = new Button('X',x,y,15,bind(hookClick,this),bind(hookOver,this));
+	
+	this.Button.Text.color = 4;
+	
+	this.remove = function(){
+		this.Button.remove();
+	};
+	
+	this.watch('value',function(prop,oldval,newval){this.Button.Text.visible=newval;return newval;});
+	this.watch('x',function(prop,oldval,newval){this.Button.x=newval;return newval;});
+	this.watch('y',function(prop,oldval,newval){this.Button.y=newval;return newval;});
+	this.watch('visible',function(prop,oldval,newval){this.Button.visible=newval;this.Button.Text.visible=newval&&this.value;return newval;});
+	
+	this.value = this.value;
+};

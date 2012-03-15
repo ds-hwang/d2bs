@@ -1,0 +1,11 @@
+js_strict(true);
+
+function Hephasto() {
+	Pather.MoveToArea(Area.Act4.RiverOfFlame);
+	Precast.Precast();
+	var forge = PresetUnit.findObject({id:UniqueId['Forge Hell']});
+	var hephasto = forge.GetUnit({type:Type.Monster,uniqueid:UniqueMonster['Hephasto The Armorer']});
+	Attack.Kill(hephasto);
+	Pickit.Pick();
+	return true;
+}

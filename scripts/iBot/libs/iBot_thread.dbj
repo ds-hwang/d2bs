@@ -1,0 +1,49 @@
+js_strict(true);
+
+include('iBot/interface.dbl');
+include('common.dbl');
+
+function main() {
+	var cmdQueue = [];
+	var paused = false;
+	
+	addEventListener('scriptmsg', function(cmd){
+		try {
+			if (!isCommand(cmd)) throw new Error('Recieved an invalid command');
+			cmd.object = cmd.object || this;
+			cmd.args = cmd.args || [];
+			cmd.priority = cmd.priority || 0;
+			cmdQueue.push(cmd);
+			cmdQueue.sort(function(x, y){return y.priority-x.priority;});
+		}
+		catch(e) {
+			Interface.Display(Message.Error, e.message+' ('+e.fileName+', '+e.lineNumber+')');
+		}
+	});
+	
+	addEventListener('keyup',bind(function(key){
+		if (key == 19) { // pause/break
+			this.paused = !this.paused;
+			if (this.paused) {
+				Interface.Display(Message.Info, 'Pausing bot..');
+				getScript('default.dbj').pause();
+			}
+			else {
+				Interface.Display(Message.Info, 'Resuming bot!');
+				getScript('default.dbj').resume();
+			}
+		}
+	},this));
+	
+	while(true) {
+		doDelay(function(){return cmdQueue.length < 1;});
+		var cmd;
+		while((cmd = cmdQueue.pop()))
+			try {
+				Interface.Display(Message.DDebug,'Executing command, '+cmd.func.name);
+				cmd.func.apply(cmd.object, cmd.args);
+			} catch(err) {
+				Interface.Display(Message.Error, 'Failed to execute command: '+err.message+' ('+err.fileName+', '+err.lineNumber+')');
+			}
+	}
+}

@@ -1,0 +1,10 @@
+js_strict(true);
+
+var Message = {
+	None:0,
+	Error:1,
+	Warning:2,
+	Info:3,
+	Debug:4,
+	DDebug:5
+};

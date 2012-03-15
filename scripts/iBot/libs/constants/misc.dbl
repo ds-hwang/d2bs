@@ -1,0 +1,618 @@
+js_strict(true);
+
+include('constants/skill.dbl');
+
+var GameLocation = {
+	Lobby:1,InLine:2,Chat:3,Create:4,Join:5,Ladder:6,Channel:7,MainMenu:8,Login:9,
+	LoginError:10,UnableToConnect:11,CharSelect:12,RealmDown:13,Disconnected:14,NewChar:15,
+	CharSelectPleaseWait:16,LostConnection:17,D2Splash:18,CdKeyInUse:19,Difficulty:20,
+	MainMenuConnecting:21,InvalidCdKey:22,/*Connecting:23,*/ServerDown:24,PleaseWait:25,GameExist:26,Gateway:27,
+	GameDoesNotExist:28,CharCreate:29,CharCreateAlreadyExists:30,AgreeToTerms:31,NewAccount:32,
+	PleaseRead:33,RegisterEmail:34,Credits:35,Cinematics:36,GameIsFull:38,OtherMultiplayer:39,
+	TcpIp:40,EnterIpAddress:41,CharSelectNoChars:42,CharSelectChangeRealm:43};
+
+var Class = {
+	Amazon: 0,
+	Sorceress: 1,
+	Necromancer: 2,
+	Paladin: 3,
+	Barbarian: 4,
+	Druid: 5,
+	Assassin: 6
+};
+
+var Type = {
+	Player: 0,
+	Monster: 1,
+	Npc: 1,
+	Object: 2,
+	Missile: 3,
+	Item: 4,
+	Tile: 5
+};
+
+var Party = {None:65535};
+
+var UIFlags = {
+	Inventory: 0x01,
+	Character: 0x02,
+	QuickSkill: 0x03,
+	Skill: 0x04,
+	ChatBox: 0x05,
+	NPCMenu: 0x08,
+	EscMenu: 0x09,
+	Automap: 0x0A,
+	ConfigControls: 0x0B,
+	NPCShop: 0x0C,
+	ShowItems: 0x0D,
+	Cash: 0x0E,
+	Quest: 0x0F,
+	QuestLogButton: 0x11,
+	StatusArea: 0x12,
+	Waypoint: 0x14,
+	MiniPanel: 0x15,
+	Party: 0x16,
+	TradePrompt: 0x17,
+	MessageLog: 0x18,
+	Stash: 0x19,
+	Cube: 0x1A,
+	ShowBelt: 0x1F,
+	Help: 0x21,
+	MercScreen: 0x24,
+	ScrollOfInfuiss: 0x25
+};
+
+var Shop = {
+	Sell:1,
+	Buy:2,
+	ShiftBuy:6
+};
+
+var CursorType = {
+	Norm1:1,
+	Norm2:2,
+	Norm3:3,
+	Norm4:4,
+	Unk1:5,
+	Identify:6
+};
+
+var Color = {
+	White:0,
+	Red:1,
+	Green:2,
+	Blue:3,
+	Gold:4,
+	Gray:5,
+	Black:6,
+	LightGold:7,
+	Amber:8,
+	Yellow:9,
+	DarkGreen:':',
+	MossGreen:'<',
+	Purple:';',
+	SGlow:'!',
+	MGlow:'#',
+	LGlow:'*'
+};
+
+var ColorCode = {
+	White:'ÿc'+Color.White,
+	Red:'ÿc'+Color.Red,
+	Green:'ÿc'+Color.Green,
+	Blue:'ÿc'+Color.Blue,
+	Gold:'ÿc'+Color.Gold,
+	Gray:'ÿc'+Color.Gray,
+	Black:'ÿc'+Color.Black,
+	LightGold:'ÿc'+Color.LightGold,
+	Amber:'ÿc'+Color.Amber,
+	Yellow:'ÿc'+Color.Yellow,
+	DarkGreen:'ÿc'+Color.DarkGreen,
+	MossGreen:'ÿc'+Color.MossGreen,
+	Purple:'ÿc'+Color.Purple,
+	SGlow:'ÿc'+Color.SGlow,
+	MGlow:'ÿc'+Color.MGlow,
+	LGlow:'ÿc'+Color.LGlow
+};
+
+var Collision = {
+	Walk: 0x1,
+	LOS: 0x2,
+	Ranged: 0x4,
+	PlayerWalk: 0x8,
+	Exit: 0x10,
+	Light: 0x20,
+	Unk1: 0x40,
+	Player: 0x80,
+	NPC: 0x100,
+	Item: 0x200,
+	Object: 0x400,
+	ClosedDoor: 0x800,
+	Unk2: 0x1000,
+	FriendNPC: 0x2000,
+	Unk3: 0x4000,
+	DeadBody: 0x8000
+};
+
+var ItemFlags = {
+	Equipped: 0x1,
+	InSocket: 0x8,
+	Identified: 0x10,
+	SwitchIn: 0x40,
+	SwitchOut: 0x80,
+	Broken: 0x100,
+	Rejuvination: 0x400,
+	Socketed: 0x800,
+	InStore: 0x2000,
+	NotInsocket: 0x4000,
+	Ear: 0x10000,
+	StarterItem: 0x20000,
+	RuneOrPotion: 0x200000,
+	Ethereal: 0x400000,
+	Named: 0x1000000,
+	Runeword: 0x4000000
+};
+
+var BaseStatTable = {
+	items:0,monstats:1,skilldesc:2,skills:3,objects:4,missiles:5,monstats2:6,itemstatcost:7,levels:8,leveldefs:9,lvlmaze:10,
+	lvlsub:11,lvlwarp:12,lvlprest:13,lvltypes:14,charstats:15,setitems:16,uniqueitems:17,sets:18,itemtypes:19,
+	runes:20,cubemain:21,gems:22,experience:23,pettable:24,superuniques:25};
+
+var Waypoint = {
+	RogueEncampment:0, ColdPlains:1, StonyField:2, DarkWood:3, BlackMarsh:4, OuterCloister:5, JailLevel1:6, InnerCloister:7, CatacombsLevel2:8,
+	LutGholein:9, SewersLevel2:10, DryHills:11, HallsOfDeadLevel2:12, FarOasis:13, LostCity:14, PalaceCellarLevel1:15, ArcaneSanctuary:16, CanyonOfTheMagi:17,
+	KurastDocks:18, SpiderForest:19, GreatMarsh:20, FlayerJungle:21, LowerKurast:22, KurastBazaar:23, UpperKurast:24, Travincal:25, DuranceOfHateLevel2:26,
+	ThePandemoniumFortress:27, CityOfTheDamned:28, RiverOfFlame:29,
+	Harrogath:30, FrigidHighlands:31, ArreatPlateau:32, CrystallinePassage:33, GlacialTrail:34, HallsOfPain:35, FrozenTundra:36, TheAncientsWay:37, WorldstoneKeepLevel2:38};
+
+Waypoint.find = function(id) {
+	for(let wp in this)
+		if (wp != 'find' && this[wp] == id)
+			return wp;
+	return false;
+};
+
+var State = { None:0, Freeze:1, Poison:2, ResistFire:3, ResistCold:4, ResistLight:5, ResistMagic:6, PlayerBody:7, ResistAll:8, AmplifyDamage:9, FrozenArmor:10,
+	Cold:11, Inferno:12, Blaze:13, BoneArmor:14, Concentrate:15, Enchant:16, InnerSight:17, SkillMove:18, Weaken:19, ChillingArmor:20, Stunned:21, Spiderlay:22,
+	DimVision:23, Slowed:24, FetishAura:25, Shout:26, Taunt:27, Conviction:28, Convicted:29, EnergyShield:30, VenomClaws:31, BattleOrders:32, Might:33,
+	Prayer:34, HolyFire:35, Thorns:36, Defiance:37, ThunderStorm:38, LightningBolt:39, BlessedAim:40, Stamina:41, Concentration:42, HolyFreeze:43,
+	HolyFreezed:44, Cleansing:45, HolyShock:46, Sanctuary:47, Meditation:48, Fanaticism:49, Redemption:50, BattleCommand:51, PreventHeal:52,
+	Conversion:53, Uninterruptable:54, IronMaiden:55, Terror:56, Attract:57, LifeTap:58, Confuse:59, Decrepify:60, LowerResists:61, OpenWounds:62, DoppleZon:63,
+	CritcalStrike:64, Dodge:65, Avoid:66, Penetrate:67, Evade:68, Pierce:69, Warmth:70, FireMastery:71, LightningMastery:72, ColdMastery:73, SwordMastery:74,
+	AxeMastery:75, MaceMastery:76, PolearmMastery:77, ThrowingMastery:78, SpearMastery:79, IncreasedStamina:80, IronSkin:81, IncreasedSpeed:82, NaturalResistance:83,
+	FingerMageCurse:84, NoManaRegen:85, JustHit:86, SlowMissiles:87, ShiverArmor:88, BattleCry:89, Blue:90, Red:91, DeathDelay:92, Valkyrie:93, Frenzy:94,
+	Berserk:95, Revive:96, ItemFullSet:97, SourceUnit:98, Redeemed:99, HealthPot:100, HolyShield:101, JustPortalized:102, MonsterFrenzy:103, CorspeNoDraw:104,
+	Alignment:105, ManaPot:106, Shatter:107, SyncWarped:108, ConversionSave:109, Pregnant:110, Unknown:111, Rabies:112, DefenseCurse:113, BloodMana:114,
+	Burning:115, DragonFlight:116, Maul:117, CorpseNoSelect:118, ShadowWarrior:119, FeralRage:120, SkillDelay:121, ProgressiveDamage:122, ProgressiveSteal:123,
+	ProgressiveOther:124, ProgressiveFire:125, ProgressiveCold:126, ProgressiveLightning:127, ShrineArmor:128, ShrineCombat:129, ShrineResistLightning:130,
+	ShrineResistFire:131, ShrineResistCold:132, ShrineResistPoison:133, ShrineSkill:134, ShrineManaRegen:135, ShrineStamina:136, ShrineExperience:137,
+	FenrisRage:138, Wolf:139, Bear:140, BloodLust:141, ChangeClass:142, Attached:143, Hurricane:144, Armageddon:145, Invis:146, Barbs:147, Wolverine:148, OakSage:149,
+	VineBeast:150, CycloneArmor:151, ClawMastery:152, CloakOfShadows:153, Recycled:154, WeaponBlock:155, Cloaked:156, Quickness:157, BladeShield:158, Fade:159 };
+
+State.name = function(id) { for (var n in this) { if (id == this[n]) { return n; }} return false; };
+
+var Hand = {
+	Right: 0,
+	Left: 1
+};
+
+var ClickType = {};
+
+ClickType.Left = {
+	Down:0,
+	Hold:1,
+	Up:2
+};
+
+ClickType.Right = {
+	Down:3,
+	Hold:4,
+	Up:5
+};
+
+var Shift = {
+	On:1,
+	Off:0
+};
+
+var Range = {
+	Melee:1,
+	Ranged:2
+};
+
+var SkillType = {
+	Physical:0,
+	Fire:1,
+	Cold:2,
+	Lightning:3,
+	Poison:4,
+	Magic:5
+};
+var SkillImmunities = [Stats.DamageResist, Stats.FireResist, Stats.ColdResist, Stats.LightningResist, Stats.PoisonResist, Stats.MagicResist];
+
+var BodyLocation = {
+	NotEquipped:0,
+	Helm:1,
+	Amulet:2,
+	Armor:3,
+	LeftSlotI:4,
+	RightSlotI:5,
+	RightRing:7,
+	LeftRing:6,
+	Belt:8,
+	Boots:9,
+	Gloves:10,
+	LeftSlotII:11,
+	RightSlotII:12
+};
+
+var ItemLocation = {
+	Ground:0,
+	Equip:1,
+	Belt:2,
+	Inventory:3,
+	Shop:4,
+	Trade:5,
+	Cube:6,
+	Stash:7
+};
+
+var ItemQuality = {
+	Inferior: 1,
+	Normal: 2,
+	Superior: 3,
+	Magic: 4,
+	Set: 5,
+	Rare: 6,
+	Unique: 7,
+	Crafted: 8
+};
+
+var PickitStats = {};
+
+for(let stat in Stats)
+	PickitStats[stat.toLowerCase()] = [Stats[stat],undefined];
+
+for(let ski in Skill)
+	PickitStats[ski.toLowerCase() + 'skill'] = [Stats.SingleSkill, Skill[ski]];
+
+var SkillTypes = {'onattack':Stats.SkillOnAttack,'ondeath':Stats.SkillOnDeath,'onhit':Stats.SkillOnHit,'onlevelup':Stats.SkillOnLevelUp,
+		'onhit':Stats.SkillOnGetHit,'charge':Stats.ItemChargedSkill,'':Stats.NonClassSkill};
+for(let type in SkillTypes)
+	for(let ski in Skill)
+		PickitStats[ski.toLowerCase() + type] = [SkillTypes[type], Skill[ski]];
+
+for(let type in Stats.AddSkillTabIds)
+	PickitStats[type.toLowerCase() + 'tab'] = [Stats.AddSkillTab, Stats.AddSkillTabIds[type]];
+
+for(let type in Class) // Stats.AddClassSkills)
+	PickitStats[type.toLowerCase() + 'classskill'] = [Stats.AddClassSkills, Class[type]];// Stats.AddClassSkills[type]];
+
+PickitStats['fireskills'] = [Stats.ElemSkills, Skill.SkillElem.Fire];
+
+PickitStats.find = function(id,sub) {
+	//sub = sub || 0;
+	for(let i in this)
+		if (i != 'find')
+			if (PickitStats[i][0] == id && (sub == undefined || PickitStats[i][1] == sub))
+				return i;
+	return false;
+};
+
+var PickitQuality = {};
+for(let quality in ItemQuality)
+	PickitQuality[quality.toLowerCase()] = ItemQuality[quality];
+
+var PickitFlag = {};
+for(let flag in ItemFlags)
+	PickitFlag[flag.toLowerCase()] = ItemFlags[flag];
+PickitFlag.find = function(id) {
+	for(let i in this)
+		if (i != 'find' && PickitFlag[i] == id) return i;
+	return false;
+};
+
+var ItemColor = {
+	inferior: 5,
+	normal: 0,
+	superior: 3,
+	magic: 3,
+	set: 2,
+	rare: 9,
+	unique: 4,
+	crafted: 8
+};
+var ItemColor = [0,5,0,3,3,2,9,4,8];
+
+
+var Categories = {
+	'axes': ['hax','9ha','7ha','axe','9ax','7ax','2ax','92a','72a','mpi','9mp',
+			 '7mp','wax','9wa','7wa','lax','9la','7la','bax','9ba','7ba','btx',
+			 '9bt','7bt','gax','9ga','7ga','gix','9gi','7gi'],
+	'daggers': ['dgr','9dg','7dg','dir','9di','7di','kri','9kr','7kr','bld',
+				'9bl','7bl'],
+	'maces': ['clb','9cl','7cl','spc','9sp','7sp','mac','9ma','7ma','mst','9mt',
+			  '7mf','fla','9fl','7fl','fla','9fl','7fl','whm','9wh','7wh','mau',
+			  '9m9','7m7','gma','9gm','7gm'],
+	'polearms': ['bar','9b7','7o7','vou','9vo','7vo','scy','9s8','7s8','pax',
+				 '9pa','7pa','hal','9h9','7h7','wsc','9wc','7wc'],
+	'scepters': ['scp','9sc','7sc','gsc','9qs','7qs','wsp','9ws','7ws'],
+	'spears': ['spr','9sr','7sr','tri','9tr','7tr','brn','9br','7br','spt',
+			   '9st','7st','pik','9p9','7p7'],
+	'staves': ['sst','8ss','6ss','lst','8ls','6ls','gst','8cs','6cs','bst',
+			   '8bs','6bs','wst','8ws','6ws'],
+	'swords': ['ssd','9ss','7ss','scm','9sm','7sm','sbr','9sb','7sb','flc',
+			   '9fc','7fc','crs','9cr','7cr','bsd','9bs','7bs','lsd','9ls',
+			   '7ls','wsd','9wd','7wd','2hs','92h','72h','clm','9cm','7cm',
+			   'gis','9gs','7gs','bsw','9b9','7b7','flb','9fb','7fb','gsd',
+			   '9gd','7gd'],
+	'wands': ['wnd','9wn','7wn','ywn','9yw','7yw','bwn','9bw','7bw','gwn','9gw','7gw'],
+	'assassin katars': ['ktr','9ar','7ar','wrb','9wb','7wb','axf','9xf','7xf',
+						'ces','9cs','7cs','clw','9lw','7lw','btl','9hw','7hw',
+						'skr','9qr','7qr'],
+	'sorceress orbs': ['ob1','ob6','obb','ob2','ob7','obc','ob3','ob8','obd',
+					   'ob4','ob9','obe','ob5','oba','obf'],
+	'amazon spears': ['am3','am8','amd','am4','am9','ame'],
+
+	'bows': ['sbw','8sb','6sb','hbw','8hb','6hb','lbw','8lb','6lb','cbw','8cb',
+			 '6cb','sbb','8s8','6s7','lbb','8l8','6l7','swb','8sw','6sw','lwb',
+			 '8lw','6lw'],
+	'crossbows': ['lxb','8lx','6lx','mxb','8mx','6mx','hxb','8hx','6hx','rxb',
+				  '8rx','6rx'],
+	'javelins': ['jav','9ja','7ja','pil','9pi','7pi','ssp','9s9','7s7','glv',
+				 '9gl','7gl','tsp','9ts','7ts'],
+	'throwing': ['tkf','9tk','7tk','tax','9ta','7ta','bkf','9bk','7bk','bal',
+				 '9b8','7b8'],
+	'amazon bows': ['am1','am6','amb','am2','am7','amc'],
+	'amazon javelins': ['am5','ama','amf'],
+	'throwing potions': ['gps','ops','gpm','opm','gpl','opl'],
+
+	'body armor': ['qui','xui','uui','lea','xea','uea','hla','xla','ula','stu',
+				  'xtu','utu','rng','xng','ung','scl','xcl','ucl','chn','xhn',
+				  'uhn','brs','xrs','urs','spl','xpl','upl','plt','xlt','ult',
+				  'fld','xld','uld','gth','xth','uth','ful','xul','uul','aar',
+				  'xar','uar','ltp','xtp','utp'],
+	'helmets': ['cap','xap','uap','skp','xkp','ukp','hlm','xlm','ulm','fhl',
+				'xhl','uhl','ghm','xhm','uhm','crn','xrn','urn','msk','xsk',
+				'usk','bhm','xh9','uh9'],
+	'gloves': ['lgl','xlg','ulg','vgl','xvg','uvg','mgl','xmg','umg','tgl',
+			   'xtg','utg','hgl','xhg','uhg'],
+	'shields': ['buc','xuc','uuc','sml','xml','uml','lrg','xrg','urg','kit',
+				'xit','uit','tow','xow','uow','gts','xts','uts','bsh','xsh',
+				'ush','spk','xpk','upk'],
+	'belts': ['lbl','zlb','ulc','vbl','zvb','uvc','mbl','zmb','umc','tbl','ztb',
+			  'utc','hbl','zhb','uhc'],
+	'boots': ['lbt','xlb','ulb','vbt','xvb','uvb','mbt','xmb','umb','tbt','xtb',
+			  'utb','hbt','xhb','uhb'],
+	'paladin shields': ['pa1','pa6','pab','pa2','pa7','pac','pa3','pa8','pad',
+						'pa4','pa9','pae','pa5','paa','paf'],
+	'druid pelts': ['dr1','dr6','drb','dr2','dr7','drc','dr3','dr8','drd','dr4',
+					'dr9','dre','dr5','dra','drf'],
+	'barbarian helmets': ['ba1','ba6','bab','ba2','ba7','bac','ba3','ba8','bad',
+						  'ba4','ba9','bae','ba5','baa','baf'],
+	'necromancer heads': ['ne1','ne6','neb','ne2','ne7','nec','ne3','ne8','ned',
+						  'ne4','ne9','nee','ne5','nea','nef'],
+	'circlets': ['ci0','ci1','ci2','ci3'],
+
+	'jewelry': ['amu', 'rin'],
+
+	'misc': ['std','jew','key','gld'],
+
+	'keys and organs': ['pk1','pk2','pk3','dhn','bey','mbr'],
+
+	'charms': ['cm1','cm2','cm3'],
+
+	'quest items': ['leg','hdm','bks','bkd','ass','box','tr1','msf','vip','hst',
+					'xyz','j34','g34','bbb','g33','qf1','qf2','qey','qhr','qbr',
+					'mss','hfh','ice','tr2'],
+
+	'runes': ['r01','r02','r03','r04','r05','r06','r07','r08','r09','r10','r11',
+			  'r12','r13','r14','r15','r16','r17','r18','r19','r20','r21','r22',
+			  'r23','r24','r25','r26','r27','r28','r29','r30','r31','r32','r33'],
+
+	'perfect gems': ['gpw','gpv','gpb','gpy','gpr','skz','gpg'],
+	'flawless gems': ['gzv','glw','glg','glr','glb','skl','gly'],
+	'normal gems': ['gsv','gsw','gsg','gsr','gsb','sku','gsy'],
+	'flawed gems': ['gfv','gfw','gfg','gfr','gfb','skf','gfy'],
+	'chipped gems': ['gcv','gcw','gcg','gcr','gcb','skc','gcy'],
+
+	'healing potions': ['hp1','hp2','hp3','hp4','hp5'],
+	'mana potions': ['mp1','mp2','mp3','mp4','mp5'],
+	'rejuvenation potions': ['rvs','rvl'],
+	'misc potions': ['yps','vps','wms'],
+
+	'scrolls': ['isc','tsc'],
+	'tomes': ['tbk','ibk'],
+
+	'ammunition': ['aqv','cqv'],
+
+	'junk': ['ear','tch','hrt','brz','jaw','eyz','hrn','hrb','tal','flg','fng',
+			 'qll','sol','scz','spe','luv','elx','0sc','rps','rpl','bps','bpl',
+			 'hpo','mpo','hpf','mpf']
+};
+
+Categories['melee'] = Categories.axes.concat(Categories.daggers, Categories.maces,
+				Categories.polearms, Categories.scepters, Categories.spears,
+				Categories.staves, Categories.swords, Categories.wands,
+				Categories['assassin katars'], Categories['sorceress orbs'],
+				Categories['amazon spears']);
+
+Categories['ranged'] = Categories.bows.concat(Categories.crossbows, Categories.javelins,
+				Categories.throwing, Categories['amazon bows'],
+				Categories['amazon javelins'], Categories['throwing potions']);
+
+Categories['weapons'] = Categories.melee.concat(Categories.ranged);
+
+Categories['armors'] = Categories['body armor'].concat(Categories.helmets, Categories.gloves,
+						Categories.shields, Categories.belts, Categories.boots,
+						Categories['paladin shields'], Categories['druid pelts'],
+						Categories['barbarian helmets'], Categories['necromancer heads'],
+						Categories.circlets);
+
+Categories['equipment'] = Categories.weapons.concat(Categories.armors);
+
+Categories['gems'] = Categories['perfect gems'].concat(Categories['flawless gems'],
+				Categories['normal gems'], Categories['flawed gems'],
+				Categories['chipped gems']);
+
+Categories['socketables'] = Categories.runes.concat(Categories.gems, ['jew']);
+
+Categories['potions'] = Categories['healing potions'].concat(Categories['mana potions'],
+				Categories['rejuvenation potions'], Categories['misc potions']);
+
+var PickitCodes = {'cap':'cap', 'skull cap':'skp', 'helm':'hlm', 'full helm':'fhl', 'great helm':'ghm', 'crown':'crn',
+'mask':'msk', 'bone helm':'bhm', 'war hat':'xap', 'sallet':'xkp', 'casque':'xhm', 'basinet':'xhl', 'winged helm':'xhm',
+'grand crown':'xrn', 'death mask':'xsk', 'grim helm':'xh9', 'shako':'uap', 'hydraskull':'ukp', 'armet':'ulm',
+'giant conch':'uhl', 'spired helm':'uhm', 'corona':'urn', 'demonhead':'usk', 'bone visage':'uh9',
+
+'quilted armor':'qui', 'leather armor':'lea', 'hard armor':'hla', 'studded leather':'stu', 'ring mail':'rng',
+'scale mail':'scl', 'chain mail':'chn', 'breast plate':'brs', 'splint mail':'spl', 'plate mail':'plt',
+'field plate':'fld', 'gothic plate':'gth', 'full plate mail':'ful', 'ancient armor':'aar', 'ghost armor':'xui',
+'serpentskin armor':'xea', 'demonhide armor':'xla', 'trellised armor':'xtu', 'mesh armor':'xhn', 'cuirass':'xrs',
+'russet armor':'xpl', 'templar coat':'xlt', 'sharktooth armor':'xld', 'embossed plate':'xth', 'chaos armor':'xul',
+'ornate armor':'xar', 'mage plate':'xtp', 'dusk shroud':'uui', 'wyrmhide':'uea', 'scarab husk':'ula',
+'wire fleece':'utu', 'diamond mail':'ung', 'loricated mail':'ucl', 'boneweave':'uhn', 'great hauberk':'urs',
+'balrog skin':'upl', 'hellforge plate':'ult', 'kraken shell':'uld', 'lacquered plate':'uth', 'shadow plate':'uul',
+'sacred armor':'uar', 'archon plate':'utp',
+
+'buckler':'buc', 'defender':'xuc', 'heater':'uuc', 'small shield':'sml', 'round shield':'xml', 'luna':'uml',
+'large shield':'lrg', 'scutum':'xrg', 'hyperion':'urg', 'kite shield':'kit', 'dragon shield':'xit',
+'monarch':'uit', 'tower shield':'tow', 'pavise':'xow', 'aegis':'uow', 'gothic shield':'gts', 'ancient shield':'xts',
+'ward':'uts', 'bone shield':'bsh', 'grim shield':'xsh', 'troll nest':'ush', 'spiked shield':'spk', 'barbed shield':'xpk', 'blade barrier':'upk',
+
+'leather gloves':'lgl', 'demonhide glove':'xlg', 'bramble mitts':'ulg', 'heavy gloves':'vgl', 'sharkskin glove':'xvg',
+'vampirebone gloves':'uvg', 'chain gloves':'mgl', 'heavy bracers':'xmg', 'vambraces':'umg', 'light gauntlets':'tgl',
+'battle gauntlet':'xtg', 'crusader gaunt':'ulg', 'gauntlets':'hgl', 'war gauntlets':'xhg', 'ogre gauntlets':'uhg',
+
+'boots':'lbt', 'demonhide boots':'xlb', 'wyrmhide boots':'ulb', 'heavy boots':'vbt', 'sharkskin boots':'xvb',
+'scarabshell boots':'uvb', 'chain boots':'mbt', 'mesh boots':'xmb', 'boneweave boots':'umb',
+'light plate':'ltp', 'battle boots':'xtb', 'mirrored boots':'utb', 'greaves':'hbt', 'war boots':'xhb',
+'greaves':'hbt', 'war boots':'xhb', 'myrmidon greaves':'uhb',
+
+'sash':'lbl', 'demonhide sash':'zlb', 'spiderweb sash':'ulc', 'light belt':'vbl', 'sharkskin belt':'zvb',
+'vampirefang blt':'uvc', 'belt':'mbl', 'mesh belt':'zmb', 'mithril coil':'umc', 'heavy belt':'tbl',
+'battle belt':'ztb', 'troll belt':'utc', 'plated belt':'hbl', 'war belt':'zhb', 'colossus girdle':'uhc',
+
+'wolf head':'dr1', 'alpha helm':'dr6', 'blood spirit':'drb', 'hawk helm':'dr2', 'griffon headdress':'dr7',
+'sun spirit':'drc', 'antlers':'dr3', 'hunter\'s guise':'dr8', 'earth spirit':'drd', 'falcon mask':'dr4',
+'sacred feathers':'dr9', 'sky spirit':'dre', 'spirit mask':'dr5', 'totemic mask':'dra', 'dream spirit':'drf',
+
+'jawbone cap':'ba1', 'jawbone visor':'ba6', 'carnage helm':'bab', 'fanged helm':'ba2', 'lion helm':'ba7',
+'fury visor':'bac', 'horned helm':'ba3', 'rage mask':'ba8', 'destroyer helm':'bad', 'assault helmet':'ba4',
+'savage helmet':'ba9', 'conqueror crown':'bae', 'avenger guard':'ba5', 'slayer guard':'baa',
+'guardian crown':'baf',
+
+'targe':'pa1', 'akaran targe':'pa6', 'sacred targe':'pab', 'rondache':'pa2',
+'akaran rondache':'pa7', 'sacred rondache':'pac', 'heraldic shield':'pa3', 'protector shld':'pa8',
+'kurast shield':'pad', 'aerin shield':'pa4', 'gilded shield':'pa9', 'zakarum shield':'pae',
+'crown shield':'pa5', 'royal shield':'paa', 'vortex shield':'paf',
+
+'preserved head':'ne1', 'mummified trphy':'ne6', 'minion skull':'neb', 'zombie head':'ne2', 'fetish trophy':'ne7',
+'hellspawn skull':'nec', 'unraveller head':'ne3', 'sexton trophy':'ne8', 'overseer skull':'ned',
+'gargoyle head':'ne4', 'cantor trophy':'ne9', 'succubus skull':'nee', 'demon head':'ne5',
+'hierophant trophy':'nea', 'bloodlord skull':'nef',
+
+'hand axe':'hax', 'hatchet':'9ha', 'tomahawk':'7ha',
+'axe':'axe', 'cleaver':'9ax', 'small crescent':'7ax', 'double axe':'2ax', 'twin axe':'92a',
+'ettin axe':'72a', 'military pick':'mpi', 'crowbill':'9mp', 'war spike':'7mp', 'war axe':'wax',
+'naga':'9wa', 'berserker axe':'7wa', 'large axe':'lax', 'military axe':'9la', 'feral axe':'7la',
+'broad axe':'bax', 'bearded axe':'9ba', 'silver edged ax':'7ba', 'battle axe':'btx', 'tabar':'9bt',
+'decapitator':'7bt', 'great axe':'gax', 'gothic axe':'9ga', 'champion axe':'7ga', 'giant axe':'gix',
+'ancient axe':'9gi', 'glorious axe':'7gi', 'club':'clb', 'cudgel':'9cl', 'truncheon':'7cl',
+'spiked club':'spc', 'barbed club':'9sp', 'tyrant club':'7sp', 'mace':'mac', 'flanged mace':'9ma',
+'reinforced mace':'7ma', 'morning star':'mst', 'jagged star':'9mt', 'devil star':'7mf', 'flail':'fla',
+'knout':'9fl', 'scourge':'7fl', 'war hammer':'whm', 'battle hammer':'9wh', 'legendary mallt':'7wh',
+'maul':'mau', 'war club':'9m9', 'ogre maul':'7m7', 'great maul':'gma', 'martel de fer':'9gm',
+'thunder maul':'7gm', 'short sword':'ssd', 'gladius':'9ss', 'falcata':'7ss', 'scimitar':'scm',
+'cutlass':'9sm', 'ataghan':'7sm', 'sabre':'sbr', 'shamshir':'9sb', 'elegant blade':'7sb',
+'falchion':'flc', 'tulwar':'9fc', 'hydra edge':'7fc', 'crystal sword':'crs', 'dimensional bld':'9cr',
+'phase blade':'7cr', 'broad sword':'bsd', 'battle sword':'9bs', 'conquest sword':'7bs', 'long sword':'lsd',
+'rune sword':'9ls', 'cryptic sword':'7ls', 'war sword':'wsd', 'ancient sword':'9wd', 'mythical sword':'7wd',
+'two-handed sword':'2hs', 'espadon':'92h', 'legend sword':'72h', 'claymore':'clm', 'dacian falx':'9cm',
+'highland blade':'7cm', 'giant sword':'gis', 'tusk sword':'9gs', 'balrog blade':'7gs', 'bastard sword':'bsw',
+'gothic sword':'9b9', 'champion sword':'7b7', 'flamberge':'flb', 'zweihander':'9fb', 'colossal sword':'7fb',
+'great sword':'gsd', 'executioner swr':'9gd', 'colossus blade':'7gd', 'dagger':'dgr', 'poignard':'9dg',
+'bone knife':'7dg', 'dirk':'dir', 'rondel':'9di', 'mithral point':'7di', 'kriss':'kri', 'cinquedeas':'9kr',
+'fanged knife':'7kr', 'blade':'bld', 'stilleto':'9bl', 'legend spike':'7bl', 'throwing knife':'tkf',
+'battle dart':'9tk', 'flying knife':'7tk', 'throwing axe':'tax', 'francisca':'9ta', 'flying axe':'7ta',
+'balanced knife':'bkf', 'war dart':'9bk', 'winged knife':'7bk', 'balanced axe':'bal', 'hurlbat':'9b8',
+'winged axe':'7b8', 'javelin':'jav', 'war javelin':'9ja', 'hyperion javeln':'7ja', 'pilum':'pil',
+'great pilum':'9pi', 'stygian pilum':'7pi', 'short spear':'ssp', 'simbilan':'9s9', 'balrog spear':'7s7',
+'glaive':'glv', 'spiculum':'9gl', 'ghost glaive':'7gl', 'throwing spear':'tsp', 'harpoon':'9ts',
+'winged harpoon':'7ts', 'spear':'spr', 'war spear':'9sr', 'hyperion spear':'7sr', 'trident':'tri',
+'fuscina':'9tr', 'stygian pike':'7tr', 'brandistock':'brn', 'war fork':'9br', 'mancatcher':'7br',
+'spetum':'spt', 'yari':'9st', 'ghost spear':'7st', 'pike':'pik', 'lance':'9p9', 'war pike':'7p7',
+'bardiche':'bar', 'lochaber axe':'9b7', 'ogre axe':'7o7', 'voulge':'vou', 'bill':'9vo', 'colossus voulge':'7vo',
+'scythe':'scy', 'battle scythe':'9s8', 'thresher':'7s8', 'poleaxe':'pax', 'partizan':'9pa',
+'cryptic axe':'7pa', 'halberd':'hal', 'bec-de-corbin':'9h9', 'great poleaxe':'7h7', 'war scythe':'wsc',
+'grim scythe':'9wc', 'giant thresher':'7wc', 'short bow':'sbw', 'edge bow':'8sb', 'spider bow':'6sb',
+'hunter\'s bow':'hbw', 'razor bow':'8hb', 'blade bow':'6hb', 'long bow':'lbw', 'cedar bow':'8lb',
+'shadow bow':'6lb', 'composite bow':'cbw', 'double bow':'8cb', 'great bow':'6cb', 'shrt battle bow':'sbb',
+'short siege bow':'8s8', 'diamond bow':'6s7', 'long battle bow':'lbb', 'long siege bow':'8l8',
+'crusader bow':'6l7', 'short war bow':'swb', 'rune bow':'8sw', 'ward bow':'6sw', 'long war bow':'lwb',
+'gothic bow':'8lw', 'hydra bow':'6lw', 'light crossbow':'lxb', 'arbalest':'8lx', 'pellet bow':'6lx',
+'crossbow':'mxb', 'siege crossbow':'8mx', 'gorgon crossbow':'6mx', 'heavy crossbow':'hxb',
+'ballista':'8hx', 'colossus x-bow':'6hx', 'repeating x-bow':'rxb', 'chu-ko-nu':'8rx', 'demon crossbow':'6rx',
+'short staff':'sst', 'jo staff':'8ss', 'walking stick':'6ss', 'long staff':'lst', 'quarterstaff':'8ls',
+'stalagmite':'6ls', 'gnarled staff':'cst', 'cedar staff':'8cs', 'elder staff':'6cs', 'battle staff':'bst',
+'gothic staff':'8bs', 'shillelagh':'6bs', 'war staff':'wst', 'rune staff':'8ws', 'archon staff':'6ws',
+'wand':'wnd', 'burnt wand':'9wn', 'polished wand':'7wn', 'yew wand':'ywn', 'petrified wand':'9yw',
+'ghost wand':'7yw', 'bone wand':'bwn', 'tomb wand':'9bw', 'lich wand':'7bw', 'grim wand':'gwn',
+'grave wand':'9gw', 'unearthed wand':'7gw', 'scepter':'scp', 'rune scepter':'9sc', 'mighty scepter':'7sc',
+'grand scepter':'gsc', 'holy water spri':'9qs', 'seraph rod':'7qs', 'war scepter':'wsp', 'divine scepter':'9ws',
+'caduceus':'7ws', 'katar':'ktr', 'quhab':'9ar', 'suwayyah':'7ar', 'wrist blade':'wrb', 'wrist spike':'9wb',
+'wrist sword':'7wb', 'hatchet hands':'axf', 'fascia':'9xf', 'war fist':'7xf', 'cestus':'ces',
+'hand scythe':'9cs', 'battle cestus':'7cs', 'claws':'clw', 'greater claws':'9lw', 'feral claws':'7lw',
+'blade talons':'btl', 'greater talons':'9tw', 'runic talons':'7tw', 'scissors katar':'skr',
+'scissors quhab':'9qr', 'scissors suwayyah':'7qr',
+'eagle orb':'ob1', 'glowing orb':'ob6', 'heavenly stone':'obb',
+'sacred globe':'ob2', 'crystalline glb':'ob7', 'eldritch orb':'obc', 'smoked sphere':'ob3',
+'cloudy sphere':'ob8', 'demon heart':'obd', 'clasped orb':'ob4', 'sparkling ball':'ob9', 'vortex orb':'obe',
+'dragon stone':'ob5', 'swirling crystal':'oba', 'dimensional shard':'obf', 'stag bow':'am1',
+'ashwood bow':'am6', 'matriarchal bow':'amb', 'reflex bow':'am2', 'ceremonial bow':'am7',
+'grand matron bow':'amc', 'maiden spear':'am3', 'ceremonial spr':'am8', 'matriarchal spr':'amd',
+'maiden pike':'am4', 'ceremonial pike':'am9', 'matriarchal pik':'ame', 'maiden javelin':'am5',
+'ceremonial javelin':'ama', 'matriarchal javelin':'amf', 'circlet':'ci0', 'coronet':'ci1', 'tiara':'ci2',
+'diadem':'ci3', 'rancid gas pot':'gps', 'oil potion':'ops', 'choking gas pot':'gpm', 'exploding pot':'opm',
+'strangling gas':'gpl', 'fulminating pot':'opl', 'wirt\'s leg':'leg', 'horadric malus':'hdm',
+'scroll of inifuss 1':'bks', 'scroll of inifuss 2':'bkd', 'book of skill':'ass', 'horadric cube':'box',
+'horadric scroll':'tr1', 'staff of kings':'msf', 'viper amulet':'vip', 'horadric staff':'hst',
+'potion of life':'xyz', 'a jade figurine':'j34', 'the golden bird':'g34', 'lam esen\'s tome':'bbb',
+'gidbinn':'g33', 'khalim\'s flail':'qf1', 'khalim\'s will':'qf2', 'khalim\'s eye':'qey', 'khalim\'s heart':'qhr',
+'khalim\'s brain':'qbr', 'mephisto\'s soulstone':'mss', 'hellforge hammr':'hfh', 'malah\'s potion':'ice',
+'scroll of resistance':'tr2', 'chipped amethyst':'gcv', 'chipped diamond':'gcw', 'chipped emerald':'gcg',
+'chipped ruby':'gcr', 'chipped saphire':'gcb', 'chipped skull':'skc', 'chipped topaz':'gcy',
+'flawed amethyst':'gfv', 'flawed diamond':'gfw', 'flawed emerald':'gfg', 'flawed ruby':'gfr',
+'flawed saphire':'gfb', 'flawed skull':'skf', 'flawed topaz':'gfy', 'amethyst':'gsv', 'diamond':'gsw',
+'emerald':'gsg', 'ruby':'gsr', 'saphire':'gsb', 'skull':'sku', 'topaz':'gsy', 'flawless amethyst':'gzv',
+'flawless diamond':'glw', 'flawless emerald':'glg', 'flawless ruby':'glr', 'flawless saphire':'glb',
+'flawless skull':'skl', 'flawless topaz':'gly', 'perfect diamond':'gpw', 'perfect amethyst':'gpv',
+'perfect sapphire':'gpb', 'perfect topaz':'gpy', 'perfect ruby':'gpr', 'perfect skull':'skz',
+'perfect emerald':'gpg', 'el rune':'r01', 'eld rune':'r02', 'tir rune':'r03', 'nef rune':'r04',
+'eth rune':'r05', 'ith rune':'r06', 'tal rune':'r07', 'ral rune':'r08', 'ort rune':'r09',
+'thul rune':'r10', 'amn rune':'r11', 'sol rune':'r12', 'shael rune':'r13', 'dol rune':'r14',
+'hel rune':'r15', 'io rune':'r16', 'lum rune':'r17', 'ko rune':'r18', 'fal rune':'r19', 'lem rune':'r20',
+'pul rune':'r21', 'um rune':'r22', 'mal rune':'r23', 'ist rune':'r24', 'gul rune':'r25', 'vex rune':'r26',
+'ohm rune':'r27', 'lo rune':'r28', 'sur rune':'r29', 'ber rune':'r30', 'jah rune':'r31', 'cham rune':'r32',
+'zod rune':'r33', 'antidote potion':'yps', 'stamina potion':'vps', 'thawing potion':'wms',
+'minor healing potion':'hp1', 'minor mana potion':'mp1', 'light healing potion':'hp2', 'light mana potion':'mp2',
+'healing potion':'hp3', 'mana potion':'mp3', 'greater healing potion':'hp4', 'greater mana potion':'mp4',
+'super healing potion':'hp5', 'super mana potion':'mp5', 'rejuv potion':'rvs', 'full rejuv potion':'rvl',
+'small charm':'cm1', 'large charm':'cm2', 'grand charm':'cm3', 'identify scroll':'isc', 'town portal scroll':'tsc',
+'tome of town portal':'tbk', 'tome of identify':'ibk', 'arrows':'aqv', 'bolts':'cqv', 'jewel':'jew',
+'amulet':'amu', 'gold':'gld', 'ring':'rin', 'ear':'ear', 'torch':'tch',
+'key of terror':'pk1', 'key of hate':'pk2', 'key of destruction':'pk3', 'diablos horn':'dhn', 'baals eye':'bey',
+'mephistos brain':'mbr'};
+
+PickitCodes.IsValid = function IsValid(code) {
+	for(let n in this)
+		if (PickitCodes[n] == code)
+			return true;
+	return false;
+};
+PickitCodes.find = function find(code) {
+	for(let i in PickitCodes)
+		if (PickitCodes[i] == code)
+			return i;
+	return false;
+};

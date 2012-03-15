@@ -1,0 +1,16 @@
+js_strict(true);
+
+Unit.prototype.setWeaponSwitch = function(ws) {
+	if (ws != weaponSwitch(1)) {
+		weaponSwitch();
+		delay(100);
+	}
+};
+Unit.prototype.getWeaponSwitch = function() {
+	return weaponSwitch(1);
+};
+Unit.prototype.changeWeaponSwitch = function() {
+	weaponSwitch();
+	delay(100);
+	return this.getWeaponSwitch();
+};

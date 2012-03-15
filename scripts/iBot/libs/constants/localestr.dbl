@@ -1,0 +1,99 @@
+var LocaleStr = {
+
+getLocaleString(3453), // Socketed
+		getLocaleString(3454), // RequirementsNotMet:3454,
+		getLocaleString(3455), // Unidentified:3455,
+		getLocaleString(3456), // Charges:3456,
+		getLocaleString(3457), // Durability:3457,
+		getLocaleString(3458), // RequiredStrength:3458,
+		getLocaleString(3459), // RequiredDexterity:3459,
+		getLocaleString(3460), // Damage:3460,
+		getLocaleString(3461), // Defense:3461,
+		getLocaleString(3462), // Quantity:3462,
+		getLocaleString(3463), // of:3463,
+		getLocaleString(3464), // to:3464,
+		getLocaleString(3465), // One-HandDamage:3465,
+		getLocaleString(3466), // Two-HandDamage:3466,
+		getLocaleString(3467), // ThrowDamage:3467,
+		getLocaleString(3468), // SmiteDamage:3468,
+		getLocaleString(3469), // RequiredLevel:3469,
+
+		getLocaleString(3473), // toStrength:3473,
+		getLocaleString(3474), // toDexterity:3474,
+		getLocaleString(3475), // toVitality:3475,
+		getLocaleString(3476), // toEnergy:3476,
+		getLocaleString(3477), // toMana:3477,
+		getLocaleString(3478), // toMaximumDamage:3478,
+		getLocaleString(3479), // toMinimumDamage:3479,
+		getLocaleString(3480), // toAttackRating:3480,
+		getLocaleString(3481), // Defense:3481,
+		getLocaleString(3482), // FireResist:3482,
+		getLocaleString(3483), // ColdResist:3483,
+		getLocaleString(3484), // LightningResist:3484,
+		getLocaleString(3485), // MagicResist:3485,
+		getLocaleString(3486), // PoisonResist:3486,
+		getLocaleString(3487), // toMaximumFireDamage:3487,
+		getLocaleString(3488), // toMinimumFireDamage:3488,
+		getLocaleString(3489), // toMaximumLightningDamage:3489,
+		getLocaleString(3490), // toMinimumLightningDamage:3490,
+		getLocaleString(3491), // toMaximumColdDamage:3491,
+		getLocaleString(3492), // toMinimumColdDamage:3492,
+		getLocaleString(3493), // toLife:3493,
+		getLocaleString(3494), // AttackerTakesDamageof:3494,
+		getLocaleString(3495), // extragoldfrommonsters
+		getLocaleString(3496), // better chance of getting magic item
+		getLocaleString(3497), // Knockback	
+	
+		getLocaleString(10024), // All Resistances +%d
+		getLocaleString(10025), // +%d to All Skill Levels
+		getLocaleString(10026), // +%d fire damage
+		getLocaleString(10027), // Adds %d-%d fire damage
+		getLocaleString(10028), // +%d cold damage
+		getLocaleString(10029), // Adds %d-%d cold damage
+		getLocaleString(10030), // +%d lightning damage
+		getLocaleString(10031), // Adds %d-%d lightning damage
+		getLocaleString(10032), // +%d magic damage
+		getLocaleString(10033), // Adds %d-%d magic damage
+		getLocaleString(10034), // +%d poison damage over %d seconds
+		getLocaleString(10035), // Adds %d-%d poison damage over %d seconds
+		getLocaleString(10036), // +%d damage
+		getLocaleString(10037), // Adds %d-%d damage
+		getLocaleString(10038), // Enhanced damage
+		getLocaleString(10039), // Fire Damage Reduced by
+		getLocaleString(10040), // Cold Damage Reduced by
+		getLocaleString(10041), // Lightning Damage Reduced by
+		getLocaleString(10042), // Poison Damage Reduced by
+		getLocaleString(10043), // Absorbs Magic Damage
+		getLocaleString(10044), // Absorbs Fire Damage
+		getLocaleString(10045), // Absorbs Cold Damage
+		getLocaleString(10046), // Absorbs Lightning Damage
+		getLocaleString(10047), // Absorbs Poison Damage
+		getLocaleString(10048), // of the Wraith
+		getLocaleString(10049), // of Equilibrium
+		getLocaleString(10050), // Valkyrie's
+		getLocaleString(10051), // Maiden's
+		getLocaleString(10052), // Void
+		getLocaleString(10053), //  to your attack
+		getLocaleString(10054), // +%d to Javelin and Spear Skills
+		getLocaleString(10055), // +%d to Passive and Magic Skills
+		getLocaleString(10056), // +%d to Bow and Crossbow Skills
+		getLocaleString(10057), // +%d to Defensive Auras
+		getLocaleString(10058), // +%d to Offensive Auras
+		getLocaleString(10059), // +%d to Combat Skills
+		getLocaleString(10060), // +%d to Summoning Skills
+		getLocaleString(10061), // +%d to Poison and Bone Skills
+		getLocaleString(10062), // +%d to Curses
+		getLocaleString(10063), // +%d to Warcries
+		getLocaleString(10064), // +%d to Combat Skills
+		getLocaleString(10065), // +%d to Masteries
+		getLocaleString(10066), // +%d to Cold Skills
+		getLocaleString(10067), // +%d to Lightning Skills
+		getLocaleString(10068), // +%d to Fire Skills
+		getLocaleString(10069), // +%d to Summoning Skills
+		getLocaleString(10070), // +%d to Shape Shifting Skills
+		getLocaleString(10071), // +%d to Elemental Skills
+		getLocaleString(10072), // +%d to Traps
+		getLocaleString(10073), // +%d to Shadow Disciplines
+		getLocaleString(10074), // +%d to Martial Arts
+		
+		getLocaleString(11018), // Chance to Block: 

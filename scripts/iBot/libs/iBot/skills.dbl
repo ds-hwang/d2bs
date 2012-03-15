@@ -1,0 +1,185 @@
+js_strict(true);
+
+include('common.dbl');
+include('constants.dbl');
+include('prototypes.dbl');
+
+var Skills = new function() {
+	this.skillCache = {};
+	this.MaxCastRange = Interface.Config('Skills','MaxCastDist',38);
+	this.Init = function Init() {
+		Interface.Display(Message.Info,'Initializing skill manager');
+		this.Load();
+	};
+	this.Load = function Load() {
+		for each(let id in Skill)
+			this.skillCache[id] = new SkillClass(id);
+		me.changeWeaponSwitch();
+		for each(let ski in this.skillCache)
+			ski.reload();
+		me.changeWeaponSwitch();
+	};
+	this.Get = function Get(id) {
+		//if (!this.skillCache.hasOwnProperty(id)) throw new Error('Skill not found in cache');
+		return this.skillCache[id];
+	};
+};
+
+var SkillClass = function(id) {
+	me.setWeaponSwitch(0);
+	
+	this.id = id;
+	this.skillDesc = getBaseStat(BaseStatTable.skills,this.id,'skilldesc');
+	this.name = getLocaleString(getBaseStat(BaseStatTable.skilldesc,this.skillDesc,'str name'));
+	this.level = Interface.Config('Skills',Skill.find(this.id)+'-Enabled',true) ? me.getSkill(this.id, 1) : 0;
+	this.baseLevel = me.getSkill(this.id, 0);
+	this.weaponSwitch = me.getWeaponSwitch();
+	this.classId = getBaseStat(BaseStatTable.skills, this.id, 'charclass');
+	this.castRange = Interface.Config('Skills',Skill.find(this.id)+'-Range',Skills.MaxCastRange);
+	this.delay = getBaseStat(BaseStatTable.skills, this.id, 'delay');
+	this.hand = getBaseStat(BaseStatTable.skills, this.id, 'leftskill');
+	this.summon = getBaseStat(BaseStatTable.skills, this.id, 'summon');
+	
+	this.reload = function reload(){
+		if (me.getSkill(this.id, 1) > this.level) {
+			this.level = Interface.Config('Skills',Skill.find(this.id)+'-Enabled',true) ? me.getSkill(this.id, 1) : 0;
+			this.weaponSwitch = me.getWeaponSwitch();
+		}
+	};
+	
+	this.getType = function getType() {
+		if (getBaseStat(BaseStatTable.skills, this.id, 'aura') == 1)
+			return (arguments.length == 1) ? Skill.SkillTypeName[2] : Skill.SkillType.Aura;
+		//if (getBaseStat(BaseStatTable.skills, this.id, 'passivestate') > 0)
+		//	return (arguments.length == 1) ? this.SkillTypeName[3] : this.SkillType.Mastery;
+		//if (getBaseStat(BaseStatTable.skills, this.id, 'summon') > 0)
+		//	return (arguments.length == 1) ? this.SkillTypeName[4] : this.SkillType.Summon;
+		if (getBaseStat(BaseStatTable.skills, this.id, 'cltstfunc') == 18)
+			return (arguments.length == 1) ? Skill.SkillTypeName[5] : Skill.SkillType.Curse;
+		if (getBaseStat(BaseStatTable.skills, this.id, 'scroll') > 0)
+			return (arguments.length == 1) ? Skill.SkillTypeName[6] : Skill.SkillType.Scroll;
+		if (getBaseStat(BaseStatTable.skills, this.id, 'srvmissile') > 0 || 
+			getBaseStat(BaseStatTable.skills, this.id, 'srvmissilea') > 0 || 
+			getBaseStat(BaseStatTable.skills, this.id, 'srvmissileb') > 0 || 
+			getBaseStat(BaseStatTable.skills, this.id, 'srvmissilec') > 0)
+			return (arguments.length == 1) ? Skill.SkillTypeName[0] : Skill.SkillType.Ranged;
+		return (arguments.length == 1) ? Skill.SkillTypeName[1] : Skill.SkillType.Combat;
+	}
+	
+	this.getManaCost = function getManaCost(){
+		var skillLvl = me.getSkill(this.id, 3);
+		var effectiveShift = [1,2,4,8,16,32,64,128,256,512,1024];
+		var ret = Math.max((getBaseStat(BaseStatTable.skills, this.id, 'mana') + (getBaseStat(BaseStatTable.skills, this.id, 'lvlmana') * (skillLvl-1))) *
+				(effectiveShift[getBaseStat(BaseStatTable.skills, this.id, 'manashift')] / 256),
+			getBaseStat(BaseStatTable.skills, this.id, 'minmana'));
+		return ret;
+	}
+	
+	this.getRange = function getRange() {
+		return getBaseStat(BaseStatTable.skills, this.id, 'range');
+	}
+	
+	this.getRangeName = function getRangeName() {
+		return Skill.RangeName[this.getRange];
+	}
+	
+	this.getElemType = function getElemType() {
+		return (arguments.length == 1) ? Skill.SkillElemName[getBaseStat(BaseStatTable.skills, this.id, 'EType')] : getBaseStat(BaseStatTable.skills, this.id, 'EType');
+	}	
+	
+	this.__defineGetter__('inTown', function() {
+		return getBaseStat(BaseStatTable.skills, this.id, 'InTown');
+	});
+	
+	this.__defineGetter__('isObtainable', function() {
+		if (this.classId != me.classid)
+			return false;
+		if (me.getStat(12) < getBaseStat(BaseStatTable.skills, this.id, 'reqlevel'))
+			return false;
+		for (var n = 1; n < 4; n++) {
+			var nSkillId = getBaseStat(BaseStatTable.skills, this.id, 'reqskill' + n);
+			if (nSkillId > 0 && me.getSkill(nSkillId, 0) == 0)
+				return false;
+		}
+		return true;
+	});
+	
+	this.getState = function getState() {
+		var state = getBaseStat(BaseStatTable.skills, this.id, 'aurastate');
+		return state != 65535 ? state : -1;
+	}
+	
+	this.setSkill = function setSkill(hand) {
+		me.setWeaponSwitch(this.weaponSwitch);
+		hand = hand || this.hand;
+		return me.setSkill(this.id, hand);
+		/*
+		if (me.getSkill(hand == Hand.Right ? 2 : 3) == this.id ||
+			(me.setSkill(this.id, hand) && sleep(50))) return true;
+		return false;
+		//*/
+	}
+	
+	this.__defineGetter__('multiCount', function() {
+		this.list = {221/*Skill.Raven*/:5, 227/*Skill.SummonSpiritWolf*/:5, 237/*Skill.SummonDireWolf*/:3};
+		if (this.list.hasOwnProperty(this.id))
+			return (this.level > this.list[this.id]) ? this.list[this.id] : this.level;
+		return 1;
+	});
+	
+	this.__defineGetter__('isUsable', function() {
+		if (this.id == Skill.BookOfTownPortal)
+			if (!me.findItems({code:'tbk',location:ItemLocation.Inventory}).some(
+					function(x){return x.quantity > 0;}
+				)) return false;
+		if (this.id == Skill.ScrollOfTownPortal)
+			if (me.findItems({code:'tsc',location:ItemLocation.Inventory}).length < 1)
+				return false;
+		return this.level && (!me.isInTown || this.inTown) //&& me.mp > this.getManaCost();
+	});
+	
+	this.Cast = function Cast(point, hand) {
+		point = point || me;
+		hand = hand || this.hand;
+		var oldSwitch = me.getWeaponSwitch();
+		
+		var clickType = hand == Hand.Left ? ClickType.Left : ClickType.Right;
+		var shift = hand == Hand.Left ? Shift.On : Shift.Off;
+		
+		Interface.Display(Message.Debug, 'Using '+this.name+' at '+point.x+','+point.y+' with '+(hand?'left':'right')+' hand.');
+		
+		//Let's make sure actually can use the skill!
+		if (!this.isUsable) {
+			Interface.Display(Message.Warning, 'Can\'t use '+this.name+'!');
+			return false;
+		}
+		
+		//Attempt to place skill on hand.
+		if(!this.setSkill(hand)) {
+			Interface.Display(Message.Warning, 'Unable to cast '+this.name+', couldn\'t set skill.');
+			return false;
+		}
+		
+		if (this.getType() == Skill.SkillType.Aura) return true;
+		
+		//Lets do this shit.
+		if (isUnit(point)) {
+			clickMap(clickType.Down, shift, point);
+			delay(5+rand(5,10));
+			clickMap(clickType.Up, shift, point);
+		}
+		else {
+			clickMap(clickType.Down, shift, point.x, point.y);
+			delay(5+rand(5,10));
+			clickMap(clickType.Up, shift, point.x, point.y);
+		}
+		//Who cares if we have finished casting a hammer?
+		//if (this.id == Skill.BlessedHammer)
+		//	return true;
+		
+		castDelay();
+		me.setWeaponSwitch(oldSwitch);
+		
+		return true;
+	}
+};

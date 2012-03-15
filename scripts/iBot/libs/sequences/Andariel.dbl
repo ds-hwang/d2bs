@@ -1,0 +1,10 @@
+js_strict(true);
+
+function Andariel() {
+	Pather.MoveToArea(Area.Act1.CatacombsLevel2);
+	Precast.Precast();
+	Pather.MoveToArea(Area.Act1.CatacombsLevel4);
+	Attack.Kill(Unit.findMonster({classid:Monster['Andarial']}));
+	Pickit.Pick();
+	return true;
+}

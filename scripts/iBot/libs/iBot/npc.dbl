@@ -1,0 +1,154 @@
+js_strict(true);
+
+var NPC = new function(){
+	this.Heal = function Heal(keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to heal.');
+		useNpc(Area[me.act].Jobs.Heal,Area[me.act].Interact.Heal);
+		if (!keepOpen) me.cancel();
+	};
+	this.BuyPot = function BuyPot(type, num, shift, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to buy pots.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Pots,Area[me.act].Interact.Pots)) {
+			shopDelay();
+			var hp,mp;
+			for each(let u in uNpc.getItems()) {
+				if (u.isHPPot && (!hp || u.code > hp.code)) hp = u;
+				if (u.isMPPot && (!mp || u.code > mp.code)) mp = u;
+			}
+		}
+		for(let i=0;i<num;i++)
+			switch(type) {
+				case 'hp': hp.buy(shift); break;
+				case 'mp': mp.buy(shift); break;
+				default: throw new Error('Invalid pot type ('+type+')');
+			}
+		if (!keepOpen) me.cancel();
+	};
+	this.BuyScroll = function BuyScroll(type, shift, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to buy scroll.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Scrolls,Area[me.act].Interact.Scrolls)) {
+			shopDelay();
+			switch(type) {
+				case 'id': uNpc.findItem({code:'isc'}).buy(shift); break;
+				case 'tp': uNpc.findItem({code:'tsc'}).buy(shift); break;
+				default: throw new Error('Invalid scroll type('+type+')');
+			}
+		}
+		if (!keepOpen) me.cancel();
+	};
+	this.BuyTome = function BuyTome(type, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to buy tome.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Scrolls,Area[me.act].Interact.Scrolls)) {
+			shopDelay();
+			switch(type) {
+				case 'id': uNpc.findItem({code:'ibk'}).buy(); break;
+				case 'tp': uNpc.findItem({code:'tbk'}).buy(); break;
+				default: throw new Error('Invalid scroll type('+type+')');
+			}
+		}
+		if (!keepOpen) me.cancel();
+	};
+	this.BuyKey = function BuyKey(shift, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to buy keys.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Keys,Area[me.act].Interact.Keys)) {
+			shopDelay();
+			uNpc.findItem({code:'key'}).buy(shift);
+		}
+		if (!keepOpen) me.cancel();
+	};
+	this.Sell = function Sell(item, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to sell.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Sell,Area[me.act].Interact.Sell)) {
+			shopDelay();
+			item.sell();
+		}
+		if (!keepOpen) me.cancel();
+	};
+	this.RepairAll = function RepairAll(keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to repair all.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Repair,Area[me.act].Interact.Repair)) {
+			shopDelay();
+			me.repair();
+		}
+		if (!keepOpen) me.cancel();
+	};
+	this.ResurectMerc = function ResurectMerc() {
+		Interface.Display(Message.Debug,'Moving to npc to resurect merc.');
+		if (me.getMerc()) return;
+		useNpc(Area[me.act].Jobs.Merc,Area[me.act].Interact.Merc);
+		me.cancel();
+	};
+	this.Pots = function Pots(keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to buy pots.');
+		let(uNpc = useNpc(Area[me.act].Jobs.Pots,Area[me.act].Interact.Pots)) {
+			shopDelay();
+			var hp,mp;
+			for each(let u in uNpc.getItems()) {
+				if (u.isHPPot && (!hp || u.code > hp.code)) hp = u;
+				if (u.isMPPot && (!mp || u.code > mp.code)) mp = u;
+			}
+		}
+		var beltConfig = Interface.Config('General','Belt','hhmr');
+		
+		for(let i=0;i<4;i++)
+			for(let j=0;j<4;j++)
+				if (!Storage.Belt.buffer[i+j*4][0])
+					switch(beltConfig[i]) {
+						case 'h': hp.buy(); break;
+						case 'm': mp.buy(); break;
+					}
+		if (!keepOpen) me.cancel();
+	};
+	this.IdentifyAll = function IdentifyAll() {
+		Interface.Display(Message.Debug,'Moving to Cain to identify all.');
+		useNpc(Area[me.act].Jobs.Cain,Area[me.act].Interact.Cain);
+		delay(200);
+		me.cancel();
+	};
+	this.Gamble = function Gamble(codes, keepOpen) {
+		Interface.Display(Message.Debug,'Moving to npc to gamble.');
+		var items = [];
+		let(uNpc = useNpc(Area[me.act].Jobs.Gamble,Area[me.act].Interact.Gamble)) {
+			shopDelay();
+			for each(let code in codes)
+				for each(let item in uNpc.findItems({code:code}))
+					items.push(item.buy(false, true));
+		}
+		if (!keepOpen) me.cancel();
+		return items;
+	};
+	
+	var useNpc = function useNpc(classid, menu) {
+		var uNpc = moveToNpc(classid);
+		uNpc.interact();
+		UIDelay(UIFlags.NPCMenu);
+		uNpc.useMenu(menu);
+		return uNpc;
+	};
+	var moveToNpc = function moveToNpc(classid) {
+		if (getInteractedNPC() && getInteractedNPC().classid == classid) return getInteractedNPC();
+		me.cancel();
+		Pather.MoveToTown();
+		var pNpc;
+		var uNpc;
+		if (classid == Area.Act3.NPCs.Hratli) {
+			pNpc = PresetUnit.findObject({level:me.area,id:UniqueId['Hratli End']});
+			if (pNpc) pNpc.MoveTo(function(){return !Unit.findNPC({classid:classid});});
+			uNpc = Unit.findNPC({classid:classid});
+			if (!uNpc) {
+				pNpc = PresetUnit.findObject({level:me.area,id:UniqueId['Hratli Start']});
+				pNpc.MoveTo(function(){return !Unit.findNPC({classid:classid});});
+			}
+		}
+		else
+			pNpc = PresetUnit.findNPC({level:me.area,id:classid});
+		
+		if (isPreset(pNpc)) pNpc.MoveTo(function(){return !Unit.findNPC({classid:classid});});
+		uNpc = Unit.findNPC({classid:classid});
+		if (uNpc) {
+			uNpc.MoveToRange(5);
+			return uNpc;
+		}
+		throw new Error('Failed to move to NPC ('+classid+')');
+	};
+};

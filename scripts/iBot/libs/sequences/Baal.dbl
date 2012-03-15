@@ -1,0 +1,53 @@
+js_strict(true);
+
+function Baal() {
+	Pather.MoveToArea(Area.Act5.TheWorldStoneKeepLevel2);
+	Precast.Precast();
+	//Interface.Display(Message.Info,'Checking for portals');
+	//Pather.MoveToArea(Area.Act5.Harrogath);
+	Pather.MoveToArea(Area.Act5.ThroneOfDestruction);
+	var portal = PresetUnit.findObject({id:UniqueId['Worldstone ChamberArea']});
+	portal = portal.GetUnit();
+	//Pather.MoveTo({x:15094,y:5048});
+	
+	var rect = new Rectangle(15070,5000,15119-15070,5074-5000);
+	Attack.ClearRect(rect);
+	//for each(let m in Unit.findMonsters())
+	//	if (inRect(rect,m))
+	//		Attack.Kill(m);
+	Pickit.Pick();
+	
+	var uniques = [UniqueMonster['Colenzo the Annihilator'],UniqueMonster['Achmel the Cursed'],
+			UniqueMonster['Bartuc the Bloody'],UniqueMonster['Ventar the Unholy'],
+			UniqueMonster['Lister the Tormentor']];
+	while(true) {
+		Pather.MoveTo({x:15093,y:5028});
+		var m = waitMonster({uniqueid:uniques},20000);
+		Attack.ClearRect(rect);
+		Pickit.Pick();
+		print('ID: '+m.uniqueid);
+		if (m.uniqueid == UniqueMonster['Lister the Tormentor'])
+			break;
+		uniques = uniques.filter(function(x){return x != m.uniqueid;});
+	}
+	
+	if (!Interface.Config('Baal','KillBaal',true))
+		return true;
+	
+	portal.MoveTo();
+	Precast.Precast();
+	doDelay(function(){return !!Unit.findMonster({classid:Monster['Baal']});});
+	me.TakePortal(Area.Act5.TheWorldstoneChamber);
+	
+	var u = waitMonster({classid:Monster['Baal Throne']},2000);// Unit.findMonster({classid:Monster['Baal Throne']});
+	Attack.Kill(u);
+	Pickit.Pick();
+	
+	return true;
+}
+
+function waitMonster(propobj, maxWait) {
+	if (doDelay(function(){return !Unit.findMonster(propobj);},5,maxWait))
+		return Unit.findMonster(propobj);
+	return undefined;
+}

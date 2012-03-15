@@ -1,0 +1,13 @@
+js_strict(true);
+
+Exit.prototype.interact = function() {
+	var tile = getUnit(Type.Tile, this.tileid);
+	if (!tile) throw new Error('Tile not found');
+	clickMap(ClickType.Left.Down, Shift.Off, tile);
+	delay(50);
+	clickMap(ClickType.Left.Up, Shift.Off, tile);
+};
+
+Exit.prototype.MoveTo = function(callback) {
+	Pather.MoveToPoint(this, this.level, callback);
+};

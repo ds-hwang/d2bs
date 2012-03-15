@@ -1,0 +1,427 @@
+js_strict(true);
+
+include('iBot.dbl');
+include('common.dbl');
+include('constants.dbl');
+
+const MAX_WALK_DIST = 15;
+
+var Pather = new function() {
+	this.MoveTo = function MoveTo(obj, callback) {
+		callback = callback || function(){return true;}
+		if (isUnit(obj)) this.MoveToPoint(obj, obj.area, callback);
+		else if (isPreset(obj)) this.MoveToPoint({x:obj.realx,y:obj.realy}, obj.level, callback);
+		else if (isPoint(obj)) this.MoveToPoint(obj, me.area, callback);
+		else throw new Error('Coult not figure out how to move to desired place');
+	};
+	this.MoveToTown = function MoveToTown(act) {
+		act = act || me.act;
+		this.MoveToArea(Area.Town[act]);
+	};
+	this.MoveToRange = function MoveToRange(point, area, range, callback) {
+		callback = callback || function returnTrue(){return true;};
+		this.MoveToPoint(point, me.area, function(p){return getDistance(me,point)>range && callback(p);});
+	};
+	
+	this.MoveToPoint = function MoveToPoint(point, area, callback) {
+		require([{valid:isPoint},{valid:function(x){return isNumber(x) && x > 0;},optional:true}/*,{valid:isFunction,optional:true}*/],arguments);
+		
+		area = area || me.area;
+		point = movablePoint(point);
+		callback = callback || function(){return true;};
+		
+		if (me.area == area && me.x == point.x && me.y == point.y) return;
+		if (!callback(me)) return;
+		
+		Interface.Display(Message.Debug, 'Moving to '+point.x+', '+point.y);
+		
+		var sTele = Skills.Get(Skill.Teleport),
+			sVigor = Skills.Get(Skill.Vigor),
+			ps = getPath(area, point.x, point.y, me.x, me.y, sTele.isUsable ? 1 : 0, sTele.isUsable ? sTele.castRange : MAX_WALK_DIST),
+			moveFunc = sTele.isUsable ?
+					function(p){sTele.Cast(p);} :
+					function(p){
+						if (sVigor.isUsable) sVigor.setSkill();
+						clickMap(ClickType.Left.Down,Shift.Off,p.x,p.y);
+						moveDelay();
+					},
+			visPath;
+		
+		if (!ps || ps.length < 1) throw new Error('Failed to generate path to '+point.x+', '+point.y+'.');
+		
+		ps.reverse();
+		ps.shift(); // No need to move to current pos
+		
+		if (Interface.Config('General','Visuals',true))
+			visPath = new PathHook(ps);
+		
+		var p;
+		while((p = ps.shift())) {
+			do {
+				var old = {x:me.x,y:me.y};
+				moveFunc(p);
+				if (old.x == me.x && old.y == me.y)
+					moveFunc({x:me.x+rand(-2,2),y:me.y+rand(-2,2)});
+			} while(getDistance(me, p) > 5);
+			if (!callback(p)) break;
+			if (visPath) visPath.removeFirst();
+		}
+		if (visPath) visPath.remove();
+		if (ps.length == 0 && getDistance(point) > 3) moveFunc(point);
+		
+		function movablePoint(p) {
+			var i = 0;
+			while(hasBit(getCollision(area, p.x, p.y), Collision.Walk) && ++i)
+				p = {x:p.x+rand(-i,i), y:p.y+rand(-i,i)};
+			return p;
+		}
+	};
+	
+	this.MoveToPoint2 = function MoveToPoint(point, area, callback) {
+		require([{valid:isPoint},{valid:function(x){return isNumber(x) && x > 0;},optional:true}/*,{valid:isFunction,optional:true}*/],arguments);
+		area = area || me.area;
+		
+		point = movablePoint(point);
+		callback = callback || function(){return true;};
+		if (!callback(me)) return;
+		
+		Interface.Display(Message.Debug, 'Moving to '+point.x+', '+point.y);
+		
+		if (me.area == area && me.x == point.x && me.y == point.y) return;
+		if (!callback(me)) return;
+		
+		var sTele = Skills.Get(Skill.Teleport),
+			sLeap = Skills.Get(Skill.Leap),
+			sVigor = Skills.Get(Skill.Vigor),
+			sCast = sTele.level > 0 ? sTele : (sLeap.level > 0 ? sLeap : null);
+		
+		var i = 0, ps = null, cast = null, moveFunc, maxDist, visPath;
+		do {
+			if (!moveFunc || cast != (sCast && sCast.isUsable)) {
+				cast = sCast && sCast.isUsable;
+				moveFunc = cast ? fCast : fClick,
+				maxDist = cast ? sCast.castRange : MAX_WALK_DIST,
+				ps = getPath(area, point.x, point.y, me.x, me.y, cast ? 1 : 0, maxDist);
+				ps.reverse();
+				//ps.shift();													// ATTENTION!! Removes first node, pathing seems to add an extra crap node
+				if (!ps || ps.length < 1) throw new Error('Failed to generate path to '+point.x+', '+point.y);
+				if (Interface.Config('General','Visuals',true)) {
+					if (visPath) visPath.remove();
+					visPath = new PathHook(ps);
+				}
+				i = 0;
+			}
+			do {
+				var old = {x:me.x,y:me.y};
+				moveFunc.apply(this, [ps[i]]);
+				if (me.x == old.x && me.y == old.y) {
+					Interface.Display(Message.Debug, 'Got caught, unstucking!');
+					moveFunc.apply(this, [{x:me.x+rand(-2,2),y:me.y+rand(-2,2)}]);
+				}
+			} while(getDistance(me, ps[i]) > 5);
+			if (visPath) visPath.removeFirst();
+			if (!callback(ps[i])) break;
+		} while(ps.length > ++i);
+		if (visPath) visPath.remove();
+		if (i >= ps.length && getDistance(point) > 3) moveFunc.apply(this, [point]);
+		
+		function fClick(p) { if (sVigor.isUsable) sVigor.setSkill(); clickMap(ClickType.Left.Down, Shift.Off, p.x, p.y); moveDelay(); }
+		function fCast(p) { sCast.Cast(p); }
+		function movablePoint(p) {
+			var i = 0;
+			try {
+			while(hasBit(getCollision(area, p.x, p.y), Collision.Walk) && ++i) {
+//print('NOT WALKABLE col:'+getCollision(area, p.x, p.y)+' i:'+i);
+				p = {x:p.x+rand(-i,i), y:p.y+rand(-i,i)};
+			}
+			} catch(ex) {
+print('POINT: '+p.x+','+p.y+' '+me.x+','+me.y);
+print('STACK: '+ex.stack.toSource());
+throw ex;
+			}
+//print('NEW POINT col:'+getCollision(area, p.x, p.y)+' i:'+i);
+			return p;
+		}
+	};
+	this.MoveToArea = function MoveToArea(area, ignoreLinks) {
+		if (me.area == area) return;
+		Interface.Display(Message.Info, 'Moving to '+Area.find(area)); //getArea(area).name);
+		
+		var links = this.AreaLinks(me.area, area, ignoreLinks);
+		if (links.length < 1)
+			throw new Error('Failed to find path to '+Area.find(area)); //getArea(area).name);
+		
+		for each(let link in links) {
+			//link.type = link.type || undefined;
+			switch(link.type) {
+				case 'wp':
+					/*
+					var getWpFunc = function(a){
+							Pather.MoveToArea(a, (ignoreLinks || []).concat({from:link.from,to:link.to,type:'wp'}));
+							me.UseWp(a,getWpfunc);
+						};
+						//*/
+					me.UseWp(link.to);// getWpFunc);
+					break;
+				case 'tp':
+					me.TakePortal(link.to);
+					break;
+				case 'pp':
+					var ps = PresetUnit.findObjects({id:UniqueId['Permanent Town Portal']});
+					for each(let p in ps) {
+						var u = p.GetUnit();
+						if (u.objtype == link.to) {
+							me.TakePortal(link.to);
+							break;
+						}
+					}
+					break;
+				default:
+					var e = Exit.findExit({target:link.to}, getArea(link.from).exits);
+					if (!e) throw new Error('Failed to find walk exit.('+getArea(link.from).name+')');
+					if (e.type == 1)
+						e = Exit.findExit({target:link.from}, getArea(link.to).exits);
+					e.MoveTo();
+					if (e.type == 2)
+						e.interact();
+					break;
+			}
+			if (!areaDelay(link.to))
+				throw new Error('Failed to move to '+Area.find(link.to));
+		}
+	};
+	
+	this.AreaLinks = function AreaLinks(fromArea, toArea, ignoreLinks) {
+		var path = BFS({area:fromArea, parent:null},
+			function(a){return a.area==toArea;},
+			function(a){
+				var as = [];
+
+// To be removed when cross area/act data works
+if (!(a.area in oc(Area.Town)))
+	as.push({area:Area.Town[getBaseStat(BaseStatTable.levels,a.area,'Act')+1], parent:a, type:'tp'});
+else
+	// Does not always work because getUnit not reaching portal spot
+	for each(let p in Unit.findObjects({classid:UniqueId['Town Portal']}))
+		if (p.getParentEx().inSameParty(me))
+			as.push({area:p.objtype, parent:a, type:'tp'});
+
+for each(let e in TempLinks[a.area]) {
+	var wp = getBaseStat(BaseStatTable.levels,a.area,'Waypoint');
+	if (wp != 255)
+		for each(let w in TempLinksWaypoint)
+			if (Interface.Config('Waypoint',Waypoint.find(getBaseStat(BaseStatTable.levels,w,'Waypoint'))+'-Enabled',true))
+				if (getBaseStat(BaseStatTable.levels,w,'Act')+1 == me.act || getBaseStat(BaseStatTable.levels,w,'Act')+1 == getBaseStat(BaseStatTable.levels,toArea,'Act')+1)
+					as.push({area:w, parent:a, type:'wp'});
+	as.push({area:e, parent:a});
+}
+switch(a.area) {
+	case Area.Act1.StonyField:
+		as.push({area:Area.Act1.Tristram, parent:a, type:'pp'}); break;
+	case Area.Act1.Tristram:
+		as.push({area:Area.Act1.StonyField, parent:a, type:'pp'}); break;
+	
+	case Area.Act5.FrigidHighlands:
+		as.push({area:Area.Act5.Hell1, parent:a, type:'pp'}); break;
+	case Area.Act5.Hell1:
+		as.push({area:Area.Act5.FrigidHighlands, parent:a, type:'pp'}); break;
+	case Area.Act5.ArreatPlateau:
+		as.push({area:Area.Act5.Hell2, parent:a, type:'pp'}); break;
+	case Area.Act5.Hell2:
+		as.push({area:Area.Act5.ArreatPlateau, parent:a, type:'pp'}); break;
+	case Area.Act5.TundraWastelands:
+		as.push({area:Area.Act5.Hell3, parent:a, type:'pp'}); break;
+	case Area.Act5.Hell2:
+		as.push({area:Area.Act5.TundraWastelands, parent:a, type:'pp'}); break;
+	
+	case Area.Act5.Harrogath:
+		as.push({area:Area.Act5.NihlathaksTemple, parent:a, type:'pp'}); break;
+	case Area.Act5.NihlathaksTemple:
+		as.push({area:Area.Act5.Harrogath, parent:a, type:'pp'}); break;
+}
+// End remove
+				/*
+				var area = getArea(a.area);
+				if (area.act != me.act && area.act != getArea(toArea).act) return as;
+				if (!area.isTown)
+					as.push({area:Area.Town[area.act], parent:a, type:'tp'});
+				else {
+					for each(let p in Unit.findObjects({classid:UniqueId['Town Portal']})) {
+					print('PORTAL FOUND');
+						if (p.getParentExt().gid == me.gid)
+							as.push({area:p.objtype, parent:a, type:'tp'});
+					}
+				}
+				//if (area.hasWaypoint)
+				//	for each(let wp in wps)
+				//		as.push({area:wp, parent:a, type:'wp'});
+				for each(let e in area.exits)
+					as.push({area:e.target, parent:a, type:e.type});
+				//*/
+				return as.filter(function(x){
+					for each(let link in ignoreLinks)
+						if (x.parent.area==link.from && x.area==link.to && x.type==link.type)
+							return false;
+					return true;
+				});
+				return as;
+			},
+			function(a){return a.area;});
+		var ret = [];
+		while(path.parent != null) {
+			ret.push({from:path.parent.area, to:path.area, type:path.type});
+			path = path.parent;
+		}
+		return ret.reverse();
+	};
+}
+
+var TempLinksWaypoint = [Area.Act1.RogueEncampment,Area.Act1.ColdPlains,Area.Act1.StonyField,Area.Act1.DarkWood,
+	Area.Act1.BlackMarsh,Area.Act1.OuterCloister,Area.Act1.JailLevel1,Area.Act1.InnerCloister,Area.Act1.CatacombsLevel2,
+	Area.Act2.LutGholein,Area.Act2.SewersLevel2,Area.Act2.DryHills,Area.Act2.HallsOfTheDeadLevel2,Area.Act2.FarOasis,
+	Area.Act2.LostCity,Area.Act2.PalaceCellarLevel1,Area.Act2.ArcaneSanctuary,Area.Act2.CanyonOfTheMagi,
+	Area.Act3.KurastDocktown,Area.Act3.SpiderForest,Area.Act3.GreatMarsh,Area.Act3.FlayerJungle,Area.Act3.LowerKurast,
+	Area.Act3.KurastBazaar,Area.Act3.UpperKurast,Area.Act3.Travincal,Area.Act3.DuranceOfHateLevel2,
+	Area.Act4.ThePandemoniumFortress,Area.Act4.CityOfTheDamned,Area.Act4.RiverOfFlame,Area.Act5.Harrogath,
+	Area.Act5.FrigidHighlands,Area.Act5.ArreatPlateau,Area.Act5.CrystalizedCavernLevel1,Area.Act5.HallsOfPain,
+	Area.Act5.TundraWastelands,Area.Act5.GlacialCavesLevel2,Area.Act5.TheWorldStoneKeepLevel2];
+
+var TempLinks = {
+	1/*RogueEncampment*/:[Area.Act1.BloodMoor,Area.Act1.CowLevel],
+	2/*BloodMoor*/:[Area.Act1.RogueEncampment,Area.Act1.DenOfEvil,Area.Act1.ColdPlains],
+	3/*ColdPlains*/:[Area.Act1.BloodMoor,Area.Act1.BurialGrounds,Area.Act1.CaveLevel1,Area.Act1.StonyField],
+	4/*StonyField*/:[Area.Act1.ColdPlains/*,Area.Act1.Tristram*/,Area.Act1.UndergroundPassageLevel1],
+	5/*DarkWood*/:[Area.Act1.UndergroundPassageLevel1,Area.Act1.BlackMarsh],
+	6/*BlackMarsh*/:[Area.Act1.DarkWood,Area.Act1.HoleLevel1,Area.Act1.ForgottenTower,Area.Act1.TamoeHighland],
+	7/*TamoeHighland*/:[Area.Act1.BlackMarsh,Area.Act1.PitLevel1,Area.Act1.MonasteryGate],
+	8/*DenOfEvil*/:[Area.Act1.BloodMoor],
+	9/*CaveLevel1*/:[Area.Act1.ColdPlains,Area.Act1.CaveLevel2],
+	10/*UndergroundPassageLevel1*/:[Area.Act1.StonyField,Area.Act1.UndergroundPassageLevel2,Area.Act1.DarkWood],
+	11/*HoleLevel1*/:[Area.Act1.BlackMarsh,Area.Act1.HoleLevel2],
+	12/*PitLevel1*/:[Area.Act1.TamoeHighland,Area.Act1.PitLevel2],
+	13/*CaveLevel2*/:[Area.Act1.CaveLevel1],
+	14/*UndergroundPassageLevel2*/:[Area.Act1.UndergroundPassageLevel1],
+	15/*HoleLevel2*/:[Area.Act1.HoleLevel1],
+	16/*PitLevel2*/:[Area.Act1.PitLevel1],
+	17/*BurialGrounds*/:[Area.Act1.ColdPlains,Area.Act1.Crypt,Area.Act1.Mausoleum],
+	18/*Crypt*/:[Area.Act1.BurialGrounds],
+	19/*Mausoleum*/:[Area.Act1.BurialGrounds],
+	20/*ForgottenTower*/:[Area.Act1.BlackMarsh,Area.Act1.TowerCellarLevel1],
+	21/*TowerCellarLevel1*/:[Area.Act1.ForgottenTower,Area.Act1.TowerCellarLevel2],
+	22/*TowerCellarLevel2*/:[Area.Act1.TowerCellarLevel1,Area.Act1.TowerCellarLevel3],
+	23/*TowerCellarLevel3*/:[Area.Act1.TowerCellarLevel2,Area.Act1.TowerCellarLevel4],
+	24/*TowerCellarLevel4*/:[Area.Act1.TowerCellarLevel3,Area.Act1.TowerCellarLevel5],
+	25/*TowerCellarLevel5*/:[Area.Act1.TowerCellarLevel4],
+	26/*MonasteryGate*/:[Area.Act1.TamoeHighland,Area.Act1.OuterCloister],
+	27/*OuterCloister*/:[Area.Act1.MonasteryGate,Area.Act1.Barracks],
+	28/*Barracks*/:[Area.Act1.OuterCloister,Area.Act1.JailLevel1],
+	29/*JailLevel1*/:[Area.Act1.Barracks,Area.Act1.JailLevel2],
+	30/*JailLevel2*/:[Area.Act1.JailLevel1,Area.Act1.JailLevel3],
+	31/*JailLevel3*/:[Area.Act1.JailLevel2,Area.Act1.InnerCloister],
+	32/*InnerCloister*/:[Area.Act1.JailLevel3,Area.Act1.Cathedral],
+	33/*Cathedral*/:[Area.Act1.InnerCloister,Area.Act1.CatacombsLevel1],
+	34/*CatacombsLevel1*/:[Area.Act1.Cathedral,Area.Act1.CatacombsLevel2],
+	35/*CatacombsLevel2*/:[Area.Act1.CatacombsLevel1,Area.Act1.CatacombsLevel3],
+	36/*CatacombsLevel3*/:[Area.Act1.CatacombsLevel2,Area.Act1.CatacombsLevel4],
+	37/*CatacombsLevel4*/:[Area.Act1.CatacombsLevel3],
+	38/*Tristram*/:[/*Area.Act1.StonyField*/],
+	39/*CowLevel*/:[Area.Act1.RogueEncampment],
+	
+	40/*LutGholein*/:[Area.Act2.SewersLevel1,Area.Act2.HaremLevel1,Area.Act2.RockyWaste],
+	41/*RockyWaste*/:[Area.Act2.LutGholein,Area.Act2.DryHills,Area.Act2.StonyTombLevel1],
+	42/*DryHills*/:[Area.Act2.RockyWaste,Area.Act2.FarOasis],
+	43/*FarOasis*/:[Area.Act2.DryHills,Area.Act2.LostCity],
+	44/*LostCity*/:[Area.Act2.FarOasis,Area.Act2.AncientTunnels,Area.Act2.ValleyOfSnakes],
+	45/*ValleyOfSnakes*/:[Area.Act2.LostCity,Area.Act2.ClawViperTempleLevel1],
+	46/*CanyonOfTheMagi*/:[Area.Act2.TalRashasTomb1,Area.Act2.TalRashasTomb2,Area.Act2.TalRashasTomb3,Area.Act2.TalRashasTomb4,Area.Act2.TalRashasTomb5,Area.Act2.TalRashasTomb6,Area.Act2.TalRashasTomb7],
+	47/*SewersLevel1*/:[Area.Act2.LutGholein,Area.Act2.SewersLevel2],
+	48/*SewersLevel2*/:[Area.Act2.SewersLevel1,Area.Act2.SewersLevel3],
+	49/*SewersLevel3*/:[Area.Act2.SewersLevel2],
+	50/*HaremLevel1*/:[Area.Act2.LutGholein],
+	51/*HaremLevel2*/:[Area.Act2.HaremLevel1,Area.Act2.PalaceCellarLevel1],
+	52/*PalaceCellarLevel1*/:[Area.Act2.HaremLevel2,Area.Act2.PalaceCellarLevel2],
+	53/*PalaceCellarLevel2*/:[Area.Act2.PalaceCellarLevel1,Area.Act2.PalaceCellarLevel3],
+	54/*PalaceCellarLevel3*/:[Area.Act2.PalaceCellarLevel2],
+	55/*StonyTombLevel1*/:[Area.Act2.RockyWaste,Area.Act2.StonyTombLevel2],
+	56/*HallsOfTheDeadLevel1*/:[Area.Act2.DryHills,Area.Act2.HallsOfTheDeadLevel2],
+	57/*HallsOfTheDeadLevel2*/:[Area.Act2.HallsOfTheDeadLevel1,Area.Act2.HallsOfTheDeadLevel3],
+	58/*ClawViperTempleLevel1*/:[Area.Act2.ValleyOfSnakes,Area.Act2.ClawViperTempleLevel2],
+	59/*StonyTombLevel2*/:[Area.Act2.StonyTombLevel1],
+	60/*HallsOfTheDeadLevel3*/:[Area.Act2.HallsOfTheDeadLevel2],
+	61/*ClawViperTempleLevel2*/:[Area.Act2.ClawViperTempleLevel1],
+	62/*MaggotLairLevel1*/:[Area.Act2.FarOasis,Area.Act2.MaggotLairLevel2],
+	63/*MaggotLairLevel2*/:[Area.Act2.MaggotLairLevel1,Area.Act2.MaggotLairLevel3],
+	64/*MaggotLairLevel3*/:[Area.Act2.MaggotLairLevel2],
+	65/*AncientTunnels*/:[Area.Act2.LostCity],
+	66/*TalRashasTomb1*/:[Area.Act2.CanyonOfTheMagi],
+	67/*TalRashasTomb2*/:[Area.Act2.CanyonOfTheMagi],
+	68/*TalRashasTomb3*/:[Area.Act2.CanyonOfTheMagi],
+	69/*TalRashasTomb4*/:[Area.Act2.CanyonOfTheMagi],
+	70/*TalRashasTomb5*/:[Area.Act2.CanyonOfTheMagi],
+	71/*TalRashasTomb6*/:[Area.Act2.CanyonOfTheMagi],
+	72/*TalRashasTomb7*/:[Area.Act2.CanyonOfTheMagi],
+	73/*DurielsLair*/:[],
+	74/*ArcaneSanctuary*/:[],
+	
+	75/*KurastDocktown*/:[Area.Act3.SpiderForest],
+	76/*SpiderForest*/:[Area.Act3.KurastDocktown,Area.Act3.SpiderCave,Area.Act3.SpiderCavern,Area.Act3.GreatMarsh],
+	77/*GreatMarsh*/:[Area.Act3.SpiderForest,Area.Act3.FlayerJungle],
+	78/*FlayerJungle*/:[Area.Act3.GreatMarsh,Area.Act3.SwampyPitLevel1,Area.Act3.FlayerDungeonLevel1,Area.Act3.LowerKurast],
+	79/*LowerKurast*/:[Area.Act3.FlayerJungle,Area.Act3.KurastBazaar],
+	80/*KurastBazaar*/:[Area.Act3.LowerKurast,Area.Act3.SewersLevel1,Area.Act3.RuinedTemple,Area.Act3.DisusedFane,Area.Act3.UpperKurast],
+	81/*UpperKurast*/:[Area.Act3.KurastBazaar,Area.Act3.SewersLevel1,Area.Act3.ForgottenReliquary,Area.Act3.ForgottenTemple,Area.Act3.KurastCauseway],
+	82/*KurastCauseway*/:[Area.Act3.UpperKurast,Area.Act3.RuinedFane,Area.Act3.DisusedReliquary,Area.Act3.Travincal],
+	83/*Travincal*/:[Area.Act3.KurastCauseway,Area.Act3.DuranceOfHateLevel1],
+	84/*SpiderCave*/:[Area.Act3.SpiderForest],
+	85/*SpiderCavern*/:[Area.Act3.SpiderForest],
+	86/*SwampyPitLevel1*/:[Area.Act3.FlayerJungle,Area.Act3.SwampyPitLevel2],
+	87/*SwampyPitLevel2*/:[Area.Act3.SwampyPitLevel1,Area.Act3.SwampyPitLevel3],
+	88/*FlayerDungeonLevel1*/:[Area.Act3.FlayerJungle,Area.Act3.FlayerDungeonLevel2],
+	89/*FlayerDungeonLevel2*/:[Area.Act3.FlayerDungeonLevel1],
+	90/*SwampyPitLevel3*/:[Area.Act3.SwampyPitLevel2],
+	91/*FlayerDungeonLevel3*/:[Area.Act3.FlayerDungeonLevel2],
+	92/*SewersLevel1*/:[Area.Act3.KurastBazaar,Area.Act3.UpperKurast],
+	93/*SewersLevel2*/:[Area.Act3.SewersLevel1],
+	94/*RuinedTemple*/:[Area.Act3.KurastBazaar],
+	95/*DisusedFane*/:[Area.Act3.KurastBazaar],
+	96/*ForgottenReliquary*/:[Area.Act3.UpperKurast],
+	97/*ForgottenTemple*/:[Area.Act3.UpperKurast],
+	98/*RuinedFane*/:[Area.Act3.KurastCauseway],
+	99/*DisusedReliquary*/:[Area.Act3.KurastCauseway],
+	100/*DuranceOfHateLevel1*/:[Area.Act3.Travincal,Area.Act3.DuranceOfHateLevel2],
+	101/*DuranceOfHateLevel2*/:[Area.Act3.DuranceOfHateLevel1,Area.Act3.DuranceOfHateLevel3],
+	102/*DuranceOfHateLevel3*/:[Area.Act3.DuranceOfHateLevel2],
+	
+	
+	103/*ThePandemoniumFortress*/:[Area.Act4.OuterSteppes],
+	104/*OuterSteppes*/:[Area.Act4.ThePandemoniumFortress,Area.Act4.PlainsOfDespair],
+	105/*PlainsOfDespair*/:[Area.Act4.OuterSteppes,Area.Act4.CityOfTheDamned],
+	106/*CityOfTheDamned*/:[Area.Act4.PlainsOfDespair,Area.Act4.RiverOfFlame],
+	107/*RiverOfFlame*/:[Area.Act4.CityOfTheDamned,Area.Act4.ChaosSanctuary],
+	108/*ChaosSanctuary*/:[Area.Act4.RiverOfFlame],
+	
+	109/*Harrogath*/:[Area.Act5.BloodyFoothills/*,Area.Act5.NihlathaksTemple*/],
+	110/*BloodyFoothills*/:[Area.Act5.Harrogath,Area.Act5.FrigidHighlands],
+	111/*FrigidHighlands*/:[Area.Act5.BloodyFoothills/*,Area.Act5.Hell1*/,Area.Act5.ArreatPlateau],
+	112/*ArreatPlateau*/:[Area.Act5.FrigidHighlands/*,Area.Act5.Hell2*/,Area.Act5.CrystalizedCavernLevel1],
+	113/*CrystalizedCavernLevel1*/:[Area.Act5.CrystalizedCavernLevel2,Area.Act5.CellarOfPity],
+	114/*CellarOfPity*/:[Area.Act5.CrystalizedCavernLevel1],
+	115/*CrystalizedCavernLevel2*/:[Area.Act5.CrystalizedCavernLevel1,Area.Act5.EchoChamber,Area.Act5.TundraWastelands],
+	116/*EchoChamber*/:[Area.Act5.CrystalizedCavernLevel2],
+	117/*TundraWastelands*/:[Area.Act5.CrystalizedCavernLevel2/*,Area.Act5.Hell3*/,Area.Act5.GlacialCavesLevel1],
+	118/*GlacialCavesLevel1*/:[Area.Act5.TundraWastelands,Area.Act5.GlacialCavesLevel2,Area.Act5.ArreatSummit],
+	119/*GlacialCavesLevel2*/:[Area.Act5.GlacialCavesLevel1],
+	120/*ArreatSummit*/:[Area.Act5.GlacialCavesLevel1,Area.Act5.TheWorldStoneKeepLevel1],
+	121/*NihlathaksTemple*/:[/*Area.Act5.Harrogath,*/Area.Act5.HallsOfAnguish],
+	122/*HallsOfAnguish*/:[Area.Act5.NihlathaksTemple,Area.Act5.HallsOfPain],
+	123/*HallsOfPain*/:[Area.Act5.HallsOfAnguish,Area.Act5.HallsOfVaught],
+	124/*HallsOfVaught*/:[Area.Act5.HallsOfPain],
+	125/*Hell1*/:[Area.Act5.FrigidHighlands],
+	126/*Hell2*/:[Area.Act5.ArreatPlateau],
+	127/*Hell3*/:[Area.Act5.TundraWastelands],
+	128/*TheWorldStoneKeepLevel1*/:[Area.Act5.ArreatSummit,Area.Act5.TheWorldStoneKeepLevel2],
+	129/*TheWorldStoneKeepLevel2*/:[Area.Act5.TheWorldStoneKeepLevel1,Area.Act5.TheWorldStoneKeepLevel3],
+	130/*TheWorldStoneKeepLevel3*/:[Area.Act5.TheWorldStoneKeepLevel2,Area.Act5.ThroneOfDestruction],
+	131/*ThroneOfDestruction*/:[Area.Act5.TheWorldStoneKeepLevel3,Area.Act5.TheWorldstoneChamber],
+	132/*TheWorldstoneChamber*/:[]
+};

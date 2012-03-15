@@ -1,0 +1,35 @@
+js_strict(true);
+
+include('constants.dbl');
+include('common.dbl');
+include('prototypes.dbl');
+
+function main(err,unit,x,y) {
+	var hook = new TargetHook(unit,x,450);
+	while(unit.isValidTarget) {
+		hook.Update();
+		delay(10);
+	}
+	hook.remove();
+}
+
+var TargetHook = function(unit,x,y) {
+	this.target = unit;
+	this.bg = new Box(x,y,Math.max(150,unit.name.getWidth(0)+20),50,0,1);
+	this.frame = new Frame(x,y,this.bg.xsize,50);
+	this.hpBar = new Box(x,y,this.bg.xsize,20,10,1);
+	this.hpFrame = new Frame(x,y,this.bg.xsize,20);
+	this.name = new Text(unit.name,Math.round(x+this.bg.xsize/2-unit.name.getWidth(0)/2),y+15);
+	
+	this.Update = function() {
+		this.hpBar.xsize = this.bg.xsize*unit.percentlife/100;
+	};
+	
+	this.remove = function() {
+		this.bg.remove();
+		this.frame.remove();
+		this.hpBar.remove();
+		this.hpFrame.remove();
+		this.name.remove();
+	};
+};

@@ -1,0 +1,48 @@
+js_strict(true);
+
+function Diablo() {
+	Pather.MoveToArea(Area.Act4.RiverOfFlame);
+	Precast.Precast();
+	Interface.Display(Message.Info,'Checking for portals');
+	Pather.MoveToArea(Area.Act4.ThePandemoniumFortress);
+	Pather.MoveToArea(Area.Act4.ChaosSanctuary);
+	var seals = [UniqueId['Diablo Seal1'],UniqueId['Diablo Seal2'],UniqueId['Diablo Seal3'],
+			UniqueId['Diablo Seal5'],UniqueId['Diablo Seal4']];
+	var star = PresetUnit.findObject({id:UniqueId['Diablo Start Point']});
+	for each(let seal in seals) {
+		var p = PresetUnit.findObject({id:seal});
+		var u = p.GetUnit();
+		u.MoveTo();
+		if (!Interface.Config('Diablo','Fastdia',false))
+			Attack.Range(15,u);
+		u.Open();
+		var m = star.GetUnit({type:Type.Monster,uniqueid:[
+				UniqueMonster['Infector of Souls'],
+				UniqueMonster['Lord De Seis'],
+				UniqueMonster['Grand Vizier of Chaos']]});
+		if (m) {
+			Attack.Kill(m);
+			if (!Interface.Config('Diablo','FastDia',false))
+				Attack.Range(30,m);
+		}
+		Pickit.Pick();
+	}
+	star.MoveTo();
+	Precast.Precast(true);
+	var dia = waitMonster({classid:Monster['Diablo']},20*1000);
+	if (dia)
+		Attack.Kill(dia);
+	Pickit.Pick();
+	return true;
+}
+
+function waitMonster(propobj, maxWait) {
+	if (doDelay(function(){return !Unit.findMonster(propobj);},5,maxWait))
+		return Unit.findMonster(propobj);
+	return undefined;
+}
+
+function OpenSeal(unit) {
+	unit.Open();
+	modeDelay([Mode.Object.Operating],unit,3000);
+}

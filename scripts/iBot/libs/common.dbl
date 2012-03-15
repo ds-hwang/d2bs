@@ -1,0 +1,14 @@
+js_strict(true);
+
+include('common/helpers.dbl');
+include('common/ibot.dbl');
+include('common/ingame.dbl');
+include('common/ini.js');
+include('common/nip.js');
+include('common/js.dbl');
+include('common/oogame.dbl');
+include('common/structures.dbl');
+include('common/crosshook.dbl');
+include('common/circlehook.dbl');
+include('common/squerehook.dbl');
+include('common/checkboxhook.dbl');

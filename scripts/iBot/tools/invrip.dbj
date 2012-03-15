@@ -1,0 +1,249 @@
+js_strict(true);
+
+include('constants.dbl');
+include('prototypes.dbl');
+include('ibot/interface.dbl');
+include('ibot/storage.dbl');
+
+function main() {
+	if (!Interface.Config('General','RipInventory',true)) return;
+	Interface.Display(Message.Info, 'Ripping inventory');
+	
+	var items = Storage.Items;
+	items = items.concat(me.equipment, (me.getMerc() ? me.getMerc().equipment : []));
+	
+	var profile = me.profile || me.name
+	dumpToFile(items, 'profile/'+profile+'/dump.js');
+}
+
+function dumpToFile(items, file) {
+	FileTools.remove(file);
+	FileTools.appendText(file, '$(function(){\n');
+	for each(let item in items) {
+		var obj = {};
+		obj.name = colorFName(item).split('\n').reverse();
+		
+		obj.stats = getStatStrArr(item);
+		if (item.sockets > 0)
+			obj.stats.push(getLocaleString(3453)+' ('+item.sockets+')');
+		
+		obj.attributes = item.description.split('\n').reverse().splice(1);
+		obj.attributes = obj.attributes.map(function(x){return ColorCode.Blue+x;});
+		
+		switch(item.location) {
+			case ItemLocation.Ground: break;
+			case ItemLocation.Equip:
+				switch(item.bodylocation) {
+					case BodyLocation.NotEquipped: break;
+					case BodyLocation.Helm: obj.location = 'Head'; obj.file = imgFile(item); break;
+					case BodyLocation.Amulet: obj.location = 'Amulet'; break;
+					case BodyLocation.Armor: obj.location = 'Body'; break;
+					case BodyLocation.RightSlotI: obj.location = 'RSlot1'; break;
+					case BodyLocation.LeftSlotI: obj.location = 'LSlot1'; break;
+					case BodyLocation.RightRing: obj.location = 'RRing'; break;
+					case BodyLocation.LeftRing: obj.location = 'LRing'; break;
+					case BodyLocation.Belt: obj.location = 'Belt'; break;
+					case BodyLocation.Boots: obj.location = 'Feets'; break;
+					case BodyLocation.Gloves: obj.location = 'Hands'; break;
+					case BodyLocation.RightSlotII: obj.location = 'RSlot2'; break;
+					case BodyLocation.LeftSlotII: obj.location = 'LSlot2'; break;
+				}
+				var merc = me.getMerc() && item.getParent().name==me.getMerc().name ? 'Merc' : '';
+				obj.location = merc+obj.location;
+				break;
+			case ItemLocation.Belt: obj.location = 'Pots'; obj.x = item.x; obj.y = item.y; break;
+			case ItemLocation.Inventory: obj.location = 'Inventory'; obj.x = item.x; obj.y = item.y; break;
+			case ItemLocation.Shop: break;
+			case ItemLocation.Trade: break;
+			case ItemLocation.Cube: obj.location = 'Cube'; obj.x = item.x; obj.y = item.y; break;
+			case ItemLocation.Stash: obj.location = 'Stash'; obj.x = item.x; obj.y = item.y; break;
+		}
+		obj.file = imgFile(item);
+		FileTools.appendText(file, 'AddItem('+obj.toSource()+');\n');
+	}
+	FileTools.appendText(file, '});');
+}
+
+function colorFName(item) {
+	if (item.isRuneword) {
+		var n = item.fname.split('\n');
+		n[0] = ColorCode.Gray+n[0];
+		return n.join('\n');
+	}
+	if (/ÿc\d/.test(item.fname)) return item.fname; // Keep color if already there (Cube)
+	var c = ColorCode.White;
+	switch(item.quality) {
+		case ItemQuality.Inferior:
+		case ItemQuality.Normal: 
+		case ItemQuality.Superior: c = item.isEtheral ? ColorCode.Gray : ColorCode.White; break;
+		case ItemQuality.Magic: c = ColorCode.Blue; break;
+		case ItemQuality.Set: c = ColorCode.Green; break;
+		case ItemQuality.Rare: c = ColorCode.Yellow; break;
+		case ItemQuality.Unique: c = ColorCode.Gold; break;
+		case ItemQuality.Crafted: c = ColorCode.Amber; break;
+	}
+	return c+item.fname.split('\n').join('\n'+c);
+}
+
+function getStatStrArr(item) {
+	var strArr = [];
+	var stats = item.getStat(-2);
+	for(let i=0;i<stats.length;i++) {
+		var val = stats[i];
+		if (val != undefined) {
+			switch(i) {
+				case Stats.MinDamage: strArr.push(getLocaleString(3465)+' '+val+' '+getLocaleString(3464)+' '+item.getStat(Stats.MaxDamage)); break;
+				case Stats.MaxDamage: break;
+				case Stats.SecondMinDamage: strArr.push(getLocaleString(3466)+' '+val+' '+getLocaleString(3464)+' '+item.getStat(Stats.SecondMaxDamage)); break;
+				case Stats.ArmorClass: strArr.push(getLocaleString(3461)+' '+val); break;
+				case Stats.ToBlock: strArr.push(getLocaleString(11018)+(getBaseStat('charstats',me.classid,'BlockFactor')+parseInt(val))+'%'); break;
+				case Stats.Durability: strArr.push(getLocaleString(3457)+' '+val+' '+getLocaleString(3463)+' '+item.getStat(Stats.MaxDurability)); break;
+				case Stats.MaxDurability: break;
+				case Stats.LevelRequire: strArr.push(getLocaleString(3469)+' '+val); break;
+				case Stats.Quantity: strArr.push(getLocaleString(3462)+' '+val); break;
+				//default: print('Stat '+Stats.find(i)+' (id: '+i+' val: '+val+') not supported'); break;
+			}
+		}
+	}
+	var reqStr = getBaseStat('items', item.classid, 'reqstr');
+	var reqDex = getBaseStat('items', item.classid, 'reqdex');
+	var reqLvl = item.getStat(Stats.LevelRequire);
+	if (reqStr) strArr.push(getLocaleString(3458)+' '+reqStr);
+	if (reqDex) strArr.push(getLocaleString(3459)+' '+reqDex);
+	if (reqLvl) strArr.push(getLocaleString(3469)+' '+reqLvl);
+	if (!item.isIdentified) strArr.push(ColorCode.Red+getLocaleString(3455));
+	return strArr;
+}
+
+function imgFile(item) {
+	var invfile = getBaseStat(0, item.classid, 1),
+		uinvfile = getBaseStat(0, item.classid, 2),
+		sinvfile = getBaseStat(0, item.classid, 3);
+	switch(item.code) {
+		case 'amu': return 'invamu'+item.node;
+		case 'rin': return 'invrin'+item.node;
+		case 'cm1': return item.quality == ItemQuality.Unique ? 'invmss' : 'invch1';
+		case 'cm2': return item.quality == ItemQuality.Unique ? 'invtrch' : 'invch2';
+		case 'cm3': return 'invch3';
+		case 'jew': return 'invjw'+item.node;
+		default:
+			switch(item.quality) {
+				case ItemQuality.Set: return sinvfile || invfile;
+				case ItemQuality.Unique: return !item.isIdentified ? invfile : uinvfile || invfile;
+				default: return invfile;
+			} break;
+	}
+	return 'void';
+}
+
+function getDescLocale(id) {
+	return [
+		getLocaleString(3453), // Socketed
+		getLocaleString(3454), // Requirements not met
+		getLocaleString(3455), // Unidentified
+		getLocaleString(3456), // Charges:
+		getLocaleString(3457), // Durability:
+		getLocaleString(3458), // Required Strength:
+		getLocaleString(3459), // Required Dexterity:
+		getLocaleString(3460), // Damage:
+		getLocaleString(3461), // Defense:
+		getLocaleString(3462), // Quantity:
+		getLocaleString(3463), // of
+		getLocaleString(3464), // to
+		getLocaleString(3465), // One-Hand Damage:
+		getLocaleString(3466), // Two-Hand Damage:
+		getLocaleString(3467), // Throw Damage:
+		getLocaleString(3468), // Smite Damage:
+		getLocaleString(3469), // Required Level:
+		getLocaleString(3470), // Points:
+		getLocaleString(3471), // Heals 35% Life and Mana
+		getLocaleString(3472), // Heals 100% Life and Mana
+		getLocaleString(3473), // to Strength
+		getLocaleString(3474), // to Dexterity
+		getLocaleString(3475), // to Vitality
+		getLocaleString(3476), // to Energy
+		getLocaleString(3477), // to Mana
+		getLocaleString(3478), // to Maximum Damage
+		getLocaleString(3479), // to Minimum Damage
+		getLocaleString(3480), // to Attack Rating
+		getLocaleString(3481), // Defense
+		getLocaleString(3482), // Fire Resist
+		getLocaleString(3483), // Cold Resist
+		getLocaleString(3484), // Lightning Resist
+		getLocaleString(3485), // Magic Resist
+		getLocaleString(3486), // Poison Resist
+		getLocaleString(3487), // to Maximum Fire Damage
+		getLocaleString(3488), // to Minimum Fire Damage
+		getLocaleString(3489), // to Maximum Lightning Damage
+		getLocaleString(3490), // to Minimum Lightning Damage
+		getLocaleString(3491), // to Maximum Cold Damage
+		getLocaleString(3492), // to Minimum Cold Damage
+		getLocaleString(3493), // to Life
+		getLocaleString(3494), // Attacker Takes Damage of
+		getLocaleString(3495), // extra gold from monsters
+		getLocaleString(3496), // better chance of getting magic item
+		getLocaleString(3497), // Knockback	
+	
+		getLocaleString(10024), // All Resistances +%d
+		getLocaleString(10025), // +%d to All Skill Levels
+		getLocaleString(10026), // +%d fire damage
+		getLocaleString(10027), // Adds %d-%d fire damage
+		getLocaleString(10028), // +%d cold damage
+		getLocaleString(10029), // Adds %d-%d cold damage
+		getLocaleString(10030), // +%d lightning damage
+		getLocaleString(10031), // Adds %d-%d lightning damage
+		getLocaleString(10032), // +%d magic damage
+		getLocaleString(10033), // Adds %d-%d magic damage
+		getLocaleString(10034), // +%d poison damage over %d seconds
+		getLocaleString(10035), // Adds %d-%d poison damage over %d seconds
+		getLocaleString(10036), // +%d damage
+		getLocaleString(10037), // Adds %d-%d damage
+		getLocaleString(10038), // Enhanced damage
+		getLocaleString(10039), // Fire Damage Reduced by
+		getLocaleString(10040), // Cold Damage Reduced by
+		getLocaleString(10041), // Lightning Damage Reduced by
+		getLocaleString(10042), // Poison Damage Reduced by
+		getLocaleString(10043), // Absorbs Magic Damage
+		getLocaleString(10044), // Absorbs Fire Damage
+		getLocaleString(10045), // Absorbs Cold Damage
+		getLocaleString(10046), // Absorbs Lightning Damage
+		getLocaleString(10047), // Absorbs Poison Damage
+		getLocaleString(10048), // of the Wraith
+		getLocaleString(10049), // of Equilibrium
+		getLocaleString(10050), // Valkyrie's
+		getLocaleString(10051), // Maiden's
+		getLocaleString(10052), // Void
+		getLocaleString(10053), //  to your attack
+		getLocaleString(10054), // +%d to Javelin and Spear Skills
+		getLocaleString(10055), // +%d to Passive and Magic Skills
+		getLocaleString(10056), // +%d to Bow and Crossbow Skills
+		getLocaleString(10057), // +%d to Defensive Auras
+		getLocaleString(10058), // +%d to Offensive Auras
+		getLocaleString(10059), // +%d to Combat Skills
+		getLocaleString(10060), // +%d to Summoning Skills
+		getLocaleString(10061), // +%d to Poison and Bone Skills
+		getLocaleString(10062), // +%d to Curses
+		getLocaleString(10063), // +%d to Warcries
+		getLocaleString(10064), // +%d to Combat Skills
+		getLocaleString(10065), // +%d to Masteries
+		getLocaleString(10066), // +%d to Cold Skills
+		getLocaleString(10067), // +%d to Lightning Skills
+		getLocaleString(10068), // +%d to Fire Skills
+		getLocaleString(10069), // +%d to Summoning Skills
+		getLocaleString(10070), // +%d to Shape Shifting Skills
+		getLocaleString(10071), // +%d to Elemental Skills
+		getLocaleString(10072), // +%d to Traps
+		getLocaleString(10073), // +%d to Shadow Disciplines
+		getLocaleString(10074), // +%d to Martial Arts
+		
+		getLocaleString(10917), // (Amazon Only)
+		getLocaleString(10918), // (Sorceress Only)
+		getLocaleString(10919), // (Necromancer Only)
+		getLocaleString(10920), // (Paladin Only)
+		getLocaleString(10921), // (Barbarian Only)
+		getLocaleString(10922), // (Druid Only)
+		getLocaleString(10923), // (Assassin Only)
+		
+		getLocaleString(11018), // Chance to Block: 
+	][id];
+}

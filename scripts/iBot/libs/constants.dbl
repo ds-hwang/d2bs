@@ -1,0 +1,12 @@
+js_strict(true);
+
+include('constants/area.dbl');
+include('constants/message.dbl');
+include('constants/misc.dbl');
+include('constants/mode.dbl');
+include('constants/npc.dbl');
+include('constants/skill.dbl');
+include('constants/stats.dbl');
+include('constants/uniqueobject.dbl');
+include('constants/monsters.dbl');
+include('constants/uniquemonster.dbl');

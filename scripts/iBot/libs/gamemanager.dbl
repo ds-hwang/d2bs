@@ -1,0 +1,158 @@
+js_strict(true);
+
+include('ibot/interface.dbl');
+include('constants.dbl');
+
+var OOGCode = {
+	HeartBeat:1,
+	Console:2,
+	RequestProfile:3,
+	ProfileData:4,
+	StartProfile:5,
+	StopProfile:6,
+	RestartProfile:7
+};
+
+var Profile = function(mode,name,gamename,gamepass,gamediff) {
+	this.Mode = mode;
+	this.Name = name;
+	this.GameName = gamename;
+	this.GamePass = gamepass;
+	this.GameDiff = gamediff;
+};
+
+var GameManager = new function() {
+	this.oogWindowName = '';
+	this.MaxGameTime = Interface.Config('General','MaxGameTime',700);
+	this.MinGameTime = Interface.Config('General','MinGameTime',190);
+	this.gameStartTime = 0;
+	this.nextCheck = 0;
+	this.Profile = undefined;
+	this.lastHeartBeat = 0;
+	this.totalGames = 0;
+	
+	this.Init = function Init(oogWindowName) {
+		this.oogWindowName = oogWindowName;
+		var eventHandler = addEventListener('copydata',bind(function(mode,data){
+			switch(mode) {
+				case OOGCode.ProfileData:
+					var info = eval('('+data+')');
+					this.Profile = new Profile(info.Mode,info.Profile,info.GameName,info.GamePass,info.GameDiff);
+					break;
+			}
+		},this));
+		this.SendToOOG(OOGCode.RequestProfile, '');
+	};
+	
+	this.SendToOOG = function SendToOOG(code, data) {
+		Interface.Display(Message.Debug, 'Sending data to '+this.oogWindowName+' ('+code+', '+data+')');
+		sendCopyData(null, this.oogWindowName, code, data || '');
+	};
+	
+	this.Log = function Log(msg) {
+		this.SendToOOG(OOGCode.Console, msg);
+	};
+	this.Stop = function Stop() {
+		this.SendToOOG(OOGCode.StopProfile);
+	};
+	this.Restart = function Restart(minutes) {
+		this.SendToOOG(OOGCode.RestartProfile, minutes);
+	};
+	this.HeartBeat = function HeartBeat() {
+		if (this.lastHeartBeat == undefined || (new Date()).getTime() - this.lastHeartBeat > 1000) {
+			this.SendToOOG(OOGCode.HeartBeat, 'HeartBeat');
+			this.lastHeartBeat = (new Date()).getTime();
+		}
+	};
+	
+	this.NewGameName = function NewGameName() {
+		return this.Profile.GameName+'-'+(++this.totalGames)+'-'+this.randomString(4);
+	};
+	this.randomString = function randomString(length) {
+		var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz';
+		var randomstring = '';
+		for (var i=0; i<length; i++) {
+			var rnum = Math.floor(Math.random() * chars.length);
+			randomstring += chars[rnum];
+		}
+		return randomstring;
+	};
+	
+	this.Go = function Go(oogWindowName) {
+		doDelay(bind(function(){return !this.Profile;},this));
+		this.nextCheck = new Date().getTime();
+		while(true) {
+			try {
+				this.HeartBeat();
+				if (this.nextCheck > new Date().getTime())
+					delay(1000);
+				else
+					switch(getLocation()) {
+						case GameLocation.Lobby:
+						case GameLocation.Chat:
+							delay(4000);
+							var gname = this.NewGameName();
+							this.Log('Creating game, '+gname);
+							createGame(gname,this.Profile.GamePass,this.Profile.GameDiff);
+							this.nextCheck = new Date().getTime()+this.MinGameTime*1000;
+							this.gameStartTime = new Date().getTime();
+							break;
+						case GameLocation.GameExist:
+						case GameLocation.GameDoesNotExist:
+							this.Log('Failed to join game, waiting 15 seconds');
+							this.nextCheck = new Date().getTime()+15*1000;
+							break;
+						case GameLocation.ServerDown:
+							this.Log('Server down, waiting 5 minutes');
+							this.nextCheck = new Date().getTime()+300*1000;
+							break;
+						case GameLocation.RealmDown:
+							this.Log('Got restricted, waiting 2 hours');
+							this.nextCheck = new Date().getTime()+7200*1000;
+							//this.Restart(120);
+							break;
+						case GameLocation.MainMenu:
+						case GameLocation.D2Splash:
+						case GameLocation.Login:
+							login(this.Profile.Name);
+							break;
+						case GameLocation.MainMenuConnecting:
+						case GameLocation.PleaseWait:
+							delay(100);
+							break;
+						case GameLocation.CdKeyInUse:
+							this.Log('Your CD Key appears to be in use, waiting 5 minutes');
+							this.nextCheck = new Date().getTime()+300*1000;
+							break;
+						case GameLocation.InvalidCdKey:
+							this.Log('Your CD Key appears to be invalid, stopping');
+							this.Stop();
+							break;
+						case GameLocation.CharSelectPleaseWait:
+						case GameLocation.LoginError:
+							this.Log('Failed to log in! Check your profile settings and try again ('+getLocation()+')');
+							this.Stop();
+							break;
+						default: // anywhere else
+							if(me.ingame) {
+								if (this.gameStartTime+this.MaxGameTime*1000<(new Date().getTime())) {
+									Interface.Display(Message.Warning, 'MaxGameTime reached ('+this.MaxGameTime+'s), quitting game.');
+									this.Log('Max game time reached ('+this.MaxGameTime+'s), quitting game.');
+									quit();
+								}
+								delay(1000);
+								break;
+							}
+							
+							Interface.Display(Message.Error, 'We got lost, location '+getLocation()+', quitting game!');
+							this.Log('We got lost, location '+getLocation()+', quitting game!');
+							quitGame();
+							delay(1000);
+							break;
+					}
+			} catch(e) {
+				Interface.Display(Message.Error, 'Something is wrong in starter, ignoring and hoping for the best! ('+e.message+')');
+			}
+		}
+	};
+};

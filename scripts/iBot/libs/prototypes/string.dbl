@@ -1,0 +1,9 @@
+js_strict(true);
+
+String.prototype.trim = function(){return this.replace(/^\s+|\s+$/g,'');};
+
+String.prototype.padLeft = function(len,pad){if (this.length>=len) return this; return pad+this;};
+String.prototype.padRight = function(len,pad){if (this.length>=len) return this; return this+pad;};
+
+String.prototype.getWidth = function(font){return getTextSize(this.toString(),font)[0];};
+String.prototype.getHeight = function(font){return getTextSize(this.toString(),font)[1];};

@@ -1,0 +1,95 @@
+include('constants/stats.dbl');
+
+var Stats = {
+	Strength:0,Energy:1,Dexterity:2,Vitality:3,StatPoints:4,SkillPoints:5,Life:6,MaxLife:7,Mana:8,MaxMana:9,
+	Stamina:10,MaxStamina:11,Level:12,Experience:13,Gold:14,StashGold:15,ArmorPercent:16,MaxDamagePerent:17,
+	MinDamagePercent:18,ToHit:19,ToBlock:20,MinDamage:21,MaxDamage:22,SecondMinDamage:23,SecondMaxDamage:24,
+	DamagePercent:25, ManaRecovery:26,ManaRecoveryBonus:27,StaminaRecoveryBonus:28,LastExp:29,NextExp:30,
+	ArmorClass:31,ArmorClassVsMissile:32,ArmorClassVsHth:33,NormalDamageReduction:34,MagicDamageReduction:35,
+	DamageResist:36,MagicResist:37,MaxMagicResist:38,FireResist:39,MaxFireResist:40,LightningResist:41,
+	MaxLightningResist:42,ColdResist:43, MaxColdResist:44,PoisonResist:45,MaxPoisonResist:46,DamageAura:47,
+	FireMinDamage:48,FireMaxDamage:49,LightningMinDamage:50,LightningMaxDamage:51,MagicMinDamage:52,
+	MagicMaxDamage:53,ColdMinDamage:54,ColdMaxDamage:55,ColdLength:56,PoisonMinDamage:57,PoisonMaxDamage:58,
+	PoisonLength:59,LifeDrainMinDamage:60,LifeDrainMaxDamage:61,ManaDrainMinDamage:62,ManaDrainMaxDamage:63,
+	StaminaDrainMinDamage:64,StaminaDrainMaxDamage:65,StunLength:66,VelocityPercent:67,AttackRate:68,OtherAnimRate:69,
+	Quantity:70, Value:71,Durability:72,MaxDurability:73,HPRegen:74,MaxDurabilityPercent:75,MaxHPPercent:76,
+	MaxManaPercent:77,AttackerTakesDamage:78,GoldBonus:79,MagicBonus:80,Knockback:81,TimeDuration:82,AddClassSkills:83,
+	AddExperience:85,HealAfterKill:86,ReducePrices:87,DoubleHerbDuration:88,LightRadius:89,LightColor:90,
+	RequirementPercent:91,LevelRequire:92,FasterAttackRate:93,LevelRequirePercent:94,LastBlockFrame:95,
+	FasterRunWalk:96,NonClassSkill:97,State:98,FasterHitRecovery:99,PlayerCount:100,PoisonOverrideLength:101,
+	FasterBlockRate:102,BypassUndead:103,BypassDemons:104,FasterCastRate:105,BypassBeasts:106,SingleSkill:107,
+	RestInPeace:108,CurseResistance:109,PoisonLengthResist:110,NormalDamage:111,Howl:112,Stupidity:113,
+	DamageToMana:114,IgnoreTargetsAR:115,FractionalTargetAC:116,PreventHeal:117,HalfFreezeDuration:118,
+	ToHitPercent:119,DamageTargetAC:120,DemonDamagePercent:121,UndeadDamagePercent:122,DemonToHit:123,
+	UndeadToHit:124,Throwable:125,ElemSkills:126, AllSkills:127, AttackerTakesLightDamage:128,
+	IronMaidenLevel:129, LifeTapLevel:130, ThornsPercent:131,BoneArmor:132,BoneArmorMax:133,
+	Freeze:134,OpenWounds:135,CrushingBlow:136,KickDamage:137,ManaAfterKill:138,
+	HealAfterDemonKill:139,ExtraBlood:140,DeadlyStrike:141,AbsorbFirePercent:142,AbsorbFire:143,
+	AbsorbLightPercent:144,AbsorbLight:145,AbsorbMagicPercent:146,AbsorbMagic:147,AbsorbColdPercent:148,
+	AbsorbCold:149,Slow:150,Aura:151,Indestructible:152,CannotBeFrozen:153,StaminaDrainPercent:154,
+	Reanimate:155,Pierce:156,MagicAarow:157,ExplosiveAarow:158,ThrowMinDamage:159,ThrowMaxDamage:160,
+	HandofAthena:161,StaminaPercent:162,PassiveStaminaPercent:163,Concentration:164,Enchant:165,Pierce:166,
+	Conviction:167,ChillingArmor:168,Frenzy:169,Decrepify:170,ArmorPercent2:171,Alignment:172,Target0:173,
+	Target1:174,GoldLost:175,ConverisonLevel:176,ConverisonMaxHP:177,UnitDooverlay:178,AttackVsMonType:179,
+	DamageVsMonType:180,Fade:181,ArmorOverridePercent:182,AddSkillTab:188,NumSockets:194,SkillOnAttack:195,
+	SkillOnDeath:197,SkillOnHit:198,SkillOnLevelUp:199,SkillOnGetHit:201,ItemChargedSkill:204,
+	ArmorPerLevel:214,ArmorPercentPerLevel:215,LifePerLevel:216,ManaPerLevel:217,MaxDamagePerLevel:218,
+	MaxDamagePercentPerLevel:219,StrengthPerLevel:220,DexterityPerLevel:221,EnergyPerLevel:222,
+	VitalityPerLevel:223,ToHitPerLevel:224,ToHitPercentPerLevel:225,ColdDamageMaxPerLevel:226,
+	FireDamageMaxPerLevel:227,LightningDamageMaxPerLevel:228,PoisonDamageMaxPerLevel:229,
+	ResistColdPerLevel:230,ResistFirePerLevel:231,ResistLightningPerLevel:232,
+	ResistPoisonPerLevel:233,AbsorbColdPerLevel:234,AbsorbFirePerLevel:235,AbsorbLightningPerLevel:236,
+	AbsorbPoisonPerLevel:237,ThornsPerLevel:238,FindGoldPerLevel:239,MagicFindPerLevel:240,
+	RegenStaminaPerLevel:241,StaminaPerLevel:242,DamageDemonPerLevel:243,DamageUndeadPerLevel:244,
+	ToHitDemonPerLevel:245,ToHitUndeadPerLevel:246,CrushingBlowPerLevel:247,OpenWoundsPerLevel:248,
+	KickDamagePerLevel:249,DeadlyStrikePerLevel:250,FindGemsPerLevel:251,ReplenishDurability:252,
+	ReplenishQuantity:253,ExtraStack:254,FindItem:255,SlashDamage:256,SlashDamagePercent:257,
+	CrushDamage:258,CrushDamagePercent:259,ThrustDamage:260,ThrustDamagePercent:261,
+	AbsorbSlash:262,AbsorbCrush:263,AbsorbThrust:264,AbsorbSlashPercent:265,AbsorbCrushPercent:266,
+	AbsorbThrustPercent:267,ArmorByTime:268,ArmorPercentByTime:269,LifeByTime:270,ManaByTime:271,
+	MaxDamageByTime:272,MaxDamagePercentByTime:273,StrengthByTime:274,DexterityByTime:275,
+	EnergyByTime:276,VitalityByTime:277,ToHitByTime:278,ToHitPercentByTime:279,ColdDamageMaxByTime:280,
+	FireDamageMaxByTime:281,LightningDamageMaxByTime:282,PoisonDamageMaxByTime:283,ResistColdByTime:284,
+	ResistFireByTime:285,ResistLightningByTime:286,ResistPoisonByTime:287,AbsorbColdByTime:288,
+	AbsorbFireByTime:289,AbsorbLightningByTime:290,AbsorbPoisonByTime:291,FindGoldByTime:292,
+	MagicFindByTime:293,RegenStaminaByTime:294,StaminaByTime:295,DamageDemonByTime:296,DamageUndeadByTime:297,
+	ToHitDemonByTime:298, ToHitUndeadByTime:299,CrushingBlowByTime:300,OpenWoundsByTime:301, KickDamageByTime:302,
+	DeadlyStrikeByTime:303,FindGemsByTime:304,PierceCold:305,PierceFire:306,PierceLightning:307,
+	PiercePoison:308, DamageVsMonster:309,DamagePercentVsMonster:310,ToHitVsMonster:311,
+	ToHitPercentVsMonster:312,AcVsMonster:313,AcPercentVsMonster:314,FireLength:315,
+	BurningMin:316,BurningMax:317,ProgressiveDamage:318, ProgressiveSteal:319,
+	ProgressiveOther:320, ProgressiveFire:321, ProgressiveCold:322, ProgressiveLightning:323,
+	ExtraCharges:324, ProgressiveToHit:325,PoisonCount:326,DamageFrameRate:327,PierceIdx:328,
+	PassiveFireMastery:329,PassiveLightningMastery:330,PassiveColdMastery:331,
+	PassivePoisonMastery:332,PassiveFirePierce:333,PassiveLightningPierce:334,
+	PassiveColdPierce:335, PassivePoisonPierce:336,PassiveCriticalStrike:337,
+	PassiveDodge:338,PassiveAvoid:339,PassiveEvade:340,PassiveWarmth:341,
+	PassiveMasteryMeleeToHit:342,PassiveMasteryMeleeDamage:343,
+	PassiveMasteryMeleeCritical:344,PassiveMasteryThrowToHit:345,
+	PassiveMasteryThrowDamage:346, PassiveMasteryThrowCritical:347,
+	PassiveWeaponBlock:348,SummonResist:349,ModifierListSkill:350,
+	ModifierListLevel:351,LastSentHPPercent:352,SourceUnitType:353,
+	SourceUnitID:354, ShortParam1:355, QuestItemDifficulty:356,
+	PassiveMagicMastery:357,PassiveMagicPierce:358
+};
+
+Stats.AddSkillTabIds = {
+	Bow:0, Passive:1, Javelin:2,
+	Fire:8, Lightning:9, Cold:10,
+	Curses:16, PoisonBone:17, NecroSummon:18,
+	PalCombat:24, OffensiveAuras:25, DefensiveAuras:26,
+	BarCombat:32, Masteries:33, Warcries:34,
+	DruSummon:40, ShapeShifting:41, Elemental:42,
+	Traps:48, ShadowDiscipline:49, MartialArts:50
+};
+
+Stats.ElemSkillsIds = {
+	FireSkills:1
+};
+
+Stats.find = function (stat) {
+	for (var i in this)
+		if (Stats[i] == stat)
+			return i; // Stats[i];
+	return false;
+};

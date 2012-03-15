@@ -1,0 +1,29 @@
+js_strict(true);
+
+include('screenhooks/textboxhook.dbl');
+
+var Button = function(btntext,x,y,width,click,hover) {
+	var frame = new Frame(x,y,width,15);
+	
+	this.x = x;
+	this.y = y;
+	this.visible = true;
+	this.Background = new Box(x,y,width,15,0,0,0,false,click,hover);
+	this.Text = new Text(btntext,Math.round(x+this.Background.xsize/2-btntext.getWidth(0)/2),Math.round(y+btntext.getHeight(0)-8));
+	this.text = btntext;
+	
+	this.Text.zorder = 2;
+	
+	this.__defineGetter__('xsize',function(){return this.Background.xsize;});
+	this.__defineGetter__('ysize',function(){return this.Background.ysize;});
+	
+	this.watch('x',function(prop,oldval,newval){this.Background.x=frame.x=newval;this.Text.x+=newval-oldval;/*+Math.round(this.Background.xsize/2-btntext.getWidth(0)/2);*/return newval;});
+	this.watch('y',function(prop,oldval,newval){this.Background.y=frame.y=newval;this.Text.y+=newval-oldval;/*+Math.round(btntext.getHeight(0)-8);*/return newval;});
+	this.watch('visible',function(prop,oldval,newval){this.Background.visible=frame.visible=this.Text.visible=newval;return newval;});
+	this.watch('text',function(prop,oldval,newval){
+		this.Text.text = newval;
+		this.Text.x = Math.round(this.x+this.Background.xsize/2-this.Text.width/2);
+		this.Text.y = Math.round(this.y+this.Text.height-8);
+		return newval;
+	});
+};

@@ -1,0 +1,14 @@
+js_strict(true);
+
+function main() {
+	load('tools/invrip.dbj');
+	//load('tools/mh.dbj');
+	load('tools/respirator.dbj');
+	load('tools/niptrans.dbj');
+	
+	include('iBot.dbl');
+	
+	iBot.Init();
+	iBot.Start();
+	iBot.Quit();
+}

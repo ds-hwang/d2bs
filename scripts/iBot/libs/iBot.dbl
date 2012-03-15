@@ -1,0 +1,50 @@
+js_strict(true);
+
+include('constants.dbl');
+
+include('ibot/interface.dbl');
+include('ibot/attack.dbl');
+include('ibot/npc.dbl');
+include('ibot/path.dbl');
+include('ibot/town.dbl');
+include('ibot/cube.dbl');
+include('ibot/pickit.dbl');
+include('ibot/precast.dbl');
+include('ibot/sequence.dbl');
+include('ibot/skills.dbl');
+include('ibot/storage.dbl');
+include('ibot/ui.dbl');
+
+var iBot = new function() {
+	var cmds = 0;
+	
+	this.AddCommand = function(cmd) {
+		Interface.Display(Message.Debug, 'Command added!');
+		cmd.priority = cmd.priority || 1;
+		// Fix for cmds might not get executed in same order as sent and Array.sort() not being stable
+		cmd.priority += cmds++ / 100000;
+		var script = getScript('libs\\iBot_thread.dbj');
+		script.send(cmd);
+	};
+	
+	this.Init = function Init() {
+		Storage.Init();
+		Skills.Init();
+		Cube.Init();
+		Pickit.Init();
+		Precast.Init();
+		Attack.Init();
+		Sequencer.Init();
+	};
+	
+	this.Start = function Start() {
+		load('libs/ibot_thread.dbj');
+		Town.CheckCorpse();
+		Sequencer.Run();
+	};
+	this.Quit = function Quit() {
+		quit();
+		//this.AddCommand({func: delay, args: [500], priority: 0});
+		//this.AddCommand({func: quit, priority: 0});
+	};
+}

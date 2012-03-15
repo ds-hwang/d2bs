@@ -1,0 +1,13 @@
+js_strict(true);
+
+function Shenk() {
+	Pather.MoveToArea(Area.Act5.FrigidHighlands);
+	Pather.MoveToArea(Area.Act5.BloodyFoothills);
+	Precast.Precast();
+	Pather.MoveToPoint({x:3869, y:5120},
+		Area.Act5.BloodyFoothills,
+		Unit.findMonster({uniqueid:UniqueMonster['Shenk the Overseer']}));
+	Attack.Kill(Unit.findMonster({uniqueid:UniqueMonster['Shenk the Overseer']}));
+	Pickit.Pick();
+	return true;
+}

@@ -1,0 +1,9 @@
+js_strict(true);
+
+var UniqueMonster = {'Bishibosh':0,'Bonebreak':1,'Coldcrow':2,'Rakanishu':3,'Treehead WoodFist':4,'Griswold':5,'The Countess':6,'Pitspawn Fouldog':7,'Flamespike the Crawler':8,'Boneash':9,'Radament':10,
+	'Bloodwitch the Wild':11,'Fangskin':12,'Beetleburst':13,'Leatherarm':14,'Coldworm the Burrower':15,'Fire Eye':16,'Dark Elder':17,'The Summoner':18,'Ancient Kaa the Soulless':19,'The Smith':20,
+	'Web Mage the Burning':21,'Witch Doctor Endugu':22,'Stormtree':23,'Sarina the Battlemaid':24,'Icehawk Riftwing':25,'Ismail Vilehand':26,'Geleb Flamefinger':27,'Bremm Sparkfist':28,'Toorc Icefist':29,
+	'Wyand Voidfinger':30,'Maffer Dragonhand':31,'Winged Death':32,'The Tormentor':33,'Taintbreeder':34,'Riftwrath the Cannibal':35,'Infector of Souls':36,'Lord De Seis':37,'Grand Vizier of Chaos':38,
+	'The Cow King':39,'Corpsefire':40,'Hephasto The Armorer':41,'Shenk the Overseer':42,'Talic':43,'Madawc':44,'Korlic':45,'Axe Dweller':46,'Bonesaw Breaker':47,'Dac Farren':48,'Eldritch the Rectifer':49,
+	'Eyeback Unleashed':50,'Threash Socket':51,'Pindleskin':52,'Snapchip Shatter':53,'Anodized Elite':54,'Vinvear Molech':55,'Sharp Tooth Sayer':56,'Magma Torquer':57,'Blaze Ripper':58,'Frozenstein':59,
+	'Nihlathak':60,'Colenzo the Annihilator':61,'Achmel the Cursed':62,'Bartuc the Bloody':63,'Ventar the Unholy':64,'Lister the Tormentor':65}

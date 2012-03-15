@@ -1,0 +1,68 @@
+js_strict(true);
+
+var ScrollBar = function(x,y,size,steps,vertical,onChange) {
+	vertical = vertical == undefined ? true : vertical;
+	
+	var bg = new Box(x,y,15,size),
+		frame = new Frame(x,y,15,size),
+		prevClick = function(sb){this.value--;return true;},
+		nextClick = function(sb){this.value++;return true;},
+		prevBtn = new Button('/\\',x,y,15,bind(prevClick,this)),
+		nextBtn = new Button('\\/',x+(vertical?0:size-15),y+(vertical?size-15:0),15,bind(nextClick,this)),
+		barBg = new Box(x,y+17,15,Math.round((size-30)/(steps+1)),4,2),
+		barFrame = new Frame(x,y+17,15,Math.round((size-30)/(steps>0?steps:1)));
+	
+	barBg.zorder = 2;
+	
+	this.x = x;
+	this.y = y;
+	this.value = 0;
+	this.visible = true;
+	this.size = size;
+	this.steps = steps;
+	this.vertical = vertical;
+	this.onChange = onChange;
+	
+	var updatePos = function(x,y){
+		bg.x=frame.x=prevBtn.x=nextBtn.x=x;
+		bg.y=frame.y=prevBtn.y=nextBtn.y=y;
+	};
+	
+	this.remove = function(){
+		bg.remove();frame.remove();prevBtn.remove();nextBtn.remove();
+		barBg.remove();barFrame.remove();
+	};
+	
+	this.watch('x',function(prop,oldval,newval){this.x=newval;updatePos(newval,this.y);this.vertical=this.vertical;return newval;});
+	this.watch('y',function(prop,oldval,newval){this.y=newval;updatePos(this.x,newval);this.vertical=this.vertical;return newval;});
+	this.watch('visible',function(prop,oldval,newval){
+		bg.visible = frame.visible = prevBtn.visible = nextBtn.visible =
+			barBg.visible = barFrame.visible = newval;
+		return newval;
+	});
+	this.watch('size',function(prop,oldval,newval){this.size=newval;this.vertical=this.vertical;return newval;});
+	this.watch('steps',function(prop,oldval,newval){this.steps=newval;this.vertical=this.vertical;return newval;});
+	this.watch('vertical',function(prop,oldval,newval){
+		bg.xsize = frame.xsize = newval ? 15 : this.size;
+		bg.ysize = frame.ysize = newval ? this.size : 15;
+		prevBtn.x = frame.x;
+		prevBtn.y = frame.y;
+		nextBtn.x = newval ? frame.x : bg.x+bg.xsize-nextBtn.xsize;
+		nextBtn.y = newval ? bg.y+bg.ysize-nextBtn.ysize : frame.y;
+		barBg.x = barFrame.x = newval ? this.x : this.x+15;
+		barBg.y = barFrame.y = newval ? this.y+15 : this.y;
+		barBg.xsize = barFrame.xsize = newval ? 15 : Math.round((this.size-30)/(this.steps+1));
+		barBg.ysize = barFrame.ysize = newval ? Math.round((this.size-30)/(this.steps+1)) : 15;
+		return newval;
+	});
+	
+	this.watch('value',function(prop,oldval,newval){
+		if(newval<0||newval>this.steps) return oldval;
+		if (this.vertical) barFrame.y = barBg.y = this.y+15+(Math.ceil((frame.ysize-30)/(this.steps+1))*newval);
+		else barFrame.x = barBg.x = this.x+15+(Math.ceil((frame.xsize-30)/(this.steps+1))*newval);
+		if (this.onChange) this.onChange(newval);
+		return newval;
+	});
+	
+	this.vertical = this.vertical;
+};

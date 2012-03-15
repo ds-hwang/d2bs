@@ -1,0 +1,55 @@
+js_strict(true);
+
+include('common.dbl');
+
+var Interface = new function() {
+	var configCache;
+	
+	this.Display = function Display(level, str) {
+		if (arguments.length < 2) {
+			str = level;
+			level = Message.Info;
+		}
+		if (level <= this.Config('General','MessageLevel',Message.Info))
+			switch(level) {
+				case Message.Error: print(ColorCode.Red+'iBot '+ColorCode.Gray+'(error) '+ColorCode.White+':: '+str+' ('+arguments.callee.caller.name+')'); break;
+				case Message.Warning: print(ColorCode.Amber+'iBot '+ColorCode.Gray+'(warning) '+ColorCode.White+':: '+str); break;
+				case Message.Info: print(ColorCode.Green+'iBot '+ColorCode.Gray+'(info) '+ColorCode.White+':: '+str); break;
+				case Message.Debug: print(ColorCode.Gray+'iBot (debug) '+ColorCode.White+':: '+str); break;
+				case Message.DDebug: print(ColorCode.Gray+'iBot (ddebug) '+ColorCode.White+':: '+str); break;
+				default: throw new Error('Invalid message level');
+			}
+	};
+	
+	this.ConfigCreate = function ConfigCreate(profile) {
+		var dir = dopen('/profile');
+		if (dir.getFolders().filter(function(x){return x==profile;}).length < 1)
+			dir.create(profile);
+		dir = dopen('/profile/'+profile);
+		if (!FileTools.exists(dir.name+'/settings.ini'))
+			FileTools.copy('/profile/new_settings.ini',dir.name+'/settings.ini');
+	};
+	
+	this.Config = function Config(section, name, defval) {
+		var profile = me.profile || me.name;
+		if (!FileTools.exists('profile/'+profile+'/settings.ini'))
+			this.ConfigCreate(profile);
+		if (!configCache) configCache = Ini.Read('profile/'+profile+'/settings.ini');
+		
+		defval = defval == undefined ? '' : defval;
+		if (configCache.hasOwnProperty(section))
+			if (configCache[section].hasOwnProperty(name)) {
+				if (typeof(defval) == 'boolean') return parseBoolean(configCache[section][name]);
+				if (typeof(defval) == 'number') return parseInt(configCache[section][name]);
+				if (isArray(defval)) return eval(configCache[section][name]);
+				return configCache[section][name];
+			}
+		return defval || "";
+	};
+	
+	this.ConfigSection = function ConfigSection(section) {
+		var profile = me.profile || me.name;
+		if (!configCache) configCache = Ini.Read('profile/'+profile+'/settings.ini');
+		return configCache.hasOwnProperty(section) ? configCache[section] : undefined;
+	};
+};

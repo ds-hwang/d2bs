@@ -1,0 +1,37 @@
+js_strict(true);
+
+function Sparky() {
+	var areas = [Area.Act1.CaveLevel2,Area.Act1.Crypt,Area.Act1.Mausoleum,Area.Act1.UndergroundPassageLevel2,
+		Area.Act1.HoleLevel2,Area.Act2.StonyTombLevel2,Area.Act2.AncientTunnels,Area.Act3.SpiderCave,
+		Area.Act3.SwampyPitLevel3,Area.Act3.LowerKurast,Area.Act3.KurastBazaar,Area.Act3.UpperKurast,
+		/*Area.Act5.CrystalizedCavernLevel2,Area.Act5.EchoChamber,Area.Act5.Hell1,Area.Act5.Hell2,Area.Act5.Hell3*/];
+	
+	var chestPresets = [5, 6, 87, 92, 143, 140, 141, 144, 146, 147, 148, 176, 177, 181, 183, 198, 
+					240, 241, 242, 243, 329, 330, 331, 332, 333, 334, 335, 336, 354, 355, 356, 
+					371, 387, 389, 390, 391, 397, 405, 406, 407, 413, 420, 424, 425, 430, 431, 
+					432, 433, 454, 455, 501, 502, 504, 505, 580, 581];
+	
+	for each(let a in areas) {
+		if (!Interface.Config('Sparky',Area.find(a)+'-Enabled',true)) continue;
+		try {
+Pather.MoveToArea(a); // Should not be needed (cant find preset without, cross area/act data bug)
+Precast.Precast();
+			var ps = PresetUnit.findObjects({level:a,id:chestPresets});
+			for each(let p in ps) {
+				p.MoveTo();
+				var us = Unit.findObjects({name:'chest'});
+				us.sort(function(x,y){return getDistance(x)-getDistance(y);});
+				us[0].Open();
+				Pickit.Pick();
+				if (Town.NeedKeys() || Town.NeedScrolls())
+					Town.Return(Town.Keys, Town.Scrolls);
+			}
+			if (ps.length < 1)
+				Interface.Display(Message.Warning, 'Could not find any chest presets in area '+getArea(a).name);
+			//öTown.Tick();
+		} catch(ex) {
+			Interface.Display(Message.Error, ex.message+' (file: '+ex.fileName+', line: '+ex.lineNumber+')');
+		}
+	}
+	return true;
+}

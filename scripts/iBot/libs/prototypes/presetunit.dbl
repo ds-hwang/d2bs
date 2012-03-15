@@ -1,0 +1,28 @@
+js_strict(true);
+
+PresetUnit.prototype.__defineGetter__('realx', function() {
+	return this.roomx * 5 + this.x;
+});
+PresetUnit.prototype.__defineGetter__('realy', function() {
+	return this.roomy * 5 + this.y;
+});
+
+PresetUnit.prototype.MoveTo = function MoveTo(callback) {
+	Pather.MoveToPoint({x:this.realx, y:this.realy}, this.level, callback);
+};
+PresetUnit.prototype.MoveToRange = function MoveToRange(range, callback) {
+	Pather.MoveToRange({x:this.realx, y:this.realy}, this.level, range, callback);
+};
+
+PresetUnit.prototype.GetUnit = function GetUnit(propobj) {
+	propobj = propobj || {type:this.type,classid:this.id};
+	propobj.type = propobj.type || this.type;
+	this.MoveTo(function(){return !Unit.findUnit(propobj);})
+	return Unit.findUnit(propobj);
+};
+PresetUnit.prototype.GetUnits = function GetUnits(propobj) {
+	propobj = propobj || {type:this.type,classid:this.id};
+	propobj.type = propobj.type || this.type;
+	this.MoveTo(function(){return Unit.findUnits(propobj).length < 1;})
+	return Unit.findUnits(propobj);
+};

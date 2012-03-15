@@ -1,0 +1,32 @@
+js_strict(true);
+
+var NPCMenu = {
+	Null: 0,
+	Talk: 0x0D35,
+	Trade: 0x0D44,
+	TradeRepair: 0x0D06,
+	Imbue: 0x0FB1,
+	Gamble: 0x0D46,
+	Hire: 0x0D45,
+	GoEast: 0x0D36,
+	GoWest: 0x0D37,
+	IdentifyItems: 0x0FB4,
+	SailEast: 0x0D38,
+	SailWest: 0x0D39,
+	RessurectMerc: 0x1507,
+	AddSockets: 0x58DC,
+	Personalize: 0x58DD,
+	TravelToHarrogath: 0x58D2
+};
+
+var NPCJob = {
+	Heal:'Heal',
+	Repair:'Repair',
+	Pots:'Pots',
+	Arrows:'Arrows',
+	Merc:'Merc',
+	Scrolls:'Scrolls',
+	Cain:'Cain',
+	Trade:'Trade',
+	Gamble:'Gamble'
+};

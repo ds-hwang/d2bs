@@ -1,0 +1,195 @@
+js_strict(true);
+
+include('common.dbl');
+include('constants.dbl');
+
+function isCommand(obj) {
+	return typeof(obj) == 'object' &&
+		obj.hasOwnProperty('func') &&
+		isFunction(obj.func);
+}
+
+Object.matches = function matches(propobj, list) {
+	//if (!isArray(list)) throw new Error('Invalid list provided');
+	propobj = propobj || {};
+	var ret = [];
+	Next:for each(let obj in list) {
+		for(let prop in propobj) {
+			if (!obj.hasOwnProperty(prop)) throw new Error('Object '+obj.constructor.name+' does not have property \''+prop+'\'');
+			if (isArray(propobj[prop])) {
+				if (!propobj[prop].some(function(p){return obj[prop] == p;}))
+					continue Next;
+			}
+			else if (obj[prop] != propobj[prop]) continue Next;
+		}
+		ret.push(obj instanceof Unit ? copyUnit(obj) : obj);
+	}
+	return ret;
+};
+
+Unit.findUnits = function findUnits(propobj, list) {
+	list = list || getUnits(propobj.hasOwnProperty('type')?propobj['type']:-1);
+	return Object.matches(propobj, list);
+};
+Unit.findUnit = function findUnit(propobj, list) {
+	var u = Unit.findUnits(propobj, list);
+	return u.length > 0 ? u[0] : undefined;
+};
+
+Unit.findItems = function findItems(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Item;
+	var ret = Unit.findUnits(propobj, list);
+	return ret;
+};
+Unit.findItem = function findItem(propobj, list) {
+	var u = Unit.findItems(propobj, list);
+	return u.length > 0 ? u[0] : undefined;
+};
+
+Unit.findPlayers = function findPlayers(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Player;
+	var ret = Unit.findUnits(propobj, list);
+	return ret;
+};
+Unit.findPlayer = function findPlayer(propobj, list) {
+	var u = Unit.findPlayers(propobj, list);
+	return u.length > 0 ? u[0] : undefined;
+};
+
+Unit.findObjects = function findObjects(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Object;
+	var ret = Unit.findUnits(propobj, list);
+	return ret;
+};
+Unit.findObject = function findObject(propobj, list) {
+	var u = Unit.findObjects(propobj, list);
+	return u.length > 0 ? u[0] : undefined;
+};
+
+Unit.findNPCs = function findNPCs(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Npc;
+	var ret = Unit.findUnits(propobj, list);
+	return ret;
+};
+Unit.findNPC = function findNPC(propobj, list) {
+	var us = Unit.findNPCs(propobj, list);
+	return us.length > 0 ? us[0] : undefined;
+};
+
+Unit.findMonsters = function findMonsters(propobj) {
+	propobj = propobj || {};
+	propobj.type = Type.Monster;
+	return Unit.findUnits(propobj, getUnits(Type.Monster));
+};
+Unit.findMonster = function findMonster(propobj, list) {
+	var us = Unit.findMonsters(propobj, list);
+	return us.length > 0 ? us[0] : undefined;
+};
+
+PresetUnit.findPresets = function findPresets(propobj, list) {
+	propobj = propobj || {};
+	propobj.level = propobj.level || me.area;
+	propobj.type = propobj.type || Type.Object;
+	var ret = [];
+	list = list || getPresetUnits(propobj.level, propobj.type);
+	return Object.matches(propobj, list);
+};
+PresetUnit.findPreset = function findPreset(propobj, list) {
+	var ps = PresetUnit.findPresets(propobj, list);
+	return ps.length > 0 ? ps[0] : undefined;
+};
+PresetUnit.findObjects = function findObjects(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Object;
+	return PresetUnit.findPresets(propobj, list);
+};
+PresetUnit.findObject = function findObject(propobj, list) {
+	var ps = PresetUnit.findObjects(propobj, list);
+	return ps.length > 0 ? ps[0] : undefined;
+};
+PresetUnit.findNPCs = function findNPCs(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Npc;
+	return PresetUnit.findPresets(propobj, list);
+};
+PresetUnit.findNPC = function findNPC(propobj, list) {
+	var ps = PresetUnit.findNPCs(propobj, list);
+	return ps.length > 0 ? ps[0] : undefined;
+};
+
+Party.findParties = function findParties(propobj, list) {
+	return Object.matches(propobj, getParties());
+};
+Party.findParties = function findParties(propobj, list) {
+	var ps = Party.findParties(propobj, list);
+	return ps.length > 0 ? ps[0] : undefined;
+};
+
+Exit.findExits = function findExits(propobj, list) {
+	list = list || getArea(me.area).exits;
+	return Object.matches(propobj, list);
+};
+Exit.findExit = function findExit(propobj, list) {
+	var ex = Exit.findExits(propobj, list);
+	return ex.length > 0 ? ex[0] : undefined;
+};
+
+me.UseWp = function UseWp(area, getWpCallback) {
+	var a = getArea(me.area),
+		pWp = a.getWpPreset();
+	
+	if (!pWp) {
+		Pather.MoveToTown();
+		pWp = getWpPreset(me.area);
+	}
+	var uWp = pWp.GetUnit();
+	Pather.MoveToRange(uWp, me.area, me.classid == Class.Sorceress ? 24 : 10);
+	uWp.interact(area);
+	
+	if (Interface.Config('General','AutoGetWPs',true))
+		if (!areaDelay(area)) {
+			uWp.interact();
+			UIDelay(UIFlags.Waypoint);
+			if (!me.haveWp(area)) {
+				print('GET WP '+Area.find(area));
+				if (getWpCallback)
+					getWpCallback(area);
+				throw new Error('Auto get wps not implemented yet');
+			}
+			else uWp.interact(area); // should not be done here
+		}
+	if (!areaDelay(area))
+		throw new Error('Failed to use wp to '+Area.find(area));
+};
+
+me.TakePortal = function TakePortal(area, returnEnterPortal) {
+	area = area == undefined ? Area.Town[me.act] : area;
+	var portal = Unit.findObject({
+			objtype:(area == Area.Act5.TheWorldstoneChamber ? 0 : area),
+			classid:[UniqueId['Town Portal'],UniqueId['Permanent Town Portal'],UniqueId['Worldstone ChamberArea']]});
+	if (!portal && area == Area.Town[me.act]) {
+		if (me.isInTown)
+			throw new Error('Can\'t cast tp in town!');
+		var tome = me.findItem({code:'tbk',location:ItemLocation.Inventory});
+		if (!tome)
+			throw new Error('Could not find tp tome');
+		clickItem(1,tome);
+		portalDelay(area);
+		portal = Unit.findObject({classid:UniqueId['Town Portal']});
+	}
+	if (!portal) throw new Error('Failed to find portal');
+	portal.MoveTo();
+	portalDelay(portal);
+	portal.interact();
+	areaDelay(area);
+	if (returnEnterPortal) return portal;
+	if (portal.area in oc(Area.Town)) return undefined;
+	portalDelay(portal.area);
+	portal = Unit.findObject({objtype:portal.area,classid:[UniqueId['Town Portal'],UniqueId['Permanent Town Portal']]});
+	portal.x;portal.y;portal.objtype; // Initialize properties
+	return portal;
+};

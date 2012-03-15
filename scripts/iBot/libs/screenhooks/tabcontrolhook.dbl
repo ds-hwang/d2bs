@@ -1,0 +1,105 @@
+js_strict(true);
+
+include('prototypes.dbl');
+include('screenhooks.dbl');
+
+var TabItem = function(tabControl,name) {
+	this.bg = new Box(0,0,0,15);
+	this.header = new Text(name);
+	this.frame = new Frame(0,0,0,15);
+	this.visible = true;
+	this.active = true;
+	this.controls = [this.header,this.frame,this.bg];
+	
+	this.header.zorder = 2;
+	
+	this.remove = function(){
+		this.controls.forEach(function(c){c.remove();});
+		this.controls = [];
+	};
+	
+	this.AddControl = function(control){
+		control.visible = this.visible&&this.active;
+		control.x += tabControl.x;
+		control.y += tabControl.y+15;
+		this.controls.push(control);
+	};
+	this.RemoveControl = function(control){this.controls.splice(this.controls.indexOf(control),1);};
+	
+	this.watch('visible',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			if (c == this.header || c == this.bg) c.visible = newval;
+			else if (c == this.frame) c.visible = newval && !this.active;
+			else c.visible = newval && this.active;
+		return newval;
+	});
+	this.watch('active',function(prop,oldval,newval){
+		for each(let c in this.controls) if (c != this.header && c != this.bg) c.visible=this.visible&&newval;
+		this.frame.visible=this.visible&&!newval;
+		return newval;
+	});
+};
+
+var TabControl = function(title,x,y,width,height) {
+	var window = new Window(title,x,y,width,height),
+		tabs = [];
+	
+	this.x = x;
+	this.y = y+15;
+	this.xsize = width;
+	this.ysize = height;
+	this.visible = true;
+	
+	window.controls.push(this);
+	/*
+	this.remove = function(){
+		bg.remove();frame.remove();headerFrame.remove();headerText.remove();
+		tabs.forEach(function(t){t.remove();});
+	};
+	//*/
+	
+	this.Refresh = function() {
+		var tw = Math.ceil(width / (tabs.length > 0 ? tabs.length : 1));
+		for(let i=0;i<tabs.length;i++) {
+			tabs[i].bg.xsize = tw;
+			tabs[i].frame.xsize = tw;
+			tabs[i].bg.x = this.x+tw*i;
+			tabs[i].bg.y = this.y;
+			tabs[i].frame.x = this.x+tw*i;
+			tabs[i].frame.y = this.y;
+			tabs[i].header.x = tabs[i].frame.x+Math.round((tabs[i].frame.xsize/2)-(tabs[i].header.width/2));
+			tabs[i].header.y = this.y+14;
+		}
+	};
+	
+	this.NewTab = function(name) {
+		var t = new TabItem(this,name);
+		t.bg.click = bind(function(){this.SwitchTab(t);return true;},this);
+		t.active = tabs.length == 0;
+		tabs.push(t);
+		this.Refresh();
+		return t;
+	};
+	this.SwitchTab = function(tab) {
+		for each(let t in tabs)
+			t.active = false;
+		tab.active = true;
+		return true;
+	};
+	
+	this.watch('x',function(prop,oldval,newval){
+		for each(let t in tabs)
+			t.controls.forEach(function(c){c.x+=newval-oldval;});
+		return newval;
+	});
+	this.watch('y',function(prop,oldval,newval){
+		for each(let t in tabs)
+			t.controls.forEach(function(c){c.y+=newval-oldval;});
+		return newval;
+	});
+	this.watch('visible',function(prop,oldval,newval){
+		for each(let t in tabs)
+			t.visible = newval;
+		return newval;
+	});
+};

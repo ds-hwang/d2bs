@@ -1,0 +1,16 @@
+js_strict(true);
+
+include('screenhooks/basecontrol.dbl');
+include('screenhooks/windowhook.dbl');
+include('screenhooks/checkboxhook.dbl');
+include('screenhooks/circlehook.dbl');
+include('screenhooks/crosshook.dbl');
+include('screenhooks/rectanglehook.dbl');
+include('screenhooks/listbox.dbl');
+include('screenhooks/dropdownboxhook.dbl');
+include('screenhooks/textboxhook.dbl');
+include('screenhooks/scrollbarhook.dbl');
+include('screenhooks/sliderhook.dbl');
+include('screenhooks/tabcontrolhook.dbl');
+include('screenhooks/pathhook.dbl');
+include('screenhooks/targethook.dbl');

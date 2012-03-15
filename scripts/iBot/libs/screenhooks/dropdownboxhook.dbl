@@ -1,0 +1,35 @@
+js_strict(true);
+
+include('screenhooks/textboxhook.dbl');
+include('screenhooks/buttonhook.dbl');
+
+var DropDownBox = function(x,y,width,vals,defval) {
+	var open = function(b){
+		this.CheckBox.Button.Text.text = b ? '/\\' : '\\/';
+		this.ChoiceBox.visible = b;
+		this.CheckBox.Button.visible = true
+		return true;
+	};
+	
+	var valueBox = new TextBox(x,y,width,15,defval);
+	
+	valueBox.VScroll = false;
+	
+	this.x = x;
+	this.y = y;
+	this.visible = true;
+	this.CheckBox = new CheckBox(x+width,y,false,bind(open,this));
+	this.ChoiceBox = new TextBox(x,y+15,width,15*4,vals.join('\n'));
+	
+	this.CheckBox.Button.Text.text = '\\/';
+	
+	this.ChoiceBox.visible = false;
+	
+	this.watch('x',function(prop,oldval,newval){valueBox.x=newval;this.CheckBox.x=newval+width;this.ChoiceBox.x=newval;return newval;});
+	this.watch('y',function(prop,oldval,newval){valueBox.y=newval;this.CheckBox.y=newval;this.ChoiceBox.y=newval+15;return newval;});
+	this.watch('visible',function(prop,oldval,newval){
+		valueBox.visible=this.CheckBox.visible=newval;
+		this.CheckBox.Button.Text.visible=newval;
+		this.ChoiceBox.visible=newval&&this.CheckBox.value;
+		return newval;});
+};

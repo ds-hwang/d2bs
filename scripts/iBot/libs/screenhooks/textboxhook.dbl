@@ -1,0 +1,85 @@
+js_strict(true);
+
+include('prototypes.dbl');
+include('screenhooks.dbl');
+
+var TextBox = function(x,y,width,height,click,hover) {
+	var bg = new Box(x,y,width,height),
+		frame = new Frame(x,y,width,height),
+		vscroll = new ScrollBar(x+width,y,height,0,true,bind(function(val){this.startline=val;},this)),
+		hscroll = new ScrollBar(x,y+height,width,0,false,bind(function(val){this.startline=val;},this)),
+		lines = [];
+	
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.visible = true;
+	this.startline = 0;
+	this.text = '';
+	this.font = 0;
+	this.color = 0;
+	this.padding = [5,0,5,5];
+	this.lineheight = ''.getHeight(this.font)-8;
+	this.VScroll = true;
+	this.HScroll = false;
+	
+	this.remove = function(){
+		bg.remove();frame.remove();vscroll.remove();hscroll.remove();
+		lines.forEach(function(l){l.remove();});
+	};
+	
+	this.watch('x',function(prop,oldval,newval){bg.x=frame.x=hscroll.x=newval;vscroll.x=newval+width;return newval;});
+	this.watch('y',function(prop,oldval,newval){bg.y=frame.y=vscroll.y=newval;hscroll.y=newval+height;return newval;});
+	this.watch('visible',function(prop,oldval,newval){
+		bg.visible = frame.visible = newval;
+		vscroll.visible = this.VScroll && newval;
+		hscroll.visible = this.HScroll && newval;
+		lines.forEach(function(l){l.visible = newval;});
+		this.startline = this.startline;
+		return newval;
+	});
+	this.watch('text',function(prop,oldval,newval){
+		for each(let l in lines) l.remove();
+		var ls = newval.split('\n');
+		while(ls.length > 0) {
+			var l = ls.shift();
+			var tmp = '';
+			while(l.getWidth(this.font) > this.width-this.padding[2]) {
+				l = l.trim();
+				var reg = /([\w\S]+)$/.exec(l);
+				if (reg) tmp = reg[1]+' '+tmp;
+				else break;
+				l = l.substr(-0,l.length-reg[1].length);
+			}
+			if (tmp) ls.push(tmp);
+			lines.push(new Text(l,0,0,this.color,this.font));
+		}
+		this.startline = this.startline;
+		vscroll.steps = Math.ceil((this.lineheight*lines.length-this.height)/this.lineheight);
+		return newval;
+	});
+	this.watch('startline',function(prop,oldval,newval){
+		var view = Math.floor((this.height-this.padding[3])/this.lineheight);
+		for(let i=0,j=0;i<lines.length;i++)
+			if (i < newval || j>=view) lines[i].visible = false;
+			else {
+				lines[i].visible = true; 
+				lines[i].x = x+this.padding[0];
+				lines[i].y = y+this.padding[1]+this.lineheight*(++j);
+			}
+		return newval;
+	});
+	this.watch('color',function(prop,oldval,newval){lines.forEach(function(l){l.color=newval;});return newval;});
+	this.watch('font',function(prop,oldval,newval){lines.forEach(function(l){l.font=newval;});return newval;});
+	this.watch('padding',function(prop,oldval,newval){
+		for each(let l in lines) {
+			l.x += newval[0]-oldval[0];
+			l.y += newval[1]-oldval[1];
+		}
+		return newval;
+	});
+	this.watch('lineheight',function(prop,oldval,newval){this.lineheight=newval;this.startline=this.startline;return newval;});
+	this.watch('VScroll',function(prop,oldval,newval){this.visible=this.visible;return newval;});
+	this.watch('HScroll',function(prop,oldval,newval){this.visible=this.visible;return newval;});
+};

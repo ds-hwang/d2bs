@@ -1,0 +1,16 @@
+js_strict(true);
+
+function Gamble() {
+	if (me.gold >= Interface.Config('Gamble','StartGambleGold',2000000)) {
+		Interface.Display(Message.Info,'Gambling time!');
+		Pather.MoveToTown();
+		while(me.gold > Interface.Config('Gamble','StopGambleGold',500000)) {
+			var items = NPC.Gamble(Interface.Config('Gamble','Codes',['rin','amu']),true);
+			for each(let item in items)
+				if (!Pickit.checkItem(item))
+					item.sell();
+			me.cancel();
+		}
+	}
+	return true;
+}

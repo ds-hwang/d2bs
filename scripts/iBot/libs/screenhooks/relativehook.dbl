@@ -1,0 +1,31 @@
+js_strict(true);
+
+var Relative = function(x,y) {
+	this.x = x;
+	this.y = y;
+	this.visible = true;
+	this.controls = [];
+	
+	this.remove = function(){
+		//while(this.controls.pop().remove());
+		for each(let c in this.controls)
+			c.remove();
+		this.controls = [];
+	};
+	
+	this.watch('visible',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.visible = newval;
+		return newval;
+	});
+	this.watch('x',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.x = c.x+newval-oldval;
+		return newval;
+	});
+	this.watch('y',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.y = c.y+newval-oldval;
+		return newval;
+	});
+};

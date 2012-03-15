@@ -1,0 +1,82 @@
+js_strict(true);
+
+function main() {
+	include('common.dbl');
+	include('constants.dbl');
+	include('prototypes.dbl');
+	include('screenhooks.dbl');
+	
+	var revealedAreas = [];
+	var guideLines = [];
+	var roomBoxes = [];
+	var monsters = [];
+	var presets = [];
+	
+	while(true) {
+		delay(200);
+		var area = me.area;
+		RevealMap();
+		AddGuideLines();
+		while(true) {
+			UpdateGuideLines();
+			UpdateMap();
+			//UpdateMonsterData();
+			if (area != me.area) break;
+			delay(100);
+		}
+	}
+	
+	function AddGuideLines() {
+		for each(let line in guideLines)
+			line.remove();
+		guideLines = [];
+		var area = getArea(me.area);
+		for each(let e in area.exits)
+			guideLines.push(new Line(me.x, me.y, e.x, e.y, 10, true));
+		let wp = area.getWpPreset();
+		if (wp)
+			guideLines.push(new Line(me.x, me.y, wp.realx, wp.realy, 11, true));
+	}
+	function RevealMap() {
+		var as = [me.area].concat([x.target for each(x in getArea(me.area).exits) if (x.type==1)]);
+		as = as.filter(function(x){ return !(x in oc(revealedAreas)); });
+		for each(let a in as) {
+			for each(let r in getRooms(a)) {
+				r.reveal(true);
+				roomBoxes.push(new RectangleHook(r.realx, r.realy, r.xsize-1, r.ysize-1));
+			}
+			/*p
+			for each(let p in getPresetUnits(a,2))
+				if (p.id in oc([40,41,42])) continue;
+				else
+					presets.push({cross:new Cross(p.realx, p.realy,12),text:new Text('Preset: '+p.id+(getBaseStat('objects',p.id,'ShrineFunction')?' (shrine)':''),p.realx,p.realy,(p.id==31?1:0),0,0,true)});
+			//*/
+			revealedAreas.push(a);
+		}
+	}
+	function UpdateGuideLines() {
+		for each(let line in guideLines) {
+			line.x = me.x;
+			line.y = me.y;
+		}
+	}
+	function UpdateMap() {
+		for each(let b in roomBoxes)
+			b.color = inRect(b.Rect, me) ? 10 : 7;
+	}
+	function UpdateMonsterData() {
+		for each(let u in getUnits(Type.Monster))
+			if (u.isValidTarget) {
+				var r = monsters.filter(function(x){return x.unit.gid==u.gid;});
+				if (r.length < 1)
+					monsters[u.gid] = {'unit':copyUnit(u), 'cross':new Cross(u.x, u.y)};
+			}
+		for each(let x in monsters)
+			if (x.unit.isValidTarget)
+				[x.cross.x, x.cross.y] = [x.unit.x, x.unit.y];
+			else {
+				monsters[x.unit.gid].cross.remove();
+				delete monsters[x.unit.gid];
+			}
+	}
+}

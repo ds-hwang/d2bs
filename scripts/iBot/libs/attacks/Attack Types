@@ -1,0 +1,42 @@
+Sorceress Attacks:
+
+Blizzard/Ice Blast Combo - Blizz monster every 1.8 seconds, ice blast the other time.
+Frozen Orb/Ice Blast Combo - Frozen Orb every second, ice blast the other time.
+Lighting/Chain Lightning - Could determine monster proximity and choose Chain at apporperate times.
+Fire Ball/Meteor Combo - Meteor monster every 1.2 seconds, fireball the the other time.
+
+Druid Attacks:
+
+Tornado - Tornado monster with Hurriance
+Werewolf/Werebear - Do people even use theses? Depending on demand, might implement, pretty tricky todo.
+
+Barbarian Attacks:
+
+Whirlwind - Perhaps some nice little math todo nice triangles around a monster, with perhaps using taunts to our advantage.
+Warcry - Hits em with a warcry.
+
+Paladin Attacks:
+
+Hammerdin - Well Duh
+Zealer/Smiter - Get up close and hit them?
+FoHer - I suppose, if people actually bot w/ em
+
+Amazon Attacks:
+
+Charged Strike - Can't Farcast so it would have to be a melee style attack.
+Lightning Fury - Simple ranged attack, could be useful.
+Bows - Could choose between different types depending on immunities, Guided is kinda useless tho since we know where they are.
+
+Assassin Attacks:
+
+Traps - Fairly straight forward, cast sum traps on the monster, optionally fireblast the bitch.
+Whirlwind - Same as Barb.
+Martial Arts - Fuck that.
+
+Necromancer Attacks:
+
+Bone - Shoot Bone Spears, tada.
+Poison - Lower Res, shoot poison.
+Summon - See Martial Arts.
+
+

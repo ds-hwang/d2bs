@@ -1,0 +1,61 @@
+js_strict(true);
+
+var Circle = function(/*x, y, radius, color, automap*/) {
+	var point = new Point(arguments[0], arguments[1]);
+	var radius = arguments[2] || 10;
+	var color =  arguments[3] || 10;
+	var automap = arguments[4] || true;
+	var visible = true;
+	var segments = 20;
+	var lines = [];
+	
+	this.__defineSetter__('x', function(val){
+		point.x = val;
+		update();
+	});
+	this.__defineSetter__('y', function(val){
+		point.y = val;
+		update();
+	});
+	this.__defineSetter__('color', function(val){
+		color = val;
+		update();
+	});
+	this.__defineSetter__('visible', function(val){
+		visible = val;
+		update();
+	});
+	
+	var init = function() {
+		for(let i=0;i<segments;i++)
+			lines.push(new Line(point.x, point.y, point.x, point.y, color, automap));
+		update(point.x, point.y, radius);
+	};
+	
+	var update = function() {
+		var dt = 2 * 3.14 / lines.length,
+			cx = point.x+radius, cy = point.y,
+			t = 0;
+		for(let i=0;i<lines.length;i++) {
+			t += dt;
+			var tx = Math.round(point.x+radius*Math.cos(t)),
+				ty = Math.round(point.y+radius*Math.sin(t));
+			lines[i].x = cx;
+			lines[i].y = cy;
+			lines[i].x2 = tx;
+			lines[i].y2 = ty;
+			cx = tx;
+			cy = ty;
+			lines[i].color = color;
+			lines[i].visible = visible;
+		}
+	};
+	
+	this.remove = function() {
+		for each(let line in lines)
+			line.remove();
+		lines = [];
+	};
+	
+	init();
+}

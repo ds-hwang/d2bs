@@ -1,0 +1,12 @@
+js_strict(true);
+
+function Mephisto() {
+	Pather.MoveToArea(Area.Act3.DuranceOfHateLevel2);
+	Precast.Precast();
+	Pather.MoveToArea(Area.Act3.DuranceOfHateLevel3);
+	var p = PresetUnit.findObject({id:UniqueId['Mephisto Bridge']});
+	p.MoveTo(function(){return !Unit.findMonster({classid:Monster['Mephisto']});});
+	Attack.Kill(Unit.findMonster({classid:Monster['Mephisto']}));
+	Pickit.Pick();
+	return true;
+}

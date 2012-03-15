@@ -1,0 +1,4 @@
+js_strict(true);
+
+Text.prototype.__defineGetter__('width',function(){return getTextSize(this.text,this.font)[0];});
+Text.prototype.__defineGetter__('height',function(){return getTextSize(this.text,this.font)[1];});

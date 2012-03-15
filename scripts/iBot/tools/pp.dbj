@@ -1,0 +1,33 @@
+js_strict(true);
+
+include('ibot/interface.dbl');
+
+function main() {
+	
+	addEventListener('gameevent', function(mode, parm1, parm2, name1, name2) {
+		delay(200);
+		switch(mode) {
+			case Mode.GameEvent.Join:
+				if (me.inParty) {// || !partyExists()) {
+					var party = Party.findParty({name:name1});
+					if (party && !party.inParty)
+						clickParty(party, 2);
+				}
+				break;
+			case Mode.GameEvent.Party:
+				switch(parm2) {
+					case Mode.GameEvent.PartyAction.Invite:
+						if (!me.inParty) {
+							var party = Party.findParty({gid:parm1});
+							if (party) clickParty(party, 2);
+						}
+						break;
+					case Mode.GameEvent.PartyAction.MeJoinParty:
+//break;
+						inviteAll();
+						break;
+				}
+				break;
+		}
+	});
+}

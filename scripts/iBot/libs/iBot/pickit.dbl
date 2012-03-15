@@ -1,0 +1,162 @@
+js_strict(true);
+
+include('ibot/storage.dbl');
+include('common/nip.dbl');
+
+var Pickit = new function() {
+	this.pickList = [];
+	this.checkList = [];
+	
+	this.Init = function Init() {
+		Interface.Display(Message.Info,'Initializing pickit manager');
+		var pickitFiles = Interface.Config('General','PickitFiles',[]);
+		for each(let file in pickitFiles) {
+			var data = NipParser.ReadFile('pickit/'+file+'.nipx', this.translateData);
+			this.checkList = data;
+		}
+		//addEventListener('itemaction', bind(this.eventHandler,this));
+		//addEventListener('golddrop', bind(this.eventHandler,this));
+	};
+	
+	this.AddLine = function AddLine(string) {
+		for each(let d in NipParser.ReadString(string))
+			this.checkList.push(d);
+	};
+	
+	this.translateData = function translateData(stat, val) {
+		stat = [stat.toLowerCase(),0];
+		val = val.toLowerCase();
+		switch(stat[0]) {
+			case 'type':
+			case 'code':
+			case 'classid':
+			case 'count': break;
+			case 'quality':
+				if (!PickitQuality.hasOwnProperty(val)) throw new Error('Failed to translate pickit quality value, '+val);
+				val = PickitQuality[val]; break;
+			case 'flag': val = PickitFlag[val]; break;
+			case 'name':
+				stat[0] = 'code';
+				if (!PickitCodes.hasOwnProperty(val)) throw new Error('Failed to translate pickit name value, '+val);
+				val = PickitCodes[val]; break;
+			default:
+				if (PickitStats.hasOwnProperty(stat[0])) stat = PickitStats[stat[0]];
+				else throw new Error('Failed to translate pickit stat, '+stat);
+				break;
+		}
+		return {stat:stat, value:val};
+	};
+	
+	this.eventHandler = function eventHandler(gid, mode, code, global) {
+		if (mode != 0 || me.isInTown) return;
+		var item = getUnit(Type.Item, code, null, gid);
+		if (!isItem(item)) throw new Error('Failed to find item');
+		
+		if (Pickit.checkItem(item)) {
+			if (Pickit.checkFastPick(item))
+				//iBot.AddCommand({object: Pickit, func: Pickit.pickItem, args: [item]});
+				this.pickItem(item);
+			else
+				this.pickList.push(item);
+		}
+	}
+	
+	this.Pick = function Pick() {
+		for each(let item in Unit.findItems({mode:Mode.Item.Group.Ground}))
+			if (Pickit.checkItem(item))
+				this.pickItem(item);
+return;
+		var item;
+		while((item = this.pickList.pop()))
+		//for each(let item in this.pickList)
+			if (item.area == me.area)
+				iBot.AddCommand({object: Pickit, func: Pickit.pickItem, args: [item]});
+				//this.pickItem(item);
+			else
+				Interface.Display(Message.Info, 'Item ('+item.formattedName+') in pickitlist from other area, ignoring');
+	};
+	
+	this.pickItem = function pickItem(item /*item || gid*/) {
+		if (isNumber(item)) item = getUnit(Type.Item, null, null, item);
+		if (!isItem(item)) throw new Error('Called with invalid argument, could not get item');
+		
+		Interface.Display(Message.Info, 'Picking item, '+item.formattedName);
+		
+		var sTk = Skills.Get(Skill.Telekinesis),
+			tk = item.isTelekinisable && sTk.getIsUsable(),
+			func = !tk ? null : function(p){return getDistance(p, item)>sTk.castRange;};
+		
+		if (!Storage.Inventory.CanFit(item)) {
+			//Interface.Display(Message.Warning, 'Item does not fit in inventory, cant pick ('+item.formattedName+')');
+			Town.Return(Town.Tick);
+			if (!Storage.Inventory.CanFit(item)) {
+				Interface.Display(Message.Warning, 'Item does not fit in inventory, cant pick ('+item.formattedName+')');
+				return false;
+			}
+		}
+		
+		do {
+			item.MoveTo(func);
+			dropDelay(item);
+			if (tk) sTk.cast(item);
+			else item.interact();
+		} while (!doDelay(function(){return item.location != ItemLocation.Inventory},5,500));
+		return true;
+	};
+	
+	this.checkFastPick = function checkFastPick(item /*item || gid*/) {
+		if (isNumber(item)) item = getUnit(Type.Item, null, null, item);
+		if (!isItem(item)) throw new Error('Called with invalid argument, could not get item');
+		
+		return false;
+	};
+	this.checkItem = function(item /*item || gid*/, strict) {
+		if (isNumber(item)) item = getUnit(Type.Item, null, null, item);
+		if (!isItem(item)) throw new Error('Called with invalid argument, could not get item');
+		
+		Interface.Display(Message.DDebug, 'Checking item for picking, '+item.name);
+		for each(let line in this.checkList)
+			if (this.checkItemLine(item, line, strict)) return true;
+		return false;
+	};
+	this.checkItemLine = function checkItemLine(item /*item || gid*/, line, strict) {
+		if (isNumber(item)) item = getUnit(Type.Item, null, null, item);
+		if (!isItem(item)) throw new Error('Called with invalid argument, could not get item');
+		
+		for each(let check in line.stats) {
+			var val;
+			switch(check.stat[0]) {
+				case 'type': val = getBaseStat(BaseStatTable.itemtypes,item.itemType,'code'); break;
+				//case 'name': val = item.name.toLowerCase().substring(item.prefix?item.prefix.length:0,item.suffix?item.suffix.length:item.name.length); print('PICKITNAME: \''+val+'\''); break;
+				case 'code': val = item.code; break;
+				case 'classid': val = item.classid; break;
+				case 'quality': val = item.quality; break;
+				case 'flag': val = hasFlag(item.flags, check.value) ? check.value : -1; break;
+				case 'count': val = me.getItems().filter(function(x){return Pickit.checkItemLine(x,line);}).length; break;
+				default:
+					var stat = Number(check.stat[0]);
+					if (isNaN(check.stat[0])) throw new Error('Unrecognised stat, '+check.stat[0]);
+					if (!item.isIdentified && !strict) continue;
+					switch(stat) {
+						case Stats.SingleSkill: case Stats.AddSkillTab: case Stats.AddClassSkills:
+							val = item.givesSkillBonus(check.stat[0], check.stat[1]);
+							break;
+						default:
+							val = item.getStat(check.stat[0], check.stat[1]);
+							break;
+					}
+					break;
+			}
+			switch(check.op) {
+				case '=': if (val != check.value) return false; break;
+				case '!=': if (val == check.value) return false; break;
+				case '<': if (val >= check.value) return false; break;
+				case '>': if (val <= check.value) return false; break;
+				case '<=': if (val > check.value) return false; break;
+				case '>=': if (val < check.value) return false; break;
+			}
+		}
+		Interface.Display(Message.Debug, item.name+' passed check ('+(strict?'':'not ')+'strict), matched against line '+line.line+' in file '+line.file);
+		return true;
+	};
+};

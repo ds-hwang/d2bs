@@ -1,0 +1,86 @@
+js_strict(true);
+
+var Precast = new function () {
+	this.precasts = [];
+	this.list = [
+		{skill:Skill.BattleCommand},
+		{skill:Skill.BattleOrders},
+		{skill:Skill.Shout},
+		{skill:Skill.Valkyrie},
+		{skill:Skill.FrozenArmor,		fam:1},
+		{skill:Skill.ShiverArmor,		fam:1},
+		{skill:Skill.ChillingArmor,		fam:1},
+		{skill:Skill.ThunderStorm},
+		{skill:Skill.EnergyShield},
+		{skill:Skill.BoneArmor},
+		{skill:Skill.ClayGolem},
+		{skill:Skill.BloodGolem,		fam:2},
+		{skill:Skill.FireGolem,			fam:2},
+		{skill:Skill.HolyShield,		fam:2},
+		{skill:Skill.Raven},
+		{skill:Skill.PoisonCreeper,		fam:3},
+		{skill:Skill.CarrionVine,		fam:3},
+		{skill:Skill.SolarCreeper,		fam:3},
+		{skill:Skill.OakSage,			fam:4},
+		{skill:Skill.HeartOfWolverine,	fam:4},
+		{skill:Skill.SpiritOfBarbs,		fam:4},
+		{skill:Skill.SummonSpiritWolf,	fam:5},
+		{skill:Skill.SummonDireWolf,	fam:5},
+		{skill:Skill.SummonGrizzly,		fam:5},
+		{skill:Skill.CycloneArmor},
+		{skill:Skill.Hurricane},
+		{skill:Skill.BurstOfSpeed,		fam:6},
+		{skill:Skill.Fade,				fam:6},
+		{skill:Skill.ShadowWarrior,		fam:7},
+		{skill:Skill.ShadowMaster,		fam:7}
+	];
+	
+	this.Init = function () {
+		Interface.Display(Message.Info,'Initializing precast manager');
+		this.determinePrecasts();
+	}
+	
+	/*	this.determinePrecasts()
+	 *		Runs through all the available precasts and determines prefered ones.
+	 */
+	this.determinePrecasts = function () {
+		var tmp = {};
+		for each(let precast in this.list) {
+			var ski = Skills.Get(precast.skill);
+			if (ski.level > 0)
+				if (!precast.hasOwnProperty('fam'))
+					this.precasts.push(ski);
+				else
+					if (!tmp.hasOwnProperty(precast.fam) || tmp[precast.fam].level < ski.level)
+						tmp[precast.fam] = ski;
+		}
+		for each(let precast in tmp)
+			this.precasts.push(precast);
+	}
+	
+	/* this.precast()
+	 *	Runs through all the valid precasts, and casts them if needed.
+	 */
+	this.Precast = function(recast) {
+		Interface.Display(Message.Info, 'Precasting!');
+		var oldSwitch = me.getWeaponSwitch();
+		Interface.Display(Message.Debug, 'We are now running through all given precasts.');
+		for each(let skill in this.precasts) {
+			if (!skill.isUsable) {
+				Interface.Display(Message.Debug, 'Unable to cast '+skill.name+' atm.');
+				continue;
+			}
+			if (me.getState(skill.getState() || recast)) {
+				Interface.Display(Message.Debug, 'Skipping '+skill.name+' since it\'s already casted.');
+				continue;
+			}
+			if (me.isInTown && !skill.inTown) {
+				Interface.Display(Message.Debug, 'Skipping '+skill.name+' since it can\'t be casted in town.');
+				continue;
+			}
+			for(var i=0;i<skill.multiCount-me.getMinionCount(skill.summon);i++)
+				if (!skill.Cast()) break;
+		}
+		me.setWeaponSwitch(oldSwitch);
+	}
+}

@@ -1,0 +1,116 @@
+js_strict(true);
+
+include('ibot/skills.dbl');
+
+var Attack = new function() {
+	this.Mode = {Norm:0,Pre:1,Post:2};
+	var preAttacks = [];
+	var untimedAttacks = [];
+	var timedAttacks = [];
+	var postAttacks = [];
+	
+	this.Init = function Init() {
+		Interface.Display(Message.Info,'Initializing attack manager');
+		var dir = dopen("/libs/attacks/");
+		var files = dir.getFiles();
+		for each(let file in files) {
+			var i = file.indexOf(".");
+			if (i == -1) continue;
+			if (me.getSkill(getSkillByName(file.substr(0, i)), 1) == 0) continue;
+			Interface.Display(Message.DDebug, 'Including attack sequence \'' + file + '\'.');
+			include('attacks/' + file);
+		}
+		
+		//Interface.message(Normal, "We have " + this.preAttacks.length + " pre-attack(s), " + this.timedAttacks.length + " timed attack(s), " + this.untimedAttacks.length + " untimed attack(s), " + this.postAttacks.length + " post attack(s).");
+		//Interface.message(DetailedDebug, "Sorting attack sequences based on skill level.");
+		var sortFunc = function(a,b){return (b.Skill.level - a.Skill.level);}
+		preAttacks.sort(sortFunc);
+		untimedAttacks.sort(sortFunc);
+		timedAttacks.sort(sortFunc);
+		postAttacks.sort(sortFunc);
+	};
+	
+	this.addAttack = function addAttack(attack) {
+		attack.Mode = attack.Mode || Attack.Mode.Norm;
+		switch(attack.Mode) {
+			case Attack.Mode.Norm:
+				if (attack.Skill.delay > 0) timedAttacks.push(attack);
+				else untimedAttacks.push(attack);
+				break;
+			case Attack.Mode.Pre: preAttacks.push(attack); break;
+			case Attack.Mode.Post: postAttacks.push(attack); break;
+		}
+	};
+	
+	var checkSkills = function checkSkills(list, unit) {
+		var ret = [];
+		for each(let a in list)
+			if (a.Predicate(unit)) ret.push(a);
+		return ret;
+	};
+	
+	this.Range = function Range(range, point) {
+		point = point || me;
+		if (!isPoint(point)) throw new Error('Invalid point provided');
+		Pather.MoveTo(point);
+		var ms = Unit.findMonsters().filter(function(x){return getDistance(point,x)<range;});
+		var cir;
+		if (Interface.Config('General','Visuals',true))
+			cir = new Circle(point.x,point.y,range,98);
+		for each(let u in ms)
+			this.Kill(u);
+		if (cir) cir.remove();
+	};
+	
+	this.ClearRect = function ClearRect(rect) {
+		var ms = Unit.findMonsters().filter(function(x){return inRect(rect,x);});
+		var vis;
+		if (Interface.Config('General','Visuals',true))
+			vis = new RectangleHook(rect.x,rect.y,rect.width,rect.height,98);
+		for each(let u in ms)
+			this.Kill(u);
+		if (vis) vis.remove();
+	};
+	
+	this.ClearPath = function ClearPath(point) {
+		Pather.MoveTo(point,function(p){Attack.Range(25,p);return true;});
+	};
+	
+	this.Kill = function Kill(unit) {
+		if (!isUnit(unit)) throw new Error('Called with invalid unit.');
+		if (!unit.isValidTarget) return;
+		
+		var mark,info;
+		if (Interface.Config('General','Visuals',true)) {
+			mark = new Cross(unit.x,unit.y,98);
+			info = load('libs/screenhooks/targethook.dbl',unit,150,300);
+		}
+		
+		var pre = checkSkills(preAttacks, unit);
+		var untimed = checkSkills(untimedAttacks, unit);
+		var timed = checkSkills(timedAttacks, unit);
+		
+		if (untimed.length < 1 && timed.length < 1)
+			throw new Error('No skills to kill '+unit.name+' with.');
+		
+		for each(let a in pre) a.Func(unit);
+		
+		while(unit.isValidTarget) {
+			if (mark) { mark.x = unit.x; mark.y = unit.y; }
+			for each(let a in timed) {
+				if (!a.lastCastTime || ((new Date()).getTime() - a.lastCastTime > a.Skill.delay)) {
+					a.Func(unit);
+					a.lastCastTime = (new Date()).getTime();
+				}
+				break;
+			}
+			for each(let a in untimed) { a.Func(unit); break; }
+		}
+		
+		var post = checkSkills(postAttacks, unit);
+		for each(let a in post) a.Func(unit);
+		
+		if (mark) mark.remove();
+		//if (info && info.running) info.stop();
+	};
+};

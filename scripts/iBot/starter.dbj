@@ -1,0 +1,8 @@
+js_strict(true);
+
+include('gamemanager.dbl');
+
+function main() {
+	GameManager.Init('D2Respirator');
+	GameManager.Go();
+}

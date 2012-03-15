@@ -1,0 +1,1020 @@
+name = chain gloves : quality = unique : magicbonus = 40
+name = ogre gauntlets : quality = unique : strength = 20 : mindamagepercent >= 55
+name = vampirebone gloves : quality = unique : lifedrainmindamage = 10 : strength = 15
+name = heavy belt : quality = unique : flag != ethereal : goldbonus = 80
+name = demonhide sash : flag != ethereal : quality = unique : lifedrainmindamage = 8 : damageresist = 15 : magicdamagereduction = 15 : armorpercent = 180
+name = war belt : quality = unique : flag != ethereal : armorpercent = 200
+name = spiderweb sash : quality = unique : flag != ethereal
+name = mithril coil : quality = unique : flag != ethereal : vitality = 40 : damageresist = 15
+name = sharkskin boots : flag != ethereal : quality = unique : maxlife = 65
+name = battle boots : quality = unique : flag != ethereal : magicbonus >= 49
+name = war boots : quality = unique : flag != ethereal : armorpercent = 200
+name = scarabshell boots : quality = unique : strength = 15 : vitality >= 15 : flag != ethereal
+name = scarabshell boots : quality = unique : flag = ethereal
+name = boneweave boots : quality = unique : flag != ethereal : skeletionmasteryskill = 2 : strength = 20
+name = myrmidon greaves : quality = unique : flag != ethereal : dexterity = 25
+name = grand crown : quality = unique : flag != ethereal : goldbonus = 100
+name = shako : quality = unique : flag != ethereal : armorclass >= 140
+name = grim helm : quality = unique : lifedrainmindamage >= 8 : manadrainmindamage >= 8 : damageresist = 20
+name = spired helm : quality = unique : flag != ethereal : passivecoldmastery > 13
+name = demonhead : quality = unique : flag = ethereal
+name = bone visage : quality = unique : numsockets = 2 : strength > 30
+name = tiara : quality = unique : flag != ethereal : fireresist = 70 : lightningresist = 70 : coldresist = 70 : poisonresist = 70
+name = diadem : quality = unique : flag != ethereal
+name = corona : quality = unique
+name = dusk shroud : quality = unique : flag != ethereal : iceblastskill = 3 : passivecoldmastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : fireballskill = 3 : passivefiremastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : enchantskill = 3 : passivefiremastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : chainlightningskill = 3 : passivelightningmastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : meteorskill = 3 : passivefiremastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : blizzardskill = 3 : passivecoldmastery = 15
+name = dusk shroud : quality = unique : flag != ethereal : passivecoldmastery = 15 : passivefiremastery = 15 : passivelightningmastery = 15
+name = balrog skin : quality = unique : flag = ethereal
+name = kraken shell : quality = unique : damageresist = 25 : strength >= 45
+name = shadow plate : quality = unique : flag = ethereal
+name = sacred armor : quality = unique
+name = mesh armor : quality = unique : armorpercent = 220
+name = russet armor : quality = unique : flag = ethereal
+name = serpentskin armor : quality = unique : flag != ethereal : fireresist > 34 : lightningresist > 34 : coldresist > 34 : poisonresist > 3
+name = champion sword : quality = unique : mindamagepercent = 250 : manadrainmindamage = 7
+name = colossus blade : quality = unique : mindamagepercent > 230
+name = phase blade : quality = unique : levelrequire = 85
+name = ettin axe : quality = unique : numsockets = 5 : flag = ethereal
+name = berserker axe : quality = unique : flag = ethereal
+name = hydra bow : quality = unique : manadrainmindamage = 8
+name = scourge : quality = unique : flag = ethereal : fasterattackrate = 30
+name = thunder maul : quality = unique : fastercastrate = 10 : flag = ethereal
+name = thunder maul : quality = unique : strength = 25 : flag = ethereal
+name = ogre axe : quality = unique : mindamagepercent = 320 : flag = ethereal
+name = thresher : quality = unique : flag = ethereal : mindamagepercent > 220 : lifedrainmindamage > 10
+name = cryptic axe : quality = unique : flag = ethereal
+name = cryptic axe : quality = unique : numsockets = 3 : flag = ethereal
+name = giant thresher : quality = unique : mindamagepercent = 250
+name = caduceus : quality = unique
+name = yari : quality = unique : flag = ethereal : mindamagepercent = 200
+name = war pike : quality = unique
+name = elder staff : quality = unique : flag = ethereal
+name = winged knife : quality = unique : flag = ethereal
+name = winged axe : quality = unique : flag = ethereal
+name = unearthed wand : quality = unique
+name = ceremonial javelin : quality = unique : flag = ethereal
+name = matriarchal javelin : quality = unique : flag = ethereal
+name = greater talons : quality = unique : mindamagepercent >= 200
+name = hierophant trophy : quality = unique : armorpercent = 200 : flag != ethereal
+name = bloodlord skull : quality = unique : necrosummontab >= 3 : poisonbonetab >= 3 : cursestab >= 3
+name = succubus skull : quality = unique : fireresist = 30 : lightningresist = 30 : coldresist = 30 : poisonresist = 30
+name = slayer guard : quality = unique : armorpercent = 200
+name = eldritch orb : quality = unique : sorceressclassskill = 3 : passivelightningmastery = 20
+name = eldritch orb : quality = unique : sorceressclassskill = 3 : passivefiremastery = 20
+name = dimensional shard : quality = unique
+name = totemic mask : quality = unique : armorpercent = 200
+name = gilded shield : quality = unique : armorpercent >= 190
+;type = ring : quality = unique : magicbonus = 30
+type = ring : quality = unique : maxmanapercent = 25
+type = ring : quality = unique : dexterity = 20 : tohit >= 245
+type = ring : quality = unique : lifedrainmindamage >= 3 : allskills = 1
+type = ring : quality = unique : absorblightpercent >= 10 : magicbonus >= 10
+type = amul : quality = unique : fireresist >= 20 : lightningresist >= 20 : coldresist >= 20 : poisonresist >= 20
+type = amul : quality = unique : tohit >= 400
+name = jewel : quality = unique : passivefiremastery >= 5 : passivefirepierce >= 5
+name = jewel : quality = unique : passivepoisonmastery >= 5 : passivepoisonpierce >= 5
+name = jewel : quality = unique : passivelightningmastery >= 5 : passivelightningpierce >= 5
+name = jewel : quality = unique : passivecoldmastery >= 5 : passivecoldpierce >= 5
+name = grand charm : quality = magic : bowtab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : bowtab = 1 : maxlife >= 20
+name = grand charm : quality = magic : bowtab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : bowtab = 1 : dexterity = 6
+name = grand charm : quality = magic : bowtab = 1 : strength = 6
+name = grand charm : quality = magic : passivetab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : passivetab = 1 : maxlife >= 20
+name = grand charm : quality = magic : passivetab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : passivetab = 1 : dexterity = 6
+name = grand charm : quality = magic : passivetab = 1 : strength = 6
+name = grand charm : quality = magic : javelintab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : javelintab = 1 : maxlife >= 20
+name = grand charm : quality = magic : javelintab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : javelintab = 1 : dexterity = 6
+name = grand charm : quality = magic : javelintab = 1 : strength = 6
+name = grand charm : quality = magic : firetab = 1
+name = grand charm : quality = magic : lightningtab = 1
+name = grand charm : quality = magic : coldtab = 1
+name = grand charm : quality = magic : poisonbonetab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : poisonbonetab = 1 : maxlife >= 20
+name = grand charm : quality = magic : poisonbonetab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : poisonbonetab = 1 : dexterity = 6
+name = grand charm : quality = magic : poisonbonetab = 1 : strength = 6
+name = grand charm : quality = magic : necrosummontab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : necrosummontab = 1 : maxlife >= 20
+name = grand charm : quality = magic : necrosummontab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : necrosummontab = 1 : dexterity = 6
+name = grand charm : quality = magic : necrosummontab = 1 : strength = 6
+name = grand charm : quality = magic : offensiveaurastab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : offensiveaurastab = 1 : maxlife >= 20
+name = grand charm : quality = magic : offensiveaurastab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : offensiveaurastab = 1 : dexterity = 6
+name = grand charm : quality = magic : offensiveaurastab = 1 : strength = 6
+name = grand charm : quality = magic : defensiveaurastab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : defensiveaurastab = 1 : maxlife >= 20
+name = grand charm : quality = magic : defensiveaurastab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : defensiveaurastab = 1 : dexterity = 6
+name = grand charm : quality = magic : defensiveaurastab = 1 : strength = 6
+name = grand charm : quality = magic : barcombattab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : barcombattab = 1 : maxlife >= 20
+name = grand charm : quality = magic : barcombattab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : barcombattab = 1 : dexterity = 6
+name = grand charm : quality = magic : barcombattab = 1 : strength = 6
+name = grand charm : quality = magic : masteriestab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : masteriestab = 1 : maxlife >= 20
+name = grand charm : quality = magic : masteriestab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : masteriestab = 1 : dexterity = 6
+name = grand charm : quality = magic : masteriestab = 1 : strength = 6
+name = grand charm : quality = magic : warcriestab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : warcriestab = 1 : maxlife >= 20
+name = grand charm : quality = magic : warcriestab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : warcriestab = 1 : dexterity = 6
+name = grand charm : quality = magic : warcriestab = 1 : strength = 6
+name = grand charm : quality = magic : drusummontab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : drusummontab = 1 : maxlife >= 20
+name = grand charm : quality = magic : drusummontab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : drusummontab = 1 : dexterity = 6
+name = grand charm : quality = magic : drusummontab = 1 : strength = 6
+name = grand charm : quality = magic : shapeshiftingtab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : shapeshiftingtab = 1 : maxlife >= 20
+name = grand charm : quality = magic : shapeshiftingtab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : shapeshiftingtab = 1 : dexterity = 6
+name = grand charm : quality = magic : shapeshiftingtab = 1 : strength = 6
+name = grand charm : quality = magic : elementaltab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : elementaltab = 1 : maxlife >= 20
+name = grand charm : quality = magic : elementaltab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : elementaltab = 1 : dexterity = 6
+name = grand charm : quality = magic : elementaltab = 1 : strength = 6
+name = grand charm : quality = magic : trapstab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : trapstab = 1 : maxlife >= 20
+name = grand charm : quality = magic : trapstab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : trapstab = 1 : dexterity = 6
+name = grand charm : quality = magic : trapstab = 1 : strength = 6
+name = grand charm : quality = magic : shadowdisciplinetab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : shadowdisciplinetab = 1 : maxlife >= 20
+name = grand charm : quality = magic : shadowdisciplinetab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : shadowdisciplinetab = 1 : dexterity = 6
+name = grand charm : quality = magic : shadowdisciplinetab = 1 : strength = 6
+name = grand charm : quality = magic : martialartstab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : martialartstab = 1 : maxlife >= 20
+name = grand charm : quality = magic : martialartstab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : martialartstab = 1 : dexterity = 6
+name = grand charm : quality = magic : martialartstab = 1 : strength = 6
+name = grand charm : quality = magic : bowtab = 1 : fasterhitrecovery >= 7
+name = grand charm : quality = magic : bowtab = 1 : maxlife >= 20
+name = grand charm : quality = magic : bowtab = 1 : fasterrunwalk >= 5
+name = grand charm : quality = magic : bowtab = 1 : dexterity = 6
+name = grand charm : quality = magic : bowtab = 1 : strength = 6
+name = grand charm : quality = magic : palcombattab = 1
+name = grand charm : quality = magic : fireresist = 15 : lightningresist = 15 : coldresist = 15 : poisonresist = 15
+name = grand charm : quality = magic : fireresist >= 12 : lightningresist >= 12 : coldresist >= 12 : poisonresist >= 12 : fasterrunwalk = 7
+name = grand charm : quality = magic : fireresist >= 12 : lightningresist >= 12 : coldresist >= 12 : poisonresist >= 12 : fasterhitrecovery = 12
+name = grand charm : quality = magic : fireresist >= 12 : lightningresist >= 12 : coldresist >= 12 : poisonresist >= 12 : maxlife >= 30
+name = grand charm : quality = magic : fireresist >= 14 : lightningresist >= 14 : coldresist >= 14 : poisonresist >= 14 : fasterrunwalk = 7
+name = grand charm : quality = magic : fireresist >= 14 : lightningresist >= 14 : coldresist >= 14 : poisonresist >= 14 : fasterhitrecovery = 12
+name = grand charm : quality = magic : fireresist >= 14 : lightningresist >= 14 : coldresist >= 14 : poisonresist >= 14 : maxlife >= 30
+name = grand charm : quality = magic : maxdamage >= 9 : maxlife >= 30
+name = grand charm : quality = magic : maxdamage >= 9 : tohit >= 50
+name = grand charm : quality = magic : maxdamage >= 9 : tohit >= 50 : maxlife >= 20
+name = grand charm : quality = magic : maxdamage = 10 : maxlife >= 25
+name = grand charm : quality = magic : maxdamage >= 9 : fasterhitrecovery = 12
+name = grand charm : quality = magic : maxdamage >= 9 : fasterrunwalk = 7
+name = grand charm : quality = magic : maxdamage >= 9 : tohit >= 20 : fasterhitrecovery = 12
+name = grand charm : quality = magic : maxlife >= 40 : mana >= 35
+name = grand charm : quality = magic : goldbonus = 40
+name = large charm : quality = magic : fireresist = 8 : lightningresist = 8 : coldresist = 8 : poisonresist = 8
+name = large charm : quality = magic : fireresist >= 5 : lightningresist >= 5 : coldresist >= 5 : poisonresist >= 5 : maxlife >= 25
+name = large charm : quality = magic : fireresist >= 7 : lightningresist >= 7 : coldresist >= 7 : poisonresist >= 7 : maxlife >= 25
+name = large charm : quality = magic : fireresist = 8 : lightningresist = 8 : coldresist = 8 : poisonresist = 8 : maxlife >= 25
+name = large charm : quality = magic : fireresist >= 8 : lightningresist >= 8 : coldresist >= 8 : poisonresist >= 8 : fasterhitrecovery = 8
+name = large charm : quality = magic : maxdamage >= 5 : maxlife >= 30
+name = large charm : quality = magic : maxdamage = 6 : maxlife >= 25
+name = large charm : quality = magic : maxdamage >= 5 : fasterhitrecovery = 8
+name = large charm : quality = magic : maxdamage = 6 : fasterhitrecovery = 8
+name = large charm : quality = magic : maxdamage >= 5 : tohit >= 25 : maxlife >= 20
+name = large charm : quality = magic : maxdamage >= 5 : tohit >= 25 : fasterhitrecovery = 8
+name = large charm : quality = magic : maxdamage >= 5 : tohit >= 25 : fasterrunwalk = 5
+name = small charm : quality = magic : maxlife = 20
+name = small charm : quality = magic : magicbonus = 7
+name = small charm : quality = magic : maxlife >= 15 : fasterrunwalk = 3
+name = small charm : quality = magic : maxlife >= 15 : fasterhitrecovery = 5
+name = small charm : quality = magic : maxlife >= 17 : fasterrunwalk = 3
+name = small charm : quality = magic : maxlife >= 17 : fasterhitrecovery = 5
+name = small charm : quality = magic : maxlife >= 14 : maxmana >= 12
+name = small charm : quality = magic : goldbonus = 10
+name = small charm : quality = magic : fireresist >= 5 : lightningresist >= 5 : coldresist >= 5 : poisonresist >= 5
+name = small charm : quality = magic : fireresist >= 3 : lightningresist >= 3 : coldresist >= 3 : poisonresist >= 3 : maxlife >= 10
+name = small charm : quality = magic : fireresist >= 3 : lightningresist >= 3 : coldresist >= 3 : poisonresist >= 3 : fasterrunwalk = 3
+name = small charm : quality = magic : fireresist >= 3 : lightningresist >= 3 : coldresist >= 3 : poisonresist >= 3 : fasterhitrecovery = 5
+name = small charm : quality = magic : fireresist >= 3 : lightningresist >= 3 : coldresist >= 3 : poisonresist >= 3 : magicbonus >= 5
+name = small charm : quality = magic : fireresist >= 3 : lightningresist >= 3 : coldresist >= 3 : poisonresist >= 3 : strength = 2
+name = small charm : quality = magic : maxdamage = 3 : tohit = 20
+name = small charm : quality = magic : maxdamage >= 3 : tohit >= 10 : fasterhitrecovery = 5
+name = small charm : quality = magic : maxdamage >= 3 : tohit >= 10 : maxlife >= 10
+name = small charm : quality = magic : maxdamage >= 3 : tohit >= 10 : fasterrunwalk = 5
+name = small charm : quality = magic : poisonmindamage >= 101
+name = jewel : quality = magic : mindamagepercent = 40
+name = jewel : quality = magic : maxdamage = 20
+name = jewel : quality = magic : fireresist = 15 : lightningresist = 15 : coldresist = 15 : poisonresist = 15
+name = jewel : quality = magic : mindamagepercent >= 38 : strength >= 8
+name = jewel : quality = magic : mindamagepercent >= 38 : dexterity >= 8
+name = jewel : quality = magic : mindamagepercent >= 35 : maxdamage >= 12
+name = jewel : quality = magic : mindamagepercent >= 39 : mindamage >= 8
+name = jewel : quality = magic : mindamagepercent >= 39 : fasterhitrecovery = 7
+name = jewel : quality = magic : requirementpercent = -15 : mindamagepercent >= 39
+name = jewel : quality = magic : fasterattackrate > 15 : mindamagepercent >= 30
+name = jewel : quality = magic : fasterattackrate >= 15 : maxdamage >= 15
+name = jewel : quality = magic : fasterattackrate >= 15 : mindamage >= 10
+name = jewel : quality = magic : requirementpercent = -15 : maxdamage >= 15
+name = jewel : quality = magic : requirementpercent = -15 : mindamage >= 10
+name = jewel : quality = magic : requirementpercent = -15 : dexterity >= 9
+name = jewel : quality = magic : requirementpercent = -15 : strength >= 9
+name = jewel : quality = magic : requirementpercent = -15 : fasterhitrecovery = 7
+name = jewel : quality = magic : maxlife >= 20 : fasterhitrecovery = 7
+name = jewel : quality = magic : fireresist >= 15 : lightningresist >= 15 : coldresist >= 15 : poisonresist >= 15 : fasterhitrecovery = 7
+type = jewl : quality = magic : maxlife = 20 : fireresist = 15 : lightningresist = 15 : coldresist = 15 : poisonresist = 15
+type = jewl : quality = magic : fasterhitrecovery = 7 : fireresist = 15 : lightningresist = 15 : coldresist = 15 : poisonresist = 15
+name = jewel : quality = rare : fireresist >= 27 : strength >= 7 : dexterity >= 7 : fasterhitrecovery >= 7
+name = jewel : quality = rare : fireresist >= 12 : lightningresist >= 12 : coldresist >= 12 : poisonresist >= 12 : fasterhitrecovery >= 7
+name = jewel : quality = rare : mindamagepercent >= 25 : strength >= 8
+name = jewel : quality = rare : mindamagepercent >= 25 : dexterity >= 8
+name = jewel : quality = rare : mindamagepercent >= 28 : fasterhitrecovery = 7
+name = jewel : quality = rare : requirementpercent = -15 : mindamagepercent >= 29
+name = jewel : quality = rare : requirementpercent = -15 : strength >= 5 : dexterity >= 5
+name = jewel : quality = rare : mindamagepercent >= 25 : tohit >= 50 : strength >= 5
+name = jewel : quality = rare : mindamagepercent >= 25 : tohit >= 50 : dexterity >= 5
+name = jewel : quality = rare : maxlife >= 20 : fasterhitrecovery = 7
+name = jewel : quality = rare : fireresist >= 15 : lightningresist >= 15 : coldresist >= 15 : poisonresist >= 15 : fasterhitrecovery = 7
+type = ring : quality = rare : magicbonus > 30
+type = ring : quality = rare : manadrainmindamage >= 5 : lifedrainmindamage > 5
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : fireresist >= 15 : coldresist >= 15 : dexterity >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : fireresist >= 15 : coldresist >= 15 : strength >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : coldresist >= 15 : lightningresist >= 15 : strength >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : coldresist >= 15 : lightningresist >= 15 : dexterity >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : lightningresist >= 15 : fireresist >= 15 : strength >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : lightningresist >= 15 : fireresist >= 15 : dexterity >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : strength >= 15
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 20 : dexterity >= 10
+type = ring : quality = rare : dexterity >= 15 : strength >= 10 : maxlife >= 15
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 30 : strength >= 10
+type = ring : quality = rare : fastercastrate = 10 : maxlife >= 30 : dexterity >= 10
+type = ring : quality = rare : dexterity >= 15 : strength >= 15
+type = ring : quality = rare : dexterity >= 15 : maxlife >= 30
+type = ring : quality = rare : dexterity >= 15 : lifedrainmindamage >= 6
+type = ring : quality = rare : strength >= 15 : lifedrainmindamage >= 6
+type = amul : quality = rare : magicbonus = 50
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : assassinclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : sorceressclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : druidclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : necromancerclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : paladinclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : amazonclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : barbarianclassskill = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : palcombattab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : trapstab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : firetab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : coldtab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : lightningtab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : poisonbonetab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : elementaltab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : dexterity >= 10
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : maxlife >= 30
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : dexterity >= 15 : maxlife >= 30
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : dexterity >= 15 : fireresist >= 10 : lightningresist >= 10 : coldresist >= 10 : poisonresist >= 10
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : dexterity >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : dexterity >= 15 : coldresist >= 25 : lightningresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : lightningresist >= 25 : fireresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : fireresist >= 25
+type = amul : quality = rare : warcriestab = 2 : fastercastrate = 10 : strength >= 15 : coldresist >= 25 : lightningresist >= 25
+name = wolf head : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = hawk helm : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = antlers : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = falcon mask : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = spirit mask : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = alpha helm : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = griffon headdress : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = hunter's guise : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = sacred feathers : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = totemic mask : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = blood spirit : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = sun spirit : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = earth spirit : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = sky spirit : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = dream spirit : quality >= magic : summongrizzlyskill = 3 : druidclassskill = 2
+name = wolf head : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = hawk helm : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = antlers : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = falcon mask : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = spirit mask : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = alpha helm : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = griffon headdress : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = hunter's guise : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = sacred feathers : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = totemic mask : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = blood spirit : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = sun spirit : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = earth spirit : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = sky spirit : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = dream spirit : quality >= magic : tornadoskill = 3 : druidclassskill = 2
+name = blood spirit : quality = magic : tornadoskill = 3 : elementaltab = 3
+name = sun spirit : quality = magic : tornadoskill = 3 : elementaltab = 3
+name = earth spirit : quality = magic : tornadoskill = 3 : elementaltab = 3
+name = sky spirit : quality = magic : tornadoskill = 3 : elementaltab = 3
+name = dream spirit : quality = magic : tornadoskill = 3 : elementaltab = 3
+name = wolf head : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = hawk helm : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = antlers : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = falcon mask : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = spirit mask : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = alpha helm : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = griffon headdress : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = hunter's guise : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = sacred feathers : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = totemic mask : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = blood spirit : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = sun spirit : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = earth spirit : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = sky spirit : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+name = dream spirit : quality >= magic : fireclawsskill = 3 : druidclassskill = 2
+type = circ : quality = rare : assassinclassskill = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : assassinclassskill = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : assassinclassskill = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : druidclassskill = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : druidclassskill = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : druidclassskill = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : sorceressclassskill = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : sorceressclassskill = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : sorceressclassskill = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : necromancerclassskill = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : necromancerclassskill = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : necromancerclassskill = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : paladinclassskill = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : paladinclassskill = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : paladinclassskill = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : amazonclassskill = 2 : fasterrunwalk = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : amazonclassskill = 2 : fasterrunwalk = 20 : numsockets = 2
+type = circ : quality = rare : amazonclassskill = 2 : fasterrunwalk = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : amazonclassskill = 2 : fasterrunwalk = 30 : numsockets = 2
+type = circ : quality = rare : lightningtab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : coldtab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : firetab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : poisonbonetab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : elementaltab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : palcombattab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : trapstab = 2 : fastercastrate = 20 : numsockets = 2
+type = circ : quality = rare : lightningtab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : coldtab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : firetab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : poisonbonetab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : elementaltab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : palcombattab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : trapstab = 2 : fastercastrate = 20 : strength >= 15 : maxlife >= 10
+type = circ : quality = rare : lightningtab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : coldtab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : firetab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : poisonbonetab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : elementaltab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : palcombattab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : trapstab = 2 : fastercastrate = 20 : dexterity >= 15 : maxlife >= 10
+type = circ : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2 : strength >= 10
+type = circ : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2 : dexterity >= 10
+type = circ : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2 : fireresist >= 20 : lightningresist >= 20 : coldresist >= 20 : poisonresist >= 20
+type = phlm : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2
+type = phlm : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2
+type = phlm : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2
+type = shie : quality = rare : fasterhitrecovery >= 17 : numsockets = 2 : toblock = 20 : fasterblockrate = 30
+type = helm : quality = rare : fasterhitrecovery >= 10 : maxlife >= 20 : tohitpercentperlevel > 1 : numsockets = 2
+type = circ : quality = rare : maxlife >= 30 : tohitpercentperlevel > 1 : strength >= 15 : dexterity >= 15 : numsockets = 2
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : strength >= 10 : dexterity >= 10 : fireresist >= 25 : coldresist >= 25
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : strength >= 10 : dexterity >= 10 : lightningresist >= 25 : coldresist >= 25
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : strength >= 10 : dexterity >= 10 : fireresist >= 25 : lightningresist >= 25
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : bowtab = 2 : dexterity >= 10 : strength >= 10
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : passivetab = 2 : dexterity >= 10 : strength >= 10
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : javelintab = 2 : dexterity >= 10 : strength >= 10
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : bowtab = 2 : strength >= 10 : dexterity >= 10
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : passivetab = 2 : strength >= 10 : dexterity >= 10
+type = glov : flag != ethereal : quality = rare : fasterattackrate = 20 : javelintab = 2 : strength >= 10 : dexterity >= 10
+type = boot : flag != ethereal : quality = rare : fasterrunwalk >= 20 : fasterhitrecovery >= 20 : lightningresist >= 25 : coldresist >= 25
+type = boot : flag != ethereal : quality = rare : fasterrunwalk >= 20 : fasterhitrecovery >= 20 : lightningresist >= 25 : fireresist >= 25
+type = boot : flag != ethereal : quality = rare : coldresist >= 25 : fireresist >= 25 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = boot : flag != ethereal : quality = rare : lightningresist >= 25 : coldresist >= 25 : fireresist >= 25 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = boot : flag != ethereal : quality = rare : lightningresist >= 25 : fireresist >= 25 : poisonresist >= 28 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = boot : flag != ethereal : quality = rare : fireresist >= 25 : coldresist >= 25 : poisonresist >= 28 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = boot : flag != ethereal : quality = rare : lightningresist >= 25 : coldresist >= 25 : poisonresist >= 28 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = boot : flag != ethereal : quality = rare : strength >= 8 : dexterity >= 8 : fasterhitrecovery >= 10 : fasterrunwalk >= 10
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery = 24 : strength >= 20 : maxlife >= 40
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery = 24 : strength >= 25 : maxlife >= 40
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 28 : maxlife >= 40
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : fireresist >= 25
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : lightningresist >= 25
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : coldresist >= 28
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : fireresist >= 15 : lightningresist >= 15
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : fireresist >= 15 : coldresist >= 20
+type = belt : flag != ethereal : quality = rare : fasterhitrecovery >= 17 : strength >= 22 : maxlife >= 40 : coldresist >= 20 : lightningresist >= 15
+name = tomahawk : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = tomahawk : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = tomahawk : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = tomahawk : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = tomahawk : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = tomahawk : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = small crescent : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = small crescent : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = small crescent : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = small crescent : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = small crescent : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = small crescent : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = ettin axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = ettin axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = ettin axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = ettin axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = ettin axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = ettin axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war spike : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war spike : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war spike : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war spike : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war spike : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war spike : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = berserker axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = berserker axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = berserker axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = berserker axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = berserker axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = berserker axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hatchet : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hatchet : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hatchet : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hatchet : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hatchet : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hatchet : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = cleaver : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = cleaver : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = cleaver : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = cleaver : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = cleaver : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = cleaver : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = twin axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = twin axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = twin axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = twin axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = twin axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = twin axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = crowbill : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = crowbill : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = crowbill : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = crowbill : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = crowbill : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = crowbill : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = naga : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = naga : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = naga : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = naga : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = naga : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = naga : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hand axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hand axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hand axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = hand axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hand axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = hand axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = double axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = double axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = double axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = double axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = double axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = double axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = military pick : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = military pick : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = military pick : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = military pick : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = military pick : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = military pick : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war axe : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war axe : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war axe : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+name = war axe : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war axe : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+name = war axe : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+type = swor : flag != ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+type = swor : flag = ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+type = swor : flag = ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+type = swor : flag = ethereal : quality = rare : maxdamageperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 100
+type = swor : flag != ethereal : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+type = swor : flag != ethereal : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20 : mindamagepercent >= 200
+type = swor : flag = ethereal : quality = rare : fasterattackrate >= 20 : mindamagepercent >= 350
+name = runic talons : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20
+name = feral claws : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20
+name = runic talons : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20
+name = feral claws : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20
+name = wrist sword : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20
+name = battle cestus : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20
+name = wrist sword : quality = rare : tohitperlevel >= 1 : fasterattackrate >= 20
+name = battle cestus : quality = rare : tohitpercentperlevel >= 1 : fasterattackrate >= 20
+name = maiden javelin : quality = rare : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = maiden javelin : quality = rare : javelintab >= 4 : fasterattackrate >= 30
+name = ceremonial javelin : quality = rare : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = ceremonial javelin : quality = rare : javelintab >= 4 : fasterattackrate >= 30
+name = matriarchal javelin : quality = rare : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = matriarchal javelin : quality = rare : javelintab >= 4 : fasterattackrate >= 30
+name = maiden javelin : quality = magic : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = maiden javelin : quality = magic : javelintab >= 4 : fasterattackrate >= 30
+name = ceremonial javelin : quality = magic : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = ceremonial javelin : quality = magic : javelintab >= 4 : fasterattackrate >= 30
+name = matriarchal javelin : quality = magic : javelintab >= 2 : amazonclassskill = 2 : fasterattackrate >= 30
+name = matriarchal javelin : quality = magic : javelintab >= 4 : fasterattackrate >= 30
+type = ring : quality = magic : magicbonus = 40
+type = ring : quality = magic : fastercastrate = 10 : maxmana = 120
+type = amul : quality = magic : assassinclassskill = 2 : maxlife >= 90
+type = amul : quality = magic : druidclassskill = 2 : maxlife >= 90
+type = amul : quality = magic : necromancerclassskill = 2 : maxlife >= 90
+type = amul : quality = magic : paladinclassskill = 2 : magicbonus >= 20
+type = amul : quality = magic : paladinclassskill = 2 : maxlife >= 90
+type = amul : quality = magic : palcombattab = 3 : fastercastrate >= 10
+type = amul : quality = magic : palcombattab = 3 : maxlife >= 90
+type = amul : quality = magic : palcombattab = 3 : magicbonus >= 20
+type = amul : quality = magic : trapstab = 3 : fastercastrate >= 10
+type = amul : quality = magic : trapstab = 3 : maxlife >= 90
+type = amul : quality = magic : firetab = 3 : fastercastrate >= 10
+type = amul : quality = magic : firetab = 3 : maxlife >= 90
+type = amul : quality = magic : coldtab = 3 : fastercastrate >= 10
+type = amul : quality = magic : coldtab = 3 : maxlife >= 90
+type = amul : quality = magic : lightningtab = 3 : fastercastrate >= 10
+type = amul : quality = magic : lightningtab = 3 : maxlife >= 90
+type = amul : quality = magic : poisonbonetab = 3 : fastercastrate >= 10
+type = amul : quality = magic : poisonbonetab = 3 : maxlife >= 90
+type = amul : quality = magic : elementaltab = 3 : fastercastrate >= 10
+type = amul : quality = magic : elementaltab = 3 : maxlife >= 90
+type = amul : quality = magic : warcriestab = 3 : fastercastrate >= 10
+type = circ : quality = magic : amazonclassskill = 2 : fasterrunwalk = 30
+type = circ : quality = magic : assassinclassskill = 2 : fastercastrate = 20
+type = circ : quality = magic : sorceressclassskill = 2 : fastercastrate = 20
+type = circ : quality = magic : druidclassskill = 2 : fastercastrate = 20
+type = circ : quality = magic : necromancerclassskill = 2 : fastercastrate = 20
+type = circ : quality = magic : paladinclassskill = 2 : fastercastrate = 20
+type = circ : quality = magic : trapstab = 3 : fastercastrate = 20
+type = circ : quality = magic : firetab = 3 : fastercastrate = 20
+type = circ : quality = magic : firetab = 3 : maxlife >= 85
+type = circ : quality = magic : coldtab = 3 : fastercastrate = 20
+type = circ : quality = magic : coldtab = 3 : maxlife >= 85
+type = circ : quality = magic : lightningtab = 3 : fastercastrate = 20
+type = circ : quality = magic : lightningtab = 3 : maxlife >= 85
+type = circ : quality = magic : elementaltab = 3 : fastercastrate = 20
+type = circ : quality = magic : elementaltab = 3 : maxlife >= 85
+type = circ : quality = magic : poisonbonetab = 3 : fastercastrate = 20
+type = circ : quality = magic : poisonbonetab = 3 : maxlife >= 85
+type = circ : quality = magic : palcombattab = 3 : fastercastrate = 20
+type = circ : quality = magic : palcombattab = 3 : maxlife >= 85
+type = circ : quality = magic : numsockets = 3 : fasterrunwalk = 30
+type = circ : quality = magic : numsockets = 3 : maxlife >= 85
+type = circ : quality = magic : numsockets = 3 : dexterity >= 20
+name = monarch : quality = magic : numsockets = 4 : requirementpercent >= 20
+name = monarch : quality = magic : numsockets = 4 : fasterhitrecovery >= 17
+name = monarch : quality = magic : numsockets = 4 : fasterblockrate = 30
+name = dusk shroud : quality = magic : numsockets = 4 : maxlife >= 81
+name = wyrmhide : quality = magic : numsockets = 4 : maxlife >= 81
+name = scarab husk : quality = magic : numsockets = 4 : maxlife >= 81
+name = archon plate : quality = magic : numsockets = 4 : maxlife >= 81
+name = wire fleece : quality = magic : numsockets = 4 : maxlife >= 81
+name = great hauberk : quality = magic : numsockets = 4 : maxlife >= 81
+name = dusk shroud : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = wyrmhide : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = scarab husk : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = archon plate : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = wire fleece : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = great hauberk : quality = magic : numsockets = 4 : fasterhitrecovery = 24
+name = jawbone cap : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = jawbone cap : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = jawbone cap : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = fanged helm : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = fanged helm : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = fanged helm : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = horned helm : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = horned helm : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = horned helm : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = assault helmet : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = assault helmet : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = assault helmet : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = avenger guard : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = avenger guard : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = avenger guard : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = jawbone visor : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = jawbone visor : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = jawbone visor : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = lion helm : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = lion helm : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = lion helm : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = rage mask : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = rage mask : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = rage mask : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = savage helmet : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = savage helmet : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = savage helmet : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = slayer guard : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = slayer guard : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = slayer guard : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+name = carnage helm : quality <= rare : battleordersskill >= 2 : warcriestab = 3
+name = carnage helm : quality <= rare : battleordersskill = 3 : warcriestab = 2
+name = carnage helm : quality <= rare : battleordersskill = 3 : barbarianclassskill = 2
+type = glov : quality = magic : javelintab = 3 : fasterattackrate = 20
+type = glov : quality = magic : bowtab = 3 : fasterattackrate = 20
+type = glov : quality = magic : passivetab = 3 : fasterattackrate = 20
+type = glov : quality = magic : martialartstab = 3 : fasterattackrate = 20
+type = sorc : quality <= rare : fireballskill >= 2 : firetab = 3 : fastercastrate >= 20
+type = sorc : quality <= rare : fireballskill = 3 : firetab >= 2 : fastercastrate >= 20
+type = sorc : quality <= rare : fireballskill = 3 : sorceressclassskill = 2 : fastercastrate >= 20
+type = sorc : quality <= rare : lightningskill >= 2 : lightningtab = 3 : fastercastrate >= 20
+type = sorc : quality <= rare : lightningskill = 3 : lightningtab >= 2 : fastercastrate >= 20
+type = sorc : quality <= rare : lightningskill = 3 : sorceressclassskill = 2 : fastercastrate >= 20
+type = sorc : quality <= rare : enchantskill >= 2 : firetab = 3
+type = sorc : quality <= rare : enchantskill = 3 : firetab >= 2
+type = sorc : quality <= rare : enchantskill = 3 : sorceressclassskill = 2
+type = assn : quality <= rare : assassinclassskill = 2 : lightningsentryskill = 3
+type = assn : quality <= rare : trapstab = 3 : lightningsentryskill >= 2
+type = assn : quality <= rare : trapstab = 2 : lightningsentryskill = 3
+type = h2h2 : quality <= rare : assassinclassskill = 2 : lightningsentryskill = 3
+type = h2h2 : quality <= rare : trapstab = 3 : lightningsentryskill >= 2
+type = h2h2 : quality <= rare : trapstab = 2 : lightningsentryskill = 3
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : numsockets = 2
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : numsockets = 2
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : numsockets = 2
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : numsockets = 2
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : numsockets = 2
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : numsockets = 2
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : fireresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : lightningresist >= 20 : coldresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : lightningresist >= 20 : fireresist >= 20
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : toblock = 20 : fasterblockrate = 30
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespearskill = 3 : fasterhitrecovery = 17
+type = necr : quality <= rare : poisonbonetab >= 2 : bonespiritskill = 3 : fasterhitrecovery = 17
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespearskill = 3 : fasterhitrecovery = 17
+type = necr : quality <= rare : necromancerclassskill = 2 : bonespiritskill = 3 : fasterhitrecovery = 17
+type = necr : quality <= rare : poisonbonetab = 3 : bonespearskill >= 2 : fasterhitrecovery = 17
+type = necr : quality <= rare : poisonbonetab = 3 : bonespiritskill >= 2 : fasterhitrecovery = 17
+name = pul rune
+name = um rune
+name = mal rune
+name = ist rune
+name = gul rune
+name = vex rune
+name = ohm rune
+name = lo rune
+name = sur rune
+name = ber rune
+name = jah rune
+name = cham rune
+name = zod rune
+name = serpentskin armor : quality = superior : armorpercent = 15 : flag != ethereal
+name = mage plate : quality = superior : numsockets = 0 : armorpercent = 15 : flag != ethereal
+name = mage plate : quality = superior : numsockets = 3 : armorpercent = 15 : flag != ethereal
+name = dusk shroud : quality = superior : armorpercent = 15 : flag != ethereal
+name = wyrmhide : quality = superior : armorpercent = 15 : flag != ethereal
+name = scarab husk : quality = superior : armorpercent = 15 : flag != ethereal
+name = wire fleece : quality = superior : armorpercent = 15 : flag != ethereal
+name = great hauberk : quality = superior : armorpercent = 15 : flag != ethereal
+name = archon plate : quality = superior : armorpercent = 15 : flag != ethereal
+name = sacred armor : quality = superior : armorpercent = 15 : flag != ethereal
+name = scarab husk : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 680
+name = diamond mail : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 704
+name = loricated mail : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 714
+name = wyrmhide : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 675
+name = wire fleece : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 692
+name = great hauberk : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 720
+name = boneweave : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 720
+name = balrog skin : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 735
+name = archon plate : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 745
+name = kraken shell : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 745
+name = hellforge plate : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 750
+name = lacquered plate : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 765
+name = shadow plate : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 790
+name = sacred armor : quality < superior : numsockets = 0 : flag = ethereal : armorclass >= 850
+name = grand crown : quality <= superior : numsockets = 0 : flag = ethereal : armorclass >= 160
+name = grand crown : quality = superior : numsockets = 0 : flag != ethereal : armorpercent = 15
+name = grand crown : quality = superior : numsockets = 3 : flag != ethereal : armorpercent = 15
+name = demonhead : quality <= superior : numsockets = 0 : flag = ethereal : armorclass >= 220
+name = demonhead : quality = superior : numsockets = 0 : flag != ethereal : armorpercent = 15
+name = demonhead : quality = superior : numsockets = 3 : flag != ethereal : armorpercent = 15
+name = bone visage : quality <= superior : numsockets = 0 : flag = ethereal : armorclass >= 225
+name = bone visage : quality = superior : numsockets = 0 : flag != ethereal : armorpercent = 15
+name = bone visage : quality = superior : numsockets = 3 : flag != ethereal : armorpercent = 15
+name = diadem : quality <= superior : numsockets = 0 : flag = ethereal : armorclass >= 85
+name = troll nest : quality <= superior : numsockets = 0 : flag = ethereal : armorclass >= 250
+name = troll nest : quality = superior : numsockets = 0 : flag != ethereal : armorpercent = 15
+name = troll nest : quality = superior : numsockets = 3 : flag != ethereal : armorpercent = 15
+name = sacred targe : quality <= superior : numsockets = 0 : flag = ethereal : fireresist >= 40 : armorclass >= 220
+name = sacred targe : quality <= superior : numsockets = 4 : flag = ethereal : fireresist >= 40 : armorclass >= 220
+name = sacred targe : quality <= superior : numsockets = 3 : flag != ethereal : fireresist >= 40
+name = sacred targe : quality <= superior : numsockets = 4 : flag != ethereal : fireresist >= 40
+name = sacred targe : quality <= superior : numsockets = 0 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 220
+name = sacred targe : quality <= superior : numsockets = 4 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 220
+name = sacred rondache : quality <= superior : numsockets = 0 : flag = ethereal : fireresist >= 40 : armorclass >= 230
+name = sacred rondache : quality <= superior : numsockets = 4 : flag = ethereal : fireresist >= 40 : armorclass >= 230
+name = sacred rondache : quality <= superior : numsockets = 3 : flag != ethereal : fireresist >= 40
+name = sacred rondache : quality <= superior : numsockets = 4 : flag != ethereal : fireresist >= 40
+name = sacred rondache : quality <= superior : numsockets = 0 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 230
+name = sacred rondache : quality <= superior : numsockets = 4 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 230
+name = kurast shield : quality <= superior : numsockets = 0 : flag = ethereal : fireresist >= 40 : armorclass >= 240
+name = kurast shield : quality <= superior : numsockets = 4 : flag = ethereal : fireresist >= 40 : armorclass >= 240
+name = kurast shield : quality <= superior : numsockets = 3 : flag != ethereal : fireresist >= 40
+name = kurast shield : quality <= superior : numsockets = 4 : flag != ethereal : fireresist >= 40
+name = kurast shield : quality <= superior : numsockets = 0 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 240
+name = kurast shield : quality <= superior : numsockets = 4 : flag = ethereal : mindamagepercent >= 60 : armorclass >= 240
+name = zakarum shield : quality <= superior : numsockets = 0 : flag = ethereal : fireresist >= 35 : armorclass >= 270
+name = zakarum shield : quality <= superior : numsockets = 4 : flag = ethereal : fireresist >= 35 : armorclass >= 270
+name = zakarum shield : quality <= superior : numsockets = 3 : flag != ethereal : fireresist >= 35
+name = zakarum shield : quality <= superior : numsockets = 4 : flag != ethereal : fireresist >= 35
+name = zakarum shield : quality <= superior : numsockets = 0 : flag = ethereal : mindamagepercent >= 55 : armorclass >= 270
+name = zakarum shield : quality <= superior : numsockets = 4 : flag = ethereal : mindamagepercent >= 55 : armorclass >= 270
+name = vortex shield : quality <= superior : numsockets = 0 : flag = ethereal : fireresist >= 35 : armorclass >= 300
+name = vortex shield : quality <= superior : numsockets = 4 : flag = ethereal : fireresist >= 35 : armorclass >= 300
+name = vortex shield : quality <= superior : numsockets = 3 : flag != ethereal : fireresist >= 35
+name = vortex shield : quality <= superior : numsockets = 4 : flag != ethereal : fireresist >= 35
+name = vortex shield : quality <= superior : numsockets = 0 : flag = ethereal : mindamagepercent >= 55 : armorclass >= 300
+name = vortex shield : quality <= superior : numsockets = 4 : flag = ethereal : mindamagepercent >= 55 : armorclass >= 300
+name = berserker axe : quality <= superior : flag = ethereal
+name = berserker axe : quality <= superior : mindamagepercent >= 10 : flag != ethereal
+name = phase blade : quality <= superior : mindamagepercent = 15
+name = colossus blade : quality <= superior : mindamagepercent = 15 : flag = ethereal
+name = war pike : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = ghost spear : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = cryptic axe : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = colossus voulge : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = thresher : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = giant thresher : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = great poleaxe : quality <= superior : mindamagepercent >= 10 : flag = ethereal
+name = crystal sword : quality <= superior : numsockets = 5 : flag = ethereal
+name = crystal sword : quality <= superior : numsockets = 6
+name = matriarchal bow : quality <= superior : bowtab = 3 : mindamagepercent >= 10
+name = grand matron bow : quality <= superior : bowtab = 3 : mindamagepercent >= 10
+name = great bow : quality <= superior : mindamagepercent = 15
+name = bone wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = bone wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = bone wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = bone wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = bone wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = bone wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = grim wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = grim wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = grim wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = grim wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = grim wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = grim wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = petrified wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = petrified wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = petrified wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = petrified wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = petrified wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = petrified wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = tomb wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = tomb wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = tomb wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = tomb wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = tomb wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = tomb wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = grave wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = grave wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = grave wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = grave wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = grave wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = grave wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = polished wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = polished wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = polished wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = polished wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = polished wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = polished wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = ghost wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = ghost wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = ghost wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = ghost wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = ghost wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = ghost wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = lich wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = lich wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = lich wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = lich wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = lich wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = lich wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = unearthed wand : quality <= superior : poisonnovaskill = 3 : decrepifyskill >= 2
+name = unearthed wand : quality <= superior : bonespiritskill = 3 : decrepifyskill >= 2
+name = unearthed wand : quality <= superior : poisonnovaskill >= 2 : bonespiritskill >= 2
+name = unearthed wand : quality <= superior : bonespearskill >= 2 : bonespiritskill >= 2
+name = unearthed wand : quality <= superior : bonespearskill = 3 : bonespiritskill >= 1
+name = unearthed wand : quality <= superior : bonespearskill >= 1 : bonespiritskill = 3
+name = war scepter : quality <= superior : numsockets = 5 : fistoftheheavensskill = 3
+name = war scepter : quality <= superior : numsockets = 0 : fistoftheheavensskill = 3
+name = divine scepter : quality <= superior : numsockets = 5 : fistoftheheavensskill = 3
+name = divine scepter : quality <= superior : numsockets = 0 : fistoftheheavensskill = 3
+name = caduceus : quality <= superior : numsockets = 5 : fistoftheheavensskill = 3
+name = caduceus : quality <= superior : numsockets = 0 : fistoftheheavensskill = 3
+name = greater talons : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = greater talons : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = greater talons : quality <= superior : numsockets = 0 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = greater talons : quality <= superior : numsockets = 0 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = greater talons : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = greater talons : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = greater talons : quality <= superior : numsockets = 3 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = greater talons : quality <= superior : numsockets = 3 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = greater claws : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = greater claws : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = greater claws : quality <= superior : numsockets = 0 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = greater claws : quality <= superior : numsockets = 0 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = greater claws : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = greater claws : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = greater claws : quality <= superior : numsockets = 3 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = greater claws : quality <= superior : numsockets = 3 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = runic talons : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = runic talons : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = runic talons : quality <= superior : numsockets = 0 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = runic talons : quality <= superior : numsockets = 0 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = runic talons : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = runic talons : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = runic talons : quality <= superior : numsockets = 3 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = runic talons : quality <= superior : numsockets = 3 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = scissors suwayyah : quality <= superior : numsockets = 0 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : lightningsentryskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : dragonflightskill >= 2 : mindblastskill >= 2
+name = scissors suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : shadowmasterskill >= 1 : weaponblockskill >= 1 : venomskill >= 1
+name = scissors suwayyah : quality <= superior : numsockets = 3 : flag != ethereal : lightningsentryskill >= 2 : wakeofinfernoskill >= 2
+name = monarch : quality = superior : numsockets = 4 : flag != ethereal : armorpercent = 15

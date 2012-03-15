@@ -1,0 +1,42 @@
+js_strict(true);
+
+var Sequencer = new function() {
+	var sequences = [];
+	
+	this.Init = function Init() {
+		Interface.Display(Message.Info,'Initializing sequence manager');
+		this.LoadSequences();
+	};
+	
+	this.LoadSequences = function() {
+		Interface.Display(Message.Debug,'Loading sequences');
+		var dir = dopen('libs/sequences/');
+		for each(let f in dir.getFiles()) {
+			var seqname = f.substr(0, f.lastIndexOf('.'));
+			sequences.push({name:seqname,
+							file:'sequences/'+f,
+							enabled:Interface.Config(seqname, 'Enabled', false),
+							order:Interface.Config(seqname, 'Order', 1)});
+		}
+		sequences.sort(function(x,y){return x.order-y.order;});
+	};
+	this.Run = function() {
+		Interface.Display(Message.Debug, 'We have '+sequences.length+' sequences available');
+		for each(let seq in sequences) {
+			if (!seq.enabled) {
+				Interface.Display(Message.Debug, 'Sequence '+seq.name+' disabled, skipping');
+				continue;
+			}
+			try {
+				Town.Tick();
+				Interface.Display(Message.Info, 'Starting sequence '+seq.name);
+				if (!include(seq.file))
+					Interface.Display(Message.Warning, 'Failed to include sequence file '+seq.file)
+				if (!eval(seq.name+'()'))
+					Interface.Display(Message.Warning, 'Unable to start sequence '+seq.name);
+			} catch(err) {
+				Interface.Display(Message.Error, 'Something went wrong in sequence '+seq.name+', moving on. ('+err.message+' ('+err.fileName+', '+err.lineNumber+'))');
+			}
+		}
+	};
+};

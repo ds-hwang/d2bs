@@ -1,0 +1,28 @@
+js_strict(true);
+
+var PathHook = function(points,ccolor,lcolor) {
+	ccolor = ccolor == undefined ? 225 : ccolor;
+	lcolor = lcolor == undefined ? 155 : lcolor;
+	var cross = [], line = [];
+	points = points.slice();
+	var p = points.shift();
+	cross.push(new Cross(me.x,me.y,ccolor));
+	line.push(new Line(me.x,me.y,p.x,p.y,lcolor,true));
+	cross.push(new Cross(p.x,p.y,ccolor));
+	points.forEach(function(x){line.push(new Line(p.x,p.y,x.x,x.y,lcolor,true));cross.push(new Cross(x.x,x.y,ccolor));p=x;});
+	
+	this.removeFirst = function(){
+		points.shift();
+		var c = cross.shift(); if (c) c.remove();
+		var l = line.shift(); if (l) l.remove();
+	};
+	
+	this.__defineSetter__('visible',function(val){
+		cross.forEach(function(x){x.visible = val;});
+		line.forEach(function(x){x.visible = val;});
+	});
+	this.remove = function(){
+		cross.forEach(function(x){x.remove();});
+		line.forEach(function(x){x.remove();});
+	};
+};

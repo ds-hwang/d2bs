@@ -1,0 +1,52 @@
+js_strict(true);
+
+include('ibot/interface.dbl');
+
+var NipParser = new function() {
+	this.ReadFile = function ReadFile(filePath, dataTranslator) {
+		if (!FileTools.exists(filePath)) throw new Error('Nip-file not found ('+filePath+')');
+		var data = [];
+		var lines = FileTools.readText(filePath).split('\n');
+		for(let i=0;i<lines.length;i++)
+			try {
+				var obj = this.ReadLine(lines[i],dataTranslator);
+				if (obj)
+					data.push({stats:obj,line:i+1,file:filePath});
+			} catch(ex) {
+				Interface.Display(Message.Warning, 'Failed to parse line '+(i+1)+' in file '+filePath+' ('+ex.message+')');
+			}
+		return data;
+	};
+	
+	this.ReadString = function ReadString(str, dataTranslator) {
+		var data = [];
+		var lines = str.split('\n');
+		for(let i=0;i<lines.length;i++) {
+			try {
+				var obj = this.ReadLine(lines[i],dataTranslator)
+				if (obj)
+					data.push({stats:obj,line:i+1,file:''});
+			} catch(ex) {
+				Interface.Display(Message.Warning, 'Failed to parse line '+(i+1)+' in string ('+ex.message+')');
+			}
+		}
+		return data;
+	};
+	
+	this.ReadLine = function ReadLine(line, dataTranslator) {
+		if (line.indexOf(';') != -1) line = line.substr(0, line.indexOf(';'));
+		line = line.trim();
+		if (line.length < 1) return undefined;
+		var obj = [];
+		for each(let pair in line.split(':')) {
+			pair = pair.trim();
+			if (pair.length < 1) continue;
+			var reg = pair.match(/^\s*([\w\s]+)\s*([<>=!]+)\s*([-\'\w\s]+)$/);
+			if (!reg || reg.length < 4) throw new Error('RexExp failed to extract data.');
+			[reg[1],reg[3]] = [reg[1].trim(),reg[3].trim()]
+			var info = dataTranslator ? dataTranslator(reg[1], reg[3]) : {stat:[reg[1],0], value:reg[3]};
+			obj.push({stat:info.stat,op:reg[2].trim(),value:info.value});
+		}
+		return obj;
+	};
+};

@@ -1,0 +1,13 @@
+js_strict(true);
+
+include('prototypes/js.js');
+include('prototypes/area.dbl');
+include('prototypes/array.dbl');
+include('prototypes/exit.dbl');
+include('prototypes/me.dbl');
+include('prototypes/party.dbl');
+include('prototypes/presetunit.dbl');
+include('prototypes/room.dbl');
+include('prototypes/text.dbl');
+include('prototypes/unit.dbl');
+include('prototypes/string.dbl');

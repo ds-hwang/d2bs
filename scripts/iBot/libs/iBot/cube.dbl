@@ -1,0 +1,73 @@
+js_strict(true);
+
+include('ibot/pickit.dbl');
+
+var Cube = new function() {
+	var recipes;
+	var cubeItem;
+	
+	this.Init = function Init() {
+		Interface.Display(Message.Info,'Initializing cube manager');
+		this.LoadRecipes();
+	};
+	
+	this.LoadRecipes = function LoadRecipes() {
+		Interface.Display(Message.Debug, 'Loading cube recipes');
+		recipes = [];
+		var lines = Interface.ConfigSection('Cubing');
+		for(let key in lines) {
+			var line = lines[key];
+			if (key.substr(0,Math.min(key.length,'recipe_'.length)) == 'recipe_') {
+				var recipe = Interface.Config('Cubing',key,[]);
+				Interface.Display(Message.Debug, 'Loaded cubing recipe ('+recipe.join(', ')+')');
+				recipes.push(recipe);
+				if (Interface.Config('Cubing','AddToPickit',true))
+					recipe.forEach(function(code){Pickit.AddLine('code = '+code);});
+			}
+		}
+	};
+	
+	this.Check = function Check() {
+		cubeItem = me.findItem({code:'box',location:[ItemLocation.Stash,ItemLocation.Inventory]});
+		if (!recipes) this.LoadRecipes(); /////////////////////////////////////////
+		Interface.Display(Message.Debug, 'Checking for cubing matches');
+		NextRecipe:for each(let recipe in recipes) {
+			var trans = [];
+			NextCode:for each(let code in recipe) {
+				var items = me.findItems({code:code,location:[ItemLocation.Stash,ItemLocation.Inventory,ItemLocation.Cube]});
+				for each(let item in items)
+					if (!trans.some(function(i){return i.gid==item.gid;})) {
+						trans.push(item);
+						continue NextCode;
+					}
+				continue NextRecipe;
+			}
+			this.Transform(cubeItem, trans);
+		}
+	};
+	
+	this.Transform = function(cube, items) {
+		Interface.Display(Message.Info, 'Transforming '+items.length+' items. ('+items.map(function(x){return x.name}).join(', ')+')');
+		me.cancel();
+		clickItem(1,cube);
+		UIDelay(UIFlags.Cube);
+		for each(let item in Storage.Cube.Items)
+			Storage.Stash.MoveTo(item);
+		var tmp = Storage.Cube.Items;
+		for each(let item in tmp)
+			Storage.Inventory.MoveTo(item);
+		for each(let item in items)
+			Storage.Cube.MoveTo(item);
+		sleep(500);
+		print('TRANSMUTE');
+		transmute();
+		sleep(500);
+		for each(let item in Storage.Cube.Items)
+			Storage.Stash.MoveTo(item);
+		for each(let item in Storage.Cube.Items)
+			Storage.Inventory.MoveTo(item);
+		for each(let item in tmp)
+			Storage.Cube.MoveTo(item);
+		me.cancel();
+	};
+};

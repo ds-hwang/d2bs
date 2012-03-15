@@ -1,0 +1,69 @@
+js_strict(true);
+
+var Window = function(title,x,y,width,height) {
+	var draging = false;
+	var offX = 0;
+	var offY = 0;
+	var mClick = function(btn,mx,my,up){
+			if (draging && btn == 0 && up) {
+				draging = false;
+				return true;
+			}
+			return false;
+		};
+	var mMove = function(mx,my){
+			if (!draging) return false;
+			this.x = mx-offX;
+			this.y = my-offY;
+			return true;
+		};
+	
+	var bound = bind(mMove,this);
+	addEventListener('mouseclick',mClick);
+	addEventListener('mousemove',bound);
+	
+	var drag = function(unk,x,y){
+		offX = x-this.x;
+		offY = y-this.y;
+		draging = true;
+		return true;
+	};
+	
+	this.bg = new Box(x,y+15,width,height-15);
+	this.handleBg = new Box(x,y,width,15,0,0,0,false,bind(drag,this));
+	this.handleFrame = new Frame(x,y,width,15);
+	this.frame = new Frame(x,y,width,height);
+	this.title = new Text(title,x+5,y+13);
+	this.btnMinimize = new Button('-',x+width-15,y,15,bind(function(){this.minimize(true);return true;},this));
+	
+	this.x = x;
+	this.y = y;
+	this.xsize = width;
+	this.ysize = height;
+	this.controls = [this.bg,this.frame,this.handleFrame,this.handleBg,this.title,this.btnMinimize];
+	
+	this.title.zorder = 2;
+	
+	this.minimize = function(b) {
+		this.btnMinimize.Background.click = bind(function(){this.minimize(!b);return true;},this);
+		this.btnMinimize.text = b ? '+' : '-';
+		for each(let c in this.controls)
+			if (c != this.title && c != this.handleFrame && c != this.handleBg && c != this.btnMinimize)
+				c.visible = !b;
+		this.handleBg.xsize = this.handleFrame.xsize = b ? this.title.width+30 : this.xsize;
+		this.btnMinimize.x = this.x+this.handleFrame.xsize-15;
+	};
+	
+	this.watch('x',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.x += newval-oldval;
+		return newval;
+	});
+	this.watch('y',function(prop,oldval,newval){
+		for each(let c in this.controls)
+			c.y += newval-oldval;
+		return newval;
+	});
+};
+
+//Window.prototype = new BaseControl();

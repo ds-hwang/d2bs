@@ -1,0 +1,15 @@
+js_strict(true);
+/*
+Array.prototype.contains = function(obj) {
+	for each(let v in this)
+		if (v == obj) return true;
+	return false;
+};
+//*/
+/*
+Object.prototype.contains = function(obj) {
+	for each(let v in this)
+		if (v == obj) return true;
+	return false;
+};
+//*/

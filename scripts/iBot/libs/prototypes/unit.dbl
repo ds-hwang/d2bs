@@ -1,0 +1,296 @@
+js_strict(true);
+
+include('constants.dbl');
+
+Unit.prototype.findItems = function findItems(propobj, list) {
+	propobj = propobj || {};
+	propobj.type = Type.Item;
+	return Unit.findUnits(propobj, list || this.getItems());
+};
+Unit.prototype.findItem = function findItem(propobj, list) {
+	var u = this.findItems(propobj, list);
+	return u.length > 0 ? u[0] : undefined;
+};
+
+Unit.prototype.haveWp = function haveWp(id) {
+	if (this != me) throw new Error('Unit need to be self');
+	if (!getUIFlag(UIFlags.Waypoint))
+		throw new Error('Need to be interacted with waypoint to check waypoints');
+	return getWaypoint(getBaseStat(BaseStatTable.levels, id, 'Waypoint'));
+};
+
+Unit.prototype.__defineGetter__('gold',function(){return this.getStat(Stats.Gold) + this.getStat(Stats.StashGold);});
+Unit.prototype.__defineGetter__('goldinventory',function(){return this.getStat(Stats.Gold);});
+Unit.prototype.__defineGetter__('goldstash',function(){return this.getStat(Stats.StashGold);});
+Unit.prototype.__defineGetter__('percentlife',function(){return Math.round(this.hp/this.hpmax*100);});
+Unit.prototype.__defineGetter__('percentmana',function(){return Math.round(this.mp/this.mpmax*100);});
+Unit.prototype.__defineGetter__('durability',function(){return this.getStat(Stats.Durability);});
+Unit.prototype.__defineGetter__('maxdurability',function(){return this.getStat(Stats.MaxDurability);});
+Unit.prototype.__defineGetter__('durabilitypercent',function(){return Math.round(this.durability/this.maxdurability*100);});
+Unit.prototype.__defineGetter__('sockets',function(){return this.getStat(Stats.NumSockets);});
+Unit.prototype.__defineGetter__('quantity',function(){return this.getStat(Stats.Quantity);});
+Unit.prototype.__defineGetter__('poisoned',function(){return this.getState(State.Poison);});
+Unit.prototype.givesSkillBonus = function givesSkillBonus(type,id){
+	for each(let s in this.getStat(-1))
+		if (s[0] == type && s[1] == id) return s[2];
+	return 0;
+};
+
+Unit.prototype.__defineGetter__('inParty', function() {
+	return this.partyid != Party.None;
+});
+Unit.prototype.__defineGetter__('partyid', function() {
+	if (!this.isPlayer) throw new Error('Unit must be a player');
+	for(var p in getParties())
+		if (this.gid == p.gid) return p.partyid;
+	return Party.None;
+});
+Unit.prototype.inSameParty = function inSameParty(unit) {
+	if (!this.isPlayer) throw new Error('Unit must be a player');
+	if (!unit.isPlayer) throw new Error('Called with invalid param unit');
+	return (this.inParty || this == me) && this.partyid == unit.partyid;
+};
+
+Unit.prototype.getParentEx = function getParentEx() {
+	if (this.type != Type.Object) return this.getParent();
+	return Unit.findPlayer({name:this.getParent()});
+};
+
+Unit.prototype.buy = function buyItem(shift, gamble) {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if(getInteractedNPC() == undefined) throw new Error('Must be interacted with an NPC!');
+	if (me.gold < this.getItemCost(0)) throw new Error('We can\'t affort this item.');
+	delay(300);
+	var inv = Storage.Inventory.Items;
+	var blt = Storage.Belt.Items;
+	var gld = me.gold;
+	shift = shift || false;
+	this.shop(shift ? Shop.ShiftBuy : Shop.Buy);
+	doDelay(function(){return me.gold==gld;});
+	doDelay(bind(function(){return this.location==ItemLocation.Trade&&Storage.Inventory.Compare(inv).concat(Storage.Belt.Compare(blt)).length<1;},this));
+	var newItems = Storage.Inventory.Compare(inv).concat(Storage.Belt.Compare(blt));
+	sleep(300);
+	return (this.location != ItemLocation.Trade ? this : (newItems.length > 0 ? newItems[0] : undefined)); // gamble ? Storage.Inventory.Compare(inv)[0] : this;
+};
+Unit.prototype.sell = function sellItem() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if(getInteractedNPC() == undefined) throw new Error('Must be interacted with an NPC!');
+	sleep(300);
+	this.shop(Shop.Sell);
+	//doDelay(bind(function(){return this.location==ItemLocation.Inventory;},this));
+	sleep(300);
+	//doDelay(function(){return me.gold==gld;}); // might be full of gold
+};
+Unit.prototype.drop = function dropItem() {
+	if (this.mode == Mode.Item.OnGround)
+		return true;
+	if (this.toCursor()) {
+		//me.cancel(); // also drops item
+		clickMap(0,0,me.x+2,me.y+2);
+		return dropDelay(this);
+	}
+	return false;
+};
+Unit.prototype.identify = function identify() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if (this.isIdentified) return true;
+	var tome = me.findItem({code:'ibk'});
+	if (!tome) throw new Error('No Tome of Identifying found, cant identify item');
+	if (tome.quantity < 1) Town.Scrolls();// throw new Error('Identify tome is empty');
+	clickItem(1,tome);
+	cursorDelay(CursorType.Identify);
+	clickItem(0,this);
+	return doDelay(bind(function(){return !this.isIdentified;},this),5,1500);
+};
+Unit.prototype.toCursor = function toCursor() {
+	if (!isItem(this)) throw new Error('Called on invalid unit, needs to be item');
+	
+	var atCursor = me.itemoncursor;
+	if (atCursor)
+		if (getUnit(100).gid == this.gid) return true;
+		else throw new Error('Called with another item already on cursor!');
+	clickItem(0, this);
+	return toCursorDelay(this);
+};
+Unit.prototype.Open = function Open() {
+	//if (!getBaseStat(BaseStatTable.objects,this.classid,'lockable'))
+	//	throw new Error('Invalid unit, must be lockable');
+	if (this.mode == Mode.Object.Opened) return true;
+	for(let i=0;i<3;i++) {
+		this.MoveTo();
+		this.interact();
+		if (modeDelay([Mode.Object.Opened],this,false,3000))// doDelay(bind(function(){return this.mode != Mode.Object.Opened},this),10,3000))
+			return true;
+	}
+	return false;
+};
+
+Unit.prototype.MoveTo = function MoveTo(callback) {
+	Pather.MoveToPoint(this, this.area, callback);
+};
+Unit.prototype.MoveToRange = function MoveToRange(range, callback) {
+	Pather.MoveToRange(this, this.area, range, callback);
+};
+
+Unit.prototype.__defineGetter__('isKillable', function() {
+	return getBaseStat('monstats', this.classid, 'killable');
+});
+Unit.prototype.__defineGetter__('isValidTarget', function() {
+	if (this.hp == 0 || this.mode == 12 || this.mode == 0) return false;
+	if (this.getParent()) return false;
+	if (this.isInTown) return false;
+	if (((this.classid >= 110 && this.classid <= 113) || this.classid == 608)  && this.mode == 8) return false; // Ignore flying scavengers
+	if (this.classid == 68 && this.mode == 14) return false; // Ignore burrowing maggots
+	if ((this.classid == 258 || this.classid == 261) && this.mode == 14) return false; // Ignore submerged WaterWatchers		
+	if (this.name == "Baal" && this.area == Area.Act5.ThroneOfDestruction) return false;
+	
+	var BadIDs = new Array(326, 327, 328, 329, 330, 410, 411, 412, 413, 414, 415, 416, 366, 406,
+								351, 352, 353, 266, 408, 516, 517, 518, 519, 522, 523, 543, 543, 545);
+	if (this.classid in oc(BadIDs)) return false;
+	
+	if (this.name == "an evil force" || this.name == "dummy") return false; //Check name to ensure valid
+	return true;
+});
+Unit.prototype.__defineGetter__('isInTown', function() {
+	return this.area in oc(Area.Town);
+});
+Unit.prototype.__defineGetter__('flags', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return this.getFlags();
+});
+Unit.prototype.__defineGetter__('isIdentified', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.Identified);
+});
+Unit.prototype.__defineGetter__('isBroken', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.Broken);
+});
+Unit.prototype.__defineGetter__('isNamed', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.Named);
+});
+Unit.prototype.__defineGetter__('isRuneword', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.Runeword);
+});
+Unit.prototype.__defineGetter__('isStarterItem', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.StarterItem);
+});
+Unit.prototype.__defineGetter__('isEthereal', function() {
+	if(!isItem(this)) throw new Error('Invalid unit, must be an item');
+	return hasFlag(this.flags, ItemFlags.Ethereal);
+});
+Unit.prototype.__defineGetter__('formattedName', function() {
+	if (!isItem(this)) throw new Error('Invalid unit, must be an item');
+	switch(this.quality) {
+		case ItemQuality.Magic: return ColorCode.Blue + this.name + ColorCode.White;
+		case ItemQuality.Set: return ColorCode.Green + this.name + ColorCode.White;
+		case ItemQuality.Rare: return ColorCode.Yellow + this.name + ColorCode.White
+		case ItemQuality.Unique: return ColorCode.Gold + this.name + ColorCode.White;
+		case ItemQuality.Crafted: return ColorCode.Amber + this.name + ColorCode.White;
+	}
+	if (this.isRuneword) return ColorCode.Gold + this.name + ColorCode.White;
+	if (this.isEthereal) return ColorCode.Gray + this.name + ColorCode.White;
+	return 'ÿc0' + this.name + 'ÿc0';
+});
+Unit.prototype.__defineGetter__('isTelekinesable', function() {
+	if (!isItem(this)) throw new Error('Invalid unit, must be an item');
+	if (this.isPot || this.isScroll) return true;
+	switch(this.code) {
+		case 'key': case 'gld': return true;
+	}
+	return false;
+});
+
+Unit.prototype.__defineGetter__('beltSize', function() {
+	var item = me.findItem({bodylocation:BodyLocation.Belt});
+	if (item)
+		switch(item.code) {
+			case 'lbl': case 'vbl': return 2;
+			case 'mbl': case 'tbl': return 3;
+			default: return 4;
+		}
+	return 1;
+});
+
+Unit.prototype.__defineGetter__('ItemAmulet',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Amulet);});
+Unit.prototype.__defineGetter__('ItemArmor',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Armor);});
+Unit.prototype.__defineGetter__('ItemBelt',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Belt);});
+Unit.prototype.__defineGetter__('ItemBoots',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Boots);});
+Unit.prototype.__defineGetter__('ItemGloves',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Gloves);});
+Unit.prototype.__defineGetter__('ItemRHand1',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.RightSlotI);});
+Unit.prototype.__defineGetter__('ItemRHand2',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.RightSlotII);});
+Unit.prototype.__defineGetter__('ItemLHand1',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.LeftSlotI);});
+Unit.prototype.__defineGetter__('ItemLHand2',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.LeftSlotII);});
+Unit.prototype.__defineGetter__('ItemHelm',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.Helm);});
+Unit.prototype.__defineGetter__('ItemLRing',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.LeftRing);});
+Unit.prototype.__defineGetter__('ItemRRing',function(){return (this.location == ItemLocation.Equip && this.bodylocation == BodyLocation.RightRing);});
+
+Unit.prototype.__defineGetter__('equipment', function(){
+	var items = [];
+	for each(let item in this.getItems())
+		if (item.location == ItemLocation.Equip)
+			items.push(item);
+	return items;
+});
+
+Unit.prototype.__defineGetter__('isPot', function() {
+	if (!isItem(this)) return false;
+	return this.isHPPot || this.isMPPot || this.isRVPot || this.isAntiPot || this.isStamPot || this.isThawPot;
+});
+Unit.prototype.__defineGetter__('isHPPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(Categories['healing potions']);
+});
+Unit.prototype.__defineGetter__('isMPPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(Categories['mana potions']);
+});
+Unit.prototype.__defineGetter__('isRVPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(Categories['rejuvenation potions']);
+});
+Unit.prototype.__defineGetter__('isAntiPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(['yps']);
+});
+Unit.prototype.__defineGetter__('isStamPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(['vps']);
+});
+Unit.prototype.__defineGetter__('isThawPot', function() {
+	if (!isItem(this)) return false;
+	return this.code in oc(['wms']);
+});
+
+Unit.prototype.__defineGetter__('isScroll', function() {
+	if (!isItem(this)) return false;
+	return this.isIDScroll || this.isTPScroll;
+});
+Unit.prototype.__defineGetter__('isIDScroll', function() {
+	if (!isItem(this)) return false;
+	return this.code == 'isc';
+});
+Unit.prototype.__defineGetter__('isTPScroll', function() {
+	if (!isItem(this)) return false;
+	return this.code == 'tsc';
+});
+
+Unit.prototype.__defineGetter__('isTome', function() {
+	if (!isItem(this)) return false;
+	return this.isIDTome || this.isTPTome;
+});
+Unit.prototype.__defineGetter__('isIDTome', function() {
+	if (!isItem(this)) return false;
+	return this.code == 'ibk';
+});
+Unit.prototype.__defineGetter__('isTPTome', function() {
+	if (!isItem(this)) return false;
+	return this.code == 'tbk';
+});
+
+Unit.prototype.__defineGetter__('isPlayer', function() {
+	return this.type == Type.Player;
+});

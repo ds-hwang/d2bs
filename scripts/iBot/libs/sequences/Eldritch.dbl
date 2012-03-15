@@ -1,0 +1,12 @@
+js_strict(true);
+
+function Eldritch() {
+	Pather.MoveToArea(Area.Act5.FrigidHighlands);
+	Precast.Precast();
+	Pather.MoveToPoint({x:3750, y:5085},
+		Area.Act5.FrigidHighlands,
+		function(){return !Unit.findMonster({uniqueid:UniqueMonster['Eldritch the Rectifer']});});
+	Attack.Kill(Unit.findMonster({uniqueid:UniqueMonster['Eldritch the Rectifer']}));
+	Pickit.Pick();
+	return true;
+}

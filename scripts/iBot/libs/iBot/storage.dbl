@@ -1,0 +1,190 @@
+js_strict(true);
+
+include('constants.dbl');
+
+var Container = function (name, width, height, location) {
+	this.name = name;
+	this.width = width;
+	this.height = height;
+	this.location = location;
+	this.buffer = [];
+	this.itemList = [];
+	this.openPositions = this.width * this.height;
+	
+	// Initalize the buffer array for use, set all as empty.
+	for (var w=0;w<this.width;w++) {
+		this.buffer.push(new Array());
+		for (var h=0;h<this.width;h++)
+			this.buffer[w][h] = 0;
+	}
+	
+	this.__defineGetter__('Items',function(){ this.Reload(); return this.itemList; /*me.findItems({location:this.location});*/ });
+	
+	/* Container.Mark(item)
+	 *	Marks the item in the buffer, and adds it to the item list. 
+	 */
+	this.Mark = function(item) {
+		//Make sure it is in this container.
+		if (item.location != this.location)// || (item.mode != Mode.Item.PickedUp && item.mode != Mode.Item.InBelt))
+			return false;
+		//Interface.message(DetailedDebug, "Marking " + item.name + "ÿc0 in " + this.name + " buffer.");
+		//Add item to list.
+		this.itemList.push(copyUnit(item));
+		//Mark item in buffer.
+		var itemIndex = this.itemList.length;
+		for(var x=item.x;x<(item.x+item.sizex);x++)
+			for (var y=item.y;y<(item.y+item.sizey);y++) {
+				this.buffer[x][y] = itemIndex;
+				this.openPositions--;
+			}
+		//if (this.location == 0)
+		//	Interface.writeLog("Test.log", JSON.stringify(this.buffer));
+		
+		return true;
+	};
+	
+	this.Reset = function () {
+		for (var w=0;w<this.width;w++)
+			for (var h=0;h<this.height;h++)
+				this.buffer[w][h] = 0;
+		this.itemList = [];
+		return true;
+	};
+	
+	this.Reload = function() {
+		this.Reset();
+		for each(let item in me.findItems({location:this.location}))
+			this.Mark(item);
+	};
+	
+	/* Container.CanFit(item)
+	 *	Checks to see if we can fit the item in the buffer.
+	 */
+	this.CanFit = function(item) { return (!!this.FindSpot(item)); };
+	
+	/* Container.FindSpot(item)
+	 *	Finds a spot available in the buffer to place the item.
+	 */
+	this.FindSpot = function(item) {
+		//Make sure it's a valid item
+		if (!isItem(item)) throw new Error('Need valid item');
+		
+		//Loop buffer looking for spot to place item.
+		for(var x=0;x<this.width-(item.sizex-1);x++) {
+			spotLoop:for(var y=0;y<this.height-(item.sizey-1);y++) {
+				//Loop the item size to make sure we can fit it.
+				for(var nx=0;nx<item.sizex;nx++)
+					for(var ny=0;ny<item.sizey;ny++)
+						if (this.buffer[x+nx][y+ny])
+							continue spotLoop;
+				return {x:x, y:y};
+			}
+		}
+		return false;
+	};
+	
+	/* Container.MoveTo(item)
+	 *	Takes any item and moves it into given buffer.
+	 */
+	this.MoveTo = function(item) {
+		try {
+			//Can we even fit it in here?
+			var nPos = this.FindSpot(item);
+			if (!nPos) return false;
+			
+			//Can't deal with items on ground!
+			if (item.mode == Mode.Item.OnGround) return false;
+			
+			//Pick to cursor if not already.
+			if (!item.toCursor()) return false;
+sleep(1000);
+			clickItem(0,nPos.x,nPos.y,this.location);
+sleep(100);
+			if (fromCursorDelay(item)) {
+				Interface.Display(Message.Debug, 'Successfully placed '+item.name+' at '+nPos.x+', '+nPos.y+' in '+this.name);
+				return true;
+			}
+			Interface.Display(Message.Warning, 'Failed to stash '+item.name+' at '+nPos.x+', '+nPos.y+' in '+this.name);
+			return false;
+		} catch(e) {
+			Interface.Display(Message.Error, 'Something when wrong when moving item '+item.name+' to '+this.name+' ('+e.message+')');
+			return false;
+		}
+	};
+	
+	/* Container.Dump()
+	 *	Prints all known information about container.
+	 */
+	this.Dump = function () {
+		print(this.name+' has the width of '+this.width+' and the height of '+this.height);
+		print(this.name+' has '+ this.itemList.length+' items inside, and has '+this.openPositions+' spots left.');
+		for(var y=0;y<this.height;y++) {
+			var string = '';
+			for(var x=0;x<this.width;x++)
+				string += (this.buffer[x][y] > 0) ? 'ÿc1x' : 'ÿc0o';
+				//string += (this.buffer[x][y] > 0) ? 'ÿc1'+this.buffer[x][y].toString().padLeft(2,' ') : 'ÿc0 0';
+			print(string);
+		}
+		debugLog(this.toSource());
+	};
+	
+	/* Container.compare(reference)
+	 *	Compare given container versus the current one, return all new items in current buffer.
+	 */
+	this.Compare = function(oldList) {
+		var ret = [];
+		Next:for each(let i in this.Items) {
+			for each(let j in oldList)
+				if (i.gid == j.gid) continue Next;
+			ret.push(i);
+		}
+		return ret;
+	};
+	
+	this.toSource = function() {
+		return this.buffer.toSource();
+	};
+}
+
+var Storage = new function () {
+	this.Inventory = new Container('Inventory', 10, 4, ItemLocation.Inventory);
+	this.Stash = new Container('Stash', 6, 8, ItemLocation.Stash);
+	this.Belt = new Container('Belt', 16, 1, ItemLocation.Belt);
+	this.Cube = new Container('Horadric Cube', 3, 4, ItemLocation.Cube);
+	
+	this.__defineGetter__('Items',function(){
+		return this.Inventory.Items.concat(this.Stash.Items,this.Belt.Items,this.Cube.Items);
+	});
+	
+	this.Init = function() {
+		this.Reload();
+		
+		addEventListener('itemaction', function(gid, mode, code, global){
+			var item = getUnit(Type.Item, code, null, gid);
+			if (!item) return;
+			switch(item.location) {
+				case ItemLocation.Inventory:
+					Storage.Inventory.Reload(); break;
+				case ItemLocation.Stash:
+					Storage.Stash.Reload(); break;
+				case ItemLocation.Belt:
+					Storage.Belt.Reload(); break;
+				case ItemLocation.Cube:
+					Storage.Cube.Reload();
+			}
+		});
+	};
+	this.Reload = function () {
+		this.Inventory.Reload();
+		this.Stash.Reload();
+		this.Belt.Reload();
+		this.Cube.Reload();
+	};
+	
+	this.Dump = function() {
+		this.Inventory.Dump();
+		this.Stash.Dump();
+		this.Belt.Dump();
+		this.Cube.Dump();
+	};
+}

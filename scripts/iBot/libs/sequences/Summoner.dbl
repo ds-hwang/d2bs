@@ -1,0 +1,11 @@
+js_strict(true);
+
+function Summoner() {
+	Pather.MoveToArea(Area.Act2.ArcaneSanctuary);
+	Precast.Precast();
+	var p = PresetUnit.findObject({id:UniqueId['Horazon\'s Journal']});
+	var u = p.GetUnit({type:Type.Monster,classid:Monster['Summoner']});
+	Attack.Kill(u);
+	Pickit.Pick();
+	return true;
+}

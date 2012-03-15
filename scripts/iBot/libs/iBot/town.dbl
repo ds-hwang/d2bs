@@ -1,0 +1,252 @@
+js_strict(true);
+
+include('constants.dbl');
+include('prototypes.dbl');
+include('iBot/path.dbl');
+
+var Town = new function() {
+	this.Tick = function Tick() {
+		//Interface.Display(Message.Info, 'Doing some town management.');
+		this.CleanBelt();
+		this.Identify();
+		this.Sell(true);
+		this.Tomes(true);
+		this.Scrolls(true);
+		this.Pots(true);
+		this.Heal(true);
+		this.Keys(true);
+		this.Repair(true);
+		this.Merc();
+		Cube.Check();
+		this.Stash();
+		me.cancel();
+		//Interface.Display(Message.Info, 'Ready to rock n\' roll!');
+	};
+	
+	this.Return = function(/*params func*/) {
+		var portal;
+		if (!me.isInTown)
+			portal = me.TakePortal();
+		for(let i=0;i<arguments.length;i++)
+			arguments[i].apply(this);
+		if (portal) {
+			portal.MoveTo();
+			me.TakePortal(portal.objtype);
+		}
+	};
+	
+	this.NeedTown = function NeedTown() {
+		return this.NeedIdentify() || this.NeedSell() || this.NeedTomes() || this.NeedScrolls() ||
+			this.NeedKeys() || this.NeedPots() || this.NeedHeal() || this.NeedStash() || this.NeedMerc();
+	};
+	/* Heal */
+	this.NeedHeal = function NeedHeal() {
+		return me.percentlife < Interface.Config('General','MinHpPercent',80) ||
+			me.percentmana < Interface.Config('General','MinMpPercent',70) ||
+			me.poisoned;
+	};
+	this.Heal = function Heal(keepOpen) {
+		if (!this.NeedHeal()) return;
+		Interface.Display(Message.Info, 'Healing');
+		NPC.Heal(keepOpen);
+	};
+	/* Pots */
+	this.NeedPots = function NeedPots() {
+		var beltConfig = Interface.Config('General','Belt','hhmr');
+		for(let i=0;i<4;i++)
+			for(let j=0;j<me.beltSize;j++)
+				if (!Storage.Belt.buffer[i+j*4][0] && beltConfig[i] != 'r')
+					return true;
+		return false;
+	};
+	this.Pots = function Pots(keepOpen) {
+		if (!this.NeedPots()) return;
+		Interface.Display(Message.Info, 'Getting some pots');
+		var beltConfig = Interface.Config('General','Belt','hhmr');
+		var hp = 0, mp = 0;
+		for(let i=0;i<4;i++)
+			for(let j=0;j<me.beltSize;j++)
+				if (!Storage.Belt.buffer[i+j*4][0])
+					switch(beltConfig[i]) {
+						case 'h': hp++; break;
+						case 'm': mp++; break;
+					}
+		if (hp > 0) NPC.BuyPot('hp',hp,false,true);
+		if (mp > 0) NPC.BuyPot('mp',mp,false,true);
+		if (!keepOpen) me.cancel();
+	};
+	/* Tomes */
+	this.NeedTomes = function NeedTomes() {
+		return this.NeedIdTome() || this.NeedTpTome();
+	};
+	this.NeedIdTome = function NeedIdTome() {
+		return !me.findItem({code:'ibk'}); // Can be used from anywhere (be sure to be in town if using from stash!)
+	};
+	this.NeedTpTome = function NeedTpTome() {
+		return !me.findItem({code:'tbk',location:[ItemLocation.Inventory,ItemLocation.Cube]}); // Can be used from Cube
+	};
+	this.Tomes = function Tomes(keepOpen) {
+		if (!this.NeedIdTome() && !this.NeedTpTome()) return;
+		Interface.Display(Message.Info, 'Getting some tomes');
+		if (this.NeedIdTome()) NPC.BuyTome('id',true);
+		if (this.NeedTpTome()) NPC.BuyTome('tp',true);
+		if (!keepOpen) me.cancel();
+	};
+	/* Scrolls */
+	this.NeedScrolls = function NeedScrolls() {
+		return this.NeedIdScrolls() || this.NeedTpScrolls();
+	};
+	this.NeedIdScrolls = function NeedIdScrolls() {
+		return !this.NeedIdTome() && me.findItem({code:'ibk'}).quantity < Interface.Config('General','MinIdScrolls',5);
+	};
+	this.NeedTpScrolls = function NeedTpScrolls() {
+		return !this.NeedTpTome() && me.findItem({code:'tbk',location:[ItemLocation.Inventory,ItemLocation.Cube]}).quantity < Interface.Config('General','MinTpScrolls',5);
+	};
+	this.Scrolls = function Scrolls(keepOpen) {
+		if (!this.NeedIdScrolls() && !this.NeedTpScrolls()) return;
+		Interface.Display(Message.Info, 'Getting some scrolls');
+		if (this.NeedIdScrolls()) NPC.BuyScroll('id',true,true);
+		if (this.NeedTpScrolls()) NPC.BuyScroll('tp',true,true);
+		if (!keepOpen) me.cancel();
+	};
+	/* Keys */
+	this.NeedKeys = function NeedKeys() {
+		var key = me.findItem({code:'key',location:ItemLocation.Inventory});
+		if (!key) return Interface.Config('General','MinKeys',3) > 0;
+		return key.quantity < Interface.Config('General','MinKeys',3);
+	};
+	this.Keys = function Keys(keepOpen) {
+		if (!this.NeedKeys()) return;
+		Interface.Display(Message.Info, 'Getting some keys');
+		NPC.BuyKey(true,true);
+		if (!keepOpen) me.cancel();
+	};
+	/* Repair */
+	this.NeedRepair = function NeedRepair() {
+		var minDura = Interface.Config('General','MinDurabilityPercent',50);
+		for each(let item in me.equipment)
+			if (item.durabilitypercent < minDura && !item.isEthereal)
+				return true;
+		return false;
+	};
+	this.Repair = function Repair(keepOpen) {
+		if (!this.NeedRepair()) return;
+		Interface.Display(Message.Info, 'Repairing');
+		NPC.RepairAll(keepOpen);
+		if (!keepOpen) me.cancel();
+	};
+	/* Identify */
+	this.NeedIdentify = function NeedIdentify() {
+		for each(let item in Storage.Inventory.Items)
+			if (!item.isIdentified && !Pickit.checkItem(item, true))
+				return true;
+		return false;
+	};
+	this.NeedIdentifyAll = function NeedIdentifyAll() {
+		var identList = [];
+		for each(let item in Storage.Inventory.Items)
+			if (!item.isIdentified)
+				if (Pickit.checkItem(item, true)) return false;
+				else identList.push(item);
+		return identList.length > 0;
+	};
+	this.Identify = function Identify() {
+		if (!this.NeedIdentify()) return;
+		Interface.Display(Message.Debug, 'Identifying items');
+		
+		var identList = [];
+		var skipList = [];
+		for each(let item in Storage.Inventory.Items)
+			if (!item.isIdentified)
+				if (Pickit.checkItem(item, true))
+					skipList.push(item);
+				else identList.push(item);
+		
+		if (identList.length > 0)
+			if (skipList.length < 1) NPC.IdentifyAll();
+			else identList.forEach(function(item){item.identify();});
+	};
+	/* Sell */
+	this.NeedSell = function NeedSell() {
+		var invConfig = Interface.Config('General','Inventory',[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]]);
+		for each(let item in Storage.Inventory.Items)
+			if (invConfig[item.y][item.x] == 0)
+				if (!Pickit.checkItem(item))
+					return true;
+		return false;
+	};
+	this.Sell = function Sell(keepOpen) {
+		if (!this.NeedSell()) return;
+		Interface.Display(Message.Info, 'Selling items');
+		var invConfig = Interface.Config('General','Inventory',[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]]);
+		Storage.Inventory.Items.forEach(function(item){
+			if (invConfig[item.y][item.x] == 0)
+				if (!Pickit.checkItem(item))
+					NPC.Sell(item,true);
+		});
+		if (!keepOpen) me.cancel();
+	};
+	/* Stash */
+	this.NeedStash = function NeedStash() {
+		var invConfig = Interface.Config('General','Inventory',[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]]);
+		for each(let item in Storage.Inventory.Items)
+			if (invConfig[item.y][item.x] == 0)
+				if (Pickit.checkItem(item, true))
+					return true;
+		return me.goldinventory > Interface.Config('General','StashGoldOver',200000);
+	};
+	this.Stash = function Stash() {
+		if (!this.NeedStash()) return;
+		me.cancel();
+		Interface.Display(Message.Info, 'Stashing');
+		Pather.MoveToTown();
+		
+		var invConfig = Interface.Config('General','Inventory',[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0]]);
+		Storage.Inventory.Items.forEach(function(item){
+			if (invConfig[item.y][item.x] == 0)
+				if (Pickit.checkItem(item, true))
+					Storage.Stash.MoveTo(item);
+		});
+		if (me.goldinventory > Interface.Config('General','StashGoldOver',200000) && me.goldstash < 2500000) {
+			Interface.Display(Message.Info, 'Depositing gold');
+			var u = PresetUnit.findObject({id:UniqueId['Bank']}).GetUnit();
+			u.MoveTo();
+			u.interact();
+			UIDelay(UIFlags.Stash);
+			gold(me.goldinventory,3);
+			sleep(500);
+			me.cancel();
+		}
+	};
+	/* Merc */
+	this.NeedMerc = function NeedMerc() {
+		return !me.getMerc() && Interface.Config('General','UseMerc',true);
+	};
+	this.Merc = function Merc() {
+		if (!this.NeedMerc()) return;
+		Interface.Display(Message.Info, 'Getting my merc');
+		NPC.ResurectMerc();
+	};
+	/* Belt */
+	this.CleanBelt = function CleanBelt() {
+		var beltConfig = Interface.Config('General','Belt','hhmr');
+		Storage.Belt.Items.forEach(function(item){
+			switch(beltConfig[item.x % 4]) {
+				case 'h': if (!item.isHPPot) item.drop(); break;
+				case 'm': if (!item.isMPPot) item.drop(); break;
+				case 'r': if (!item.isRVPot) item.drop(); break;
+			}
+		});
+	};
+	/* Corpse */
+	this.CheckCorpse = function CheckCorpse() {
+		var u;
+		while((u = Unit.findUnit({name:me.name,hpmax:0}))) {
+			if (!u) return;
+			me.setWeaponSwitch(0);
+			u.MoveTo();
+			u.interact();
+			sleep(1000);
+		}
+	};
+};

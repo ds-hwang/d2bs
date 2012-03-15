@@ -1,0 +1,3 @@
+Big credits go to lord2800 and McGod for there awesome work on aibot and mBot!
+
+There work can be found here: http://www.assembla.com/code/d2bs/subversion/nodes/scripts

@@ -1,0 +1,24 @@
+js_strict(true);
+
+var Mode = {}
+
+Mode.GameEvent = {Join:2,Leave:3,Killed:6,Party:7};
+Mode.GameEvent.PartyAction = {Invite:5,CancelInvite:6,JoinParty:7,MeJoinParty:8};
+
+Mode.Player = {Death:0, Neutral:1, Walk:2, Run:3, GetHit:4, TownNeutral:5, TownWalk:6, Attack1:7, Attack2:8, Block:9, Cast:10,
+Throw:11, Kick:12, Skill1:13, Skill2:14, Skill3:15, Skill4:16, Dead:17, Sequence:18, KnockBack:19};
+
+Mode.Player.Group = {Neutral:[Mode.Player.Neutral, Mode.Player.TownNeutral], Move:[Mode.Player.Walk, Mode.Player.TownWalk, Mode.Player.Run, Mode.Player.Cast],Attack:
+[Mode.Player.Attack1, Mode.Player.Attack2, Mode.Player.Cast, Mode.Player.Throw, Mode.Player.Kick, Mode.Player.Skill1, Mode.Player.Skill2, Mode.Player.Skill3, Mode.Player.Skill4],
+Death:[Mode.Player.Death, Mode.Player.Dead], Hit:[Mode.Player.GetHit, Mode.Player.Block, Mode.Player.Sequence, Mode.Player.KnockBack]}
+
+Mode.Monster = {Death:0, Neutral:1, Walk:2, GetHit:3, Attack1:4, Attack2:5, Block:6, Cast:7, Skill1:8, Skill2:9, Skill3:10, Skill4:11, Dead:12,
+Knockback:13, Sequence:14, Run:15};
+
+Mode.Monster.Group = {Neutral:[Mode.Monster.Neutral], Move:[Mode.Monster.Walk], Death:[Mode.Monster.Death, Mode.Monster.Dead], Attack:[Mode.Monster.Attack1,
+Mode.Monster.Attack2, Mode.Monster.Cast, Mode.Monster.Skill1, Mode.Monster.Skill2, Mode.Monster.Skill3, Mode.Monster.Skill4]};
+
+Mode.Object = {Neutral:0, Operating:1, Opened:2, Special1:3, Special2:4, Special3:5, Special4:6, Special5:7};
+
+Mode.Item = {PickedUp:0,Equipped:1,InBelt:2,OnGround:3,OnCursor:4,BeingDropped:5,InSocket:6}
+Mode.Item.Group = {Ground:[Mode.Item.OnGround, Mode.Item.BeingDropped], Picked:[Mode.Item.PickedUp, Mode.Item.Equipped, Mode.Item.InBelt, Mode.Item.OnCursor, Mode.Item.InSocket]};

@@ -1,0 +1,16 @@
+js_strict(true);
+
+include('common/js.dbl');
+
+function sleep(milliseconds) {
+	require([{valid: function greaterThanZero(x){ return x > 0; }}], arguments);
+	delay(Math.round(milliseconds + (me.ping/2) + (30 - Math.min(30, me.fps)) * 10));
+	return true;
+}
+
+function oc(arr) {
+	var o = {};
+	for(var k in arr)
+		o[arr[k]] = '';
+	return o;
+}
