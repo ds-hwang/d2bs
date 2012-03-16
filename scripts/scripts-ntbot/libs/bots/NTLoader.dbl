@@ -33,8 +33,14 @@ function NT_Loader()
 	var scriptFunction = false;
 	var errorText = "";
 	
+	// Remove non-string elements;
+	NTConfig_Script = NTConfig_Script.filter(
+		function isString(element) {
+			return typeof(element) == "string";
+		});
+	
 	for (var i = 0; i < NTConfig_Script.length; i++)
-	{ 
+	{ 		
 		scriptName = 'NT'+ NTConfig_Script[i] +'.dbl';
 		scriptFunction = 'NT_'+ NTConfig_Script[i];
 		
