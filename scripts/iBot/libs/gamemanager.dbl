@@ -25,7 +25,6 @@ var GameManager = new function() {
 	this.oogWindowName = '';
 	this.MaxGameTime = Interface.Config('General','MaxGameTime',700);
 	this.MinGameTime = Interface.Config('General','MinGameTime',190);
-	this.gameStartTime = 0;
 	this.nextCheck = 0;
 	this.Profile = undefined;
 	this.lastHeartBeat = 0;
@@ -95,7 +94,6 @@ var GameManager = new function() {
 							this.Log('Creating game, '+gname);
 							createGame(gname,this.Profile.GamePass,this.Profile.GameDiff);
 							this.nextCheck = new Date().getTime()+this.MinGameTime*1000;
-							this.gameStartTime = new Date().getTime();
 							break;
 						case GameLocation.GameExist:
 						case GameLocation.GameDoesNotExist:
@@ -135,19 +133,19 @@ var GameManager = new function() {
 							break;
 						default: // anywhere else
 							if(me.ingame) {
-								if (this.gameStartTime+this.MaxGameTime*1000<(new Date().getTime())) {
+								var gameStartTime = new Date().getTime()-(getTickCount()-me.gamestarttime);
+								if (gameStartTime+this.MaxGameTime*1000<(new Date().getTime())) {
 									Interface.Display(Message.Warning, 'MaxGameTime reached ('+this.MaxGameTime+'s), quitting game.');
 									this.Log('Max game time reached ('+this.MaxGameTime+'s), quitting game.');
 									quit();
 								}
-								delay(1000);
+								this.nextCheck = new Date().getTime()+1000;
 								break;
 							}
 							
 							Interface.Display(Message.Error, 'We got lost, location '+getLocation()+', quitting game!');
 							this.Log('We got lost, location '+getLocation()+', quitting game!');
 							quitGame();
-							delay(1000);
 							break;
 					}
 			} catch(e) {
