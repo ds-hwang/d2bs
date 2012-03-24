@@ -141,6 +141,7 @@ GlobalCheckBoxArray.push (this);
 
 this.box.click = function (b, x, y) { 
 // empty function that just blocks the click
+return true;
 	}
 
 

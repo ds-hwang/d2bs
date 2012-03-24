@@ -418,7 +418,7 @@ function ShowConfig() {
 	var fullLeaders = []
 	for (var l = 0; l < NT_Leader.length; l++) { fullLeaders.push(NT_Leader[l]) }
 	for (var q = 0; q < QuitWithLeaderList.length; q++) { fullLeaders.push(QuitWithLeaderList[q]) }
-	var p = getParty();
+	var a = getParty();
 	if (a) {
 		do {
 			if (a.name != "") fullLeaders.push (a.name)
@@ -481,7 +481,7 @@ function ShowConfig() {
 								 
 		  this.MainTabControl.box.opacity =2
 		  this.MainTabControl.box.color = 0
-		  this.MainTabControl.box.click = function () { };
+		  this.MainTabControl.box.click = function () {return true; };
 
 
 }
