@@ -35,7 +35,7 @@ var appendLogFile = 'logs/TEST_LOG_'+ me.charname.toUpperCase() +'.log';
 var myUnit;
 
 
-addEventListener('keydown',
+addEventListener('keyup',
 	function(key)
 	{
 		if(key >= 96 && key <= 105)	//if(key is a numpad key)
