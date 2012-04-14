@@ -1,0 +1,10 @@
+
+entryFunc = InvRipper;
+
+function InvRipper() {
+    
+    load("tools/invripper.dbj");
+    delay(15000);
+    while(getScript("tools/invripper.dbl")) delay(1000);
+    dprint("InvRipper Done.",8);
+}

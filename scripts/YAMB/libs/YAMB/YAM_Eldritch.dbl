@@ -13,6 +13,7 @@ function EXP_AttackEldritch() {
     } else {
         commPather.GotoDest(3750 - EXP_OffsetX,5084 - EXP_OffsetY, false, false, openDoor);
     }
+    
 	// Detecting Eldritch with 3 retries to be sure to get the target
 	for (var i = 0; i < 3; i+=1) {
 		var target = DC_FindMonster(453,0x01);
@@ -80,9 +81,9 @@ function EldritchXP() {
 	XP_QuitImmune = EXP_QuitImmune;
 	XP_StallKill = EXP_StallKill;
 	XP_MinionStand = true;
-	if (me.classid == 3) {
-		XP_KillMinions = false;
-	}
+	//if (me.classid == 3) {
+		//XP_KillMinions = false;
+	//}
 	if (me.classid == 2 && (XP_useSkel||XP_useSkelMage) && XP_BuildSkeleArmy) {
 		BuildSkeleArmy();
 	}

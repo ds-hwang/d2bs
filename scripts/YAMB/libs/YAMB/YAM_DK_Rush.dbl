@@ -642,13 +642,13 @@ function Diablo() {
     var InfectorOfSouls = false;
     
     for(var cid = 396; cid > 391; cid--) {
-        pathtoFarUnit(2,cid,108,killSuperUniques);
+        pathtoFarUnit(2,cid,108); //,killSuperUniques);
         openObjectID(cid);
-        killRadius(30);
+        //killRadius(30);
         if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
         if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
         if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
-        killRadius(30,null,5);
+        //killRadius(30,null,5);
     }
     
     say("Come get Quest while I kill Diablo!");

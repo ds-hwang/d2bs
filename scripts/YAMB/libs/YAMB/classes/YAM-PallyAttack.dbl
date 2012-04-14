@@ -66,7 +66,13 @@ function XP_BossAttack(target) {
 	var prvHP = target.hp;
 
 	_XP_AttackCompleted=0;
-
+    
+    
+    if(XP_PallyAttack == 107) {
+        DC_PutSkill(XP_PallyAura,0);
+        return Charge(target);
+    }
+    
 	// move to get close to the target
 	if (me.area != 74 && (XP_PallyAttack != 101 || XP_PallyAttack != 121)){ //Darien, don't move closer in arcane, walk bots get stuck
 		//if a Hammerdin doesn't have tele, stay put... otherwise teleport onto the target
@@ -113,6 +119,7 @@ function XP_BossAttack(target) {
 		if (XP_CheckUtil(target))
 			break;
 	}
+    return 0;
 }
 
 // checking monster ID and set the flag for it.
@@ -285,6 +292,8 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 	var attprev = _XP_AttackCompleted;
 	// Set aura on the right hand
 	DC_PutSkill(XP_PallyAura,0);
+    if(XP_PallyAttack == 107) return Charge();
+    
 	while (monster.hp > 0 && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) &&	DA_GetRange(monster) < range){
 		if (XP_PallyAttack == 101){ // holy bolt attack
 			if (getBaseStat(1,monster.classid,16) || getBaseStat(1,monster.classid,17)){ // only attack if target is undead.

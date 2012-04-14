@@ -4,7 +4,7 @@
 entryFunc = Baal;
 include("YAMB/configs/YAM_TeamBotting.dbl");
 var myLeader = 0;
-var leaderName=false; 
+var leaderName=false;
 var LeaderPartyUnit = false;
 
 function DK_GameMsgHandler(who, msg) {
@@ -36,6 +36,7 @@ function Baal() {
         if(!leaderName) DC_QuitMessage("Leader is not in game!");
         if(LeaderPartyUnit) dprint("Leaders Name is: " + LeaderPartyUnit.name + " Area: " + LeaderPartyUnit.area);
     }
+    calcBXP_Ranged();
     YAM_TownManager();
     if(me.act != 5 || YAM_IsLeader) {
         YAM_PathToWayPoint();
@@ -138,8 +139,11 @@ function Baal() {
             if(killRadius(30)) {
                 var count = 0;
                 DSN_PickItems();
-                if(me.classid) pathToDest(15092,5026);
-                else pathToDest(15092,5045);
+                if(!BXP_Ranged) pathToDest(15092,5026);
+                else {
+                    if(BXP_Ranged == 2) pathToDest(15092,5040);
+                    else pathToDest(15092,5045);
+                }
                 killRadius(30);
                 delay(2500);
                 killRadius(30);
@@ -199,7 +203,25 @@ function Baal() {
     endGame();
 }
 
+function calcBXP_Ranged() {
+    //charged strike zon
+    if(!me.classid) {
+        for (var x = 0; x < XP_JavAttack.length; x+=1) {
+            if(XP_JavAttack[x] == 24) BXP_Ranged = false;
+        }
+    }
+    //any sorc
+    if(me.classid == 1) BXP_Ranged = 2;
+    //charger paladin
+    if(me.classid == 3 && XP_PallyAttack == 107) BXP_Ranged = 2;
+}
+
+
 function endGame() {
+
+    pathToDest(15136,5942);
+    if(YAM_IsLeader) XP_OpenTP();
+    
     //Find and Kill Baal
     Assassinate(544, 544, 4);
     DSN_PickItems();
@@ -239,8 +261,10 @@ function clearThrone() {
         moveFunc(15115,5026); // Near midsection
         killRadius(30); 
     }
-    if(me.classid) moveFunc(15092,5028); // Middle
-    else moveFunc(15092,5040);
+    if(!BXP_Ranged) moveFunc(15092,5028); // Middle
+    else {
+        if(BXP_Ranged == 2) pathToDest(15092,5040);
+        else pathToDest(15092,5045);
+    }
     killRadius(30); DSN_PickItems();
-    
 }

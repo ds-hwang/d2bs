@@ -318,6 +318,8 @@ function clearPath() {
 //Darien -- Kill those in within a certain range
 function killRadius(range, type, spectype) {
 
+    if(me.classid == 3 && XP_PallyAttack == 107) return Charge(type);
+
     var krx = me.x;
     var kry = me.y;
     
@@ -336,8 +338,8 @@ function killRadius(range, type, spectype) {
             case 0: 
             case 1: 
             case 2: XP_AttackMonster(threat,range); break;
-            case 3: 
-            case 4: XP_BossAttack(threat); break;
+            case 3: XP_BossAttack(threat); break;
+            case 4: 
             case 5: XP_AttackMonster(threat,range); break;
             case 6: XP_BossAttack(threat); break;
         }
@@ -345,6 +347,87 @@ function killRadius(range, type, spectype) {
     }
     
     pathToDest(krx, kry);
+    return true;
+}
+
+// Paladin Charge Attack function
+function Charge(classid) {
+
+    //Cast Holy Shield if needed
+    if(!me.getState(101) && me.mp > 30) {
+        DC_DoCast(117,0);
+    }
+    
+    var mons = getUnit(1,classid);
+    if(mons.spectype == 4) classid = copyUnit(mons);
+    DC_PutSkill(XP_PallyAura,0);
+    
+    // Attack Sequence for Boss or when argument is an object;
+    if(typeof(classid) == "object") {
+        
+        dprint("Boss Attacking: " + classid.name, 2);
+        while(classid.hp > 0) {
+            if(checkCollision(me,classid,1<<0)) DC_DoCast(107,1,classid);
+            else if(getDistance(classid) > 6) {
+                pathToDest(classid.x,classid.y);
+                DC_DoCast(107,2,classid);
+                while(classid.mode == 13) {
+                    dprint("Charge Again!!",2);
+                    DC_DoCast(107,2,classid);
+                }
+            }
+            DC_DoCast(107,1,classid);
+            //DC_PutSkill(0,1);
+            
+            var sx = classid.x + (rnd(-1,1)*7);
+            var sy = classid.y + (rnd(-1,1)*7);
+            //if(getDistance(classid) < 4 && DP_IsWalkable(sx, sy)) {
+                dprint("Position for Charge",9);
+                DM_MoveTo(sx,sy);
+            //}
+        }
+        return true;
+    }
+    
+    //Attack Sequence for general or classid specific monsters
+    while(mons) {
+        var _targets = 0;
+        if (mons) do {
+            if(me.getState(55)) {
+                dprint("Iron Maiden! -- no attack switch to Cleansing!",1)
+                DC_PutSkill(109,0);
+                return false;
+            }
+            if (ValidMonster(mons) && canAttack(mons,false)) {
+                var distance = getDistance(mons);
+                if (distance < 25 && distance > 3) {
+                    _targets++;
+                    DC_DoCast(107,2,mons);
+                    while(mons.mode == 13) {
+                        dprint("Charge Again!!",2);
+                        DC_DoCast(107,2,mons);
+                        while(me.mode == 18) delay(50);
+                    }
+                    //DC_PutSkill(0,1);
+                }
+            }
+            delay(10);
+        } while(mons.getNext(classid));
+        
+        mons = returnClosestThreat(25, classid);
+        //if(!mons) return true;
+        //if(!_targets && returnClosestThreat(5, classid)) {
+        if(mons && !_targets) {
+            var sx = me.x + (rnd(-1,1)*4);
+            var sy = me.y + (rnd(-1,1)*4);
+            //if(DP_IsWalkable(sx, sy)) {
+                dprint("Everyone is too Close! Getting Distance",9);
+                DM_MoveTo(sx,sy);
+            //}
+        }
+        if(!mons || mons == null) return true;
+        dprint("mons is defined",2);
+    }
     return true;
 }
 
@@ -367,7 +450,7 @@ function returnClosestThreat(range, classid, spectype, who) {  //add argument at
 	var closestMON = false;
 	if (mons) do {
 		if (ValidMonster(mons) && canAttack(mons,useRanged)) {
-			var distance = getRange(who,mons);
+			var distance = getDistance(who,mons);
 			if (distance < closest_dist) {
                 if(spectype && spectype != "null") {
                     if(mons.spectype == spectype) {
@@ -458,18 +541,19 @@ function clearArea(Search_n_Destroy) {
 
 function returnRoomPointArray() {
     var roomArray = new Array();
-    dprint("This may take a while!",1);
+    dprint("If this take a long time, check processor affinity box in OOG's Advanced Settings tab!",1);
     var room = getRoom();
     
     if(room) do {
         var centerX = room.x * 5 + (Math.floor(room.xsize/2));
         var centerY = room.y * 5 + (Math.floor(room.ysize/2));
-        var center = DP_FindClosestWalkable(centerX,centerY);
+        var center = DP_FindClosestWalkable(centerX,centerY,me.area,45,5);
         var roomPoint = new Object;
             roomPoint.x = center.x;
             roomPoint.y = center.y;
             roomPoint.number = room.number;
         roomArray.push(roomPoint);
+        dprint("Adding room number: " + room.number + " to the Pathing Array",8);
     } while(room.getNext());
     
     return roomArray;
@@ -541,14 +625,17 @@ function ambushSpawn(cid) {
     return true;
 }
 
-function headCount(range) {  //returns number of monsters
+function headCount(range, one) {  //returns number of monsters
     
     var mons = getUnit(1);
     var count = 0;
     
 	if (mons) do {
         var distance = getRange(me,mons);
-		if (ValidMonster(mons) && canAttack(mons) && distance < range) count++;
+		if (ValidMonster(mons) && canAttack(mons) && distance < range) {
+            if(arguments.length > 1) return mons;
+            else  count++;
+        }
 	}while(mons.getNext());
     //if(me.area == 74) 
     print("Monsters in group: " + count);

@@ -22,8 +22,9 @@ var XP_BowNumber=new Array();
 var XP_JavNumber=new Array();
 var weaponGID=0;
 
-AXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
-SXP_Kamikaze = false;     // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
+AXP_Kamikaze = false;       // More aggressive and dangerous attacks toward Andy. MUST BE TRUE.
+SXP_Kamikaze = false;       // More aggressive and dangerous attacks toward Shenk. MUST BE TRUE.
+BXP_Ranged = true;          // Baal Setting - Set false if using Charged Strike or other non-Ranged Attack.
 
 ///////////////////////////////////// Common functions ////////////////////////////////////////
 
@@ -230,7 +231,7 @@ function XP_BossAttack(target) {
 
 function equipItem(_type1,_type2,_type3) {
     // If we want to switch to a specific Item
-    _weapon = DC_getMyItem();
+    var _weapon = DC_getMyItem();
     if (_weapon) {
         do {
             if (_weapon.mode==1 && (_weapon.itemType == _type1 || _weapon.itemType == _type2 || _weapon.itemType == _type3)) {
@@ -409,6 +410,7 @@ function simpleAttack(monster,range,x,y,attackSkills) {
                 for (x = 1; x <= XP_JavNumber[y]; x+=1) {
                     var targit = commPather.GetSafeOffScreenXY(me.x,me.y,monster.x,monster.y); // darien
                     if(targit) {
+                        if(getDistance(monster) > 4 && XP_JavAttack[x] == 24) DM_MoveTo(monster.x,monster.y);
                         if (me.mp > ManaCost(XP_JavAttack[y])) DC_DoCast(XP_JavAttack[y],hand,targit.x,targit.y);
                         else DC_DoCast(0,hand,targit.x,targit.y);
                         print("Safe Shot at: " + monster.name + " dist of: " + getRange(monster) + " life: " + monster.hp);
@@ -428,7 +430,7 @@ function simpleAttack(monster,range,x,y,attackSkills) {
             }
         }
     }
-    if(XP_PickupShield) equipItem(2);
+    if(!XP_JavAttack.length && XP_PickupShield) equipItem(2);
     DSN_PickItems();
     return true;
 }
@@ -437,7 +439,7 @@ function simpleAttack(monster,range,x,y,attackSkills) {
 
 function XP_AttackMonster(monster,range,x,y,attackSkills) {
 
-    return simpleAttack(monster,range,x,y,attackSkills);
+    return simpleAttack(monster,range,x,y,attackSkills); // Darien
     
 	var hand;
 	var attempted = false;

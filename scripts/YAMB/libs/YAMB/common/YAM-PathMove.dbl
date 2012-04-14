@@ -1330,7 +1330,8 @@ function DP_IsWalkable( pX, pY, pArea ) {
     return retval;
 }
 
-function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
+function DP_FindClosestWalkable(pX, pY, pArea, pRange, res) {
+    if( arguments.length < 5 ) res = 1;
 	//DP_DPrint("DP_FindClosestWalkable() -> X = " + pX + ", Y = " + pY);
 	// If the original coords is walkable, return as is
 	if( DP_IsWalkable( pX, pY, pArea ) ) {
@@ -1339,19 +1340,23 @@ function DP_FindClosestWalkable(pX, pY, pArea, pRange) {
 	}
 	// If the range is not given, use infinite as range
 	if( arguments.length < 4 ) { pRange = 9999; }
-	// Loops until we find the closest walkable within range
-	var _distance = 0;
-	while ( _distance <= pRange ) {
-		for( var vy = -1 - _distance; vy < 2 + _distance; vy += 1 ) {
-			for( var vx = -1 - _distance; vx < 2 + _distance; vx += 1 ) {
-				if( DP_IsWalkable( pX+vx, pY+vy, pArea ) ) {
-					//DP_DPrint("DP_FindClosestWalkable() -> Closest Walkable: " + (pX+vx) + ", " + (pY+vy));
-					return {x:pX+vx, y:pY+vy};
-				}
-			}
-		}
-		_distance += 1;
-	}
+    
+    // Loops until we find the closest walkable within range
+    var _distance = 0;
+    var _res = 1;
+    while ( _distance <= pRange ) {
+        for( var vy = -1 - _distance; vy < 2 + _distance; vy += _res) {
+            for( var vx = -1 - _distance; vx < 2 + _distance; vx += _res ) {
+                if( DP_IsWalkable( pX+vx, pY+vy, pArea ) ) {
+                    //DP_DPrint("DP_FindClosestWalkable() -> Closest Walkable: " + (pX+vx) + ", " + (pY+vy));
+                    return {x:pX+vx, y:pY+vy};
+                }
+            }
+        }
+        _distance += res;
+        _res += res-1;
+    }
+    
 	// No closest walkable coords is found so return false (should almost never get it unless pRange is < 2)
 	DP_DPrint("DP_FindClosestWalkable() -> No closest walkable points were found! Current ping is " + me.ping + " ms.");
 	return false;

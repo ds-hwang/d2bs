@@ -663,6 +663,8 @@ DXP_Retries        = 3;
 // Eldritch and Shenk and Orb and Lighting for the rest i.e. Meph and Andy.
 //--------------------------------------------------------------------
 
+ignoreImmune = false;   // Set true if you're using a conviction Merc or Pally
+
 PXP_SorcSkill.push(64); 		// Frozen Orb
 PXP_SorcSkill.push(59); 		// Blizzard
 //PXP_SorcSkill.push(53); 		// Chain Lightning

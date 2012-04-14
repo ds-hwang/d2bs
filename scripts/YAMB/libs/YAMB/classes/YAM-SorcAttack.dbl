@@ -10,6 +10,7 @@ var _XP_CurrentUntimed      = 0;
 var _XP_NumImmune           = 0;
 var _XP_UseTeleOnImmune     = true;
 var XP_AttackSpire          = false;
+var ignoreImmune            = false; 
 // Sorceress auto setting vars dont touch! - TechnoHunter
 var _chillingarmor          = false;
 var _shiverarmor            = false;
@@ -130,10 +131,11 @@ function DA_DoPrecasts() {
 function XP_Precasts() {
 	var BOed = false;
 
-	if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || (me.getState(32) == 0))) {
+	//if (DA_UseCTA && (me.hpmax <= MaxLife || DA_Refresh || (me.getState(32) == 0))) {
+    if (DA_UseCTA && (!me.getState(32) || me.getState(32) == 0)) {
 		DA_UseCTASkills();
 		BOed = true;
-		}
+    }
 	if (DA_AutoPrecasts) {
 		DA_DoPrecasts();
 	}
@@ -160,12 +162,15 @@ function XP_SelectAttack(monster, MonsterSkill, from) {
 	var ms = 0;
 	var start = from;
 	if (start >= MonsterSkill.length) { start = 0; }
-	// Try to find a skill monster is not immune to
-	for (ms=start; ms < MonsterSkill.length; ms+=1) {
-		if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(MonsterSkill[ms]))) {
-			break;
-		}
-	}
+    
+    if(!ignoreImmune) {
+        // Try to find a skill monster is not immune to
+        for (ms=start; ms < MonsterSkill.length; ms+=1) {
+            if (!DA_IsImmuneTo(monster,DA_GetSkillDamageType(MonsterSkill[ms]))) {
+                break;
+            }
+        }
+    }
 
 	if (ms >= MonsterSkill.length) {
 		if (start > 0) {
@@ -231,6 +236,8 @@ function XP_BossAttack(target) {
 	var hand;
 	var staticed = false;
     
+    XP_CastStatic(target);
+    
 	if(!_XP_TimedSpells && !_XP_UntimedSpells) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill); // added by Darien
     
 	_XP_CurrentTimed   = XP_SelectAttack(target, _XP_TimedSpells, 0);
@@ -239,7 +246,6 @@ function XP_BossAttack(target) {
 	_XP_haveUntimed    = (_XP_CurrentUntimed >= 0) ? true : false;
 	_XP_EndPosition    = new XP_Coord(me.x,me.y);
 
-	if (XP_Static > 0) { XP_CastStatic(target); }
 	if (XP_UntimedRepeat == 0) { XP_UntimedRepeat = 1; }
 	if (!_XP_haveTimed && !_XP_haveUntimed) {
 		DC_Print("ÿc1Warning: " + target.name + " is immune to all your defined attacks!ÿc0");
@@ -257,15 +263,17 @@ function XP_BossAttack(target) {
 	while (target.hp > 0 && target.mode != 12 && target.mode != 0) {
 		// Untimed attack
 		if (_XP_haveUntimed) {
-			s = _XP_UntimedSpells[_XP_CurrentUntimed];
-			_XP_CurrentUntimed+=1;
-			_XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, _XP_CurrentUntimed);
-			hand = (DC_IsLeftSkill(s) ? 2 : 0);
-			for (var r = 0; r < XP_UntimedRepeat; r+=1) {
-				DC_DPrint("XP_BossAttack() : Casting UntimedSkill # " + parseInt(s,10) + " on index " + parseInt(_XP_CurrentUntimed-1,10));
-				DC_DoCast(s,hand,target.x,target.y);
-				if (XP_CheckUtil(target)) { return; }
-			}
+            for(var list=0; list < _XP_UntimedSpells.length; list++) {
+                s = _XP_UntimedSpells[_XP_CurrentUntimed];
+                _XP_CurrentUntimed+=1;
+                _XP_CurrentUntimed = XP_SelectAttack(target, _XP_UntimedSpells, _XP_CurrentUntimed);
+                hand = (DC_IsLeftSkill(s) ? 2 : 0);
+                for (var r = 0; r < XP_UntimedRepeat; r+=1) {
+                    DC_DPrint("XP_BossAttack() : Casting UntimedSkill # " + parseInt(s,10) + " on index " + parseInt(_XP_CurrentUntimed-1,10));
+                    DC_DoCast(s,hand,target.x,target.y);
+                    if (XP_CheckUtil(target)) { return; }
+                }
+            }
 		}
 		// Timed attack.
 		if (_XP_haveTimed) {
@@ -314,6 +322,7 @@ function XP_CastStatic(target) {
 		case 1:	_MaxStaticHP = 43;	break;
 		case 2:	_MaxStaticHP = 65;	break;
 	}
+    /*
 	if (!target || !DC_CheckSkill(42) || target.getStat(41) > 99 || target.hp < _MaxStaticHP)
 		return;
 	if ((XP_TimedFirst) && (_XP_TimedSpells.length > 0)) {
@@ -332,9 +341,22 @@ function XP_CastStatic(target) {
 			return; 
 		}
 	}
+    */
 	// Set the range from target
-	var _r = 1.0 + 0.668 * me.getSkill(42,1);
-
+	var _r = 2.667 + (0.667 * me.getSkill(42,1));
+    if(getDistance(me,target) > _r) DM_MoveTo(target.x,target.y);
+    
+    var _times=0;
+    while(target.hp >= _MaxStaticHP) {
+        if(_times > 4) {
+            if(getDistance(me,target) > _r) DM_MoveTo(target.x,target.y);
+            _times=0;
+        }
+        DC_DoCast(42,0,target);   // "Static Field"
+        delay(10);
+        _times++;
+    }
+    /*
 	var _XP_EndStaticPosition = new XP_Coord(me.x,me.y);
 
 	// Compute delta-x and delta-y
@@ -361,10 +383,14 @@ function XP_CastStatic(target) {
 		_tDist = getDistance(me,target);
 		_iTry++;
 	}
+    
+    
+    
 	for (var n = 1; n <= XP_Static && target.hp >= _MaxStaticHP; n+=1) {
 		DC_DPrint("Casting Static Field # " + n);
 		DC_DoCast(42,0,target);   // "Static Field"
 	}
+    
 	while (me.getState(121)!= 0) {
 		delay(10);
 	}
@@ -375,6 +401,7 @@ function XP_CastStatic(target) {
 	if (_tDist > 3.0) {
 		DM_MoveTo(_XP_EndStaticPosition.x,_XP_EndStaticPosition.y);
 	}
+    */
 	if (XP_CheckUtil(target)) {
 		return;
 	}
@@ -703,6 +730,8 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
    	var attprev = _XP_AttackCompleted;
 	var lLast;
     
+    XP_CastStatic(monster);
+    
     if(!_XP_MinionTimedSpells && !_XP_MinionUntimedSpells) XP_SetSorcSkills(YAM_SorcSkill,Monster_SorcSkill);
 
 	_XP_CurrentTimed   = XP_SelectAttack(monster, _XP_MinionTimedSpells, 0);
@@ -719,26 +748,28 @@ function XP_AttackMonster(monster,range,x,y,attackSkills) {
 		_XP_CurrentTimed = XP_SelectAttack(monster, _XP_MinionTimedSpells, _XP_CurrentTimed);
 		DC_DoCast(s,0,monster);
 	}
-
+    
 	while ((monster.hp > 0) && (monster.mode != 12) && (monster.mode != 0) && (monster.hp < hpprev || attprev >= _XP_AttackCompleted) && DA_GetRange(monster) < range) {
 		// Untimed attack
 		if (_XP_haveUntimed) {
-			s = _XP_MinionUntimedSpells[_XP_CurrentUntimed];
-			hand = (DC_IsLeftSkill(s) ? 2 : 0);
-			for (var r = 0; r < XP_UntimedRepeat; r+=1) {
-				DC_DPrint("XP_AttackMonster() Casting UntimedSkill # " + s + " on index " + _XP_CurrentUntimed);
-                if(monster.hp < 1) break;  // Darien Fix
-				DC_DoCast(s,hand,monster.x,monster.y);
-			}
-			if (monster.hp < hpprev)
-			{
-				hpprev = monster.hp;
-				attprev = _XP_AttackCompleted + 1;
-				if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
-			}
-			lLast = new Date();
-			_XP_CurrentUntimed+=1;
-			_XP_CurrentUntimed = XP_SelectAttack(monster, _XP_MinionUntimedSpells, _XP_CurrentUntimed);
+            for(var list=0; list < _XP_MinionUntimedSpells.length; list++) {
+                s = _XP_MinionUntimedSpells[_XP_CurrentUntimed];
+                hand = (DC_IsLeftSkill(s) ? 2 : 0);
+                for (var r = 0; r < XP_UntimedRepeat; r+=1) {
+                    DC_DPrint("XP_AttackMonster() Casting UntimedSkill # " + s + " on index " + _XP_CurrentUntimed);
+                    if(monster.hp < 1) break;  // Darien Fix
+                    DC_DoCast(s,hand,monster.x,monster.y);
+                }
+                if (monster.hp < hpprev)
+                {
+                    hpprev = monster.hp;
+                    attprev = _XP_AttackCompleted + 1;
+                    if (_YAM_MercDead||_YAM_OutOfPots||_YAM_Town) { YAM_SafeCheck(); }
+                }
+                lLast = new Date();
+                _XP_CurrentUntimed+=1;
+                _XP_CurrentUntimed = XP_SelectAttack(monster, _XP_MinionUntimedSpells, _XP_CurrentUntimed);
+            }
 		}
 		// Timed attack.
 		if (_XP_haveTimed && (monster.hp > 0) && (monster.mode != 12) && (monster.mode != 0))  {

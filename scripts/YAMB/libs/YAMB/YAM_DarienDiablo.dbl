@@ -136,7 +136,7 @@ function followTheLeader(leaderName) {
         if(LeaderPartyUnit.area != 108) DC_ThrowException("Leader Check:","Leader is done with Diablo already!");
         while(getDistance(LeaderPartyUnit) > leash && LeaderPartyUnit.area == 108) { // && LeaderPartyUnit.x > 7660 && LeaderPartyUnit.x < 7920 && LeaderPartyUnit.y > 5168) {
             dprint("Leader out of range. Pathing to Leader",9);
-            pathToDest(LeaderPartyUnit.x, LeaderPartyUnit.y,clearChaos);
+            commPather.GotoDest(LeaderPartyUnit.x, LeaderPartyUnit.y,false,clearChaos);
             killRadius(25);
         }
         if(commPather.UseTele) killRadius(30);
@@ -157,9 +157,9 @@ function LeaderPath() {
         if(!pathtoFarUnit(2,cid,108,clearChaos)) pathtoFarUnit(2,cid,108,clearChaos);
         openObjectID(cid);
         killRadius(30);
-        if(cid >  394 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
+        if(cid == 395 && !GrandVizer)       { if(ambushSpawn("Grand Vizier of Chaos"))  GrandVizer = true;      } //PresetUnit.id = 742 classid = 306
         if(cid == 394)                      { if(ambushSpawn("Lord De Seis"))           LordDeSeis = true;      } //PresetUnit.id = 741 classid = 312
-        if(cid <  394 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
+        if(cid == 392 && !InfectorOfSouls)  { if(ambushSpawn("Infector of Souls"))      InfectorOfSouls = true; } //PresetUnit.id = 740 classid = 362
         killRadius(30,null,5);
     }
     

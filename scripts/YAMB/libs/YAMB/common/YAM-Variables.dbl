@@ -175,6 +175,7 @@ var RemovePoison      = false;
 var BXP_ClearFirst    = true;
 var BXP_KillBaalMsges = new Array();
 var BXP_NextGameMsges = new Array();
+var BXP_Ranged = false;
 
 // Diablo specific variables
 var DXP_UsePather      = false; 
