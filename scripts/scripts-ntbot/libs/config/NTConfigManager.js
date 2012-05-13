@@ -32,6 +32,7 @@ function ConfigSetting(category, hook, globalVar, Comment) {
 }
 ConfigSetting.prototype.addHook = function (hook){
     hook.visible=false
+    hook.zorder=500
     this.Hooks.push(hook)
 }
 this.ConfigSetting.prototype.name =""
@@ -467,6 +468,7 @@ function ShowConfig() {
 			if (newconfig) this.tabs.push(ConfigObjects[c].Category)
 		}
 		this.MainTabControl = new TabControl(20, 80, 780, 500, 0, 28, this.tabs)
+        this.MainTabControl.zorder =500
 		this.MainTabControl.tabChanged = function (oldText, newText) {
 			for (var c = 0; c < ConfigObjects.length; c++) {
 				if (ConfigObjects[c].Category == oldText)				

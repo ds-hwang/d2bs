@@ -1,6 +1,6 @@
 
-/// <reference path="/../../d2bsAPI.js" />
-addEventListener("keyup", myKeyHandler)
+/// <reference path="../../d2bsAPI.js" />
+addEventListener("keydownblocker", myKeyHandler)
 addEventListener("mouseclick", GlobalCheckBoxClick);
 var GlobalCheckBoxArray = new Array;
 var GlobalTextBoxArray = new Array;
@@ -9,10 +9,13 @@ var GlobalDropDownArray = new Array;
 //var test = new TextBox(100, 100, 300, 20, "", 3, 0)
 	//test.editable=true
 var focusedControl = false;
+var cursor = new Text("|",1,1,0,13,0)
+cursor.visible=false;
+cursor.zorder=1000
 var clickCount = 2;
 function myKeyHandler(key) {
 
-	if (!focusedControl) return true;
+	if (!focusedControl) return false;
 	if (focusedControl.setKeyVal) {
 		focusedControl.text = key+" "
 		if (typeof(focusedControl.valueChanged)=='function')
@@ -20,6 +23,7 @@ function myKeyHandler(key) {
 		focusedControl = false
 		return true
 	}
+    print(key)
 	var abc = "abcdefghijklmnopqrstuvwxyz"
 	var ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	var one = "0123456789"
@@ -32,13 +36,17 @@ function myKeyHandler(key) {
 		code = abc.substring(key - 65, key - 64)
 		code = code + one.substring(key - 48, key - 47)
 	}
+    if (key > 95)
+        code = code + one.substring(key - 96, key -95)
 	if (key == 32) code = " "
 	   focusedControl.text=focusedControl.text + code
 	if (key==8 )
 		focusedControl.text = focusedControl.text.substring(0, focusedControl.text.length - 1)
+    if (key == 190) code = "."
+    if (key == 188) code = ","
 	if (typeof (focusedControl.valueChanged) == 'function')
 		focusedControl.valueChanged(focusedControl.text)
-	if (key == 28) focusedControl = false;
+	if (key == 27) {focusedControl = false; cursor.visible=false;}
 	
 	return true;
 }
@@ -52,8 +60,25 @@ else
     
 }
 function setGlobaltoVal(global, val) {
-	if (global !== "") {
-		this[global] = val;
+
+	if (global && global !== "") {
+        var temp = global.split(".")
+        if (temp.length == 1)
+		    this[global] = val;
+         if (temp.length == 2)
+		    this[temp[0]][temp[1]] = val;
+        if (temp.length == 3)
+		    this[temp[0]][temp[1]][temp[2]] = val;
+         if (temp.length == 4)
+		    this[temp[0]][temp[1]][temp[2]][temp[3]] = val;
+        if (temp.length == 5)
+		    this[temp[0]][temp[1]][temp[2]][temp[3]][temp[4]] = val;
+        if (temp.length == 6)
+		    this[temp[0]][temp[1]][temp[2]][temp[3]][temp[4]][temp[5]] = val;
+         if (temp.length == 6)
+		    this[temp[0]][temp[1]][temp[2]][temp[3]][temp[4]][temp[5]][temp[6]] = val;
+         if (temp.length == 7)
+		    this[temp[0]][temp[1]][temp[2]][temp[3]][temp[4]][temp[5]][temp[6]][temp[7]] = val;
 	}
 }
 function CheckBox(x, y,Txt,Checked,boxOnLeft) {
@@ -72,6 +97,7 @@ function CheckBox(x, y,Txt,Checked,boxOnLeft) {
  this.checkedColor = 8;
  this.visible = true;
  this.checkedChanged =false //function to set 
+ this.zorder = 1;
  //this.width = width; 
  //this.height = height; 
 // this.hooks = new Array;
@@ -102,6 +128,11 @@ if (!this.boxOnRight) this.update()
 		this.update();
 		return newval;	
 	});
+    this.watch("zorder",function(id,oldval,newval){
+        this.zorder=newval
+        this.update();
+        return newval;
+    });
 	this.watch("checked", function (id, oldval, newval) {
 		this.checked = newval;
 		Checked = newval;
@@ -155,35 +186,40 @@ CheckBox.prototype.update = function () {
 		this.textHook.font = this.font;
 		this.textHook.align=(this.boxOnRight ? 1 : 3);
 		this.textHook.visible=this.visible
-		
+		this.textHook.zorder=this.zorder+1;
+
 		this.boxLine1.x=this.x;
 		this.boxLine1.y = this.y;
 		this.boxLine1.x1 = this.x+this.boxSize;
 		this.boxLine1.y1 = this.y;
 		this.boxLine1.color= this.boxColor;
 		this.boxLine1.visible=this.visible
-		
+		this.boxLine1.zorder=this.zorder
+
 		this.boxLine2.x=this.x;
 		this.boxLine2.y = this.y;
 		this.boxLine2.x1 = this.x;
 		this.boxLine2.y1 = this.y+this.boxSize;
 		this.boxLine2.color= this.boxColor;
 		this.boxLine2.visible=this.visible
-		
+		this.boxLine2.zorder=this.zorder
+
 		this.boxLine3.x=this.x;
 		this.boxLine3.y = this.y+this.boxSize;
 		this.boxLine3.x1 = this.x+this.boxSize;
 		this.boxLine3.y1 = this.y+this.boxSize;
 		this.boxLine3.color= this.boxColor;
 		this.boxLine3.visible=this.visible
-		
+		this.boxLine3.zorder=this.zorder
+
 		this.boxLine4.x=this.x+this.boxSize;
 		this.boxLine4.y = this.y;
 		this.boxLine4.x1 = this.x+this.boxSize;
 		this.boxLine4.y1 = this.y+this.boxSize;
 		this.boxLine4.color= this.boxColor;
 		this.boxLine4.visible=this.visible
-		
+        this.boxLine4.zorder=this.zorder		
+
 		this.box.x= this.x+1;
 		this.box.y= this.y+1;
 		this.box.xsize=this.boxSize-1;
@@ -196,6 +232,7 @@ CheckBox.prototype.update = function () {
 		}
 		this.box.opacity=(this.visible ? 7 : 0)
 		this.box.visible=this.visible;
+        this.box.zorder=this.zorder+5
 }
 
 function updateControls(){
@@ -221,32 +258,36 @@ var j = 0
 		
 			if (GlobalVScrollArray[j].verticle && y > GlobalVScrollArray[j].slider.y - 10 && y < GlobalVScrollArray[j].slider.y ){
 				GlobalVScrollArray[j].dragMode = true;
-				break;
+				return;
 			}
 			
 			if (!GlobalVScrollArray[j].verticle && x > GlobalVScrollArray[j].slider.x - 5 && x < GlobalVScrollArray[j].slider.x+5 ){			
 				GlobalVScrollArray[j].dragMode = true;
-				break;
+				return;
 			}
 			if (y < GlobalVScrollArray[j].y+GlobalVScrollArray[j].weight && x < GlobalVScrollArray[j].x +GlobalVScrollArray[j].weight){
 				GlobalVScrollArray[j].value -= 1;
-				break;
+				return;
 			}
 			if ((y < GlobalVScrollArray[j].slider.y && GlobalVScrollArray[j].verticle)||(!GlobalVScrollArray[j].verticle && x < GlobalVScrollArray[j].slider.x)){
 				GlobalVScrollArray[j].value -= GlobalVScrollArray[j].bigChange;
-				break;
+				return;
 			}			
 			if ((GlobalVScrollArray[j].verticle && y < GlobalVScrollArray[j].y+GlobalVScrollArray[j].ySize-GlobalVScrollArray[j].weight)||(!GlobalVScrollArray[j].verticle && x < GlobalVScrollArray[j].x+GlobalVScrollArray[j].xSize-GlobalVScrollArray[j].weight)){
 			GlobalVScrollArray[j].value += GlobalVScrollArray[j].bigChange;
-				break;
+				return;
 			}
 			GlobalVScrollArray[j].value +=1;			
 		}
 	}
 	focusedControl=false
+    cursor.visible=false
 	for ( j = 0; j < GlobalTextBoxArray.length; j++){
 		if (GlobalTextBoxArray[j].enableRowSelection && GlobalTextBoxArray[j].x < x && GlobalTextBoxArray[j].y < y && GlobalTextBoxArray[j].x + GlobalTextBoxArray[j].xSize > x && GlobalTextBoxArray[j].y + GlobalTextBoxArray[j].ySize > y && GlobalTextBoxArray[j].visible) {
-			if (GlobalTextBoxArray[j].editable) focusedControl = GlobalTextBoxArray[j]
+			if (GlobalTextBoxArray[j].editable) {
+                GlobalTextBoxArray[j].focused = true
+                focusedControl = GlobalTextBoxArray[j]
+            }
 			if(typeof(GlobalTextBoxArray[j].clickFunction) == 'function')
 			    GlobalTextBoxArray[j].clickFunction(GlobalTextBoxArray[j]);
 			for (var l = 0; l < GlobalTextBoxArray[j].lines.length; l++){	
@@ -299,6 +340,7 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
  this.boxColor=0;
  this.boxOnRight =true
  this.ShowOutline = true;
+ this.focused=false;
  this.text = Txt;
  this.backColor = (backColor) ? backColor : 18;  //2 = gray
  this.textColor = (txtColor) ? txtColor :13;
@@ -310,9 +352,13 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
  this.selectedRow = 0;
  this.selectedText = "";
  this.selectedColor = 9;
+ this.cursor=false;
+ this.cursorLine=0
+ 
  this.oldScrollVal=0; // hack
  this.listboxMode = false;
  this.clickFunction = false;
+ this.zorder=1
  // this.textHook = new Text(this.text1,this.x ,this.y+this.ySize,this.textColor,this.font,1)
   this.boxLine1 = new Line(this.x,this.y,this.x+this.xSize,this.y,this.boxColor)
   this.boxLine2 = new Line(this.x,this.y,this.x,this.y+this.ySize,this.boxColor)
@@ -353,8 +399,18 @@ function TextBox(x, y,xSize,ySize,Txt,txtColor,backColor) {
 	this.redrawHooks()
 	return newval;
 	});
+this.watch("focused", function(id,oldval,newval) {
+	this.focused = newval
+	this.redrawHooks()
+	return newval;
+	});
  this.watch("y", function(id,oldval,newval) {
 	this.y = newval
+	this.redrawHooks()
+	return newval;
+	});
+ this.watch("zorder", function(id,oldval,newval) {
+	this.zorder = newval
 	this.redrawHooks()
 	return newval;
 	});
@@ -382,8 +438,9 @@ this.watch("backColor", function(id,oldval,newval) {
 	});
 	this.watch("text", function (id, oldval, newval) {
 		this.text = newval;
-		this.redrawHooks();
 		this.updateText();
+        this.redrawHooks();
+		
 		setGlobaltoVal(this.hookedVal, newval);
 		return newval;
 
@@ -415,8 +472,12 @@ this.watch("selectedColor", function(id,oldval,newval) {
 	});
 this.watch("visible", function(id,oldval,newval) {
 	this.visible = newval
-	this.redrawHooks()	
-	return newval;	
+    this.redrawHooks()	
+    if (this.focused){   
+        cursor.visible=newval 
+        if(!newval) this.focused=false;
+    }
+    return newval;	
 	});
  GlobalTextBoxArray.push (this);
  }
@@ -428,40 +489,45 @@ this.watch("visible", function(id,oldval,newval) {
 		this.boxLine1.ysize = this.y;
 		this.boxLine1.color = this.backColor;
 		this.boxLine1.visible = (this.visible && this.ShowOutline);
-		
+		this.boxLine1.zorder=this.zorder
+
 		this.boxLine2.x=this.x;
 		this.boxLine2.y=this.y;
 		this.boxLine2.xSize=this.x;
 		this.boxLine2.ysize= this.y +this.ySize;
 		this.boxLine2.color = this.backColor;
 		this.boxLine2.visible = (this.visible && this.ShowOutline);
-		
+		this.boxLine2.zorder=this.zorder
+
 		this.boxLine3.x= this.x;
 		this.boxLine3.y=this.y+this.ySize;
 		this.boxLine3.xsize=this.x+this.xSize;
 		this.boxLine3.ysize=this.y+this.ySize;
 		this.boxLine3.color = this.backColor;
 		this.boxLine3.visible = (this.visible && this.ShowOutline);
-		
+		this.boxLine3.zorder=this.zorder
+
 		this.boxLine4.x= this.x+this.xSize;
 		this.boxLine4.y=this.y;
 		this.boxLine4.xsize=this.x+this.xSize;
 		this.boxLine4.ysize=this.y+this.ySize;
 		this.boxLine4.color = this.backColor;
 		this.boxLine4.visible = (this.visible && this.ShowOutline);
-		
+		this.boxLine4.zorder=this.zorder
+
 		//this.background = new Box(this.x+1,this.y+1,this.xSize-1,this.ySize-1,this.backColor,1)
 		this.background.x=this.x+1;
 		this.background.y = this.y+1;
 		this.background.ysize=this.ySize-1
 		this.background.xsize = this.xSize - 1
         this.background.color=this.backColor
-		this.background.visible=(this.visible && this.ShowOutline);
+        this.background.zorder=this.zorder-1
+        this.background.visible=(this.visible && this.ShowOutline);
 		if (this.visible)
 			this.scrollbar.visible = (this.textLines.length > this.lines.length);
 		else 
 			this.scrollbar.visible=false;
-		
+		this.scrollbar.zorder=this.zorder
 		var fontSize= 10;
 		if (this.font == 5)
 			fontSize =18;
@@ -474,7 +540,13 @@ this.watch("visible", function(id,oldval,newval) {
 			this.lines[j].color=(j== this.selectedRow)? this.selectedColor : this.textColor;
 			this.lines[j].font=this.font;
 			this.lines[j].visible= this.visible;
-	}		
+            this.lines[j].zorder=this.zorder+j
+	}
+    if (this.focused){
+        cursor.x=this.lines[this.cursorLine].x +myGetTextSize(	this.lines[this.cursorLine].text,this.font)[0]
+        cursor.y=this.lines[this.cursorLine].y
+        cursor.visible=true;
+    }
  }
  TextBox.prototype.updateText = function () {	//rebuild fron .text	
 	if (this.listboxMode)
@@ -484,15 +556,18 @@ this.watch("visible", function(id,oldval,newval) {
 		var templine ="";
 		var linenum = (this.fillFromTop) ? 0 : this.lines.length -1;
 		var spaceAt = 0;
-  if (this.text){
+  if (this.text && this.text.length){
 		for (var t = 0; t<this.text.length ; t++){
 			templine=templine+ this.text[t];  
 			if (myGetTextSize(templine,this.font)[0] >this.xSize -4){ // 8 controls how close to get to the edge
 				spaceAt =templine.lastIndexOf(" "); //wrap at space
-				if (spaceAt){
+				if (spaceAt >-1){
 					t=t-(templine.length-spaceAt)+1;
 					templine = templine.substring(0,spaceAt) ;		
-				}		
+				} else{
+                     t=t-(templine.length-t);
+					templine = templine.substring(0,t) ;	
+                }
 				this.textLines.push(templine)
 				templine = "";		
 			}	
@@ -501,6 +576,7 @@ this.watch("visible", function(id,oldval,newval) {
 		this.textLines.push(templine)	
 	}
 	this.lineArrayToHooks();
+    
 return true;
  }
 
@@ -512,14 +588,21 @@ this.scrollbar.max =Math.abs(this.textLines.length - this.lines.length);
 		else 
 			this.scrollbar.visible=false;
   	var sboffset = (this.scrollbar) ? this.scrollbar.value : 0;
-	
+	var lastrow =0
 	if (this.fillFromTop == true){	
 		for(var f = 0 ; f < this.lines.length ; f++){	
-			if (this.textLines[f+sboffset])
+			if (this.textLines[f+sboffset]){
+                lastrow++;
 				this.lines[f].text = this.textLines[f+sboffset];
+            }
 			else	
 				this.lines[f].text =""
 		}
+        this.cursor=true;
+        if (lastrow < this.lines.length)
+           this.cursor=false
+        if (this.cursor)
+            this.cursorLine=lastrow-1
 	}
 	else{
 		var index = this.textLines.length-1;
@@ -580,7 +663,7 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
  this.length = length;
  this.xSize = (this.verticle) ?  15 :length  ;
  this.ySize = (this.verticle) ?  length :15  ;
- 
+ this.zorder=0
  this.boxSize = 10;
  this.backColor = backColor
  this.forColor = forColor
@@ -631,6 +714,11 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 		this.update();			
 	return newval;
 	});
+    this.watch("zorder", function(id,oldval,newval) {					
+		this.zorder = newval;	
+		this.update();			
+	return newval;
+	});
 	this.watch("backColor", function(id,oldval,newval) {					
 		this.backColor = newval;	
 		this.update();			
@@ -662,8 +750,9 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.topBox.ysize =this.weight;
 	this.topBox.xsize=this.weight;
 	this.topBox.color=this.backColor;
+    this.topBox.zorder=this.zorder
 	this.topBox.click = function (b, x, y) { 
-// empty function that just blocks the click
+        return true;
 	}
 	//this.botBox = new Box(this.x,this.y+this.ySize-this.weight,this.weight,this.weight,this.backColor,2)	
 	this.botBox.visible=this.visible;	
@@ -672,9 +761,8 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.botBox.ysize =this.weight;
 	this.botBox.xsize=this.weight;
 	this.botBox.color=this.backColor;
-	this.botBox.click = function (b, x, y) { 
-// empty function that just blocks the click
-	}	
+    this.botBox.zorder=this.zorder;
+	this.botBox.click = function (b, x, y) { return true;}	
 	//this.scrollBox = new Box(this.x,this.y+this.weight+1,this.weight,this.ySize -(this.weight *2),this.backColor,1)
 	this.scrollBox.visible=this.visible;
 	this.scrollBox.x= (this.verticle) ? this.x : this.x +this.weight
@@ -682,19 +770,20 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.scrollBox.ysize=(this.verticle) ? this.ySize-(this.weight *2):this.weight;
 	this.scrollBox.xsize=(this.verticle) ? this.weight: this.xSize-(this.weight *2)
 	this.scrollBox.color = this.backColor;
-	this.scrollBox.click = function (b, x, y) { 
-// empty function that just blocks the click
-	}
+    this.scrollBox.zorder=this.zorder;
+	this.scrollBox.click = function (b, x, y) { return true;	}
 	//this.uptext=new Text(String.fromCharCode(47,92),this.x+3,this.y+15,this.forColor,5)
 	this.uptext.visible=this.visible;
 	this.uptext.x=this.x+3;
 	this.uptext.y=(this.verticle) ? this.y+15 : this.y+17;
 	this.uptext.color =this.forColor;
+    this.uptext.zorder=this.zorder+100
 	this.uptext.text = (this.verticle) ? String.fromCharCode(47,92) : "<";	
 	 //this.downtext = new Text(String.fromCharCode(92,47),this.x+3,this.y+this.ySize,this.forColor,5)	
 	this.downtext.visible=this.visible;
 	this.downtext.x= (this.verticle) ? this.x+3: this.x+this.xSize- this.weight;
 	this.downtext.y=(this.verticle) ? this.y+this.ySize: this.y+this.weight+2;
+    this.downtext.zorder=this.zorder+100
 	this.color=this.forColor;
 	this.downtext.text = (this.verticle) ? String.fromCharCode(92,47) : ">";
 	//this.slider = new Text("=",this.x+1, this.y+(this.ySize/2),this.forColor,5)
@@ -706,6 +795,7 @@ function ScrollBar(x, y,length,backColor,forColor,initalValue) {
 	this.slider.x= (this.verticle) ? this.x : this.x+this.weight+parseInt(this.value*this.scrollBox.xsize/this.max) -4 
 	this.slider.y=(this.verticle) ? this.y+this.weight+parseInt(this.value*this.scrollBox.ysize/this.max) +8 : this.y+this.weight
 	this.slider.text = (this.verticle) ? "=" : "|"
+    this.slider.zorder=this.zorder+100
 	this.color=this.forColor;
 	
 	}
@@ -725,6 +815,7 @@ function SliderWText(x, y,text,maxVal,initVal,txtColor,backColor) {
 	this.text = text;
 	this.valueChanged = false;
 	this.maxVal = maxVal;
+    this.zorder=1
 	this.visible = true;
 	this.infoText = new Text(this.text,this.x,this.y,this.textColor,this.font,3)
 //function ScrollBar(x, y,length,backColor,forColor,initalValue) {
@@ -751,7 +842,15 @@ this.watch("visible", function(id,oldval,newval) {
 		this.infoText.visible=this.visible;		
 		return newval;
 		});
+this.watch("zorder", function(id,oldval,newval) {		
+		this.zorder = newval;	
+		this.slider.zorder=this.zorder;
+		this.infoText.zorder=this.zorder;		
+		return newval;
+		});
 }
+
+
 function TabControl(x, y,xSize,ySize,txtColor,backColor,tabArray) {
 this.x=x;
 this.y=y;
@@ -763,6 +862,7 @@ this.txtColor=txtColor;
 this.backColor = backColor;
 this.tabChanged = false;
 this.selectedText=""
+this.zorder=1
 this.tabArray = [];
 this.topButtonArray = [];
 this.visible = true;
@@ -780,6 +880,7 @@ this.selectedTab=0
 
 this.visible = true; 
 this.box = new Box(this.x,this.y,this.x2,this.y2,this.backColor)
+this.frame = new Frame(this.x-1,this.y,this.x2, this.y2)
 //this.sepLine = new Line(this.x,this.y+15,this.x2 +this.x,this.y+15,this.txtColor,1)
 
 var sp =0;
@@ -798,12 +899,23 @@ var sp =0;
 	this.selectedText=this.tabs[0].name
     this.topButtonArray[0].backColor = 5
     this.watch("visible", function (id, oldval, newval) {
-
+    this.frame.visible=newval
 	for (var k = 0; k < this.tabs[this.selectedTab-1].controls.length; k++)
 		this.tabs[this.selectedTab-1].controls[k].visible = newval
     	this.box.visible = newval
 		for (var j =0;j<this.topButtonArray.length; j++)
 			this.topButtonArray[j].visible = newval
+	
+		return newval
+    });
+    this.watch("zorder", function (id, oldval, newval) {
+    this.zorder=newval;
+    this.frame.zorder=newval +1
+	for (var k = 0; k < this.tabs[this.selectedTab-1].controls.length; k++)
+		this.tabs[this.selectedTab-1].controls[k].zorder = newval
+    	this.box.zorder = newval-1
+		for (var j =0;j<this.topButtonArray.length; j++)
+			this.topButtonArray[j].zorder = newval+1
 	
 		return newval
     });
@@ -834,67 +946,74 @@ TabControl.prototype.tabClick = function (sender) {
 }
 
 function tabPage (){}
-tabPage.prototype.name = ""
-tabPage.controls = new Array();
-
+    tabPage.prototype.name = ""
+    tabPage.controls = new Array();
+    
 function DropDownBox(x, y, text, txtColor, backColor, textList, heading) {
-	this.valueChanged = false;
-this.x=x;
-this.head=(heading)?heading :"testing ";
-this.y=y;
-this.text=text;
-this.textColor=txtColor;
-this.backColor=this.backColor;
-this.font = 6;
-this.visible = true;;
-this.textList=(textList)? textList :[];
-this.droped = false;
-this.autoWide =myGetTextSize(text,this.font)[0]+5;
+	    this.valueChanged = false;
+    this.x=x;
+    this.head=(heading)?heading :"testing ";
+    this.y=y;
+    this.text=text;
+    this.textColor=txtColor;
+    this.backColor=this.backColor;
+    this.font = 6;
+    this.zorder=1
+    this.visible = true;;
+    this.textList=(textList)? textList :[];
+    this.droped = false;
+    this.autoWide =myGetTextSize(text,this.font)[0]+5;
 
-	for (var j = 0; j < this.textList.length; j++){
-		if (myGetTextSize(this.textList[j],this.font)[0]+5 > this.autoWide)
-			this.autoWide = myGetTextSize(this.textList[j],this.font)[0]+5;
-	}
-this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
-this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
+	    for (var j = 0; j < this.textList.length; j++){
+		    if (myGetTextSize(this.textList[j],this.font)[0]+5 > this.autoWide)
+			    this.autoWide = myGetTextSize(this.textList[j],this.font)[0]+5;
+	    }
+    this.headText =new Text(this.head,this.x,this.y-5,this.textColor,this.font,3)
+    this.dropDown = new TextBox(this.x+this.autoWide,this.y,11,11,"V")
 
-this.dropDown.parent = this;
-	this.dropDown.clickFunction  = function(){
-		this.parent.droped = !this.parent.droped
-		this.parent.update();
-	}
+    this.dropDown.parent = this;
+	    this.dropDown.clickFunction  = function(){
+		    this.parent.droped = !this.parent.droped
+		    this.parent.update();
+	    }
 
-this.topText = new TextBox(this.x,this.y,this.autoWide,myGetTextSize(text,this.font)[1],this.text,this.textColor,this.backColor)
+    this.topText = new TextBox(this.x,this.y,this.autoWide,myGetTextSize(text,this.font)[1],this.text,this.textColor,this.backColor)
 	
-this.listbox = new TextBox(this.x,this.y+myGetTextSize(text,this.font)[1],this.autoWide,100," ");
+    this.listbox = new TextBox(this.x,this.y+myGetTextSize(text,this.font)[1],this.autoWide,100," ");
+    this.listbox.visible=false;
+    this.listbox.listboxMode = true;
+    this.listbox.selectedRow = 0; this.listbox.selectedText=this.listbox.textLines[this.listbox.selectedRow];
+    this.listbox.textLines =this.textList;
+    this.listbox.parent = this;
+   this.listbox.background.opacity=1000;
+   this.listbox.backColor=0
+    this.watch("visible", function(id,oldval,newval) {		
+		    this.visible = newval;	
+		    this.update();
+		    return newval;
+		    });		
+    this.watch("zorder", function(id,oldval,newval) {		
+		    this.zorder = newval;	
+		    this.update();
+		    return newval;
+		    });		
+    for (var j = 0 ; j < this.textList.length ; j++)
+        if (this.textList[j] == this.text)
+            this.listbox.selectedRow=j;
 
-
-
-
-this.listbox.visible=false;
-this.listbox.listboxMode = true;
-this.listbox.selectedRow = 0; this.listbox.selectedText=this.listbox.textLines[this.listbox.selectedRow];
-this.listbox.textLines =this.textList;
-this.listbox.parent = this;
-
-this.watch("visible", function(id,oldval,newval) {		
-		this.visible = newval;	
-		this.update();
-		return newval;
-		});		
-
-
-GlobalDropDownArray.push(this)
+    GlobalDropDownArray.push(this)
 }
 DropDownBox.prototype.childUpate = function () {	
 		if (this.topText.text != this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value]){
 			this.topText.text =this.listbox.textLines[this.listbox.selectedRow+this.listbox.scrollbar.value];
 			this.listbox.visible = false;
+            this.listbox.zorder=this.zorder
 			//setGlobaltoVal(this.hookedVal,this.topText.text)
 			if (typeof(this.valueChanged) == 'function')
 				this.valueChanged(this.topText.text)
             else
-                 setGlobaltoVal(this.hookedVal,this.topText.text)
+                if (this.hookedVal)
+                    setGlobaltoVal(this.hookedVal,this.topText.text)
 		}
 }
 DropDownBox.prototype.update = function () {
@@ -902,7 +1021,10 @@ DropDownBox.prototype.update = function () {
 	this.topText.visible = this.visible;
 	this.dropDown.visible = this.visible;
 	this.listbox.visible = (this.visible && this.droped);
-
+    this.headText.zorder= this.zorder;
+	this.topText.zorder = this.zorder+1;
+	this.dropDown.zorder = this.zorder;
+	this.listbox.zorder = this.zorder+5;
 }
 function LinkedListBoxes (x,y,xsize,ysize,fullList,partialList,mode){
 this.x=x
@@ -910,11 +1032,15 @@ this.y=y
 this.xsize = xsize
 this.hookedVal = "";
 this.ysize = ysize
+this.zorder=1
 this.startFullList = []
 for (var a = 0; a < fullList.length; a++)
 	this.startFullList.push(fullList[a])
 this.fullList = fullList
 this.partialList = partialList
+//if (this.fullList.length ==0)
+//    this.fullList.push("")
+//if (this.partialList.length ==0) this.partialList.push("")
 this.visible = true;
 this.valueChanged =false;
 this.mode=mode // 2 for add sub 4 for add subb and sort.
@@ -988,7 +1114,19 @@ this.mode=mode // 2 for add sub 4 for add subb and sort.
 		}   
 		return newval;
 	});
-	
+    this.watch("zorder", function(id,oldval,newval) {		
+		this.zorder = newval;	
+		this.txtFull.zorder = newval;
+		this.txtValue.zorder = newval;
+		this.cmdAdd.zorder = newval;
+		this.cmdSub.zorder = newval;
+		if (this.mode ==4){
+			this.cmdDown.zorder = newval;
+			this.cmdUp.zorder = newval;
+		}   
+		return newval;
+	});
+	this.txtFull.selectedRow = 0; this.txtFull.selectedText = this.txtFull.textLines[this.txtFull.selectedRow];
 }
 LinkedListBoxes.prototype.removeDuplicats = function () {
 	var tempList = []
@@ -1000,8 +1138,7 @@ LinkedListBoxes.prototype.removeDuplicats = function () {
 				found = true
 		if (!found)
 		tempList.push(this.startFullList[a])
-	}
-	
+	}	
 	this.txtFull.textLines = tempList;
 	this.txtFull.lineArrayToHooks()
 	this.txtFull.redrawHooks();

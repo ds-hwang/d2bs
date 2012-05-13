@@ -18,7 +18,7 @@ var NJIP_CHECK_SIMPLE = 0, NJIP_CHECK_REPORT = 1;
 
 //parsing keyword categories (all else are assumed to be: string = stat name, number = stat number)
 // this is the array we will be storing our compiled data into
-var njipItems = new Array();
+//var njipItems = new Array(); //using njipIndexedList instead
 // the list of file names loaded
 var njipFiles = new Array();
 
@@ -52,7 +52,7 @@ item = tests[]; (array of tests)
 tests = [keyword || stat || [stat,substat], value, operator id];
 
 */
-
+var njipIndexedList = []
 var njipKeywordsStats 		= [99,  -1,		-1,	-1];	// getStat() or getStatEx()
 
 
@@ -80,20 +80,57 @@ function njipParseFile( fileHandle, fileName ) {
 		add_entry = 0;
 		//print(fileHandle.eof);
 		if( !njipErrorReporter( ++current_line, ( add_entry = njipParseLine( fileHandle.readLine() ) ), fileName ) && njipAbortOnError ){
-		//print("returning false")	
+		print("returning false")	
 		return false;
 		}
 		if( add_entry[0]==0 && add_entry[1][0] ) {
-			njipItems[njipItems.length] = add_entry[1];
-			njipItems[njipItems.length-1].file = njipFiles.length-1;
-			njipItems[njipItems.length-1].lineno = current_line;
+			addToIndexedList(add_entry[1],fileName,current_line)
+			//njipItems[njipItems.length] = add_entry[1];
+			//njipItems[njipItems.length-1].file = njipFiles.length-1;
+			//njipItems[njipItems.length-1].lineno = current_line;
 			//print(current_line +":"+add_entry+"eof:"+fileHandle.eof);
 		}
 	}
+	//print(njipIndexedList.toSource()+ fileName)
 	//print("done parsing");
 	return true;
+	
+	
 }
-
+function addToIndexedList(entry,file,line){
+var hasType=false;
+	for (var j = 0 ; j < entry.length; j ++){
+		if(entry[j][0] == -2){ //classid
+			if(!njipIndexedList[entry[j][1]]) njipIndexedList[entry[j][1]] = [];
+           	njipIndexedList[entry[j][1]].push(entry)
+			njipIndexedList[entry[j][1]][njipIndexedList[entry[j][1]].length-1].file=file
+			njipIndexedList[entry[j][1]][njipIndexedList[entry[j][1]].length-1].lineno=line
+            hasType=true;
+		}
+		if(entry[j][0] == -1){ // type
+				var type = entry[j][1]
+				if(!bobItemTypes[type]){
+					print("un-used type :" + type +" in " + file + " line "+line)
+					return
+				}
+				for(var k = 0 ; k < bobItemTypes[type].length; k++){
+					if(!njipIndexedList[bobItemTypes[type][k]]) njipIndexedList[bobItemTypes[type][k]] = []
+					njipIndexedList[bobItemTypes[type][k]].push(entry)
+                    njipIndexedList[bobItemTypes[type][k]][njipIndexedList[bobItemTypes[type][k]].length-1].file=file
+                    njipIndexedList[bobItemTypes[type][k]][njipIndexedList[bobItemTypes[type][k]].length-1].lineno=line				
+                    hasType=true;
+				}
+		}
+	}
+    if(!hasType){// add entry into each index
+        for (var j = 0 ; j < 660; j ++){
+            if(!njipIndexedList[j]) njipIndexedList[j] = []
+			njipIndexedList[j][njipIndexedList[j].length] = entry
+            njipIndexedList[j][njipIndexedList[j].length-1].file=file
+            njipIndexedList[j][njipIndexedList[j].length-1].lineno=line		
+        }
+    }
+}
 function njipCheckClause(value_, operator_, stat_) {
 	var rv_ = false;
 	 value_ = parseInt(value_,10);
@@ -142,7 +179,8 @@ function njipCheckGoodItem(item_, mode_) {
 				return 0;
 		}
 	);
-	
+	var njipItems=njipIndexedList[item_.classid]
+	if(!njipItems) njipItems=[]
 	var stats = item_.getStat(-1);
 
 		for(var count_9=0;count_9<njipItems.length;count_9++) { // loop all item entries
@@ -222,7 +260,7 @@ function njipCheckGoodItem(item_, mode_) {
 			}
 		}
 	}
-	if(matched == 0 && NT_EnableCubing){ //check cubing utility
+	if(matched == -1 && NT_EnableCubing){ //check cubing utility
 		if(njipCheckGoodItemlist(item_,false,utilityList) > -1){
 			retval=5;
 		}
@@ -231,7 +269,7 @@ function njipCheckGoodItem(item_, mode_) {
 		var obj = new Array();
 		obj.result = retval;
 		obj.lineno = (matched == -1 ? 0 : njipItems[matched].lineno);
-		obj.file = (matched == -1 ? "" : njipFiles[njipItems[matched].file]);
+		obj.file = (matched == -1 ? "" : njipItems[matched].file);
 		retval = obj;
 	}
 	return retval;
