@@ -282,22 +282,101 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ITEM_PREFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wPrefix)));
+				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0]))
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[0])));
 			break;
 		case ITEM_SUFFIX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix))
-					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wSuffix)));
+				if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0]))
+					*vp = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[0])));
 			break;
 		case ITEM_PREFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wPrefix);
+					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicPrefix[0]);
 			break;
 		case ITEM_SUFFIXNUM:
 				if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
-					*vp = INT_TO_JSVAL(pUnit->pItemData->wSuffix);
+					*vp = INT_TO_JSVAL(pUnit->pItemData->wMagicSuffix[0]);
 			break;
+
+		case ITEM_PREFIXES:  
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[i]))
+					{
+						jsval nPrefix = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicPrefix[i])));
+
+						JS_SetElement(cx, pReturnArray, i, &nPrefix);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_PREFIXNUMS:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (pUnit->pItemData->wMagicPrefix[i])
+					{
+						jsval nPrefixnum = INT_TO_JSVAL(pUnit->pItemData->wMagicPrefix[i]);
+
+						JS_SetElement(cx, pReturnArray, i, &nPrefixnum);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_SUFFIXES:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+				
+				for (int i = 0; i < 3; i++)
+				{
+					if (D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[i]))
+					{
+						jsval nSuffix = STRING_TO_JSVAL(JS_InternString(cx, D2COMMON_GetItemMagicalMods(pUnit->pItemData->wMagicSuffix[i])));
+
+						JS_SetElement(cx, pReturnArray, i, &nSuffix);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+		case ITEM_SUFFIXNUMS:
+			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
+			{
+				JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
+
+				for (int i = 0; i < 3; i++)
+				{
+					if (pUnit->pItemData->wMagicSuffix[i])
+					{
+						jsval nSuffixnum = INT_TO_JSVAL(pUnit->pItemData->wMagicSuffix[i]);
+
+						JS_SetElement(cx, pReturnArray, i, &nSuffixnum);
+					}
+				}
+
+				*vp = OBJECT_TO_JSVAL(pReturnArray);
+			}
+
+			break;
+
+
 		case ITEM_FNAME:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData) {
 				wchar_t wszfname[256] = L"";
