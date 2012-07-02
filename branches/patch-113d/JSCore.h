@@ -5,6 +5,7 @@
 JSAPI_FUNC(my_getThreadPriority);
 JSAPI_FUNC(my_debugLog);
 JSAPI_FUNC(my_print);
+JSAPI_FUNC(my_getIP);
 JSAPI_FUNC(my_delay);
 JSAPI_FUNC(my_load);
 JSAPI_FUNC(my_include);

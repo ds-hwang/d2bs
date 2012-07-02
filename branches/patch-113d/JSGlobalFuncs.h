@@ -108,6 +108,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"moveNPC",             my_moveNPC,             0},
 	{"getPacket",		    my_getPacket,	     	0},
 	{"sendPacket",		    my_sendPacket,   		0},
+	{"getIP",				my_getIP,				0},
 	// drawing functions
 	{"screenToAutomap",		screenToAutomap,		1},
 	{"automapToScreen",		automapToScreen,		1},
