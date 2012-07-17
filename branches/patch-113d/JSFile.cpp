@@ -44,7 +44,7 @@ JSBool file_equality(JSContext *cx, JSObject *obj, jsval v, JSBool *bp)
 	{
 		FileData* ptr = (FileData*)JS_GetInstancePrivate(cx, obj, &file_class_ex.base, NULL);
 		FileData* ptr2 = (FileData*)JS_GetInstancePrivate(cx, JSVAL_TO_OBJECT(v), &file_class_ex.base, NULL);
-		if(ptr && ptr2 && !_strcmpi(ptr->path, ptr2->path) && ptr->mode == ptr2->mode)
+		if(ptr && ptr2 && _strcmpi(ptr->path, ptr2->path) == 0 && ptr->mode == ptr2->mode)
 			*bp = JS_TRUE;
 	}
 	return JS_TRUE;
@@ -80,7 +80,7 @@ JSAPI_PROP(file_getProperty)
 					*vp = JSVAL_ZERO;
 				break;
 			case FILE_PATH:
-				*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, fdata->path+strlen(Vars.szScriptPath)+1));
+				*vp = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, fdata->path+1));
 				break;
 			case FILE_POSITION:
 				if(fdata->fptr)
@@ -162,21 +162,14 @@ JSAPI_FUNC(file_open)
 	if(!JSVAL_IS_INT(argv[1]))
 		THROW_ERROR(cx, "Parameter 2 not a mode");
 
-	// check for attempts to break the sandbox and for invalid file name characters
+	// Convert from JS params to C values
 	char* file = JS_GetStringBytes(JSVAL_TO_STRING(argv[0]));
-	if(!(file && file[0] && isValidPath(file)))
-		THROW_ERROR(cx, "Invalid file name");
-
 	int32 mode;
 	if(JS_ValueToInt32(cx, argv[1], &mode) == JS_FALSE)
 		THROW_ERROR(cx, "Could not convert parameter 2");
-
-	// this could be simplified to: mode > FILE_APPEND || mode < FILE_READ
-	// but then it takes a hit for readability
-	if(!(mode == FILE_READ || mode == FILE_WRITE || mode == FILE_APPEND))
-		THROW_ERROR(cx, "Invalid file mode");
-
-	bool binary = false, autoflush = false, lockFile = false;
+	bool binary = false;
+	bool autoflush = false;
+	bool lockFile = false;
 	if(argc > 2 && JSVAL_IS_BOOLEAN(argv[2]))
 		binary = !!JSVAL_TO_BOOLEAN(argv[2]);
 	if(argc > 3 && JSVAL_IS_BOOLEAN(argv[3]))
@@ -184,18 +177,35 @@ JSAPI_FUNC(file_open)
 	if(argc > 4 && JSVAL_IS_BOOLEAN(argv[4]))
 		lockFile = !!JSVAL_TO_BOOLEAN(argv[4]);
 
+	// Check that the path looks basically ok, validation is handled later
+	if(file == NULL ||
+		file[0] == '\0')
+		THROW_ERROR(cx, "Invalid file name");
+
+	// this could be simplified to: mode > FILE_APPEND || mode < FILE_READ
+	// but then it takes a hit for readability
+	switch(mode)
+	{
+		// Good modes
+		case FILE_READ:
+		case FILE_WRITE:
+		case FILE_APPEND:
+			break;
+		// Bad modes
+		default:
+			THROW_ERROR(cx, "Invalid file mode");
+	}
+
 	if(binary)
 		mode += 3;
-	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-	char path[_MAX_FNAME+_MAX_PATH];
-	sprintf_s(path, sizeof(path), "%s\\%s", Vars.szScriptPath, file);
 
-	FILE* fptr = NULL;
-	fopen_s(&fptr, path, modes[mode]);
-	if(!fptr) {
-		JS_ReportError(cx, "Couldn't open file %s: %s", file, _strerror(NULL));
+	static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
+
+	FILE* fptr = fileOpenRelScript(file, modes[mode], cx);
+
+	// If fileOpenRelScript failed, it already reported the error
+	if(fptr == NULL)
 		return JS_FALSE;
-	}
 
 	FileData* fdata = new FileData;
 	if(!fdata)
@@ -205,7 +215,7 @@ JSAPI_FUNC(file_open)
 	}
 
 	fdata->mode = mode;
-	fdata->path = _strdup(path);
+	fdata->path = _strdup(file);
 	fdata->autoflush = autoflush;
 	fdata->locked = lockFile;
 	fdata->fptr = fptr;
@@ -266,10 +276,12 @@ JSAPI_FUNC(file_reopen)
 	if(fdata)
 		if(!fdata->fptr) {
 			static const char* modes[] = {"rt", "w+t", "a+t", "rb", "w+b", "a+b"};
-			fdata->fptr = NULL;
-			fopen_s(&fdata->fptr, fdata->path, modes[fdata->mode]);
-			if(!fdata->fptr)
-				THROW_ERROR(cx, _strerror("Could not reopen file"));
+			fdata->fptr = fileOpenRelScript(fdata->path, modes[fdata->mode], cx);
+
+			// If fileOpenRelScript failed, it already reported the error
+			if(fdata->fptr == NULL)
+				return JS_FALSE;
+
 			if(fdata->locked)
 			{
 				_lock_file(fdata->fptr);
