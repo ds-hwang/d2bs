@@ -93,7 +93,7 @@ JSAPI_FUNC(filetools_copy)
 		return JS_TRUE;
 
 	FILE* fptr1 = fileOpenRelScript(orig, "r", cx);
-	FILE* fptr2 = fileOpenRelScript(pnewName, "w", cx);
+	FILE* fptr2 = fileOpenRelScript(newName, "w", cx);
 
 	// If fileOpenRelScript failed, it already reported the error
 	if(fptr1 == NULL || fptr2 == NULL)
