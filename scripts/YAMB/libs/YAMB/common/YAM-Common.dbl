@@ -2125,6 +2125,7 @@ function DC_LogError(message) {
 // -message	message to be displayed on screen
 // Return value : None, display the debug message on screen depending of DC_DebugLevel value
 function DC_DPrint(message) {
+	message = message.replace(/move/i, "mooove");
 	sendCopyData(null, "OOG", 0,"DC_DPrint: " + message );
 	// If level is 2 or more, print the msg on screen
 	if(DC_DebugLevel >= 2) {
