@@ -428,7 +428,14 @@ JSAPI_PROP(unit_getProperty)
 					break;
 
 				wchar_t wBuffer[2048] = L"";
-				D2CLIENT_GetItemDesc(pUnit, wBuffer);
+				wchar_t bBuffer[1] = {1};
+
+				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB1C, bBuffer, 1, NULL);  
+				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB28, &pUnit, 4, NULL);  
+
+				//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
+				D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
+				ReadProcessBYTES(GetCurrentProcess(), 0x6F9A9E68, wBuffer, 2047); 
 
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)
@@ -438,6 +445,7 @@ JSAPI_PROP(unit_getProperty)
 					tmp = NULL;
 				}
 			}
+
 			break;
 		case ITEM_GFX:
 			if(pUnit->dwType == UNIT_ITEM && pUnit->pItemData)
