@@ -486,7 +486,7 @@ JSAPI_PROP(unit_getProperty)
 			if(pUnit->dwType == UNIT_OBJECT && pUnit->pObjectData)
 			{
 				pRoom = D2COMMON_GetRoomFromUnit(pUnit);
-				if(pRoom && D2COMMON_IsTownByRoom(pRoom))
+				if(pRoom && D2COMMON_GetLevelNoFromRoom(pRoom))
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type & 255);
 				else
 					*vp = INT_TO_JSVAL(pUnit->pObjectData->Type);
