@@ -204,8 +204,8 @@ LONG WINAPI GameEventHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					InstallConditional();
 					const char *keys = (char*)pCopy->lpData;
 					int len = (strchr(keys,'|')-keys)*sizeof(char);
-					strncpy(Vars.szClassic, keys, len);
-					strcpy(Vars.szLod, keys+len+1);
+					strncpy_s(Vars.szClassic, 30, keys, len);
+					strcpy_s(Vars.szLod, 30, keys+len+1);
 				}
 				else CopyDataEvent(pCopy->dwData, (char*)pCopy->lpData);
 			}
