@@ -784,7 +784,7 @@ public:
 
 	/** The magic suffixes of the item.
 	 */
-	String[] suffixes
+	String[] suffixes;
 
 	/** The id code for the magic prefix.
 	 */
