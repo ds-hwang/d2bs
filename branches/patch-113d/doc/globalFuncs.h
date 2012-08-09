@@ -1195,8 +1195,8 @@ bool keystate(int vKey);
  *
  * whispermsg (String lpszNick, String lpszMsg)
  *
- * bool whispermsg (String lpszNick, String lpszMsg) - Returns true to block
- * 	event from Diablo II
+ * bool whispermsgblocker (String lpszNick, String lpszMsg) - Returns true to
+ * block event from Diablo II
  *
  * copydata (int32_t dwMode, String lpszMsg)
  *
