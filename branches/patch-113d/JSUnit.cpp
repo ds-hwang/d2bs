@@ -216,6 +216,24 @@ JSAPI_PROP(unit_getProperty)
 		case UNIT_YPOS:
 			*vp = INT_TO_JSVAL(D2CLIENT_GetUnitY(pUnit));
 			break;
+		case UNIT_TARGETX:
+			switch(pUnit->dwType)
+			{
+				case 0:
+				case 1:
+				case 3:
+					*vp = INT_TO_JSVAL(pUnit->pPath->xTarget);
+			}
+			break;
+		case UNIT_TARGETY:
+			switch(pUnit->dwType)
+			{
+				case 0:
+				case 1:
+				case 3:
+					*vp = INT_TO_JSVAL(pUnit->pPath->yTarget);
+			}
+			break;
 		case UNIT_HP:
 			*vp = INT_TO_JSVAL(D2COMMON_GetUnitStat(pUnit, 6, 0) >> 8);
 			break;
