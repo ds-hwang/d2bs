@@ -892,20 +892,20 @@ JSAPI_FUNC(unit_getStat)
 			JSObject* pReturnArray = JS_NewArrayObject(cx, 0, NULL);
 			*rval = OBJECT_TO_JSVAL(pReturnArray);
 
-				for (int j = 0 ; j < pUnit->pStats->wStatCount1; j++)
+				for (int j = 0 ; j < pUnit->pStats->StatVec.wCount; j++)
 				{
 					bool inListAlready = false;
 					for(DWORD k = 0; k < dwStats; k++){
-						if( aStatList[k].dwStatValue == pUnit->pStats->pStat[j].dwStatValue &&
-							aStatList[k].wStatIndex == pUnit->pStats->pStat[j].wStatIndex &&
-							aStatList[k].wSubIndex == pUnit->pStats->pStat[j].wSubIndex)
+						if( aStatList[k].dwStatValue == pUnit->pStats->StatVec.pStats[j].dwStatValue &&
+							aStatList[k].wStatIndex == pUnit->pStats->StatVec.pStats[j].wStatIndex &&
+							aStatList[k].wSubIndex == pUnit->pStats->StatVec.pStats[j].wSubIndex)
 							inListAlready = true;
 					}
 					if(!inListAlready){
 						
-						aStatList[dwStats].dwStatValue = pUnit->pStats->pStat[j].dwStatValue;
-						aStatList[dwStats].wStatIndex = pUnit->pStats->pStat[j].wStatIndex;
-						aStatList[dwStats].wSubIndex = pUnit->pStats->pStat[j].wSubIndex;
+						aStatList[dwStats].dwStatValue = pUnit->pStats->StatVec.pStats[j].dwStatValue;
+						aStatList[dwStats].wStatIndex = pUnit->pStats->StatVec.pStats[j].wStatIndex;
+						aStatList[dwStats].wSubIndex = pUnit->pStats->StatVec.pStats[j].wSubIndex;
 						dwStats++;	
 					}
 
@@ -972,23 +972,21 @@ void InsertStatsToGenericObject(UnitAny* pUnit, StatList* pStatList, JSContext* 
 		return;
 	if((pStatList->dwUnitId == pUnit->dwUnitId && pStatList->dwUnitType == pUnit->dwType) || pStatList->pUnit == pUnit)
 	{
-		pStat = pStatList->pStat;
+		pStat = pStatList->StatVec.pStats;
 
-		if(pStatList->wStatCount1)
-			for(int nStat = 0; nStat < pStatList->wStatCount1; nStat++)
-			{
-				InsertStatsNow(pStat, nStat, cx, pArray);
-			}
+		for(int nStat = 0; nStat < pStatList->StatVec.wCount; nStat++)
+		{
+			InsertStatsNow(pStat, nStat, cx, pArray);
+		}
 	}
 	if((pStatList->dwFlags >> 24 & 0x80))
 	{
-		pStat = pStatList->pSetStat;
+		pStat = pStatList->SetStatVec.pStats;
 
-		if(pStatList->wSetStatCount)
-			for(int nStat = 0; nStat < pStatList->wSetStatCount; nStat++)
-			{
-				InsertStatsNow(pStat, nStat, cx, pArray);
-			}
+		for(int nStat = 0; nStat < pStatList->SetStatVec.wCount; nStat++)
+		{
+			InsertStatsNow(pStat, nStat, cx, pArray);
+		}
 	}
 }
 
