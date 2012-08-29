@@ -168,6 +168,35 @@ JSAPI_FUNC(my_acceptTrade)
 	THROW_ERROR(cx, "Invalid parameter passed to acceptTrade!");
 }
 
+JSAPI_FUNC(my_tradeOk)
+{	
+	if(!WaitForGameReady())
+		THROW_WARNING(cx, "Game not ready");
+
+	CriticalMisc myMisc;
+	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
+	unsigned int i;
+
+	myMisc.EnterSection();
+
+	if(pTdi != NULL)
+	{
+		for(i = 0; i < pTdi->numLines; ++i)
+		{
+			// Not sure if *p_D2CLIENT_TransactionDialogs == 1 necessary if it's in
+			// the dialog list, but if it's not 1, a crash is guaranteed. (CrazyCasta)
+			if(pTdi->dialogLines[i].handler == D2CLIENT_TradeOK &&
+				*p_D2CLIENT_TransactionDialogs == 1)
+			{
+				D2CLIENT_TradeOK();
+				return JS_TRUE;
+			}
+		}
+	}
+
+	THROW_ERROR(cx, "Not in proper state to click ok to trade.");
+}
+
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())

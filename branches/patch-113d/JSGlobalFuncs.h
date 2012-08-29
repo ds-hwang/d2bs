@@ -90,6 +90,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"copyUnit",			my_copyUnit,			1},
 	{"clickMap",			my_clickMap,			3},
 	{"acceptTrade",			my_acceptTrade,			0},
+	{"tradeOk",				my_tradeOk,				0},
 	{"beep",				my_beep,				0},
 	{"clickItem",			my_clickItem,			0},
 	{"getDistance",			my_getDistance,			2},

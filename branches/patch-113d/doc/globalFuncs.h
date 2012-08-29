@@ -1779,6 +1779,14 @@ bool acceptTrade(int action);
  */
 bool acceptTrade();
 
+/** Hit the OK button to open the trade window.
+ *
+ * Throws an error if client not in a proper state to click ok.
+ *
+ * \ingroup globalFunctions
+ */
+void tradeOk();
+
 /** Make the windows default beep sound.
  *
  * \ingroup globalFunctions
