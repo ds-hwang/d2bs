@@ -197,6 +197,47 @@ JSAPI_FUNC(my_tradeOk)
 	THROW_ERROR(cx, "Not in proper state to click ok to trade.");
 }
 
+JSAPI_FUNC(my_getDialogLines)
+{
+	CriticalMisc myMisc;
+	TransactionDialogsInfo_t* pTdi = *p_D2CLIENT_pTransactionDialogsInfo;
+	unsigned int i;
+	JSObject* pReturnArray;
+	JSObject* line;
+	jsval js_text, js_selectable, js_line;
+	char* ansi_text;
+
+	myMisc.EnterSection();
+
+	JS_EnterLocalRootScope(cx);
+
+	if(pTdi != NULL)
+	{
+		pReturnArray = JS_NewArrayObject(cx, pTdi->numLines, NULL);
+		for(i = 0; i < pTdi->numLines; ++i)
+		{
+			ansi_text = UnicodeToAnsi(pTdi->dialogLines[i].text);
+			js_text = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ansi_text));
+			delete[] ansi_text;
+
+			js_selectable = BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
+
+			line = BuildObject(cx);
+			JS_SetProperty(cx, line, "text", &js_text);
+			JS_SetProperty(cx, line, "selectable", &js_selectable);
+
+			js_line = OBJECT_TO_JSVAL(line);
+			JS_SetElement(cx, pReturnArray, i, &js_line);
+		}
+
+		*rval = OBJECT_TO_JSVAL(pReturnArray);
+	}
+
+	JS_LeaveLocalRootScope(cx);
+
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_getPath)
 {	
 	if(!WaitForGameReady())

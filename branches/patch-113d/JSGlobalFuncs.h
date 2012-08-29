@@ -46,6 +46,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"getTickCount",		my_getTickCount,		0},
 	{"getInteractedNPC",	my_getInteractedNPC,	0},
 	{"getIsTalkingNPC",		my_getIsTalkingNPC,		0},
+	{"getDialogLines",		my_getDialogLines,		0},
 
 	// utility functions that don't have anything to do with the game
 	{"print",				my_print,				1},
