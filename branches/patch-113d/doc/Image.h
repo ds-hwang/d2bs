@@ -58,7 +58,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Image.
 	 *
-	 * \param color The color of the Image.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 */
@@ -74,7 +74,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Image.
 	 *
-	 * \param color The color of the Image.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -98,7 +98,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Image.
 	 *
-	 * \param color The color of the Image.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -125,7 +125,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Image.
 	 *
-	 * \param color The color of the Image.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -154,7 +154,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Image.
 	 *
-	 * \param color The color of the Image.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *

@@ -20,6 +20,14 @@
  *
  * 5, 7 - Completely opaque, with color
  *
+ * \section sh_color The colors of screen hooks.
+ *
+ * The color of screen hooks is a 8-bit value (0-255) that specifies a color.
+ * The following picture was generated using Boxes of each color. Color appears
+ * to be consistent between different screen hooks.
+ *
+ * \image html palette.png Screen hook palette.
+ *
  */
 
 /** The type of a click handler.

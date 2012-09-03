@@ -114,7 +114,7 @@ public:
 	 *
 	 * \param y2 The ysize (height) of the Box.
 	 *
-	 * \param color The color of the Box.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -142,7 +142,7 @@ public:
 	 *
 	 * \param y2 The ysize (height) of the Box.
 	 *
-	 * \param color The color of the Box.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -174,7 +174,7 @@ public:
 	 *
 	 * \param y2 The ysize (height) of the Box.
 	 *
-	 * \param color The color of the Box.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -207,7 +207,7 @@ public:
 	 *
 	 * \param y2 The ysize (height) of the Box.
 	 *
-	 * \param color The color of the Box.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *

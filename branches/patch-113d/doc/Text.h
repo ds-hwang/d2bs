@@ -58,7 +58,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 */
@@ -74,7 +74,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -92,7 +92,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -118,7 +118,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -148,7 +148,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
@@ -179,7 +179,7 @@ public:
 	 *
 	 * \param y The y coordinate (top) of the Text.
 	 *
-	 * \param color The color of the Text.
+	 * \param color See \ref sh_color
 	 *
 	 * See: http://forums.d2botnet.org/viewtopic.php?f=18&t=1000
 	 *
