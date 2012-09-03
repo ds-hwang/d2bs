@@ -1306,6 +1306,26 @@ void js_strict(bool setStrictFlag);
  */
 String version();
 
+/** Get the D2BS version control string.
+ *
+ * Returns "SVN revision rxxxx" (where xxxx is the revision).
+ *
+ * \ingroup globalFunctions
+ *
+ * \return The D2BS version control string.
+ */
+String vcRevString();
+
+/** Get the D2BS version control revision number.
+ *
+ * Returns the svn revision number.
+ *
+ * \ingroup globalFunctions
+ *
+ * \return The D2BS version control revision number.
+ */
+int32_t vcRevNumber();
+
 /** Print the D2BS version string.
  *
  * \ingroup globalFunctions

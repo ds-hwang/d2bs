@@ -16,6 +16,7 @@
 #include "Console.h"
 #include "D2Ptrs.h"
 #include "File.h"
+#include "VCRev.h"
 
 #include "JSScript.h"
 
@@ -212,6 +213,18 @@ JSAPI_FUNC(my_version)
 
 	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.13c.", D2BS_VERSION); 
 
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_vcRevString)
+{
+	*rval = STRING_TO_JSVAL(JS_InternString(cx, vcRev_revString));
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_vcRevNumber)
+{
+	*rval = INT_TO_JSVAL(vcRev_revNumber);
 	return JS_TRUE;
 }
 

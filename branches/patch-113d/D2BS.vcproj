@@ -334,6 +334,10 @@
 				RelativePath=".\D2BS.h"
 				>
 			</File>
+			<File
+				RelativePath=".\VCRev.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Diablo II"

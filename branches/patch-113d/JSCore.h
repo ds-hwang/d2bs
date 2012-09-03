@@ -24,6 +24,8 @@ JSAPI_FUNC(my_clearEvent);
 JSAPI_FUNC(my_clearAllEvents);
 JSAPI_FUNC(my_js_strict);
 JSAPI_FUNC(my_version);
+JSAPI_FUNC(my_vcRevString);
+JSAPI_FUNC(my_vcRevNumber);
 JSAPI_FUNC(my_scriptBroadcast);
 JSAPI_FUNC(my_showConsole);
 JSAPI_FUNC(my_hideConsole);
