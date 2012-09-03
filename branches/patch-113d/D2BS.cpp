@@ -12,6 +12,7 @@
 #include "Console.h"
 #include "D2BS.h"
 #include "D2Ptrs.h"
+#include "Version.h"
 
 #ifdef _MSVC_DEBUG
 #include "D2Loader.h"
@@ -57,6 +58,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, LPVOID lpReserved)
 #endif
 
 			Vars.bShutdownFromDllMain = FALSE;
+			version_updateVersionString();
 			SetUnhandledExceptionFilter(ExceptionHandler);
 			if(!Startup())
 				return FALSE;
@@ -96,6 +98,8 @@ BOOL Startup(void)
 	Vars.bGameLoopEntered = FALSE;
 
 	Vars.SectionCount = 0;
+
+	version_updateVersionString();
 
 	Genhook::Initialize();
 	DefineOffsets();

@@ -72,6 +72,7 @@ struct Variables
 	char	szDefault[_MAX_FNAME];
 	char	szClassic[30];
 	char	szLod[30];
+	char*	pszD2bsVersionString;
 
 	WNDPROC oldWNDPROC;
 	HHOOK hMouseHook;

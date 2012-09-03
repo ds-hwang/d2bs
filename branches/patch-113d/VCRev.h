@@ -4,7 +4,7 @@
 #ifndef VCREV_H
 #define VCREV_H
 
-const char* vcRev_revString = "Unofficial build";
+const char* const vcRev_revString = "Unofficial build";
 const int vcRev_revNumber = -1;
 
 #endif

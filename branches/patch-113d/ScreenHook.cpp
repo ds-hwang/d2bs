@@ -16,8 +16,7 @@ CRITICAL_SECTION Genhook::globalSection = {0};
 void DrawLogo(void)
 {
 	static char img[_MAX_PATH+_MAX_FNAME] = "";
-	static char version[] = "D2BS " D2BS_VERSION;
-	static int x = (CalculateTextLen(version, 0).x/2);
+	static int x = (CalculateTextLen(Vars.pszD2bsVersionString, 0).x/2);
 
 	if(img[0] == '\0')
 		sprintf_s(img, sizeof(img), "%sversion.bmp", Vars.szPath);
@@ -27,10 +26,10 @@ void DrawLogo(void)
 	if(!Console::IsVisible())
 	{
 		myDrawAutomapCell(vimg, dx, 9, 0);
-		myDrawText(version, dx-x, 14, 4, 0);
+		myDrawText(Vars.pszD2bsVersionString, dx-x, 14, 4, 0);
 	} else {
 		myDrawAutomapCell(vimg, dx, Console::GetHeight()+9, 0);
-		myDrawText(version, dx-x, Console::GetHeight()+14, 4, 0);
+		myDrawText(Vars.pszD2bsVersionString, dx-x, Console::GetHeight()+14, 4, 0);
 	}
 }
 

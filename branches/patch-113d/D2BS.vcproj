@@ -327,6 +327,10 @@
 			Name="Main"
 			>
 			<File
+				RelativePath=".\Build.h"
+				>
+			</File>
+			<File
 				RelativePath=".\D2BS.cpp"
 				>
 			</File>
@@ -336,6 +340,14 @@
 			</File>
 			<File
 				RelativePath=".\VCRev.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Version.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Version.h"
 				>
 			</File>
 		</Filter>

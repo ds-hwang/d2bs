@@ -17,6 +17,7 @@
 #include "D2Ptrs.h"
 #include "File.h"
 #include "VCRev.h"
+#include "Build.h"
 
 #include "JSScript.h"
 
@@ -207,11 +208,12 @@ JSAPI_FUNC(my_version)
 {
 	if(argc < 1)
 	{
-		*rval = STRING_TO_JSVAL(JS_InternString(cx, D2BS_VERSION));
+		*rval = STRING_TO_JSVAL(JS_InternString(cx, Vars.pszD2bsVersionString));
 		return JS_TRUE;
 	}
 
-	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II 1.13c.", D2BS_VERSION); 
+	Print("ÿc4D2BSÿc1 ÿc3%s for Diablo II %s.", Vars.pszD2bsVersionString,
+		build_d2ver); 
 
 	return JS_TRUE;
 }
