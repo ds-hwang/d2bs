@@ -312,8 +312,9 @@ JSAPI_FUNC(my_sendCopyData)
 		data = "";
 
 	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
+	jsrefcount depth = JS_SuspendRequest(cx);
 	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy));
-	
+	JS_ResumeRequest(cx, depth);
 	return JS_TRUE;
 }
 

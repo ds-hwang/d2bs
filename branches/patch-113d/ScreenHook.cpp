@@ -215,10 +215,8 @@ bool Genhook::Click(int button, POINT* loc)
 		return false;
 
 	bool result = false;
-	DWORD ExitCode = 0;
-	JSContext* cx = ScriptEngine::GetGlobalContext();
-	
-	if(owner && JSVAL_IS_FUNCTION(cx, clicked))
+
+	if(owner && JSVAL_IS_FUNCTION(owner->GetContext(), clicked))
 	{
 		Event* evt = new Event;
 		evt->owner= owner;
@@ -231,13 +229,18 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->argv=argv;
 		evt->object=self;
 		evt->functions.push_back( new AutoRoot((clicked)));
+		evt->block = CreateEvent(NULL, false, false, NULL);
+		evt->hasBlocker= true;
+
+		EnterCriticalSection(&Vars.cEventSection);
+			Vars.EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
 		
-		HANDLE hThread;
-		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-		WaitForSingleObject(hThread, 1000);
-		GetExitCodeThread( hThread, &ExitCode);
-		CloseHandle(hThread);
-		result = (ExitCode == 1);
+		WaitForSingleObject(evt->block, INFINITE);
+		CloseHandle(evt->block);
+		result =  evt->hasBlocker;
+		delete evt;
+		
 	}
 	return result;
 }
@@ -272,7 +275,8 @@ void Genhook::SetClickHandler(jsval handler)
 {
 	if(!owner)
 		return;
-	
+	if(JSVAL_IS_VOID(handler))
+		return;
 	Lock();
 	if(!JSVAL_IS_VOID(clicked))
 		JS_RemoveRoot(&clicked);
@@ -301,6 +305,8 @@ void Genhook::SetClickHandler(jsval handler)
 void Genhook::SetHoverHandler(jsval handler)
 {
 	if(!owner)
+		return;
+	if(JSVAL_IS_VOID(handler))
 		return;
 	Lock();
 	if(!JSVAL_IS_VOID(hovered))

@@ -230,6 +230,16 @@ void Script::Stop(bool force, bool reallyForce)
 	// if we've already stopped, just return
 	if(isAborted)
 		return;
+	EnterCriticalSection(&Vars.cEventSection);	
+		for(list<Event*>::iterator it = Vars.EventList.begin(); it != Vars.EventList.end(); it++)
+		if((*it)->owner == this)
+		{
+			Vars.EventList.erase(it);
+			it = Vars.EventList.begin();
+		}
+	
+	LeaveCriticalSection(&Vars.cEventSection);
+
 
 	EnterCriticalSection(&lock);
 
@@ -328,6 +338,8 @@ bool Script::Include(const char* file)
 
 bool Script::IsRunning(void)
 {
+	if(scriptState == Command)
+		return true;
 	return context && !(!JS_IsRunning(context) || IsPaused());
 }
 
@@ -623,7 +635,9 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 			LeaveCriticalSection(&Vars.cEventSection);
 			
 			JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
+			DWORD LastThreadid;
 			JS_SetContextPrivate(cx, evt->owner);
+			LastThreadid = evt->owner->GetThreadId();
 			JS_BeginRequest(cx);
 
 				callEventFunction(cx,evt); // call the first event
@@ -632,10 +646,11 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 			while (!fullSearch)
 			{
 				match = false;
+				
 				EnterCriticalSection(&Vars.cEventSection); // call any other events on the que with the same script
 				for(list<Event*>::iterator it = Vars.EventList.begin(); it != Vars.EventList.end(); it++)
 				{					
-					if((*it)->owner->GetThreadId() == evt->owner->GetThreadId())
+					if((*it)->owner->GetThreadId() == LastThreadid)
 					{
 						match = true;
 						evt=(*it);
@@ -652,23 +667,16 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 
 			JS_DestroyContextNoGC(cx);
 			// we have to clean up the event
-			for(uintN i = 0; i < evt->argc; i++)
-			{
-				evt->argv[i]->Release();
-				if(evt->argv[i])
-					delete evt->argv[i];
-			}
-			if(evt->argv)
-				delete[] evt->argv;
-			delete evt;
+			
+			
 		}		
 	}			
 	return true;
 }
 bool callEventFunction(JSContext* cx ,Event* evt)
 {
-	bool block =false;
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
+	bool block = false;
+	if((evt->owner->IsRunning() || evt->owner->GetState() == Command) && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame) && evt->argc >0)
 	{
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)
@@ -692,7 +700,21 @@ bool callEventFunction(JSContext* cx ,Event* evt)
 
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(&args[i]);
+		 //clean up 
 		delete[] args;
+			for(uintN i = 0; i < evt->argc; i++)
+			{
+				evt->argv[i]->Release();
+				if(evt->argv[i])
+					delete evt->argv[i];
+			}
+			if(evt->argv)
+				delete[] evt->argv;
+			if(evt->hasBlocker){
+				evt->hasBlocker =  block;
+				SetEvent(evt->block);
+			} else
+				delete evt;
 	}
 return block;
 }

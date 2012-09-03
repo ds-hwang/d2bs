@@ -29,6 +29,8 @@ struct Event {
 	FunctionList functions;
 	AutoRoot** argv;
 	uintN argc;
+	void* block;
+	bool hasBlocker;
 };
 
 class Script
