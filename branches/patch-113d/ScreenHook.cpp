@@ -227,16 +227,13 @@ bool Genhook::Click(int button, POINT* loc)
 		// Create a new context because the excution time of this event is
 		// user defined (depends on what the handler does).
 		cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
-		Event* evt = new Event;
-		evt->owner= owner;
-		evt->argc=3;
+
 		AutoRoot** argv = new AutoRoot*[3];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(button));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->x));
 		argv[2] = new AutoRoot(INT_TO_JSVAL(loc->y));
- 
-		evt->argv=argv;
-		evt->object=self;
+
+		Event* evt = new Event(owner, self, argv, 3);
 		evt->functions.push_back( new AutoRoot((clicked)));
 
 		result = callEventFunction(cx, evt);
@@ -257,15 +254,11 @@ void Genhook::Hover(POINT* loc)
 
 	if(owner && hoveredValid)
 	{
-		Event* evt = new Event;
-		evt->owner= owner;
-		evt->argc=2;
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(loc->x));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->y));
 
-		evt->argv=argv;
-		evt->object=self;
+		Event* evt = new Event(owner, self, argv, 2);
 		evt->functions.push_back(new AutoRoot((hovered)));
 
 		EnterCriticalSection(&Vars.cEventSection);

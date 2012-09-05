@@ -230,16 +230,11 @@ void Script::Stop(bool force, bool reallyForce)
 	// if we've already stopped, just return
 	if(isAborted)
 		return;
-	EnterCriticalSection(&Vars.cEventSection);	
-		for(list<Event*>::iterator it = Vars.EventList.begin(); it != Vars.EventList.end(); it++)
-		if((*it)->owner == this)
-		{
-			Vars.EventList.erase(it);
-			it = Vars.EventList.begin();
-		}
-	
-	LeaveCriticalSection(&Vars.cEventSection);
 
+	// Kill all our events
+	for(list<Event*>::iterator it = Vars.EventList.begin(); it != Vars.EventList.end(); it++)
+		if((*it)->owner == this)
+			(*it)->dead = true;
 
 	EnterCriticalSection(&lock);
 
@@ -439,12 +434,8 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
-	Event* evt = new Event;
-	evt->owner = this;
+	Event* evt = new Event(this, globalObject, argv, argc);
 	evt->functions = functions[evtName];
-	evt->argc = argc;
-	evt->argv = argv;
-	evt->object = globalObject;
 	
 	int timeout = 0;
 	while(! TryEnterCriticalSection(&Vars.cEventSection) )
@@ -478,12 +469,8 @@ bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 	for(uintN i = 0; i < argc; i++)
 		argv[i]->Take();
 
-	Event* evt = new Event;
-	evt->owner = this;
+	Event* evt = new Event(this, globalObject, argv, argc);
 	evt->functions = functions[evtName];
-	evt->argc = argc;
-	evt->argv = argv;
-	evt->object = globalObject;
 	
 	return CreateContextAndHandleEvent(evt);
 }
@@ -587,7 +574,6 @@ bool WINAPI CreateContextAndHandleEvent(Event* evt)
 }
 DWORD WINAPI EventThread(LPVOID lpParam)
 {
-
 	while(Vars.bNeedShutdown)
 	{
 		Sleep(10);
@@ -607,7 +593,8 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 			LastThreadid = evt->owner->GetThreadId();
 			JS_BeginRequest(cx);
 
-				callEventFunction(cx,evt); // call the first event
+			callEventFunction(cx,evt); // call the first event
+
 			bool match = false;  // vars to keep event list unlocked dont want the list locked while in event call
 			bool fullSearch = false; 
 			while (!fullSearch)
@@ -644,7 +631,9 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 bool callEventFunction(JSContext* cx ,Event* evt)
 {
 	bool block = false;
-	if((evt->owner->IsRunning() || evt->owner->GetState() == Command) && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame) && evt->argc >0)
+	if((evt->owner->IsRunning() || evt->owner->GetState() == Command) &&
+		!(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame) &&
+		evt->argc > 0 && !evt->dead)
 	{
 		jsval* args = new jsval[evt->argc];
 		for(uintN i = 0; i < evt->argc; i++)

@@ -23,12 +23,23 @@ typedef std::list<AutoRoot*> FunctionList;
 typedef std::map<std::string, FunctionList> FunctionMap;
 typedef std::list<Script*> ScriptList;
 
-struct Event {
+class Event {
+public:
+	Event(Script* _owner, JSObject* _object, AutoRoot** _argv, uintN _argc)
+	{
+		owner = _owner;
+		object = _object;
+		argv = _argv;
+		argc = _argc;
+		dead = false;
+	}
+
 	Script* owner;
 	JSObject* object;
 	FunctionList functions;
 	AutoRoot** argv;
 	uintN argc;
+	bool dead;
 };
 
 class Script
