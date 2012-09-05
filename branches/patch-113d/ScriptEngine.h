@@ -35,6 +35,8 @@ class ScriptEngine
 	static Script* console;
 	static EngineState state;
 	static CRITICAL_SECTION lock;
+	static CRITICAL_SECTION globalContextLock;
+	static DWORD globalContextUsage;
 
 public:
 	friend class Script;
@@ -53,7 +55,10 @@ public:
 	static unsigned int GetCount(bool active = true, bool unexecuted = false);
 
 	static JSRuntime* GetRuntime(void) { return runtime; }
-	static JSContext* GetGlobalContext(void) { return context; }
+	static JSContext* GrabGlobalContext(void);
+	static void ReleaseGlobalContext();
+
+	static JSBool GetNewNumberValue(jsdouble val, jsval* rval);
 
 	static void StopAll(bool forceStop = false);
 	static void ExecEventAsync(char* evtName, AutoRoot** argv, uintN argc);

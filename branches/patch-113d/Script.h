@@ -29,8 +29,6 @@ struct Event {
 	FunctionList functions;
 	AutoRoot** argv;
 	uintN argc;
-	void* block;
-	bool hasBlocker;
 };
 
 class Script
@@ -110,6 +108,7 @@ struct RUNCOMMANDSTRUCT {
 
 DWORD WINAPI RunCommandThread(void* data);
 DWORD WINAPI ScriptThread(void* data);
-DWORD WINAPI FuncThread(void* data);
+DWORD WINAPI CreateContextAndHandleEventThread(void* evt);
+bool WINAPI CreateContextAndHandleEvent(Event* data);
 DWORD WINAPI EventThread(LPVOID lpParam);
 bool callEventFunction(JSContext* cx ,Event* evt);

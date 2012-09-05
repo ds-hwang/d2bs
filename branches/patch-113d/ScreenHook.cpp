@@ -210,13 +210,23 @@ Genhook::~Genhook(void) {
 
 bool Genhook::Click(int button, POINT* loc)
 {
+	JSContext* cx;
+	bool clickedValid;
+
 	if(!IsInRange(loc))
 		return false;
 
 	bool result = false;
 
-	if(owner && JSVAL_IS_FUNCTION(owner->GetContext(), clicked))
+	cx = ScriptEngine::GrabGlobalContext();
+	clickedValid = JSVAL_IS_FUNCTION(cx, clicked);
+	ScriptEngine::ReleaseGlobalContext();
+
+	if(owner && clickedValid)
 	{
+		// Create a new context because the excution time of this event is
+		// user defined (depends on what the handler does).
+		cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 		Event* evt = new Event;
 		evt->owner= owner;
 		evt->argc=3;
@@ -228,30 +238,24 @@ bool Genhook::Click(int button, POINT* loc)
 		evt->argv=argv;
 		evt->object=self;
 		evt->functions.push_back( new AutoRoot((clicked)));
-		evt->block = CreateEvent(NULL, false, false, NULL);
-		evt->hasBlocker= true;
 
-		EnterCriticalSection(&Vars.cEventSection);
-			Vars.EventList.push_front(evt);
-		LeaveCriticalSection(&Vars.cEventSection);
-		
-		WaitForSingleObject(evt->block, INFINITE);
-		CloseHandle(evt->block);
-		result =  evt->hasBlocker;
-		delete evt;
-		
+		result = callEventFunction(cx, evt);
 	}
+
 	return result;
 }
 
 void Genhook::Hover(POINT* loc)
 {
+	bool hoveredValid;
 	if(!IsInRange(loc))
 		return;
 
-	JSContext* cx = ScriptEngine::GetGlobalContext();
-	
-	if(owner && JSVAL_IS_FUNCTION(cx, hovered))
+	JSContext* cx = ScriptEngine::GrabGlobalContext();
+	hoveredValid = JSVAL_IS_FUNCTION(cx, hovered);
+	ScriptEngine::ReleaseGlobalContext();
+
+	if(owner && hoveredValid)
 	{
 		Event* evt = new Event;
 		evt->owner= owner;
@@ -259,67 +263,54 @@ void Genhook::Hover(POINT* loc)
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot(INT_TO_JSVAL(loc->x));
 		argv[1] = new AutoRoot(INT_TO_JSVAL(loc->y));
-		 
+
 		evt->argv=argv;
 		evt->object=self;
 		evt->functions.push_back(new AutoRoot((hovered)));
-		
-		HANDLE hThread;
-		hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-		CloseHandle(hThread);
+
+		EnterCriticalSection(&Vars.cEventSection);
+		Vars.EventList.push_front(evt);
+		LeaveCriticalSection(&Vars.cEventSection);
 	}
 }
 
 void Genhook::SetClickHandler(jsval handler)
 {
-	if(!owner)
+	if(!owner || JSVAL_IS_VOID(handler))
 		return;
-	if(JSVAL_IS_VOID(handler))
-		return;
+
 	Lock();
-	if(!JSVAL_IS_VOID(clicked))
-		JS_RemoveRoot(&clicked);
-	JSContext* cx = ScriptEngine::GetGlobalContext();
-	
-	
-	JS_SetContextThread(cx);
-	JS_BeginRequest(cx);
+
+	JSContext* cx = ScriptEngine::GrabGlobalContext();
+
 	if(JSVAL_IS_FUNCTION(cx, handler))
-		clicked = handler;
-	if(!JSVAL_IS_VOID(clicked))
 	{
-		if(JS_AddRoot(&clicked) == JS_FALSE)
-		{
-			Unlock();
-			JS_EndRequest(cx);
-			JS_ClearContextThread(cx);
-			return;
-		}
+		JS_RemoveRoot(&clicked);
+		clicked = handler;
+		JS_AddRoot(&clicked);
 	}
-	JS_EndRequest(cx);
-	JS_ClearContextThread(cx);
+
+	ScriptEngine::ReleaseGlobalContext();
 	Unlock();
 }
 
 void Genhook::SetHoverHandler(jsval handler)
 {
-	if(!owner)
+	if(!owner || JSVAL_IS_VOID(handler))
 		return;
-	if(JSVAL_IS_VOID(handler))
-		return;
+
 	Lock();
-	if(!JSVAL_IS_VOID(hovered))
-		JS_RemoveRoot(&hovered);
-	if(JSVAL_IS_FUNCTION(owner->GetContext(), handler))
-		hovered = handler;
-	if(!JSVAL_IS_VOID(hovered))
+
+	JSContext* cx = ScriptEngine::GrabGlobalContext();
+
+	if(JSVAL_IS_FUNCTION(cx, handler))
 	{
-		if(JS_AddRoot(&hovered) == JS_FALSE)
-		{
-			Unlock();
-			return;
-		}
+		JS_RemoveRoot(&hovered);
+		hovered = handler;
+		JS_AddRoot(&hovered);
 	}
+
+	ScriptEngine::GrabGlobalContext();
 	Unlock();
 }
 

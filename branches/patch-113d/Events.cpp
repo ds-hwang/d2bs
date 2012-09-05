@@ -64,7 +64,8 @@ bool __fastcall LifeEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv2 = new AutoRoot*[1];
 		argv2[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv2[0]->value());
+
+		ScriptEngine::GetNewNumberValue(helper->arg1, argv2[0]->value());
 		script->ExecEventAsync("melife", 1, argv2);
 	}
 	return true;
@@ -83,7 +84,7 @@ bool __fastcall ManaEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg1, argv[0]->value());
 		script->ExecEventAsync("memana", 1, argv);
 	}
 	return true;
@@ -103,7 +104,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->key, argv[0]->value());
 		script->ExecEventAsync(event, 1, argv);
 	}
 	bool block = false;
@@ -112,7 +113,7 @@ bool __fastcall KeyEventCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->key, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->key, argv[0]->value());
 		if(script->ExecEvent(event, 1, argv))
 			block = true;
 	}
@@ -133,7 +134,7 @@ bool __fastcall PlayerAssignCallback(Script* script, void* argv, uint argc)
 	{
 		AutoRoot** argv = new AutoRoot*[1];
 		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg1, argv[0]->value());
 		script->ExecEventAsync("playerassign", 1, argv);
 	}
 	return true;
@@ -175,8 +176,8 @@ bool __fastcall MouseMoveCallback(Script* script, void* argv, uint argc)
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot();
 		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg2, argv[1]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg1, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg2, argv[1]->value());
 		script->ExecEventAsync("mousemove", 2, argv);
 	}
 	return true;
@@ -217,8 +218,8 @@ bool __fastcall GoldDropCallback(Script* script, void* argv, uint argc)
 		AutoRoot** argv = new AutoRoot*[2];
 		argv[0] = new AutoRoot();
 		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg1, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->arg2, argv[1]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg1, argv[0]->value());
+		ScriptEngine::GetNewNumberValue(helper->arg2, argv[1]->value());
 		script->ExecEventAsync("golddrop", 2, argv);
 	}
 	return true;
@@ -232,18 +233,23 @@ void GoldDropEvent(DWORD GID, BYTE Mode)
 
 bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 {
+	JSContext* cx;
 	ChatEventHelper* helper = (ChatEventHelper*)argv;
+
 	if(script->IsRunning() && script->IsListenerRegistered(helper->event))
 	{
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		JS_BeginRequest(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_EndRequest(ScriptEngine::GetGlobalContext());
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+
+		cx = ScriptEngine::GrabGlobalContext();
+
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->nick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
+
+		ScriptEngine::ReleaseGlobalContext();
+
 		script->ExecEventAsync(helper->event, 2, argv);
 	}
+
 	std::string evt = helper->event;
 	evt = evt + "blocker";
 	bool block = false;
@@ -251,12 +257,14 @@ bool __fastcall ChatEventCallback(Script* script, void* argv, uint argc)
 	if(script->IsRunning() && script->IsListenerRegistered(evt.c_str()))
 	{
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		JS_BeginRequest(ScriptEngine::GetGlobalContext());
-		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->nick)));
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_EndRequest(ScriptEngine::GetGlobalContext());
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+
+		cx = ScriptEngine::GrabGlobalContext();
+
+		argv[0] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->nick)));
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
+
+		ScriptEngine::ReleaseGlobalContext();
+
 		if (script->ExecEvent(const_cast<char*>(evt.c_str()), 2, argv))
 			block = true;
 	}
@@ -277,17 +285,21 @@ bool WhisperEvent(char* lpszNick, char* lpszMsg)
 
 bool __fastcall CopyDataCallback(Script* script, void* argv, uint argc)
 {
+	JSContext* cx;
+
 	CopyDataHelper* helper = (CopyDataHelper*)argv;
 	if(script->IsRunning() && script->IsListenerRegistered("copydata"))
 	{
 		AutoRoot** argv = new AutoRoot*[2];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		JS_BeginRequest(ScriptEngine::GetGlobalContext());
+
+		cx = ScriptEngine::GrabGlobalContext();
+
 		argv[0] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[0]->value());
-		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->msg)));
-		JS_EndRequest(ScriptEngine::GetGlobalContext());
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+		JS_NewNumberValue(cx, helper->mode, argv[0]->value());
+		argv[1] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->msg)));
+
+		ScriptEngine::ReleaseGlobalContext();
+
 		script->ExecEventAsync("copydata", 2, argv);
 	}
 	return true;
@@ -321,20 +333,24 @@ void CopyDataEvent(DWORD dwMode, char* lpszMsg)
 
 bool __fastcall ItemEventCallback(Script* script, void* argv, uint argc)
 {
+	JSContext* cx;
 	ItemEventHelper* helper = (ItemEventHelper*)argv;
+
 	if(script->IsRunning() && script->IsListenerRegistered("itemaction"))
 	{
 		AutoRoot** argv = new AutoRoot*[4];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		JS_BeginRequest(ScriptEngine::GetGlobalContext());
+
+		cx = ScriptEngine::GrabGlobalContext();
+
 		argv[0] = new AutoRoot();
 		argv[1] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->id, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[1]->value());
-		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->code)));
+		JS_NewNumberValue(cx, helper->id, argv[0]->value());
+		JS_NewNumberValue(cx, helper->mode, argv[1]->value());
+		argv[2] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->code)));
 		argv[3] = new AutoRoot(BOOLEAN_TO_JSVAL(helper->global));
-		JS_EndRequest(ScriptEngine::GetGlobalContext());
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+
+		ScriptEngine::ReleaseGlobalContext();
+
 		script->ExecEventAsync("itemaction", 4, argv);
 	}
 	return true;
@@ -348,22 +364,26 @@ void ItemActionEvent(DWORD GID, char* Code, BYTE Mode, bool Global)
 
 bool __fastcall GameActionEventCallback(Script* script, void* argv, uint argc)
 {
+	JSContext* cx;
 	GameActionEventHelper* helper = (GameActionEventHelper*)argv;
+
 	if(script->IsRunning() && script->IsListenerRegistered("gameevent"))
 	{
 		AutoRoot** argv = new AutoRoot*[5];
-		JS_SetContextThread(ScriptEngine::GetGlobalContext());
-		JS_BeginRequest(ScriptEngine::GetGlobalContext());
+
+		cx = ScriptEngine::GrabGlobalContext();
+
 		argv[0] = new AutoRoot();
 		argv[1] = new AutoRoot();
 		argv[2] = new AutoRoot();
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->mode, argv[0]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->param1, argv[1]->value());
-		JS_NewNumberValue(ScriptEngine::GetGlobalContext(), helper->param2, argv[2]->value());
-		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name1)));
-		argv[4] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(ScriptEngine::GetGlobalContext(), helper->name2)));
-		JS_EndRequest(ScriptEngine::GetGlobalContext());
-		JS_ClearContextThread(ScriptEngine::GetGlobalContext());
+		JS_NewNumberValue(cx, helper->mode, argv[0]->value());
+		JS_NewNumberValue(cx, helper->param1, argv[1]->value());
+		JS_NewNumberValue(cx, helper->param2, argv[2]->value());
+		argv[3] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name1)));
+		argv[4] = new AutoRoot(STRING_TO_JSVAL(JS_NewStringCopyZ(cx, helper->name2)));
+
+		ScriptEngine::ReleaseGlobalContext();
+
 		script->ExecEventAsync("gameevent", 5, argv);
 	}
 	return true;

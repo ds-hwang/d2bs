@@ -453,7 +453,7 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 		if(timeout > 3)
 		{
 			HANDLE hThread;
-			hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
+			hThread = CreateThread(0, 0, CreateContextAndHandleEventThread, evt, 0, 0);
 			CloseHandle(hThread);
 			return;
 		}
@@ -462,8 +462,8 @@ void Script::ExecEventAsync(char* evtName, uintN argc, AutoRoot** argv)
 
 	Vars.EventList.push_front(evt);
 	LeaveCriticalSection(&Vars.cEventSection);
-
 }
+
 bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 {
 	if(!(!IsAborted() && !IsPaused() && functions.count(evtName)))
@@ -485,14 +485,7 @@ bool Script::ExecEvent(char* evtName, uintN argc, AutoRoot** argv)
 	evt->argv = argv;
 	evt->object = globalObject;
 	
-	HANDLE hThread;
-	hThread = CreateThread(0, 0, FuncThread, evt, 0, 0);
-	WaitForSingleObject(hThread, 1000);
-	DWORD ExitCode = 0;
-	GetExitCodeThread( hThread, &ExitCode);
-	CloseHandle(hThread);
-	
-	return (ExitCode == 1);
+	return CreateContextAndHandleEvent(evt);
 }
 
 #ifdef DEBUG
@@ -570,56 +563,27 @@ DWORD WINAPI ScriptThread(void* data)
 	return 0;
 }
 
-DWORD WINAPI FuncThread(void* data)
+DWORD WINAPI CreateContextAndHandleEventThread(void* evt)
 {
-	Event* evt = (Event*)data;
+	return CreateContextAndHandleEvent((Event*)evt) != 0;
+}
+
+bool WINAPI CreateContextAndHandleEvent(Event* evt)
+{
+	bool blocks;
+
 	if(!evt)
 		return 0;
 
 	JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
 	JS_SetContextPrivate(cx, evt->owner);
 	JS_BeginRequest(cx);
-	bool block =false;
-	if(evt->owner->IsRunning() && !(evt->owner->GetState() == InGame && ClientState() != ClientStateInGame))
-	{
-		jsval* args = new jsval[evt->argc];
-		for(uintN i = 0; i < evt->argc; i++)
-		{
-			args[i] = *evt->argv[i]->value();
-			if(JS_AddRoot(&args[i]) == JS_FALSE)
-			{
-				if(evt->argv)
-					delete[] evt->argv;
-				delete evt;
-				return NULL;
-			}
-		}
-		jsval rval = JSVAL_VOID;
 
-		for(FunctionList::iterator it = evt->functions.begin(); it != evt->functions.end(); it++)
-		{
-			JS_CallFunctionValue(cx, evt->object, *(*it)->value(), evt->argc, args, &rval);
-			block |= (JSVAL_IS_BOOLEAN(rval) && JSVAL_TO_BOOLEAN(rval));
-		}
-
-		for(uintN i = 0; i < evt->argc; i++)
-			JS_RemoveRoot(&args[i]);
-		delete[] args;
-	}
+	blocks = callEventFunction(cx, evt);
 
 	JS_DestroyContextNoGC(cx);
-	// we have to clean up the event
-	for(uintN i = 0; i < evt->argc; i++)
-	{
-		evt->argv[i]->Release();
-		if(evt->argv[i])
-			delete evt->argv[i];
-	}
-	if(evt->argv)
-		delete[] evt->argv;
-	delete evt;
 	
-	return block;
+	return blocks;
 }
 DWORD WINAPI EventThread(LPVOID lpParam)
 {
@@ -629,9 +593,12 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 		Sleep(10);
 		while(Vars.EventList.size() > 0)
 		{
+			// Get the head event from the queue
 			EnterCriticalSection(&Vars.cEventSection);
-				Event* evt = Vars.EventList.back();
-				Vars.EventList.pop_back();
+
+			Event* evt = Vars.EventList.back();
+			Vars.EventList.pop_back();
+
 			LeaveCriticalSection(&Vars.cEventSection);
 			
 			JSContext* cx = JS_NewContext(ScriptEngine::GetRuntime(), 8192);
@@ -673,6 +640,7 @@ DWORD WINAPI EventThread(LPVOID lpParam)
 	}			
 	return true;
 }
+
 bool callEventFunction(JSContext* cx ,Event* evt)
 {
 	bool block = false;
@@ -700,21 +668,21 @@ bool callEventFunction(JSContext* cx ,Event* evt)
 
 		for(uintN i = 0; i < evt->argc; i++)
 			JS_RemoveRoot(&args[i]);
-		 //clean up 
+
+		//clean up 
 		delete[] args;
-			for(uintN i = 0; i < evt->argc; i++)
-			{
-				evt->argv[i]->Release();
-				if(evt->argv[i])
-					delete evt->argv[i];
-			}
-			if(evt->argv)
-				delete[] evt->argv;
-			if(evt->hasBlocker){
-				evt->hasBlocker =  block;
-				SetEvent(evt->block);
-			} else
-				delete evt;
+		for(uintN i = 0; i < evt->argc; i++)
+		{
+			evt->argv[i]->Release();
+			if(evt->argv[i])
+				delete evt->argv[i];
+		}
+
+		if(evt->argv)
+			delete[] evt->argv;
+
+		delete evt;
 	}
-return block;
+
+	return block;
 }

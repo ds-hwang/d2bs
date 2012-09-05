@@ -18,6 +18,8 @@ JSRuntime* ScriptEngine::runtime = NULL;
 ScriptMap ScriptEngine::scripts = ScriptMap();
 EngineState ScriptEngine::state = Stopped;
 CRITICAL_SECTION ScriptEngine::lock = {0};
+CRITICAL_SECTION ScriptEngine::globalContextLock;
+DWORD ScriptEngine::globalContextUsage;
 JSContext* ScriptEngine::context = NULL;
 // internal ForEachScript helpers
 bool __fastcall DisposeScript(Script* script, void*, uint);
@@ -111,12 +113,50 @@ unsigned int ScriptEngine::GetCount(bool active, bool unexecuted)
 	return count;
 }
 
+JSContext* ScriptEngine::GrabGlobalContext(void)
+{
+	EnterCriticalSection(&globalContextLock);
+
+	if(globalContextUsage++ == 0)
+	{
+		JS_SetContextThread(context);
+		JS_BeginRequest(context);
+	}
+
+	return context;
+}
+
+void ScriptEngine::ReleaseGlobalContext(void)
+{
+	if(--globalContextUsage == 0)
+	{
+		JS_EndRequest(context);
+		JS_ClearContextThread(context);
+	}
+
+	LeaveCriticalSection(&globalContextLock);
+}
+
+JSBool ScriptEngine::GetNewNumberValue(jsdouble val, jsval* rval)
+{
+	JSBool retval;
+	JSContext* cx = ScriptEngine::GrabGlobalContext();
+
+	retval = JS_NewNumberValue(cx, val, rval);
+
+	ScriptEngine::ReleaseGlobalContext();
+
+	return retval;
+}
+
 BOOL ScriptEngine::Startup(void)
 {
 	if(GetState() == Stopped)
 	{
 		state = Starting;
 		InitializeCriticalSection(&lock);
+		InitializeCriticalSection(&globalContextLock);
+		globalContextUsage = 0;
 		EnterCriticalSection(&lock);
 		// set UTF-8 to enabled--currently not supported, need to recompile spidermonkey
 		//JS_SetCStringsAreUTF8();
