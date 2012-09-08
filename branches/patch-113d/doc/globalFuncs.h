@@ -1809,8 +1809,9 @@ void tradeOk();
 
 /** Get the lines of dialog of whatever you're talking to.
  *
- * Each object has a text property which gives the text and a selectable
- * property which is a boolean as to whether you can click on that line or not.
+ * Each object has a text property which gives the text, a selectable property
+ * which is a boolean as to whether you can click on that line or not, and a
+ * handler function which does the action clicking on the line would perform.
  *
  * \ingroup globalFunctions
  *

@@ -204,8 +204,10 @@ JSAPI_FUNC(my_getDialogLines)
 	unsigned int i;
 	JSObject* pReturnArray;
 	JSObject* line;
-	jsval js_text, js_selectable, js_line;
+	jsval js_text, js_selectable, js_line, js_handler, js_addr;
 	char* ansi_text;
+	JSFunction* jsf_handler;
+	JSObject* jso_addr;
 
 	myMisc.EnterSection();
 
@@ -220,11 +222,18 @@ JSAPI_FUNC(my_getDialogLines)
 			js_text = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ansi_text));
 			delete[] ansi_text;
 
-			js_selectable = BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
+			js_selectable =
+				BOOLEAN_TO_JSVAL(pTdi->dialogLines[i].bMaybeSelectable);
 
 			line = BuildObject(cx);
 			JS_SetProperty(cx, line, "text", &js_text);
 			JS_SetProperty(cx, line, "selectable", &js_selectable);
+			jsf_handler = JS_DefineFunction(cx, line, "handler",
+				my_clickDialog, 0, JSPROP_ENUMERATE);
+			js_addr = OBJECT_TO_JSVAL(jso_addr = JS_NewObject(cx, 0, 0, 0));
+			// line -> JS_GetFunctionObject(jsf_handler) in 1.8.5
+			JS_SetProperty(cx, line, "addr", &js_addr);
+			JS_SetPrivate(cx, jso_addr, &pTdi->dialogLines[i]);
 
 			js_line = OBJECT_TO_JSVAL(line);
 			JS_SetElement(cx, pReturnArray, i, &js_line);
@@ -1194,6 +1203,28 @@ JSAPI_FUNC(my_useSkillPoint)
 		return JS_FALSE;
 
 	UseSkillPoint(skill, count);
+	return JS_TRUE;
+}
+
+JSAPI_FUNC(my_clickDialog)
+{
+	TransactionDialogsLine_t* tdl;
+	jsval js_addr;
+
+	// obj -> JS_GetFunctionObject(JS_CALLEE(cx, vp)) in 1.8.5
+	JS_GetProperty(cx, obj, "addr", &js_addr);
+
+	if(js_addr == JSVAL_VOID)
+		THROW_ERROR(cx, "Can't call, you killed the addr property.");
+
+	tdl = (TransactionDialogsLine_t*)
+		JS_GetPrivate(cx, JSVAL_TO_OBJECT(js_addr));
+
+	if(tdl != NULL && tdl->bMaybeSelectable)
+		tdl->handler();
+	else
+		THROW_ERROR(cx, "That dialog is not currently clickable.");
+
 	return JS_TRUE;
 }
 
