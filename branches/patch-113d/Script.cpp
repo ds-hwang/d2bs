@@ -392,9 +392,14 @@ void Script::UnregisterEvent(const char* evtName, jsval evtFunc)
 			break;
 		}
 	}
-	functions[evtName].remove(func);
-	func->Release();
-	delete func;
+
+	if(func != NULL)
+	{
+		functions[evtName].remove(func);
+		func->Release();
+		delete func;
+	}
+
 	LeaveCriticalSection(&lock);
 }
 

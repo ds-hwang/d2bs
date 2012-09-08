@@ -292,6 +292,43 @@ JSAPI_FUNC(my_paste)
 	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)lptstr));
 	return JS_TRUE;
 }
+
+struct SendMessageArgs
+{
+    HWND hWnd;
+    UINT Msg;
+    WPARAM wParam;
+    LPARAM lParam;
+	LRESULT result;
+};
+
+DWORD WINAPI SendMessageThread(void* data)
+{
+	SendMessageArgs* args = (SendMessageArgs*)data;
+	args->result = SendMessage(args->hWnd, args->Msg, args->wParam, args->lParam);
+	return 0;
+}
+
+LRESULT WINAPI SendMessageByThread(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	LRESULT res;
+	HANDLE hThread;
+	SendMessageArgs* sma = new SendMessageArgs;
+
+	sma->hWnd = hWnd;
+	sma->Msg = Msg;
+	sma->wParam = wParam;
+	sma->lParam = lParam;
+
+	hThread = CreateThread(0, 0, SendMessageThread, sma, 0, 0);
+	WaitForSingleObject(hThread, INFINITE);
+
+	res = sma->result;
+	delete sma;
+
+	return res;
+}
+
 JSAPI_FUNC(my_sendCopyData)
 {
 	if(argc < 4)
@@ -326,10 +363,18 @@ JSAPI_FUNC(my_sendCopyData)
 	if(data == NULL)
 		data = "";
 
-	COPYDATASTRUCT aCopy = { nModeId, strlen(data)+1, data };
-	//jsrefcount depth = JS_SuspendRequest(cx);
-	*rval = INT_TO_JSVAL(SendMessage(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)&aCopy));
-	//JS_ResumeRequest(cx, depth);
+	jsrefcount depth = JS_SuspendRequest(cx);
+
+	COPYDATASTRUCT* aCopy = new COPYDATASTRUCT();
+	aCopy->dwData = nModeId;
+	aCopy->cbData = strlen(data)+1;
+	aCopy->lpData = data;
+
+	*rval = INT_TO_JSVAL(SendMessageByThread(hWnd, WM_COPYDATA, (WPARAM)D2GFX_GetHwnd(), (LPARAM)aCopy));
+
+	delete aCopy;
+
+	JS_ResumeRequest(cx, depth);
 	return JS_TRUE;
 }
 
