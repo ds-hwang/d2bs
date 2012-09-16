@@ -643,6 +643,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Profile.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Profile.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Room.cpp"
 						>
 					</File>
@@ -771,6 +779,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\JSProfile.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\JSRoom.cpp"
 						>
 					</File>
@@ -852,6 +864,10 @@
 					</File>
 					<File
 						RelativePath=".\JSPresetUnit.h"
+						>
+					</File>
+					<File
+						RelativePath=".\JSProfile.h"
 						>
 					</File>
 					<File

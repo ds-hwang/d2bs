@@ -13,6 +13,7 @@
 #include "JSExits.h"
 #include "JSRoom.h"
 #include "JSScript.h"
+#include "JSProfile.h"
 
 JSClass global_obj = {
 	"global", JSCLASS_GLOBAL_FLAGS,
@@ -154,6 +155,20 @@ JSClass unit_class = {
     NULL, NULL, NULL, unit_ctor
 };
 
+JSClass profile_class = {
+	"Profile", JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, profile_finalize,
+    NULL, NULL, NULL, profile_ctor
+};
+
+JSClass profileType_class = {
+	"ProfileType", JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    NULL, NULL, NULL, profileType_ctor
+};
+
 
 JSExtendedClass unit_class_ex = {
 	unit_class,
@@ -184,6 +199,9 @@ JSClassSpec global_classes[] = {
 	{&exit_class,			exit_props,			NULL,					NULL,			NULL},
 	{&party_class,			party_props,		party_methods,			NULL,			NULL},
 	{&room_class,			room_props,			room_methods,			NULL,			NULL},
+	{&profile_class,		profile_props,		profile_methods,		NULL,			NULL},
+	{&profileType_class,	NULL,				NULL,					profileType_props,
+																						NULL},
 
 	// utility objects
 	{&file_class_ex.base,	file_props,			file_methods,			NULL,			file_s_methods},
