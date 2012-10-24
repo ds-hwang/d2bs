@@ -150,6 +150,18 @@ function DA_CheckRunewordSkill(item, whichstat, stattype) {
 
 ///////////////////////////////////// Darien Common functions ////////////////////////////////////////
 
+function is2handedWeapon() {
+    // if wielding a 2h weapon return false
+    var wep = me.getItem(null,1);
+    if(wep) do {
+        if(wep.bodylocation == 4 || wep.bodylocation == 5) {
+            if(getBaseStat(0, wep.classid, 25) || getBaseStat(0, wep.classid, 47)) return true;
+        }
+    } while (wep.getNext(null,1));
+    return false;
+}
+
+
 
 function isAlive(mon_id,spectype) {
     var subject = getMonster(mon_id,spectype);

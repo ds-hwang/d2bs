@@ -28,6 +28,7 @@ function DA_DoPrecasts(gotBOed) {
 	}
 
 	// Holy Shield
+    if(is2handedWeapon()) return false;
 	if((me.getState(101) == 0 && me.mp > 30) || gotBOed ) {
 		DC_DoCast(117,0);
 	}
@@ -51,7 +52,7 @@ function XP_Precasts() {
 		DA_DoPrecasts(BOed);
 	}
 	else {
-		if (DA_Refresh || DC_InTown(me) || BOed) {// Cast only if we want to refresh or if we are in town
+		if (!is2handedWeapon() && (DA_Refresh || DC_InTown(me) || BOed)) {// Cast only if we want to refresh or if we are in town
 			// Holy Shield
 			if(me.mp > 30) {
 				DC_DoCast(117,0);
