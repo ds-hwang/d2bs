@@ -114,6 +114,11 @@ JSAPI_PROP(unit_getProperty)
 		case ME_ITEMONCURSOR:
 			*vp = BOOLEAN_TO_JSVAL(!!D2CLIENT_GetCursorItem());
 			break;
+		case ME_AUTOMAP:
+			*vp = *p_D2CLIENT_AutomapOn ? JSVAL_TRUE : JSVAL_FALSE;
+			//JS_NewNumberValue(cx, (jsdouble)(*p_D2CLIENT_AutomapOn), vp);
+			//*vp = *p_D2CLIENT_AutomapOn;
+			break;
 		case ME_LADDER:
 			if(pData)
 				*vp = BOOLEAN_TO_JSVAL(!!(pData->nCharFlags & PLAYER_TYPE_LADDER));
@@ -142,7 +147,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
+			*vp = BOOLEAN_TO_JSVAL(Vars.bInGame); // (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
@@ -569,6 +574,9 @@ JSAPI_PROP(unit_setProperty)
 				if(pUnit == D2CLIENT_GetPlayerUnit())
 					*p_D2CLIENT_AlwaysRun = !!JSVAL_TO_INT(*vp);
 			}
+			break;
+		case ME_AUTOMAP:
+			*p_D2CLIENT_AutomapOn = JSVAL_TO_BOOLEAN(*vp) ? 1 : 0;
 			break;
 		case ME_NOPICKUP:
 			*p_D2CLIENT_NoPickUp = !!JSVAL_TO_INT(*vp);
