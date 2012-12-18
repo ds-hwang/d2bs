@@ -116,8 +116,6 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_AUTOMAP:
 			*vp = *p_D2CLIENT_AutomapOn ? JSVAL_TRUE : JSVAL_FALSE;
-			//JS_NewNumberValue(cx, (jsdouble)(*p_D2CLIENT_AutomapOn), vp);
-			//*vp = *p_D2CLIENT_AutomapOn;
 			break;
 		case ME_LADDER:
 			if(pData)
@@ -147,7 +145,7 @@ JSAPI_PROP(unit_getProperty)
 			*vp = INT_TO_JSVAL(*p_D2CLIENT_FPS);
 			break;
 		case OOG_INGAME:
-			*vp = BOOLEAN_TO_JSVAL(Vars.bInGame); // (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
+			*vp = (ClientState() == ClientStateMenu ? JSVAL_FALSE : JSVAL_TRUE);
 			break;
 		case OOG_QUITONERROR:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnError);
