@@ -451,12 +451,12 @@ JSAPI_PROP(unit_getProperty)
 				wchar_t wBuffer[2048] = L"";
 				wchar_t bBuffer[1] = {1};
 
-				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB1C, bBuffer, 1, NULL);  
-				::WriteProcessMemory(GetCurrentProcess(), (void*)0x6FBCCB28, &pUnit, 4, NULL);  
+				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB1C), bBuffer, 1, NULL); // d2client + 0x11cb1c
+				::WriteProcessMemory(GetCurrentProcess(), (void*)GetDllOffset("D2Client.dll", 0x11CB28), &pUnit, 4, NULL); // d2client + 0x11cb28
 
 				//D2CLIENT_LoadItemDesc(D2CLIENT_GetPlayerUnit(), 0);				
 				D2CLIENT_LoadItemDesc(pUnit->pItemData->pOwnerInventory->pOwner, 0);
-				ReadProcessBYTES(GetCurrentProcess(), 0x6F9A9E68, wBuffer, 2047); 
+				ReadProcessBYTES(GetCurrentProcess(), GetDllOffset("D2Win.dll", 0xC9E68), wBuffer, 2047); // d2win + 0xc9e68
 
 				char *tmp = UnicodeToAnsi(wBuffer);
 				if(tmp)

@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include "js32.h"
+#include "Offset.h"
 
 CLASS_CTOR(unit);
 

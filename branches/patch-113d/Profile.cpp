@@ -249,6 +249,7 @@ DWORD Profile::login(char** error)
 			case OOG_PLEASE_WAIT: 
 			case OOG_GATEWAY:
 			case OOG_CHARACTER_SELECT_NO_CHARS: 
+			case OOG_CONNECTING:
 			case OOG_NONE:
 				timeout++;
 				break;
