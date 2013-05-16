@@ -339,5 +339,8 @@ int WINAPI LogMessageBoxA_Intercept(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption,
 
 	free(dllAddrs);
 
-	return MessageBoxA(hWnd, lpText, lpCaption, uType);
+	if(Vars.bForwardMessageBox)
+		return MessageBoxA(hWnd, lpText, lpCaption, uType);
+	else
+		return MB_OK;
 }

@@ -59,6 +59,7 @@ struct Variables
 	BOOL	bLoadedWithCGuard;
 	BOOL	bLogConsole;
 	BOOL	bEnableUnsupported;
+	BOOL	bForwardMessageBox;
 	BOOL	bUseRawCDKey;
 	int		dwMemUsage;
 
