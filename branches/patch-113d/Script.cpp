@@ -15,7 +15,8 @@ using namespace std;
 Script::Script(const char* file, ScriptState state, uintN argc, jsval* argv) :
 			context(NULL), globalObject(NULL), scriptObject(NULL), script(NULL), execCount(0),
 			isAborted(false), isPaused(false), isReallyPaused(false), scriptState(state),
-			threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv)
+			threadHandle(INVALID_HANDLE_VALUE), threadId(0), argc(argc), argv(argv),
+			fileName(string("NULL"))
 {
 	InitializeCriticalSection(&lock);
 	EnterCriticalSection(&lock);
@@ -221,8 +222,10 @@ bool Script::IsPaused(void)
 
 const char* Script::GetShortFilename()
 {
-	if(strcmp(fileName.c_str(), "Command Line") == 0) return fileName.c_str();
-	else return (fileName.c_str() + strlen(Vars.szScriptPath) + 1);
+	if (strcmp(fileName.c_str(), "Command Line") == 0)
+		return fileName.c_str();
+	else
+		return (fileName.c_str() + strlen(Vars.szScriptPath) + 1);
 }
 
 void Script::Stop(bool force, bool reallyForce)

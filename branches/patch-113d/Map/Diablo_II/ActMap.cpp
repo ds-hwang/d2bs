@@ -42,31 +42,34 @@ void ActMap::ClearCache(void)
 
 ActMap::ActMap(const Level* level)
 {
-	lock = new CRITICAL_SECTION;
-	InitializeCriticalSection(lock);
-
-	assert(act != NULL);
-	assert(level != NULL);
-	
-	this->level = level;
-	this->act = level->pMisc->pAct;
-
-	//RoomsAdded= roomsAdded;
-	// get the map size
-	height = level->dwSizeX * 5;
-	width  = level->dwSizeY * 5;
-	posX   = level->dwPosX * 5;
-	posY   = level->dwPosY * 5;
-	
-	if(!level->pRoom2First)
-		D2COMMON_InitLevel(const_cast<Level *> (level));
-
-	Room2* room = level->pRoom2First;	
-	cachedLevel = room->pLevel;
-
-	posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
-	posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);
-	
+    lock = new CRITICAL_SECTION;
+    InitializeCriticalSection(lock);
+ 
+    assert(act != NULL);
+    assert(level != NULL);
+ 
+    this->level = level;
+    this->act = level->pMisc->pAct;
+ 
+    //RoomsAdded= roomsAdded;
+    // get the map size
+    height = level->dwSizeX * 5;
+    width  = level->dwSizeY * 5;
+    posX   = level->dwPosX * 5;
+    posY   = level->dwPosY * 5;
+ 
+    if(!level->pRoom2First)
+        D2COMMON_InitLevel(const_cast<Level *> (level));
+ 
+    if(!level->pRoom2First)
+        return;
+ 
+    Room2* room = level->pRoom2First;
+    cachedLevel = room->pLevel;
+ 
+    posX   = (level->dwPosX == -1 ? 0 : level->dwPosX * 5);
+    posY   = (level->dwPosY == -1 ? 0 : level->dwPosY * 5);
+ 
 }
 
 ActMap::~ActMap(void)
@@ -90,11 +93,17 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 {
 	if(!abs) 
 		return GetMapData(RelativeToAbs(point), true);
-	
+
 	//check in rooms we already read
 	for(RoomList::iterator cRoom = roomCache.begin(); cRoom != roomCache.end(); cRoom++)
+	{
 		if(isPointInRoom(*cRoom, point))
+		{
+			//Print("ÿc4ActMapÿc0: Got map data from room cache.");
+
 			return getCollFromRoom(*cRoom, point);
+		}
+	}
 	
 	const Level* currLevel = NULL;
 	if (isPointInLevel(this->level, point))
@@ -106,38 +115,62 @@ int ActMap::GetMapData(const Point& point, bool abs) const
 		for(LevelList::iterator cLvl = levelCache.begin(); cLvl != levelCache.end(); cLvl++)
 		{
 			if(isPointInLevel(*cLvl, point))
+			{
+				//Print("ÿc4ActMapÿc0: Got level from cache.");
 				currLevel = *cLvl;
+
+				break;
+			}
 		}
 	}
 	if(!currLevel)
 	{
-		for(Level* lvl = this->act->pMisc->pLevelFirst; lvl; lvl = lvl->pNextLevel)
+		if(this->act->pMisc && this->act->pMisc->pLevelFirst)
 		{
-			if(isPointInLevel(lvl, point)){
-				if(!lvl->pRoom2First)      
-					D2COMMON_InitLevel(lvl);
-				levelCache.push_front(lvl);
-				currLevel = lvl;
+			for(Level* lvl = this->act->pMisc->pLevelFirst; lvl; lvl = lvl->pNextLevel)
+			{
+				if(isPointInLevel(lvl, point))
+				{
+					if(!lvl->pRoom2First)      
+						D2COMMON_InitLevel(lvl);
+
+					if(lvl->pRoom2First)
+					{
+						//Print("ÿc4ActMapÿc0: Got level from pLevelFirst.");
+						levelCache.push_front(lvl);
+						currLevel = lvl;
+						
+						break;
+					}
+				}
 			}
 		}
 	}
 
 	int value = ActMap::Avoid;  //Avoid if not found
 	if (!currLevel)
+	{
+		//Print("ÿc4ActMapÿc0: Couldn't get level.");
+
 		return value;
+	}
 
 	EnterCriticalSection(lock); // not sure if this is needed or its correct lock now
 	
-	
-	for(Room2* room = currLevel->pRoom2First; room; room = room->pRoom2Next)
+	if(currLevel->pRoom2First)
 	{
-		if (isPointInRoom(room, point))
-		{	
-			roomCache.push_front(room);
-			//this->cachedRoom = room->pRoom1->pRoom2;
-			value = getCollFromRoom(room, point);
-			break;
-		}			
+		for(Room2* room = currLevel->pRoom2First; room; room = room->pRoom2Next)
+		{
+			if(isPointInRoom(room, point))
+			{
+				//Print("ÿc4ActMapÿc0: Got map data from room pRoom2First.");
+				roomCache.push_front(room);
+				//this->cachedRoom = room->pRoom1->pRoom2;
+				value = getCollFromRoom(room, point);
+
+				break;
+			}			
+		}
 	}
 
 	LeaveCriticalSection(lock);
@@ -149,7 +182,7 @@ bool ActMap::isPointInRoom(const Room2* room, const Point& pt)const
 {
 	DWORD nX = pt.first;
 	DWORD nY = pt.second;
-			
+
 	return (nX >= room->dwPosX *5  &&  nY >= room->dwPosY *5 &&
 			nX < (room->dwPosX *5 + room->dwSizeX *5) &&  nY < (room->dwPosY *5 + room->dwSizeY *5));			
 
@@ -196,6 +229,10 @@ WORD ActMap::getCollFromRoom( Room2* room, const Point& pt) const
 		AddRoomData(room);
 		RoomsAdded.push_back(room);
 	}
+
+	if(!room->pRoom1)
+		return ActMap::Avoid; 
+
 	CollMap* map = room->pRoom1->Coll;
 	WORD val = *(map->pMapStart+(pt.second - map->dwPosGameY) * (map->dwSizeGameX) + (pt.first - map->dwPosGameX));
 
