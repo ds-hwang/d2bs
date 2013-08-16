@@ -178,8 +178,12 @@ DWORD GetPlayerArea(void)
 
 Level* GetLevel(DWORD dwLevelNo)
 {
-    for(Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel)
-        if(pLevel->dwLevelNo == dwLevelNo) {
+    Level* pLevel = D2CLIENT_GetPlayerUnit()->pAct->pMisc->pLevelFirst;
+    
+	while(pLevel)
+	{
+		if(pLevel->dwLevelNo == dwLevelNo) 
+		{
             if (!pLevel->pRoom2First)
                 D2COMMON_InitLevel(pLevel);
            
@@ -188,8 +192,10 @@ Level* GetLevel(DWORD dwLevelNo)
  
             return pLevel;
         }
- 
-        return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
+		pLevel = pLevel->pNextLevel;
+	}
+
+    return D2COMMON_GetLevel(D2CLIENT_GetPlayerUnit()->pAct->pMisc, dwLevelNo);
 }
 
 // TODO: make this use SIZE for clarity
