@@ -504,6 +504,14 @@ JSAPI_FUNC(my_hideConsole)
 	return JS_TRUE;
 }
 
+JSAPI_FUNC(my_handler)
+{
+	char buffer[20];  
+	itoa((int)Vars.hHandle, buffer, 10);
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, (char *)buffer));
+	return JS_TRUE;
+}
+
 JSAPI_FUNC(my_loadMpq)
 {
 	char* path = NULL;

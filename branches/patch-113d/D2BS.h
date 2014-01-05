@@ -62,6 +62,7 @@ struct Variables
 	BOOL	bForwardMessageBox;
 	BOOL	bUseRawCDKey;
 	int		dwMemUsage;
+	HWND	hHandle;
 
 	Module* pModule;
 	HMODULE hModule;

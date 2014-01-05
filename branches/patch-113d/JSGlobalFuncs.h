@@ -76,6 +76,7 @@ static JSFunctionSpec global_funcs[] = {
 	{"debugLog",			my_debugLog,			1},
 	{"showConsole",			my_showConsole,			0},
 	{"hideConsole",			my_hideConsole,			0},
+	{"handler",				my_handler,				0},
 
 	// out of game functions
 	{"login",				my_login,				1},

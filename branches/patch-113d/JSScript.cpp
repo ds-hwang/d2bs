@@ -96,6 +96,9 @@ JSAPI_FUNC(script_send)
 {
 	JSContext* iterp = (JSContext*)JS_GetInstancePrivate(cx, obj, &script_class, NULL);
 	Script* script = (Script*)JS_GetContextPrivate(iterp);
+	
+	if (!script || !script->IsRunning())
+		return JS_TRUE;
 
 	AutoRoot** args = new AutoRoot*[argc];
 	for(uintN i = 0; i < argc; i++)
