@@ -28,6 +28,11 @@ char* UnicodeToAnsi(const wchar_t* str)
 	return buf;
 }
 
+void StringToLower(char* p) 
+{
+	for ( ; *p; ++p) *p = tolower(*p);
+}
+
 bool StringToBool(const char* str)
 {
 	switch(tolower(str[0]))

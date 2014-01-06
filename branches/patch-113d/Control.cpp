@@ -231,9 +231,17 @@ BOOL OOG_SelectCharacter(char* szCharacter)
 			char * szLine = UnicodeToAnsi(cText->wText);
 			if(!szLine)
 				return FALSE;
-			if(strlen(szLine) == strlen(szCharacter) && strstr(szLine,szCharacter) != NULL)
+
+			char* cLine = strdup(szLine);
+			char* cCharacter = strdup(szCharacter); 
+			StringToLower(cLine); 
+			StringToLower(cCharacter); 
+
+			if(strlen(szLine) == strlen(szCharacter) && strstr(cLine,cCharacter) != NULL)
 			{
 				delete[] szLine;
+				delete[] cLine;
+				delete[] cCharacter;
 				if(!clickControl(pControl))
 					return FALSE;
 
@@ -250,8 +258,12 @@ BOOL OOG_SelectCharacter(char* szCharacter)
 					return FALSE;
 
 			}
-			else
+			else 
+			{
 				delete[] szLine;
+				delete[] cLine;
+				delete[] cCharacter;
+			}
 		}
 		pControl = pControl->pNext;
 	}
