@@ -993,6 +993,26 @@
 				</File>
 			</Filter>
 		</Filter>
+		<Filter
+			Name="Command Line"
+			>
+			<File
+				RelativePath=".\ArrayEx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandLine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandLine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SyncObj.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\resource.h"
 			>
