@@ -256,28 +256,26 @@ Date.prototype.toDBString = function () {
 	msec = (msec < 10 ? "00" + msec : (msec < 100 ? "0" + msec : msec));
 	return year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec + "." + msec;
 };
+
 function locationAction( location ) {  // oog location actions
-   switch (location) { 
+	switch (location) { 
+		case 3: // Chat 
+			var con =getControl(4,28,410,354,298);
+			if(con){
+				var lin=con.getText();
+				sendCopyData(null, "OOG", 0,"Chat "+lin );
+			}
+			break; 
+		case 5: //Join Game
+			var con =getControl(4,432,393,160,173);
+			if (con){
+				var lin=con.getText();
+				sendCopyData(null, "OOG", 0,"Join "+lin );
+			}
+			break;
+		case 11: // unable to connect
+			//delay(300000); //5 min delay
+			//quitGame(); 
+	} 
+}
 
-        case 3: // Chat 
-	var con =getControl(4,28,410,354,298);
-	if(con){
-		var lin=con.getText();
-		sendCopyData(null, "OOG", 0,"Chat "+lin );
-	}
-     	break; 
-
-      	case 5: //Join Game
-	var con =getControl(4,432,393,160,173);
-	if (con){
-		var lin=con.getText();
-		sendCopyData(null, "OOG", 0,"Join "+lin );
-	}
-	break;
-	
-	case 11: // unable to connect
-	//delay(300000); //5 min delay
-	//quitGame(); 
-	
-   } 
-} 
