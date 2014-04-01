@@ -63,8 +63,7 @@ function GotoIzual() {
 	//commPather.GotoLevel(105,_teledist,StepCallBack);
 	StepCallBack(true);  //force attack
 	RefreshPrecasts();   //force precasts
-	if(commPather.UseTele) commPather.GotoRoomInArea(822,822,105,_teledist,StepCallBack);
-    else { pathToLevel(105); pathtoFarUnit(1,256,105); }
+	commPather.GotoRoomInArea(822,822,105,_teledist,StepCallBack);
 	DM_RandomMove = _rm;
 }
 

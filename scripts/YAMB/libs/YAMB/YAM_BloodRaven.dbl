@@ -1,17 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // BloodRaven Module for YAMB                                       //
 // written by TechnoHunter, for new core pathing                    //
-// updated by Darien
 //////////////////////////////////////////////////////////////////////
-// Public Vars - Already moved to the Variables file
-/*
-// BloodRaven specific variables
-var RXP_SwitchHP   = 40;
-var RXP_StallKill  = false;
-var RXP_StallHP    = 0;
-var RXP_QuitImmune = false;
-var RXP_Kamikaze   = false;
-*/
 
 function GetWP(inID){
 	var wp = getUnit(2,inID);
@@ -47,18 +37,14 @@ function RXP_GoToRaven() {
 	// Do precasts after going into the portal
 	XP_Precasts();
 	if (me.area ==1 && !getWaypoint(1)){
-        print("Cross Level Pathing");
-		pathToLevel(2);
-		pathToLevel(3);
-		pathToWP(3);
+		commPather.GotoLevel(2, true);
+		commPather.GotoLevel(3, true);
+		commPather.GotoWaypoint(3);
 		GetWP(commPather.TargetID);
 	}
 	// Move to BloodRaven
-    dprint("Path to area 17", 2);
-	pathToLevel(17);
-	//commPather.GotoNPC(775,17);
-    dprint("Path to Blood Raven from area: " + me.area, 2);
-    if(!pathtoFarUnit(1,805,17)) { dprint("805 failed, trying 775", 1); pathtoFarUnit(1,775,17); }
+	commPather.GotoLevel(17, true);
+	commPather.GotoNPC(805,17);
 }
 
 function AttackRaven() {

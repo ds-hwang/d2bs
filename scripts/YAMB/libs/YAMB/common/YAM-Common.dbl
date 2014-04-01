@@ -38,97 +38,97 @@ const ITEMLOC_STASH		= 7;
 //////////////////////////////////////////////////////////////////////
 // Public D2JSP constants (Thanks to njaguar, TDW and Scavenger)
 //////////////////////////////////////////////////////////////////////
-var D2JSP_CHAR_CLASS_AMAZON      = 0;
-var D2JSP_CHAR_CLASS_SORCERESS   = 1;
-var D2JSP_CHAR_CLASS_NECROMANCER = 2;
-var D2JSP_CHAR_CLASS_PALADIN     = 3;
-var D2JSP_CHAR_CLASS_BARBARIAN   = 4;
-var D2JSP_CHAR_CLASS_DRUID       = 5;
-var D2JSP_CHAR_CLASS_ASSASSIN    = 6;
+var D2BS_CHAR_CLASS_AMAZON      = 0;
+var D2BS_CHAR_CLASS_SORCERESS   = 1;
+var D2BS_CHAR_CLASS_NECROMANCER = 2;
+var D2BS_CHAR_CLASS_PALADIN     = 3;
+var D2BS_CHAR_CLASS_BARBARIAN   = 4;
+var D2BS_CHAR_CLASS_DRUID       = 5;
+var D2BS_CHAR_CLASS_ASSASSIN    = 6;
 // Act 1 NPCs
-var D2JSP_NPC_AKARA         = 148;
-var D2JSP_NPC_WARRIV_ACT_1  = 155;
-var D2JSP_NPC_CHARSI        = 154;
-var D2JSP_NPC_GHEED         = 147;
-var D2JSP_NPC_KASHYA        = 150;
-var D2JSP_NPC_CAIN_TRISTRAM = 146;
-var D2JSP_NPC_CAIN_ACT_1    = 244;
+var D2BS_NPC_AKARA         = 148;
+var D2BS_NPC_WARRIV_ACT_1  = 155;
+var D2BS_NPC_CHARSI        = 154;
+var D2BS_NPC_GHEED         = 147;
+var D2BS_NPC_KASHYA        = 150;
+var D2BS_NPC_CAIN_TRISTRAM = 146;
+var D2BS_NPC_CAIN_ACT_1    = 244;
 // Act 2
-var D2JSP_NPC_FARA         = 178;
-var D2JSP_NPC_LYSANDER     = 202;
-var D2JSP_NPC_GREIZ        = 198;
-var D2JSP_NPC_ELZIX        = 199;
-var D2JSP_NPC_MESHIF_ACT_2 = 210;
-var D2JSP_NPC_DROGNAN      = 177;
-var D2JSP_NPC_ATMA         = 176;
-var D2JSP_NPC_WARRIV_ACT_2 = 175; 
-var D2JSP_NPC_CAIN_ACT_2   = 245;
-var D2JSP_NPC_JERHYN       = 201;
-var D2JSP_NPC_TYRAEL_ACT_2 = 251;
+var D2BS_NPC_FARA         = 178;
+var D2BS_NPC_LYSANDER     = 202;
+var D2BS_NPC_GREIZ        = 198;
+var D2BS_NPC_ELZIX        = 199;
+var D2BS_NPC_MESHIF_ACT_2 = 210;
+var D2BS_NPC_DROGNAN      = 177;
+var D2BS_NPC_ATMA         = 176;
+var D2BS_NPC_WARRIV_ACT_2 = 175; 
+var D2BS_NPC_CAIN_ACT_2   = 245;
+var D2BS_NPC_JERHYN       = 201;
+var D2BS_NPC_TYRAEL_ACT_2 = 251;
 // Act 3
-var D2JSP_NPC_MESHIF_ACT_3 = 264;
-var D2JSP_NPC_CAIN_ACT_3   = 246;
-var D2JSP_NPC_ALKOR        = 254;
-var D2JSP_NPC_ASHEARA      = 252;
-var D2JSP_NPC_ORMUS        = 255;
-var D2JSP_NPC_HRATLI       = 253;
+var D2BS_NPC_MESHIF_ACT_3 = 264;
+var D2BS_NPC_CAIN_ACT_3   = 246;
+var D2BS_NPC_ALKOR        = 254;
+var D2BS_NPC_ASHEARA      = 252;
+var D2BS_NPC_ORMUS        = 255;
+var D2BS_NPC_HRATLI       = 253;
 // Act 4
-var D2JSP_NPC_CAIN_ACT_4   = 265;
-var D2JSP_NPC_HALBU        = 257;
-var D2JSP_NPC_TYRAEL_ACT_4 = 367;
-var D2JSP_NPC_JAMELLA      = 405;
+var D2BS_NPC_CAIN_ACT_4   = 265;
+var D2BS_NPC_HALBU        = 257;
+var D2BS_NPC_TYRAEL_ACT_4 = 367;
+var D2BS_NPC_JAMELLA      = 405;
 // Act 5
-var D2JSP_NPC_CAIN_ACT_5                = 520;
-var D2JSP_NPC_TYRAEL_ACT_5              = 521;
-var D2JSP_NPC_LARZUK                    = 511;
-var D2JSP_NPC_ANYA_FROZEN_RIVER         = 527;
-var D2JSP_NPC_ANYA_TOWN                 = 512;
-var D2JSP_NPC_MALAH                     = 513;
-var D2JSP_NPC_QUALKEHK                  = 515;
-var D2JSP_NPC_NIHLATHAK_TOWN            = 514;
-var D2JSP_NPC_NIHLATHAK_HALLS_OF_VAUGHT = 526;
+var D2BS_NPC_CAIN_ACT_5                = 520;
+var D2BS_NPC_TYRAEL_ACT_5              = 521;
+var D2BS_NPC_LARZUK                    = 511;
+var D2BS_NPC_ANYA_FROZEN_RIVER         = 527;
+var D2BS_NPC_ANYA_TOWN                 = 512;
+var D2BS_NPC_MALAH                     = 513;
+var D2BS_NPC_QUALKEHK                  = 515;
+var D2BS_NPC_NIHLATHAK_TOWN            = 514;
+var D2BS_NPC_NIHLATHAK_HALLS_OF_VAUGHT = 526;
 
 // UNIT types
-var D2JSP_UNIT_PLAYER  = 0;
-var D2JSP_UNIT_NPC     = 1;
-var D2JSP_UNIT_MERC    = D2JSP_UNIT_NPC;
-var D2JSP_UNIT_MONSTER = D2JSP_UNIT_NPC;
-var D2JSP_UNIT_OBJECT  = 2;
-var D2JSP_UNIT_MISSILE = 3;
-var D2JSP_UNIT_ITEM    = 4;
-var D2JSP_UNIT_TILE    = 5;
-var D2JSP_UNIT_STASH   = 267; // Global classID for chest in town
+var D2BS_UNIT_PLAYER  = 0;
+var D2BS_UNIT_NPC     = 1;
+var D2BS_UNIT_MERC    = D2BS_UNIT_NPC;
+var D2BS_UNIT_MONSTER = D2BS_UNIT_NPC;
+var D2BS_UNIT_OBJECT  = 2;
+var D2BS_UNIT_MISSILE = 3;
+var D2BS_UNIT_ITEM    = 4;
+var D2BS_UNIT_TILE    = 5;
+var D2BS_UNIT_STASH   = 267; // Global classID for chest in town
 
-var D2JSP_UTIL_COLOR_BASE_WHITE  = 0;
-var D2JSP_UTIL_COLOR_BASE_RED    = 1;
-var D2JSP_UTIL_COLOR_BASE_GREEN  = 2;
-var D2JSP_UTIL_COLOR_BASE_BLUE   = 3;
-var D2JSP_UTIL_COLOR_BASE_GOLD   = 4;
-var D2JSP_UTIL_COLOR_BASE_GRAY   = 5;
-var D2JSP_UTIL_COLOR_BASE_BLACK  = 6;
-var D2JSP_UTIL_COLOR_BASE_GOLD2  = 7;
-var D2JSP_UTIL_COLOR_BASE_ORANGE = 8;
-var D2JSP_UTIL_COLOR_BASE_YELLOW = 9;
+var D2BS_UTIL_COLOR_BASE_WHITE  = 0;
+var D2BS_UTIL_COLOR_BASE_RED    = 1;
+var D2BS_UTIL_COLOR_BASE_GREEN  = 2;
+var D2BS_UTIL_COLOR_BASE_BLUE   = 3;
+var D2BS_UTIL_COLOR_BASE_GOLD   = 4;
+var D2BS_UTIL_COLOR_BASE_GRAY   = 5;
+var D2BS_UTIL_COLOR_BASE_BLACK  = 6;
+var D2BS_UTIL_COLOR_BASE_GOLD2  = 7;
+var D2BS_UTIL_COLOR_BASE_ORANGE = 8;
+var D2BS_UTIL_COLOR_BASE_YELLOW = 9;
 
-var D2JSP_UTIL_COLOR_WHITE  = "ÿc" + D2JSP_UTIL_COLOR_BASE_WHITE;
-var D2JSP_UTIL_COLOR_RED    = "ÿc" + D2JSP_UTIL_COLOR_BASE_RED;
-var D2JSP_UTIL_COLOR_GREEN  = "ÿc" + D2JSP_UTIL_COLOR_BASE_GREEN;
-var D2JSP_UTIL_COLOR_BLUE   = "ÿc" + D2JSP_UTIL_COLOR_BASE_BLUE;
-var D2JSP_UTIL_COLOR_GOLD   = "ÿc" + D2JSP_UTIL_COLOR_BASE_GOLD;
-var D2JSP_UTIL_COLOR_GRAY   = "ÿc" + D2JSP_UTIL_COLOR_BASE_GRAY;
-var D2JSP_UTIL_COLOR_BLACK  = "ÿc" + D2JSP_UTIL_COLOR_BASE_BLACK;
-var D2JSP_UTIL_COLOR_GOLD2  = "ÿc" + D2JSP_UTIL_COLOR_BASE_GOLD2;
-var D2JSP_UTIL_COLOR_ORANGE = "ÿc" + D2JSP_UTIL_COLOR_BASE_ORANGE;
-var D2JSP_UTIL_COLOR_YELLOW = "ÿc" + D2JSP_UTIL_COLOR_BASE_YELLOW;
+var D2BS_UTIL_COLOR_WHITE  = "ÿc" + D2BS_UTIL_COLOR_BASE_WHITE;
+var D2BS_UTIL_COLOR_RED    = "ÿc" + D2BS_UTIL_COLOR_BASE_RED;
+var D2BS_UTIL_COLOR_GREEN  = "ÿc" + D2BS_UTIL_COLOR_BASE_GREEN;
+var D2BS_UTIL_COLOR_BLUE   = "ÿc" + D2BS_UTIL_COLOR_BASE_BLUE;
+var D2BS_UTIL_COLOR_GOLD   = "ÿc" + D2BS_UTIL_COLOR_BASE_GOLD;
+var D2BS_UTIL_COLOR_GRAY   = "ÿc" + D2BS_UTIL_COLOR_BASE_GRAY;
+var D2BS_UTIL_COLOR_BLACK  = "ÿc" + D2BS_UTIL_COLOR_BASE_BLACK;
+var D2BS_UTIL_COLOR_GOLD2  = "ÿc" + D2BS_UTIL_COLOR_BASE_GOLD2;
+var D2BS_UTIL_COLOR_ORANGE = "ÿc" + D2BS_UTIL_COLOR_BASE_ORANGE;
+var D2BS_UTIL_COLOR_YELLOW = "ÿc" + D2BS_UTIL_COLOR_BASE_YELLOW;
 
-var D2JSP_ITEM_COLOR_WHITE  = D2JSP_UTIL_COLOR_WHITE;
-var D2JSP_ITEM_COLOR_GREEN  = D2JSP_UTIL_COLOR_GREEN;
-var D2JSP_ITEM_COLOR_BLUE   = D2JSP_UTIL_COLOR_BLUE;
-var D2JSP_ITEM_COLOR_GOLD   = D2JSP_UTIL_COLOR_GOLD;
-var D2JSP_ITEM_COLOR_GOLD2  = D2JSP_UTIL_COLOR_GOLD2;
-var D2JSP_ITEM_COLOR_GRAY   = D2JSP_UTIL_COLOR_GRAY;
-var D2JSP_ITEM_COLOR_ORANGE = D2JSP_UTIL_COLOR_ORANGE;
-var D2JSP_ITEM_COLOR_YELLOW = D2JSP_UTIL_COLOR_YELLOW;
+var D2BS_ITEM_COLOR_WHITE  = D2BS_UTIL_COLOR_WHITE;
+var D2BS_ITEM_COLOR_GREEN  = D2BS_UTIL_COLOR_GREEN;
+var D2BS_ITEM_COLOR_BLUE   = D2BS_UTIL_COLOR_BLUE;
+var D2BS_ITEM_COLOR_GOLD   = D2BS_UTIL_COLOR_GOLD;
+var D2BS_ITEM_COLOR_GOLD2  = D2BS_UTIL_COLOR_GOLD2;
+var D2BS_ITEM_COLOR_GRAY   = D2BS_UTIL_COLOR_GRAY;
+var D2BS_ITEM_COLOR_ORANGE = D2BS_UTIL_COLOR_ORANGE;
+var D2BS_ITEM_COLOR_YELLOW = D2BS_UTIL_COLOR_YELLOW;
 
 const NTC_HAND_RIGHT = 0;
 const NTC_HAND_LEFT  = 1;
@@ -143,48 +143,48 @@ const NTC_CLICK_RUP   = 5;
 const NTC_SHIFT_NONE = 0;
 const NTC_SHIFT_HOLD = 1;
 
-var D2JSP_ITEMFLAG_RUNEWORD			= 0X4000000;	// set if it is a runeword (note that 'ith' qualifies;)
-var D2JSP_ITEMFLAG_NAMED			= 0x1000000;	// has a custom name "Player's item"
-var D2JSP_ITEMFLAG_ANY				= 0x800000;		// was set for all items tested (tested in inv, stash, store)
-var D2JSP_ITEMFLAG_ETHEREAL			= 0x400000;		// 0 if not ethereal
-var D2JSP_ITEMFLAG_RUNE_OR_POT		= 0x200000;		// rune or potion, also set for mephisto's soulstone
-var D2JSP_ITEMFLAG_START_ITEM		= 0x20000;		// an item that a new character starts with (like javelin and buckler, and the minor healings at the start)
-var D2JSP_ITEMFLAG_EAR				= 0x10000;		// a player ear
-var D2JSP_ITEMFLAG_NOT_IN_SOCKET	= 0x4000;		// 0 if in socket, 0 if in belt, 0 if equipped or equipped by merc, 0 for gems/charms/..
-var D2JSP_ITEMFLAG_IN_STORE			= 0x2000;		// in trade or gamble screen
-var D2JSP_ITEMFLAG_SOCKETED			= 0x800;		// the item has sockets (they can be full or empty)
-var D2JSP_ITEMFLAG_REJUV			= 0x400;		// only seen set for full rejuvs for now
-var D2JSP_ITEMFLAG_BROKEN			= 0x100;		// just a bet, but i'm pretty sure it's correct
-var D2JSP_ITEMFLAG_SWITCH_OUT		= 0x80;			// a weapon switch command was performed, and this item is no longer being used
-var D2JSP_ITEMFLAG_SWITCH_IN		= 0x40;			// a weapon switch command was performed, and this item is now being used
-var D2JSP_ITEMFLAG_IDENTIFIED		= 0x10;			// 0 if unid
-var D2JSP_ITEMFLAG_IN_SOCKET		= 0x8;			// 8 if in socket, valid for rune and jewels, not gems
-var D2JSP_ITEMFLAG_EQUIPPED			= 0x1;			// player or merc is wearing the item (don't trust too much, especially when bit 9 is set)
+var D2BS_ITEMFLAG_RUNEWORD			= 0X4000000;	// set if it is a runeword (note that 'ith' qualifies;)
+var D2BS_ITEMFLAG_NAMED			= 0x1000000;	// has a custom name "Player's item"
+var D2BS_ITEMFLAG_ANY				= 0x800000;		// was set for all items tested (tested in inv, stash, store)
+var D2BS_ITEMFLAG_ETHEREAL			= 0x400000;		// 0 if not ethereal
+var D2BS_ITEMFLAG_RUNE_OR_POT		= 0x200000;		// rune or potion, also set for mephisto's soulstone
+var D2BS_ITEMFLAG_START_ITEM		= 0x20000;		// an item that a new character starts with (like javelin and buckler, and the minor healings at the start)
+var D2BS_ITEMFLAG_EAR				= 0x10000;		// a player ear
+var D2BS_ITEMFLAG_NOT_IN_SOCKET	= 0x4000;		// 0 if in socket, 0 if in belt, 0 if equipped or equipped by merc, 0 for gems/charms/..
+var D2BS_ITEMFLAG_IN_STORE			= 0x2000;		// in trade or gamble screen
+var D2BS_ITEMFLAG_SOCKETED			= 0x800;		// the item has sockets (they can be full or empty)
+var D2BS_ITEMFLAG_REJUV			= 0x400;		// only seen set for full rejuvs for now
+var D2BS_ITEMFLAG_BROKEN			= 0x100;		// just a bet, but i'm pretty sure it's correct
+var D2BS_ITEMFLAG_SWITCH_OUT		= 0x80;			// a weapon switch command was performed, and this item is no longer being used
+var D2BS_ITEMFLAG_SWITCH_IN		= 0x40;			// a weapon switch command was performed, and this item is now being used
+var D2BS_ITEMFLAG_IDENTIFIED		= 0x10;			// 0 if unid
+var D2BS_ITEMFLAG_IN_SOCKET		= 0x8;			// 8 if in socket, valid for rune and jewels, not gems
+var D2BS_ITEMFLAG_EQUIPPED			= 0x1;			// player or merc is wearing the item (don't trust too much, especially when bit 9 is set)
 
-var D2JSP_ITEM_QUALITY_NONE        = 0;
-var D2JSP_ITEM_QUALITY_LOW_QUALITY = 1;
-var D2JSP_ITEM_QUALITY_NORMAL      = 2;
-var D2JSP_ITEM_QUALITY_SUPERIOR    = 3;
-var D2JSP_ITEM_QUALITY_MAGIC       = 4;
-var D2JSP_ITEM_QUALITY_SET         = 5;
-var D2JSP_ITEM_QUALITY_RARE        = 6;
-var D2JSP_ITEM_QUALITY_UNIQUE      = 7;
-var D2JSP_ITEM_QUALITY_CRAFTED     = 8;
+var D2BS_ITEM_QUALITY_NONE        = 0;
+var D2BS_ITEM_QUALITY_LOW_QUALITY = 1;
+var D2BS_ITEM_QUALITY_NORMAL      = 2;
+var D2BS_ITEM_QUALITY_SUPERIOR    = 3;
+var D2BS_ITEM_QUALITY_MAGIC       = 4;
+var D2BS_ITEM_QUALITY_SET         = 5;
+var D2BS_ITEM_QUALITY_RARE        = 6;
+var D2BS_ITEM_QUALITY_UNIQUE      = 7;
+var D2BS_ITEM_QUALITY_CRAFTED     = 8;
 
-var D2JSP_ITEM_QUALITY_MINIMUM = D2JSP_ITEM_QUALITY_NONE;
-var D2JSP_ITEM_QUALITY_MAXIMUM = D2JSP_ITEM_QUALITY_CRAFTED;
-var D2JSP_ITEM_QUALITY_COUNT   = (D2JSP_ITEM_QUALITY_MAXIMUM + 1);
+var D2BS_ITEM_QUALITY_MINIMUM = D2BS_ITEM_QUALITY_NONE;
+var D2BS_ITEM_QUALITY_MAXIMUM = D2BS_ITEM_QUALITY_CRAFTED;
+var D2BS_ITEM_QUALITY_COUNT   = (D2BS_ITEM_QUALITY_MAXIMUM + 1);
 
-var D2JSP_ITEM_QUALITY_QualityToNameList = new Array(D2JSP_ITEM_QUALITY_COUNT);
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_NONE]        = "none";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_LOW_QUALITY] = "low quality";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_NORMAL]      = "normal";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_SUPERIOR]    = "superior";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_MAGIC]       = "magic";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_SET]         = "set";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_RARE]        = "rare";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_UNIQUE]      = "unique";
-D2JSP_ITEM_QUALITY_QualityToNameList[D2JSP_ITEM_QUALITY_CRAFTED]     = "crafted";
+var D2BS_ITEM_QUALITY_QualityToNameList = new Array(D2BS_ITEM_QUALITY_COUNT);
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_NONE]        = "none";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_LOW_QUALITY] = "low quality";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_NORMAL]      = "normal";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_SUPERIOR]    = "superior";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_MAGIC]       = "magic";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_SET]         = "set";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_RARE]        = "rare";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_UNIQUE]      = "unique";
+D2BS_ITEM_QUALITY_QualityToNameList[D2BS_ITEM_QUALITY_CRAFTED]     = "crafted";
 
 
 var _DC_ItemQuality=["none","low quality","normal","superior","magic","set","rare","unique","crafted"];
@@ -955,42 +955,12 @@ function DC_IsLeftSkill(skillid) {
 // Parameter :
 // -skillid	ID of the skill to check
 // Return value : True if the skill is a passive skill
-// ToDo : Check the return values of getBaseStat() and use it if it is accurate and reliable
-var passiveskilllist = new Array();
-passiveskilllist[9]=1;
-passiveskilllist[13]=2;
-passiveskilllist[18]=3;
-passiveskilllist[23]=4;
-passiveskilllist[29]=5;
-passiveskilllist[33]=6;
-passiveskilllist[37]=7;
-passiveskilllist[61]=8;
-passiveskilllist[63]=9;
-passiveskilllist[65]=10;
-passiveskilllist[69]=11;
-passiveskilllist[79]=12;
-passiveskilllist[89]=13;
-passiveskilllist[127]=14;
-passiveskilllist[128]=15;
-passiveskilllist[129]=16;
-passiveskilllist[134]=17;
-passiveskilllist[135]=18;
-passiveskilllist[136]=19;
-passiveskilllist[141]=20;
-passiveskilllist[145]=21;
-passiveskilllist[148]=22;
-passiveskilllist[153]=23;
-passiveskilllist[224]=24;
-passiveskilllist[252]=25;
-passiveskilllist[263]=26;
-
 function DC_IsPassiveSkill(skillid) {
 	if(typeof(skillid) != "number") {
        	DC_DPrint("DC_IsPassiveSkill() : Skill entered is a name or undefined, cannot check");
 		return false;
    	}
-	return  getBaseStat(3, skillid, D2JSP_BASE_SKILLS_PASSIVE);
-	//return ((skillid in passiveskilllist) ? true : false);
+	return  getBaseStat(3, skillid, D2BS_BASE_SKILLS_PASSIVE);
 }
 
 
@@ -1662,7 +1632,7 @@ function DC_ExtractStats(item,intrade) {
 			}
 		}
 		// break the loop because we hit a free line (on set items)
-		else if(item.quality == D2JSP_ITEM_QUALITY_SET){ break; }
+		else if(item.quality == D2BS_ITEM_QUALITY_SET){ break; }
 	}
 	// Make the array into 1 line
 	var _start = 1;
@@ -1832,7 +1802,7 @@ function DC_ItemToFullName(in_item,quality) {
 // -in_item	Item object returned by getUnit
 // Return value : string with number of sockets an item has
 function DC_GetItemSockets(in_item) {
-	return(in_item.getFlag(D2JSP_ITEMFLAG_SOCKETED) ? ("(" + in_item.getStat(194) + ")") : "");
+	return(in_item.getFlag(D2BS_ITEMFLAG_SOCKETED) ? ("(" + in_item.getStat(194) + ")") : "");
 }
 
 
@@ -1841,7 +1811,7 @@ function DC_GetItemSockets(in_item) {
 // -in_item	Item object returned by getUnit
 // Return value : string with Ethereal or not based on if item is Ethereal
 function DC_GetItemEth(in_item) {
-	return(in_item.getFlag(D2JSP_ITEMFLAG_ETHEREAL) ? "Ethereal " : "");
+	return(in_item.getFlag(D2BS_ITEMFLAG_ETHEREAL) ? "Ethereal " : "");
 }
 
 /*
@@ -1850,7 +1820,7 @@ function DC_GetItemEth(in_item) {
 // -quality_number	Item quality level
 // Return value : True if the quantity value is valid
 function DC_IsValidQuality(quality_number) {
-	return(((quality_number >= D2JSP_ITEM_QUALITY_MINIMUM) && (quality_number <= D2JSP_ITEM_QUALITY_MAXIMUM)) ? true : false);
+	return(((quality_number >= D2BS_ITEM_QUALITY_MINIMUM) && (quality_number <= D2BS_ITEM_QUALITY_MAXIMUM)) ? true : false);
 }
 
 // Function by TDW, modified by Xizeta
@@ -1858,7 +1828,7 @@ function DC_IsValidQuality(quality_number) {
 // -quality_number	Item quality level
 // Return value : Return the quality name corresponding to the quality number, or invalid
 function DC_QualityToName(quality_number) {
-	return((DC_IsValidQuality(quality_number)) ? D2JSP_ITEM_QUALITY_QualityToNameList[quality_number] : "*INVALID-QUALITY*");
+	return((DC_IsValidQuality(quality_number)) ? D2BS_ITEM_QUALITY_QualityToNameList[quality_number] : "*INVALID-QUALITY*");
 }
 */
 
@@ -1868,8 +1838,8 @@ function DC_QualityToName(quality_number) {
 // -in_item	Item object returned by getUnit
 // Return value : Proper item prefix (Work-around for unidentifed rare affix bug in core)
 function DC_GetItemPrefix(in_item) {
-	return(((in_item.getFlag(D2JSP_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2JSP_ITEM_QUALITY_RARE)) &&
-		(in_item.quality != D2JSP_ITEM_QUALITY_SET) && (in_item.quality != D2JSP_ITEM_QUALITY_UNIQUE)) ? in_item.prefix : "");
+	return(((in_item.getFlag(D2BS_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2BS_ITEM_QUALITY_RARE)) &&
+		(in_item.quality != D2BS_ITEM_QUALITY_SET) && (in_item.quality != D2BS_ITEM_QUALITY_UNIQUE)) ? in_item.prefix : "");
 }
 
 // Function by TDW, modified by Xizeta
@@ -1877,8 +1847,8 @@ function DC_GetItemPrefix(in_item) {
 // -in_item	Item object returned by getUnit
 // Return value : Proper item suffix (Work-around for unidentifed rare affix bug in core)
 function DC_GetItemSuffix(in_item) {
-	return(((in_item.getFlag(D2JSP_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2JSP_ITEM_QUALITY_RARE)) &&
- 		(in_item.quality != D2JSP_ITEM_QUALITY_SET) && (in_item.quality != D2JSP_ITEM_QUALITY_UNIQUE)) ? in_item.suffix : "");
+	return(((in_item.getFlag(D2BS_ITEMFLAG_IDENTIFIED) || (in_item.quality != D2BS_ITEM_QUALITY_RARE)) &&
+ 		(in_item.quality != D2BS_ITEM_QUALITY_SET) && (in_item.quality != D2BS_ITEM_QUALITY_UNIQUE)) ? in_item.suffix : "");
 }
 */
 
@@ -2053,7 +2023,7 @@ function DC_IsWalkable(_x, _y) {
 // Scripts interaction functions
 //////////////////////////////////////////////////////////////////////
 
-// Function modded by TechnoHunter
+// Function by njaguar, modded by TechnoHunter
 // Parameter :
 // -scriptname	Name of the script to get
 // Return value : Script object if a script with the scriptname is found
@@ -2201,8 +2171,11 @@ function DC_PartyPlayer(playerName) {
 // function by darkspirit
 function DC_PlayerPresent(playerName) {
 	var player = getParty(playerName);
-    return player;
-    /*
+	if(player)
+		return player;
+	else
+		player = getParty();
+
 	if(player) { 
         do {
             if(player.name == playerName) {
@@ -2210,7 +2183,7 @@ function DC_PlayerPresent(playerName) {
             }
         } while (player.getNext()); 
     }
-    return false; */
+    return false;
 }
 
 // function by darkspirit

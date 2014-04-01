@@ -20,7 +20,6 @@ var CowPortalReady = false;
 
 function Goauld_GameMsgHandler(sender, cmd, params, c) {
 	if (YAM_isMyLeader(sender)) {
-		if( cmd + " " + params == YAM_TPMsg ) { YAM_TPReady = sender; }
 		if( cmd + " " + params == Cow_PortalClearMsg) { CowPortalReady = sender; }
 	}
 }
@@ -38,23 +37,6 @@ function hostilesPresent() {
 	return false;
 }
 
-function checkForAnyLeader()
-{
-	var player = getParty( );
-	
-	if ( player )
-	{
-		do {
-			if( YAM_isMyLeader( player.name ) )
-			{
-				return true;
-			}
-		} while( player.getNext( ) );
-	}
-	
-	return false;
-}
-
 function Goauld() {
 	// Do town stuff in the act we are in
 	YAM_TownManager();
@@ -64,13 +46,7 @@ function Goauld() {
 	myLeader = false;
 	do {
 		for (i=100; i >=0; i--)
-		{
-			if( checkForAnyLeader( ) == false )
-			{
-				quit( );
-			}
 			delay(10);
-		}
 	} while (!YAM_TPReady && !CowPortalReady);
 
 	// The one who yells "tp up" becomes my true leader
@@ -154,7 +130,7 @@ function Goauld() {
 			else {
 				var portal = _DM_FindCorrectPortal(true, myLeader);
 				if (portal < 0) {
-					DC_ThrowException("ParasiteXP()","Portal is suppose to be ready but not found!");
+					DC_ThrowException("ParasiteXP()","Portal is supposed to be ready but not found!");
 				}
 				else
 					dest = portal.objtype;

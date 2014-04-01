@@ -856,56 +856,56 @@ function _DIM_KeyCase(type,key,val,item) {
 			return eval(val);
 		// Maximum damage
 		case "maxdmg":
-			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,val);
+			return CompareCase(type,(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM))*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,val);
 		// Minimum damage
 		case "mindmg":
-			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(23)?item.getStat(23):item.getStat(21)),val);
+			return CompareCase(type,(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM))*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(23)?item.getStat(23):item.getStat(21)),val);
 		// Damage
 		case "dmg":
 		case "damage":
 		case "avgdmg":
-			return CompareCase(type,((getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*item.getStat(18,0)+(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*item.getStat(17))*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(23)+item.getStat(24):item.getStat(21)+item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,2*val);
+			return CompareCase(type,((getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM))*item.getStat(18,0)+(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM))*item.getStat(17))*(item.getFlag(0x400000)?0.015:0.01)+(item.getStat(24)?item.getStat(23)+item.getStat(24):item.getStat(21)+item.getStat(22))+item.getStat(218)/8*DIM_CharLevel,2*val);
 		// Damage max one-hand
 		case "onehmax":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)*itemgetStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM)*itemgetStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,val);
 		// Damage min one-hand
 		case "onehmin":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM)*itemgetStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21),val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM)*itemgetStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21),val);
 		// Damage one-hand
 		case "onehdmg":
 		case "onehavg":
-			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)*item.getStat(18,0))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,2*val);
+			return CompareCase(type,(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM)*item.getStat(18,0))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(21)+item.getStat(22)+item.getStat(218)/8*DIM_CharLevel,2*val);
 		// Throw damage max
 		case "throwmax":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXMISDAM)*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(160),val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXMISDAM)*item.getStat(18,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(160),val);
 		// Throw damage min
 		case "throwmin":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINMISDAM)*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159),val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINMISDAM)*item.getStat(17)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159),val);
 		// Throw damage
 		case "throwdmg":
 		case "throwavg":
-			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINMISDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXMISDAM)*(item.getStat(18)+item.getStat(219)/8*DIM_CharLevel))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159)+item.getStat(160)+item.getStat(218)/8*DIM_CharLevel,2*val);
+			return CompareCase(type,(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINMISDAM)*item.getStat(17)+getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXMISDAM)*(item.getStat(18)+item.getStat(219)/8*DIM_CharLevel))*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(159)+item.getStat(160)+item.getStat(218)/8*DIM_CharLevel,2*val);
 		// Enhanced damage max
 		case "plusmax":
-			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1),val);
+			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1),val);
 		// Enhanced damage min
 		case "plusmin":
-			return CompareCase(type,(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,itemclassid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
+			return CompareCase(type,(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,itemclassid,D2BS_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
 		// Enhanced damage
 		case "plusdmg":
-			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1)+(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
+			return CompareCase(type,(item.getStat(24)?item.getStat(24):item.getStat(22))+item.getStat(218)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM))*(item.getFlag(0x400000)?1.5:1)+(item.getStat(23)?item.getStat(23):item.getStat(21))-(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMINDAM):getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MINDAM))*(item.getFlag(0x400000)?1.5:1),val);
 		// Defense
 		case "def":
 		case "defense":
-			return CompareCase(type,(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)+1)*item.getStat(16,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(31)+item.getStat(214)/8*DIM_CharLevel,val);
+			return CompareCase(type,(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXAC)+1)*item.getStat(16,0)*(item.getFlag(0x400000)?0.015:0.01)+item.getStat(31)+item.getStat(214)/8*DIM_CharLevel,val);
 		// Enhanced defense
 		case "plusdef":
-			return CompareCase(type,item.getStat(31)+item.getStat(214)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)?getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXAC)+1:0)*(item.getFlag(0x400000)?1.5:1),val);
+			return CompareCase(type,item.getStat(31)+item.getStat(214)/8*DIM_CharLevel-(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXAC)?getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXAC)+1:0)*(item.getFlag(0x400000)?1.5:1),val);
 		// Various hand damage depending on val
 		case "hand":
-			if(val==0 && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM)) { return true; }
-			if(val==1 && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM) && !getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)) { return true; }
-			if(val==2 && !getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_MAXDAM) && getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_2HANDMAXDAM)) { return true; }
+			if(val==0 && getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM)) { return true; }
+			if(val==1 && getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM) && !getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)) { return true; }
+			if(val==2 && !getBaseStat(0,item.classid,D2BS_BASE_ITEMS_MAXDAM) && getBaseStat(0,item.classid,D2BS_BASE_ITEMS_2HANDMAXDAM)) { return true; }
 			return false;
 		// Speed
 		case "speed":
@@ -936,10 +936,10 @@ function _DIM_KeyCase(type,key,val,item) {
 			return CompareCase(type,Math.round(item.getStat(57)*item.getStat(59)/256),val);
 		// Strength requirement
 		case "strreq":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
 		// Dexterity requirement
 		case "dexreq":
-			return CompareCase(type,getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
+			return CompareCase(type,getBaseStat(0,item.classid,D2BS_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4,val);
 		// Level requirement
 		case "lvlreq":
 			return CompareCase(type,item.lvlreq,val);
@@ -994,16 +994,16 @@ function CompareCase(type,val1,val2) {
 function CodeCase(type,val,item) {
 	switch(type) {
 		case "=":
-			if(val!=item.code && val!=getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE) && val!=item.name.toLowerCase() ) { return false; }
+			if(val!=item.code && val!=getBaseStat(0,item.classid,D2BS_BASE_ITEMS_TYPE) && val!=item.name.toLowerCase() ) { return false; }
 			return true;
 		case ">":
-			if(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)<val) { return false; }
+			if(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_TYPE)<val) { return false; }
 			return true;
 		case "<":
-			if(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)>val) { return false; }
+			if(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_TYPE)>val) { return false; }
 			return true;
 		case "!":
-			if(val==item.code || val==getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE) || val==item.name.toLowerCase() ) { return false; }
+			if(val==item.code || val==getBaseStat(0,item.classid,D2BS_BASE_ITEMS_TYPE) || val==item.name.toLowerCase() ) { return false; }
 			return true;
 		default:
 			DC_ThrowException("INI File","CodeCase(): unknown type!");
@@ -1037,11 +1037,11 @@ function QualCase(type,val,item) {
 // function cleaned
 function ClassCase(type,val,item) {
 	var _itemclass=["normal","exceptional","elite"];
-	var _itemcodes=[getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_NORMCODE),
-			getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_UBERCODE),
-			getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_ULTRACODE)];
+	var _itemcodes=[getBaseStat(0,item.classid,D2BS_BASE_ITEMS_NORMCODE),
+			getBaseStat(0,item.classid,D2BS_BASE_ITEMS_UBERCODE),
+			getBaseStat(0,item.classid,D2BS_BASE_ITEMS_ULTRACODE)];
 	var _classpos=_DIM_GetPosition(val,_itemclass);
-	var _codepos=_DIM_GetPosition(getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_CODE),_itemcodes);
+	var _codepos=_DIM_GetPosition(getBaseStat(0,item.classid,D2BS_BASE_ITEMS_CODE),_itemcodes);
 	switch(type) {
 		case "=":
 			if(_codepos != _classpos) { return false; }
@@ -1617,15 +1617,15 @@ function PreparseEvalVar(val)
 		case "identified":
 			return "item.getFlag(0x10)";
 		case "strreq":
-			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
+			return "getBaseStat(0,item.classid,D2BS_BASE_ITEMS_REQSTR)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
 		case "dexreq":
-			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
+			return "getBaseStat(0,item.classid,D2BS_BASE_ITEMS_REQDEX)*(100+item.getStat(91))/100-item.getFlag(0x400000)/419430.4";
 		case "range":
 			return "getDistance(me,item)";
 		case "type":
-			return "getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_TYPE)";
+			return "getBaseStat(0,item.classid,D2BS_BASE_ITEMS_TYPE)";
 		case "itemclass":
-			return "_DIM_GetPosition(item.code,[getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_NORMCODE),getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_UBERCODE),getBaseStat(0,item.classid,D2JSP_BASE_ITEMS_ULTRACODE)])";
+			return "_DIM_GetPosition(item.code,[getBaseStat(0,item.classid,D2BS_BASE_ITEMS_NORMCODE),getBaseStat(0,item.classid,D2BS_BASE_ITEMS_UBERCODE),getBaseStat(0,item.classid,D2BS_BASE_ITEMS_ULTRACODE)])";
 		case "16":
 		case "18":
 			return "item.getStat("+val+",0)";

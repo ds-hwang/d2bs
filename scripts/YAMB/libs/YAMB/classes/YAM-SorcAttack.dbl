@@ -1,5 +1,4 @@
 DC_LoadInclude("YAMB/common/YAM-Attack.dbl");
-//if(!isIncluded("YAMB/common/YAM-Attack.dbl")) include("YAMB/common/YAM-Attack.dbl");
 
 var _XP_TimedSpells         = new Array();
 var _XP_UntimedSpells       = new Array();
@@ -422,11 +421,11 @@ function XP_SetSorcSkills(SorcSkill, MonsterSkill) {
 	}
     
 	for (var ss = 0; ss < _XP_TimedSpells.length; ss+=1) {
-		dprint("Timed Spell #" + ss + ": " + _XP_TimedSpells[ss]);
+		DC_DPrint("Timed Spell #" + ss + ": " + _XP_TimedSpells[ss]);
 	}
     
     for (var ss = 0; ss < _XP_UntimedSpells.length; ss+=1) {
-		dprint("Untimed Spell #" + ss + ": " + _XP_UntimedSpells[ss]);
+		DC_DPrint("Untimed Spell #" + ss + ": " + _XP_UntimedSpells[ss]);
 	}
     
 	// Reset the vars if they were previously configured - MinionSkills

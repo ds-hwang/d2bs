@@ -230,7 +230,9 @@ function DXP_GoToCS() {
 	}
 
 	var eTry = 0;
-	while(me.area != 108 && eTry < 5) { DM_MoveTo(me.x,me.y-10); eTry++; }
+	while(me.area != 108 && eTry < 5) { // Added by darien to try moving up and into the Chaos Sanc
+		DM_MoveTo(me.x,me.y-10); eTry++; 
+	}
     // Chaos Entrance to Diablo Circle
 	DM_MoveToAttack(7790,5548,true,DXP_SealKamikaze);
 	DM_MoveToAttack(7792,5525,true,DXP_SealKamikaze);

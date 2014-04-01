@@ -285,7 +285,7 @@ function followTheLeader (myLeader) {
 						}
 					}
                     else {
-						dest = portal.subarea;
+						dest = portal.objtype;
 						try {
 							// When we have chosen a leader, go into his tp
 							DM_UsePortal ("BluePortal", dest, myLeader.name, portal);

@@ -209,7 +209,7 @@ njipStats["itemmaxhppercent"]=76;
 njipStats["itemmaxmanapercent"]=77;
 njipStats["itemattackertakesdamage"]=78;
 njipStats["itemgoldbonus"]=79;
-njipStats["itemmagicbonus"]=80;     njipStats["magicfind"]=80;
+njipStats["itemmagicbonus"]=80;		njipStats["magicfind"]=80;
 njipStats["itemknockback"]=81;
 njipStats["itemtimeduration"]=82;
 

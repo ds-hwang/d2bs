@@ -62,10 +62,9 @@ function ThreshSocketXP() {
 	DM_UsePortal("Waypoint",0x70);
 	// Do precasts after going into the portal
 	XP_Precasts();
-    
-    //Path to Thres Socket
-    pathToWarp(DP_WARPMOUNTAINTOICE);
-    
+	//Goto Thresh Socket.  He's at the entrance to Crystalline Passage (Area 113)
+	commPather.InitType = 0;
+	commPather.GotoWarp(DP_WARPMOUNTAINTOICE,false,false);
 	// Go Kill Thresh Socket
 	if (TXP_AttackThreshSocket()) {
 		DL_AddKill();

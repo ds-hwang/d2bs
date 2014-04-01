@@ -141,6 +141,18 @@ function njipCheckGoodItem(item_, mode_) {
 	var matched = -1;
 
 	if(item_) {
+		item_.__defineGetter__('itemclass',
+			function()
+			{
+				if(getBaseStat(0, this.classid, 'code') == getBaseStat(0, this.classid, 'ultracode'))
+					return 2;
+				if(getBaseStat(0, this.classid, 'code') == getBaseStat(0, this.classid, 'ubercode'))
+					return 1;
+				else
+					return 0;
+			}
+		);
+	
 		var stats = item_.getStat(-1);
 		for(var count_9=0; count_9<njipItems.length; count_9++) { // loop all item entries
 			rv = true;

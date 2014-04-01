@@ -35,9 +35,9 @@ var TEST_CheckListH = new Array();
  
 fillAssocArray(TEST_ChestListI, TEST_CheckListH);
 
-	/*(unit.type == d2_unit_object && ( unit.classid in TEST_CheckListH || (getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_SELECTABLE0)  
-		//&& !getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_ISDOOR)
-		&& getBaseStat(4, unit.classid, D2JSP_BASE_OBJECTS_MONSTEROK)) 
+	/*(unit.type == d2_unit_object && ( unit.classid in TEST_CheckListH || (getBaseStat(4, unit.classid, D2BS_BASE_OBJECTS_SELECTABLE0)  
+		//&& !getBaseStat(4, unit.classid, D2BS_BASE_OBJECTS_ISDOOR)
+		&& getBaseStat(4, unit.classid, D2BS_BASE_OBJECTS_MONSTEROK)) 
 		&& (unit.status!=128 || current_keys>0) ))) */
  
  
@@ -104,10 +104,7 @@ function YC_CheckForChests() {
 			if (!YC_IsValidChest(chest.classid)) { 
 				continue; 
 			}
-			//_chestfound = _chestfound || YC_CheckForChest(chest);
-            //Darien
-            _chestfound = YC_CheckForChest(chest);
-            break;
+			_chestfound = _chestfound || YC_CheckForChest(chest);
 		} while (chest && chest.getNext(null,0));
 	}
 	return _chestfound;
@@ -115,11 +112,10 @@ function YC_CheckForChests() {
 
 function YC_CheckForChest(chest) {
 	// If no chest object is entered, return false
-	if (!chest) { return false; }
+	if (!chest) return false;
 	if (chest.name.toLowerCase() == "dummy") return false;
-   	// is chest in range -- if not, skip it
-    var chestDist = getDistance(chest);
-	if (chestDist > YC_MaxDistance || checkCollision(me, chest, (1<<0 | 1<<3 | 1<<4 | 1<<11 | 1<<12))) { return false; }
+   	// is chest in range, and walkable -- if not, skip it
+	if (getDistance(me, chest) > YC_MaxDistance || checkCollision(me, chest, (1<<0 | 1<<3 | 1<<4 | 1<<11 | 1<<12))) { return false; }
 	// have we visited this chest before ?  if so, skip it
 	if (chest.mode) { return false; }
 	if (chest.islocked!=0 && me.classid!=6) {
@@ -130,12 +126,12 @@ function YC_CheckForChest(chest) {
 	}
 	var i = 0;
 	while ((me.mode == 3 || me.mode == 2) && i<20) { i++; delay(100); }
-    // Clear monsters before walking
-    dprint("Grabbing a Chest! hehehe", 9);
-    killRadius(chestDist+3); //Darien
 	// save start location
 	var _startx = me.x;
 	var _starty = me.y;
+    // Clear monsters before walking
+    dprint("Grabbing a Chest! hehehe", 9);
+    killRadius(chestDist+3); //Darien
 	var ret = DM_TouchObject(chest,true);
 	if (chest.mode == 2) {
 		var _DSN_SnagRange = DSN_SnagRange;

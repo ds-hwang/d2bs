@@ -61,8 +61,8 @@ function RadamentXP() {
     
     // go see Atma to finish quest
     YAM_MakeTP();
-    commPather.GotoNPC(D2JSP_NPC_ATMA,40);
-    clearNPC(DC_getNPC(D2JSP_NPC_ATMA));
+    commPather.GotoNPC(D2BS_NPC_ATMA,40);
+    clearNPC(DC_getNPC(D2BS_NPC_ATMA));
 }
 
 
