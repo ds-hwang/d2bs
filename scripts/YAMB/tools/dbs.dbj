@@ -41,32 +41,32 @@ function main() {
 	print("Dumping base stats...");
 
 	if(dumpBaseStats) {
-		dbs(0,	"items",		D2JSP_BASE_ITEMS_NAMES,			0, 2000);
-		dbs(1,	"monstats",		D2JSP_BASE_MONSTATS_NAMES,		0, 2000);
-		dbs(2,	"skilldesc",	D2JSP_BASE_SKILLDESC_NAMES,		0, 400);
-		dbs(3,	"skills",		D2JSP_BASE_SKILLS_NAMES,		0, 1000);
-		dbs(4,	"objects",		D2JSP_BASE_OBJECTS_NAMES,		0, 1000);
-		dbs(5,	"missiles",		D2JSP_BASE_MISSILES_NAMES,		0, 1000);
-		dbs(6,	"monstats2",	D2JSP_BASE_MONSTATS2_NAMES,		0, 1000);
-		dbs(7,	"itemstatcost",	D2JSP_BASE_ITEMSTATCOST_NAMES,	0, 359);
-		dbs(8,	"levels",		D2JSP_BASE_LEVELS_NAMES,		1, 137);
-		dbs(9,	"leveldefs",	D2JSP_BASE_LEVELDEFS_NAMES,		1, 137);
-		dbs(10,	"lvlmaze",		D2JSP_BASE_LVLMAZE_NAMES,		0, 133);
-		dbs(11,	"lvlsub",		D2JSP_BASE_LVLSUB_NAMES,		0, 34);
-		dbs(12,	"lvlwarp",		D2JSP_BASE_LVLWARP_NAMES,		0, 71);
-		dbs(13,	"lvlprest",		D2JSP_BASE_LVLPREST_NAMES,		0, 1091);
-		dbs(14,	"lvltypes",		D2JSP_BASE_LVLTYPES_NAMES,		0, 36);
-		dbs(15,	"charstats",	D2JSP_BASE_CHARSTATS_NAMES,		0, 7);
-		dbs(16,	"setitems",		D2JSP_BASE_SETITEMS_NAMES,		0, 300);
-		dbs(17,	"uniqueitems",	D2JSP_BASE_UNIQUEITEMS_NAMES,	0, 900);
-		dbs(18,	"sets",			D2JSP_BASE_SETS_NAMES,			0, 300);
-		dbs(19,	"itemtypes",	D2JSP_BASE_ITEMTYPES_NAMES,		0, 1000);
-		dbs(20,	"runes",		D2JSP_BASE_RUNES_NAMES,			0, 2000);
-		dbs(21,	"cubemain",		D2JSP_BASE_CUBEMAIN_NAMES,		0, 2000);
-		dbs(22,	"gems",			D2JSP_BASE_GEMS_NAMES,			0, 1000);
-		dbs(23,	"experience",	D2JSP_BASE_EXPERIENCE_NAMES,	0, getBaseStat(23,0,0)+2 );
-		dbs(24,	"pettype",		D2JSP_BASE_PETTYPE_NAMES,		0, 200 );
-		dbs(25,	"superuniques",	D2JSP_BASE_SUPERUNIQUES_NAMES,	0, 200 );
+		dbs(0,	"items",		D2BS_BASE_ITEMS_NAMES,			0, 2000);
+		dbs(1,	"monstats",		D2BS_BASE_MONSTATS_NAMES,		0, 2000);
+		dbs(2,	"skilldesc",	D2BS_BASE_SKILLDESC_NAMES,		0, 400);
+		dbs(3,	"skills",		D2BS_BASE_SKILLS_NAMES,			0, 1000);
+		dbs(4,	"objects",		D2BS_BASE_OBJECTS_NAMES,		0, 1000);
+		dbs(5,	"missiles",		D2BS_BASE_MISSILES_NAMES,		0, 1000);
+		dbs(6,	"monstats2",	D2BS_BASE_MONSTATS2_NAMES,		0, 1000);
+		dbs(7,	"itemstatcost",	D2BS_BASE_ITEMSTATCOST_NAMES,	0, 359);
+		dbs(8,	"levels",		D2BS_BASE_LEVELS_NAMES,			1, 137);
+		dbs(9,	"leveldefs",	D2BS_BASE_LEVELDEFS_NAMES,		1, 137);
+		dbs(10,	"lvlmaze",		D2BS_BASE_LVLMAZE_NAMES,		0, 137);
+		dbs(11,	"lvlsub",		D2BS_BASE_LVLSUB_NAMES,			0, 34);
+		dbs(12,	"lvlwarp",		D2BS_BASE_LVLWARP_NAMES,		0, 71);
+		dbs(13,	"lvlprest",		D2BS_BASE_LVLPREST_NAMES,		0, 1091);
+		dbs(14,	"lvltypes",		D2BS_BASE_LVLTYPES_NAMES,		0, 36);
+		dbs(15,	"charstats",	D2BS_BASE_CHARSTATS_NAMES,		0, 7);
+		dbs(16,	"setitems",		D2BS_BASE_SETITEMS_NAMES,		0, 300);
+		dbs(17,	"uniqueitems",	D2BS_BASE_UNIQUEITEMS_NAMES,	0, 900);
+		dbs(18,	"sets",			D2BS_BASE_SETS_NAMES,			0, 300);
+		dbs(19,	"itemtypes",	D2BS_BASE_ITEMTYPES_NAMES,		0, 1000);
+		dbs(20,	"runes",		D2BS_BASE_RUNES_NAMES,			0, 2000);
+		dbs(21,	"cubemain",		D2BS_BASE_CUBEMAIN_NAMES,		0, 2000);
+		dbs(22,	"gems",			D2BS_BASE_GEMS_NAMES,			0, 1000);
+		dbs(23,	"experience",	D2BS_BASE_EXPERIENCE_NAMES,		0, getBaseStat(23,0,0)+2 );
+		dbs(24,	"pettype",		D2BS_BASE_PETTYPE_NAMES,		0, 200 );
+		dbs(25,	"superuniques",	D2BS_BASE_SUPERUNIQUES_NAMES,	0, 200 );
 	}
 	
 	if(dumpRunewords) 
@@ -97,7 +97,7 @@ function buildRunewords() {
 				for(var j=13;j<19;j++) {
 					statval = getBaseStat( 20, i, j );
 					if(statval!=-1) 
-						runes += (runes=="" ? "" : ", ") + String(getLocaleString( getBaseStat( 0, statval, D2JSP_BASE_ITEMS_NAMESTR ) ) ).replace(/\xff+(c.)/g, "");
+						runes += (runes=="" ? "" : ", ") + String(getLocaleString( getBaseStat( 0, statval, D2BS_BASE_ITEMS_NAMESTR ) ) ).replace(/\xff+(c.)/g, "");
 				}
 				line += runes;
 			}
@@ -109,8 +109,26 @@ function buildRunewords() {
 	print("Runeword build complete.");
 }
 
-var qualities =["","Low Quality","Normal","Superior","Magic","Set","Rare","Unique","Crafted","Tempered"];
-var itypes    =["Normal","Exceptional","Elite","3","4","5","Fully Repaired and Recharged"];
+var qualities =[];
+qualities[0]="Quality 0";
+qualities[1]="Low Quality";
+qualities[2]="Normal";
+qualities[3]="Superior";
+qualities[4]="Magic";
+qualities[5]="Set";
+qualities[6]="Rare";
+qualities[7]="Unique";
+qualities[8]="Crafted";
+qualities[9]="Tempered"; 
+
+var itypes =[];
+itypes[0]="Normal";
+itypes[1]="Exceptional";
+itypes[2]="Elite";
+itypes[3]="3";
+itypes[4]="4";
+itypes[5]="5";
+itypes[6]="Fully Repaired and Recharged";
 
 var outputTypes=[];
 outputTypes[1]="Portal to MooMoo Farm";
@@ -133,31 +151,31 @@ function buildCubeRecipes() {
 				line = "Recipe #" + (i < 100 ? (i < 10 ? "  ": " ") : "") + i + " : " + (statval==0 ? "[D]" : "[E]") + "\t";
 				line += "Total Items: " + getBaseStat( 21, i, 7 ) + "\t";
 				
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_2_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_3_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_4_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_5_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_6_ITEM_CODE_FLAG );
-				line += buildCubeComponent( i, D2JSP_BASE_CUBEMAIN_INPUT_ITEM_7_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_2_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_3_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_4_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_5_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_6_ITEM_CODE_FLAG );
+				line += buildCubeComponent( i, D2BS_BASE_CUBEMAIN_INPUT_ITEM_7_ITEM_CODE_FLAG );
 				
-				var oflag  = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS);
-				var oqual  = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_QUALITY);
-				var oitype = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_TYPE);
-				var oitem  = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM);
-				var otype  = getBaseStat(21, i, D2JSP_BASE_CUBEMAIN_OUTPUT_TYPE);
+				var oflag  = getBaseStat(21, i, D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS);
+				var oqual  = getBaseStat(21, i, D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_QUALITY);
+				var oitype = getBaseStat(21, i, D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_TYPE);
+				var oitem  = getBaseStat(21, i, D2BS_BASE_CUBEMAIN_OUTPUT_ITEM);
+				var otype  = getBaseStat(21, i, D2BS_BASE_CUBEMAIN_OUTPUT_TYPE);
 				
-				line += " = " + (oqual!=0 ? qualities[oqual] + " " : "");
 				//print("oqual = " + oqual);//testing
+				line += " = " + (oqual!=0 ? qualities[oqual] + " " : "");
 				
 				if(oitype!=0){
-					line += itypes[oitype] + " ";
 					//print("oitype = " + oitype);//testing
+					line += itypes[oitype] + " ";
 				}
 				
 				if(otype==252) {
-					//print("252 " + String( getLocaleString( getBaseStat(0, oitem, D2JSP_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, ""));//testing
-					line += String( getLocaleString( getBaseStat(0, oitem, D2JSP_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
+					//print("252 " + String( getLocaleString( getBaseStat(0, oitem, D2BS_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, ""));//testing
+					line += String( getLocaleString( getBaseStat(0, oitem, D2BS_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
 				} 
 				else {
 					//print("otype = " + otype);//testing
@@ -165,15 +183,15 @@ function buildCubeRecipes() {
 				}
 //				line += "," + oitype + "," + oflag;
 /*
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS = 100;
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_ID = 103;
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_QUANTITY = 105;
-var D2JSP_BASE_CUBEMAIN_LVL = 107;
-var D2JSP_BASE_CUBEMAIN_PLVL = 108;
-var D2JSP_BASE_CUBEMAIN_ILVL = 109;
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_PREFIX_ID = 110;
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_UNKNOWN = 111;
-var D2JSP_BASE_CUBEMAIN_OUTPUT_ITEM_SUFFIX_ID = 112;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_FLAGS = 100;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_ID = 103;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_QUANTITY = 105;
+var D2BS_BASE_CUBEMAIN_LVL = 107;
+var D2BS_BASE_CUBEMAIN_PLVL = 108;
+var D2BS_BASE_CUBEMAIN_ILVL = 109;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_PREFIX_ID = 110;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_UNKNOWN = 111;
+var D2BS_BASE_CUBEMAIN_OUTPUT_ITEM_SUFFIX_ID = 112;
 */
 			}
 			if(line!="") 
@@ -194,7 +212,7 @@ function buildCubeComponent( _i, _flag ) {
 	var retStr  = "";
 	if(icode!=0) {
 		//print("base call = getBaseStat(21, " + _i + ", " + _flag + ") " + "icode = " + getBaseStat( 21, _i, _flag+9  ) + " iquant = " + getBaseStat( 21, _i, _flag+12  ) + " iqual = " + getBaseStat( 21, _i, _flag+11  ) + " itype = " + getBaseStat( 21, _i, _flag+8  ) + " useCode = " + getBaseStat( 21, _i, _flag    ));//testing
-		if(D2JSP_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG!=_flag) 
+		if(D2BS_BASE_CUBEMAIN_INPUT_ITEM_1_ITEM_CODE_FLAG!=_flag) 
 			retStr = " + ";
 		if(itype!=0) 
 			retStr += itypes[itype] + " ";
@@ -208,7 +226,7 @@ function buildCubeComponent( _i, _flag ) {
 				retStr += "Any";
 			} 
 			else {
-				retStr += String( getLocaleString( getBaseStat(0, icode, D2JSP_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
+				retStr += String( getLocaleString( getBaseStat(0, icode, D2BS_BASE_ITEMS_NAMESTR) ) ).replace(/\xff+(c.)/g, "");
 			}
 		}
 		if(iquant!=0)
@@ -242,7 +260,6 @@ function dbs( bstat, txt, arr, min, max ) {
 				file.write(line);
 				file.write("\n");
 			}
-			//file.flush();
 		}
 		file.close();
 	}

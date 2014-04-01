@@ -2,6 +2,7 @@
 	Script: eventHandlerTest.dbj
 	Author: TechnoHunter
 	Edited by: lord2800
+	list below is oldstyle events from d2jsp, not all have been transfered to d2bs!
 	var events = ["chatmsg", "gamemsg", "hostilemsg", "partymsg", "scriptmsg", "keydown", "keyup", "melife",
 				  "chatcmd", "mousemove", "mousedown", "mouseup", "copydata", "areachange", "inputline", "itemstat",
 				  "missilemove", "missilestate", "newitem", "newnpc", "npclife", "npcmove", "npcstat", "npcstate",
@@ -12,9 +13,23 @@
 
 function main() {
 	print("Event Tester Running!");
-//	var events = ["copydata","chatmsg","scriptmsg","gamemsg"];
-	var events = ["melife", "memana", "keyup", "keydown", "playerassign", "mouseclick", "mousemove", "scriptmsg", 
-					"golddrop", "chatmsg", "whispermsg", "copydata", "gamemsg", "itemaction"];
+	var events = [	
+					//"melife", 
+					//"memana", 
+					//"keyup", 
+					//"keydown", 
+					//"playerassign", 
+					//"mouseclick", 
+					//"mousemove", 
+					"scriptmsg", 
+					//"golddrop", 
+					//"chatmsg", 
+					//"whispermsg", 
+					//"copydata", 
+					//"gamemsg", //missing from core - TechnoHunter
+					//"itemaction", 
+					"gameevent"
+					];
 
 	for each(var event in events)
 		addEventListener(event, handlerGenerator(event));

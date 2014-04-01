@@ -128,7 +128,8 @@ function ImproveFName(checkString) {
 
 /*
 function statidToName(id, value) { 
-	return getLocaleString(getBaseStat(7, id, (value >= 0 ? "descstrpos" : "descstrneg"))); } 
+	return getLocaleString(getBaseStat(7, id, (value >= 0 ? "descstrpos" : "descstrneg"))); 
+} 
 	
 	for each(var item in me.getItems()) 
 	for(var i = 0; i < 358; i++) 
@@ -177,7 +178,7 @@ function traverse_items() {
 /**
  * @function
  * @desc Dumps a complete statlist for the item currently hovered over, to both screen and file
- * @param none
+ * @param {Bool} dumpType = true is getStat(-2), false = getStat(-1)
  * @returns none
  */
 function dumpItemStats(dumpType){
