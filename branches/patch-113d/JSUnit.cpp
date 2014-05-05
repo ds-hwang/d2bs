@@ -118,8 +118,8 @@ JSAPI_PROP(unit_getProperty)
 			*vp = *p_D2CLIENT_AutomapOn ? JSVAL_TRUE : JSVAL_FALSE;
 			break;
 		case ME_LADDER:
-			if(pData)														//8 = char created for ladder but expired to non-ladder
-				*vp = BOOLEAN_TO_JSVAL((!!(pData->nCharFlags & PLAYER_TYPE_LADDER) && !(pData->nCharFlags & 8)));
+			if(pData)
+				*vp = BOOLEAN_TO_JSVAL(!!(pData->ladderflag & (LADDERFLAG_SET|LADDERFLAG_EXPANSION_NORMAL)));
 			break;
 		case ME_QUITONHOSTILE:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnHostile);
