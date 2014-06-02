@@ -119,7 +119,8 @@ JSAPI_PROP(unit_getProperty)
 			break;
 		case ME_LADDER:
 			if(pData)
-				*vp = BOOLEAN_TO_JSVAL(!!(pData->ladderflag & (LADDERFLAG_SET|LADDERFLAG_EXPANSION_NORMAL)));
+				//*vp = BOOLEAN_TO_JSVAL(!!(pData->ladderflag & (LADDERFLAG_SET|LADDERFLAG_EXPANSION_NORMAL)));
+				JS_NewNumberValue(cx, (jsdouble)pData->ladderflag, vp);
 			break;
 		case ME_QUITONHOSTILE:
 			*vp = BOOLEAN_TO_JSVAL(Vars.bQuitOnHostile);
